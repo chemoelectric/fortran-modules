@@ -312,69 +312,39 @@ contains
   end function list_length
 
   function is_circular_list (obj) result (is_circular)
-    !
-    ! FIXME: Write a non-recursive implementation.
-    !
     class(*), intent(in) :: obj
     logical :: is_circular
 
-    type(cons_t) :: x
+    class(*), allocatable :: obj1, obj2
+    logical :: done
 
-    select type (obj)
-    class is (cons_t)
-       x = obj
-       is_circular = loop (x, x)
-    class default
-       is_circular = .false.
-    end select
-
-  contains
-
-    recursive function loop (obj1, obj2) result (is_circular)
-      type(cons_t), value :: obj1, obj2
-      logical :: is_circular
-
-      class(*), allocatable :: x1, x2, x3
-      type(cons_t) :: y1, y2
-
-      if (list_is_pair (obj1)) then
-         x1 = cdr (obj1)
-         select type (xx1 => x1)
-         class is (cons_t)
-            y1 = xx1
-            deallocate (x1)
-            if (list_is_pair (y1)) then
-               x3 = cdr (y1)
-               x2 = cdr (obj2)
-               select type (xx3 => x3)
-               class is (cons_t)
-                  y1 = xx3
-                  deallocate (x3)
-                  select type (xx2 => x2)
-                  class is (cons_t)
-                     y2 = xx2
-                     deallocate (x2)
-                     if (cons_t_eq (y1, y2)) then
-                        is_circular = .true.
-                     else
-                        ! This is a tail call but the compiler
-                        ! probably will have difficulty optimizing it,
-                        ! despite my precautions.
-                        is_circular = loop (y1, y2)
-                     end if
-                  end select
-               end select
-            else
-               is_circular = .false.
-            end if
-         class default
-            is_circular = .false.
-         end select
-      else
-         is_circular = .false.
-      end if
-    end function loop
-
+    is_circular = .false.
+    obj1 = obj
+    obj2 = obj
+    done = .false.
+    do while (.not. done)
+       if (.not. is_cons_pair (obj1)) then
+          done = .true.
+       else
+          obj1 = cdr (obj1)
+          if (.not. is_cons_pair (obj1)) then
+             done = .true.
+          else
+             obj1 = cdr (obj1)
+             obj2 = cdr (obj2)
+             select type (obj1)
+             class is (cons_t)
+                select type (obj2)
+                class is (cons_t)
+                   if (cons_t_eq (obj1, obj2)) then
+                      is_circular = .true.
+                      done = .true.
+                   end if
+                end select
+             end select
+          end if
+       end if
+    end do
   end function is_circular_list
 
   function car (pair) result (element)
