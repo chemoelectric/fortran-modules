@@ -160,6 +160,7 @@ contains
   subroutine error_abort (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
+    write (error_unit, '()')
     write (error_unit, '("cons_lists error: ", a)') msg
     call abort
   end subroutine error_abort

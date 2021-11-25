@@ -42,6 +42,7 @@ contains
   subroutine error_abort (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
+    write (error_unit, '()')
     write (error_unit, '("test__cons_lists error: ", a)') msg
     CALL_ABORT
   end subroutine error_abort
