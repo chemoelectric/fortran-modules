@@ -34,7 +34,17 @@ FCCOMPILE = $(FC) $(FCFLAGS) $(XFCFLAGS)
 
 .PHONY: all default
 default: all
-all : test__cons_lists
+all: modules tests
+
+.PHONY: modules
+modules: cons_lists.$(OBJEXT)
+
+.PHONY: tests
+tests: test__cons_lists
+
+.PHONY: check
+check: tests
+	./test__cons_lists
 
 test__cons_lists: test__cons_lists.$(OBJEXT) cons_lists.$(OBJEXT)
 	$(FCCOMPILE) $(^) -o $(@)
