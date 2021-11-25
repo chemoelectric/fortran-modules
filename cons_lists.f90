@@ -312,45 +312,68 @@ contains
   end function list_length
 
   function is_circular_list (obj) result (is_circular)
+    !
+    ! FIXME: Write a non-recursive implementation.
+    !
     class(*), intent(in) :: obj
     logical :: is_circular
 
-    class(*), allocatable :: x
+    type(cons_t) :: x
 
-    x = obj
-    is_circular = recursion (x, x)
+    select type (obj)
+    class is (cons_t)
+       x = obj
+       is_circular = loop (x, x)
+    class default
+       is_circular = .false.
+    end select
 
   contains
 
-    recursive function recursion (obj1, obj2) result (is_circular)
-      class(*), allocatable :: obj1, obj2
+    recursive function loop (obj1, obj2) result (is_circular)
+      type(cons_t), value :: obj1, obj2
       logical :: is_circular
 
-      class(*), allocatable :: x1, x2
-      class(cons_t), allocatable :: y1, y2
+      class(*), allocatable :: x1, x2, x3
+      type(cons_t) :: y1, y2
 
-      is_circular = .false.
-      if (is_cons_pair (obj1)) then
+      if (list_is_pair (obj1)) then
          x1 = cdr (obj1)
-         if (is_cons_pair (x1)) then
-            x1 = cdr (x1)
-            y1 = x1
-            x2 = cdr (obj2)
-            y2 = x2
-            select type (y1)
-            class is (cons_t)
-               select type (y2)
+         select type (xx1 => x1)
+         class is (cons_t)
+            y1 = xx1
+            deallocate (x1)
+            if (list_is_pair (y1)) then
+               x3 = cdr (y1)
+               x2 = cdr (obj2)
+               select type (xx3 => x3)
                class is (cons_t)
-                  if (cons_t_eq (y1, y2)) then
-                     is_circular = .true.
-                  else if (recursion (x1, x2)) then
-                     is_circular = .true.
-                  end if
+                  y1 = xx3
+                  deallocate (x3)
+                  select type (xx2 => x2)
+                  class is (cons_t)
+                     y2 = xx2
+                     deallocate (x2)
+                     if (cons_t_eq (y1, y2)) then
+                        is_circular = .true.
+                     else
+                        ! This is a tail call but the compiler
+                        ! probably will have difficulty optimizing it,
+                        ! despite my precautions.
+                        is_circular = loop (y1, y2)
+                     end if
+                  end select
                end select
-            end select
-         end if
+            else
+               is_circular = .false.
+            end if
+         class default
+            is_circular = .false.
+         end select
+      else
+         is_circular = .false.
       end if
-    end function recursion
+    end function loop
 
   end function is_circular_list
 
