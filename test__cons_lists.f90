@@ -362,6 +362,24 @@ contains
     call check (cdr (lst4) .eqi. 2, "cdr (lst4) .eqi. 2 failed (for list_copy)")
   end subroutine test_list_copy
 
+  subroutine test_list_take
+    type(cons_t) :: lst1, lst2, lst3
+    integer :: i
+    lst1 = iota (15, 1)
+    call check (is_nil_list (list_take (nil_list, 0)), "is_nil_list (list_take (nil_list, 0)) failed")
+    call check (is_nil_list (list_take (lst1, 0)), "is_nil_list (list_take (lst1, 0)) failed")
+    lst2 = list_take (lst1, 10)
+    call check (list_length (lst2) == 10, "list_length (lst2) == 10 failed (for list_take)")
+    do i = 1, 10
+       call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i failed (for list_take)")
+    end do
+    lst3 = list_take (lst1, 15)
+    call check (list_length (lst3) == 15, "list_length (lst3) == 15 failed (for list_take)")
+    do i = 1, 15
+       call check (list_ref1 (lst3, i) .eqi. i, "list_ref1 (lst3, i) .eqi. i failed (for list_take)")
+    end do
+  end subroutine test_list_take
+
   subroutine run_tests
     call test_is_nil_list
     call test_is_cons_pair
@@ -389,6 +407,7 @@ contains
     call test_list_reverse
     call test_list_reverse_in_place
     call test_list_copy
+    call test_list_take
   end subroutine run_tests
 
 end module test__cons_lists

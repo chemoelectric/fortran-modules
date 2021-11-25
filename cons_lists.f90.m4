@@ -110,6 +110,7 @@ m4_forloop([n],[1],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: list_reverse          ! Make a reversed copy.
   public :: list_reverse_in_place ! Reverse a list without copying.
   public :: list_copy             ! Make a copy in the original order.
+  public :: list_take             ! Copy the first n elements.
 
   ! Overloading of `iota'.
   interface iota
@@ -746,5 +747,46 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
        call error_abort ("list_copy of a non-list")
     end select
   end function list_copy
+
+  function list_take (lst, n) result (lst_t)
+    !
+    ! This is a list copy with a counter.
+    !
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t) :: lst_t
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+    integer :: i
+
+    select type (lst)
+    class is (cons_t)
+       if (n <= 0 .or. list_is_nil (lst)) then
+          lst_t = nil_list
+       else
+          call uncons (lst, head, tail)
+          lst_t = cons (head, tail)
+          cursor = lst_t
+          i = n - 1
+          do while (0 < i .and. is_cons_pair (tail))
+             call uncons (tail, head, tail)
+             new_pair = cons (head, tail)
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             i = i - 1
+          end do
+          if (i == 0) then
+             call set_cdr (cursor, nil_list)
+          else
+             call error_abort ("list_take of a list that is too short")
+          end if
+       end if
+    class default
+       call error_abort ("list_take of a non-list")
+    end select
+  end function list_take
 
 end module cons_lists
