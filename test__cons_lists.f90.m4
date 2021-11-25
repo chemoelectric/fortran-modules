@@ -363,7 +363,7 @@ contains
   end subroutine test_list_copy
 
   subroutine test_list_take
-    type(cons_t) :: lst1, lst2, lst3
+    type(cons_t) :: lst1, lst2, lst3, lst4
     integer :: i
     lst1 = iota (15, 1)
     call check (is_nil_list (list_take (nil_list, 0)), "is_nil_list (list_take (nil_list, 0)) failed")
@@ -377,6 +377,11 @@ contains
     call check (list_length (lst3) == 15, "list_length (lst3) == 15 failed (for list_take)")
     do i = 1, 15
        call check (list_ref1 (lst3, i) .eqi. i, "list_ref1 (lst3, i) .eqi. i failed (for list_take)")
+    end do
+    lst4 = list_take (circular_list (iota (4)), 100)
+    call check (list_length (lst4) == 100, "list_length (lst4) == 100 failed (for list_take)")
+    do i = 0, 99
+       call check (list_ref0 (lst4, i) .eqi. mod (i, 4), "list_ref0 (lst4, i) .eqi. mod (i, 4) failed (for list_take)")
     end do
   end subroutine test_list_take
 
