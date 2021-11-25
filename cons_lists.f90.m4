@@ -65,6 +65,7 @@ module cons_lists
   public :: assume_list         ! Assume an object is a cons_t.
 
   public :: list_length         ! The length of a *proper* CONS-list.
+  public :: list_is_circular    ! Is a list circular?
 
   ! Permutations of car and cdr, for returning elements of a tree.
 m4_forloop([n],[1],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
@@ -190,8 +191,8 @@ contains
   end function cons
 
   subroutine uncons (pair, car_value, cdr_value)
-    class(*), intent(in) :: pair
-    class(*), allocatable, intent(out) :: car_value, cdr_value
+    class(*) :: pair
+    class(*), allocatable :: car_value, cdr_value
 
     class(*), allocatable :: car_val, cdr_val
 
@@ -274,6 +275,29 @@ contains
        call error_abort ("list_length of a non-list")
     end select
   end function list_length
+
+  function list_is_circular (lst) result (is_circular)
+    class(*), intent(in) :: lst
+    logical :: is_circular
+
+!    class(cons_t), allocatable :: tail
+
+    call error_abort ("list_is_circular is not yet implemented")
+    select type (lst)
+    class is (cons_t)
+!       length = 0
+!       tail = lst
+!       do while (is_cons_pair (tail))
+!          length = length + 1
+!          tail = cdr (tail)
+!       end do
+!       if (.not. is_nil_list (tail)) then
+!          call error_abort ("list_length of a dotted list")
+!       end if
+    class default
+       call error_abort ("list_is_circular of a non-list")
+    end select
+  end function list_is_circular
 
   function car (pair) result (element)
     class(*), intent(in) :: pair
@@ -558,7 +582,6 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
-    class(*), allocatable :: new_tail
     type(cons_t) :: cursor
     type(cons_t) :: new_pair
     
@@ -571,11 +594,10 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
           lst_c = cons (head, tail)
           cursor = lst_c
           do while (is_cons_pair (tail))
-             call uncons (tail, head, new_tail)
-             new_pair = cons (head, new_tail)
+             call uncons (tail, head, tail)
+             new_pair = cons (head, tail)
              call set_cdr (cursor, new_pair)
              cursor = new_pair
-             tail = new_tail
           end do
        end if
     class default
