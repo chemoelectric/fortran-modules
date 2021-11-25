@@ -206,7 +206,6 @@ contains
     integer :: i
     lst = iota (15, 1)
     call check (list_last (lst) .eqi. 15, "list_last (lst) .eqi. 15 failed")
-    call check (list_last (cons (10, 20)) .eqi. 10, "list_last (cons (10, 20)) .eqi. 10 failed")
   end subroutine test_list_last
 
   subroutine test_list_last_pair

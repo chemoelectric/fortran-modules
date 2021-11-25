@@ -108,7 +108,7 @@ module cons_lists
   public :: list_ref1       ! Return the ith element, starting at i=1.
   public :: list_refn       ! Return the ith element, starting at i=n.
 
-  public :: list_last ! Return the last CAR of a (possibly dotted) list.
+  public :: list_last      ! Return the last element of a proper list.
   public :: list_last_pair ! Return the last CONS-pair of a (possibly dotted) list.
 
   public :: make_list ! Make a list that is one element value repeated.
@@ -592,7 +592,17 @@ contains
   function list_last (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (list_last_pair (lst))
+
+    type(cons_t) :: last_pair
+    class(*), allocatable :: x, y
+
+    last_pair = list_last_pair (lst)
+    call uncons (last_pair, x, y)
+    if (is_nil_list (y)) then
+       element = x
+    else
+       call error_abort ("list_last of dotted list")
+    end if
   end function list_last
 
   function list_last_pair (lst) result (last_pair)
