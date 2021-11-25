@@ -1,0 +1,12 @@
+Fortran modules for general programming
+---------------------------------------
+
+cons_lists.f90     -- Lisp-style CONS-pairs for Fortran
+                      (Expat license)
+
+
+References
+----------
+
+* Expat license,
+  https://en.wikipedia.org/w/index.php?title=MIT_License&oldid=1056699638
