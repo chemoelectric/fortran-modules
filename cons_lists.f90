@@ -49,7 +49,7 @@ module cons_lists
   public :: uncons          ! The fundamental CONS-pair deconstructor.
 
   ! Notation: `elem1 ** elem2 ** elem3 ** nil_list'
-  public :: operator(**)
+  public :: operator(**)     ! An infix notation for `list_cons'.
   public :: list_cons        ! CONS assuming the right side is a list.
 
   public :: set_car             ! Change the CAR of a CONS-pair.
