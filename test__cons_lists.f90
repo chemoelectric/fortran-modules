@@ -131,6 +131,31 @@ contains
     call check (cadr (lst2) .eqr. 3.0, "cadr (lst2) .eqr. 3.0 failed (for operator(**))")
   end subroutine test_list_cons
 
+  subroutine test_set_car_and_set_cdr
+    type(cons_t) :: pair
+    pair = cons (1.0, 2)
+    call set_car (pair, 1)
+    call set_cdr (pair, 2.0)
+    call check (car (pair) .eqi. 1, "car (pair) .eqi. 1 failed (for set_car)")
+    call check (cdr (pair) .eqr. 2.0, "cdr (pair) .eqr. 2.0 failed (for set_cdr)")
+  end subroutine test_set_car_and_set_cdr
+
+  subroutine test_list_length
+    call check (list_length (nil_list) == 0, "list_length (nil_list) == 0 failed")
+    call check (list_length (1 ** nil_list) == 1, "list_length (1 ** nil_list) == 1 failed")
+    call check (list_length (iota (20)) == 20, "list_length (iota (20)) == 20 failed")
+    call check (list_length (make_list (200, 'a')) == 200, "list_length (make_list (200, 'a')) == 200 failed")
+  end subroutine test_list_length
+
+  subroutine test_car_cadr_caddr_cadddr
+    type(cons_t) :: lst
+    lst = iota (15, 1)
+    call check (car (lst) .eqi. 1, "car (lst) .eqi. 1 failed")
+    call check (cadr (lst) .eqi. 2, "cadr (lst) .eqi. 2 failed")
+    call check (caddr (lst) .eqi. 3, "caddr (lst) .eqi. 3 failed")
+    call check (cadddr (lst) .eqi. 4, "cadddr (lst) .eqi. 4 failed")
+  end subroutine test_car_cadr_caddr_cadddr
+
   subroutine test_first_second_etc
     type(cons_t) :: lst
     lst = iota (15, 1)
@@ -146,14 +171,136 @@ contains
     call check (tenth (lst) .eqi. 10, "tenth (lst) .eqi. 10 failed")
   end subroutine test_first_second_etc
 
-  subroutine test_car_cadr_caddr_cadddr
+  subroutine test_list_ref0
     type(cons_t) :: lst
+    integer :: i
     lst = iota (15, 1)
-    call check (car (lst) .eqi. 1, "car (lst) .eqi. 1 failed")
-    call check (cadr (lst) .eqi. 2, "cadr (lst) .eqi. 2 failed")
-    call check (caddr (lst) .eqi. 3, "caddr (lst) .eqi. 3 failed")
-    call check (cadddr (lst) .eqi. 4, "cadddr (lst) .eqi. 4 failed")
-  end subroutine test_car_cadr_caddr_cadddr
+    do i = 0, 14
+       call check (list_ref0 (lst, i) .eqi. (i + 1), "list_ref0 (lst, i) .eqi. (i + 1) failed")
+    end do
+  end subroutine test_list_ref0
+
+  subroutine test_list_ref1
+    type(cons_t) :: lst
+    integer :: i
+    lst = iota (15, 1)
+    do i = 1, 15
+       call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i failed")
+    end do
+  end subroutine test_list_ref1
+
+  subroutine test_list_refn
+    type(cons_t) :: lst
+    integer :: i
+    lst = iota (15, 1)
+    do i = 2, 16
+       call check (list_refn (lst, i, 2) .eqi. (i - 1), "list_refn (lst, i, 2) .eqi. (i - 1) failed")
+    end do
+    do i = -1, 13
+       call check (list_refn (lst, i, -1) .eqi. (i + 2), "list_refn (lst, i, -1) .eqi. (i + 2) failed")
+    end do
+  end subroutine test_list_refn
+
+  subroutine test_list_last
+    type(cons_t) :: lst
+    integer :: i
+    lst = iota (15, 1)
+    call check (list_last (lst) .eqi. 15, "list_last (lst) .eqi. 15 failed")
+    call check (list_last (cons (10, 20)) .eqi. 10, "list_last (cons (10, 20)) .eqi. 10 failed")
+  end subroutine test_list_last
+
+  subroutine test_list_last_pair
+    type(cons_t) :: lst
+    integer :: i
+    lst = iota (15, 1)
+    call check (car (list_last_pair (lst)) .eqi. 15, "car (list_last_pair (lst)) .eqi. 15 failed")
+    call check (is_nil_list (cdr (list_last_pair (lst))), "is_nil_list (cdr (list_last_pair (lst))) failed")
+  end subroutine test_list_last_pair
+
+  subroutine test_make_list
+    type(cons_t) :: lst
+    integer :: i
+    call check (is_nil_list (make_list (0, 'abc')), "is_nil_list (make_list (0, 'abc')) failed")
+    lst = make_list (30, 5.0)
+    call check (list_length (lst) == 30, "list_length (lst) == 30 failed (for make_list)")
+    do i = 1, 30
+       call check (list_ref1 (lst, i) .eqr. 5.0, "list_ref1 (lst, i) .eqr. 5.0 failed (for make_list)")
+    end do
+  end subroutine test_make_list
+
+  subroutine test_iota
+    type(cons_t) :: lst
+    integer :: i
+    lst = iota (100)
+    do i = 0, 99
+       call check (list_ref0 (lst, i) .eqi. i, "list_ref0 (lst, i) .eqi. i failed (for iota (100))")
+    end do
+    lst = iota (100, 1)
+    do i = 1, 100
+       call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i failed (for iota (100, 1))")
+    end do
+    lst = iota (100, 0, 20)
+    do i = 0, 99
+       call check (list_ref0 (lst, i) .eqi. (20 * i), "list_ref0 (lst, i) .eqi. (20 * i) failed (for iota (100, 0, 20))")
+    end do
+  end subroutine test_iota
+
+  subroutine test_circular_list
+    type(cons_t) :: lst
+    integer :: i
+    lst = circular_list (0 ** 1 ** 2 ** 3 ** nil_list)
+    do i = 0, 99
+       call check (list_ref0 (lst, i) .eqi. mod (i, 4), "list_ref0 (lst, i) .eqi. mod (i, 4) failed")
+    end do
+    !
+    ! Now break the circle.
+    call set_cdr (assume_list (cdddr (lst)), nil_list)
+    call check (list_length (lst) == 4, "list_length (lst) == 4 failed (for circular_list)")
+    do i = 0, 3
+       call check (list_ref0 (lst, i) .eqi. i, "list_ref0 (lst, i) .eqi. i failed (for circular_list)")
+    end do
+  end subroutine test_circular_list
+
+  subroutine test_list_reverse
+    type(cons_t) :: lst1, lst2
+    integer :: i
+    lst1 = iota (15, 1)
+    lst2 = list_reverse (lst1)
+    call set_car (lst1, nil_list)
+    call set_cdr (lst1, nil_list)
+    call check (list_length (lst1) == 1, "list_length (lst1) == 1 failed (for list_reverse)")
+    call check (is_nil_list (car (lst1)), "is_nil_list (car (lst1)) failed (for list_reverse)")
+    call check (list_length (lst2) == 15, "list_length (lst2) == 15 failed (for list_reverse)")
+    do i = 1, 15
+       call check (list_ref1 (lst2, i) .eqi. (16 - i), "list_ref1 (lst2, i) .eqi. (16 - i) failed (for list_reverse)")
+    end do
+  end subroutine test_list_reverse
+
+  subroutine test_list_reverse_in_place
+    type(cons_t) :: lst
+    integer :: i
+    lst = iota (15, 1)
+    call list_reverse_in_place (lst)
+    call check (list_length (lst) == 15, "list_length (lst) == 15 failed (for list_reverse_in_place)")
+    do i = 1, 15
+       call check (list_ref1 (lst, i) .eqi. (16 - i), "list_ref1 (lst, i) .eqi. (16 - i) failed (for list_reverse_in_place)")
+    end do
+  end subroutine test_list_reverse_in_place
+
+  subroutine test_list_copy
+    type(cons_t) :: lst1, lst2
+    integer :: i
+    lst1 = iota (15, 1)
+    lst2 = list_copy (lst1)
+    call set_car (lst1, nil_list)
+    call set_cdr (lst1, nil_list)
+    call check (list_length (lst1) == 1, "list_length (lst1) == 1 failed (for list_copy)")
+    call check (is_nil_list (car (lst1)), "is_nil_list (car (lst1)) failed (for list_copy)")
+    call check (list_length (lst2) == 15, "list_length (lst2) == 15 failed (for list_copy)")
+    do i = 1, 15
+       call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i failed (for list_copy)")
+    end do
+  end subroutine test_list_copy
 
   subroutine run_tests
     call test_is_nil_list
@@ -162,8 +309,21 @@ contains
     call test_list_is_pair
     call test_uncons_car_cdr
     call test_list_cons
-    call test_first_second_etc
+    call test_set_car_and_set_cdr
+    call test_list_length
     call test_car_cadr_caddr_cadddr
+    call test_first_second_etc
+    call test_list_ref0
+    call test_list_ref1
+    call test_list_refn
+    call test_list_last
+    call test_list_last_pair
+    call test_make_list
+    call test_iota
+    call test_circular_list
+    call test_list_reverse
+    call test_list_reverse_in_place
+    call test_list_copy
   end subroutine run_tests
 
 end module test__cons_lists

@@ -86,4 +86,4 @@ clean:
 	-rm -f *.$(OBJEXT)
 	-rm -f *.anchor
 veryclean: clean
-	-rm -f cons_lists.f90
+	-rm -f cons_lists.f90 test__cons_lists.f90
