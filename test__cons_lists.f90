@@ -109,6 +109,21 @@ contains
     call check (list_is_pair (cons('a', 'b')), "list_is_pair (cons('a', 'b')) failed")
   end subroutine test_list_is_pair
 
+  subroutine test_cons_t_eq
+    type(cons_t) :: pair1, pair2
+    pair1 = 1 ** nil_list
+    pair2 = cons (1, 2)
+    call check (cons_t_eq (nil_list, nil_list), "cons_t_eq (nil_list, nil_list) failed")
+    call check (.not. cons_t_eq (nil_list, 1 ** nil_list), ".not. cons_t_eq (nil_list, 1 ** nil_list) failed")
+    call check (.not. cons_t_eq (1 ** nil_list, nil_list), ".not. cons_t_eq (1 ** nil_list, nil_list) failed")
+    call check (.not. cons_t_eq (1 ** nil_list, 1 ** nil_list), ".not. cons_t_eq (1 ** nil_list, 1 ** nil_list) failed")
+    call check (.not. cons_t_eq (cons (1, 2), cons (1, 2)), ".not. cons_t_eq (cons (1, 2), cons (1, 2)) failed")
+    call check (cons_t_eq (pair1, pair1), "cons_t_eq (pair1, pair1) failed")
+    call check (cons_t_eq (pair2, pair2), "cons_t_eq (pair2, pair2) failed")
+    call check (.not. cons_t_eq (pair1, pair2), ".not. cons_t_eq (pair1, pair2) failed")
+    call check (.not. cons_t_eq (pair2, pair1), ".not. cons_t_eq (pair2, pair1) failed")
+  end subroutine test_cons_t_eq
+
   subroutine test_uncons_car_cdr
     class(*), allocatable :: x, y
     type(cons_t) :: pair
@@ -147,6 +162,14 @@ contains
     call check (list_length (iota (20)) == 20, "list_length (iota (20)) == 20 failed")
     call check (list_length (make_list (200, 'a')) == 200, "list_length (make_list (200, 'a')) == 200 failed")
   end subroutine test_list_length
+
+  subroutine test_is_circular_list
+    call check (.not. is_circular_list (4), ".not. is_circular_list (4) failed")
+    call check (.not. is_circular_list (nil_list), ".not. is_circular_list (nil_list) failed")
+    call check (.not. is_circular_list (1 ** 2 ** 3 ** nil_list), ".not. is_circular_list (1 ** 2 ** 3 ** nil_list) failed")
+    call check (is_circular_list (circular_list (1 ** 2 ** 3 ** nil_list)), &
+         "is_circular_list (circular_list (1 ** 2 ** 3 ** nil_list)) failed")
+  end subroutine test_is_circular_list
 
   subroutine test_car_cadr_caddr_cadddr
     type(cons_t) :: lst
@@ -314,6 +337,7 @@ contains
     call test_is_cons_pair
     call test_list_is_nil
     call test_list_is_pair
+    call test_cons_t_eq
     call test_uncons_car_cdr
     call test_list_cons
     call test_set_car_and_set_cdr
@@ -326,6 +350,7 @@ contains
     call test_list_last
     call test_list_last_pair
     call test_make_list
+    call test_is_circular_list
     call test_iota
     call test_circular_list
     call test_list_reverse

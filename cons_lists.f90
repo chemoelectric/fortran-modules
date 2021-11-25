@@ -45,6 +45,9 @@ module cons_lists
   public :: list_is_nil         ! Is a cons_t a NIL-list?
   public :: list_is_pair        ! Is a cons_t a CONS-pair?
 
+  ! cons_t_eq(x,y) is like Scheme's `(eq? x y)' for two lists.
+  public :: cons_t_eq           ! Are the two cons_t equivalent?
+
   public :: cons            ! The fundamental CONS-pair constructor.
   public :: uncons          ! The fundamental CONS-pair deconstructor.
 
@@ -58,7 +61,7 @@ module cons_lists
   public :: assume_list         ! Assume an object is a cons_t.
 
   public :: list_length         ! The length of a *proper* CONS-list.
-  public :: list_is_circular    ! Is a list circular?
+  public :: is_circular_list    ! Is an object a circular list?
 
   ! Permutations of car and cdr, for returning elements of a tree.
   public :: car
@@ -200,6 +203,16 @@ contains
     is_pair = associated (lst%p)
   end function list_is_pair
 
+  function cons_t_eq (lst1, lst2) result (eq)
+    class(cons_t), intent(in) :: lst1, lst2
+    logical :: eq
+    if (associated (lst1%p)) then
+       eq = associated (lst2%p) .and. associated (lst1%p, lst2%p)
+    else
+       eq = .not. associated (lst2%p)
+    end if
+  end function cons_t_eq
+
   function cons (car_value, cdr_value) result (pair)
     class(*), intent(in) :: car_value
     class(*), intent(in) :: cdr_value
@@ -298,28 +311,48 @@ contains
     end select
   end function list_length
 
-  function list_is_circular (lst) result (is_circular)
-    class(*), intent(in) :: lst
+  function is_circular_list (obj) result (is_circular)
+    class(*), intent(in) :: obj
     logical :: is_circular
 
-!    class(cons_t), allocatable :: tail
+    class(*), allocatable :: x
 
-    call error_abort ("list_is_circular is not yet implemented")
-    select type (lst)
-    class is (cons_t)
-!       length = 0
-!       tail = lst
-!       do while (is_cons_pair (tail))
-!          length = length + 1
-!          tail = cdr (tail)
-!       end do
-!       if (.not. is_nil_list (tail)) then
-!          call error_abort ("list_length of a dotted list")
-!       end if
-    class default
-       call error_abort ("list_is_circular of a non-list")
-    end select
-  end function list_is_circular
+    x = obj
+    is_circular = recursion (x, x)
+
+  contains
+
+    recursive function recursion (obj1, obj2) result (is_circular)
+      class(*), allocatable :: obj1, obj2
+      logical :: is_circular
+
+      class(*), allocatable :: x1, x2
+      class(cons_t), allocatable :: y1, y2
+
+      is_circular = .false.
+      if (is_cons_pair (obj1)) then
+         x1 = cdr (obj1)
+         if (is_cons_pair (x1)) then
+            x1 = cdr (x1)
+            y1 = x1
+            x2 = cdr (obj2)
+            y2 = x2
+            select type (y1)
+            class is (cons_t)
+               select type (y2)
+               class is (cons_t)
+                  if (cons_t_eq (y1, y2)) then
+                     is_circular = .true.
+                  else if (recursion (x1, x2)) then
+                     is_circular = .true.
+                  end if
+               end select
+            end select
+         end if
+      end if
+    end function recursion
+
+  end function is_circular_list
 
   function car (pair) result (element)
     class(*), intent(in) :: pair
