@@ -79,11 +79,11 @@ test__cons_lists.anchor: cons_lists.anchor
 test__cons_lists.anchor: test__cons_lists.mod
 test__cons_lists.mod:
 
-.PHONY: clean veryclean
+.PHONY: clean maintainer-clean
 clean:
 	-rm -f test__cons_lists
 	-rm -f *.mod
 	-rm -f *.$(OBJEXT)
 	-rm -f *.anchor
-veryclean: clean
+maintainer-clean: clean
 	-rm -f cons_lists.f90 test__cons_lists.f90
