@@ -531,7 +531,7 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
           call error_abort ("list_reverse of a dotted list")
        end if
     class default
-       call error_abort ("list_reverse where obj of a non-list")
+       call error_abort ("list_reverse of a non-list")
     end select
   end function list_reverse
 
@@ -578,7 +578,7 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
           end do
        end if
     class default
-       call error_abort ("list_copy where obj of a non-list")
+       call error_abort ("list_copy of a non-list")
     end select
   end function list_copy
 
