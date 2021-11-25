@@ -163,6 +163,16 @@ contains
     call check (list_length (make_list (200, 'a')) == 200, "list_length (make_list (200, 'a')) == 200 failed")
   end subroutine test_list_length
 
+  subroutine test_is_proper_list
+    call check (.not. is_proper_list (4), ".not. is_proper_list (4) failed")
+    call check (is_proper_list (nil_list), "is_proper_list (nil_list) failed")
+    call check (is_proper_list (1 ** 2 ** 3 ** nil_list), "is_proper_list (1 ** 2 ** 3 ** nil_list) failed")
+    call check (.not. is_proper_list (circular_list (1 ** 2 ** 3 ** nil_list)), &
+         "is_proper_list (circular_list (1 ** 2 ** 3 ** nil_list)) failed")
+    call check (.not. is_proper_list (cons (1, 2)), ".not. is_proper_list (cons (1, 2)) failed")
+    call check (.not. is_proper_list ('a' ** 3.0 ** cons (1, 2)), ".not. is_proper_list ('a' ** 3.0 ** cons (1, 2)) failed")
+  end subroutine test_is_proper_list
+
   subroutine test_is_dotted_object
     call check (is_dotted_object (4), "is_dotted_object (4) failed")
     call check (.not. is_dotted_object (nil_list), ".not. is_dotted_object (nil_list) failed")
@@ -370,6 +380,7 @@ contains
     call test_list_last
     call test_list_last_pair
     call test_make_list
+    call test_is_proper_list
     call test_is_dotted_object
     call test_is_dotted_list
     call test_is_circular_list

@@ -61,6 +61,7 @@ module cons_lists
   public :: assume_list         ! Assume an object is a cons_t.
 
   public :: list_length    ! The length of a *proper* CONS-list.
+  public :: is_proper_list ! Is an object a list but neither dotted nor circular?
   public :: is_dotted_object ! Is an object a non-list or a dotted list?
   public :: is_dotted_list ! Is an object a dotted list (but not a non-list)?
   public :: is_circular_list    ! Is an object a circular list?
@@ -312,6 +313,44 @@ contains
        call error_abort ("list_length of a non-list")
     end select
   end function list_length
+
+  function is_proper_list (obj) result (is_proper)
+    class(*), intent(in) :: obj
+    logical :: is_proper
+
+    class(*), allocatable :: obj1, obj2
+    logical :: done
+
+    is_proper = .true.
+    obj1 = obj
+    obj2 = obj
+    done = .false.
+    do while (.not. done)
+       if (.not. is_cons_pair (obj1)) then
+          is_proper = is_nil_list (obj1)
+          done = .true.
+       else
+          obj1 = cdr (obj1)
+          if (.not. is_cons_pair (obj1)) then
+             is_proper = is_nil_list (obj1)
+             done = .true.
+          else
+             obj1 = cdr (obj1)
+             obj2 = cdr (obj2)
+             select type (obj1)
+             class is (cons_t)
+                select type (obj2)
+                class is (cons_t)
+                   if (cons_t_eq (obj1, obj2)) then
+                      is_proper = .false. ! Circular list.
+                      done = .true.
+                   end if
+                end select
+             end select
+          end if
+       end if
+    end do
+  end function is_proper_list
 
   function is_dotted_object (obj) result (is_dotted)
     !
