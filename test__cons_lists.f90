@@ -287,7 +287,7 @@ contains
   end subroutine test_list_reverse_in_place
 
   subroutine test_list_copy
-    type(cons_t) :: lst1, lst2
+    type(cons_t) :: lst1, lst2, lst3, lst4
     integer :: i
     lst1 = iota (15, 1)
     lst2 = list_copy (lst1)
@@ -299,6 +299,13 @@ contains
     do i = 1, 15
        call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i failed (for list_copy)")
     end do
+    call check (is_nil_list (list_copy (nil_list)), "is_nil_list (list_copy (nil_list)) failed")
+    !
+    ! Now do a dotted list.
+    lst3 = cons (1, 2)
+    lst4 = list_copy (lst3)
+    call check (car (lst4) .eqi. 1, "car (lst4) .eqi. 1 failed (for list_copy)")
+    call check (cdr (lst4) .eqi. 2, "cdr (lst4) .eqi. 2 failed (for list_copy)")
   end subroutine test_list_copy
 
   subroutine run_tests

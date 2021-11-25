@@ -191,17 +191,22 @@ contains
   subroutine uncons (pair, car_value, cdr_value)
     class(*), intent(in) :: pair
     class(*), allocatable, intent(out) :: car_value, cdr_value
+
+    class(*), allocatable :: car_val, cdr_val
+
     select type (pair)
     class is (cons_t)
        if (list_is_pair (pair)) then
-          car_value = pair%p%car
-          cdr_value = pair%p%cdr
+          car_val = pair%p%car
+          cdr_val = pair%p%cdr
        else
           call error_abort ("uncons of nil list")
        end if
     class default
        call error_abort ("uncons of non-list")
     end select
+    car_value = car_val
+    cdr_value = cdr_val
   end subroutine uncons
 
   function list_cons (car_value, cdr_value) result (pair)
@@ -549,8 +554,32 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
   function list_copy (lst) result (lst_c)
     class(*), intent(in) :: lst
     type(cons_t) :: lst_c
-    lst_c = list_reverse (lst)
-    call list_reverse_in_place (lst_c)
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: new_tail
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+    
+    select type (lst)
+    class is (cons_t)
+       if (list_is_nil (lst)) then
+          lst_c = nil_list
+       else
+          call uncons (lst, head, tail)
+          lst_c = cons (head, tail)
+          cursor = lst_c
+          do while (is_cons_pair (tail))
+             call uncons (tail, head, new_tail)
+             new_pair = cons (head, new_tail)
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             tail = new_tail
+          end do
+       end if
+    class default
+       call error_abort ("list_copy where obj of a non-list")
+    end select
   end function list_copy
 
 end module cons_lists
