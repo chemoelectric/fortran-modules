@@ -60,7 +60,7 @@ module cons_lists
 
   public :: assume_list         ! Assume an object is a cons_t.
 
-  public :: list_length    ! The length of a *proper* CONS-list.
+  public :: list_length ! The number of CAR elements in a proper or dotted list.
   public :: is_proper_list ! Is an object a list but neither dotted nor circular?
   public :: is_dotted_object ! Is an object a non-list or a dotted list?
   public :: is_dotted_list ! Is an object a dotted list (but not a non-list)?
@@ -132,9 +132,10 @@ module cons_lists
   public :: list_reverse          ! Make a reversed copy.
   public :: list_reverse_in_place ! Reverse a list without copying.
   public :: list_copy             ! Make a copy in the original order.
-  public :: list_take             ! Copy the first n elements.
-  public :: list_drop ! Drop the first n elements (by performing n CDR operations).
+  public :: list_take             ! Copy the first n CAR elements.
+  public :: list_drop ! Drop the first n CAR elements (by performing n CDR operations).
   public :: list_take_right ! Roughly, `return the last n elements' (but see SRFI-1).
+  public :: list_drop_right ! Roughly, `drop the last n elements' (but see SRFI-1).
 
   ! Overloading of `iota'.
   interface iota
@@ -309,9 +310,6 @@ contains
           length = length + 1
           tail = cdr (tail)
        end do
-       if (.not. is_nil_list (tail)) then
-          call error_abort ("list_length of a dotted list")
-       end if
     class default
        call error_abort ("list_length of a non-list")
     end select
@@ -1040,5 +1038,25 @@ contains
        call error_abort ("list_take_right of a non-list")
     end select
   end function list_take_right
+
+  function list_drop_right (lst, n) result (lst_dr)
+    !
+    ! list_drop_right *copies* the elements.
+    !
+    ! lst may be dotted, but must not be circular.
+    !
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t) :: lst_dr
+
+    class(cons_t), allocatable :: tail
+
+    select type (lst)
+    class is (cons_t)
+       lst_dr = list_take (lst, list_length (lst) - n)
+    class default
+       call error_abort ("list_drop_right of a non-list")
+    end select
+  end function list_drop_right
 
 end module cons_lists

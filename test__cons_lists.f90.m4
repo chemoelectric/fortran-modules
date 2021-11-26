@@ -161,6 +161,8 @@ contains
     call check (list_length (1 ** nil_list) == 1, "list_length (1 ** nil_list) == 1 failed")
     call check (list_length (iota (20)) == 20, "list_length (iota (20)) == 20 failed")
     call check (list_length (make_list (200, 'a')) == 200, "list_length (make_list (200, 'a')) == 200 failed")
+    call check (list_length (0.0 ** cons (1, 2)) == 2, "list_length (0.0 ** cons (1, 2)) == 2 failed")
+    call check (list_length (cons (1, 2)) == 1, "list_length (cons (1, 2)) == 1 failed")
   end subroutine test_list_length
 
   subroutine test_is_proper_list
@@ -439,6 +441,28 @@ contains
     call check (list_take_right (cons (1, 2), 0) .eqi. 2, "list_take_right (cons (1, 2), 0) .eqi. 2 failed")
   end subroutine test_list_take_right
 
+  subroutine test_list_drop_right
+    type(cons_t) :: lst1, lst2, lst3, lst4
+    integer :: i
+    call check (is_nil_list (list_drop_right (nil_list, 0)), "is_nil_list (list_drop_right (nil_list, 0)) failed")
+    lst1 = iota (15, 1)
+    call check (is_nil_list (list_drop_right (lst1, 15)), "is_nil_list (list_drop_right (lst1, 15)) failed")
+    lst2 = assume_list (list_drop_right (lst1, 10))
+    call check (list_length (lst2) == 5, "list_length (lst2) == 5 failed (for list_drop_right)")
+    do i = 1, 5
+       call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i failed (for list_drop_right)")
+    end do
+    lst3 = list_drop_right (lst1, 0)
+    call check (list_length (lst3) == 15, "list_length (lst3) == 15 failed (for list_drop_right)")
+    do i = 1, 15
+       call check (list_ref1 (lst3, i) .eqi. i, "list_ref1 (lst3, i) .eqi. i failed (for list_drop_right)")
+    end do
+    lst4 = list_drop_right (0.0 ** cons (1, 2), 1)
+    call check (list_length (lst4) == 1, "list_length (lst4) == 1 failed (for list_drop_right)")
+    call check (car (lst4) .eqr. 0.0, "car (lst4) .eqr. 0.0 (for list_drop_right)")
+    call check (is_nil_list (list_drop_right (cons (1, 2), 1)), "is_nil_list (list_drop_right (cons (1, 2), 1)) failed")
+  end subroutine test_list_drop_right
+
   subroutine run_tests
     call test_is_nil_list
     call test_is_cons_pair
@@ -469,6 +493,7 @@ contains
     call test_list_take
     call test_list_drop
     call test_list_take_right
+    call test_list_drop_right
   end subroutine run_tests
 
 end module test__cons_lists
