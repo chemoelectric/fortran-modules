@@ -146,6 +146,7 @@ module cons_lists
   public :: list_append_reverse ! Concatenate the reverse of one list to another list.
   public :: list_append_in_place ! Concatenate two lists, without copying.
   public :: list_append_reverse_in_place ! Reverse the first list and then append, without copying.
+  public :: list_concatenate    ! Concatenate a list of lists.
 
   ! Overloading of `iota'.
   interface iota
@@ -1135,5 +1136,30 @@ contains
     call list_reverse_in_place (lst1)
     call list_append_in_place (lst1, lst2)
   end subroutine list_append_reverse_in_place
+
+  function list_concatenate (lists) result (lst_concat)
+    !
+    ! The result need not be a cons_t.
+    !
+    ! If lists is nil, then the result is a nil list.
+    !
+    class(cons_t), intent(in) :: lists
+    class(*), allocatable :: lst_concat
+
+    type(cons_t) :: lists_r
+    class(*), allocatable :: tail
+
+    if (list_is_nil (lists)) then
+       lst_concat = nil_list
+    else
+       lists_r = list_reverse (lists)
+       lst_concat = car (lists_r)
+       tail = cdr (lists_r)
+       do while (is_cons_pair (tail))
+          lst_concat = list_append (car (tail), lst_concat)
+          tail = cdr (tail)
+       end do
+    end if
+  end function list_concatenate
 
 end module cons_lists

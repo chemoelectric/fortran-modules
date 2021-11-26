@@ -582,6 +582,9 @@ contains
   end subroutine test_list_append_reverse
 
   subroutine test_list_append_in_place
+    !
+    ! FIXME: Add a test to check for clobbered arguments.
+    !
     type(cons_t) :: lst
     integer :: i
     lst = 1 ** 2 ** 3 ** nil_list
@@ -593,6 +596,9 @@ contains
   end subroutine test_list_append_in_place
 
   subroutine test_list_append_reverse_in_place
+    !
+    ! FIXME: Add a test to check for clobbered arguments.
+    !
     type(cons_t) :: lst
     integer :: i
     lst = 3 ** 2 ** 1 ** nil_list
@@ -602,6 +608,28 @@ contains
        call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i (for list_append_reverse_in_place)")
     end do
   end subroutine test_list_append_reverse_in_place
+
+  subroutine test_list_concatenate
+    type(cons_t) :: lst1, lst2
+    integer :: i
+    call check (is_nil_list (list_concatenate (nil_list)), "is_nil_list (list_concatenate (nil_list)) failed")
+    lst1 = assume_list (list_concatenate ((1 ** 2 ** 3 ** nil_list) ** nil_list))
+    call check (list_length (lst1) == 3, "list_length (lst1) == 3 failed (for list_concatenate)")
+    do i = 1, 3
+       call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1, i) .eqi. i (for list_concatenate)")
+    end do
+    lst2 = assume_list (list_concatenate &
+         ((1 ** 2 ** 3 ** nil_list) &
+         ** (4 ** 5 ** nil_list) &
+         ** (6 ** nil_list) &
+         ** (7 ** 8 ** 9 ** nil_list) &
+         ** (10 ** nil_list) &
+         ** nil_list))
+    call check (list_length (lst2) == 10, "list_length (lst2) == 10 failed (for list_concatenate)")
+    do i = 1, 10
+       call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i (for list_concatenate)")
+    end do
+  end subroutine test_list_concatenate
 
   subroutine run_tests
     !
@@ -642,6 +670,7 @@ contains
     call test_list_append_reverse
     call test_list_append_in_place
     call test_list_append_reverse_in_place
+    call test_list_concatenate
   end subroutine run_tests
 
 end module test__cons_lists
