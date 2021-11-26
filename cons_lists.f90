@@ -308,19 +308,14 @@ contains
     class(*), intent(in) :: lst
     integer :: length
 
-    class(cons_t), allocatable :: tail
+    class(*), allocatable :: tail
 
-    select type (lst)
-    class is (cons_t)
-       length = 0
-       tail = lst
-       do while (is_cons_pair (tail))
-          length = length + 1
-          tail = cdr (tail)
-       end do
-    class default
-       call error_abort ("list_length of a non-list")
-    end select
+    length = 0
+    tail = lst
+    do while (is_cons_pair (tail))
+       length = length + 1
+       tail = cdr (tail)
+    end do
   end function list_length
 
   function is_proper_list (obj) result (is_proper)
@@ -902,7 +897,8 @@ contains
     ! list_take *copies* the first n `CAR' elements, and returns a
     ! list.
     !
-    ! lst may be dotted or circular.
+    ! lst may be dotted or circular. If it is a degenerate dotted
+    ! list, then n must not be positive.
     !
     class(*), intent(in) :: lst
     integer, intent(in) :: n
@@ -914,40 +910,43 @@ contains
     type(cons_t) :: new_pair
     integer :: i
 
-    select type (lst)
-    class is (cons_t)
-       if (n <= 0 .or. list_is_nil (lst)) then
-          lst_t = nil_list
-       else
-          call uncons (lst, head, tail)
-          lst_t = cons (head, tail)
-          cursor = lst_t
-          i = n - 1
-          do while (0 < i .and. is_cons_pair (tail))
-             call uncons (tail, head, tail)
-             new_pair = cons (head, tail)
-             call set_cdr (cursor, new_pair)
-             cursor = new_pair
-             i = i - 1
-          end do
-          if (i == 0) then
-             call set_cdr (cursor, nil_list)
+    if (n <= 0) then
+       lst_t = nil_list
+    else
+       select type (lst)
+       class is (cons_t)
+          if (list_is_nil (lst)) then
+             call error_abort ("positive list_take of a nil list")
           else
-             call error_abort ("list_take of a list that is too short")
+             call uncons (lst, head, tail)
+             lst_t = cons (head, tail)
+             cursor = lst_t
+             i = n - 1
+             do while (0 < i .and. is_cons_pair (tail))
+                call uncons (tail, head, tail)
+                new_pair = cons (head, tail)
+                call set_cdr (cursor, new_pair)
+                cursor = new_pair
+                i = i - 1
+             end do
+             if (i == 0) then
+                call set_cdr (cursor, nil_list)
+             else
+                call error_abort ("list_take of a list that is too short")
+             end if
           end if
-       end if
-    class default
-       call error_abort ("list_take of a non-list")
-    end select
+       class default
+          call error_abort ("positive list_take of an object with no pairs")
+       end select
+    end if
   end function list_take
 
   function list_drop (lst, n) result (obj)
     !
     ! list_drop does *not* copy the elements it `keeps'; it is
-    ! equivalent to repeating CDR n times. The result might *not* be a
-    ! list.
+    ! equivalent to repeating CDR n times.
     !
-    ! lst may be dotted or circular.
+    ! lst may be dotted or circular. The result need not be a cons_t.
     !
     class(*), intent(in) :: lst
     integer, intent(in) :: n
@@ -955,27 +954,19 @@ contains
 
     integer :: i
 
-    select type (lst)
-    class is (cons_t)
-       obj = lst
-       do i = 1, n
-          select type (lst => obj)
-          class is (cons_t)
-             if (list_is_pair (lst)) then
-                obj = cdr (lst)
-             else
-                call error_abort ("list_drop of a list that is too short")
-             end if
-          end select
-       end do
-    class default
-       call error_abort ("list_drop of a non-list")
-    end select
+    obj = lst
+    do i = 1, n
+       if (is_cons_pair (obj)) then
+          obj = cdr (obj)
+       else
+          call error_abort ("list_drop of a list that is too short")
+       end if
+    end do
   end function list_drop
 
   function list_take_right (lst, n) result (obj)
     !
-    ! The result might *not* be a list.
+    ! The result might not be a cons_t.
     !
     ! lst may be dotted, but must not be circular.
     !
@@ -983,25 +974,21 @@ contains
     integer, intent(in) :: n
     class(*), allocatable :: obj
 
-    class(*), allocatable :: lead, lag
+    class(*), allocatable :: lead
+    class(*), allocatable :: lag
 
-    select type (lst)
-    class is (cons_t)
-       lag = lst
-       lead = list_drop (lst, n)
-       do while (is_cons_pair (lead))
-          lag = cdr (lag)
-          lead = cdr (lead)
-       end do
-       obj = lag
-    class default
-       call error_abort ("list_take_right of a non-list")
-    end select
+    lag = lst
+    lead = list_drop (lst, n)
+    do while (is_cons_pair (lead))
+       lag = cdr (lag)
+       lead = cdr (lead)
+    end do
+    obj = lag
   end function list_take_right
 
   function list_drop_right (lst, n) result (lst_dr)
     !
-    ! list_drop_right *copies* the elements.
+    ! list_drop_right *copies* the elements. The result is a cons_t.
     !
     ! lst may be dotted, but must not be circular.
     !
@@ -1011,12 +998,7 @@ contains
 
     class(cons_t), allocatable :: tail
 
-    select type (lst)
-    class is (cons_t)
-       lst_dr = list_take (lst, list_length (lst) - n)
-    class default
-       call error_abort ("list_drop_right of a non-list")
-    end select
+    lst_dr = list_take (lst, list_length (lst) - n)
   end function list_drop_right
 
   subroutine list_split (lst, n, lst_left, lst_right)

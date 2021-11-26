@@ -167,6 +167,10 @@ contains
     call check (list_length (make_list (200, 'a')) == 200, "list_length (make_list (200, 'a')) == 200 failed")
     call check (list_length (0.0 ** cons (1, 2)) == 2, "list_length (0.0 ** cons (1, 2)) == 2 failed")
     call check (list_length (cons (1, 2)) == 1, "list_length (cons (1, 2)) == 1 failed")
+    !
+    ! A degenerate case.
+    !
+    call check (list_length ('abc') == 0, "list_length ('abc') == 0 failed")
   end subroutine test_list_length
 
   subroutine test_is_proper_list
@@ -379,6 +383,10 @@ contains
     do i = 0, 99
        call check (list_ref0 (lst4, i) .eqi. mod (i, 4), "list_ref0 (lst4, i) .eqi. mod (i, 4) failed (for list_take)")
     end do
+    !
+    ! Let us check a degenerate case.
+    !
+    call check (is_nil_list (list_take (123, 0)), "is_nil_list (list_take (123, 0)) failed")
   end subroutine test_list_take
 
   subroutine test_list_drop
@@ -413,6 +421,10 @@ contains
     do i = 0, 99
        call check (list_ref0 (lst7, i) .eqi. mod (i, 4), "list_ref0 (lst7, i) .eqi. mod (i, 4) failed (for list_drop)")
     end do
+    !
+    ! Let us check a degenerate case.
+    !
+    call check (list_drop (123, 0) .eqi. 123, "list_drop (123, 0) .eqi. 123 failed")
   end subroutine test_list_drop
 
   subroutine test_list_take_right
@@ -433,6 +445,10 @@ contains
     end do
     call check (list_take_right (1 ** cons (1, 2), 0) .eqi. 2, "list_take_right (1 ** cons (1, 2), 0) .eqi. 2 failed")
     call check (list_take_right (cons (1, 2), 0) .eqi. 2, "list_take_right (cons (1, 2), 0) .eqi. 2 failed")
+    !
+    ! Let us check a degenerate case.
+    !
+    call check (list_take_right (123, 0) .eqi. 123, "list_take_right (123, 0) .eqi. 123 failed")
   end subroutine test_list_take_right
 
   subroutine test_list_drop_right
@@ -455,6 +471,10 @@ contains
     call check (list_length (lst4) == 1, "list_length (lst4) == 1 failed (for list_drop_right)")
     call check (car (lst4) .eqr. 0.0, "car (lst4) .eqr. 0.0 (for list_drop_right)")
     call check (is_nil_list (list_drop_right (cons (1, 2), 1)), "is_nil_list (list_drop_right (cons (1, 2), 1)) failed")
+    !
+    ! Let us check a degenerate case.
+    !
+    call check (is_nil_list (list_drop_right (123, 0)), "is_nil_list (list_drop_right (123, 0)) failed")
   end subroutine test_list_drop_right
 
   subroutine test_list_split
