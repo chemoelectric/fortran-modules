@@ -114,6 +114,7 @@ m4_forloop([n],[1],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: list_drop ! Drop the first n CAR elements (by performing n CDR operations).
   public :: list_take_right ! Roughly, `return the last n elements' (but see SRFI-1).
   public :: list_drop_right ! Roughly, `drop the last n elements' (but see SRFI-1).
+  public :: list_split     ! A combination of list_take and list_drop.
 
   ! Overloading of `iota'.
   interface iota
@@ -869,5 +870,48 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
        call error_abort ("list_drop_right of a non-list")
     end select
   end function list_drop_right
+
+  subroutine list_split (lst, n, lst_left, obj_right)
+    class(*) :: lst
+    integer :: n
+    type(cons_t) :: lst_left
+    class(*), allocatable :: obj_right
+
+    type(cons_t) :: lst_t
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+    integer :: i
+
+    select type (lst)
+    class is (cons_t)
+       if (n <= 0 .or. list_is_nil (lst)) then
+          lst_left = nil_list
+          obj_right = lst
+       else
+          call uncons (lst, head, tail)
+          lst_t = cons (head, tail)
+          cursor = lst_t
+          i = n - 1
+          do while (0 < i .and. is_cons_pair (tail))
+             call uncons (tail, head, tail)
+             new_pair = cons (head, tail)
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             i = i - 1
+          end do
+          if (i == 0) then
+             call set_cdr (cursor, nil_list)
+          else
+             call error_abort ("list_split of a list that is too short")
+          end if
+          lst_left = lst_t
+          obj_right = tail
+       end if
+    class default
+       call error_abort ("list_split of a non-list")
+    end select
+  end subroutine list_split
 
 end module cons_lists

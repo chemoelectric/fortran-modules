@@ -125,6 +125,10 @@ contains
   end subroutine test_cons_t_eq
 
   subroutine test_uncons_car_cdr
+    !
+    ! FIXME: For uncons, add tests that you can output to the same
+    !        variables as were used for inputs.
+    !
     class(*), allocatable :: x, y
     type(cons_t) :: pair
     pair = cons (5, 15.0)
@@ -463,6 +467,62 @@ contains
     call check (is_nil_list (list_drop_right (cons (1, 2), 1)), "is_nil_list (list_drop_right (cons (1, 2), 1)) failed")
   end subroutine test_list_drop_right
 
+  subroutine test_list_split
+    !
+    ! FIXME: For list_split, add tests that you can output to the same
+    !        variables as were used for inputs.
+    !
+    type(cons_t) :: left
+    class(*), allocatable :: right
+    integer :: i
+    call list_split (nil_list, 0, left, right)
+    call check (is_nil_list (left), "check0010 failed for list_split")
+    call check (is_nil_list (right), "check0020 failed for list_split")
+    call list_split (1 ** 2 ** 3 ** nil_list, 0, left, right)
+    call check (is_nil_list (left), "check0030 failed for list_split")
+    call check (list_length (assume_list (right)) == 3, "check0040 failed for list_split")
+    do i = 1, 3
+       call check (list_ref1 (assume_list (right), i) .eqi. i, "check0050 failed for list_split")
+    end do
+    call list_split (1 ** 2 ** 3 ** nil_list, 1, left, right)
+    call check (list_length (left) == 1, "check0060 failed for list_split")
+    do i = 1, 1
+       call check (list_ref1 (left, i) .eqi. i, "check0070 failed for list_split")
+    end do
+    call check (list_length (assume_list (right)) == 2, "check0080 failed for list_split")
+    do i = 1, 2
+       call check (list_ref1 (assume_list (right), i) .eqi. (1 + i), "check0090 failed for list_split")
+    end do
+    call list_split (1 ** 2 ** 3 ** nil_list, 2, left, right)
+    call check (list_length (left) == 2, "check0100 failed for list_split")
+    do i = 1, 2
+       call check (list_ref1 (left, i) .eqi. i, "check0110 failed for list_split")
+    end do
+    call check (list_length (assume_list (right)) == 1, "check0120 failed for list_split")
+    do i = 1, 1
+       call check (list_ref1 (assume_list (right), i) .eqi. (2 + i), "check0130 failed for list_split")
+    end do
+    call list_split (1 ** 2 ** 3 ** nil_list, 3, left, right)
+    call check (list_length (left) == 3, "check0140 failed for list_split")
+    do i = 1, 3
+       call check (list_ref1 (left, i) .eqi. i, "check0150 failed for list_split")
+    end do
+    call check (is_nil_list (right), "check0160 failed for list_split")
+    call list_split (cons (1, 2), 1, left, right)
+    call check (list_length (left) == 1, "check0170 failed for list_split")
+    call check (car (left) .eqi. 1, "check0180 failed for list_split")
+    call check (right .eqi. 2, "check0190 failed for list_split")
+    call list_split (circular_list (0 ** 1 ** 2 ** 3 ** nil_list), 6, left, right)
+    call check (list_length (left) == 6, "check0200 failed for list_split")
+    do i = 0, 5
+       call check (list_ref0 (left, i) .eqi. mod (i, 4), "check0210 failed for list_split")
+    end do
+    call check (is_circular_list (right), "check0220 failed for list_split")
+    do i = 0, 99
+       call check (list_ref0 (assume_list (right), i) .eqi. mod (2 + i, 4), "check0230 failed for list_split")
+    end do
+  end subroutine test_list_split
+
   subroutine run_tests
     call test_is_nil_list
     call test_is_cons_pair
@@ -494,6 +554,7 @@ contains
     call test_list_drop
     call test_list_take_right
     call test_list_drop_right
+    call test_list_split
   end subroutine run_tests
 
 end module test__cons_lists
