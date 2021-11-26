@@ -321,11 +321,11 @@ contains
     class(*), intent(in) :: obj
     logical :: is_proper
 
-    logical :: is_dotted
-    logical :: is_circular
+    logical :: is_dot
+    logical :: is_circ
 
-    call list_classify_object (obj, is_dotted, is_circular)
-    is_proper = (.not. is_dotted) .and. (.not. is_circular)
+    call list_classify_object (obj, is_dot, is_circ)
+    is_proper = (.not. is_dot) .and. (.not. is_circ)
   end function is_proper_list
 
   function is_dotted_object (obj) result (is_dotted)
@@ -344,9 +344,11 @@ contains
     class(*), intent(in) :: obj
     logical :: is_dotted
 
-    logical :: bit_bucket
+    logical :: is_dot
+    logical :: is_circ
 
-    call list_classify_object (obj, is_dotted, bit_bucket)
+    call list_classify_object (obj, is_dot, is_circ)
+    is_dotted = is_dot
   end function is_dotted_object
 
   function is_dotted_list (obj) result (is_dotted)
@@ -378,9 +380,11 @@ contains
     class(*), intent(in) :: obj
     logical :: is_circular
 
-    logical :: bit_bucket
+    logical :: is_dot
+    logical :: is_circ
 
-    call list_classify_object (obj, bit_bucket, is_circular)
+    call list_classify_object (obj, is_dot, is_circ)
+    is_circular = is_circ
   end function is_circular_list
 
   subroutine list_classify_object (obj, is_dotted, is_circular)
