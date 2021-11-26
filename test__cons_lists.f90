@@ -534,12 +534,17 @@ contains
   end subroutine test_list_append_reverse
 
   subroutine test_list_append
-    type(cons_t) :: lst
+    type(cons_t) :: lst1, lst2
     integer :: i
-    lst = list_append (1 ** 2 ** 3 ** nil_list, 4 ** 5 ** 6 ** nil_list)
-    call check (list_length (lst) == 6, "list_length (lst) == 6 failed (for list_append)")
+    lst1 = list_append (nil_list, 1 ** 2 ** 3 ** nil_list)
+    call check (list_length (lst1) == 3, "list_length (lst1) == 3 failed (for list_append)")
+    do i = 1, 3
+       call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1, i) .eqi. i (for list_append)")
+    end do
+    lst2 = list_append (1 ** 2 ** 3 ** nil_list, 4 ** 5 ** 6 ** nil_list)
+    call check (list_length (lst2) == 6, "list_length (lst2) == 6 failed (for list_append)")
     do i = 1, 6
-       call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i (for list_append)")
+       call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i (for list_append)")
     end do
   end subroutine test_list_append
 
