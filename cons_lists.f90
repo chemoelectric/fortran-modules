@@ -65,6 +65,7 @@ module cons_lists
   public :: is_dotted_object ! Is an object a non-list or a dotted list?
   public :: is_dotted_list ! Is an object a dotted list (but not a non-list)?
   public :: is_circular_list    ! Is an object a circular list?
+  public :: list_classify_object ! Is the object dotted? Is it circular?
 
   ! Permutations of car and cdr, for returning elements of a tree.
   public :: car
@@ -320,38 +321,11 @@ contains
     class(*), intent(in) :: obj
     logical :: is_proper
 
-    class(*), allocatable :: lead, lag
-    logical :: done
+    logical :: is_dotted
+    logical :: is_circular
 
-    is_proper = .true.
-    lead = obj
-    lag = obj
-    done = .false.
-    do while (.not. done)
-       if (.not. is_cons_pair (lead)) then
-          is_proper = is_nil_list (lead)
-          done = .true.
-       else
-          lead = cdr (lead)
-          if (.not. is_cons_pair (lead)) then
-             is_proper = is_nil_list (lead)
-             done = .true.
-          else
-             lead = cdr (lead)
-             lag = cdr (lag)
-             select type (lead)
-             class is (cons_t)
-                select type (lag)
-                class is (cons_t)
-                   if (cons_t_eq (lead, lag)) then
-                      is_proper = .false. ! Circular list.
-                      done = .true.
-                   end if
-                end select
-             end select
-          end if
-       end if
-    end do
+    call list_classify_object (obj, is_dotted, is_circular)
+    is_proper = (.not. is_dotted) .and. (.not. is_circular)
   end function is_proper_list
 
   function is_dotted_object (obj) result (is_dotted)
@@ -370,38 +344,9 @@ contains
     class(*), intent(in) :: obj
     logical :: is_dotted
 
-    class(*), allocatable :: lead, lag
-    logical :: done
+    logical :: bit_bucket
 
-    is_dotted = .true.
-    lead = obj
-    lag = obj
-    done = .false.
-    do while (.not. done)
-       if (.not. is_cons_pair (lead)) then
-          is_dotted = .not. is_nil_list (lead)
-          done = .true.
-       else
-          lead = cdr (lead)
-          if (.not. is_cons_pair (lead)) then
-             is_dotted = .not. is_nil_list (lead)
-             done = .true.
-          else
-             lead = cdr (lead)
-             lag = cdr (lag)
-             select type (lead)
-             class is (cons_t)
-                select type (lag)
-                class is (cons_t)
-                   if (cons_t_eq (lead, lag)) then
-                      is_dotted = .false. ! Circular list.
-                      done = .true.
-                   end if
-                end select
-             end select
-          end if
-       end if
-    end do
+    call list_classify_object (obj, is_dotted, bit_bucket)
   end function is_dotted_object
 
   function is_dotted_list (obj) result (is_dotted)
@@ -433,19 +378,43 @@ contains
     class(*), intent(in) :: obj
     logical :: is_circular
 
-    class(*), allocatable :: lead, lag
+    logical :: bit_bucket
+
+    call list_classify_object (obj, bit_bucket, is_circular)
+  end function is_circular_list
+
+  subroutine list_classify_object (obj, is_dotted, is_circular)
+    !
+    ! An object that is not a cons_t is considered dotted.
+    !
+    ! Dotted and circular are mutually exclusive.
+    !
+    ! If an object is neither dotted nor circular, then it is a proper
+    ! list.
+    !
+    class(*) :: obj
+    logical :: is_dotted
+    logical :: is_circular
+
+    class(*), allocatable :: lead
+    class(*), allocatable :: lag
+    logical :: is_dot
+    logical :: is_circ
     logical :: done
 
-    is_circular = .false.
+    is_dot = .true.
+    is_circ = .false.
     lead = obj
     lag = obj
     done = .false.
     do while (.not. done)
        if (.not. is_cons_pair (lead)) then
+          is_dot = .not. is_nil_list (lead)
           done = .true.
        else
           lead = cdr (lead)
           if (.not. is_cons_pair (lead)) then
+             is_dot = .not. is_nil_list (lead)
              done = .true.
           else
              lead = cdr (lead)
@@ -455,7 +424,8 @@ contains
                 select type (lag)
                 class is (cons_t)
                    if (cons_t_eq (lead, lag)) then
-                      is_circular = .true.
+                      is_dot = .false.
+                      is_circ = .true.
                       done = .true.
                    end if
                 end select
@@ -463,7 +433,9 @@ contains
           end if
        end if
     end do
-  end function is_circular_list
+    is_dotted = is_dot
+    is_circular = is_circ
+  end subroutine list_classify_object
 
   function car (pair) result (element)
     class(*), intent(in) :: pair
