@@ -111,7 +111,8 @@ m4_forloop([n],[1],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: list_reverse_in_place ! Reverse a list without copying.
   public :: list_copy             ! Make a copy in the original order.
   public :: list_take             ! Copy the first n elements.
-  public :: list_drop             ! Perform n CDR operations.
+  public :: list_drop ! Drop the first n elements (by performing n CDR operations).
+  public :: list_take_right ! Roughly, `return the last n elements' (but see SRFI-1).
 
   ! Overloading of `iota'.
   interface iota
@@ -824,5 +825,31 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
        call error_abort ("list_drop of a non-list")
     end select
   end function list_drop
+
+  function list_take_right (lst, n) result (obj)
+    !
+    ! The result might *not* be a list.
+    !
+    ! lst may be dotted, but must not be circular.
+    !
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    class(*), allocatable :: obj
+
+    class(*), allocatable :: lead, lag
+
+    select type (lst)
+    class is (cons_t)
+       lag = lst
+       lead = list_drop (lst, n)
+       do while (is_cons_pair (lead))
+          lag = cdr (lag)
+          lead = cdr (lead)
+       end do
+       obj = lag
+    class default
+       call error_abort ("list_take_right of a non-list")
+    end select
+  end function list_take_right
 
 end module cons_lists

@@ -386,18 +386,18 @@ contains
   end subroutine test_list_take
 
   subroutine test_list_drop
-    type(cons_t) :: lst2, lst3, lst4, lst6, lst7
-    class(*), allocatable :: obj1, obj5
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst6, lst7
+    class(*), allocatable :: obj5
     integer :: i
     call check (is_nil_list (list_drop (nil_list, 0)), "is_nil_list (list_drop (nil_list, 0)) failed")
-    obj1 = iota (15, 1)
-    call check (is_nil_list (list_drop (obj1, 15)), "is_nil_list (list_drop (obj1, 15)) failed")
-    lst2 = assume_list (list_drop (obj1, 0))
+    lst1 = iota (15, 1)
+    call check (is_nil_list (list_drop (lst1, 15)), "is_nil_list (list_drop (lst1, 15)) failed")
+    lst2 = assume_list (list_drop (lst1, 0))
     call check (list_length (lst2) == 15, "list_length (lst2) == 15 failed (for list_drop)")
     do i = 1, 15
        call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i failed (for list_drop)")
     end do
-    lst3 = assume_list (list_drop (obj1, 10))
+    lst3 = assume_list (list_drop (lst1, 10))
     call check (list_length (lst3) == 5, "list_length (lst3) == 5 failed (for list_drop)")
     do i = 1, 5
        call check (list_ref1 (lst3, i) .eqi. (10 + i), "list_ref1 (lst3, i) .eqi. (10 + i) failed (for list_drop)")
@@ -418,6 +418,26 @@ contains
        call check (list_ref0 (lst7, i) .eqi. mod (i, 4), "list_ref0 (lst7, i) .eqi. mod (i, 4) failed (for list_drop)")
     end do
   end subroutine test_list_drop
+
+  subroutine test_list_take_right
+    type(cons_t) :: lst1, lst2, lst3
+    integer :: i
+    call check (is_nil_list (list_take_right (nil_list, 0)), "is_nil_list (list_take_right (nil_list, 0)) failed")
+    lst1 = iota (15, 1)
+    call check (is_nil_list (list_take_right (lst1, 0)), "is_nil_list (list_take_right (lst1, 0)) failed")
+    lst2 = assume_list (list_take_right (lst1, 10))
+    call check (list_length (lst2) == 10, "list_length (lst2) == 10 failed (for list_take_right)")
+    do i = 1, 10
+       call check (list_ref1 (lst2, i) .eqi. (5 + i), "list_ref1 (lst2, i) .eqi. (5 + i) failed (for list_drop)")
+    end do
+    lst3 = assume_list (list_take_right (lst1, 15))
+    call check (list_length (lst3) == 15, "list_length (lst3) == 15 failed (for list_take_right)")
+    do i = 1, 15
+       call check (list_ref1 (lst3, i) .eqi. i, "list_ref1 (lst3, i) .eqi. i failed (for list_drop)")
+    end do
+    call check (list_take_right (1 ** cons (1, 2), 0) .eqi. 2, "list_take_right (1 ** cons (1, 2), 0) .eqi. 2 failed")
+    call check (list_take_right (cons (1, 2), 0) .eqi. 2, "list_take_right (cons (1, 2), 0) .eqi. 2 failed")
+  end subroutine test_list_take_right
 
   subroutine run_tests
     call test_is_nil_list
@@ -448,6 +468,7 @@ contains
     call test_list_copy
     call test_list_take
     call test_list_drop
+    call test_list_take_right
   end subroutine run_tests
 
 end module test__cons_lists
