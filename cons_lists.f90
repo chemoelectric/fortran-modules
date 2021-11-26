@@ -135,7 +135,7 @@ module cons_lists
   public :: circular_list       ! Make a circular list.
 
   public :: list_reverse          ! Make a reversed copy.
-  public :: list_reverse_in_place ! Reverse a list without copying.
+  public :: list_reverse_in_place ! Reverse a list without copying. (The argument must be a cons_t.)
   public :: list_copy             ! Make a copy in the original order.
   public :: list_take             ! Copy the first n CAR elements.
   public :: list_drop ! Drop the first n CAR elements (by performing n CDR operations).
@@ -826,25 +826,21 @@ contains
   end function circular_list
 
   function list_reverse (lst) result (lst_r)
+    !
+    ! The final CDR of any dotted list (including any non-cons_t
+    ! object) is dropped.  The result is a cons_t.
+    !
     class(*), intent(in) :: lst
     type(cons_t) :: lst_r
 
     class(*), allocatable :: tail
     
-    select type (lst)
-    class is (cons_t)
-       lst_r = nil_list
-       tail = lst
-       do while (is_cons_pair (tail))
-          lst_r = cons (car (tail), lst_r)
-          tail = cdr (tail)
-       end do
-       if (.not. is_nil_list (tail)) then
-          call error_abort ("list_reverse of a dotted list")
-       end if
-    class default
-       call error_abort ("list_reverse of a non-list")
-    end select
+    lst_r = nil_list
+    tail = lst
+    do while (is_cons_pair (tail))
+       lst_r = cons (car (tail), lst_r)
+       tail = cdr (tail)
+    end do
   end function list_reverse
 
   subroutine list_reverse_in_place (lst)

@@ -327,6 +327,10 @@ contains
     do i = 1, 15
        call check (list_ref1 (lst2, i) .eqi. (16 - i), "list_ref1 (lst2, i) .eqi. (16 - i) failed (for list_reverse)")
     end do
+    !
+    ! Test a degenerate case.
+    !
+    call check (is_nil_list (list_reverse (.true.)), "is_nil_list (list_reverse (.true.)) failed")
   end subroutine test_list_reverse
 
   subroutine test_list_reverse_in_place
