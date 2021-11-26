@@ -386,7 +386,7 @@ contains
   end subroutine test_list_take
 
   subroutine test_list_drop
-    type(cons_t) :: lst2, lst3, lst4
+    type(cons_t) :: lst2, lst3, lst4, lst6, lst7
     class(*), allocatable :: obj1, obj5
     integer :: i
     call check (is_nil_list (list_drop (nil_list, 0)), "is_nil_list (list_drop (nil_list, 0)) failed")
@@ -407,6 +407,16 @@ contains
     call check (cdr (lst4) .eqi. 4, "cdr (lst4) .eqi. 4 failed (for list_drop)")
     obj5 = list_drop (1 ** 2 ** cons (3, 4), 3)
     call check (obj5 .eqi. 4, "obj5 .eqi. 4 failed (for list_drop)")
+    lst6 = assume_list (list_drop (circular_list (2 ** 3 ** 0 ** 1 ** nil_list), 2))
+    call check (is_circular_list (lst6), "is_circular_list (lst6) failed (for list_drop)")
+    do i = 0, 99
+       call check (list_ref0 (lst6, i) .eqi. mod (i, 4), "list_ref0 (lst6, i) .eqi. mod (i, 4) failed (for list_drop)")
+    end do
+    lst7 = assume_list (list_drop (circular_list (2 ** 3 ** 0 ** 1 ** nil_list), (4 * 1000) + 2))
+    call check (is_circular_list (lst7), "is_circular_list (lst7) failed (for list_drop)")
+    do i = 0, 99
+       call check (list_ref0 (lst7, i) .eqi. mod (i, 4), "list_ref0 (lst7, i) .eqi. mod (i, 4) failed (for list_drop)")
+    end do
   end subroutine test_list_drop
 
   subroutine run_tests
