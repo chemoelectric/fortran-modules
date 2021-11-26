@@ -320,30 +320,30 @@ contains
     class(*), intent(in) :: obj
     logical :: is_proper
 
-    class(*), allocatable :: obj1, obj2
+    class(*), allocatable :: lead, lag
     logical :: done
 
     is_proper = .true.
-    obj1 = obj
-    obj2 = obj
+    lead = obj
+    lag = obj
     done = .false.
     do while (.not. done)
-       if (.not. is_cons_pair (obj1)) then
-          is_proper = is_nil_list (obj1)
+       if (.not. is_cons_pair (lead)) then
+          is_proper = is_nil_list (lead)
           done = .true.
        else
-          obj1 = cdr (obj1)
-          if (.not. is_cons_pair (obj1)) then
-             is_proper = is_nil_list (obj1)
+          lead = cdr (lead)
+          if (.not. is_cons_pair (lead)) then
+             is_proper = is_nil_list (lead)
              done = .true.
           else
-             obj1 = cdr (obj1)
-             obj2 = cdr (obj2)
-             select type (obj1)
+             lead = cdr (lead)
+             lag = cdr (lag)
+             select type (lead)
              class is (cons_t)
-                select type (obj2)
+                select type (lag)
                 class is (cons_t)
-                   if (cons_t_eq (obj1, obj2)) then
+                   if (cons_t_eq (lead, lag)) then
                       is_proper = .false. ! Circular list.
                       done = .true.
                    end if
@@ -370,30 +370,30 @@ contains
     class(*), intent(in) :: obj
     logical :: is_dotted
 
-    class(*), allocatable :: obj1, obj2
+    class(*), allocatable :: lead, lag
     logical :: done
 
     is_dotted = .true.
-    obj1 = obj
-    obj2 = obj
+    lead = obj
+    lag = obj
     done = .false.
     do while (.not. done)
-       if (.not. is_cons_pair (obj1)) then
-          is_dotted = .not. is_nil_list (obj1)
+       if (.not. is_cons_pair (lead)) then
+          is_dotted = .not. is_nil_list (lead)
           done = .true.
        else
-          obj1 = cdr (obj1)
-          if (.not. is_cons_pair (obj1)) then
-             is_dotted = .not. is_nil_list (obj1)
+          lead = cdr (lead)
+          if (.not. is_cons_pair (lead)) then
+             is_dotted = .not. is_nil_list (lead)
              done = .true.
           else
-             obj1 = cdr (obj1)
-             obj2 = cdr (obj2)
-             select type (obj1)
+             lead = cdr (lead)
+             lag = cdr (lag)
+             select type (lead)
              class is (cons_t)
-                select type (obj2)
+                select type (lag)
                 class is (cons_t)
-                   if (cons_t_eq (obj1, obj2)) then
+                   if (cons_t_eq (lead, lag)) then
                       is_dotted = .false. ! Circular list.
                       done = .true.
                    end if
@@ -433,28 +433,28 @@ contains
     class(*), intent(in) :: obj
     logical :: is_circular
 
-    class(*), allocatable :: obj1, obj2
+    class(*), allocatable :: lead, lag
     logical :: done
 
     is_circular = .false.
-    obj1 = obj
-    obj2 = obj
+    lead = obj
+    lag = obj
     done = .false.
     do while (.not. done)
-       if (.not. is_cons_pair (obj1)) then
+       if (.not. is_cons_pair (lead)) then
           done = .true.
        else
-          obj1 = cdr (obj1)
-          if (.not. is_cons_pair (obj1)) then
+          lead = cdr (lead)
+          if (.not. is_cons_pair (lead)) then
              done = .true.
           else
-             obj1 = cdr (obj1)
-             obj2 = cdr (obj2)
-             select type (obj1)
+             lead = cdr (lead)
+             lag = cdr (lag)
+             select type (lead)
              class is (cons_t)
-                select type (obj2)
+                select type (lag)
                 class is (cons_t)
-                   if (cons_t_eq (obj1, obj2)) then
+                   if (cons_t_eq (lead, lag)) then
                       is_circular = .true.
                       done = .true.
                    end if
