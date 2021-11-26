@@ -412,7 +412,7 @@ contains
     do i = 0, 99
        call check (list_ref0 (lst6, i) .eqi. mod (i, 4), "list_ref0 (lst6, i) .eqi. mod (i, 4) failed (for list_drop)")
     end do
-    lst7 = assume_list (list_drop (circular_list (2 ** 3 ** 0 ** 1 ** nil_list), (4 * 1000) + 2))
+    lst7 = assume_list (list_drop (circular_list (2 ** 3 ** 0 ** 1 ** nil_list), (1000 * 4) + 2))
     call check (is_circular_list (lst7), "is_circular_list (lst7) failed (for list_drop)")
     do i = 0, 99
        call check (list_ref0 (lst7, i) .eqi. mod (i, 4), "list_ref0 (lst7, i) .eqi. mod (i, 4) failed (for list_drop)")

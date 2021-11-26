@@ -39,20 +39,21 @@ else
 M4FLAGS = -DCALL_ABORT="!call abort"
 endif
 M4FLAGS += -DCADADR_MAX=4
+COMPILE.m4 = $(M4) $(M4FLAGS) $(XM4FLAGS)
 
 FC = gfortran
 FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all
-FCCOMPILE = $(FC) $(FCFLAGS) $(XFCFLAGS)
+COMPILE.f90 = $(FC) $(FCFLAGS) $(XFCFLAGS)
 
 %.anchor: %.f90					# Makes a module file.
-	$(FCCOMPILE) -c -fsyntax-only $(<) && touch $(@)
+	$(COMPILE.f90) -c -fsyntax-only $(<) && touch $(@)
 
 %.$(OBJEXT): %.anchor
-	$(FCCOMPILE) -c $(<:.anchor=.f90) -o $(@)
+	$(COMPILE.f90) -c $(<:.anchor=.f90) -o $(@)
 
 .PRECIOUS: %.f90
 %.f90: %.f90.m4 common-macros.m4
-	$(M4) $(M4FLAGS) $(XM4FLAGS) $(<) > $(@)
+	$(COMPILE.m4) $(<) > $(@)
 
 .PHONY: all default
 default: all
@@ -69,9 +70,9 @@ check: tests
 	./test__cons_lists
 
 test__cons_lists: test__cons_lists.$(OBJEXT) cons_lists.$(OBJEXT)
-	$(FCCOMPILE) $(^) -o $(@)
+	$(COMPILE.f90) $(^) -o $(@)
 
-cons_lists.f90: cadadr.m4 GNUmakefile
+cons_lists.f90: cadadr.m4
 
 cons_lists.anchor: cons_lists.mod
 cons_lists.mod:
