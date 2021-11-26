@@ -179,18 +179,8 @@ contains
     call check (.not. is_proper_list ('a' ** 3.0 ** cons (1, 2)), ".not. is_proper_list ('a' ** 3.0 ** cons (1, 2)) failed")
   end subroutine test_is_proper_list
 
-  subroutine test_is_dotted_object
-    call check (is_dotted_object (4), "is_dotted_object (4) failed")
-    call check (.not. is_dotted_object (nil_list), ".not. is_dotted_object (nil_list) failed")
-    call check (.not. is_dotted_object (1 ** 2 ** 3 ** nil_list), ".not. is_dotted_object (1 ** 2 ** 3 ** nil_list) failed")
-    call check (.not. is_dotted_object (circular_list (1 ** 2 ** 3 ** nil_list)), &
-         "is_dotted_object (circular_list (1 ** 2 ** 3 ** nil_list)) failed")
-    call check (is_dotted_object (cons (1, 2)), "is_dotted_object (cons (1, 2)) failed")
-    call check (is_dotted_object ('a' ** 3.0 ** cons (1, 2)), "is_dotted_object ('a' ** 3.0 ** cons (1, 2)) failed")
-  end subroutine test_is_dotted_object
-
   subroutine test_is_dotted_list
-    call check (.not. is_dotted_list (4), ".not. is_dotted_list (4) failed")
+    call check (is_dotted_list (4), "is_dotted_list (4) failed")
     call check (.not. is_dotted_list (nil_list), ".not. is_dotted_list (nil_list) failed")
     call check (.not. is_dotted_list (1 ** 2 ** 3 ** nil_list), ".not. is_dotted_list (1 ** 2 ** 3 ** nil_list) failed")
     call check (.not. is_dotted_list (circular_list (1 ** 2 ** 3 ** nil_list)), &
@@ -550,8 +540,8 @@ contains
 
   subroutine run_tests
     !
-    ! FIXME: Add a test for list_classify_object that checks it
-    !        doesn’t clobber its arguments.
+    ! FIXME: Add a test for list_classify that checks it doesn't
+    !        clobber its arguments.
     !
     call test_is_nil_list
     call test_is_cons_pair
@@ -571,7 +561,6 @@ contains
     call test_list_last_pair
     call test_make_list
     call test_is_proper_list
-    call test_is_dotted_object
     call test_is_dotted_list
     call test_is_circular_list
     call test_iota

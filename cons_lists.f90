@@ -31,6 +31,11 @@ module cons_lists
   ! Request for Implementation SRFI-1 (List Library).  See
   ! https://srfi.schemers.org/srfi-1/srfi-1.html
   !
+  ! Please keep in mind that the term `list' is used only loosely in
+  ! Scheme. The fundamental `list' object types are actually the nil
+  ! `list' and the CAR-CDR pair; furthermore, objects other than those
+  ! can be (and in this module will be) regarded as degenerate `dotted
+  ! lists'.
   !
 
   implicit none
@@ -62,10 +67,9 @@ module cons_lists
 
   public :: list_length ! The number of CAR elements in a proper or dotted list.
   public :: is_proper_list ! Is an object a list but neither dotted nor circular?
-  public :: is_dotted_object ! Is an object a non-list or a dotted list?
-  public :: is_dotted_list ! Is an object a dotted list (but not a non-list)?
+  public :: is_dotted_list ! Is an object a non-list or a `list' that ends in something other than nil?
   public :: is_circular_list    ! Is an object a circular list?
-  public :: list_classify_object ! Is the object dotted? Is it circular?
+  public :: list_classify ! Is the object a dotted list? Is it a circular list?
 
   ! Permutations of car and cdr, for returning elements of a tree.
   public :: car
@@ -326,18 +330,18 @@ contains
     logical :: is_dot
     logical :: is_circ
 
-    call list_classify_object (obj, is_dot, is_circ)
+    call list_classify (obj, is_dot, is_circ)
     is_proper = (.not. is_dot) .and. (.not. is_circ)
   end function is_proper_list
 
-  function is_dotted_object (obj) result (is_dotted)
+  function is_dotted_list (obj) result (is_dotted)
     !
-    ! `is_dotted_object(4)', etc., return .true.
+    ! Note that is_dotted_list(4), is_dotted_list("abc"), etc., return
+    ! .true.
     !
-    ! This peculiar behavior is that of `dotted-list?' in SRFI-1, and
-    ! has a logic to it. In particular:
+    ! One consequence is that
     !
-    !    .not. is_dotted_object (x)
+    !    .not. is_dotted_list (x)
     !
     ! is equivalent to
     !
@@ -349,33 +353,8 @@ contains
     logical :: is_dot
     logical :: is_circ
 
-    call list_classify_object (obj, is_dot, is_circ)
+    call list_classify (obj, is_dot, is_circ)
     is_dotted = is_dot
-  end function is_dotted_object
-
-  function is_dotted_list (obj) result (is_dotted)
-    !
-    ! Fortran programmers may find this function more `friendly' than
-    ! is_dotted_object, given that CONS is not a fundamental part of
-    ! Fortran (as it is in Scheme).
-    !
-    !    is_dotted_list (x)
-    !
-    ! is equivalent to
-    !
-    !    is_dotted_object (x) .and. is_cons_pair (x)
-    !
-    ! Note that `is_dotted_object (nil_list)' is .false.
-    !
-    class(*), intent(in) :: obj
-    logical :: is_dotted
-
-    select type (obj)
-    class is (cons_t)
-       is_dotted = is_dotted_object (obj)
-    class default
-       is_dotted = .false.
-    end select  
   end function is_dotted_list
 
   function is_circular_list (obj) result (is_circular)
@@ -385,11 +364,11 @@ contains
     logical :: is_dot
     logical :: is_circ
 
-    call list_classify_object (obj, is_dot, is_circ)
+    call list_classify (obj, is_dot, is_circ)
     is_circular = is_circ
   end function is_circular_list
 
-  subroutine list_classify_object (obj, is_dotted, is_circular)
+  subroutine list_classify (obj, is_dotted, is_circular)
     !
     ! An object that is not a cons_t is considered dotted.
     !
@@ -443,7 +422,7 @@ contains
 
     is_dotted = is_dot
     is_circular = is_circ
-  end subroutine list_classify_object
+  end subroutine list_classify
 
   function car (pair) result (element)
     class(*), intent(in) :: pair
