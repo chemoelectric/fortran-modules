@@ -63,7 +63,7 @@ module cons_lists
   public :: set_car             ! Change the CAR of a CONS-pair.
   public :: set_cdr             ! Change the CDR of a CONS-pair.
 
-  public :: assume_list         ! Assume an object is a cons_t.
+  public :: cons_t_cast         ! Assume an object is a cons_t.
 
   public :: list_length ! The number of CAR elements in a proper or dotted list.
   public :: is_proper_list ! Is an object a list but neither dotted nor circular?
@@ -296,7 +296,7 @@ contains
     end if
   end subroutine set_cdr
 
-  function assume_list (obj) result (lst)
+  function cons_t_cast (obj) result (lst)
     !
     ! Cast to cons_t, if possible.
     !
@@ -306,9 +306,9 @@ contains
     class is (cons_t)
        lst = obj
     class default
-       call error_abort ("assume_list of an object with no pairs")
+       call error_abort ("cons_t_cast of an incompatible object")
     end select
-  end function assume_list
+  end function cons_t_cast
 
   function list_length (lst) result (length)
     class(*), intent(in) :: lst
@@ -748,7 +748,7 @@ contains
        if (list_is_pair (lst1)) then
           tail = cdr (lst1)
           do while (is_cons_pair (tail))
-             lst1 = assume_list (tail)
+             lst1 = cons_t_cast (tail)
              tail = cdr (lst1)
           end do
           last_pair = lst1
@@ -853,7 +853,7 @@ contains
 
     lst_r = nil_list
     do while (is_cons_pair (lst))
-       tail = assume_list (cdr (lst))
+       tail = cons_t_cast (cdr (lst))
        call set_cdr (lst, lst_r)
        lst_r = lst
        lst = tail

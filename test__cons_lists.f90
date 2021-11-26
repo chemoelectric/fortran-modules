@@ -307,7 +307,7 @@ contains
     end do
     !
     ! Now break the circle.
-    call set_cdr (assume_list (cdddr (lst)), nil_list)
+    call set_cdr (cons_t_cast (cdddr (lst)), nil_list)
     call check (list_length (lst) == 4, "list_length (lst) == 4 failed (for circular_list)")
     do i = 0, 3
        call check (list_ref0 (lst, i) .eqi. i, "list_ref0 (lst, i) .eqi. i failed (for circular_list)")
@@ -348,7 +348,7 @@ contains
     type(cons_t) :: lst1, lst2, lst3, lst4
     integer :: i
     lst1 = iota (15, 1)
-    lst2 = assume_list (list_copy (lst1))
+    lst2 = cons_t_cast (list_copy (lst1))
     call set_car (lst1, nil_list)
     call set_cdr (lst1, nil_list)
     call check (list_length (lst1) == 1, "list_length (lst1) == 1 failed (for list_copy)")
@@ -362,7 +362,7 @@ contains
     ! Now do a dotted list.
     !
     lst3 = cons (1, 2)
-    lst4 = assume_list (list_copy (lst3))
+    lst4 = cons_t_cast (list_copy (lst3))
     call check (car (lst4) .eqi. 1, "car (lst4) .eqi. 1 failed (for list_copy)")
     call check (cdr (lst4) .eqi. 2, "cdr (lst4) .eqi. 2 failed (for list_copy)")
     !
@@ -405,27 +405,27 @@ contains
     call check (is_nil_list (list_drop (nil_list, 0)), "is_nil_list (list_drop (nil_list, 0)) failed")
     lst1 = iota (15, 1)
     call check (is_nil_list (list_drop (lst1, 15)), "is_nil_list (list_drop (lst1, 15)) failed")
-    lst2 = assume_list (list_drop (lst1, 0))
+    lst2 = cons_t_cast (list_drop (lst1, 0))
     call check (list_length (lst2) == 15, "list_length (lst2) == 15 failed (for list_drop)")
     do i = 1, 15
        call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i failed (for list_drop)")
     end do
-    lst3 = assume_list (list_drop (lst1, 10))
+    lst3 = cons_t_cast (list_drop (lst1, 10))
     call check (list_length (lst3) == 5, "list_length (lst3) == 5 failed (for list_drop)")
     do i = 1, 5
        call check (list_ref1 (lst3, i) .eqi. (10 + i), "list_ref1 (lst3, i) .eqi. (10 + i) failed (for list_drop)")
     end do
-    lst4 = assume_list (list_drop (1 ** 2 ** cons (3, 4), 2))
+    lst4 = cons_t_cast (list_drop (1 ** 2 ** cons (3, 4), 2))
     call check (car (lst4) .eqi. 3, "car (lst4) .eqi. 3 failed (for list_drop)")
     call check (cdr (lst4) .eqi. 4, "cdr (lst4) .eqi. 4 failed (for list_drop)")
     obj5 = list_drop (1 ** 2 ** cons (3, 4), 3)
     call check (obj5 .eqi. 4, "obj5 .eqi. 4 failed (for list_drop)")
-    lst6 = assume_list (list_drop (circular_list (2 ** 3 ** 0 ** 1 ** nil_list), 2))
+    lst6 = cons_t_cast (list_drop (circular_list (2 ** 3 ** 0 ** 1 ** nil_list), 2))
     call check (is_circular_list (lst6), "is_circular_list (lst6) failed (for list_drop)")
     do i = 0, 99
        call check (list_ref0 (lst6, i) .eqi. mod (i, 4), "list_ref0 (lst6, i) .eqi. mod (i, 4) failed (for list_drop)")
     end do
-    lst7 = assume_list (list_drop (circular_list (2 ** 3 ** 0 ** 1 ** nil_list), (1000 * 4) + 2))
+    lst7 = cons_t_cast (list_drop (circular_list (2 ** 3 ** 0 ** 1 ** nil_list), (1000 * 4) + 2))
     call check (is_circular_list (lst7), "is_circular_list (lst7) failed (for list_drop)")
     do i = 0, 99
        call check (list_ref0 (lst7, i) .eqi. mod (i, 4), "list_ref0 (lst7, i) .eqi. mod (i, 4) failed (for list_drop)")
@@ -442,12 +442,12 @@ contains
     call check (is_nil_list (list_take_right (nil_list, 0)), "is_nil_list (list_take_right (nil_list, 0)) failed")
     lst1 = iota (15, 1)
     call check (is_nil_list (list_take_right (lst1, 0)), "is_nil_list (list_take_right (lst1, 0)) failed")
-    lst2 = assume_list (list_take_right (lst1, 10))
+    lst2 = cons_t_cast (list_take_right (lst1, 10))
     call check (list_length (lst2) == 10, "list_length (lst2) == 10 failed (for list_take_right)")
     do i = 1, 10
        call check (list_ref1 (lst2, i) .eqi. (5 + i), "list_ref1 (lst2, i) .eqi. (5 + i) failed (for list_drop)")
     end do
-    lst3 = assume_list (list_take_right (lst1, 15))
+    lst3 = cons_t_cast (list_take_right (lst1, 15))
     call check (list_length (lst3) == 15, "list_length (lst3) == 15 failed (for list_take_right)")
     do i = 1, 15
        call check (list_ref1 (lst3, i) .eqi. i, "list_ref1 (lst3, i) .eqi. i failed (for list_drop)")
@@ -466,7 +466,7 @@ contains
     call check (is_nil_list (list_drop_right (nil_list, 0)), "is_nil_list (list_drop_right (nil_list, 0)) failed")
     lst1 = iota (15, 1)
     call check (is_nil_list (list_drop_right (lst1, 15)), "is_nil_list (list_drop_right (lst1, 15)) failed")
-    lst2 = assume_list (list_drop_right (lst1, 10))
+    lst2 = cons_t_cast (list_drop_right (lst1, 10))
     call check (list_length (lst2) == 5, "list_length (lst2) == 5 failed (for list_drop_right)")
     do i = 1, 5
        call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i failed (for list_drop_right)")
@@ -499,27 +499,27 @@ contains
     call check (is_nil_list (right), "check0020 failed for list_split")
     call list_split (1 ** 2 ** 3 ** nil_list, 0, left, right)
     call check (is_nil_list (left), "check0030 failed for list_split")
-    call check (list_length (assume_list (right)) == 3, "check0040 failed for list_split")
+    call check (list_length (cons_t_cast (right)) == 3, "check0040 failed for list_split")
     do i = 1, 3
-       call check (list_ref1 (assume_list (right), i) .eqi. i, "check0050 failed for list_split")
+       call check (list_ref1 (cons_t_cast (right), i) .eqi. i, "check0050 failed for list_split")
     end do
     call list_split (1 ** 2 ** 3 ** nil_list, 1, left, right)
     call check (list_length (left) == 1, "check0060 failed for list_split")
     do i = 1, 1
        call check (list_ref1 (left, i) .eqi. i, "check0070 failed for list_split")
     end do
-    call check (list_length (assume_list (right)) == 2, "check0080 failed for list_split")
+    call check (list_length (cons_t_cast (right)) == 2, "check0080 failed for list_split")
     do i = 1, 2
-       call check (list_ref1 (assume_list (right), i) .eqi. (1 + i), "check0090 failed for list_split")
+       call check (list_ref1 (cons_t_cast (right), i) .eqi. (1 + i), "check0090 failed for list_split")
     end do
     call list_split (1 ** 2 ** 3 ** nil_list, 2, left, right)
     call check (list_length (left) == 2, "check0100 failed for list_split")
     do i = 1, 2
        call check (list_ref1 (left, i) .eqi. i, "check0110 failed for list_split")
     end do
-    call check (list_length (assume_list (right)) == 1, "check0120 failed for list_split")
+    call check (list_length (cons_t_cast (right)) == 1, "check0120 failed for list_split")
     do i = 1, 1
-       call check (list_ref1 (assume_list (right), i) .eqi. (2 + i), "check0130 failed for list_split")
+       call check (list_ref1 (cons_t_cast (right), i) .eqi. (2 + i), "check0130 failed for list_split")
     end do
     call list_split (1 ** 2 ** 3 ** nil_list, 3, left, right)
     call check (list_length (left) == 3, "check0140 failed for list_split")
@@ -538,7 +538,7 @@ contains
     end do
     call check (is_circular_list (right), "check0220 failed for list_split")
     do i = 0, 99
-       call check (list_ref0 (assume_list (right), i) .eqi. mod (2 + i, 4), "check0230 failed for list_split")
+       call check (list_ref0 (cons_t_cast (right), i) .eqi. mod (2 + i, 4), "check0230 failed for list_split")
     end do
     !
     ! Let us check a degenerate case.
@@ -551,12 +551,12 @@ contains
   subroutine test_list_append
     type(cons_t) :: lst1, lst2
     integer :: i
-    lst1 = assume_list (list_append (nil_list, 1 ** 2 ** 3 ** nil_list))
+    lst1 = cons_t_cast (list_append (nil_list, 1 ** 2 ** 3 ** nil_list))
     call check (list_length (lst1) == 3, "list_length (lst1) == 3 failed (for list_append)")
     do i = 1, 3
        call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1, i) .eqi. i (for list_append)")
     end do
-    lst2 = assume_list (list_append (1 ** 2 ** 3 ** nil_list, 4 ** 5 ** 6 ** nil_list))
+    lst2 = cons_t_cast (list_append (1 ** 2 ** 3 ** nil_list, 4 ** 5 ** 6 ** nil_list))
     call check (list_length (lst2) == 6, "list_length (lst2) == 6 failed (for list_append)")
     do i = 1, 6
        call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i (for list_append)")
@@ -570,7 +570,7 @@ contains
   subroutine test_list_append_reverse
     type(cons_t) :: lst
     integer :: i
-    lst = assume_list (list_append_reverse (3 ** 2 ** 1 ** nil_list, 4 ** 5 ** 6 ** nil_list))
+    lst = cons_t_cast (list_append_reverse (3 ** 2 ** 1 ** nil_list, 4 ** 5 ** 6 ** nil_list))
     call check (list_length (lst) == 6, "list_length (lst) == 6 failed (for list_append_reverse)")
     do i = 1, 6
        call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i (for list_append_reverse)")
@@ -613,12 +613,12 @@ contains
     type(cons_t) :: lst1, lst2
     integer :: i
     call check (is_nil_list (list_concatenate (nil_list)), "is_nil_list (list_concatenate (nil_list)) failed")
-    lst1 = assume_list (list_concatenate ((1 ** 2 ** 3 ** nil_list) ** nil_list))
+    lst1 = cons_t_cast (list_concatenate ((1 ** 2 ** 3 ** nil_list) ** nil_list))
     call check (list_length (lst1) == 3, "list_length (lst1) == 3 failed (for list_concatenate)")
     do i = 1, 3
        call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1, i) .eqi. i (for list_concatenate)")
     end do
-    lst2 = assume_list (list_concatenate &
+    lst2 = cons_t_cast (list_concatenate &
          ((1 ** 2 ** 3 ** nil_list) &
          ** (4 ** 5 ** nil_list) &
          ** (6 ** nil_list) &
