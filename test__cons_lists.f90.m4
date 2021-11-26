@@ -524,6 +524,10 @@ contains
   end subroutine test_list_split
 
   subroutine run_tests
+    !
+    ! FIXME: Add a test for list_classify_object that checks it
+    !        doesn’t clobber its arguments.
+    !
     call test_is_nil_list
     call test_is_cons_pair
     call test_list_is_nil
@@ -545,10 +549,6 @@ contains
     call test_is_dotted_object
     call test_is_dotted_list
     call test_is_circular_list
-    !
-    ! FIXME: Add a test for list_classify_object that checks it
-    !        doesn’t clobber its arguments.
-    !
     call test_iota
     call test_circular_list
     call test_list_reverse
