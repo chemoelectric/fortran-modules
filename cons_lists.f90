@@ -1019,11 +1019,16 @@ contains
     end select
   end function list_drop_right
 
-  subroutine list_split (lst, n, lst_left, obj_right)
+  subroutine list_split (lst, n, lst_left, lst_right)
+    !
+    ! If n is positive, then lst must be a CONS-pair.
+    !
+    ! lst_left will be a cons_t, but lst_right need not be.
+    !
     class(*) :: lst
     integer :: n
     type(cons_t) :: lst_left
-    class(*), allocatable :: obj_right
+    class(*), allocatable :: lst_right
 
     type(cons_t) :: lst_t
     class(*), allocatable :: head
@@ -1032,101 +1037,100 @@ contains
     type(cons_t) :: new_pair
     integer :: i
 
-    select type (lst)
-    class is (cons_t)
-       if (n <= 0 .or. list_is_nil (lst)) then
-          lst_left = nil_list
-          obj_right = lst
-       else
-          call uncons (lst, head, tail)
-          lst_t = cons (head, tail)
-          cursor = lst_t
-          i = n - 1
-          do while (0 < i .and. is_cons_pair (tail))
-             call uncons (tail, head, tail)
-             new_pair = cons (head, tail)
-             call set_cdr (cursor, new_pair)
-             cursor = new_pair
-             i = i - 1
-          end do
-          if (i == 0) then
-             call set_cdr (cursor, nil_list)
+    if (n <= 0) then
+       lst_left = nil_list
+       lst_right = lst
+    else
+       select type (lst)
+       class is (cons_t)
+          if (list_is_nil (lst)) then
+             call error_abort ("positive list_split of a nil list")
           else
-             call error_abort ("list_split of a list that is too short")
+             call uncons (lst, head, tail)
+             lst_t = cons (head, tail)
+             cursor = lst_t
+             i = n - 1
+             do while (0 < i .and. is_cons_pair (tail))
+                call uncons (tail, head, tail)
+                new_pair = cons (head, tail)
+                call set_cdr (cursor, new_pair)
+                cursor = new_pair
+                i = i - 1
+             end do
+             if (i == 0) then
+                call set_cdr (cursor, nil_list)
+             else
+                call error_abort ("list_split of a list that is too short")
+             end if
+             lst_left = lst_t
+             lst_right = tail
           end if
-          lst_left = lst_t
-          obj_right = tail
-       end if
-    class default
-       call error_abort ("list_split of a non-list")
-    end select
+       class default
+          call error_abort ("positive list_split of an object with no pairs")
+       end select
+    end if
   end subroutine list_split
 
   function list_append_reverse (lst1, lst2) result (lst_ar)
     !
-    ! The tail of the result is shared with lst2. The elements of lst1
-    ! are copied.
+    ! The tail of the result is shared with lst2. The CAR elements of
+    ! lst1 are copied; the last CDR of the reverse of lst1 is dropped.
+    !
+    ! The result need not be a cons_t.
     !
     class(*) :: lst1, lst2
-    type(cons_t) :: lst_ar
+    class(*), allocatable :: lst_ar
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
 
+    lst_ar = lst2
     select type (lst1)
     class is (cons_t)
-       select type (lst2)
-       class is (cons_t)
-          lst_ar = lst2
-          tail = lst1
-          do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
-             lst_ar = cons (head, lst_ar)
-          end do
-       class default
-          call error_abort ("list_append_reverse of a non-list")
-       end select
-    class default
-       call error_abort ("list_append_reverse of a non-list")
+       lst_ar = lst2
+       tail = lst1
+       do while (is_cons_pair (tail))
+          call uncons (tail, head, tail)
+          lst_ar = cons (head, lst_ar)
+       end do
     end select
   end function list_append_reverse
 
   function list_append (lst1, lst2) result (lst_a)
     !
-    ! The tail of the result is shared with lst2. The elements of lst1
-    ! are copied.
+    ! The tail of the result is shared with lst2. The CAR elements of
+    ! lst1 are copied; the last CDR of lst1 is dropped.
+    !
+    ! The result need not be a cons_t.
     !
     class(*) :: lst1, lst2
-    type(cons_t) :: lst_a
+    class(*), allocatable :: lst_a
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
     type(cons_t) :: cursor
     type(cons_t) :: new_pair
+    type(cons_t) :: new_lst
 
     select type (lst1)
     class is (cons_t)
-       select type (lst2)
-       class is (cons_t)
-          if (list_is_nil (lst1)) then
-             lst_a = lst2
-          else
-             call uncons (lst1, head, tail)
-             lst_a = cons (head, tail)
-             cursor = lst_a
-             do while (is_cons_pair (tail))
-                call uncons (tail, head, tail)
-                new_pair = cons (head, tail)
-                call set_cdr (cursor, new_pair)
-                cursor = new_pair
-             end do
-             call set_cdr (cursor, lst2)
-          end if
-       class default
-          call error_abort ("list_append of a non-list")
-       end select
+       if (list_is_nil (lst1)) then
+          lst_a = lst2
+       else
+          call uncons (lst1, head, tail)
+          new_lst = cons (head, tail)
+          cursor = new_lst
+          do while (is_cons_pair (tail))
+             call uncons (tail, head, tail)
+             new_pair = cons (head, tail)
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+          end do
+          call set_cdr (cursor, lst2)
+          lst_a = new_lst
+       end if
     class default
-       call error_abort ("list_append of a non-list")
+       lst_a = lst2
     end select
   end function list_append
 

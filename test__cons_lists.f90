@@ -511,31 +511,45 @@ contains
     do i = 0, 99
        call check (list_ref0 (assume_list (right), i) .eqi. mod (2 + i, 4), "check0230 failed for list_split")
     end do
+    !
+    ! Let us check a degenerate case.
+    !
+    call list_split (123, 0, left, right)
+    call check (is_nil_list (left), "check0240 failed for list_split")
+    call check (right .eqi. 123, "check0250 failed for list_split")
   end subroutine test_list_split
 
   subroutine test_list_append_reverse
     type(cons_t) :: lst
     integer :: i
-    lst = list_append_reverse (3 ** 2 ** 1 ** nil_list, 4 ** 5 ** 6 ** nil_list)
+    lst = assume_list (list_append_reverse (3 ** 2 ** 1 ** nil_list, 4 ** 5 ** 6 ** nil_list))
     call check (list_length (lst) == 6, "list_length (lst) == 6 failed (for list_append_reverse)")
     do i = 1, 6
        call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i (for list_append_reverse)")
     end do
+    !
+    ! Let us check a degenerate case.
+    !
+    call check (list_append_reverse (5, 6) .eqi. 6, "list_append_reverse (5, 6) .eqi. 6 failed")
   end subroutine test_list_append_reverse
 
   subroutine test_list_append
     type(cons_t) :: lst1, lst2
     integer :: i
-    lst1 = list_append (nil_list, 1 ** 2 ** 3 ** nil_list)
+    lst1 = assume_list (list_append (nil_list, 1 ** 2 ** 3 ** nil_list))
     call check (list_length (lst1) == 3, "list_length (lst1) == 3 failed (for list_append)")
     do i = 1, 3
        call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1, i) .eqi. i (for list_append)")
     end do
-    lst2 = list_append (1 ** 2 ** 3 ** nil_list, 4 ** 5 ** 6 ** nil_list)
+    lst2 = assume_list (list_append (1 ** 2 ** 3 ** nil_list, 4 ** 5 ** 6 ** nil_list))
     call check (list_length (lst2) == 6, "list_length (lst2) == 6 failed (for list_append)")
     do i = 1, 6
        call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i (for list_append)")
     end do
+    !
+    ! Let us check a degenerate case.
+    !
+    call check (list_append (5, 6) .eqi. 6, "list_append (5, 6) .eqi. 6 failed")
   end subroutine test_list_append
 
   subroutine run_tests
