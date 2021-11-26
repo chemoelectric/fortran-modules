@@ -1133,7 +1133,7 @@ contains
     type(cons_t) :: lst1
     class(*) :: lst2
     call list_reverse_in_place (lst1)
-    call set_cdr (list_last_pair (lst1), lst2)
+    call list_append_in_place (lst1, lst2)
   end subroutine list_append_reverse_in_place
 
 end module cons_lists
