@@ -53,34 +53,34 @@ contains
     if (.not. boolean) call error_abort (msg)
   end subroutine check
 
-  function assume_integer (obj) result (int)
+  function integer_cast (obj) result (int)
     class(*), intent(in) :: obj
     integer :: int
     select type (obj)
     type is (integer)
        int = obj
     end select
-  end function assume_integer
+  end function integer_cast
 
-  function assume_real (obj) result (int)
+  function real_cast (obj) result (int)
     class(*), intent(in) :: obj
     real :: int
     select type (obj)
     type is (real)
        int = obj
     end select
-  end function assume_real
+  end function real_cast
 
   function integer_eq (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1, obj2
     logical :: bool
-    bool = assume_integer (obj1) == assume_integer (obj2)
+    bool = integer_cast (obj1) == integer_cast (obj2)
   end function integer_eq
 
   function real_eq (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1, obj2
     logical :: bool
-    bool = assume_real (obj1) == assume_real (obj2)
+    bool = real_cast (obj1) == real_cast (obj2)
   end function real_eq
 
   subroutine test_is_nil_list
