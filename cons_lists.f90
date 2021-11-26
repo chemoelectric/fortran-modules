@@ -255,7 +255,7 @@ contains
           call error_abort ("uncons of nil list")
        end if
     class default
-       call error_abort ("uncons of non-list")
+       call error_abort ("uncons of an object with no pairs")
     end select
     car_value = car_val
     cdr_value = cdr_val
@@ -294,13 +294,16 @@ contains
   end subroutine set_cdr
 
   function assume_list (obj) result (lst)
+    !
+    ! Cast to cons_t, if possible.
+    !
     class(*), intent(in) :: obj
     type(cons_t) :: lst
     select type (obj)
     class is (cons_t)
        lst = obj
     class default
-       call error_abort ("assume_list with non-list element")
+       call error_abort ("assume_list of an object with no pairs")
     end select
   end function assume_list
 
@@ -430,7 +433,7 @@ contains
           call error_abort ("car of nil list")
        end if
     class default
-       call error_abort ("car of non-list")
+       call error_abort ("car of an object with no pairs")
     end select
   end function car
 
@@ -445,7 +448,7 @@ contains
           call error_abort ("cdr of nil list")
        end if
     class default
-       call error_abort ("cdr of non-list")
+       call error_abort ("cdr of an object with no pairs")
     end select
   end function cdr
 
