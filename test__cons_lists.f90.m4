@@ -344,7 +344,7 @@ contains
     type(cons_t) :: lst1, lst2, lst3, lst4
     integer :: i
     lst1 = iota (15, 1)
-    lst2 = list_copy (lst1)
+    lst2 = assume_list (list_copy (lst1))
     call set_car (lst1, nil_list)
     call set_cdr (lst1, nil_list)
     call check (list_length (lst1) == 1, "list_length (lst1) == 1 failed (for list_copy)")
@@ -356,10 +356,15 @@ contains
     call check (is_nil_list (list_copy (nil_list)), "is_nil_list (list_copy (nil_list)) failed")
     !
     ! Now do a dotted list.
+    !
     lst3 = cons (1, 2)
-    lst4 = list_copy (lst3)
+    lst4 = assume_list (list_copy (lst3))
     call check (car (lst4) .eqi. 1, "car (lst4) .eqi. 1 failed (for list_copy)")
     call check (cdr (lst4) .eqi. 2, "cdr (lst4) .eqi. 2 failed (for list_copy)")
+    !
+    ! Now do a degenerate dotted list.
+    !
+    call check (list_copy (123.0) .eqr. 123.0, "list_copy (123.0) .eqr. 123.0 failed")
   end subroutine test_list_copy
 
   subroutine test_list_take

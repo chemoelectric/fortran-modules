@@ -864,8 +864,12 @@ contains
   end subroutine list_reverse_in_place
 
   function list_copy (lst) result (lst_c)
+    !
+    ! Because lst may be a degenerate dotted list, the result need not
+    ! be a cons_t.
+    !
     class(*), intent(in) :: lst
-    type(cons_t) :: lst_c
+    class(*), allocatable :: lst_c
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -878,8 +882,8 @@ contains
           lst_c = nil_list
        else
           call uncons (lst, head, tail)
-          lst_c = cons (head, tail)
-          cursor = lst_c
+          cursor = cons (head, tail)
+          lst_c = cursor
           do while (is_cons_pair (tail))
              call uncons (tail, head, tail)
              new_pair = cons (head, tail)
@@ -888,7 +892,7 @@ contains
           end do
        end if
     class default
-       call error_abort ("list_copy of a non-list")
+       lst_c = lst
     end select
   end function list_copy
 
