@@ -116,6 +116,8 @@ m4_forloop([n],[1],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: list_take_right ! Roughly, `return the last n elements' (but see SRFI-1).
   public :: list_drop_right ! Roughly, `drop the last n elements' (but see SRFI-1).
   public :: list_split     ! A combination of list_take and list_drop.
+  public :: list_append_reverse ! Concatenate the reverse of one list to another list.
+  public :: list_append         ! Concatenate two lists.
 
   ! Overloading of `iota'.
   interface iota
@@ -891,5 +893,73 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
        call error_abort ("list_split of a non-list")
     end select
   end subroutine list_split
+
+  function list_append_reverse (lst1, lst2) result (lst_ar)
+    !
+    ! The tail of the result is shared with lst2. The elements of lst1
+    ! are copied.
+    !
+    class(*) :: lst1, lst2
+    type(cons_t) :: lst_ar
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    select type (lst1)
+    class is (cons_t)
+       select type (lst2)
+       class is (cons_t)
+          lst_ar = lst2
+          tail = lst1
+          do while (is_cons_pair (tail))
+             call uncons (tail, head, tail)
+             lst_ar = cons (head, lst_ar)
+          end do
+       class default
+          call error_abort ("list_append_reverse of a non-list")
+       end select
+    class default
+       call error_abort ("list_append_reverse of a non-list")
+    end select
+  end function list_append_reverse
+
+  function list_append (lst1, lst2) result (lst_a)
+    !
+    ! The tail of the result is shared with lst2. The elements of lst1
+    ! are copied.
+    !
+    class(*) :: lst1, lst2
+    type(cons_t) :: lst_a
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+
+    select type (lst1)
+    class is (cons_t)
+       select type (lst2)
+       class is (cons_t)
+          if (list_is_nil (lst1)) then
+             lst_a = lst2
+          else
+             call uncons (lst1, head, tail)
+             lst_a = cons (head, tail)
+             cursor = lst_a
+             do while (is_cons_pair (tail))
+                call uncons (tail, head, tail)
+                new_pair = cons (head, tail)
+                call set_cdr (cursor, new_pair)
+                cursor = new_pair
+             end do
+             call set_cdr (cursor, lst2)
+          end if
+       class default
+          call error_abort ("list_append of a non-list")
+       end select
+    class default
+       call error_abort ("list_append of a non-list")
+    end select
+  end function list_append
 
 end module cons_lists

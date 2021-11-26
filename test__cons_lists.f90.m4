@@ -523,6 +523,26 @@ contains
     end do
   end subroutine test_list_split
 
+  subroutine test_list_append_reverse
+    type(cons_t) :: lst
+    integer :: i
+    lst = list_append_reverse (3 ** 2 ** 1 ** nil_list, 4 ** 5 ** 6 ** nil_list)
+    call check (list_length (lst) == 6, "list_length (lst) == 6 failed (for list_append_reverse)")
+    do i = 1, 6
+       call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i (for list_append_reverse)")
+    end do
+  end subroutine test_list_append_reverse
+
+  subroutine test_list_append
+    type(cons_t) :: lst
+    integer :: i
+    lst = list_append (1 ** 2 ** 3 ** nil_list, 4 ** 5 ** 6 ** nil_list)
+    call check (list_length (lst) == 6, "list_length (lst) == 6 failed (for list_append)")
+    do i = 1, 6
+       call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i (for list_append)")
+    end do
+  end subroutine test_list_append
+
   subroutine run_tests
     !
     ! FIXME: Add a test for list_classify_object that checks it
@@ -559,6 +579,8 @@ contains
     call test_list_take_right
     call test_list_drop_right
     call test_list_split
+    call test_list_append_reverse
+    call test_list_append
   end subroutine run_tests
 
 end module test__cons_lists
