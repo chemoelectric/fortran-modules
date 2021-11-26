@@ -142,8 +142,10 @@ module cons_lists
   public :: list_take_right ! Roughly, `return the last n elements' (but see SRFI-1).
   public :: list_drop_right ! Roughly, `drop the last n elements' (but see SRFI-1).
   public :: list_split     ! A combination of list_take and list_drop.
+  public :: list_append    ! Concatenate two lists.
   public :: list_append_reverse ! Concatenate the reverse of one list to another list.
-  public :: list_append         ! Concatenate two lists.
+  public :: list_append_in_place ! Concatenate two lists, without copying.
+  public :: list_append_reverse_in_place ! Reverse the first list and then append, without copying.
 
   ! Overloading of `iota'.
   interface iota
@@ -1052,31 +1054,6 @@ contains
     end if
   end subroutine list_split
 
-  function list_append_reverse (lst1, lst2) result (lst_ar)
-    !
-    ! The tail of the result is shared with lst2. The CAR elements of
-    ! lst1 are copied; the last CDR of the reverse of lst1 is dropped.
-    !
-    ! The result need not be a cons_t.
-    !
-    class(*) :: lst1, lst2
-    class(*), allocatable :: lst_ar
-
-    class(*), allocatable :: head
-    class(*), allocatable :: tail
-
-    lst_ar = lst2
-    select type (lst1)
-    class is (cons_t)
-       lst_ar = lst2
-       tail = lst1
-       do while (is_cons_pair (tail))
-          call uncons (tail, head, tail)
-          lst_ar = cons (head, lst_ar)
-       end do
-    end select
-  end function list_append_reverse
-
   function list_append (lst1, lst2) result (lst_a)
     !
     ! The tail of the result is shared with lst2. The CAR elements of
@@ -1114,5 +1091,49 @@ contains
        lst_a = lst2
     end select
   end function list_append
+
+  function list_append_reverse (lst1, lst2) result (lst_ar)
+    !
+    ! The tail of the result is shared with lst2. The CAR elements of
+    ! lst1 are copied; the last CDR of the reverse of lst1 is dropped.
+    !
+    ! The result need not be a cons_t.
+    !
+    class(*) :: lst1, lst2
+    class(*), allocatable :: lst_ar
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    lst_ar = lst2
+    select type (lst1)
+    class is (cons_t)
+       lst_ar = lst2
+       tail = lst1
+       do while (is_cons_pair (tail))
+          call uncons (tail, head, tail)
+          lst_ar = cons (head, lst_ar)
+       end do
+    end select
+  end function list_append_reverse
+
+  subroutine list_append_in_place (lst1, lst2)
+    !
+    ! lst1 must be a non-empty, non-circular list.
+    !
+    type(cons_t) :: lst1
+    class(*) :: lst2
+    call set_cdr (list_last_pair (lst1), lst2)
+  end subroutine list_append_in_place
+
+  subroutine list_append_reverse_in_place (lst1, lst2)
+    !
+    ! lst1 must be a non-empty, non-circular list.
+    !
+    type(cons_t) :: lst1
+    class(*) :: lst2
+    call list_reverse_in_place (lst1)
+    call set_cdr (list_last_pair (lst1), lst2)
+  end subroutine list_append_reverse_in_place
 
 end module cons_lists

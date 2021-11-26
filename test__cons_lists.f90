@@ -548,20 +548,6 @@ contains
     call check (right .eqi. 123, "check0250 failed for list_split")
   end subroutine test_list_split
 
-  subroutine test_list_append_reverse
-    type(cons_t) :: lst
-    integer :: i
-    lst = assume_list (list_append_reverse (3 ** 2 ** 1 ** nil_list, 4 ** 5 ** 6 ** nil_list))
-    call check (list_length (lst) == 6, "list_length (lst) == 6 failed (for list_append_reverse)")
-    do i = 1, 6
-       call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i (for list_append_reverse)")
-    end do
-    !
-    ! Let us check a degenerate case.
-    !
-    call check (list_append_reverse (5, 6) .eqi. 6, "list_append_reverse (5, 6) .eqi. 6 failed")
-  end subroutine test_list_append_reverse
-
   subroutine test_list_append
     type(cons_t) :: lst1, lst2
     integer :: i
@@ -580,6 +566,42 @@ contains
     !
     call check (list_append (5, 6) .eqi. 6, "list_append (5, 6) .eqi. 6 failed")
   end subroutine test_list_append
+
+  subroutine test_list_append_reverse
+    type(cons_t) :: lst
+    integer :: i
+    lst = assume_list (list_append_reverse (3 ** 2 ** 1 ** nil_list, 4 ** 5 ** 6 ** nil_list))
+    call check (list_length (lst) == 6, "list_length (lst) == 6 failed (for list_append_reverse)")
+    do i = 1, 6
+       call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i (for list_append_reverse)")
+    end do
+    !
+    ! Let us check a degenerate case.
+    !
+    call check (list_append_reverse (5, 6) .eqi. 6, "list_append_reverse (5, 6) .eqi. 6 failed")
+  end subroutine test_list_append_reverse
+
+  subroutine test_list_append_in_place
+    type(cons_t) :: lst
+    integer :: i
+    lst = 1 ** 2 ** 3 ** nil_list
+    call list_append_in_place (lst, 4 ** 5 ** 6 ** nil_list)
+    call check (list_length (lst) == 6, "list_length (lst) == 6 failed (for list_append_in_place)")
+    do i = 1, 6
+       call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i (for list_append_in_place)")
+    end do
+  end subroutine test_list_append_in_place
+
+  subroutine test_list_append_reverse_in_place
+    type(cons_t) :: lst
+    integer :: i
+    lst = 3 ** 2 ** 1 ** nil_list
+    call list_append_reverse_in_place (lst, 4 ** 5 ** 6 ** nil_list)
+    call check (list_length (lst) == 6, "list_length (lst) == 6 failed (for list_append_reverse_in_place)")
+    do i = 1, 6
+       call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i (for list_append_reverse_in_place)")
+    end do
+  end subroutine test_list_append_reverse_in_place
 
   subroutine run_tests
     !
@@ -616,8 +638,10 @@ contains
     call test_list_take_right
     call test_list_drop_right
     call test_list_split
-    call test_list_append_reverse
     call test_list_append
+    call test_list_append_reverse
+    call test_list_append_in_place
+    call test_list_append_reverse_in_place
   end subroutine run_tests
 
 end module test__cons_lists
