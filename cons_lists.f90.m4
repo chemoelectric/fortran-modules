@@ -38,6 +38,11 @@ module cons_lists
   ! Request for Implementation SRFI-1 (List Library).  See
   ! https://srfi.schemers.org/srfi-1/srfi-1.html
   !
+  ! Please keep in mind that the term `list' is used only loosely in
+  ! Scheme. The fundamental `list' object types are actually the nil
+  ! `list' and the CAR-CDR pair; furthermore, objects other than those
+  ! can be (and in this module will be) regarded as degenerate `dotted
+  ! lists'.
   !
 
   implicit none
@@ -65,14 +70,13 @@ module cons_lists
   public :: set_car             ! Change the CAR of a CONS-pair.
   public :: set_cdr             ! Change the CDR of a CONS-pair.
 
-  public :: assume_list         ! Assume an object is a cons_t.
+  public :: cons_t_cast         ! Assume an object is a cons_t.
 
   public :: list_length ! The number of CAR elements in a proper or dotted list.
   public :: is_proper_list ! Is an object a list but neither dotted nor circular?
-  public :: is_dotted_object ! Is an object a non-list or a dotted list?
-  public :: is_dotted_list ! Is an object a dotted list (but not a non-list)?
+  public :: is_dotted_list ! Is an object a non-list or a `list' that ends in something other than nil?
   public :: is_circular_list    ! Is an object a circular list?
-  public :: list_classify_object ! Is the object dotted? Is it circular?
+  public :: list_classify ! Is the object a dotted list? Is it a circular list?
 
   ! Permutations of car and cdr, for returning elements of a tree.
 m4_forloop([n],[1],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
@@ -94,7 +98,7 @@ m4_forloop([n],[1],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: list_ref1       ! Return the ith element, starting at i=1.
   public :: list_refn       ! Return the ith element, starting at i=n.
 
-  public :: list_last      ! Return the last element of a proper list.
+  public :: list_last           ! Return the last CAR element.
   public :: list_last_pair ! Return the last CONS-pair of a (possibly dotted) list.
 
   public :: make_list ! Make a list that is one element value repeated.
@@ -109,15 +113,19 @@ m4_forloop([n],[1],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: circular_list       ! Make a circular list.
 
   public :: list_reverse          ! Make a reversed copy.
-  public :: list_reverse_in_place ! Reverse a list without copying.
+  public :: list_reverse_in_place ! Reverse a list without copying. (The argument must be a cons_t.)
   public :: list_copy             ! Make a copy in the original order.
   public :: list_take             ! Copy the first n CAR elements.
   public :: list_drop ! Drop the first n CAR elements (by performing n CDR operations).
   public :: list_take_right ! Roughly, `return the last n elements' (but see SRFI-1).
   public :: list_drop_right ! Roughly, `drop the last n elements' (but see SRFI-1).
   public :: list_split     ! A combination of list_take and list_drop.
+  public :: list_append    ! Concatenate two lists.
   public :: list_append_reverse ! Concatenate the reverse of one list to another list.
-  public :: list_append         ! Concatenate two lists.
+  public :: list_append_in_place ! Concatenate two lists, without copying.
+  public :: list_append_reverse_in_place ! Reverse the first list and then append, without copying.
+  public :: list_concatenate    ! Concatenate a list of lists.
+  public :: list_zip            ! Zip a list of lists.
 
   ! Overloading of `iota'.
   interface iota
@@ -229,7 +237,7 @@ contains
           call error_abort ("uncons of nil list")
        end if
     class default
-       call error_abort ("uncons of non-list")
+       call error_abort ("uncons of an object with no pairs")
     end select
     car_value = car_val
     cdr_value = cdr_val
@@ -267,34 +275,32 @@ contains
     end if
   end subroutine set_cdr
 
-  function assume_list (obj) result (lst)
+  function cons_t_cast (obj) result (lst)
+    !
+    ! Cast to cons_t, if possible.
+    !
     class(*), intent(in) :: obj
     type(cons_t) :: lst
     select type (obj)
     class is (cons_t)
        lst = obj
     class default
-       call error_abort ("assume_list with non-list element")
+       call error_abort ("cons_t_cast of an incompatible object")
     end select
-  end function assume_list
+  end function cons_t_cast
 
   function list_length (lst) result (length)
     class(*), intent(in) :: lst
     integer :: length
 
-    class(cons_t), allocatable :: tail
+    class(*), allocatable :: tail
 
-    select type (lst)
-    class is (cons_t)
-       length = 0
-       tail = lst
-       do while (is_cons_pair (tail))
-          length = length + 1
-          tail = cdr (tail)
-       end do
-    class default
-       call error_abort ("list_length of a non-list")
-    end select
+    length = 0
+    tail = lst
+    do while (is_cons_pair (tail))
+       length = length + 1
+       tail = cdr (tail)
+    end do
   end function list_length
 
   function is_proper_list (obj) result (is_proper)
@@ -304,18 +310,18 @@ contains
     logical :: is_dot
     logical :: is_circ
 
-    call list_classify_object (obj, is_dot, is_circ)
+    call list_classify (obj, is_dot, is_circ)
     is_proper = (.not. is_dot) .and. (.not. is_circ)
   end function is_proper_list
 
-  function is_dotted_object (obj) result (is_dotted)
+  function is_dotted_list (obj) result (is_dotted)
     !
-    ! `is_dotted_object(4)', etc., return .true.
+    ! Note that is_dotted_list(4), is_dotted_list("abc"), etc., return
+    ! .true.
     !
-    ! This peculiar behavior is that of `dotted-list?' in SRFI-1, and
-    ! has a logic to it. In particular:
+    ! One consequence is that
     !
-    !    .not. is_dotted_object (x)
+    !    .not. is_dotted_list (x)
     !
     ! is equivalent to
     !
@@ -327,33 +333,8 @@ contains
     logical :: is_dot
     logical :: is_circ
 
-    call list_classify_object (obj, is_dot, is_circ)
+    call list_classify (obj, is_dot, is_circ)
     is_dotted = is_dot
-  end function is_dotted_object
-
-  function is_dotted_list (obj) result (is_dotted)
-    !
-    ! Fortran programmers may find this function more `friendly' than
-    ! is_dotted_object, given that CONS is not a fundamental part of
-    ! Fortran (as it is in Scheme).
-    !
-    !    is_dotted_list (x)
-    !
-    ! is equivalent to
-    !
-    !    is_dotted_object (x) .and. is_cons_pair (x)
-    !
-    ! Note that `is_dotted_object (nil_list)' is .false.
-    !
-    class(*), intent(in) :: obj
-    logical :: is_dotted
-
-    select type (obj)
-    class is (cons_t)
-       is_dotted = is_dotted_object (obj)
-    class default
-       is_dotted = .false.
-    end select  
   end function is_dotted_list
 
   function is_circular_list (obj) result (is_circular)
@@ -363,11 +344,11 @@ contains
     logical :: is_dot
     logical :: is_circ
 
-    call list_classify_object (obj, is_dot, is_circ)
+    call list_classify (obj, is_dot, is_circ)
     is_circular = is_circ
   end function is_circular_list
 
-  subroutine list_classify_object (obj, is_dotted, is_circular)
+  subroutine list_classify (obj, is_dotted, is_circular)
     !
     ! An object that is not a cons_t is considered dotted.
     !
@@ -421,7 +402,7 @@ contains
 
     is_dotted = is_dot
     is_circular = is_circ
-  end subroutine list_classify_object
+  end subroutine list_classify
 
   function car (pair) result (element)
     class(*), intent(in) :: pair
@@ -434,7 +415,7 @@ contains
           call error_abort ("car of nil list")
        end if
     class default
-       call error_abort ("car of non-list")
+       call error_abort ("car of an object with no pairs")
     end select
   end function car
 
@@ -449,11 +430,12 @@ contains
           call error_abort ("cdr of nil list")
        end if
     class default
-       call error_abort ("cdr of non-list")
+       call error_abort ("cdr of an object with no pairs")
     end select
   end function cdr
 
 m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
+dnl
   function first (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
@@ -563,11 +545,7 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
 
     last_pair = list_last_pair (lst)
     call uncons (last_pair, x, y)
-    if (is_nil_list (y)) then
-       element = x
-    else
-       call error_abort ("list_last of dotted list")
-    end if
+    element = x
   end function list_last
 
   function list_last_pair (lst) result (last_pair)
@@ -583,7 +561,7 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
        if (list_is_pair (lst1)) then
           tail = cdr (lst1)
           do while (is_cons_pair (tail))
-             lst1 = assume_list (tail)
+             lst1 = cons_t_cast (tail)
              tail = cdr (lst1)
           end do
           last_pair = lst1
@@ -591,7 +569,7 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
           call error_abort ("list_last_pair of empty list")
        end if
     class default
-       call error_abort ("list_last_pair of non-list")
+       call error_abort ("list_last_pair of an object with no pairs")
     end select
   end function list_last_pair
 
@@ -655,33 +633,29 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
           call list_reverse_in_place (clst)
           call set_cdr (last, clst)
        else
-          call error_abort ("circular_list of empty list")
+          call error_abort ("circular_list of a nil list")
        end if
     class default
-       call error_abort ("circular_list of non-list")
+       call error_abort ("circular_list of an object with no pairs")
     end select
   end function circular_list
 
   function list_reverse (lst) result (lst_r)
+    !
+    ! The final CDR of any dotted list (including any non-cons_t
+    ! object) is dropped.  The result is a cons_t.
+    !
     class(*), intent(in) :: lst
     type(cons_t) :: lst_r
 
     class(*), allocatable :: tail
     
-    select type (lst)
-    class is (cons_t)
-       lst_r = nil_list
-       tail = lst
-       do while (is_cons_pair (tail))
-          lst_r = cons (car (tail), lst_r)
-          tail = cdr (tail)
-       end do
-       if (.not. is_nil_list (tail)) then
-          call error_abort ("list_reverse of a dotted list")
-       end if
-    class default
-       call error_abort ("list_reverse of a non-list")
-    end select
+    lst_r = nil_list
+    tail = lst
+    do while (is_cons_pair (tail))
+       lst_r = cons (car (tail), lst_r)
+       tail = cdr (tail)
+    end do
   end function list_reverse
 
   subroutine list_reverse_in_place (lst)
@@ -692,7 +666,7 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
 
     lst_r = nil_list
     do while (is_cons_pair (lst))
-       tail = assume_list (cdr (lst))
+       tail = cons_t_cast (cdr (lst))
        call set_cdr (lst, lst_r)
        lst_r = lst
        lst = tail
@@ -701,8 +675,12 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
   end subroutine list_reverse_in_place
 
   function list_copy (lst) result (lst_c)
+    !
+    ! Because lst may be a degenerate dotted list, the result need not
+    ! be a cons_t.
+    !
     class(*), intent(in) :: lst
-    type(cons_t) :: lst_c
+    class(*), allocatable :: lst_c
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -715,8 +693,8 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
           lst_c = nil_list
        else
           call uncons (lst, head, tail)
-          lst_c = cons (head, tail)
-          cursor = lst_c
+          cursor = cons (head, tail)
+          lst_c = cursor
           do while (is_cons_pair (tail))
              call uncons (tail, head, tail)
              new_pair = cons (head, tail)
@@ -725,7 +703,7 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
           end do
        end if
     class default
-       call error_abort ("list_copy of a non-list")
+       lst_c = lst
     end select
   end function list_copy
 
@@ -734,7 +712,8 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
     ! list_take *copies* the first n `CAR' elements, and returns a
     ! list.
     !
-    ! lst may be dotted or circular.
+    ! lst may be dotted or circular. If it is a degenerate dotted
+    ! list, then n must not be positive.
     !
     class(*), intent(in) :: lst
     integer, intent(in) :: n
@@ -746,40 +725,43 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
     type(cons_t) :: new_pair
     integer :: i
 
-    select type (lst)
-    class is (cons_t)
-       if (n <= 0 .or. list_is_nil (lst)) then
-          lst_t = nil_list
-       else
-          call uncons (lst, head, tail)
-          lst_t = cons (head, tail)
-          cursor = lst_t
-          i = n - 1
-          do while (0 < i .and. is_cons_pair (tail))
-             call uncons (tail, head, tail)
-             new_pair = cons (head, tail)
-             call set_cdr (cursor, new_pair)
-             cursor = new_pair
-             i = i - 1
-          end do
-          if (i == 0) then
-             call set_cdr (cursor, nil_list)
+    if (n <= 0) then
+       lst_t = nil_list
+    else
+       select type (lst)
+       class is (cons_t)
+          if (list_is_nil (lst)) then
+             call error_abort ("positive list_take of a nil list")
           else
-             call error_abort ("list_take of a list that is too short")
+             call uncons (lst, head, tail)
+             lst_t = cons (head, tail)
+             cursor = lst_t
+             i = n - 1
+             do while (0 < i .and. is_cons_pair (tail))
+                call uncons (tail, head, tail)
+                new_pair = cons (head, tail)
+                call set_cdr (cursor, new_pair)
+                cursor = new_pair
+                i = i - 1
+             end do
+             if (i == 0) then
+                call set_cdr (cursor, nil_list)
+             else
+                call error_abort ("list_take of a list that is too short")
+             end if
           end if
-       end if
-    class default
-       call error_abort ("list_take of a non-list")
-    end select
+       class default
+          call error_abort ("positive list_take of an object with no pairs")
+       end select
+    end if
   end function list_take
 
   function list_drop (lst, n) result (obj)
     !
     ! list_drop does *not* copy the elements it `keeps'; it is
-    ! equivalent to repeating CDR n times. The result might *not* be a
-    ! list.
+    ! equivalent to repeating CDR n times.
     !
-    ! lst may be dotted or circular.
+    ! lst may be dotted or circular. The result need not be a cons_t.
     !
     class(*), intent(in) :: lst
     integer, intent(in) :: n
@@ -787,27 +769,19 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
 
     integer :: i
 
-    select type (lst)
-    class is (cons_t)
-       obj = lst
-       do i = 1, n
-          select type (lst => obj)
-          class is (cons_t)
-             if (list_is_pair (lst)) then
-                obj = cdr (lst)
-             else
-                call error_abort ("list_drop of a list that is too short")
-             end if
-          end select
-       end do
-    class default
-       call error_abort ("list_drop of a non-list")
-    end select
+    obj = lst
+    do i = 1, n
+       if (is_cons_pair (obj)) then
+          obj = cdr (obj)
+       else
+          call error_abort ("list_drop of a list that is too short")
+       end if
+    end do
   end function list_drop
 
   function list_take_right (lst, n) result (obj)
     !
-    ! The result might *not* be a list.
+    ! The result might not be a cons_t.
     !
     ! lst may be dotted, but must not be circular.
     !
@@ -815,25 +789,21 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
     integer, intent(in) :: n
     class(*), allocatable :: obj
 
-    class(*), allocatable :: lead, lag
+    class(*), allocatable :: lead
+    class(*), allocatable :: lag
 
-    select type (lst)
-    class is (cons_t)
-       lag = lst
-       lead = list_drop (lst, n)
-       do while (is_cons_pair (lead))
-          lag = cdr (lag)
-          lead = cdr (lead)
-       end do
-       obj = lag
-    class default
-       call error_abort ("list_take_right of a non-list")
-    end select
+    lag = lst
+    lead = list_drop (lst, n)
+    do while (is_cons_pair (lead))
+       lag = cdr (lag)
+       lead = cdr (lead)
+    end do
+    obj = lag
   end function list_take_right
 
   function list_drop_right (lst, n) result (lst_dr)
     !
-    ! list_drop_right *copies* the elements.
+    ! list_drop_right *copies* the elements. The result is a cons_t.
     !
     ! lst may be dotted, but must not be circular.
     !
@@ -843,19 +813,19 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
 
     class(cons_t), allocatable :: tail
 
-    select type (lst)
-    class is (cons_t)
-       lst_dr = list_take (lst, list_length (lst) - n)
-    class default
-       call error_abort ("list_drop_right of a non-list")
-    end select
+    lst_dr = list_take (lst, list_length (lst) - n)
   end function list_drop_right
 
-  subroutine list_split (lst, n, lst_left, obj_right)
+  subroutine list_split (lst, n, lst_left, lst_right)
+    !
+    ! If n is positive, then lst must be a CONS-pair.
+    !
+    ! lst_left will be a cons_t, but lst_right need not be.
+    !
     class(*) :: lst
     integer :: n
     type(cons_t) :: lst_left
-    class(*), allocatable :: obj_right
+    class(*), allocatable :: lst_right
 
     type(cons_t) :: lst_t
     class(*), allocatable :: head
@@ -864,102 +834,194 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
     type(cons_t) :: new_pair
     integer :: i
 
-    select type (lst)
-    class is (cons_t)
-       if (n <= 0 .or. list_is_nil (lst)) then
-          lst_left = nil_list
-          obj_right = lst
-       else
-          call uncons (lst, head, tail)
-          lst_t = cons (head, tail)
-          cursor = lst_t
-          i = n - 1
-          do while (0 < i .and. is_cons_pair (tail))
-             call uncons (tail, head, tail)
-             new_pair = cons (head, tail)
-             call set_cdr (cursor, new_pair)
-             cursor = new_pair
-             i = i - 1
-          end do
-          if (i == 0) then
-             call set_cdr (cursor, nil_list)
-          else
-             call error_abort ("list_split of a list that is too short")
-          end if
-          lst_left = lst_t
-          obj_right = tail
-       end if
-    class default
-       call error_abort ("list_split of a non-list")
-    end select
-  end subroutine list_split
-
-  function list_append_reverse (lst1, lst2) result (lst_ar)
-    !
-    ! The tail of the result is shared with lst2. The elements of lst1
-    ! are copied.
-    !
-    class(*) :: lst1, lst2
-    type(cons_t) :: lst_ar
-
-    class(*), allocatable :: head
-    class(*), allocatable :: tail
-
-    select type (lst1)
-    class is (cons_t)
-       select type (lst2)
+    if (n <= 0) then
+       lst_left = nil_list
+       lst_right = lst
+    else
+       select type (lst)
        class is (cons_t)
-          lst_ar = lst2
-          tail = lst1
-          do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
-             lst_ar = cons (head, lst_ar)
-          end do
+          if (list_is_nil (lst)) then
+             call error_abort ("positive list_split of a nil list")
+          else
+             call uncons (lst, head, tail)
+             lst_t = cons (head, tail)
+             cursor = lst_t
+             i = n - 1
+             do while (0 < i .and. is_cons_pair (tail))
+                call uncons (tail, head, tail)
+                new_pair = cons (head, tail)
+                call set_cdr (cursor, new_pair)
+                cursor = new_pair
+                i = i - 1
+             end do
+             if (i == 0) then
+                call set_cdr (cursor, nil_list)
+             else
+                call error_abort ("list_split of a list that is too short")
+             end if
+             lst_left = lst_t
+             lst_right = tail
+          end if
        class default
-          call error_abort ("list_append_reverse of a non-list")
+          call error_abort ("positive list_split of an object with no pairs")
        end select
-    class default
-       call error_abort ("list_append_reverse of a non-list")
-    end select
-  end function list_append_reverse
+    end if
+  end subroutine list_split
 
   function list_append (lst1, lst2) result (lst_a)
     !
-    ! The tail of the result is shared with lst2. The elements of lst1
-    ! are copied.
+    ! The tail of the result is shared with lst2. The CAR elements of
+    ! lst1 are copied; the last CDR of lst1 is dropped.
+    !
+    ! The result need not be a cons_t.
     !
     class(*) :: lst1, lst2
-    type(cons_t) :: lst_a
+    class(*), allocatable :: lst_a
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
     type(cons_t) :: cursor
     type(cons_t) :: new_pair
+    type(cons_t) :: new_lst
 
     select type (lst1)
     class is (cons_t)
-       select type (lst2)
-       class is (cons_t)
-          if (list_is_nil (lst1)) then
-             lst_a = lst2
-          else
-             call uncons (lst1, head, tail)
-             lst_a = cons (head, tail)
-             cursor = lst_a
-             do while (is_cons_pair (tail))
-                call uncons (tail, head, tail)
-                new_pair = cons (head, tail)
-                call set_cdr (cursor, new_pair)
-                cursor = new_pair
-             end do
-             call set_cdr (cursor, lst2)
-          end if
-       class default
-          call error_abort ("list_append of a non-list")
-       end select
+       if (list_is_nil (lst1)) then
+          lst_a = lst2
+       else
+          call uncons (lst1, head, tail)
+          new_lst = cons (head, tail)
+          cursor = new_lst
+          do while (is_cons_pair (tail))
+             call uncons (tail, head, tail)
+             new_pair = cons (head, tail)
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+          end do
+          call set_cdr (cursor, lst2)
+          lst_a = new_lst
+       end if
     class default
-       call error_abort ("list_append of a non-list")
+       lst_a = lst2
     end select
   end function list_append
+
+  function list_append_reverse (lst1, lst2) result (lst_ar)
+    !
+    ! The tail of the result is shared with lst2. The CAR elements of
+    ! lst1 are copied; the last CDR of the reverse of lst1 is dropped.
+    !
+    ! The result need not be a cons_t.
+    !
+    class(*) :: lst1, lst2
+    class(*), allocatable :: lst_ar
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    lst_ar = lst2
+    select type (lst1)
+    class is (cons_t)
+       lst_ar = lst2
+       tail = lst1
+       do while (is_cons_pair (tail))
+          call uncons (tail, head, tail)
+          lst_ar = cons (head, lst_ar)
+       end do
+    end select
+  end function list_append_reverse
+
+  subroutine list_append_in_place (lst1, lst2)
+    !
+    ! lst1 must be a non-empty, non-circular list.
+    !
+    type(cons_t) :: lst1
+    class(*) :: lst2
+    call set_cdr (list_last_pair (lst1), lst2)
+  end subroutine list_append_in_place
+
+  subroutine list_append_reverse_in_place (lst1, lst2)
+    !
+    ! lst1 must be a non-empty, non-circular list.
+    !
+    type(cons_t) :: lst1
+    class(*) :: lst2
+    call list_reverse_in_place (lst1)
+    call list_append_in_place (lst1, lst2)
+  end subroutine list_append_reverse_in_place
+
+  function list_concatenate (lists) result (lst_concat)
+    !
+    ! The result need not be a cons_t.
+    !
+    ! If lists is nil, then the result is a nil list.
+    !
+    class(cons_t), intent(in) :: lists
+    class(*), allocatable :: lst_concat
+
+    type(cons_t) :: lists_r
+    class(*), allocatable :: tail
+
+    if (list_is_nil (lists)) then
+       lst_concat = nil_list
+    else
+       lists_r = list_reverse (lists)
+       lst_concat = car (lists_r)
+       tail = cdr (lists_r)
+       do while (is_cons_pair (tail))
+          lst_concat = list_append (car (tail), lst_concat)
+          tail = cdr (tail)
+       end do
+    end if
+  end function list_concatenate
+
+  function list_zip (lists) result (lst_z)
+! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME not yet implemented
+    class(cons_t), intent(in) :: lists
+    type(cons_t) :: lst_z
+
+    logical :: some_list_is_exhausted
+    type(cons_t) :: zipped_element
+    type(cons_t) :: tails
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+    class(*), allocatable :: p
+
+    if (list_is_nil (lists)) then
+       lst_z = nil_list
+    else
+!???????????
+       tails = lists
+       some_list_is_exhausted = .false.
+       do while (.not. some_list_is_exhausted)
+          zipped_element = nil_list
+          p = tails
+          tails = nil_list
+          do while (.not. some_list_is_exhausted .and. is_cons_pair (p))
+             if (is_cons_pair (car (p))) then
+                zipped_element = cons (caar (p), zipped_element)
+                tails = cons (cdar (p), tails)
+                p = cdr (p)
+             else
+                some_list_is_exhausted = .true.
+             end if
+          end do
+          if (.not. some_list_is_exhausted) then
+             call list_reverse_in_place (zipped_element)
+             ! FIXME: Add zipped_element to the end of lst_z
+             call list_reverse_in_place (tails)
+          end if
+       end do
+    end if
+  end function list_zip
+!!$          call uncons (lst, head, tail)
+!!$          cursor = cons (head, tail)
+!!$          lst_c = cursor
+!!$          do while (is_cons_pair (tail))
+!!$             call uncons (tail, head, tail)
+!!$             new_pair = cons (head, tail)
+!!$             call set_cdr (cursor, new_pair)
+!!$             cursor = new_pair
+!!$          end do
 
 end module cons_lists

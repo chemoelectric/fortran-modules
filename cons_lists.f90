@@ -147,6 +147,7 @@ module cons_lists
   public :: list_append_in_place ! Concatenate two lists, without copying.
   public :: list_append_reverse_in_place ! Reverse the first list and then append, without copying.
   public :: list_concatenate    ! Concatenate a list of lists.
+  public :: list_zip            ! Zip a list of lists.
 
   ! Overloading of `iota'.
   interface iota
@@ -1161,5 +1162,54 @@ contains
        end do
     end if
   end function list_concatenate
+
+  function list_zip (lists) result (lst_z)
+! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME not yet implemented
+    class(cons_t), intent(in) :: lists
+    type(cons_t) :: lst_z
+
+    logical :: some_list_is_exhausted
+    type(cons_t) :: zipped_element
+    type(cons_t) :: tails
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+    class(*), allocatable :: p
+
+    if (list_is_nil (lists)) then
+       lst_z = nil_list
+    else
+!???????????
+       tails = lists
+       some_list_is_exhausted = .false.
+       do while (.not. some_list_is_exhausted)
+          zipped_element = nil_list
+          p = tails
+          tails = nil_list
+          do while (.not. some_list_is_exhausted .and. is_cons_pair (p))
+             if (is_cons_pair (car (p))) then
+                zipped_element = cons (caar (p), zipped_element)
+                tails = cons (cdar (p), tails)
+                p = cdr (p)
+             else
+                some_list_is_exhausted = .true.
+             end if
+          end do
+          if (.not. some_list_is_exhausted) then
+             call list_reverse_in_place (zipped_element)
+             ! FIXME: Add zipped_element to the end of lst_z
+             call list_reverse_in_place (tails)
+          end if
+       end do
+    end if
+  end function list_zip
+!!$          call uncons (lst, head, tail)
+!!$          cursor = cons (head, tail)
+!!$          lst_c = cursor
+!!$          do while (is_cons_pair (tail))
+!!$             call uncons (tail, head, tail)
+!!$             new_pair = cons (head, tail)
+!!$             call set_cdr (cursor, new_pair)
+!!$             cursor = new_pair
+!!$          end do
 
 end module cons_lists
