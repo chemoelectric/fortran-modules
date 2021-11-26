@@ -406,10 +406,11 @@ contains
     logical :: is_circ
     logical :: done
 
+    lead = obj
+
+    lag = lead
     is_dot = .true.
     is_circ = .false.
-    lead = obj
-    lag = obj
     done = .false.
     do while (.not. done)
        if (.not. is_cons_pair (lead)) then
@@ -437,6 +438,7 @@ contains
           end if
        end if
     end do
+
     is_dotted = is_dot
     is_circular = is_circ
   end subroutine list_classify_object
