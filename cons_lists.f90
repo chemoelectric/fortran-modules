@@ -133,6 +133,7 @@ module cons_lists
   public :: list_reverse_in_place ! Reverse a list without copying.
   public :: list_copy             ! Make a copy in the original order.
   public :: list_take             ! Copy the first n elements.
+  public :: list_drop             ! Perform n CDR operations.
 
   ! Overloading of `iota'.
   interface iota
@@ -939,7 +940,10 @@ contains
 
   function list_take (lst, n) result (lst_t)
     !
-    ! This is a list copy with a counter.
+    ! list_take *copies* the first n `CAR' elements, and returns a
+    ! list.
+    !
+    ! lst may be dotted or circular.
     !
     class(*), intent(in) :: lst
     integer, intent(in) :: n
@@ -977,5 +981,37 @@ contains
        call error_abort ("list_take of a non-list")
     end select
   end function list_take
+
+  function list_drop (lst, n) result (obj)
+    !
+    ! list_drop does *not* copy the elements it `keeps'; it is
+    ! equivalent to repeating CDR n times. The result might *not* be a
+    ! list.
+    !
+    ! lst may be dotted or circular.
+    !
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    class(*), allocatable :: obj
+
+    integer :: i
+
+    select type (lst)
+    class is (cons_t)
+       obj = lst
+       do i = 1, n
+          select type (lst => obj)
+          class is (cons_t)
+             if (list_is_pair (lst)) then
+                obj = cdr (lst)
+             else
+                call error_abort ("list_drop of a list that is too short")
+             end if
+          end select
+       end do
+    class default
+       call error_abort ("list_drop of a non-list")
+    end select
+  end function list_drop
 
 end module cons_lists
