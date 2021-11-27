@@ -54,7 +54,7 @@ FC = gfortran
 FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all
 COMPILE.f90 = $(FC) $(FCFLAGS) $(XFCFLAGS)
 
-%.anchor: %.f90					# Makes a module file.
+%.anchor: %.f90
 	$(COMPILE.f90) -c -fsyntax-only $(<) && touch $(@)
 
 %.$(OBJEXT): %.anchor
@@ -83,8 +83,15 @@ test__cons_lists: test__cons_lists.$(OBJEXT) cons_lists.$(OBJEXT)
 
 cons_lists.f90: cadadr.m4
 
+cons_lists.anchor: cons_types.mod
+cons_types.mod:
+
+cons_lists.anchor: cons_procedure_types.mod
+cons_procedure_types.mod:
+
 cons_lists.anchor: cons_lists.mod
 cons_lists.mod:
+
 test__cons_lists.anchor: cons_lists.anchor
 test__cons_lists.anchor: test__cons_lists.mod
 test__cons_lists.mod:

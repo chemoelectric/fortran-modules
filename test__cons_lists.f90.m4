@@ -83,6 +83,12 @@ contains
     bool = real_cast (obj1) == real_cast (obj2)
   end function real_eq
 
+  function cosine_wrapper (x) result (y)
+    class(cons_t), intent(in) :: x
+    type(cons_t) :: y
+    y = list1 (cos (real_cast (car (x))))
+  end function cosine_wrapper
+
   subroutine test_is_nil_list
     call check (.not. is_nil_list ('abc'), ".not. is_nil_list ('abc') failed")
     call check (is_nil_list (nil_list), "is_nil_list (nil_list) failed")
@@ -847,6 +853,27 @@ contains
     call check (is_nil_list (lst4), "is_nil_list (lst4) failed (for list_unzip4)")
   end subroutine test_list_unzip4
 
+  subroutine test_list_map
+    type(cons_t) :: lst_x, lst_y, inputs, outputs
+    procedure(list_mapfunc_t), pointer :: cos_w => cosine_wrapper
+    lst_x = acos (0.00) ** acos (0.25) ** acos (0.50) ** nil_list
+    inputs = list_zip1 (lst_x)
+    outputs = list_map (cosine_wrapper, inputs)
+    call check (list_is_pair (outputs), "check0010 failed (for list_map)")
+    call list_unzip1 (outputs, lst_y)
+    call check (list_length (lst_y) == 3, "check0020 failed (for list_map)")
+    call check (abs (0.00 - real_cast (first (lst_y))) < 0.0001, "check0030 failed (for list_map)")
+    call check (abs (0.25 - real_cast (second (lst_y))) < 0.0001, "check0040 failed (for list_map)")
+    call check (abs (0.50 - real_cast (third (lst_y))) < 0.0001, "check0050 failed (for list_map)")
+    outputs = list_map (cos_w, inputs) ! Use a procedure pointer (cos_w).
+    call check (list_is_pair (outputs), "check0060 failed (for list_map)")
+    call list_unzip1 (outputs, lst_y)
+    call check (list_length (lst_y) == 3, "check0070 failed (for list_map)")
+    call check (abs (0.00 - real_cast (first (lst_y))) < 0.0001, "check0080 failed (for list_map)")
+    call check (abs (0.25 - real_cast (second (lst_y))) < 0.0001, "check0090 failed (for list_map)")
+    call check (abs (0.50 - real_cast (third (lst_y))) < 0.0001, "check0100 failed (for list_map)")
+  end subroutine test_list_map
+
   subroutine run_tests
     !
     ! FIXME: Add a test for list_classify that checks it doesn't
@@ -896,6 +923,7 @@ contains
     call test_list_unzip2
     call test_list_unzip3
     call test_list_unzip4
+    call test_list_map
   end subroutine run_tests
 
 end module test__cons_lists

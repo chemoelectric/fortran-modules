@@ -29,8 +29,62 @@ dnl with the POSIX specification for m4.
 dnl
 dnl
 
-module cons_lists
+module cons_types
   !
+  ! Lisp-style CONS-pairs for Fortran.
+  !
+  ! Please use module cons_lists, rather than this module directly.
+  !
+
+  implicit none
+  private
+
+  public :: cons_pair_t
+  public :: cons_t
+  public :: nil_list
+
+  ! A private type representing the CAR-CDR-tuple of a CONS-pair.
+  type :: cons_pair_t
+     class(*), allocatable :: car
+     class(*), allocatable :: cdr
+  end type cons_pair_t
+
+  ! A public type that is a NIL-list or a reference to a
+  ! CAR-CDR-tuple. The class of a Lisp-like list structure is
+  ! `class(cons_t)'.
+  type :: cons_t
+     class(cons_pair_t), pointer :: p => null ()
+  end type cons_t
+
+  ! The canonical NIL-list.
+  type(cons_t), parameter :: nil_list = cons_t (null ())
+
+end module cons_types
+
+module cons_procedure_types
+  !
+  ! Procedured types used by module cons_lists.
+  !
+  ! Please use module cons_lists, rather than this module directly.
+  !
+
+  abstract interface
+
+     function list_mapfunc_t (x) result (y)
+       !
+       ! list_mapfunc_t is the type of a function called by
+       ! `list_map'.
+       !
+       use :: cons_types
+       class(cons_t), intent(in) :: x
+       type(cons_t) :: y
+     end function list_mapfunc_t
+
+  end interface
+
+end module cons_procedure_types
+
+module cons_lists
   !
   ! Lisp-style CONS-pairs for Fortran, and a suite of list routines.
   !
@@ -44,6 +98,9 @@ module cons_lists
   ! can be (and in this module will be) regarded as degenerate `dotted
   ! lists'.
   !
+
+  use :: cons_types
+  use :: cons_procedure_types
 
   implicit none
   private
@@ -147,6 +204,9 @@ m4_forloop([n],[2],ZIP_MAX,[  public :: list_zip[]n
 m4_forloop([n],[1],ZIP_MAX,[  public :: list_unzip[]n
 ])dnl
 
+  public :: list_map ! Map list elements. (This is like SRFI-1 `map-in-order'.)
+  public :: list_mapfunc_t
+
   ! Overloading of `iota'.
   interface iota
      module procedure iota_given_length
@@ -159,22 +219,6 @@ m4_forloop([n],[1],ZIP_MAX,[  public :: list_unzip[]n
   interface operator(**)
      module procedure list_cons
   end interface operator(**)
-
-  ! A private type representing the CAR-CDR-tuple of a CONS-pair.
-  type :: cons_pair_t
-     class(*), allocatable, private :: car
-     class(*), allocatable, private :: cdr
-  end type cons_pair_t
-
-  ! A public type that is a NIL-list or a reference to a
-  ! CAR-CDR-tuple. The class of a Lisp-like list structure is
-  ! `class(cons_t)'.
-  type :: cons_t
-     class(cons_pair_t), pointer, private :: p => null ()
-  end type cons_t
-
-  ! The canonical NIL-list.
-  type(cons_t), parameter :: nil_list = cons_t (null ())
 
 contains
 
@@ -1111,6 +1155,10 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
 dnl
 m4_forloop([n],[1],ZIP_MAX,[
   function list_zip[]n (lst1[]m4_forloop([k],[2],n,[, lst[]k])) result (lst_z)
+dnl
+dnl  FIXME: OPTIMIZE THE list_zipN IMPLEMENTATIONS,
+dnl         rather than simply call list_unzip.
+dnl
     class(*), intent(in) :: lst1[]m4_forloop([k],[2],n,[, lst[]k])
     type(cons_t) :: lst_z
 
@@ -1157,11 +1205,12 @@ m4_forloop([k],[2],n,[    lists = lst[]m4_eval(n - k + 1) ** lists
     end do
   end function list_unzip
 dnl
-dnl  FIXME: perhaps one should optimize the unzipN implementations,
-dnl         rather than simply call list_unzip.
-dnl
 m4_forloop([n],[1],ZIP_MAX,[
   subroutine list_unzip[]n (lst_zipped, lst1[]m4_forloop([k],[2],n,[, lst[]k]))
+dnl
+dnl  FIXME: OPTIMIZE THE list_unzipN IMPLEMENTATIONS,
+dnl         rather than simply call list_unzip.
+dnl
     class(*) :: lst_zipped
     type(cons_t) :: lst1[]m4_forloop([k],[2],n,[, lst[]k])
 
@@ -1178,5 +1227,49 @@ m4_forloop([k],[1],n,
 ])dnl
   end subroutine list_unzip[]n
 ])dnl
+
+  function list_map (func, inputs) result (outputs)
+    !
+    ! Map elements of lists. The work is guaranteed to be done in
+    ! list order.
+    !
+    ! Both `inputs' and `outputs' are treated as multiple values in
+    ! `zipped list' format.
+    !
+    ! TO EMULATE CLOSURES:
+    !
+    !    If you want to emulate closures, consider passing a pointer
+    !    to an environment as one of the `inputs'. You can use a
+    !    circular list to have the same pointer repeated.
+    !
+    procedure(list_mapfunc_t) :: func
+    class(*), intent(in) :: inputs
+    type(cons_t) :: outputs
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+
+    select type (inputs)
+    class is (cons_t)
+       if (list_is_nil (inputs)) then
+          outputs = nil_list
+       else
+          call uncons (inputs, head, tail)
+          cursor = func (cons_t_cast (head)) ** nil_list
+          outputs = cursor
+          do while (is_cons_pair (tail))
+             call uncons (tail, head, tail)
+             new_pair = func (cons_t_cast (head)) ** nil_list
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+          end do
+       end if
+    class default
+       ! Ignore the `tail' of a degenerate dotted list.
+       outputs = nil_list
+    end select
+  end function list_map
 
 end module cons_lists
