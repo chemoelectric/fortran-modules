@@ -141,6 +141,13 @@ m4_forloop([n],[1],LISTN_MAX,[  public :: unlist[]n[]_with_tail
 m4_forloop([n],[2],ZIP_MAX,[  public :: list_zip[]n
 ])dnl
 
+  ! Unzipping: separating the elements of a list of lists into
+  ! separate lists.
+  public :: list_unzip ! Return the separated lists as a list of lists.
+!m4_forloop([n],[1],ZIP_MAX,[  public :: list_unzip[]n
+!])dnl
+!
+
   ! Overloading of `iota'.
   interface iota
      module procedure iota_given_length
@@ -1117,5 +1124,38 @@ m4_forloop([k],[2],n,[    lists = lst[]m4_eval(n - k + 1) ** lists
     lst_z = list_zip (lists)
   end function list_zip[]n
 ])dnl
+
+  function list_unzip (lst, n) result (lists)
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t) :: lists
+
+    class(*), allocatable :: lst1, row, element
+    type(cons_t) :: head, tail
+    integer :: i
+
+    lists = make_list (n, nil_list)
+
+    lst1 = lst
+    do while (is_cons_pair (lst1))
+       call uncons (lst1, row, lst1)
+       tail = lists
+       lists = nil_list
+       do i = 1, n
+          call uncons (row, element, row)
+          lists = (element ** cons_t_cast (car (tail))) ** lists
+          tail = cons_t_cast (cdr (tail))
+       end do
+       call list_reverse_in_place (lists)
+    end do
+
+    tail = lists
+    do while (list_is_pair (tail))
+       head = cons_t_cast (car (tail))
+       call list_reverse_in_place (head)
+       call set_car (tail, head)
+       tail = cons_t_cast (cdr (tail))
+    end do
+  end function list_unzip
 
 end module cons_lists

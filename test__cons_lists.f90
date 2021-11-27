@@ -750,6 +750,51 @@ contains
     call check (caddar (cdr (lst_z)) .eqi. 6, "caddar (cdr (lst_z)) .eqi. 6 failed (for list_zip3)")
   end subroutine test_list_zip3
 
+  subroutine test_list_unzip
+    type(cons_t) :: lst1, lst2, lst3, lst4
+    type(cons_t) :: lists1, lists2, lists3, lists4
+    lst1 = list1 (1.0) ** list2 (2.0, 2.1) ** list1 (3.0) ** nil_list
+    lists1 = list_unzip (lst1, 1)
+    call check (list_length (lists1) == 1, "list_length (lists1) == 1 failed (for list_unzip)")
+    call check (list_length (car (lists1)) == 3, "list_length (car (lists1)) == 3 failed (for list_unzip)")
+    call check (car (car (lists1)) .eqr. 1.0, "car (car (lists1)) .eqr. 1.0 failed (for list_unzip)")
+    call check (cadr (car (lists1)) .eqr. 2.0, "cadr (car (lists1)) .eqr. 2.0 failed (for list_unzip)")
+    call check (caddr (car (lists1)) .eqr. 3.0, "caddr (car (lists1)) .eqr. 3.0 failed (for list_unzip)")
+    lst2 = list3 (1, 2, 3) ** list2 (4, 5) ** list4 (6, 7, 8, 9) ** nil_list
+    lists2 = list_unzip (lst2, 2)
+    call check (list_length (lists2) == 2, "list_length (lists2) == 2 failed (for list_unzip)")
+    call check (list_length (car (lists2)) == 3, "list_length (car (lists2)) == 3 failed (for list_unzip)")
+    call check (list_length (cadr (lists2)) == 3, "list_length (cadr (lists2)) == 3 failed (for list_unzip)")
+    call check (car (car (lists2)) .eqi. 1, "car (car (lists2)) .eqi. 1 failed (for list_unzip)")
+    call check (cadr (car (lists2)) .eqi. 4, "cadr (car (lists2)) .eqi. 4 failed (for list_unzip)")
+    call check (caddr (car (lists2)) .eqi. 6, "caddr (car (lists2)) .eqi. 6 failed (for list_unzip)")
+    call check (car (cadr (lists2)) .eqi. 2, "car (cadr (lists2)) .eqi. 2 failed (for list_unzip)")
+    call check (cadr (cadr (lists2)) .eqi. 5, "cadr (cadr (lists2)) .eqi. 5 failed (for list_unzip)")
+    call check (caddr (cadr (lists2)) .eqi. 7, "caddr (cadr (lists2)) .eqi. 7 failed (for list_unzip)")
+    lst3 = list3 (1, 2, 3) ** list3 (4, 5, 6) ** (7 ** circular_list (list1 (8))) ** nil_list
+    lists3 = list_unzip (lst3, 3)
+    call check (list_length (lists3) == 3, "list_length (lists3) == 3 failed (for list_unzip)")
+    call check (list_length (car (lists3)) == 3, "list_length (car (lists3)) == 3 failed (for list_unzip)")
+    call check (list_length (cadr (lists3)) == 3, "list_length (cadr (lists3)) == 3 failed (for list_unzip)")
+    call check (list_length (caddr (lists3)) == 3, "list_length (caddr (lists3)) == 3 failed (for list_unzip)")
+    call check (car (car (lists3)) .eqi. 1, "car (car (lists3)) .eqi. 1 failed (for list_unzip)")
+    call check (cadr (car (lists3)) .eqi. 4, "cadr (car (lists3)) .eqi. 4 failed (for list_unzip)")
+    call check (caddr (car (lists3)) .eqi. 7, "caddr (car (lists3)) .eqi. 7 failed (for list_unzip)")
+    call check (car (cadr (lists3)) .eqi. 2, "car (cadr (lists3)) .eqi. 2 failed (for list_unzip)")
+    call check (cadr (cadr (lists3)) .eqi. 5, "cadr (cadr (lists3)) .eqi. 5 failed (for list_unzip)")
+    call check (caddr (cadr (lists3)) .eqi. 8, "caddr (cadr (lists3)) .eqi. 8 failed (for list_unzip)")
+    call check (car (caddr (lists3)) .eqi. 3, "car (caddr (lists3)) .eqi. 3 failed (for list_unzip)")
+    call check (cadr (caddr (lists3)) .eqi. 6, "cadr (caddr (lists3)) .eqi. 6 failed (for list_unzip)")
+    call check (caddr (caddr (lists3)) .eqi. 8, "caddr (caddr (lists3)) .eqi. 8 failed (for list_unzip)")
+    lst4 = nil_list
+    lists4 = list_unzip (lst4, 4)
+    call check (list_length (lists4) == 4, "list_length (lists4) == 4 failed (for list_unzip)")
+    call check (is_nil_list (car (lists4)), "is_nil_list (car (lists4)) failed (for list_unzip)")
+    call check (is_nil_list (cadr (lists4)), "is_nil_list (cadr (lists4)) failed (for list_unzip)")
+    call check (is_nil_list (caddr (lists4)), "is_nil_list (caddr (lists4)) failed (for list_unzip)")
+    call check (is_nil_list (cadddr (lists4)), "is_nil_list (cadddr (lists4)) failed (for list_unzip)")
+  end subroutine test_list_unzip
+
   subroutine run_tests
     !
     ! FIXME: Add a test for list_classify that checks it doesn't
@@ -794,6 +839,7 @@ contains
     call test_list_zip
     call test_list_zip1
     call test_list_zip3
+    call test_list_unzip
   end subroutine run_tests
 
 end module test__cons_lists

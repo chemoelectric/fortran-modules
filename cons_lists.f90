@@ -190,6 +190,20 @@ module cons_lists
   public :: list_zip8
   public :: list_zip9
 
+  ! Unzipping: separating the elements of a list of lists into
+  ! separate lists.
+  public :: list_unzip ! Return the separated lists as a list of lists.
+!  public :: list_unzip1
+!  public :: list_unzip2
+!  public :: list_unzip3
+!  public :: list_unzip4
+!  public :: list_unzip5
+!  public :: list_unzip6
+!  public :: list_unzip7
+!  public :: list_unzip8
+!  public :: list_unzip9
+!!
+
   ! Overloading of `iota'.
   interface iota
      module procedure iota_given_length
@@ -1959,5 +1973,38 @@ contains
     lists = lst1 ** lists
     lst_z = list_zip (lists)
   end function list_zip9
+
+  function list_unzip (lst, n) result (lists)
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t) :: lists
+
+    class(*), allocatable :: lst1, row, element
+    type(cons_t) :: head, tail
+    integer :: i
+
+    lists = make_list (n, nil_list)
+
+    lst1 = lst
+    do while (is_cons_pair (lst1))
+       call uncons (lst1, row, lst1)
+       tail = lists
+       lists = nil_list
+       do i = 1, n
+          call uncons (row, element, row)
+          lists = (element ** cons_t_cast (car (tail))) ** lists
+          tail = cons_t_cast (cdr (tail))
+       end do
+       call list_reverse_in_place (lists)
+    end do
+
+    tail = lists
+    do while (list_is_pair (tail))
+       head = cons_t_cast (car (tail))
+       call list_reverse_in_place (head)
+       call set_car (tail, head)
+       tail = cons_t_cast (cdr (tail))
+    end do
+  end function list_unzip
 
 end module cons_lists
