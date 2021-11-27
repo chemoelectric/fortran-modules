@@ -970,7 +970,8 @@ contains
 
   subroutine unlist1 (lst, obj1)
     !
-    ! This subroutine `unlists' the 1 elements of lst.
+    ! This subroutine `unlists' the 1 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
     class(*), allocatable :: obj1
@@ -981,14 +982,15 @@ contains
     tail = lst
     call uncons (tail, head, tail)
     obj1 = head
-    if (.not. is_nil_list (tail)) then
+    if (is_cons_pair (tail)) then
        call error_abort ("unlist1 of a list that is too long")
     end if
   end subroutine unlist1
 
   subroutine unlist2 (lst, obj1, obj2)
     !
-    ! This subroutine `unlists' the 2 elements of lst.
+    ! This subroutine `unlists' the 2 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
     class(*), allocatable :: obj1, obj2
@@ -1001,14 +1003,15 @@ contains
     obj1 = head
     call uncons (tail, head, tail)
     obj2 = head
-    if (.not. is_nil_list (tail)) then
+    if (is_cons_pair (tail)) then
        call error_abort ("unlist2 of a list that is too long")
     end if
   end subroutine unlist2
 
   subroutine unlist3 (lst, obj1, obj2, obj3)
     !
-    ! This subroutine `unlists' the 3 elements of lst.
+    ! This subroutine `unlists' the 3 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
     class(*), allocatable :: obj1, obj2, obj3
@@ -1023,14 +1026,15 @@ contains
     obj2 = head
     call uncons (tail, head, tail)
     obj3 = head
-    if (.not. is_nil_list (tail)) then
+    if (is_cons_pair (tail)) then
        call error_abort ("unlist3 of a list that is too long")
     end if
   end subroutine unlist3
 
   subroutine unlist4 (lst, obj1, obj2, obj3, obj4)
     !
-    ! This subroutine `unlists' the 4 elements of lst.
+    ! This subroutine `unlists' the 4 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
     class(*), allocatable :: obj1, obj2, obj3, obj4
@@ -1047,14 +1051,15 @@ contains
     obj3 = head
     call uncons (tail, head, tail)
     obj4 = head
-    if (.not. is_nil_list (tail)) then
+    if (is_cons_pair (tail)) then
        call error_abort ("unlist4 of a list that is too long")
     end if
   end subroutine unlist4
 
   subroutine unlist5 (lst, obj1, obj2, obj3, obj4, obj5)
     !
-    ! This subroutine `unlists' the 5 elements of lst.
+    ! This subroutine `unlists' the 5 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
     class(*), allocatable :: obj1, obj2, obj3, obj4, obj5
@@ -1073,14 +1078,15 @@ contains
     obj4 = head
     call uncons (tail, head, tail)
     obj5 = head
-    if (.not. is_nil_list (tail)) then
+    if (is_cons_pair (tail)) then
        call error_abort ("unlist5 of a list that is too long")
     end if
   end subroutine unlist5
 
   subroutine unlist6 (lst, obj1, obj2, obj3, obj4, obj5, obj6)
     !
-    ! This subroutine `unlists' the 6 elements of lst.
+    ! This subroutine `unlists' the 6 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
     class(*), allocatable :: obj1, obj2, obj3, obj4, obj5, obj6
@@ -1101,14 +1107,15 @@ contains
     obj5 = head
     call uncons (tail, head, tail)
     obj6 = head
-    if (.not. is_nil_list (tail)) then
+    if (is_cons_pair (tail)) then
        call error_abort ("unlist6 of a list that is too long")
     end if
   end subroutine unlist6
 
   subroutine unlist7 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7)
     !
-    ! This subroutine `unlists' the 7 elements of lst.
+    ! This subroutine `unlists' the 7 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
     class(*), allocatable :: obj1, obj2, obj3, obj4, obj5, obj6, obj7
@@ -1131,14 +1138,15 @@ contains
     obj6 = head
     call uncons (tail, head, tail)
     obj7 = head
-    if (.not. is_nil_list (tail)) then
+    if (is_cons_pair (tail)) then
        call error_abort ("unlist7 of a list that is too long")
     end if
   end subroutine unlist7
 
   subroutine unlist8 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8)
     !
-    ! This subroutine `unlists' the 8 elements of lst.
+    ! This subroutine `unlists' the 8 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
     class(*), allocatable :: obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8
@@ -1163,14 +1171,15 @@ contains
     obj7 = head
     call uncons (tail, head, tail)
     obj8 = head
-    if (.not. is_nil_list (tail)) then
+    if (is_cons_pair (tail)) then
        call error_abort ("unlist8 of a list that is too long")
     end if
   end subroutine unlist8
 
   subroutine unlist9 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9)
     !
-    ! This subroutine `unlists' the 9 elements of lst.
+    ! This subroutine `unlists' the 9 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
     class(*), allocatable :: obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9
@@ -1197,7 +1206,7 @@ contains
     obj8 = head
     call uncons (tail, head, tail)
     obj9 = head
-    if (.not. is_nil_list (tail)) then
+    if (is_cons_pair (tail)) then
        call error_abort ("unlist9 of a list that is too long")
     end if
   end subroutine unlist9

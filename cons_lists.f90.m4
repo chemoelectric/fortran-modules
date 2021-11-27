@@ -669,7 +669,8 @@ dnl
 m4_forloop([n],[1],LISTN_MAX,[
   subroutine unlist[]n (lst, obj1[]m4_forloop([k],[2],n,[, obj[]k]))
     !
-    ! This subroutine `unlists' the n elements of lst.
+    ! This subroutine `unlists' the n elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
     class(*), allocatable :: obj1[]m4_forloop([k],[2],n,[, obj[]k])
@@ -684,7 +685,7 @@ dnl
 m4_forloop([k],[2],n,[    call uncons (tail, head, tail)
     obj[]k = head
 ])dnl
-    if (.not. is_nil_list (tail)) then
+    if (is_cons_pair (tail)) then
        call error_abort ("unlist[]n[] of a list that is too long")
     end if
   end subroutine unlist[]n
