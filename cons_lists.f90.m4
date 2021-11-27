@@ -125,7 +125,13 @@ m4_forloop([n],[1],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: list_append_in_place ! Concatenate two lists, without copying.
   public :: list_append_reverse_in_place ! Reverse the first list and then append, without copying.
   public :: list_concatenate    ! Concatenate a list of lists.
-  public :: list_zip            ! Zip a list of lists.
+
+  ! Zipping: joining the elements of separate lists into a list of
+  ! lists.
+  public :: list_zip  ! Use the elements of a list as the arguments.
+  public :: list_zip1 ! Box each element of a list in a length-1 list.
+m4_forloop([n],[2],ZIP_MAX,[  public :: list_zip[]n
+])dnl
 
   ! Overloading of `iota'.
   interface iota
@@ -1028,5 +1034,18 @@ dnl
     end function zip_one_row
 
   end function list_zip
+m4_forloop([n],[1],ZIP_MAX,[
+  function list_zip[]n (lst1[]m4_forloop([k],[2],n,[, lst[]k])) result (lst_z)
+    class(*), intent(in) :: lst1[]m4_forloop([k],[2],n,[, lst[]k])
+    type(cons_t) :: lst_z
+
+    type(cons_t) :: lists
+
+    lists = lst[]n ** nil_list
+m4_forloop([k],[2],n,[    lists = lst[]m4_eval(n - k + 1) ** lists
+])dnl
+    lst_z = list_zip (lists)
+  end function list_zip[]n
+])dnl
 
 end module cons_lists

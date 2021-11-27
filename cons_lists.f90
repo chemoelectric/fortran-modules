@@ -147,7 +147,19 @@ module cons_lists
   public :: list_append_in_place ! Concatenate two lists, without copying.
   public :: list_append_reverse_in_place ! Reverse the first list and then append, without copying.
   public :: list_concatenate    ! Concatenate a list of lists.
-  public :: list_zip            ! Zip a list of lists.
+
+  ! Zipping: joining the elements of separate lists into a list of
+  ! lists.
+  public :: list_zip  ! Use the elements of a list as the arguments.
+  public :: list_zip1 ! Box each element of a list in a length-1 list.
+  public :: list_zip2
+  public :: list_zip3
+  public :: list_zip4
+  public :: list_zip5
+  public :: list_zip6
+  public :: list_zip7
+  public :: list_zip8
+  public :: list_zip9
 
   ! Overloading of `iota'.
   interface iota
@@ -1216,5 +1228,131 @@ contains
     end function zip_one_row
 
   end function list_zip
+
+  function list_zip1 (lst1) result (lst_z)
+    class(*), intent(in) :: lst1
+    type(cons_t) :: lst_z
+
+    type(cons_t) :: lists
+
+    lists = lst1 ** nil_list
+    lst_z = list_zip (lists)
+  end function list_zip1
+
+  function list_zip2 (lst1, lst2) result (lst_z)
+    class(*), intent(in) :: lst1, lst2
+    type(cons_t) :: lst_z
+
+    type(cons_t) :: lists
+
+    lists = lst2 ** nil_list
+    lists = lst1 ** lists
+    lst_z = list_zip (lists)
+  end function list_zip2
+
+  function list_zip3 (lst1, lst2, lst3) result (lst_z)
+    class(*), intent(in) :: lst1, lst2, lst3
+    type(cons_t) :: lst_z
+
+    type(cons_t) :: lists
+
+    lists = lst3 ** nil_list
+    lists = lst2 ** lists
+    lists = lst1 ** lists
+    lst_z = list_zip (lists)
+  end function list_zip3
+
+  function list_zip4 (lst1, lst2, lst3, lst4) result (lst_z)
+    class(*), intent(in) :: lst1, lst2, lst3, lst4
+    type(cons_t) :: lst_z
+
+    type(cons_t) :: lists
+
+    lists = lst4 ** nil_list
+    lists = lst3 ** lists
+    lists = lst2 ** lists
+    lists = lst1 ** lists
+    lst_z = list_zip (lists)
+  end function list_zip4
+
+  function list_zip5 (lst1, lst2, lst3, lst4, lst5) result (lst_z)
+    class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5
+    type(cons_t) :: lst_z
+
+    type(cons_t) :: lists
+
+    lists = lst5 ** nil_list
+    lists = lst4 ** lists
+    lists = lst3 ** lists
+    lists = lst2 ** lists
+    lists = lst1 ** lists
+    lst_z = list_zip (lists)
+  end function list_zip5
+
+  function list_zip6 (lst1, lst2, lst3, lst4, lst5, lst6) result (lst_z)
+    class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6
+    type(cons_t) :: lst_z
+
+    type(cons_t) :: lists
+
+    lists = lst6 ** nil_list
+    lists = lst5 ** lists
+    lists = lst4 ** lists
+    lists = lst3 ** lists
+    lists = lst2 ** lists
+    lists = lst1 ** lists
+    lst_z = list_zip (lists)
+  end function list_zip6
+
+  function list_zip7 (lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_z)
+    class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7
+    type(cons_t) :: lst_z
+
+    type(cons_t) :: lists
+
+    lists = lst7 ** nil_list
+    lists = lst6 ** lists
+    lists = lst5 ** lists
+    lists = lst4 ** lists
+    lists = lst3 ** lists
+    lists = lst2 ** lists
+    lists = lst1 ** lists
+    lst_z = list_zip (lists)
+  end function list_zip7
+
+  function list_zip8 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_z)
+    class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8
+    type(cons_t) :: lst_z
+
+    type(cons_t) :: lists
+
+    lists = lst8 ** nil_list
+    lists = lst7 ** lists
+    lists = lst6 ** lists
+    lists = lst5 ** lists
+    lists = lst4 ** lists
+    lists = lst3 ** lists
+    lists = lst2 ** lists
+    lists = lst1 ** lists
+    lst_z = list_zip (lists)
+  end function list_zip8
+
+  function list_zip9 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_z)
+    class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9
+    type(cons_t) :: lst_z
+
+    type(cons_t) :: lists
+
+    lists = lst9 ** nil_list
+    lists = lst8 ** lists
+    lists = lst7 ** lists
+    lists = lst6 ** lists
+    lists = lst5 ** lists
+    lists = lst4 ** lists
+    lists = lst3 ** lists
+    lists = lst2 ** lists
+    lists = lst1 ** lists
+    lst_z = list_zip (lists)
+  end function list_zip9
 
 end module cons_lists

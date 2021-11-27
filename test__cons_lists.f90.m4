@@ -672,6 +672,39 @@ contains
     call check (third (third (lst2)) .eqr. 7.0, "third (third (lst2)) .eqr. 7.0 failed (for list_zip)")
   end subroutine test_list_zip
 
+  subroutine test_list_zip1
+    type(cons_t) :: lst1, lst_z
+    call check (is_nil_list (list_zip1 (nil_list)), "is_nil_list (list_zip1 (nil_list)) failed")
+    lst1 = 1.0 ** 2 ** 3 ** nil_list
+    lst_z = list_zip1 (lst1)
+    call check (list_length (lst_z) == 3, "list_length (lst_z) == 3 failed (for list_zip1)")
+    call check (list_length (car (lst_z)) == 1, "list_length (car (lst_z)) == 1 failed (for list_zip1)")
+    call check (list_length (cadr (lst_z)) == 1, "list_length (cadr (lst_z)) == 1 failed (for list_zip1)")
+    call check (list_length (caddr (lst_z)) == 1, "list_length (caddr (lst_z)) == 1 failed (for list_zip1)")
+    call check (caar (lst_z) .eqr. 1.0, "caar (lst_z) .eqr. 1.0 failed (for list_zip1)")
+    call check (caadr (lst_z) .eqi. 2, "caadr (lst_z) .eqi. 2 failed (for list_zip1)")
+    call check (caaddr (lst_z) .eqi. 3, "caaddr (lst_z) .eqi. 3 failed (for list_zip1)")
+  end subroutine test_list_zip1
+
+  subroutine test_list_zip3
+    type(cons_t) :: lst1, lst2, lst3, lst_z
+    call check (is_nil_list (list_zip3 (1.0 ** nil_list, nil_list, 2 ** 3 ** nil_list)), &
+         "is_nil_list (list_zip3 (1.0 ** nil_list, nil_list, 2 ** 3 ** nil_list)) failed")
+    lst1 = 1.0 ** 2 ** 3 ** nil_list
+    lst2 = circular_list (4 ** nil_list)
+    lst3 = 5 ** 6 ** nil_list
+    lst_z = list_zip3 (lst1, lst2, lst3)
+    call check (list_length (lst_z) == 2, "list_length (lst_z) == 2 failed (for list_zip3)")
+    call check (list_length (car (lst_z)) == 3, "list_length (car (lst_z)) == 3 failed (for list_zip3)")
+    call check (list_length (cadr (lst_z)) == 3, "list_length (cadr (lst_z)) == 3 failed (for list_zip3)")
+    call check (caar (lst_z) .eqr. 1.0, "caar (lst_z) .eqr. 1.0 failed (for list_zip3)")
+    call check (cadar (lst_z) .eqi. 4, "cadar (lst_z) .eqi. 4 failed (for list_zip3)")
+    call check (caddar (lst_z) .eqi. 5, "caddar (lst_z) .eqi. 5 failed (for list_zip3)")
+    call check (caar (cdr (lst_z)) .eqi. 2, "caar (cdr (lst_z)) .eqi. 2 failed (for list_zip3)")
+    call check (cadar (cdr (lst_z)) .eqi. 4, "cadar (cdr (lst_z)) .eqi. 4 failed (for list_zip3)")
+    call check (caddar (cdr (lst_z)) .eqi. 6, "caddar (cdr (lst_z)) .eqi. 6 failed (for list_zip3)")
+  end subroutine test_list_zip3
+
   subroutine run_tests
     !
     ! FIXME: Add a test for list_classify that checks it doesn't
@@ -713,6 +746,8 @@ contains
     call test_list_append_reverse_in_place
     call test_list_concatenate
     call test_list_zip
+    call test_list_zip1
+    call test_list_zip3
   end subroutine run_tests
 
 end module test__cons_lists

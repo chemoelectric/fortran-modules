@@ -33,13 +33,19 @@ FORTRAN_STANDARD = gnu
 OBJEXT = o
 
 M4 = m4
+COMPILE.m4 = $(M4) $(M4FLAGS) $(XM4FLAGS)
+
 ifeq ($(FORTRAN_STANDARD),gnu)
 M4FLAGS = -DCALL_ABORT="call abort"
 else
 M4FLAGS = -DCALL_ABORT="!call abort"
 endif
+
+# How deep should car-cdr permutations go?
 M4FLAGS += -DCADADR_MAX=4
-COMPILE.m4 = $(M4) $(M4FLAGS) $(XM4FLAGS)
+
+# How many arguments should zips and unzips go up to?
+M4FLAGS += -DZIP_MAX=9
 
 FC = gfortran
 FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all
