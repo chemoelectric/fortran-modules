@@ -900,10 +900,14 @@ contains
     tail = outputs
     do i = 0, 99
        call uncons (tail, head, tail)
-print*,integer_cast(car(head)),integer_cast(cadr(head))
        call check (first (head) .eqi. i / 2, "check0130 failed (for list_map)")
        call check (second (head) .eqi. mod (i, 2), "check0140 failed (for list_map)")
     end do
+    !
+    ! Try it with an empty input list.
+    !
+    outputs = list_map (division_wrapper, nil_list)
+    call check (list_length (outputs) == 0, "check0150 failed (for list_map)")
   end subroutine test_list_map
 
   subroutine run_tests
