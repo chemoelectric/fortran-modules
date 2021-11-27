@@ -870,6 +870,7 @@ contains
     procedure(list_mapfunc_t), pointer :: cos_w => cosine_wrapper
     integer :: i
     class(*), allocatable :: head, tail
+    type(cons_t) :: quotients, remainders
     !
     ! Try computing a list of cosines.
     !
@@ -897,17 +898,31 @@ contains
     call check (list_length (inputs) == 100, "check0110 failed (for list_map)")
     outputs = list_map (division_wrapper, inputs)
     call check (list_length (outputs) == 100, "check0120 failed (for list_map)")
+    call list_unzip2 (outputs, quotients, remainders)
     tail = outputs
     do i = 0, 99
        call uncons (tail, head, tail)
        call check (first (head) .eqi. i / 2, "check0130 failed (for list_map)")
        call check (second (head) .eqi. mod (i, 2), "check0140 failed (for list_map)")
     end do
+    tail = quotients
+    do i = 0, 99
+       call uncons (tail, head, tail)
+       call check (head .eqi. i / 2, "check0150 failed (for list_map)")
+    end do
+    tail = remainders
+    do i = 0, 99
+       call uncons (tail, head, tail)
+       call check (head .eqi. mod (i, 2), "check0160 failed (for list_map)")
+    end do
     !
     ! Try it with an empty input list.
     !
     outputs = list_map (division_wrapper, nil_list)
-    call check (list_length (outputs) == 0, "check0150 failed (for list_map)")
+    call check (is_nil_list (outputs), "check0170 failed (for list_map)")
+    call list_unzip2 (list_map (division_wrapper, nil_list), quotients, remainders)
+    call check (is_nil_list (quotients), "check0180 failed (for list_map)")
+    call check (is_nil_list (remainders), "check0190 failed (for list_map)")
   end subroutine test_list_map
 
   subroutine run_tests
