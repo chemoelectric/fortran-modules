@@ -795,6 +795,58 @@ contains
     call check (is_nil_list (cadddr (lists4)), "is_nil_list (cadddr (lists4)) failed (for list_unzip)")
   end subroutine test_list_unzip
 
+  subroutine test_list_unzip1
+    type(cons_t) :: lst_zipped, lst1
+    lst_zipped = list1 (1.0) ** list2 (2.0, 2.1) ** list1 (3.0) ** nil_list
+    call list_unzip1 (lst_zipped, lst1)
+    call check (list_length (lst1) == 3, "list_length (lst1) == 3 failed (for list_unzip1)")
+    call check (car (lst1) .eqr. 1.0, "car (lst1) .eqr. 1.0 failed (for list_unzip1)")
+    call check (cadr (lst1) .eqr. 2.0, "cadr (lst1) .eqr. 2.0 failed (for list_unzip1)")
+    call check (caddr (lst1) .eqr. 3.0, "caddr (lst1) .eqr. 3.0 failed (for list_unzip1)")
+  end subroutine test_list_unzip1
+
+  subroutine test_list_unzip2
+    type(cons_t) :: lst_zipped, lst1, lst2
+    lst_zipped = list3 (1, 2, 3) ** list2 (4, 5) ** list4 (6, 7, 8, 9) ** nil_list
+    call list_unzip2 (lst_zipped, lst1, lst2)
+    call check (list_length (lst1) == 3, "list_length (lst1) == 3 failed (for list_unzip2)")
+    call check (list_length (lst2) == 3, "list_length (lst2) == 3 failed (for list_unzip2)")
+    call check (car (lst1) .eqi. 1, "car (lst1) .eqi. 1 failed (for list_unzip2)")
+    call check (cadr (lst1) .eqi. 4, "cadr (lst1) .eqi. 4 failed (for list_unzip2)")
+    call check (caddr (lst1) .eqi. 6, "caddr (lst1) .eqi. 6 failed (for list_unzip2)")
+    call check (car (lst2) .eqi. 2, "car (lst2) .eqi. 2 failed (for list_unzip2)")
+    call check (cadr (lst2) .eqi. 5, "cadr (lst2) .eqi. 5 failed (for list_unzip2)")
+    call check (caddr (lst2) .eqi. 7, "caddr (lst2) .eqi. 7 failed (for list_unzip2)")
+  end subroutine test_list_unzip2
+
+  subroutine test_list_unzip3
+    type(cons_t) :: lst_zipped, lst1, lst2, lst3
+    lst_zipped = list3 (1, 2, 3) ** list3 (4, 5, 6) ** (7 ** circular_list (list1 (8))) ** nil_list
+    call list_unzip3 (lst_zipped, lst1, lst2, lst3)
+    call check (list_length (lst1) == 3, "list_length (lst1) == 3 failed (for list_unzip3)")
+    call check (list_length (lst2) == 3, "list_length (lst2) == 3 failed (for list_unzip3)")
+    call check (list_length (lst3) == 3, "list_length (lst3) == 3 failed (for list_unzip3)")
+    call check (car (lst1) .eqi. 1, "car (lst1) .eqi. 1 failed (for list_unzip3)")
+    call check (cadr (lst1) .eqi. 4, "cadr (lst1) .eqi. 4 failed (for list_unzip3)")
+    call check (caddr (lst1) .eqi. 7, "caddr (lst1) .eqi. 7 failed (for list_unzip3)")
+    call check (car (lst2) .eqi. 2, "car (lst2) .eqi. 2 failed (for list_unzip3)")
+    call check (cadr (lst2) .eqi. 5, "cadr (lst2) .eqi. 5 failed (for list_unzip3)")
+    call check (caddr (lst2) .eqi. 8, "caddr (lst2) .eqi. 8 failed (for list_unzip3)")
+    call check (car (lst3) .eqi. 3, "car (lst3) .eqi. 3 failed (for list_unzip3)")
+    call check (cadr (lst3) .eqi. 6, "cadr (lst3) .eqi. 6 failed (for list_unzip3)")
+    call check (caddr (lst3) .eqi. 8, "caddr (lst3) .eqi. 8 failed (for list_unzip3)")
+  end subroutine test_list_unzip3
+
+  subroutine test_list_unzip4
+    type(cons_t) :: lst_zipped, lst1, lst2, lst3, lst4
+    lst_zipped = nil_list
+    call list_unzip4 (lst_zipped, lst1, lst2, lst3, lst4)
+    call check (is_nil_list (lst1), "is_nil_list (lst1) failed (for list_unzip4)")
+    call check (is_nil_list (lst2), "is_nil_list (lst2) failed (for list_unzip4)")
+    call check (is_nil_list (lst3), "is_nil_list (lst3) failed (for list_unzip4)")
+    call check (is_nil_list (lst4), "is_nil_list (lst4) failed (for list_unzip4)")
+  end subroutine test_list_unzip4
+
   subroutine run_tests
     !
     ! FIXME: Add a test for list_classify that checks it doesn't
@@ -840,6 +892,10 @@ contains
     call test_list_zip1
     call test_list_zip3
     call test_list_unzip
+    call test_list_unzip1
+    call test_list_unzip2
+    call test_list_unzip3
+    call test_list_unzip4
   end subroutine run_tests
 
 end module test__cons_lists

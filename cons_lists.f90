@@ -193,16 +193,15 @@ module cons_lists
   ! Unzipping: separating the elements of a list of lists into
   ! separate lists.
   public :: list_unzip ! Return the separated lists as a list of lists.
-!  public :: list_unzip1
-!  public :: list_unzip2
-!  public :: list_unzip3
-!  public :: list_unzip4
-!  public :: list_unzip5
-!  public :: list_unzip6
-!  public :: list_unzip7
-!  public :: list_unzip8
-!  public :: list_unzip9
-!!
+  public :: list_unzip1
+  public :: list_unzip2
+  public :: list_unzip3
+  public :: list_unzip4
+  public :: list_unzip5
+  public :: list_unzip6
+  public :: list_unzip7
+  public :: list_unzip8
+  public :: list_unzip9
 
   ! Overloading of `iota'.
   interface iota
@@ -2006,5 +2005,212 @@ contains
        tail = cons_t_cast (cdr (tail))
     end do
   end function list_unzip
+
+  subroutine list_unzip1 (lst_zipped, lst1)
+    class(*) :: lst_zipped
+    type(cons_t) :: lst1
+
+    type(cons_t) :: lists
+    class(*), allocatable :: head, tail
+
+    lists = list_unzip (lst_zipped, 1)
+
+    tail = lists
+    call uncons (tail, head, tail)
+    lst1 = cons_t_cast (head)
+
+  end subroutine list_unzip1
+
+  subroutine list_unzip2 (lst_zipped, lst1, lst2)
+    class(*) :: lst_zipped
+    type(cons_t) :: lst1, lst2
+
+    type(cons_t) :: lists
+    class(*), allocatable :: head, tail
+
+    lists = list_unzip (lst_zipped, 2)
+
+    tail = lists
+    call uncons (tail, head, tail)
+    lst1 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst2 = cons_t_cast (head)
+
+  end subroutine list_unzip2
+
+  subroutine list_unzip3 (lst_zipped, lst1, lst2, lst3)
+    class(*) :: lst_zipped
+    type(cons_t) :: lst1, lst2, lst3
+
+    type(cons_t) :: lists
+    class(*), allocatable :: head, tail
+
+    lists = list_unzip (lst_zipped, 3)
+
+    tail = lists
+    call uncons (tail, head, tail)
+    lst1 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst2 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst3 = cons_t_cast (head)
+
+  end subroutine list_unzip3
+
+  subroutine list_unzip4 (lst_zipped, lst1, lst2, lst3, lst4)
+    class(*) :: lst_zipped
+    type(cons_t) :: lst1, lst2, lst3, lst4
+
+    type(cons_t) :: lists
+    class(*), allocatable :: head, tail
+
+    lists = list_unzip (lst_zipped, 4)
+
+    tail = lists
+    call uncons (tail, head, tail)
+    lst1 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst2 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst3 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst4 = cons_t_cast (head)
+
+  end subroutine list_unzip4
+
+  subroutine list_unzip5 (lst_zipped, lst1, lst2, lst3, lst4, lst5)
+    class(*) :: lst_zipped
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5
+
+    type(cons_t) :: lists
+    class(*), allocatable :: head, tail
+
+    lists = list_unzip (lst_zipped, 5)
+
+    tail = lists
+    call uncons (tail, head, tail)
+    lst1 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst2 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst3 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst4 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst5 = cons_t_cast (head)
+
+  end subroutine list_unzip5
+
+  subroutine list_unzip6 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6)
+    class(*) :: lst_zipped
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
+
+    type(cons_t) :: lists
+    class(*), allocatable :: head, tail
+
+    lists = list_unzip (lst_zipped, 6)
+
+    tail = lists
+    call uncons (tail, head, tail)
+    lst1 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst2 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst3 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst4 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst5 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst6 = cons_t_cast (head)
+
+  end subroutine list_unzip6
+
+  subroutine list_unzip7 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7)
+    class(*) :: lst_zipped
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7
+
+    type(cons_t) :: lists
+    class(*), allocatable :: head, tail
+
+    lists = list_unzip (lst_zipped, 7)
+
+    tail = lists
+    call uncons (tail, head, tail)
+    lst1 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst2 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst3 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst4 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst5 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst6 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst7 = cons_t_cast (head)
+
+  end subroutine list_unzip7
+
+  subroutine list_unzip8 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8)
+    class(*) :: lst_zipped
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8
+
+    type(cons_t) :: lists
+    class(*), allocatable :: head, tail
+
+    lists = list_unzip (lst_zipped, 8)
+
+    tail = lists
+    call uncons (tail, head, tail)
+    lst1 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst2 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst3 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst4 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst5 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst6 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst7 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst8 = cons_t_cast (head)
+
+  end subroutine list_unzip8
+
+  subroutine list_unzip9 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9)
+    class(*) :: lst_zipped
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9
+
+    type(cons_t) :: lists
+    class(*), allocatable :: head, tail
+
+    lists = list_unzip (lst_zipped, 9)
+
+    tail = lists
+    call uncons (tail, head, tail)
+    lst1 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst2 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst3 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst4 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst5 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst6 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst7 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst8 = cons_t_cast (head)
+    call uncons (tail, head, tail)
+    lst9 = cons_t_cast (head)
+
+  end subroutine list_unzip9
 
 end module cons_lists

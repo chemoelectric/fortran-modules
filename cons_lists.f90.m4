@@ -144,9 +144,8 @@ m4_forloop([n],[2],ZIP_MAX,[  public :: list_zip[]n
   ! Unzipping: separating the elements of a list of lists into
   ! separate lists.
   public :: list_unzip ! Return the separated lists as a list of lists.
-!m4_forloop([n],[1],ZIP_MAX,[  public :: list_unzip[]n
-!])dnl
-!
+m4_forloop([n],[1],ZIP_MAX,[  public :: list_unzip[]n
+])dnl
 
   ! Overloading of `iota'.
   interface iota
@@ -1110,6 +1109,7 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
     end function zip_one_row
 
   end function list_zip
+dnl
 m4_forloop([n],[1],ZIP_MAX,[
   function list_zip[]n (lst1[]m4_forloop([k],[2],n,[, lst[]k])) result (lst_z)
     class(*), intent(in) :: lst1[]m4_forloop([k],[2],n,[, lst[]k])
@@ -1157,5 +1157,28 @@ m4_forloop([k],[2],n,[    lists = lst[]m4_eval(n - k + 1) ** lists
        tail = cons_t_cast (cdr (tail))
     end do
   end function list_unzip
+dnl
+dnl  FIXME: perhaps one should optimize the unzipN implementations,
+dnl         rather than simply call list_unzip.
+dnl
+m4_forloop([n],[1],ZIP_MAX,[
+  subroutine list_unzip[]n (lst_zipped, lst1[]m4_forloop([k],[2],n,[, lst[]k]))
+    class(*) :: lst_zipped
+    type(cons_t) :: lst1[]m4_forloop([k],[2],n,[, lst[]k])
+
+    type(cons_t) :: lists
+    class(*), allocatable :: head, tail
+
+    lists = list_unzip (lst_zipped, n)
+
+    tail = lists
+m4_forloop([k],[1],n,
+[dnl
+    call uncons (tail, head, tail)
+    lst[]k = cons_t_cast (head)
+])dnl
+
+  end subroutine list_unzip[]n
+])dnl
 
 end module cons_lists
