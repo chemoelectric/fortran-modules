@@ -44,6 +44,9 @@ endif
 # How deep should car-cdr permutations go?
 M4FLAGS += -DCADADR_MAX=4
 
+# How many arguments should list0.. and unlist0.. go up to?
+M4FLAGS += -DLISTN_MAX=9
+
 # How many arguments should zips and unzips go up to?
 M4FLAGS += -DZIP_MAX=9
 

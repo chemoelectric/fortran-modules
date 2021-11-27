@@ -112,6 +112,14 @@ m4_forloop([n],[1],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
 
   public :: circular_list       ! Make a circular list.
 
+  ! Make and unmake lists of the given lengths.
+m4_forloop([n],[1],LISTN_MAX,[  public :: list[]n
+])dnl
+m4_forloop([n],[1],LISTN_MAX,[  public :: unlist[]n
+])dnl
+m4_forloop([n],[1],LISTN_MAX,[  public :: unlist[]n[]_with_tail
+])dnl
+
   public :: list_reverse          ! Make a reversed copy.
   public :: list_reverse_in_place ! Reverse a list without copying. (The argument must be a cons_t.)
   public :: list_copy             ! Make a copy in the original order.
@@ -645,6 +653,66 @@ dnl
        call error_abort ("circular_list of an object with no pairs")
     end select
   end function circular_list
+dnl
+m4_forloop([n],[1],LISTN_MAX,[
+  function list[]n (obj1[]m4_forloop([k],[2],n,[, obj[]k])) result (lst)
+    class(*), intent(in) :: obj1[]m4_forloop([k],[2],n,[, obj[]k])
+    type(cons_t) :: lst
+
+    lst = obj[]n ** nil_list
+dnl
+m4_forloop([k],[2],n,[    lst = obj[]m4_eval(n - k + 1) ** lst
+])dnl
+  end function list[]n
+])dnl
+dnl
+m4_forloop([n],[1],LISTN_MAX,[
+  subroutine unlist[]n (lst, obj1[]m4_forloop([k],[2],n,[, obj[]k]))
+    !
+    ! This subroutine `unlists' the n elements of lst.
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1[]m4_forloop([k],[2],n,[, obj[]k])
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    tail = lst
+    call uncons (tail, head, tail)
+    obj1 = head
+dnl
+m4_forloop([k],[2],n,[    call uncons (tail, head, tail)
+    obj[]k = head
+])dnl
+    if (.not. is_nil_list (tail)) then
+       call error_abort ("unlist[]n[] of a list that is too long")
+    end if
+  end subroutine unlist[]n
+])dnl
+dnl
+m4_forloop([n],[1],LISTN_MAX,[
+  subroutine unlist[]n[]_with_tail (lst, obj1[]m4_forloop([k],[2],n,[, obj[]k]), tail)
+    !
+    ! This subroutine `unlists' the leading n elements of lst, and
+    ! also returns the tail.
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1[]m4_forloop([k],[2],n,[, obj[]k])
+    class(*), allocatable :: tail
+
+    class(*), allocatable :: hd
+    class(*), allocatable :: tl
+
+    tl = lst
+    call uncons (tl, hd, tl)
+    obj1 = hd
+dnl
+m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
+    obj[]k = hd
+])dnl
+    tail = tl
+  end subroutine unlist[]n[]_with_tail
+])dnl
 
   function list_reverse (lst) result (lst_r)
     !
@@ -1042,6 +1110,7 @@ m4_forloop([n],[1],ZIP_MAX,[
     type(cons_t) :: lists
 
     lists = lst[]n ** nil_list
+dnl
 m4_forloop([k],[2],n,[    lists = lst[]m4_eval(n - k + 1) ** lists
 ])dnl
     lst_z = list_zip (lists)
