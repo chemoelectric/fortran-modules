@@ -314,6 +314,49 @@ contains
     end do
   end subroutine test_circular_list
 
+  subroutine test_list_unlist
+    type(cons_t) :: lst1, lst2, lst3, lst4
+    class(*), allocatable :: x, y, z, tail
+    lst1 = list1 (123)
+    call check (list_length (lst1) == 1, "list_length (lst1) == 1 failed (for list1)")
+    call check (first (lst1) .eqi. 123, "first (lst1) .eqi. 123 failed (for list1)")
+    call unlist1 (lst1, x)
+    call check (x .eqi. 123, "x .eqi. 123 failed (for list1)")
+    call unlist1_with_tail (lst1, x, tail)
+    call check ((x .eqi. 123) .and. (is_nil_list (tail)), "(x .eqi. 123) .and. (is_nil_list (tail)) failed (for list1)")
+    lst2 = list2 (123, 456)
+    call check (list_length (lst2) == 2, "list_length (lst2) == 2 failed (for list2)")
+    call check (first (lst2) .eqi. 123, "first (lst2) .eqi. 123 failed (for list2)")
+    call check (second (lst2) .eqi. 456, "second (lst2) .eqi. 456 failed (for list2)")
+    call unlist2 (lst2, x, y)
+    call check ((x .eqi. 123) .and. (y .eqi. 456), "(x .eqi. 123) .and. (y .eqi. 456) failed (for list2)")
+    call unlist2_with_tail (lst2, x, y, tail)
+    call check ((x .eqi. 123) .and. (y .eqi. 456) .and. (is_nil_list (tail)), &
+         "(x .eqi. 123) .and. (y .eqi. 456) .and. (is_nil_list (tail)) failed (for list2)")
+    lst3 = list3 (123, 456, 789)
+    call check (list_length (lst3) == 3, "list_length (lst3) == 3 failed (for list3)")
+    call check (first (lst3) .eqi. 123, "first (lst3) .eqi. 123 failed (for list3)")
+    call check (second (lst3) .eqi. 456, "second (lst3) .eqi. 456 failed (for list3)")
+    call unlist3 (lst3, x, y, z)
+    call check ((x .eqi. 123) .and. (y .eqi. 456) .and. (z .eqi. 789), &
+         "(x .eqi. 123) .and. (y .eqi. 456) .and. (z .eqi. 789) failed (for list3)")
+    call unlist3_with_tail (lst3, x, y, z, tail)
+    call check ((x .eqi. 123) .and. (y .eqi. 456) .and. (z .eqi. 789) .and. (is_nil_list (tail)), &
+         "(x .eqi. 123) .and. (y .eqi. 456) .and. (z .eqi. 789) .and. (is_nil_list (tail)) failed (for list3)")
+    call unlist2_with_tail (lst3, x, y, tail)
+    call check ((x .eqi. 123) .and. (y .eqi. 456) .and. (car (tail) .eqi. 789) .and. (is_nil_list (cdr (tail))), &
+         "(x .eqi. 123) .and. (y .eqi. 456) .and. (car (tail) .eqi. 789) .and. (is_nil_list (cdr (tail))) failed (for list3)")
+    !
+    ! Now check a case with a dotted list.
+    !
+    lst4 = cons (123, cons (456, 789))
+    call unlist2 (lst4, x, y)
+    call check ((x .eqi. 123) .and. (y .eqi. 456), "(x .eqi. 123) .and. (y .eqi. 456) failed (for unlist2 of a dotted list)")
+    call unlist2_with_tail (lst4, x, y, tail)
+    call check ((x .eqi. 123) .and. (y .eqi. 456) .and. (tail .eqi. 789), &
+         "(x .eqi. 123) .and. (y .eqi. 456) .and. (tail .eqi. 789) failed (for unlist2_with_tail of a dotted list)")
+  end subroutine test_list_unlist
+
   subroutine test_list_reverse
     type(cons_t) :: lst1, lst2
     integer :: i
@@ -732,6 +775,7 @@ contains
     call test_is_circular_list
     call test_iota
     call test_circular_list
+    call test_list_unlist
     call test_list_reverse
     call test_list_reverse_in_place
     call test_list_copy
