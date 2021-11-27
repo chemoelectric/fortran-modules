@@ -1164,52 +1164,57 @@ contains
   end function list_concatenate
 
   function list_zip (lists) result (lst_z)
-! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME not yet implemented
+    type :: zipper_t
+       type(cons_t) :: lst
+       type(cons_t) :: tails
+       logical :: exhausted
+    end type zipper_t
+
     class(cons_t), intent(in) :: lists
     type(cons_t) :: lst_z
 
-    logical :: some_list_is_exhausted
-    type(cons_t) :: zipped_element
-    type(cons_t) :: tails
-    type(cons_t) :: cursor
-    type(cons_t) :: new_pair
-    class(*), allocatable :: p
+    type(zipper_t) :: zipper
 
-    if (list_is_nil (lists)) then
-       lst_z = nil_list
-    else
-!???????????
-       tails = lists
-       some_list_is_exhausted = .false.
-       do while (.not. some_list_is_exhausted)
-          zipped_element = nil_list
-          p = tails
-          tails = nil_list
-          do while (.not. some_list_is_exhausted .and. is_cons_pair (p))
-             if (is_cons_pair (car (p))) then
-                zipped_element = cons (caar (p), zipped_element)
-                tails = cons (cdar (p), tails)
-                p = cdr (p)
-             else
-                some_list_is_exhausted = .true.
-             end if
-          end do
-          if (.not. some_list_is_exhausted) then
-             call list_reverse_in_place (zipped_element)
-             ! FIXME: Add zipped_element to the end of lst_z
-             call list_reverse_in_place (tails)
-          end if
-       end do
-    end if
+    zipper%lst = nil_list
+    zipper%tails = list_reverse (lists)
+    zipper%exhausted = .false.
+    do while (.not. zipper%exhausted .and. is_cons_pair (zipper%tails))
+       zipper = zip_one_row (zipper)
+    end do
+    lst_z = zipper%lst
+    call list_reverse_in_place (lst_z)
+
+  contains
+
+    function zip_one_row (zipper_in) result (zipper_out)
+      type(zipper_t), intent(in) :: zipper_in
+      type(zipper_t) :: zipper_out
+
+      class(*), allocatable :: p
+      type(cons_t) :: z
+      type(cons_t) :: t
+
+      zipper_out = zipper_in
+
+      z = nil_list
+      t = nil_list
+      p = zipper_in%tails
+      do while (.not. zipper_out%exhausted .and. is_cons_pair (p))
+         if (is_cons_pair (car (p))) then
+            z = cons (caar (p), z)
+            t = cons (cdar (p), t)
+            p = cdr (p)
+         else
+            zipper_out%exhausted = .true.
+         end if
+      end do
+      if (.not. zipper_out%exhausted) then
+         zipper_out%lst = cons (z, zipper_out%lst)
+         call list_reverse_in_place (t)
+         zipper_out%tails = t
+      end if
+    end function zip_one_row
+
   end function list_zip
-!!$          call uncons (lst, head, tail)
-!!$          cursor = cons (head, tail)
-!!$          lst_c = cursor
-!!$          do while (is_cons_pair (tail))
-!!$             call uncons (tail, head, tail)
-!!$             new_pair = cons (head, tail)
-!!$             call set_cdr (cursor, new_pair)
-!!$             cursor = new_pair
-!!$          end do
 
 end module cons_lists
