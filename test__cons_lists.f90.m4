@@ -86,8 +86,20 @@ contains
   function cosine_wrapper (x) result (y)
     class(cons_t), intent(in) :: x
     type(cons_t) :: y
-    y = list1 (cos (real_cast (car (x))))
+    y = list1 (cos (real_cast (first (x))))
   end function cosine_wrapper
+
+  function division_wrapper (x) result (y)
+    class(cons_t), intent(in) :: x
+    type(cons_t) :: y
+    integer :: dividend, divisor
+    integer :: quotient, remainder
+    dividend = integer_cast (first (x))
+    divisor = integer_cast (second (x))
+    quotient = dividend / divisor
+    remainder = mod (dividend, divisor)
+    y = list2 (quotient, remainder)
+  end function division_wrapper
 
   subroutine test_is_nil_list
     call check (.not. is_nil_list ('abc'), ".not. is_nil_list ('abc') failed")
@@ -856,6 +868,11 @@ contains
   subroutine test_list_map
     type(cons_t) :: lst_x, lst_y, inputs, outputs
     procedure(list_mapfunc_t), pointer :: cos_w => cosine_wrapper
+    integer :: i
+    class(*), allocatable :: head, tail
+    !
+    ! Try computing a list of cosines.
+    !
     lst_x = acos (0.00) ** acos (0.25) ** acos (0.50) ** nil_list
     inputs = list_zip1 (lst_x)
     outputs = list_map (cosine_wrapper, inputs)
@@ -872,6 +889,20 @@ contains
     call check (abs (0.00 - real_cast (first (lst_y))) < 0.0001, "check0080 failed (for list_map)")
     call check (abs (0.25 - real_cast (second (lst_y))) < 0.0001, "check0090 failed (for list_map)")
     call check (abs (0.50 - real_cast (third (lst_y))) < 0.0001, "check0100 failed (for list_map)")
+    !
+    ! Try computing a list of results of euclidean division of
+    ! positive integers by 2. (Aside: this would be a great example
+    ! for lazy lists.)
+    inputs = list_zip2 (iota (100), circular_list (2 ** nil_list))
+    call check (list_length (inputs) == 100, "check0110 failed (for list_map)")
+    outputs = list_map (division_wrapper, inputs)
+    call check (list_length (outputs) == 100, "check0120 failed (for list_map)")
+    tail = outputs
+    do i = 0, 99
+       call uncons (tail, head, tail)
+       call check (first (head) .eqi. i / 2, "check0130 failed (for list_map)")
+       call check (second (head) .eqi. mod (i, 2), "check0140 failed (for list_map)")
+    end do
   end subroutine test_list_map
 
   subroutine run_tests

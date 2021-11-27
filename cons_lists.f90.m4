@@ -73,12 +73,32 @@ module cons_procedure_types
      function list_mapfunc_t (x) result (y)
        !
        ! list_mapfunc_t is the type of a function called by
-       ! `list_map'.
+       ! `list_map'. It takes multiple values (or list values) of
+       ! input as the list x, and outputs multiple values (or list
+       ! values) as the list y.
        !
        use :: cons_types
        class(cons_t), intent(in) :: x
        type(cons_t) :: y
      end function list_mapfunc_t
+
+     function list_predfunc_t (x) result (bool)
+       !
+       ! FIXME: Document this.
+       !
+       use :: cons_types
+       class(cons_t), intent(in) :: x
+       logical :: bool
+     end function list_predfunc_t
+
+     function list_orderfunc_t (x) result (sign)
+       !
+       ! FIXME: Document this.
+       !
+       use :: cons_types
+       class(cons_t), intent(in) :: x
+       integer :: sign
+     end function list_orderfunc_t
 
   end interface
 
@@ -1233,14 +1253,8 @@ m4_forloop([k],[1],n,
     ! Map elements of lists. The work is guaranteed to be done in
     ! list order.
     !
-    ! Both `inputs' and `outputs' are treated as multiple values in
-    ! `zipped list' format.
-    !
-    ! TO EMULATE CLOSURES:
-    !
-    !    If you want to emulate closures, consider passing a pointer
-    !    to an environment as one of the `inputs'. You can use a
-    !    circular list to have the same pointer repeated.
+    ! Both `inputs' and `outputs' may be thought of as sequences of
+    ! multiple values in `zipped list' format.
     !
     procedure(list_mapfunc_t) :: func
     class(*), intent(in) :: inputs
