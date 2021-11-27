@@ -199,6 +199,8 @@ contains
     call check (.not. is_circular_list (1 ** 2 ** 3 ** nil_list), ".not. is_circular_list (1 ** 2 ** 3 ** nil_list) failed")
     call check (is_circular_list (circular_list (1 ** 2 ** 3 ** nil_list)), &
          "is_circular_list (circular_list (1 ** 2 ** 3 ** nil_list)) failed")
+    call check (is_circular_list (1.0 ** 2.0 ** circular_list (1 ** 2 ** 3 ** nil_list)), &
+         "is_circular_list (1.0 ** 2.0 ** circular_list (1 ** 2 ** 3 ** nil_list)) failed")
   end subroutine test_is_circular_list
 
   subroutine test_car_cadr_caddr_cadddr
