@@ -1176,7 +1176,6 @@ m4_forloop([k],[1],n,
     call uncons (tail, head, tail)
     lst[]k = cons_t_cast (head)
 ])dnl
-
   end subroutine list_unzip[]n
 ])dnl
 

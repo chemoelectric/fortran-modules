@@ -2017,7 +2017,6 @@ contains
     tail = lists
     call uncons (tail, head, tail)
     lst1 = cons_t_cast (head)
-
   end subroutine list_unzip1
 
   subroutine list_unzip2 (lst_zipped, lst1, lst2)
@@ -2034,7 +2033,6 @@ contains
     lst1 = cons_t_cast (head)
     call uncons (tail, head, tail)
     lst2 = cons_t_cast (head)
-
   end subroutine list_unzip2
 
   subroutine list_unzip3 (lst_zipped, lst1, lst2, lst3)
@@ -2053,7 +2051,6 @@ contains
     lst2 = cons_t_cast (head)
     call uncons (tail, head, tail)
     lst3 = cons_t_cast (head)
-
   end subroutine list_unzip3
 
   subroutine list_unzip4 (lst_zipped, lst1, lst2, lst3, lst4)
@@ -2074,7 +2071,6 @@ contains
     lst3 = cons_t_cast (head)
     call uncons (tail, head, tail)
     lst4 = cons_t_cast (head)
-
   end subroutine list_unzip4
 
   subroutine list_unzip5 (lst_zipped, lst1, lst2, lst3, lst4, lst5)
@@ -2097,7 +2093,6 @@ contains
     lst4 = cons_t_cast (head)
     call uncons (tail, head, tail)
     lst5 = cons_t_cast (head)
-
   end subroutine list_unzip5
 
   subroutine list_unzip6 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6)
@@ -2122,7 +2117,6 @@ contains
     lst5 = cons_t_cast (head)
     call uncons (tail, head, tail)
     lst6 = cons_t_cast (head)
-
   end subroutine list_unzip6
 
   subroutine list_unzip7 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7)
@@ -2149,7 +2143,6 @@ contains
     lst6 = cons_t_cast (head)
     call uncons (tail, head, tail)
     lst7 = cons_t_cast (head)
-
   end subroutine list_unzip7
 
   subroutine list_unzip8 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8)
@@ -2178,7 +2171,6 @@ contains
     lst7 = cons_t_cast (head)
     call uncons (tail, head, tail)
     lst8 = cons_t_cast (head)
-
   end subroutine list_unzip8
 
   subroutine list_unzip9 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9)
@@ -2209,7 +2201,6 @@ contains
     lst8 = cons_t_cast (head)
     call uncons (tail, head, tail)
     lst9 = cons_t_cast (head)
-
   end subroutine list_unzip9
 
 end module cons_lists
