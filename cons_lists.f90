@@ -446,7 +446,7 @@ contains
     lead = obj
 
     lag = lead
-    is_dot = .true.
+    is_dot = .false.
     is_circ = .false.
     done = .false.
     do while (.not. done)
@@ -466,7 +466,6 @@ contains
                 select type (lag)
                 class is (cons_t)
                    if (cons_t_eq (lead, lag)) then
-                      is_dot = .false.
                       is_circ = .true.
                       done = .true.
                    end if
