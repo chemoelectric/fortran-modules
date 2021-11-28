@@ -736,17 +736,23 @@ contains
   end subroutine test_list_zip
 
   subroutine test_list_zip1
-    type(cons_t) :: lst1, lst_z
+    type(cons_t) :: lst1, lst1_z
+    type(cons_t) :: lst2, lst2_z
     call check (is_nil_list (list_zip1 (nil_list)), "is_nil_list (list_zip1 (nil_list)) failed")
     lst1 = 1.0 ** 2 ** 3 ** nil_list
-    lst_z = list_zip1 (lst1)
-    call check (list_length (lst_z) == 3, "list_length (lst_z) == 3 failed (for list_zip1)")
-    call check (list_length (car (lst_z)) == 1, "list_length (car (lst_z)) == 1 failed (for list_zip1)")
-    call check (list_length (cadr (lst_z)) == 1, "list_length (cadr (lst_z)) == 1 failed (for list_zip1)")
-    call check (list_length (caddr (lst_z)) == 1, "list_length (caddr (lst_z)) == 1 failed (for list_zip1)")
-    call check (caar (lst_z) .eqr. 1.0, "caar (lst_z) .eqr. 1.0 failed (for list_zip1)")
-    call check (caadr (lst_z) .eqi. 2, "caadr (lst_z) .eqi. 2 failed (for list_zip1)")
-    call check (caaddr (lst_z) .eqi. 3, "caaddr (lst_z) .eqi. 3 failed (for list_zip1)")
+    lst1_z = list_zip1 (lst1)
+    call check (list_length (lst1_z) == 3, "list_length (lst1_z) == 3 failed (for list_zip1)")
+    call check (list_length (car (lst1_z)) == 1, "list_length (car (lst1_z)) == 1 failed (for list_zip1)")
+    call check (list_length (cadr (lst1_z)) == 1, "list_length (cadr (lst1_z)) == 1 failed (for list_zip1)")
+    call check (list_length (caddr (lst1_z)) == 1, "list_length (caddr (lst1_z)) == 1 failed (for list_zip1)")
+    call check (caar (lst1_z) .eqr. 1.0, "caar (lst1_z) .eqr. 1.0 failed (for list_zip1)")
+    call check (caadr (lst1_z) .eqi. 2, "caadr (lst1_z) .eqi. 2 failed (for list_zip1)")
+    call check (caaddr (lst1_z) .eqi. 3, "caaddr (lst1_z) .eqi. 3 failed (for list_zip1)")
+    lst2 = 123 ** nil_list
+    lst2_z = list_zip1 (lst2)
+    call check (list_length (lst2_z) == 1, "list_length (lst2_z) == 1 failed (for list_zip1)")
+    call check (list_length (car (lst2_z)) == 1, "list_length (car (lst2_z)) == 1 failed (for list_zip1)")
+    call check (caar (lst2_z) .eqi. 123, "caar (lst2_z) .eqi. 123 failed (for list_zip1)")
   end subroutine test_list_zip1
 
   subroutine test_list_zip3
