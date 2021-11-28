@@ -879,6 +879,35 @@ contains
     call check (is_nil_list (lst8), "is_nil_list (lst8) failed (for list_unzip4)")
   end subroutine test_list_unzip4
 
+  subroutine test_list_box_unbox
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
+    class(*), allocatable :: head, tail
+    integer :: i
+    lst1 = list_box (iota (100, 1))
+    call check (list_length (lst1) == 100, "list_length (lst1) == 100 failed (for list_box)")
+    tail = lst1
+    do i = 1, 100
+       call uncons (tail, head, tail)
+       call check (list_length (head) == 1, "list_length (head) == 1 failed (for list_box)")
+       call check (car (head) .eqi. i, "car (head) .eqi. i failed (for list_box)")
+    end do
+    lst2 = list_unbox (lst1)
+    call check (list_length (lst2) == 100, "list_length (lst2) == 100 failed (for list_unbox)")
+    tail = lst2
+    do i = 1, 100
+       call uncons (tail, head, tail)
+       call check (head .eqi. i, "head .eqi. i failed (for list_unbox)")
+    end do
+    lst3 = list_box (nil_list)
+    call check (is_nil_list (lst3), "is_nil_list (lst3) failed (for list_box)")
+    lst4 = list_unbox (nil_list)
+    call check (is_nil_list (lst4), "is_nil_list (lst4) failed (for list_unbox)")
+    lst5 = list_box (123)
+    call check (is_nil_list (lst5), "is_nil_list (lst5) failed (for list_box)")
+    lst6 = list_unbox (456)
+    call check (is_nil_list (lst6), "is_nil_list (lst6) failed (for list_unbox)")
+  end subroutine test_list_box_unbox
+
   subroutine test_list_map
     type(cons_t) :: lst_x, lst_y, inputs, outputs
     procedure(list_mapfunc_t), pointer :: cos_w => cosine_wrapper
@@ -988,6 +1017,7 @@ contains
     call test_list_unzip2
     call test_list_unzip3
     call test_list_unzip4
+    call test_list_box_unbox
     call test_list_map
   end subroutine run_tests
 
