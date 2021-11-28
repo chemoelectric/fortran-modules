@@ -27,6 +27,9 @@ dnl I have tried to keep this file compatible with "heirloom" m4
 dnl implementations (for example, by using ASCII), and also compatible
 dnl with the POSIX specification for m4.
 dnl
+dnl However, with an "heirloom" m4 you might have to increase buffer
+dnl size with the -B option.
+dnl
 dnl
 
 module cons_types
@@ -1227,24 +1230,57 @@ m4_forloop([k],[2],n,[    lists = lst[]m4_eval(n - k + 1) ** lists
 dnl
 m4_forloop([n],[1],ZIP_MAX,[
   subroutine list_unzip[]n (lst_zipped, lst1[]m4_forloop([k],[2],n,[, lst[]k]))
-dnl
-dnl  FIXME: OPTIMIZE THE list_unzipN IMPLEMENTATIONS,
-dnl         rather than simply call list_unzip.
-dnl
     class(*) :: lst_zipped
     type(cons_t) :: lst1[]m4_forloop([k],[2],n,[, lst[]k])
 
-    type(cons_t) :: lists
-    class(*), allocatable :: head, tail
-
-    lists = list_unzip (lst_zipped, n)
-
-    tail = lists
-m4_forloop([k],[1],n,
-[dnl
-    call uncons (tail, head, tail)
-    lst[]k = cons_t_cast (head)
+m4_forloop([k],[1],n,[dnl
+    type(cons_t) :: cursor[]k
 ])dnl
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    select type (lst_zipped)
+    class is (cons_t)
+       if (list_is_nil (lst_zipped)) then
+m4_forloop([k],[1],n,[dnl
+          lst[]k = nil_list
+])dnl
+       else
+          call uncons (lst_zipped, head, tail)
+          head_zipped = cons_t_cast (head)
+m4_forloop([k],[1],n,[dnl
+          call uncons (head_zipped, head, tl)
+          lst[]k = head ** nil_list
+          cursor[]k = lst[]k
+          head_zipped = cons_t_cast (tl)
+])dnl
+          do while (is_cons_pair (tail))
+             call uncons (tail, head, tail)
+             head_zipped = cons_t_cast (head)
+m4_forloop([k],[1],n,[dnl
+m4_if(k,n,[dnl
+             head = car (head_zipped)
+],[dnl
+             call uncons (head_zipped, head, tl)
+])dnl
+             new_pair = head ** nil_list
+             call set_cdr (cursor[]k, new_pair)
+             cursor[]k = new_pair
+m4_if(k,n,[],[dnl
+             head_zipped = cons_t_cast (tl)
+])dnl
+])dnl
+          end do
+       end if
+    class default
+m4_forloop([k],[1],n,[dnl
+       lst[]k = nil_list
+])dnl
+    end select
   end subroutine list_unzip[]n
 ])dnl
 

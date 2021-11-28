@@ -33,6 +33,7 @@ FORTRAN_STANDARD = gnu
 OBJEXT = o
 
 M4 = m4
+#M4 = m4-heirloom -B10000"
 COMPILE.m4 = $(M4) $(M4FLAGS) $(XM4FLAGS)
 
 ifeq ($(FORTRAN_STANDARD),gnu)
