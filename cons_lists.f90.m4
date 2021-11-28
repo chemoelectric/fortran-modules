@@ -225,8 +225,25 @@ m4_forloop([n],[2],ZIP_MAX,[  public :: list_zip[]n
   ! separate lists. (The list_unzip1, list_unzip2, ...,
   ! implementations may be significantly faster than list_unzip.)
   public :: list_unzip ! Return the separated lists as a list of lists.
-m4_forloop([n],[1],ZIP_MAX,[  public :: list_unzip[]n
+  public :: list_unzip1 ! Unbox each element of a list of length-1 lists.
+m4_forloop([n],[2],ZIP_MAX,[  public :: list_unzip[]n
 ])dnl
+
+  !
+  ! The way things are done in this module, lists may need their
+  ! elements `boxed' inside length-1 lists, when you call `higher
+  ! order' procedures such as list_map with procedures accepting or
+  ! returning a single value. (This is different from how SRFI-1
+  ! Scheme procedures generally work.)
+  !
+  ! This `boxing' is really a special case of the more general
+  ! `zipping', but list_box and list_unbox are provided for
+  ! convenience. The function list_box is a synonym for
+  ! list_zip1. The function list_unbox is the same as list_unzip1,
+  ! except it is a function instead of a subroutine.
+  !
+  public :: list_box           ! Boxes elements into length-1 lists.
+  public :: list_unbox         ! Unboxes elements from length-1 lists.
 
   public :: list_map ! Map list elements. (This is like SRFI-1 `map-in-order'.)
   public :: list_mapfunc_t
@@ -1284,6 +1301,18 @@ m4_forloop([k],[1],n,[dnl
     end select
   end subroutine list_unzip[]n
 ])dnl
+
+  function list_box (lst) result (lst_zipped)
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_zipped
+    lst_zipped = list_zip1 (lst)
+  end function list_box
+
+  function list_unbox (lst_zipped) result (lst)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t) :: lst
+    call list_unzip1 (lst_zipped, lst)
+  end function list_unbox
 
   function list_map (func, inputs) result (outputs)
     !
