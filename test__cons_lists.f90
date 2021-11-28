@@ -814,17 +814,21 @@ contains
   end subroutine test_list_unzip
 
   subroutine test_list_unzip1
-    type(cons_t) :: lst_zipped, lst1
+    type(cons_t) :: lst_zipped, lst1, lst2, lst3
     lst_zipped = list1 (1.0) ** list2 (2.0, 2.1) ** list1 (3.0) ** nil_list
     call list_unzip1 (lst_zipped, lst1)
     call check (list_length (lst1) == 3, "list_length (lst1) == 3 failed (for list_unzip1)")
     call check (car (lst1) .eqr. 1.0, "car (lst1) .eqr. 1.0 failed (for list_unzip1)")
     call check (cadr (lst1) .eqr. 2.0, "cadr (lst1) .eqr. 2.0 failed (for list_unzip1)")
     call check (caddr (lst1) .eqr. 3.0, "caddr (lst1) .eqr. 3.0 failed (for list_unzip1)")
+    call list_unzip1 (nil_list, lst2)
+    call check (is_nil_list (lst2), "is_nil_list (lst2) failed (for list_unzip1)")
+    call list_unzip1 (1234, lst3)
+    call check (is_nil_list (lst3), "is_nil_list (lst3) failed (for list_unzip1)")
   end subroutine test_list_unzip1
 
   subroutine test_list_unzip2
-    type(cons_t) :: lst_zipped, lst1, lst2
+    type(cons_t) :: lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6
     lst_zipped = list3 (1, 2, 3) ** list2 (4, 5) ** list4 (6, 7, 8, 9) ** nil_list
     call list_unzip2 (lst_zipped, lst1, lst2)
     call check (list_length (lst1) == 3, "list_length (lst1) == 3 failed (for list_unzip2)")
@@ -835,6 +839,12 @@ contains
     call check (car (lst2) .eqi. 2, "car (lst2) .eqi. 2 failed (for list_unzip2)")
     call check (cadr (lst2) .eqi. 5, "cadr (lst2) .eqi. 5 failed (for list_unzip2)")
     call check (caddr (lst2) .eqi. 7, "caddr (lst2) .eqi. 7 failed (for list_unzip2)")
+    call list_unzip2 (nil_list, lst3, lst4)
+    call check (is_nil_list (lst3), "is_nil_list (lst3) failed (for list_unzip2)")
+    call check (is_nil_list (lst4), "is_nil_list (lst4) failed (for list_unzip2)")
+    call list_unzip2 ('abc', lst5, lst6)
+    call check (is_nil_list (lst5), "is_nil_list (lst5) failed (for list_unzip2)")
+    call check (is_nil_list (lst6), "is_nil_list (lst6) failed (for list_unzip2)")
   end subroutine test_list_unzip2
 
   subroutine test_list_unzip3
@@ -856,13 +866,17 @@ contains
   end subroutine test_list_unzip3
 
   subroutine test_list_unzip4
-    type(cons_t) :: lst_zipped, lst1, lst2, lst3, lst4
-    lst_zipped = nil_list
-    call list_unzip4 (lst_zipped, lst1, lst2, lst3, lst4)
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8
+    call list_unzip4 (nil_list, lst1, lst2, lst3, lst4)
     call check (is_nil_list (lst1), "is_nil_list (lst1) failed (for list_unzip4)")
     call check (is_nil_list (lst2), "is_nil_list (lst2) failed (for list_unzip4)")
     call check (is_nil_list (lst3), "is_nil_list (lst3) failed (for list_unzip4)")
     call check (is_nil_list (lst4), "is_nil_list (lst4) failed (for list_unzip4)")
+    call list_unzip4 (.true., lst5, lst6, lst7, lst8)
+    call check (is_nil_list (lst5), "is_nil_list (lst5) failed (for list_unzip4)")
+    call check (is_nil_list (lst6), "is_nil_list (lst6) failed (for list_unzip4)")
+    call check (is_nil_list (lst7), "is_nil_list (lst7) failed (for list_unzip4)")
+    call check (is_nil_list (lst8), "is_nil_list (lst8) failed (for list_unzip4)")
   end subroutine test_list_unzip4
 
   subroutine test_list_map
