@@ -193,11 +193,14 @@ m4_forloop([n],[1],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: circular_list       ! Make a circular list.
 
   ! Make and unmake lists of the given lengths.
-m4_forloop([n],[1],LISTN_MAX,[  public :: list[]n
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  public :: list[]n
 ])dnl
-m4_forloop([n],[1],LISTN_MAX,[  public :: unlist[]n
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  public :: unlist[]n
 ])dnl
-m4_forloop([n],[1],LISTN_MAX,[  public :: unlist[]n[]_with_tail
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  public :: unlist[]n[]_with_tail
 ])dnl
 
   public :: list_reverse          ! Make a reversed copy.
@@ -218,7 +221,8 @@ m4_forloop([n],[1],LISTN_MAX,[  public :: unlist[]n[]_with_tail
   ! lists.
   public :: list_zip  ! Use the elements of a list as the arguments.
   public :: list_zip1 ! Box each element of a list in a length-1 list.
-m4_forloop([n],[2],ZIP_MAX,[  public :: list_zip[]n
+m4_forloop([n],[2],ZIP_MAX,[dnl
+  public :: list_zip[]n
 ])dnl
 
   ! Unzipping: separating the elements of a list of lists into
@@ -226,7 +230,8 @@ m4_forloop([n],[2],ZIP_MAX,[  public :: list_zip[]n
   ! implementations may be significantly faster than list_unzip.)
   public :: list_unzip ! Return the separated lists as a list of lists.
   public :: list_unzip1 ! Unbox each element of a list of length-1 lists.
-m4_forloop([n],[2],ZIP_MAX,[  public :: list_unzip[]n
+m4_forloop([n],[2],ZIP_MAX,[dnl
+  public :: list_unzip[]n
 ])dnl
 
   !
@@ -1196,20 +1201,73 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
 dnl
 m4_forloop([n],[1],ZIP_MAX,[
   function list_zip[]n (lst1[]m4_forloop([k],[2],n,[, lst[]k])) result (lst_z)
-dnl
-dnl  FIXME: OPTIMIZE THE list_zipN IMPLEMENTATIONS,
-dnl         rather than simply call list_unzip.
-dnl
     class(*), intent(in) :: lst1[]m4_forloop([k],[2],n,[, lst[]k])
     type(cons_t) :: lst_z
 
-    type(cons_t) :: lists
+    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-    lists = lst[]n ** nil_list
-dnl
-m4_forloop([k],[2],n,[    lists = lst[]m4_eval(n - k + 1) ** lists
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable :: head[]k, tail[]k
 ])dnl
-    lst_z = list_zip (lists)
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    ! Using is_cons_pair rather than is_nil_list lets us handle
+    ! degenerate dotted lists at the same time as nil lists.
+    if (.not. is_cons_pair (lst1)) then
+m4_forloop([k],[1],n,[dnl
+       lst_z = nil_list
+m4_if(k,n,[dnl
+    else
+],[dnl
+    else if (.not. is_cons_pair (lst[]m4_eval(k + 1))) then
+])dnl
+])dnl
+dnl
+m4_forloop([k],[1],n,[dnl
+       call uncons (lst[]k, head[]k, tail[]k)
+])dnl
+       row = nil_list
+m4_forloop([k],[1],n,[dnl
+       row = head[]m4_eval(n - k + 1) ** row
+])dnl
+       lst_z = row ** nil_list
+       cursor = lst_z
+       if (.not. is_cons_pair (tail1)) then
+m4_forloop([k],[1],n,[dnl
+          continue
+m4_if(k,n,[dnl
+       else
+],[dnl
+       else if (.not. is_cons_pair (tail[]m4_eval(k + 1))) then
+])dnl
+])dnl
+          done = .false.
+          do while (.not. done)
+m4_forloop([k],[1],n,[dnl
+             call uncons (tail[]k, head[]k, tail[]k)
+])dnl
+             row = nil_list
+m4_forloop([k],[1],n,[dnl
+             row = head[]m4_eval(n - k + 1) ** row
+])dnl
+             new_pair = row ** nil_list
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (.not. is_cons_pair (tail1)) then
+m4_forloop([k],[1],n,[dnl
+                done = .true.
+m4_if(k,n,[dnl
+             end if
+],[dnl
+             else if (.not. is_cons_pair (tail[]m4_eval(k + 1))) then
+])dnl
+])dnl
+          end do
+       end if
+    end if
   end function list_zip[]n
 ])dnl
 

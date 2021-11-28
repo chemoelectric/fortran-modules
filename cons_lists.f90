@@ -1931,126 +1931,765 @@ contains
     class(*), intent(in) :: lst1
     type(cons_t) :: lst_z
 
-    type(cons_t) :: lists
+    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-    lists = lst1 ** nil_list
-    lst_z = list_zip (lists)
+    class(*), allocatable :: head1, tail1
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    ! Using is_cons_pair rather than is_nil_list lets us handle
+    ! degenerate dotted lists at the same time as nil lists.
+    if (.not. is_cons_pair (lst1)) then
+       lst_z = nil_list
+    else
+       call uncons (lst1, head1, tail1)
+       row = nil_list
+       row = head1 ** row
+       lst_z = row ** nil_list
+       cursor = lst_z
+       if (.not. is_cons_pair (tail1)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             row = nil_list
+             row = head1 ** row
+             new_pair = row ** nil_list
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (.not. is_cons_pair (tail1)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
   end function list_zip1
 
   function list_zip2 (lst1, lst2) result (lst_z)
     class(*), intent(in) :: lst1, lst2
     type(cons_t) :: lst_z
 
-    type(cons_t) :: lists
+    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-    lists = lst2 ** nil_list
-    lists = lst1 ** lists
-    lst_z = list_zip (lists)
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    ! Using is_cons_pair rather than is_nil_list lets us handle
+    ! degenerate dotted lists at the same time as nil lists.
+    if (.not. is_cons_pair (lst1)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst2)) then
+       lst_z = nil_list
+    else
+       call uncons (lst1, head1, tail1)
+       call uncons (lst2, head2, tail2)
+       row = nil_list
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil_list
+       cursor = lst_z
+       if (.not. is_cons_pair (tail1)) then
+          continue
+       else if (.not. is_cons_pair (tail2)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             row = nil_list
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil_list
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (.not. is_cons_pair (tail1)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail2)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
   end function list_zip2
 
   function list_zip3 (lst1, lst2, lst3) result (lst_z)
     class(*), intent(in) :: lst1, lst2, lst3
     type(cons_t) :: lst_z
 
-    type(cons_t) :: lists
+    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-    lists = lst3 ** nil_list
-    lists = lst2 ** lists
-    lists = lst1 ** lists
-    lst_z = list_zip (lists)
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    ! Using is_cons_pair rather than is_nil_list lets us handle
+    ! degenerate dotted lists at the same time as nil lists.
+    if (.not. is_cons_pair (lst1)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst2)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst3)) then
+       lst_z = nil_list
+    else
+       call uncons (lst1, head1, tail1)
+       call uncons (lst2, head2, tail2)
+       call uncons (lst3, head3, tail3)
+       row = nil_list
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil_list
+       cursor = lst_z
+       if (.not. is_cons_pair (tail1)) then
+          continue
+       else if (.not. is_cons_pair (tail2)) then
+          continue
+       else if (.not. is_cons_pair (tail3)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             row = nil_list
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil_list
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (.not. is_cons_pair (tail1)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail2)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail3)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
   end function list_zip3
 
   function list_zip4 (lst1, lst2, lst3, lst4) result (lst_z)
     class(*), intent(in) :: lst1, lst2, lst3, lst4
     type(cons_t) :: lst_z
 
-    type(cons_t) :: lists
+    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-    lists = lst4 ** nil_list
-    lists = lst3 ** lists
-    lists = lst2 ** lists
-    lists = lst1 ** lists
-    lst_z = list_zip (lists)
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    ! Using is_cons_pair rather than is_nil_list lets us handle
+    ! degenerate dotted lists at the same time as nil lists.
+    if (.not. is_cons_pair (lst1)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst2)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst3)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst4)) then
+       lst_z = nil_list
+    else
+       call uncons (lst1, head1, tail1)
+       call uncons (lst2, head2, tail2)
+       call uncons (lst3, head3, tail3)
+       call uncons (lst4, head4, tail4)
+       row = nil_list
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil_list
+       cursor = lst_z
+       if (.not. is_cons_pair (tail1)) then
+          continue
+       else if (.not. is_cons_pair (tail2)) then
+          continue
+       else if (.not. is_cons_pair (tail3)) then
+          continue
+       else if (.not. is_cons_pair (tail4)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             row = nil_list
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil_list
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (.not. is_cons_pair (tail1)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail2)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail3)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail4)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
   end function list_zip4
 
   function list_zip5 (lst1, lst2, lst3, lst4, lst5) result (lst_z)
     class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5
     type(cons_t) :: lst_z
 
-    type(cons_t) :: lists
+    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-    lists = lst5 ** nil_list
-    lists = lst4 ** lists
-    lists = lst3 ** lists
-    lists = lst2 ** lists
-    lists = lst1 ** lists
-    lst_z = list_zip (lists)
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    ! Using is_cons_pair rather than is_nil_list lets us handle
+    ! degenerate dotted lists at the same time as nil lists.
+    if (.not. is_cons_pair (lst1)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst2)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst3)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst4)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst5)) then
+       lst_z = nil_list
+    else
+       call uncons (lst1, head1, tail1)
+       call uncons (lst2, head2, tail2)
+       call uncons (lst3, head3, tail3)
+       call uncons (lst4, head4, tail4)
+       call uncons (lst5, head5, tail5)
+       row = nil_list
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil_list
+       cursor = lst_z
+       if (.not. is_cons_pair (tail1)) then
+          continue
+       else if (.not. is_cons_pair (tail2)) then
+          continue
+       else if (.not. is_cons_pair (tail3)) then
+          continue
+       else if (.not. is_cons_pair (tail4)) then
+          continue
+       else if (.not. is_cons_pair (tail5)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             row = nil_list
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil_list
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (.not. is_cons_pair (tail1)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail2)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail3)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail4)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail5)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
   end function list_zip5
 
   function list_zip6 (lst1, lst2, lst3, lst4, lst5, lst6) result (lst_z)
     class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6
     type(cons_t) :: lst_z
 
-    type(cons_t) :: lists
+    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-    lists = lst6 ** nil_list
-    lists = lst5 ** lists
-    lists = lst4 ** lists
-    lists = lst3 ** lists
-    lists = lst2 ** lists
-    lists = lst1 ** lists
-    lst_z = list_zip (lists)
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    ! Using is_cons_pair rather than is_nil_list lets us handle
+    ! degenerate dotted lists at the same time as nil lists.
+    if (.not. is_cons_pair (lst1)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst2)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst3)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst4)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst5)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst6)) then
+       lst_z = nil_list
+    else
+       call uncons (lst1, head1, tail1)
+       call uncons (lst2, head2, tail2)
+       call uncons (lst3, head3, tail3)
+       call uncons (lst4, head4, tail4)
+       call uncons (lst5, head5, tail5)
+       call uncons (lst6, head6, tail6)
+       row = nil_list
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil_list
+       cursor = lst_z
+       if (.not. is_cons_pair (tail1)) then
+          continue
+       else if (.not. is_cons_pair (tail2)) then
+          continue
+       else if (.not. is_cons_pair (tail3)) then
+          continue
+       else if (.not. is_cons_pair (tail4)) then
+          continue
+       else if (.not. is_cons_pair (tail5)) then
+          continue
+       else if (.not. is_cons_pair (tail6)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             row = nil_list
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil_list
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (.not. is_cons_pair (tail1)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail2)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail3)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail4)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail5)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail6)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
   end function list_zip6
 
   function list_zip7 (lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_z)
     class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7
     type(cons_t) :: lst_z
 
-    type(cons_t) :: lists
+    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-    lists = lst7 ** nil_list
-    lists = lst6 ** lists
-    lists = lst5 ** lists
-    lists = lst4 ** lists
-    lists = lst3 ** lists
-    lists = lst2 ** lists
-    lists = lst1 ** lists
-    lst_z = list_zip (lists)
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    ! Using is_cons_pair rather than is_nil_list lets us handle
+    ! degenerate dotted lists at the same time as nil lists.
+    if (.not. is_cons_pair (lst1)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst2)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst3)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst4)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst5)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst6)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst7)) then
+       lst_z = nil_list
+    else
+       call uncons (lst1, head1, tail1)
+       call uncons (lst2, head2, tail2)
+       call uncons (lst3, head3, tail3)
+       call uncons (lst4, head4, tail4)
+       call uncons (lst5, head5, tail5)
+       call uncons (lst6, head6, tail6)
+       call uncons (lst7, head7, tail7)
+       row = nil_list
+       row = head7 ** row
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil_list
+       cursor = lst_z
+       if (.not. is_cons_pair (tail1)) then
+          continue
+       else if (.not. is_cons_pair (tail2)) then
+          continue
+       else if (.not. is_cons_pair (tail3)) then
+          continue
+       else if (.not. is_cons_pair (tail4)) then
+          continue
+       else if (.not. is_cons_pair (tail5)) then
+          continue
+       else if (.not. is_cons_pair (tail6)) then
+          continue
+       else if (.not. is_cons_pair (tail7)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             row = nil_list
+             row = head7 ** row
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil_list
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (.not. is_cons_pair (tail1)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail2)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail3)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail4)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail5)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail6)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail7)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
   end function list_zip7
 
   function list_zip8 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_z)
     class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8
     type(cons_t) :: lst_z
 
-    type(cons_t) :: lists
+    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-    lists = lst8 ** nil_list
-    lists = lst7 ** lists
-    lists = lst6 ** lists
-    lists = lst5 ** lists
-    lists = lst4 ** lists
-    lists = lst3 ** lists
-    lists = lst2 ** lists
-    lists = lst1 ** lists
-    lst_z = list_zip (lists)
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    ! Using is_cons_pair rather than is_nil_list lets us handle
+    ! degenerate dotted lists at the same time as nil lists.
+    if (.not. is_cons_pair (lst1)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst2)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst3)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst4)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst5)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst6)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst7)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst8)) then
+       lst_z = nil_list
+    else
+       call uncons (lst1, head1, tail1)
+       call uncons (lst2, head2, tail2)
+       call uncons (lst3, head3, tail3)
+       call uncons (lst4, head4, tail4)
+       call uncons (lst5, head5, tail5)
+       call uncons (lst6, head6, tail6)
+       call uncons (lst7, head7, tail7)
+       call uncons (lst8, head8, tail8)
+       row = nil_list
+       row = head8 ** row
+       row = head7 ** row
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil_list
+       cursor = lst_z
+       if (.not. is_cons_pair (tail1)) then
+          continue
+       else if (.not. is_cons_pair (tail2)) then
+          continue
+       else if (.not. is_cons_pair (tail3)) then
+          continue
+       else if (.not. is_cons_pair (tail4)) then
+          continue
+       else if (.not. is_cons_pair (tail5)) then
+          continue
+       else if (.not. is_cons_pair (tail6)) then
+          continue
+       else if (.not. is_cons_pair (tail7)) then
+          continue
+       else if (.not. is_cons_pair (tail8)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             row = nil_list
+             row = head8 ** row
+             row = head7 ** row
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil_list
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (.not. is_cons_pair (tail1)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail2)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail3)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail4)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail5)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail6)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail7)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail8)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
   end function list_zip8
 
   function list_zip9 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_z)
     class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9
     type(cons_t) :: lst_z
 
-    type(cons_t) :: lists
+    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-    lists = lst9 ** nil_list
-    lists = lst8 ** lists
-    lists = lst7 ** lists
-    lists = lst6 ** lists
-    lists = lst5 ** lists
-    lists = lst4 ** lists
-    lists = lst3 ** lists
-    lists = lst2 ** lists
-    lists = lst1 ** lists
-    lst_z = list_zip (lists)
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    ! Using is_cons_pair rather than is_nil_list lets us handle
+    ! degenerate dotted lists at the same time as nil lists.
+    if (.not. is_cons_pair (lst1)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst2)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst3)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst4)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst5)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst6)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst7)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst8)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst9)) then
+       lst_z = nil_list
+    else
+       call uncons (lst1, head1, tail1)
+       call uncons (lst2, head2, tail2)
+       call uncons (lst3, head3, tail3)
+       call uncons (lst4, head4, tail4)
+       call uncons (lst5, head5, tail5)
+       call uncons (lst6, head6, tail6)
+       call uncons (lst7, head7, tail7)
+       call uncons (lst8, head8, tail8)
+       call uncons (lst9, head9, tail9)
+       row = nil_list
+       row = head9 ** row
+       row = head8 ** row
+       row = head7 ** row
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil_list
+       cursor = lst_z
+       if (.not. is_cons_pair (tail1)) then
+          continue
+       else if (.not. is_cons_pair (tail2)) then
+          continue
+       else if (.not. is_cons_pair (tail3)) then
+          continue
+       else if (.not. is_cons_pair (tail4)) then
+          continue
+       else if (.not. is_cons_pair (tail5)) then
+          continue
+       else if (.not. is_cons_pair (tail6)) then
+          continue
+       else if (.not. is_cons_pair (tail7)) then
+          continue
+       else if (.not. is_cons_pair (tail8)) then
+          continue
+       else if (.not. is_cons_pair (tail9)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             row = nil_list
+             row = head9 ** row
+             row = head8 ** row
+             row = head7 ** row
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil_list
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (.not. is_cons_pair (tail1)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail2)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail3)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail4)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail5)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail6)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail7)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail8)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail9)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
   end function list_zip9
 
   function list_unzip (lst, n) result (lists)
