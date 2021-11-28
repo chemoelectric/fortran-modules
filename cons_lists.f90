@@ -255,7 +255,8 @@ module cons_lists
   public :: list_concatenate    ! Concatenate a list of lists.
 
   ! Zipping: joining the elements of separate lists into a list of
-  ! lists.
+  ! lists. (The list_zip1, list_zip2, ..., implementations may be
+  ! significantly faster than list_zip.)
   public :: list_zip  ! Use the elements of a list as the arguments.
   public :: list_zip1 ! Box each element of a list in a length-1 list.
   public :: list_zip2
