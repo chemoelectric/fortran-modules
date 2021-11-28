@@ -268,7 +268,8 @@ module cons_lists
   public :: list_zip9
 
   ! Unzipping: separating the elements of a list of lists into
-  ! separate lists.
+  ! separate lists. (The list_unzip1, list_unzip2, ...,
+  ! implementations may be significantly faster than list_unzip.)
   public :: list_unzip ! Return the separated lists as a list of lists.
   public :: list_unzip1
   public :: list_unzip2

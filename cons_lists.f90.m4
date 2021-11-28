@@ -222,7 +222,8 @@ m4_forloop([n],[2],ZIP_MAX,[  public :: list_zip[]n
 ])dnl
 
   ! Unzipping: separating the elements of a list of lists into
-  ! separate lists.
+  ! separate lists. (The list_unzip1, list_unzip2, ...,
+  ! implementations may be significantly faster than list_unzip.)
   public :: list_unzip ! Return the separated lists as a list of lists.
 m4_forloop([n],[1],ZIP_MAX,[  public :: list_unzip[]n
 ])dnl
