@@ -1931,8 +1931,6 @@ contains
     class(*), intent(in) :: lst1
     type(cons_t) :: lst_z
 
-    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-
     class(*), allocatable :: head1, tail1
     type(cons_t) :: row
     type(cons_t) :: new_pair
@@ -1971,8 +1969,6 @@ contains
   function list_zip2 (lst1, lst2) result (lst_z)
     class(*), intent(in) :: lst1, lst2
     type(cons_t) :: lst_z
-
-    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
     class(*), allocatable :: head1, tail1
     class(*), allocatable :: head2, tail2
@@ -2023,8 +2019,6 @@ contains
   function list_zip3 (lst1, lst2, lst3) result (lst_z)
     class(*), intent(in) :: lst1, lst2, lst3
     type(cons_t) :: lst_z
-
-    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
     class(*), allocatable :: head1, tail1
     class(*), allocatable :: head2, tail2
@@ -2086,8 +2080,6 @@ contains
   function list_zip4 (lst1, lst2, lst3, lst4) result (lst_z)
     class(*), intent(in) :: lst1, lst2, lst3, lst4
     type(cons_t) :: lst_z
-
-    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
     class(*), allocatable :: head1, tail1
     class(*), allocatable :: head2, tail2
@@ -2160,8 +2152,6 @@ contains
   function list_zip5 (lst1, lst2, lst3, lst4, lst5) result (lst_z)
     class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5
     type(cons_t) :: lst_z
-
-    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
     class(*), allocatable :: head1, tail1
     class(*), allocatable :: head2, tail2
@@ -2245,8 +2235,6 @@ contains
   function list_zip6 (lst1, lst2, lst3, lst4, lst5, lst6) result (lst_z)
     class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6
     type(cons_t) :: lst_z
-
-    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
     class(*), allocatable :: head1, tail1
     class(*), allocatable :: head2, tail2
@@ -2341,8 +2329,6 @@ contains
   function list_zip7 (lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_z)
     class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7
     type(cons_t) :: lst_z
-
-    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
     class(*), allocatable :: head1, tail1
     class(*), allocatable :: head2, tail2
@@ -2448,8 +2434,6 @@ contains
   function list_zip8 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_z)
     class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8
     type(cons_t) :: lst_z
-
-    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
     class(*), allocatable :: head1, tail1
     class(*), allocatable :: head2, tail2
@@ -2566,8 +2550,6 @@ contains
   function list_zip9 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_z)
     class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9
     type(cons_t) :: lst_z
-
-    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
     class(*), allocatable :: head1, tail1
     class(*), allocatable :: head2, tail2

@@ -1204,8 +1204,6 @@ m4_forloop([n],[1],ZIP_MAX,[
     class(*), intent(in) :: lst1[]m4_forloop([k],[2],n,[, lst[]k])
     type(cons_t) :: lst_z
 
-    type(cons_t) :: lists       ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-
 m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: head[]k, tail[]k
 ])dnl
