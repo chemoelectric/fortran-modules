@@ -101,6 +101,12 @@ contains
     y = list2 (quotient, remainder)
   end function division_wrapper
 
+  function passthru (x) result (y)
+    class(cons_t), intent(in) :: x
+    type(cons_t) :: y
+    y = x
+  end function passthru
+
   subroutine test_is_nil_list
     call check (.not. is_nil_list ('abc'), ".not. is_nil_list ('abc') failed")
     call check (is_nil_list (nil_list), "is_nil_list (nil_list) failed")
@@ -614,6 +620,7 @@ contains
   subroutine test_list_append
     type(cons_t) :: lst1, lst2
     integer :: i
+    call check (is_nil_list (list_append (nil_list, nil_list)), "is_nil_list (list_append (nil_list, nil_list)) failed")
     lst1 = cons_t_cast (list_append (nil_list, 1 ** 2 ** 3 ** nil_list))
     call check (list_length (lst1) == 3, "list_length (lst1) == 3 failed (for list_append)")
     do i = 1, 3
@@ -633,6 +640,8 @@ contains
   subroutine test_list_append_reverse
     type(cons_t) :: lst
     integer :: i
+    call check (is_nil_list (list_append_reverse (nil_list, nil_list)), &
+         "is_nil_list (list_append_reverse (nil_list, nil_list)) failed")
     lst = cons_t_cast (list_append_reverse (3 ** 2 ** 1 ** nil_list, 4 ** 5 ** 6 ** nil_list))
     call check (list_length (lst) == 6, "list_length (lst) == 6 failed (for list_append_reverse)")
     do i = 1, 6
@@ -648,13 +657,13 @@ contains
     !
     ! FIXME: Add a test to check for clobbered arguments.
     !
-    type(cons_t) :: lst
+    type(cons_t) :: lst1, lst2
     integer :: i
-    lst = 1 ** 2 ** 3 ** nil_list
-    call list_append_in_place (lst, 4 ** 5 ** 6 ** nil_list)
-    call check (list_length (lst) == 6, "list_length (lst) == 6 failed (for list_append_in_place)")
+    lst1 = 1 ** 2 ** 3 ** nil_list
+    call list_append_in_place (lst1, 4 ** 5 ** 6 ** nil_list)
+    call check (list_length (lst1) == 6, "list_length (lst1) == 6 failed (for list_append_in_place)")
     do i = 1, 6
-       call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i (for list_append_in_place)")
+       call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1, i) .eqi. i (for list_append_in_place)")
     end do
   end subroutine test_list_append_in_place
 
@@ -974,6 +983,30 @@ contains
     call check (is_nil_list (remainders), "check0190 failed (for list_map)")
   end subroutine test_list_map
 
+  subroutine test_list_append_map
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
+    class(*), allocatable :: obj1, obj2
+    integer :: i
+    lst1 = cons_t_cast (list_append_map (passthru, list_box (list3 (list2 (1, 2), list1(3), list2 (4, 5)))))
+    call check (list_length (lst1) == 5, "list_length (lst1) == 5 failed (for list_append_map)")
+    do i = 1, 5
+       call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1) == i failed (for list_append_map)")
+    end do
+    lst2 = cons_t_cast (list_append_map (passthru, list_box (make_list (5, nil_list))))
+    call check (list_length (lst2) == 0, "list_length (lst2) == 0 failed (for list_append_map)")
+    lst3 = cons_t_cast (list_append_map (passthru, nil_list))
+    call check (list_length (lst3) == 0, "list_length (lst3) == 0 failed (for list_append_map)")
+    lst4 = cons_t_cast (list_append_map (passthru, list_box (list2 (1, 2) ** cons (list1(3), 4.0))))
+    call check (list_length (lst4) == 3, "list_length (lst4) == 3 failed (for list_append_map)")
+    call check (car (lst4) .eqi. 1, "car (lst4) .eqi. 1 failed (for list_append_map)")
+    call check (cadr (lst4) .eqi. 2, "cadr (lst4) .eqi. 2 failed (for list_append_map)")
+    call check (caddr (lst4) .eqi. 3, "caddr (lst4) .eqi. 3 failed (for list_append_map)")
+    lst5 = cons_t_cast (list_append_map (passthru, 'abc'))
+    call check (list_length (lst5) == 0, "list_length (lst5) == 0 failed (for list_append_map)")
+    lst6 = cons_t_cast (list_append_map (passthru, list_box (make_list (100, nil_list))))
+    call check (list_length (lst6) == 0, "list_length (lst6) == 0 failed (for list_append_map)")
+  end subroutine test_list_append_map
+
   subroutine run_tests
     !
     ! FIXME: Add a test for list_classify that checks it doesn't
@@ -1025,6 +1058,7 @@ contains
     call test_list_unzip4
     call test_list_box_unbox
     call test_list_map
+    call test_list_append_map
   end subroutine run_tests
 
 end module test__cons_lists

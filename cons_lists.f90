@@ -298,8 +298,10 @@ module cons_lists
   public :: list_box           ! Boxes elements into length-1 lists.
   public :: list_unbox         ! Unboxes elements from length-1 lists.
 
-  public :: list_map ! Map list elements. (This is like SRFI-1 `map-in-order'.)
   public :: list_mapfunc_t
+  public :: list_map_in_order ! Map list elements in the list order.
+  public :: list_map ! Map list elements in unspecified order.
+  public :: list_append_map ! Map list elements (in unspecified order) and append them.
 
   ! Overloading of `iota'.
   interface iota
@@ -1836,7 +1838,11 @@ contains
     !
     type(cons_t) :: lst1
     class(*) :: lst2
-    call set_cdr (list_last_pair (lst1), lst2)
+    if (list_is_nil (lst1)) then
+       call error_abort ("list_append_in_place to an empty list")
+    else
+       call set_cdr (list_last_pair (lst1), lst2)
+    end if
   end subroutine list_append_in_place
 
   subroutine list_append_reverse_in_place (lst1, lst2)
@@ -1845,8 +1851,12 @@ contains
     !
     type(cons_t) :: lst1
     class(*) :: lst2
-    call list_reverse_in_place (lst1)
-    call list_append_in_place (lst1, lst2)
+    if (list_is_nil (lst1)) then
+       call error_abort ("list_append_reverse_in_place to an empty list")
+    else
+       call list_reverse_in_place (lst1)
+       call list_append_in_place (lst1, lst2)
+    end if
   end subroutine list_append_reverse_in_place
 
   function list_concatenate (lists) result (lst_concat)
@@ -3485,7 +3495,7 @@ contains
     call list_unzip1 (lst_zipped, lst)
   end function list_unbox
 
-  function list_map (func, inputs) result (outputs)
+  function list_map_in_order (func, inputs) result (outputs)
     !
     ! Map elements of lists. The work is guaranteed to be done in
     ! list order.
@@ -3521,6 +3531,75 @@ contains
        ! Ignore the `tail' of a degenerate dotted list.
        outputs = nil_list
     end select
+  end function list_map_in_order
+
+  function list_map (func, inputs) result (outputs)
+    procedure(list_mapfunc_t) :: func
+    class(*), intent(in) :: inputs
+    type(cons_t) :: outputs
+    outputs = list_map_in_order (func, inputs)
   end function list_map
+
+  function list_append_map (func, inputs) result (outputs)
+    !
+    ! FIXME: Document that func inputs and outputs boxed values. THIS
+    !        IS EASY TO FORGET.
+    !
+    procedure(list_mapfunc_t) :: func
+    class(*), intent(in) :: inputs
+    class(*), allocatable :: outputs
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: lst_start
+    class(*), allocatable :: lst_part
+    type(cons_t) :: lst
+    type(cons_t) :: cursor
+
+    if (.not. is_cons_pair (inputs)) then
+       outputs = nil_list
+    else
+       call get_next (inputs, lst_start, tail)
+       if (.not. is_cons_pair (lst_start)) then
+          outputs = nil_list
+       else
+          lst = cons_t_cast (lst_start)
+          outputs = lst
+          cursor = list_last_pair (lst)
+          do while (is_cons_pair (tail))
+             call get_next (tail, lst_part, tail)
+             select type (lst_part)
+             class is (cons_t)
+                lst = lst_part
+                call set_cdr (cursor, lst)
+                cursor = list_last_pair (lst)
+             class default
+                call error_abort ("list_append_map with a non-list element")
+             end select
+          end do
+       end if
+    end if
+
+  contains
+
+    subroutine get_next (inputs, next, tail)
+      class(*) :: inputs
+      class(*), allocatable :: next
+      class(*), allocatable :: tail
+
+      class(*), allocatable :: hd
+      class(*), allocatable :: tl
+
+      call uncons (inputs, hd, tl)
+      hd = car (func (cons_t_cast (hd)))
+      do while (is_nil_list (hd) .and. is_cons_pair (tl))
+         call uncons (tl, hd, tl)
+         hd = car (func (cons_t_cast (hd)))
+      end do
+      next = hd
+      tail = tl
+    end subroutine get_next
+
+  end function list_append_map
 
 end module cons_lists
