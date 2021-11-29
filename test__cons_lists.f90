@@ -1092,6 +1092,43 @@ contains
     end function is_positive_integer
   end subroutine test_list_find_tail
 
+  subroutine test_list_drop_while
+    type(cons_t) :: lst1, lst2, lst3
+    class(*), allocatable :: obj1, obj2, obj3
+    logical :: match_found1,  match_found2, match_found3
+    lst1 = 1.0 ** (-1) ** 17 ** 5 ** 7 ** nil_list
+    call list_drop_while (is_not_positive_integer, lst1, match_found1, obj1)
+    call check (match_found1, "match_found1 failed (for list_drop_while)")
+    call check (list_length (obj1) == 3, "list_length (obj1) == 3 failed (for list_drop_while)")
+    call check (first (obj1) .eqi. 17, "first (obj1) .eqi. 17 failed (for list_drop_while)")
+    call check (second (obj1) .eqi. 5, "second (obj1) .eqi. 5 failed (for list_drop_while)")
+    call check (third (obj1) .eqi. 7, "third (obj1) .eqi. 7 failed (for list_drop_while)")
+    call check (is_nil_list (cdddr (obj1)), "is_nil_list (cdddr (obj1)) failed (for list_drop_while)")
+    lst2 = 1.0 ** (-1) ** 17 ** 5 ** cons (7, 1234.0)
+    call list_drop_while (is_not_positive_integer, lst2, match_found2, obj2)
+    call check (match_found2, "match_found2 failed (for list_drop_while)")
+    call check (list_length (obj2) == 3, "list_length (obj2) == 3 failed (for list_drop_while)")
+    call check (first (obj2) .eqi. 17, "first (obj2) .eqi. 17 failed (for list_drop_while)")
+    call check (second (obj2) .eqi. 5, "second (obj2) .eqi. 5 failed (for list_drop_while)")
+    call check (third (obj2) .eqi. 7, "third (obj2) .eqi. 7 failed (for list_drop_while)")
+    call check (cdddr (obj2) .eqr. 1234.0, "cdddr (obj2) .eqr. 1234.0 failed (for list_drop_while)")
+    lst3 = 1.0 ** (-1) ** (-17) ** 'abc' ** (-7) ** nil_list
+    obj3 = 1024
+    call list_drop_while (is_not_positive_integer, lst3, match_found3, obj3)
+    call check (.not. match_found3, ".not. match_found3 failed (for list_drop_while)")
+    call check (obj3 .eqi. 1024, "obj3 .eqi. 1024 failed (for list_drop_while)")
+  contains
+    function is_not_positive_integer (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+      bool = .true.
+      select type (x)
+      type is (integer)
+         bool = (x < 1)
+      end select
+    end function is_not_positive_integer
+  end subroutine test_list_drop_while
+
   subroutine run_tests
     !
     ! FIXME: Add a test for list_classify that checks it doesn't
@@ -1147,6 +1184,7 @@ contains
     call test_list_modify_elements_in_place
     call test_list_append_modify_elements
     call test_list_find_tail
+    call test_list_drop_while
   end subroutine run_tests
 
 end module test__cons_lists

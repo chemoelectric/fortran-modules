@@ -245,7 +245,8 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_append_modify_elements
 
   ! Searching.
-  public :: list_find_tail ! Find the first tail of a list whose CAR satisfies a predicate.
+  public :: list_find_tail ! Find a list's first tail whose CAR satisfies a predicate.
+  public :: list_drop_while ! Find a list's first tail whose CAR does not satisfy a predicate.
 
   ! Overloading of `iota'.
   interface iota
@@ -1541,5 +1542,29 @@ m4_forloop([k],[1],n,[dnl
        end if
     end do
   end subroutine list_find_tail
+
+  subroutine list_drop_while (pred, lst, match_found, match)
+    !
+    ! If `match_found' is set to .false., then `match' is left unchanged.
+    !
+    procedure(list_predicate_t) :: pred
+    class(*) :: lst
+    logical, intent(out) :: match_found
+    class(*), allocatable :: match
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    match_found = .false.
+    tail = lst
+    do while (.not. match_found .and. is_cons_pair (tail))
+       if (pred (car (tail))) then
+          tail = cdr (tail)
+       else
+          match_found = .true.
+          match = tail
+       end if
+    end do
+  end subroutine list_drop_while
 
 end module cons_lists
