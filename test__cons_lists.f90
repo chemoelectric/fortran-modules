@@ -83,29 +83,29 @@ contains
     bool = real_cast (obj1) == real_cast (obj2)
   end function real_eq
 
-  function cosine_wrapper (x) result (y)
-    class(cons_t), intent(in) :: x
-    type(cons_t) :: y
-    y = list1 (cos (real_cast (first (x))))
-  end function cosine_wrapper
-
-  function division_wrapper (x) result (y)
-    class(cons_t), intent(in) :: x
-    type(cons_t) :: y
-    integer :: dividend, divisor
-    integer :: quotient, remainder
-    dividend = integer_cast (first (x))
-    divisor = integer_cast (second (x))
-    quotient = dividend / divisor
-    remainder = mod (dividend, divisor)
-    y = list2 (quotient, remainder)
-  end function division_wrapper
-
-  function passthru (x) result (y)
-    class(cons_t), intent(in) :: x
-    type(cons_t) :: y
-    y = x
-  end function passthru
+!!$  function cosine_wrapper (x) result (y)
+!!$    class(cons_t), intent(in) :: x
+!!$    type(cons_t) :: y
+!!$    y = list1 (cos (real_cast (first (x))))
+!!$  end function cosine_wrapper
+!!$
+!!$  function division_wrapper (x) result (y)
+!!$    class(cons_t), intent(in) :: x
+!!$    type(cons_t) :: y
+!!$    integer :: dividend, divisor
+!!$    integer :: quotient, remainder
+!!$    dividend = integer_cast (first (x))
+!!$    divisor = integer_cast (second (x))
+!!$    quotient = dividend / divisor
+!!$    remainder = mod (dividend, divisor)
+!!$    y = list2 (quotient, remainder)
+!!$  end function division_wrapper
+!!$
+!!$  function passthru (x) result (y)
+!!$    class(cons_t), intent(in) :: x
+!!$    type(cons_t) :: y
+!!$    y = x
+!!$  end function passthru
 
   subroutine test_is_nil_list
     call check (.not. is_nil_list ('abc'), ".not. is_nil_list ('abc') failed")
@@ -1007,6 +1007,30 @@ contains
 !!$    call check (list_length (lst6) == 0, "list_length (lst6) == 0 failed (for list_append_map)")
 !!$  end subroutine test_list_append_map
 
+  subroutine test_list_foreach
+    type(cons_t) :: lst1
+    integer, dimension(1 : 100) :: arr1
+    integer :: i
+    lst1 = iota(100, 1)
+    call list_foreach (side_effector, lst1)
+    do i = 1, 100
+       call check (arr1(i) == i, "arr1(i) == i failed (for list_foreach)")
+    end do
+  contains
+    !
+    ! NOTE: gfortran will generate a trampoline for the implementation
+    !       of side_effector; the test may not work on a hardened
+    !       system. (A different compiler might use a method other
+    !       than trampolining: lambda lifting, for instance.)
+    !
+    subroutine side_effector (x)
+      class(*), allocatable :: x
+      integer :: i
+      i = integer_cast (x)
+      arr1(i) = i
+    end subroutine side_effector
+  end subroutine test_list_foreach
+
   subroutine run_tests
     !
     ! FIXME: Add a test for list_classify that checks it doesn't
@@ -1057,6 +1081,7 @@ contains
     call test_list_unzip3
     call test_list_unzip4
     call test_list_unzip1f
+    call test_list_foreach
 !!$    call test_list_map
 !!$    call test_list_append_map
   end subroutine run_tests

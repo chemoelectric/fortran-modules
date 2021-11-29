@@ -63,6 +63,17 @@ module cons_procedure_types
 
   abstract interface
 
+     subroutine list_foreachproc_t (x)
+       !
+       ! The type of a subroutine passed to list_foreach,
+       ! list_foreach_copy, etc.  The value of x *may* be changed by
+       ! the subroutine, although in list_foreach this achieves
+       ! nothing.
+       !
+       use :: cons_types
+       class(*), allocatable :: x
+     end subroutine list_foreachproc_t
+
 !!$     function list_mapfunc_t (x) result (y)
 !!$       !
 !!$       ! list_mapfunc_t is the type of a function called by
@@ -290,6 +301,10 @@ module cons_lists
 !!$  public :: list_map_in_order ! Map list elements in the list order.
 !!$  public :: list_map ! Map list elements in unspecified order.
 !!$  public :: list_append_map ! Map list elements (in unspecified order) and append them.
+
+  public :: list_foreachproc_t
+  public :: list_foreach
+  !public :: list_foreach_copy
 
   ! Overloading of `iota'.
   interface iota
@@ -3476,6 +3491,25 @@ contains
     type(cons_t) :: lst
     call list_unzip1 (lst_zipped, lst)
   end function list_unzip1f
+
+  subroutine list_foreach (subr, lst)
+    !
+    ! Run a subroutine on list elements, for the sake of side effects
+    ! (such as printing). The work is guaranteed to be done in list
+    ! order.
+    !
+    procedure(list_foreachproc_t) :: subr
+    class(*), intent(in) :: lst
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    tail = lst
+    do while (is_cons_pair (tail))
+       call uncons (tail, head, tail)
+       call subr (head)
+    end do
+  end subroutine list_foreach
 
 !!$  function list_map_in_order (func, inputs) result (outputs)
 !!$    !
