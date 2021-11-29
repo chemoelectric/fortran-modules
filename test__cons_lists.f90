@@ -1024,7 +1024,7 @@ contains
     !       than trampolining: lambda lifting, for instance.)
     !
     subroutine side_effector (x)
-      class(*), allocatable :: x
+      class(*), intent(in) :: x
       integer :: i
       i = integer_cast (x)
       arr1(i) = i

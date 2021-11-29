@@ -75,13 +75,10 @@ module cons_procedure_types
 
      subroutine list_foreachproc_t (x)
        !
-       ! The type of a subroutine passed to list_foreach,
-       ! list_foreach_copy, etc.  The value of x *may* be changed by
-       ! the subroutine, although in list_foreach this achieves
-       ! nothing.
+       ! The type of a subroutine passed to list_foreach.
        !
        use :: cons_types
-       class(*), allocatable :: x
+       class(*), intent(in) :: x
      end subroutine list_foreachproc_t
 
 !!$     function list_mapfunc_t (x) result (y)
