@@ -202,15 +202,15 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: list_reverse_in_place ! Reverse a list without copying. (The argument must be a cons_t.)
   public :: list_copy             ! Make a copy in the original order.
   public :: list_take             ! Copy the first n CAR elements.
-  public :: list_drop ! Drop the first n CAR elements (by performing n CDR operations).
-  public :: list_take_right ! Roughly, `return the last n elements' (but see SRFI-1).
-  public :: list_drop_right ! Roughly, `drop the last n elements' (but see SRFI-1).
-  public :: list_split     ! A combination of list_take and list_drop.
-  public :: list_append    ! Concatenate two lists.
-  public :: list_append_reverse ! Concatenate the reverse of one list to another list.
-  public :: list_append_in_place ! Concatenate two lists, without copying.
+  public :: list_drop             ! Drop the first n CAR elements (by performing n CDR operations).
+  public :: list_take_right       ! Roughly, `return the last n elements' (but see SRFI-1).
+  public :: list_drop_right       ! Roughly, `drop the last n elements' (but see SRFI-1).
+  public :: list_split            ! A combination of list_take and list_drop.
+  public :: list_append           ! Concatenate two lists.
+  public :: list_append_reverse   ! Concatenate the reverse of one list to another list.
+  public :: list_append_in_place  ! Concatenate two lists, without copying.
   public :: list_append_reverse_in_place ! Reverse the first list and then append, without copying.
-  public :: list_concatenate    ! Concatenate a list of lists.
+  public :: list_concatenate      ! Concatenate a list of lists.
 
   ! Zipping: joining the elements of separate lists into a list of
   ! lists. (The list_zip1, list_zip2, ..., implementations may be
@@ -224,7 +224,7 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   ! Unzipping: separating the elements of a list of lists into
   ! separate lists. (The list_unzip1, list_unzip2, ...,
   ! implementations may be significantly faster than list_unzip.)
-  public :: list_unzip ! Return the separated lists as a list of lists.
+  public :: list_unzip  ! Return the separated lists as a list of lists.
   public :: list_unzip1 ! Unbox each element of a list of length-1 lists.
 m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_unzip[]n
@@ -245,12 +245,12 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_append_modify_elements
 
   ! Searching.
-  public :: list_find ! Find a list's first element that satisfies a predicate.
-  public :: list_find_tail ! Find a list's first tail whose CAR satisfies a predicate.
+  public :: list_find       ! Find a list's first element that satisfies a predicate.
+  public :: list_find_tail  ! Find a list's first tail whose CAR satisfies a predicate.
   public :: list_take_while ! Keep only initial elements that satisfy a predicate.
   public :: list_drop_while ! Drop initial elements that satisfy a predicate.
-  public :: list_span ! Split where a predicate first is unsatisfied.
-  !public :: list_break ! Split where a predicate first is satisfied.
+  public :: list_span       ! Split where a predicate is first unsatisfied.
+  public :: list_break      ! Split where a predicate is first satisfied.
 
   ! Overloading of `iota'.
   interface iota
@@ -1665,5 +1665,45 @@ m4_forloop([k],[1],n,[dnl
     lst_initial = initial
     lst_rest = rest
   end subroutine list_span
+
+  subroutine list_break (pred, lst, lst_initial, lst_rest)
+    procedure(list_predicate_t) :: pred
+    class(*) :: lst
+    type(cons_t) :: lst_initial
+    class(*), allocatable :: lst_rest
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail, tl
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+    type(cons_t) :: initial
+    class(*), allocatable :: rest
+    logical :: match_found
+
+    initial = nil_list
+    rest = lst
+    if (is_cons_pair (lst)) then
+       call uncons (lst, head, tail)
+       if (.not. pred (head)) then
+          cursor = head ** nil_list
+          rest = tail
+          initial = cursor
+          match_found = .false.
+          do while (.not. match_found .and. is_cons_pair (tail))
+             call uncons (tail, head, tail)
+             if (.not. pred (head)) then
+                new_pair = head ** nil_list
+                call set_cdr (cursor, new_pair)
+                cursor = new_pair
+                rest = tail
+             else
+                match_found = .true.
+             end if
+          end do
+       end if
+    end if
+    lst_initial = initial
+    lst_rest = rest
+  end subroutine list_break
 
 end module cons_lists
