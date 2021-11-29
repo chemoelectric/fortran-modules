@@ -292,7 +292,7 @@ module cons_lists
   public :: list_append_modify_elements
 
   ! Searching.
-  public :: list_find_tail ! Find the first tail of a list that satisfies a predicate.
+  public :: list_find_tail ! Find the first tail of a list whose CAR satisfies a predicate.
 
   ! Overloading of `iota'.
   interface iota
@@ -3640,12 +3640,13 @@ contains
     logical, intent(out) :: match_found
     class(*), allocatable :: match
 
+    class(*), allocatable :: head
     class(*), allocatable :: tail
 
     match_found = .false.
     tail = lst
     do while (.not. match_found .and. is_cons_pair (tail))
-       if (pred (tail)) then
+       if (pred (car (tail))) then
           match_found = .true.
           match = tail
        else
