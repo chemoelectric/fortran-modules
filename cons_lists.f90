@@ -292,6 +292,7 @@ module cons_lists
   public :: list_append_modify_elements
 
   ! Searching.
+  public :: list_find ! Find a list's first element that satisfies a predicate.
   public :: list_find_tail ! Find a list's first tail whose CAR satisfies a predicate.
   public :: list_drop_while ! Find a list's first tail whose CAR does not satisfy a predicate.
 
@@ -3632,6 +3633,32 @@ contains
     end if
   end function list_append_modify_elements
 
+  subroutine list_find (pred, lst, match_found, match)
+    !
+    ! If `match_found' is set to .false., then `match' is left unchanged.
+    !
+    procedure(list_predicate_t) :: pred
+    class(*) :: lst
+    logical, intent(out) :: match_found
+    class(*), allocatable :: match
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: element
+
+    match_found = .false.
+    tail = lst
+    do while (.not. match_found .and. is_cons_pair (tail))
+       element = car (tail)
+       if (pred (element)) then
+          match_found = .true.
+          match = element
+       else
+          tail = cdr (tail)
+       end if
+    end do
+  end subroutine list_find
+
   subroutine list_find_tail (pred, lst, match_found, match)
     !
     ! If `match_found' is set to .false., then `match' is left unchanged.
@@ -3656,17 +3683,14 @@ contains
     end do
   end subroutine list_find_tail
 
-  subroutine list_drop_while (pred, lst, match_found, match)
-    !
-    ! If `match_found' is set to .false., then `match' is left unchanged.
-    !
+  function list_drop_while (pred, lst) result (match)
     procedure(list_predicate_t) :: pred
     class(*) :: lst
-    logical, intent(out) :: match_found
     class(*), allocatable :: match
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
+    logical :: match_found
 
     match_found = .false.
     tail = lst
@@ -3675,9 +3699,9 @@ contains
           tail = cdr (tail)
        else
           match_found = .true.
-          match = tail
        end if
     end do
-  end subroutine list_drop_while
+    match = tail
+  end function list_drop_while
 
 end module cons_lists

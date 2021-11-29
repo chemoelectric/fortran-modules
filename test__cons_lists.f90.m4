@@ -1055,10 +1055,51 @@ contains
     end subroutine do_nothing
   end subroutine test_list_append_modify_elements
 
+  subroutine test_list_find
+    type(cons_t) :: lst1, lst2, lst3, lst4
+    class(*), allocatable :: pseudo_lst5
+    class(*), allocatable :: obj1, obj2, obj3, obj4, obj5
+    logical :: match_found1,  match_found2, match_found3, match_found4, match_found5
+    lst1 = 1.0 ** (-1) ** 17 ** 5 ** 7 ** nil_list
+    call list_find (is_positive_integer, lst1, match_found1, obj1)
+    call check (match_found1, "match_found1 failed (for list_find)")
+    call check (obj1 .eqi. 17, "obj1 .eqi. 17 failed (for list_find)")
+    lst2 = 1.0 ** (-1) ** 17 ** 5 ** cons (7, 1234.0)
+    call list_find (is_positive_integer, lst2, match_found1, obj1)
+    call check (match_found1, "match_found1 failed (for list_find)")
+    call check (obj1 .eqi. 17, "obj1 .eqi. 17 failed (for list_find)")
+    lst3 = 1.0 ** (-1) ** (-17) ** 'abc' ** (-7) ** nil_list
+    obj3 = 1024
+    call list_find (is_positive_integer, lst3, match_found3, obj3)
+    call check (.not. match_found3, ".not. match_found3 failed (for list_find)")
+    call check (obj3 .eqi. 1024, "obj3 .eqi. 1024 failed (for list_find)")
+    lst4 = nil_list
+    obj4 = 1024
+    call list_find (is_positive_integer, lst4, match_found4, obj4)
+    call check (.not. match_found4, ".not. match_found4 failed (for list_find)")
+    call check (obj4 .eqi. 1024, "obj4 .eqi. 1024 failed (for list_find)")
+    pseudo_lst5 = 'abc'
+    obj5 = 1024
+    call list_find (is_positive_integer, pseudo_lst5, match_found5, obj5)
+    call check (.not. match_found5, ".not. match_found5 failed (for list_find)")
+    call check (obj5 .eqi. 1024, "obj5 .eqi. 1025 failed (for list_find)")
+  contains
+    function is_positive_integer (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+      bool = .false.
+      select type (x)
+      type is (integer)
+         bool = (1 <= x)
+      end select
+    end function is_positive_integer
+  end subroutine test_list_find
+
   subroutine test_list_find_tail
-    type(cons_t) :: lst1, lst2, lst3
-    class(*), allocatable :: obj1, obj2, obj3
-    logical :: match_found1,  match_found2, match_found3
+    type(cons_t) :: lst1, lst2, lst3, lst4
+    class(*), allocatable :: pseudo_lst5
+    class(*), allocatable :: obj1, obj2, obj3, obj4, obj5
+    logical :: match_found1,  match_found2, match_found3, match_found4, match_found5
     lst1 = 1.0 ** (-1) ** 17 ** 5 ** 7 ** nil_list
     call list_find_tail (is_positive_integer, lst1, match_found1, obj1)
     call check (match_found1, "match_found1 failed (for list_find_tail)")
@@ -1080,6 +1121,16 @@ contains
     call list_find_tail (is_positive_integer, lst3, match_found3, obj3)
     call check (.not. match_found3, ".not. match_found3 failed (for list_find_tail)")
     call check (obj3 .eqi. 1024, "obj3 .eqi. 1024 failed (for list_find_tail)")
+    lst4 = nil_list
+    obj4 = 1024
+    call list_find_tail (is_positive_integer, lst4, match_found4, obj4)
+    call check (.not. match_found4, ".not. match_found4 failed (for list_find_tail)")
+    call check (obj4 .eqi. 1024, "obj4 .eqi. 1024 failed (for list_find_tail)")
+    pseudo_lst5 = 'abc'
+    obj5 = 1024
+    call list_find_tail (is_positive_integer, pseudo_lst5, match_found5, obj5)
+    call check (.not. match_found5, ".not. match_found5 failed (for list_find_tail)")
+    call check (obj5 .eqi. 1024, "obj5 .eqi. 1025 failed (for list_find_tail)")
   contains
     function is_positive_integer (x) result (bool)
       class(*), intent(in) :: x
@@ -1095,28 +1146,27 @@ contains
   subroutine test_list_drop_while
     type(cons_t) :: lst1, lst2, lst3
     class(*), allocatable :: obj1, obj2, obj3
-    logical :: match_found1,  match_found2, match_found3
     lst1 = 1.0 ** (-1) ** 17 ** 5 ** 7 ** nil_list
-    call list_drop_while (is_not_positive_integer, lst1, match_found1, obj1)
-    call check (match_found1, "match_found1 failed (for list_drop_while)")
+    obj1 = list_drop_while (is_not_positive_integer, lst1)
     call check (list_length (obj1) == 3, "list_length (obj1) == 3 failed (for list_drop_while)")
     call check (first (obj1) .eqi. 17, "first (obj1) .eqi. 17 failed (for list_drop_while)")
     call check (second (obj1) .eqi. 5, "second (obj1) .eqi. 5 failed (for list_drop_while)")
     call check (third (obj1) .eqi. 7, "third (obj1) .eqi. 7 failed (for list_drop_while)")
     call check (is_nil_list (cdddr (obj1)), "is_nil_list (cdddr (obj1)) failed (for list_drop_while)")
     lst2 = 1.0 ** (-1) ** 17 ** 5 ** cons (7, 1234.0)
-    call list_drop_while (is_not_positive_integer, lst2, match_found2, obj2)
-    call check (match_found2, "match_found2 failed (for list_drop_while)")
+    obj2 = list_drop_while (is_not_positive_integer, lst2)
     call check (list_length (obj2) == 3, "list_length (obj2) == 3 failed (for list_drop_while)")
     call check (first (obj2) .eqi. 17, "first (obj2) .eqi. 17 failed (for list_drop_while)")
     call check (second (obj2) .eqi. 5, "second (obj2) .eqi. 5 failed (for list_drop_while)")
     call check (third (obj2) .eqi. 7, "third (obj2) .eqi. 7 failed (for list_drop_while)")
-    call check (cdddr (obj2) .eqr. 1234.0, "cdddr (obj2) .eqr. 1234.0 failed (for list_drop_while)")
+    call check (cdddr (obj2) .eqr. 1234.0, "cdddr (obj2) .eqr. 1234.0 failed")
     lst3 = 1.0 ** (-1) ** (-17) ** 'abc' ** (-7) ** nil_list
-    obj3 = 1024
-    call list_drop_while (is_not_positive_integer, lst3, match_found3, obj3)
-    call check (.not. match_found3, ".not. match_found3 failed (for list_drop_while)")
-    call check (obj3 .eqi. 1024, "obj3 .eqi. 1024 failed (for list_drop_while)")
+    obj3 = list_drop_while (is_not_positive_integer, lst3)
+    call check (is_nil_list (obj3), "is_nil_list (obj3) failed (for list_drop_while)")
+    call check (is_nil_list (list_drop_while (is_not_positive_integer, nil_list)), &
+         "is_nil_list (list_drop_while (is_not_positive_integer, nil_list)) failed (for list_drop_while)")
+    call check (list_drop_while (is_not_positive_integer, 1234) .eqi. 1234, &
+         "list_drop_while (is_not_positive_integer, 1234) .eqi. 1234 failed (for list_drop_while)")
   contains
     function is_not_positive_integer (x) result (bool)
       class(*), intent(in) :: x
@@ -1183,6 +1233,7 @@ contains
     call test_list_modify_elements
     call test_list_modify_elements_in_place
     call test_list_append_modify_elements
+    call test_list_find
     call test_list_find_tail
     call test_list_drop_while
   end subroutine run_tests
