@@ -54,12 +54,19 @@ M4FLAGS += -DZIP_MAX=9
 FC = gfortran
 FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all
 COMPILE.f90 = $(FC) $(FCFLAGS) $(XFCFLAGS)
+FCFLAG_WNO_TRAMPOLINES = -Wno-trampolines
 
 %.anchor: %.f90
 	$(COMPILE.f90) -c -fsyntax-only $(<) && touch $(@)
 
+test__cons_lists.anchor: test__cons_lists.f90
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c -fsyntax-only $(<) && touch $(@)
+
 %.$(OBJEXT): %.anchor
 	$(COMPILE.f90) -c $(<:.anchor=.f90) -o $(@)
+
+test__cons_lists.$(OBJEXT): test__cons_lists.anchor
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c $(<:.anchor=.f90) -o $(@)
 
 .PRECIOUS: %.f90
 %.f90: %.f90.m4 common-macros.m4
