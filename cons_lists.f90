@@ -79,6 +79,15 @@ module cons_procedure_types
        class(*), intent(inout), allocatable :: x
      end subroutine list_modify_elements_procedure_t
 
+     function list_predicate_t (x) result (bool)
+       !
+       ! For passing predicates to procedures.
+       !
+       use :: cons_types
+       class(*), intent(in) :: x
+       logical :: bool
+     end function list_predicate_t
+
   end interface
 
 end module cons_procedure_types
@@ -281,6 +290,9 @@ module cons_lists
   public :: list_modify_elements
   public :: list_modify_elements_in_place
   public :: list_append_modify_elements
+
+  ! Searching.
+  public :: list_find_tail ! Find the first tail of a list that satisfies a predicate.
 
   ! Overloading of `iota'.
   interface iota
@@ -3618,5 +3630,28 @@ contains
        end if
     end if
   end function list_append_modify_elements
+
+  subroutine list_find_tail (pred, lst, match_found, match)
+    !
+    ! If `match_found' is set to .false., then `match' is left unchanged.
+    !
+    procedure(list_predicate_t) :: pred
+    class(*) :: lst
+    logical, intent(out) :: match_found
+    class(*), allocatable :: match
+
+    class(*), allocatable :: tail
+
+    match_found = .false.
+    tail = lst
+    do while (.not. match_found .and. is_cons_pair (tail))
+       if (pred (tail)) then
+          match_found = .true.
+          match = tail
+       else
+          tail = cdr (tail)
+       end if
+    end do
+  end subroutine list_find_tail
 
 end module cons_lists

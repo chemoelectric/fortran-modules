@@ -1055,6 +1055,51 @@ contains
     end subroutine do_nothing
   end subroutine test_list_append_modify_elements
 
+  subroutine test_list_find_tail
+    type(cons_t) :: lst1, lst2, lst3
+    class(*), allocatable :: obj1, obj2, obj3
+    logical :: match_found1,  match_found2, match_found3
+    lst1 = 1.0 ** (-1) ** 17 ** 5 ** 7 ** nil_list
+    call list_find_tail (is_positive_integers, lst1, match_found1, obj1)
+    call check (match_found1, "match_found1 failed (for list_find_tail)")
+    call check (list_length (obj1) == 3, "list_length (obj1) == 3 failed (for list_find_tail)")
+    call check (first (obj1) .eqi. 17, "first (obj1) .eqi. 17 failed (for list_find_tail)")
+    call check (second (obj1) .eqi. 5, "second (obj1) .eqi. 5 failed (for list_find_tail)")
+    call check (third (obj1) .eqi. 7, "third (obj1) .eqi. 7 failed (for list_find_tail)")
+    call check (is_nil_list (cdddr (obj1)), "is_nil_list (cdddr (obj1)) failed (for list_find_tail)")
+    lst2 = 1.0 ** (-1) ** 17 ** 5 ** cons (7, 1234.0)
+    call list_find_tail (is_positive_integers, lst2, match_found2, obj2)
+    call check (match_found2, "match_found2 failed (for list_find_tail)")
+    call check (list_length (obj2) == 3, "list_length (obj2) == 3 failed (for list_find_tail)")
+    call check (first (obj2) .eqi. 17, "first (obj2) .eqi. 17 failed (for list_find_tail)")
+    call check (second (obj2) .eqi. 5, "second (obj2) .eqi. 5 failed (for list_find_tail)")
+    call check (third (obj2) .eqi. 7, "third (obj2) .eqi. 7 failed (for list_find_tail)")
+    call check (cdddr (obj2) .eqr. 1234.0, "cdddr (obj2) .eqr. 1234.0 failed (for list_find_tail)")
+    lst3 = 1.0 ** (-1) ** 17 ** 5 ** (-7) ** nil_list
+    obj3 = 1024
+    call list_find_tail (is_positive_integers, lst3, match_found3, obj3)
+    call check (.not. match_found3, ".not. match_found3 failed (for list_find_tail)")
+    call check (obj3 .eqi. 1024, "obj3 .eqi. 1024 failed (for list_find_tail)")
+  contains
+    function is_positive_integers (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+      !
+      class(*), allocatable :: p
+      class(*), allocatable :: element
+      !
+      bool = .true.
+      p = x
+      do while (bool .and. is_cons_pair (p))
+         call uncons (p, element, p)
+         select type (element)
+         type is (integer)
+            bool = (1 <= element)
+         end select
+      end do
+    end function is_positive_integers
+  end subroutine test_list_find_tail
+
   subroutine run_tests
     !
     ! FIXME: Add a test for list_classify that checks it doesn't
@@ -1109,6 +1154,7 @@ contains
     call test_list_modify_elements
     call test_list_modify_elements_in_place
     call test_list_append_modify_elements
+    call test_list_find_tail
   end subroutine run_tests
 
 end module test__cons_lists
