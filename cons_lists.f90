@@ -279,6 +279,7 @@ module cons_lists
   ! Call a subroutine on list elements, to modify (map) their values.
   public :: list_modify_elements_procedure_t
   public :: list_modify_elements
+  public :: list_modify_elements_in_place
   public :: list_append_modify_elements
 
   ! Overloading of `iota'.
@@ -3523,6 +3524,30 @@ contains
        lst_m = lst
     end if
   end function list_modify_elements
+
+  subroutine list_modify_elements_in_place (subr, lst)
+    !
+    ! Modify the elements of a list, in place, using a subroutine to
+    ! map the individual elements. The work is guaranteed to be done
+    ! in list order.
+    !
+    ! If lst is a dotted list, its final CDR is left unmodified.
+    !
+    procedure(list_modify_elements_procedure_t) :: subr
+    class(*), intent(in) :: lst
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    type(cons_t) :: lst1
+    
+    tail = lst
+    do while (is_cons_pair (tail))
+       lst1 = cons_t_cast (tail)
+       call uncons (lst1, head, tail)
+       call subr (head)
+       call set_car (lst1, head)
+    end do
+  end subroutine list_modify_elements_in_place
 
   subroutine list_append_modify_elements__get_next (subr, lst, next, tail)
     !

@@ -960,6 +960,72 @@ contains
       x = cos (real_cast (x))
     end subroutine cosine_wrapper
   end subroutine test_list_modify_elements
+
+  subroutine test_list_modify_elements_in_place
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
+    class(*), allocatable :: obj1, obj2
+    integer :: i
+    real :: x, y
+    lst1 = acos (0.25) ** acos (0.50) ** acos (0.75) ** nil_list
+    do i = 1, 3
+       y = i * 0.25
+       x = acos (y)
+       call check (abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001 failed (for list_modify_elements)")
+    end do
+    lst2 = lst1
+    call list_modify_elements_in_place (cosine_wrapper, lst2)
+    do i = 1, 3
+       y = i * 0.25
+       x = acos (y)
+       call check (abs (real_cast (list_ref1 (lst1, i)) - y) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst1, i)) - y) < 0.0001 failed (for list_modify_elements)")
+       call check (abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001 failed (for list_modify_elements)")
+    end do
+    !
+    lst3 = acos (0.25) ** acos (0.50) ** cons (acos (0.75), 123)
+    call check (cdr (list_last_pair (lst3)) .eqi. 123, &
+         "cdr (list_last_pair (lst3)) .eqi. 123 failed (for list_modify_elements)")
+    do i = 1, 3
+       y = i * 0.25
+       x = acos (y)
+       call check (abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001 failed (for list_modify_elements)")
+    end do
+    lst4 = lst3
+    call list_modify_elements_in_place (cosine_wrapper, lst4)
+    call check (cdr (list_last_pair (lst3)) .eqi. 123, &
+         "cdr (list_last_pair (lst3)) .eqi. 123 failed (for list_modify_elements)")
+    call check (cdr (list_last_pair (lst4)) .eqi. 123, &
+         "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_modify_elements)")
+    do i = 1, 3
+       y = i * 0.25
+       x = acos (y)
+       call check (abs (real_cast (list_ref1 (lst3, i)) - y) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst3, i)) - y) < 0.0001 failed (for list_modify_elements)")
+       call check (abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001 failed (for list_modify_elements)")
+    end do
+    !
+    lst5 = nil_list
+    lst6 = lst5
+    call list_modify_elements_in_place (cosine_wrapper, lst6)
+    call check (is_nil_list (lst5), "is_nil_list (lst5) failed (for list_modify_elements)")
+    call check (is_nil_list (lst6), "is_nil_list (lst6) failed (for list_modify_elements)")
+    !
+    obj1 = 123
+    obj2 = obj1
+    call list_modify_elements_in_place (cosine_wrapper, obj2)
+    call check (obj1 .eqi. 123, "obj1 .eqi. 123 failed (for list_modify_elements)")
+    call check (obj2 .eqi. 123, "obj2 .eqi. 123 failed (for list_modify_elements)")
+  contains
+    subroutine cosine_wrapper (x)
+      class(*), intent(inout), allocatable :: x
+      x = cos (real_cast (x))
+    end subroutine cosine_wrapper
+  end subroutine test_list_modify_elements_in_place
+
   subroutine test_list_append_modify_elements
     type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
     class(*), allocatable :: obj1, obj2
@@ -1041,6 +1107,8 @@ contains
     call test_list_unzip1f
     call test_list_foreach
     call test_list_modify_elements
+    call test_list_modify_elements_in_place
+    call test_list_append_modify_elements
   end subroutine run_tests
 
 end module test__cons_lists
