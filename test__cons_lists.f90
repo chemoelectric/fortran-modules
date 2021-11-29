@@ -1359,6 +1359,48 @@ contains
     end function is_not_positive_integer
   end subroutine test_list_every
 
+  subroutine test_list_index0
+    call check (list_index0 (is_positive_integer, list5 (1.0, 3.0, 'abc', 1, .true.)) == 3, &
+         "list_index0 (is_positive_integer, list5 (1.0, 3.0, 'abc', 1, .true.)) == 3 failed")
+    call check (list_index0 (is_positive_integer, list5 (1.0, 3.0, 'abc', -1, .true.)) == -1, &
+         "list_index0 (is_positive_integer, list5 (1.0, 3.0, 'abc', -1, .true.)) == -1 failed")
+    call check (list_index0 (is_positive_integer, nil_list) == -1, &
+         "list_index0 (is_positive_integer, nil_list) == -1 failed")
+    call check (list_index0 (is_positive_integer, 'abc') == -1, &
+         "list_index0 (is_positive_integer, 'abc') == -1 failed")
+  contains
+    function is_positive_integer (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+      bool = .false.
+      select type (x)
+      type is (integer)
+         bool = (1 <= x)
+      end select
+    end function is_positive_integer
+  end subroutine test_list_index0
+
+  subroutine test_list_index1
+    call check (list_index1 (is_positive_integer, list5 (1.0, 3.0, 'abc', 1, .true.)) == 4, &
+         "list_index1 (is_positive_integer, list5 (1.0, 3.0, 'abc', 1, .true.)) == 4 failed")
+    call check (list_index1 (is_positive_integer, list5 (1.0, 3.0, 'abc', -1, .true.)) == 0, &
+         "list_index1 (is_positive_integer, list5 (1.0, 3.0, 'abc', -1, .true.)) == 0 failed")
+    call check (list_index1 (is_positive_integer, nil_list) == 0, &
+         "list_index1 (is_positive_integer, nil_list) == 0 failed")
+    call check (list_index1 (is_positive_integer, 'abc') == 0, &
+         "list_index1 (is_positive_integer, 'abc') == 0 failed")
+  contains
+    function is_positive_integer (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+      bool = .false.
+      select type (x)
+      type is (integer)
+         bool = (1 <= x)
+      end select
+    end function is_positive_integer
+  end subroutine test_list_index1
+
   subroutine run_tests
     !
     ! FIXME: Add a test for list_classify that checks it doesn't
@@ -1421,6 +1463,8 @@ contains
     call test_list_break
     call test_list_any
     call test_list_every
+    call test_list_index0
+    call test_list_index1
   end subroutine run_tests
 
 end module test__cons_lists

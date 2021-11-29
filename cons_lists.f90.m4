@@ -253,6 +253,9 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_break      ! Split where a predicate is first satisfied.
   public :: list_any        ! Do any of the elements satisfy a predicate?
   public :: list_every      ! Do all the elements satisfy a predicate?
+  public :: list_index0     ! Return the index (starting at 0) of the first match.
+  public :: list_index1     ! Return the index (starting at 1) of the first match.
+  public :: list_indexn     ! Return the index (starting at n) of the first match.
 
   ! Overloading of `iota'.
   interface iota
@@ -1749,5 +1752,57 @@ m4_forloop([k],[1],n,[dnl
     end do
     mismatch_found = .not. bool
   end function list_every
+
+  function list_index0 (pred, lst) result (index)
+    !
+    ! Returns -1 if there is no match.
+    !
+    procedure(list_predicate_t) :: pred
+    class(*), intent(in) :: lst
+    integer :: index
+    index = list_indexn (pred, lst, 0)
+  end function list_index0
+
+  function list_index1 (pred, lst) result (index)
+    !
+    ! Returns 0 if there is no match.
+    !
+    procedure(list_predicate_t) :: pred
+    class(*), intent(in) :: lst
+    integer :: index
+    index = list_indexn (pred, lst, 1)
+  end function list_index1
+
+  function list_indexn (pred, lst, n) result (index)
+    !
+    ! Returns n - 1 if there is no match.
+    !
+    procedure(list_predicate_t) :: pred
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    integer :: index
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    integer :: i
+    logical :: found
+
+    i = n
+    found = .false.
+    tail = lst
+    do while (.not. found .and. is_cons_pair (tail))
+       if (pred (car (tail))) then
+          found = .true.
+       else
+          i = i + 1
+          tail = cdr (tail)
+       end if
+    end do
+    if (found) then
+       index = i
+    else
+       index = n - 1
+    end if
+  end function list_indexn
 
 end module cons_lists
