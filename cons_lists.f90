@@ -79,36 +79,6 @@ module cons_procedure_types
        class(*), intent(inout), allocatable :: x
      end subroutine list_modify_elements_procedure_t
 
-!!$     function list_mapfunc_t (x) result (y)
-!!$       !
-!!$       ! list_mapfunc_t is the type of a function called by
-!!$       ! `list_map'. It takes multiple values (or list values) of
-!!$       ! input as the list x, and outputs multiple values (or list
-!!$       ! values) as the list y.
-!!$       !
-!!$       use :: cons_types
-!!$       class(cons_t), intent(in) :: x
-!!$       type(cons_t) :: y
-!!$     end function list_mapfunc_t
-!!$
-!!$     function list_predfunc_t (x) result (bool)
-!!$       !
-!!$       ! FIXME: Document this.
-!!$       !
-!!$       use :: cons_types
-!!$       class(cons_t), intent(in) :: x
-!!$       logical :: bool
-!!$     end function list_predfunc_t
-!!$
-!!$     function list_orderfunc_t (x) result (sign)
-!!$       !
-!!$       ! FIXME: Document this.
-!!$       !
-!!$       use :: cons_types
-!!$       class(cons_t), intent(in) :: x
-!!$       integer :: sign
-!!$     end function list_orderfunc_t
-
   end interface
 
 end module cons_procedure_types
@@ -302,13 +272,12 @@ module cons_lists
   ! instead of a subroutine.
   public :: list_unzip1f ! Unboxes elements from length-1 lists.
 
-!!$  public :: list_mapfunc_t
-!!$  public :: list_map_in_order ! Map list elements in the list order.
-!!$  public :: list_map ! Map list elements in unspecified order.
-!!$  public :: list_append_map ! Map list elements (in unspecified order) and append them.
-
+  ! Call a subroutine on list elements, to produce side effects.
   public :: list_foreach_procedure_t
   public :: list_foreach
+
+  ! Call a subroutine on list elements, to modify (map) their values.
+  public :: list_modify_elements_procedure_t
   public :: list_modify_elements
   public :: list_append_modify_elements
 
@@ -3624,112 +3593,5 @@ contains
        end if
     end if
   end function list_append_modify_elements
-
-!!$  function list_map_in_order (func, inputs) result (outputs)
-!!$    !
-!!$    ! Map elements of lists. The work is guaranteed to be done in
-!!$    ! list order.
-!!$    !
-!!$    ! Both `inputs' and `outputs' may be thought of as sequences of
-!!$    ! multiple values in `zipped list' format.
-!!$    !
-!!$    procedure(list_mapfunc_t) :: func
-!!$    class(*), intent(in) :: inputs
-!!$    type(cons_t) :: outputs
-!!$
-!!$    class(*), allocatable :: head
-!!$    class(*), allocatable :: tail
-!!$    type(cons_t) :: cursor
-!!$    type(cons_t) :: new_pair
-!!$
-!!$    select type (inputs)
-!!$    class is (cons_t)
-!!$       if (list_is_nil (inputs)) then
-!!$          outputs = nil_list
-!!$       else
-!!$          call uncons (inputs, head, tail)
-!!$          cursor = func (cons_t_cast (head)) ** nil_list
-!!$          outputs = cursor
-!!$          do while (is_cons_pair (tail))
-!!$             call uncons (tail, head, tail)
-!!$             new_pair = func (cons_t_cast (head)) ** nil_list
-!!$             call set_cdr (cursor, new_pair)
-!!$             cursor = new_pair
-!!$          end do
-!!$       end if
-!!$    class default
-!!$       ! Ignore the `tail' of a degenerate dotted list.
-!!$       outputs = nil_list
-!!$    end select
-!!$  end function list_map_in_order
-!!$
-!!$  function list_map (func, inputs) result (outputs)
-!!$    procedure(list_mapfunc_t) :: func
-!!$    class(*), intent(in) :: inputs
-!!$    type(cons_t) :: outputs
-!!$    outputs = list_map_in_order (func, inputs)
-!!$  end function list_map
-!!$
-!!$  function list_append_map (func, inputs) result (outputs)
-!!$    !
-!!$    ! FIXME: Document that func inputs and outputs boxed values. THIS
-!!$    !        IS EASY TO FORGET.
-!!$    !
-!!$    procedure(list_mapfunc_t) :: func
-!!$    class(*), intent(in) :: inputs
-!!$    class(*), allocatable :: outputs
-!!$
-!!$    class(*), allocatable :: head
-!!$    class(*), allocatable :: tail
-!!$    class(*), allocatable :: lst_start
-!!$    class(*), allocatable :: lst_part
-!!$    type(cons_t) :: lst
-!!$    type(cons_t) :: cursor
-!!$
-!!$    if (.not. is_cons_pair (inputs)) then
-!!$       outputs = nil_list
-!!$    else
-!!$       call get_next (inputs, lst_start, tail)
-!!$       if (.not. is_cons_pair (lst_start)) then
-!!$          outputs = nil_list
-!!$       else
-!!$          lst = cons_t_cast (lst_start)
-!!$          outputs = lst
-!!$          cursor = list_last_pair (lst)
-!!$          do while (is_cons_pair (tail))
-!!$             call get_next (tail, lst_part, tail)
-!!$             select type (lst_part)
-!!$             class is (cons_t)
-!!$                lst = lst_part
-!!$                call set_cdr (cursor, lst)
-!!$                cursor = list_last_pair (lst)
-!!$             class default
-!!$                call error_abort ("list_append_map with a non-list element")
-!!$             end select
-!!$          end do
-!!$       end if
-!!$    end if
-!!$
-!!$  contains
-!!$
-!!$    subroutine get_next (inputs, next, tail)
-!!$      class(*) :: inputs
-!!$      class(*), allocatable :: next
-!!$      class(*), allocatable :: tail
-!!$
-!!$      class(*), allocatable :: hd
-!!$      class(*), allocatable :: tl
-!!$
-!!$      call uncons (inputs, hd, tl)
-!!$      hd = car (func (cons_t_cast (hd)))
-!!$      do while (is_nil_list (hd) .and. is_cons_pair (tl))
-!!$         call uncons (tl, hd, tl)
-!!$         hd = car (func (cons_t_cast (hd)))
-!!$      end do
-!!$      next = hd
-!!$      tail = tl
-!!$    end subroutine get_next
-!!$
-!!$  end function list_append_map
 
 end module cons_lists

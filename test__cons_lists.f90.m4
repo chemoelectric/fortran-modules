@@ -90,30 +90,6 @@ contains
     bool = real_cast (obj1) == real_cast (obj2)
   end function real_eq
 
-!!$  function cosine_wrapper (x) result (y)
-!!$    class(cons_t), intent(in) :: x
-!!$    type(cons_t) :: y
-!!$    y = list1 (cos (real_cast (first (x))))
-!!$  end function cosine_wrapper
-!!$
-!!$  function division_wrapper (x) result (y)
-!!$    class(cons_t), intent(in) :: x
-!!$    type(cons_t) :: y
-!!$    integer :: dividend, divisor
-!!$    integer :: quotient, remainder
-!!$    dividend = integer_cast (first (x))
-!!$    divisor = integer_cast (second (x))
-!!$    quotient = dividend / divisor
-!!$    remainder = mod (dividend, divisor)
-!!$    y = list2 (quotient, remainder)
-!!$  end function division_wrapper
-!!$
-!!$  function passthru (x) result (y)
-!!$    class(cons_t), intent(in) :: x
-!!$    type(cons_t) :: y
-!!$    y = x
-!!$  end function passthru
-
   subroutine test_is_nil_list
     call check (.not. is_nil_list ('abc'), ".not. is_nil_list ('abc') failed")
     call check (is_nil_list (nil_list), "is_nil_list (nil_list) failed")
@@ -929,90 +905,6 @@ contains
     lst6 = list_unzip1f (456)
     call check (is_nil_list (lst6), "is_nil_list (lst6) failed (for list_unzip1f)")
   end subroutine test_list_unzip1f
-
-!!$  subroutine test_list_map
-!!$    type(cons_t) :: lst_x, lst_y, inputs, outputs
-!!$    procedure(list_mapfunc_t), pointer :: cos_w => cosine_wrapper
-!!$    integer :: i
-!!$    class(*), allocatable :: head, tail
-!!$    type(cons_t) :: quotients, remainders
-!!$    !
-!!$    ! Try computing a list of cosines.
-!!$    !
-!!$    lst_x = acos (0.00) ** acos (0.25) ** acos (0.50) ** nil_list
-!!$    inputs = list_zip1 (lst_x)
-!!$    outputs = list_map (cosine_wrapper, inputs)
-!!$    call check (list_is_pair (outputs), "check0010 failed (for list_map)")
-!!$    call list_unzip1 (outputs, lst_y)
-!!$    call check (list_length (lst_y) == 3, "check0020 failed (for list_map)")
-!!$    call check (abs (0.00 - real_cast (first (lst_y))) < 0.0001, "check0030 failed (for list_map)")
-!!$    call check (abs (0.25 - real_cast (second (lst_y))) < 0.0001, "check0040 failed (for list_map)")
-!!$    call check (abs (0.50 - real_cast (third (lst_y))) < 0.0001, "check0050 failed (for list_map)")
-!!$    outputs = list_map (cos_w, inputs) ! Use a procedure pointer (cos_w).
-!!$    call check (list_is_pair (outputs), "check0060 failed (for list_map)")
-!!$    call list_unzip1 (outputs, lst_y)
-!!$    call check (list_length (lst_y) == 3, "check0070 failed (for list_map)")
-!!$    call check (abs (0.00 - real_cast (first (lst_y))) < 0.0001, "check0080 failed (for list_map)")
-!!$    call check (abs (0.25 - real_cast (second (lst_y))) < 0.0001, "check0090 failed (for list_map)")
-!!$    call check (abs (0.50 - real_cast (third (lst_y))) < 0.0001, "check0100 failed (for list_map)")
-!!$    !
-!!$    ! Try computing a list of results of euclidean division of
-!!$    ! positive integers by 2. (Aside: this would be a great example
-!!$    ! for lazy lists.)
-!!$    inputs = list_zip2 (iota (100), circular_list (2 ** nil_list))
-!!$    call check (list_length (inputs) == 100, "check0110 failed (for list_map)")
-!!$    outputs = list_map (division_wrapper, inputs)
-!!$    call check (list_length (outputs) == 100, "check0120 failed (for list_map)")
-!!$    call list_unzip2 (outputs, quotients, remainders)
-!!$    tail = outputs
-!!$    do i = 0, 99
-!!$       call uncons (tail, head, tail)
-!!$       call check (first (head) .eqi. i / 2, "check0130 failed (for list_map)")
-!!$       call check (second (head) .eqi. mod (i, 2), "check0140 failed (for list_map)")
-!!$    end do
-!!$    tail = quotients
-!!$    do i = 0, 99
-!!$       call uncons (tail, head, tail)
-!!$       call check (head .eqi. i / 2, "check0150 failed (for list_map)")
-!!$    end do
-!!$    tail = remainders
-!!$    do i = 0, 99
-!!$       call uncons (tail, head, tail)
-!!$       call check (head .eqi. mod (i, 2), "check0160 failed (for list_map)")
-!!$    end do
-!!$    !
-!!$    ! Try it with an empty input list.
-!!$    !
-!!$    outputs = list_map (division_wrapper, nil_list)
-!!$    call check (is_nil_list (outputs), "check0170 failed (for list_map)")
-!!$    call list_unzip2 (list_map (division_wrapper, nil_list), quotients, remainders)
-!!$    call check (is_nil_list (quotients), "check0180 failed (for list_map)")
-!!$    call check (is_nil_list (remainders), "check0190 failed (for list_map)")
-!!$  end subroutine test_list_map
-!!$
-!!$  subroutine test_list_append_map
-!!$    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
-!!$    class(*), allocatable :: obj1, obj2
-!!$    integer :: i
-!!$    lst1 = cons_t_cast (list_append_map (passthru, list_box (list3 (list2 (1, 2), list1(3), list2 (4, 5)))))
-!!$    call check (list_length (lst1) == 5, "list_length (lst1) == 5 failed (for list_append_map)")
-!!$    do i = 1, 5
-!!$       call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1) == i failed (for list_append_map)")
-!!$    end do
-!!$    lst2 = cons_t_cast (list_append_map (passthru, list_box (make_list (5, nil_list))))
-!!$    call check (list_length (lst2) == 0, "list_length (lst2) == 0 failed (for list_append_map)")
-!!$    lst3 = cons_t_cast (list_append_map (passthru, nil_list))
-!!$    call check (list_length (lst3) == 0, "list_length (lst3) == 0 failed (for list_append_map)")
-!!$    lst4 = cons_t_cast (list_append_map (passthru, list_box (list2 (1, 2) ** cons (list1(3), 4.0))))
-!!$    call check (list_length (lst4) == 3, "list_length (lst4) == 3 failed (for list_append_map)")
-!!$    call check (car (lst4) .eqi. 1, "car (lst4) .eqi. 1 failed (for list_append_map)")
-!!$    call check (cadr (lst4) .eqi. 2, "cadr (lst4) .eqi. 2 failed (for list_append_map)")
-!!$    call check (caddr (lst4) .eqi. 3, "caddr (lst4) .eqi. 3 failed (for list_append_map)")
-!!$    lst5 = cons_t_cast (list_append_map (passthru, 'abc'))
-!!$    call check (list_length (lst5) == 0, "list_length (lst5) == 0 failed (for list_append_map)")
-!!$    lst6 = cons_t_cast (list_append_map (passthru, list_box (make_list (100, nil_list))))
-!!$    call check (list_length (lst6) == 0, "list_length (lst6) == 0 failed (for list_append_map)")
-!!$  end subroutine test_list_append_map
 
   subroutine test_list_foreach
     type(cons_t) :: lst1
