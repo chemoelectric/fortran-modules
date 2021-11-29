@@ -310,6 +310,7 @@ module cons_lists
   public :: list_foreach_procedure_t
   public :: list_foreach
   public :: list_modify_elements
+  public :: list_append_modify_elements
 
   ! Overloading of `iota'.
   interface iota
@@ -3553,6 +3554,76 @@ contains
        lst_m = lst
     end if
   end function list_modify_elements
+
+  subroutine list_append_modify_elements__get_next (subr, lst, next, tail)
+    !
+    ! Get the next element that is not a nil list.
+    !
+    ! (To avoid having a Fortran compiler generate a trampoline, this
+    ! subroutine is lambda-lifted rather than nested within
+    ! list_append_modify_elements.)
+    !
+    procedure(list_modify_elements_procedure_t) :: subr
+    class(*) :: lst
+    class(*), allocatable :: next
+    class(*), allocatable :: tail
+
+    class(*), allocatable :: hd
+    class(*), allocatable :: tl
+
+    call uncons (lst, hd, tl)
+    call subr (hd)
+    do while (is_nil_list (hd) .and. is_cons_pair (tl))
+       call uncons (tl, hd, tl)
+       call subr (hd)
+    end do
+    next = hd
+    tail = tl
+  end subroutine list_append_modify_elements__get_next
+
+  function list_append_modify_elements (subr, lst) result (lst_am)
+    !
+    ! Modify the elements of a list, using a subroutine to map the
+    ! individual elements. The outputs should be lists, and they will
+    ! be appended to each other.
+    !
+    ! (This is like SRFI-1's `append-map', but calling a subroutine
+    ! instead of a function for each element.)
+    !
+    ! If lst is a dotted list, its final CDR is ignored.
+    !
+    procedure(list_modify_elements_procedure_t) :: subr
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_am
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: lst_start
+    class(*), allocatable :: lst_part
+    type(cons_t) :: lst1
+    type(cons_t) :: cursor
+
+    lst_am = nil_list
+    if (is_cons_pair (lst)) then
+       call list_append_modify_elements__get_next (subr, lst, lst_start, tail)
+       if (is_cons_pair (lst_start)) then
+          lst1 = cons_t_cast (lst_start)
+          lst_am = lst1
+          cursor = list_last_pair (lst1)
+          do while (is_cons_pair (tail))
+             call list_append_modify_elements__get_next (subr, tail, lst_part, tail)
+             select type (lst_part)
+             class is (cons_t)
+                lst1 = lst_part
+                call set_cdr (cursor, lst1)
+                cursor = list_last_pair (lst1)
+             class default
+                call error_abort ("list_append_modify_elements with a non-list element")
+             end select
+          end do
+       end if
+    end if
+  end function list_append_modify_elements
 
 !!$  function list_map_in_order (func, inputs) result (outputs)
 !!$    !

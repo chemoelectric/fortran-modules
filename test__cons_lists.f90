@@ -1068,6 +1068,34 @@ contains
       x = cos (real_cast (x))
     end subroutine cosine_wrapper
   end subroutine test_list_modify_elements
+  subroutine test_list_append_modify_elements
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
+    class(*), allocatable :: obj1, obj2
+    integer :: i
+    lst1 = list_append_modify_elements (do_nothing, list3 (list2 (1, 2), list1(3), list2 (4, 5)))
+    call check (list_length (lst1) == 5, "list_length (lst1) == 5 failed (for list_append_modify_elements)")
+    do i = 1, 5
+       call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1) == i failed (for list_append_modify_elements)")
+    end do
+    lst2 = list_append_modify_elements (do_nothing, make_list (5, nil_list))
+    call check (list_length (lst2) == 0, "list_length (lst2) == 0 failed (for list_append_modify_elements)")
+    lst3 = list_append_modify_elements (do_nothing, nil_list)
+    call check (list_length (lst3) == 0, "list_length (lst3) == 0 failed (for list_append_modify_elements)")
+    lst4 = list_append_modify_elements (do_nothing, list2 (1, 2) ** cons (list1(3), 4.0))
+    call check (list_length (lst4) == 3, "list_length (lst4) == 3 failed (for list_append_modify_elements)")
+    call check (car (lst4) .eqi. 1, "car (lst4) .eqi. 1 failed (for list_append_modify_elements)")
+    call check (cadr (lst4) .eqi. 2, "cadr (lst4) .eqi. 2 failed (for list_append_modify_elements)")
+    call check (caddr (lst4) .eqi. 3, "caddr (lst4) .eqi. 3 failed (for list_append_modify_elements)")
+    lst5 = list_append_modify_elements (do_nothing, 'abc')
+    call check (list_length (lst5) == 0, "list_length (lst5) == 0 failed (for list_append_modify_elements)")
+    lst6 = list_append_modify_elements (do_nothing, make_list (100, nil_list))
+    call check (list_length (lst6) == 0, "list_length (lst6) == 0 failed (for list_append_modify_elements)")
+  contains
+    subroutine do_nothing (x)
+      class(*), intent(inout), allocatable :: x
+      continue
+    end subroutine do_nothing
+  end subroutine test_list_append_modify_elements
 
   subroutine run_tests
     !
