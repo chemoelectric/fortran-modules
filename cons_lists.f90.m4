@@ -759,7 +759,8 @@ m4_forloop([n],[1],LISTN_MAX,[
     call uncons (tail, head, tail)
     obj1 = head
 dnl
-m4_forloop([k],[2],n,[    call uncons (tail, head, tail)
+m4_forloop([k],[2],n,[dnl
+    call uncons (tail, head, tail)
     obj[]k = head
 ])dnl
     if (is_cons_pair (tail)) then
