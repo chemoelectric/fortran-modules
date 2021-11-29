@@ -251,6 +251,7 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_drop_while ! Drop initial elements that satisfy a predicate.
   public :: list_span       ! Split where a predicate is first unsatisfied.
   public :: list_break      ! Split where a predicate is first satisfied.
+  public :: list_any        ! Do any of the elements satisfy a predicate?
 
   ! Overloading of `iota'.
   interface iota
@@ -1705,5 +1706,26 @@ m4_forloop([k],[1],n,[dnl
     lst_initial = initial
     lst_rest = rest
   end subroutine list_break
+
+  function list_any (pred, lst) result (match_found)
+    procedure(list_predicate_t) :: pred
+    class(*), intent(in) :: lst
+    logical :: match_found
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    logical :: found
+
+    found = .false.
+    tail = lst
+    do while (.not. found .and. is_cons_pair (tail))
+       if (pred (car (tail))) then
+          found = .true.
+       else
+          tail = cdr (tail)
+       end if
+    end do
+    match_found = found
+  end function list_any
 
 end module cons_lists

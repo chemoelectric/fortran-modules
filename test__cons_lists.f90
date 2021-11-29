@@ -1271,7 +1271,7 @@ contains
     type(cons_t) :: obj1a, obj2a, obj3a, obj4a, obj5a, obj6a
     class(*), allocatable :: obj1b, obj2b, obj3b, obj4b, obj5b, obj6b
     lst1 = 1.0 ** (-1) ** 17 ** 5 ** 7 ** nil_list
-    call list_break (isnt_not_positive_integer, lst1, obj1a, obj1b)
+    call list_break (is_positive_integer, lst1, obj1a, obj1b)
     call check (list_length (obj1a) == 2, "list_length (obj1a) == 2 failed (for list_break)")
     call check (first (obj1a) .eqr. 1.0, "first (obj1a) .eqr. 1.0 failed (for list_break)")
     call check (second (obj1a) .eqi. (-1), "second (obj1a) .eqi. (-1) failed (for list_break)")
@@ -1282,31 +1282,31 @@ contains
     call check (third (obj1b) .eqi. 7, "third (obj1b) .eqi. 7 failed (for list_break)")
     call check (is_nil_list (cdddr (obj1b)), "is_nil_list (cdddr (obj1b)) failed (for list_break)")
     lst2 = 1.0 ** (-1) ** 17 ** 5 ** cons (7, 1234.0)
-    call list_break (isnt_not_positive_integer, lst2, obj2a, obj2b)
+    call list_break (is_positive_integer, lst2, obj2a, obj2b)
     call check (list_length (obj2a) == 2, "list_length (obj2a) == 2 failed (for list_break)")
     call check (first (obj2a) .eqr. 1.0, "first (obj2a) .eqr. 1.0 failed (for list_break)")
     call check (second (obj2a) .eqi. (-1), "second (obj2a) .eqi. (-1) failed (for list_break)")
     call check (is_nil_list (cddr (obj2a)), "is_nil_list (cddr (obj2a)) failed (for list_break)")
     lst3 = 1 ** (-1) ** (-17) ** (-4321) ** (-7) ** nil_list
-    call list_break (isnt_not_positive_integer, lst3, obj3a, obj3b)
+    call list_break (is_positive_integer, lst3, obj3a, obj3b)
     call check (is_nil_list (obj3a), "is_nil_list (obj3a) failed (for list_break)")
     lst4 = 1.0 ** 1 ** (-17) ** (-4321) ** (-7) ** nil_list
-    call list_break (isnt_not_positive_integer, lst4, obj4a, obj4b)
+    call list_break (is_positive_integer, lst4, obj4a, obj4b)
     call check (list_length (obj4a) == 1, "list_length (obj4a) == 1 failed (for list_break)")
     call check (first (obj4a) .eqr. 1.0, "first (obj4a) .eqr. 1.0 failed (for list_break)")
     call check (list_length (obj4b) == 4, "list_length (obj4b) == 4  failed (for list_break)")
     call check (first (obj4b) .eqi. 1, "first (obj4b) .eqi. 1 failed (for list_break)")
     call check (second (obj4b) .eqi. (-17), "second (obj4b) .eqi. (-17) failed (for list_break)")
     lst5 = nil_list
-    call list_break (isnt_not_positive_integer, lst5, obj5a, obj5b)
+    call list_break (is_positive_integer, lst5, obj5a, obj5b)
     call check (is_nil_list (obj5a), "is_nil_list (obj5a) failed (for list_break)")
     call check (is_nil_list (obj5b), "is_nil_list (obj5b) failed (for list_break)")
     pseudo_lst6 = 1234
-    call list_break (isnt_not_positive_integer, pseudo_lst6, obj6a, obj6b)
+    call list_break (is_positive_integer, pseudo_lst6, obj6a, obj6b)
     call check (is_nil_list (obj6a), "is_nil_list (obj6a) failed (for list_break)")
     call check (obj6b .eqi. 1234, "obj6b .eqi. 1234 failed (for list_break)")
   contains
-    function isnt_not_positive_integer (x) result (bool)
+    function is_positive_integer (x) result (bool)
       class(*), intent(in) :: x
       logical :: bool
       bool = .false.
@@ -1314,8 +1314,29 @@ contains
       type is (integer)
          bool = (1 <= x)
       end select
-    end function isnt_not_positive_integer
+    end function is_positive_integer
   end subroutine test_list_break
+
+  subroutine test_list_any
+    call check (list_any (is_positive_integer, list5 (1.0, 3.0, 'abc', 1, .true.)), &
+         "list_any (is_positive_integer, list5 (1.0, 3.0, 'abc', 1, .true.)) failed")
+    call check (.not. list_any (is_positive_integer, list5 (1.0, 3.0, 'abc', -1, .true.)), &
+         ".not. list_any (is_positive_integer, list5 (1.0, 3.0, 'abc', -1, .true.)) failed")
+    call check (.not. list_any (is_positive_integer, nil_list), &
+         ".not. list_any (is_positive_integer, nil_list) failed")
+    call check (.not. list_any (is_positive_integer, 'abc'), &
+         ".not. list_any (is_positive_integer, 'abc') failed")
+  contains
+    function is_positive_integer (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+      bool = .false.
+      select type (x)
+      type is (integer)
+         bool = (1 <= x)
+      end select
+    end function is_positive_integer
+  end subroutine test_list_any
 
   subroutine run_tests
     !
@@ -1377,6 +1398,7 @@ contains
     call test_list_drop_while
     call test_list_span
     call test_list_break
+    call test_list_any
   end subroutine run_tests
 
 end module test__cons_lists
