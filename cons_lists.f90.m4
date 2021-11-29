@@ -73,13 +73,21 @@ module cons_procedure_types
 
   abstract interface
 
-     subroutine list_foreachproc_t (x)
+     subroutine list_foreach_procedure_t (x)
        !
        ! The type of a subroutine passed to list_foreach.
        !
        use :: cons_types
        class(*), intent(in) :: x
-     end subroutine list_foreachproc_t
+     end subroutine list_foreach_procedure_t
+
+     subroutine list_modify_elements_procedure_t (x)
+       !
+       ! The type of a subroutine passed to list_modify_elements.
+       !
+       use :: cons_types
+       class(*), intent(inout), allocatable :: x
+     end subroutine list_modify_elements_procedure_t
 
 !!$     function list_mapfunc_t (x) result (y)
 !!$       !
@@ -252,9 +260,9 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
 !!$  public :: list_map ! Map list elements in unspecified order.
 !!$  public :: list_append_map ! Map list elements (in unspecified order) and append them.
 
-  public :: list_foreachproc_t
+  public :: list_foreach_procedure_t
   public :: list_foreach
-  !public :: list_foreach_copy
+  public :: list_modify_elements
 
   ! Overloading of `iota'.
   interface iota
@@ -1381,7 +1389,7 @@ m4_forloop([k],[1],n,[dnl
     ! (such as printing). The work is guaranteed to be done in list
     ! order.
     !
-    procedure(list_foreachproc_t) :: subr
+    procedure(list_foreach_procedure_t) :: subr
     class(*), intent(in) :: lst
 
     class(*), allocatable :: head
@@ -1393,6 +1401,44 @@ m4_forloop([k],[1],n,[dnl
        call subr (head)
     end do
   end subroutine list_foreach
+
+  function list_modify_elements (subr, lst) result (lst_m)
+    !
+    ! Modify the elements of a list, using a subroutine to map the
+    ! individual elements. The work is guaranteed to be done in list
+    ! order.
+    !
+    ! (This is like SRFI-1's `map-in-order', but calling a subroutine
+    ! instead of a function for each element.)
+    !
+    ! If lst is a dotted list, its final CDR is retained. The return
+    ! value thus might not be a cons_t.
+    !
+    procedure(list_modify_elements_procedure_t) :: subr
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_m
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+
+    if (is_cons_pair (lst)) then
+       call uncons (lst, head, tail)
+       call subr (head)
+       cursor = cons (head, tail)
+       lst_m = cursor
+       do while (is_cons_pair (tail))
+          call uncons (tail, head, tail)
+          call subr (head)
+          new_pair = cons (head, tail)
+          call set_cdr (cursor, new_pair)
+          cursor = new_pair
+       end do
+    else
+       lst_m = lst
+    end if
+  end function list_modify_elements
 
 !!$  function list_map_in_order (func, inputs) result (outputs)
 !!$    !

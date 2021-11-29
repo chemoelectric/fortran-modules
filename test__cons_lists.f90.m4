@@ -22,6 +22,13 @@
 ! CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
 
+!!!
+!!! WARNING: gfortran will generate trampolines for some of the tests;
+!!!          these tests may not work on a hardened system. (A
+!!!          different compiler might use a method other than
+!!!          trampolining: lambda lifting, for instance.)
+!!!
+
 module test__cons_lists
   use cons_lists
   implicit none
@@ -1017,12 +1024,6 @@ contains
        call check (arr1(i) == i, "arr1(i) == i failed (for list_foreach)")
     end do
   contains
-    !
-    ! NOTE: gfortran will generate a trampoline for the implementation
-    !       of side_effector; the test may not work on a hardened
-    !       system. (A different compiler might use a method other
-    !       than trampolining: lambda lifting, for instance.)
-    !
     subroutine side_effector (x)
       class(*), intent(in) :: x
       integer :: i
@@ -1030,6 +1031,43 @@ contains
       arr1(i) = i
     end subroutine side_effector
   end subroutine test_list_foreach
+
+  subroutine test_list_modify_elements
+    type(cons_t) :: lst1, lst2, lst3, lst4
+    integer :: i
+    real :: x, y
+    lst1 = acos (0.25) ** acos (0.50) ** acos (0.75) ** nil_list
+    lst2 = cons_t_cast (list_modify_elements (cosine_wrapper, lst1))
+    do i = 1, 3
+       y = i * 0.25
+       x = acos (y)
+       call check (abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001 failed (for list_modify_elements)")
+       call check (abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001 failed (for list_modify_elements)")
+    end do
+    call check (is_nil_list (list_modify_elements (cosine_wrapper, nil_list)), &
+         "is_nil_list (list_modify_elements (cosine_wrapper, nil_list)) failed")
+    call check (list_modify_elements (cosine_wrapper, 123) .eqi. 123, &
+         "list_modify_elements (cosine_wrapper, 123) .eqi. 123 failed")
+    lst3 = acos (0.25) ** acos (0.50) ** cons (acos (0.75), 123)
+    lst4 = cons_t_cast (list_modify_elements (cosine_wrapper, lst3))
+    do i = 1, 3
+       y = i * 0.25
+       x = acos (y)
+       call check (abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001 failed (for list_modify_elements)")
+       call check (abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001 failed (for list_modify_elements)")
+    end do
+    call check (cdr (list_last_pair (lst4)) .eqi. 123, &
+         "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_modify_elements)")
+  contains
+    subroutine cosine_wrapper (x)
+      class(*), intent(inout), allocatable :: x
+      x = cos (real_cast (x))
+    end subroutine cosine_wrapper
+  end subroutine test_list_modify_elements
 
   subroutine run_tests
     !
@@ -1082,8 +1120,7 @@ contains
     call test_list_unzip4
     call test_list_unzip1f
     call test_list_foreach
-!!$    call test_list_map
-!!$    call test_list_append_map
+    call test_list_modify_elements
   end subroutine run_tests
 
 end module test__cons_lists
