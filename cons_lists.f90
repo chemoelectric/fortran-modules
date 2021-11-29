@@ -299,6 +299,7 @@ module cons_lists
   public :: list_span       ! Split where a predicate is first unsatisfied.
   public :: list_break      ! Split where a predicate is first satisfied.
   public :: list_any        ! Do any of the elements satisfy a predicate?
+  public :: list_every      ! Do all the elements satisfy a predicate?
 
   ! Overloading of `iota'.
   interface iota
@@ -3840,5 +3841,26 @@ contains
     end do
     match_found = found
   end function list_any
+
+  function list_every (pred, lst) result (mismatch_found)
+    procedure(list_predicate_t) :: pred
+    class(*), intent(in) :: lst
+    logical :: mismatch_found
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    logical :: bool
+
+    bool = .false.
+    tail = lst
+    do while (.not. bool .and. is_cons_pair (tail))
+       if (pred (car (tail))) then
+          tail = cdr (tail)
+       else
+          bool = .true.
+       end if
+    end do
+    mismatch_found = .not. bool
+  end function list_every
 
 end module cons_lists

@@ -1338,6 +1338,27 @@ contains
     end function is_positive_integer
   end subroutine test_list_any
 
+  subroutine test_list_every
+    call check (.not. list_every (is_not_positive_integer, list5 (1.0, 3.0, 'abc', 1, .true.)), &
+         ".not. list_every (is_not_positive_integer, list5 (1.0, 3.0, 'abc', 1, .true.)) failed")
+    call check (list_every (is_not_positive_integer, list5 (1.0, 3.0, 'abc', -1, .true.)), &
+         "list_every (is_not_positive_integer, list5 (1.0, 3.0, 'abc', -1, .true.)) failed")
+    call check (list_every (is_not_positive_integer, nil_list), &
+         "list_every (is_not_positive_integer, nil_list) failed")
+    call check (list_every (is_not_positive_integer, 'abc'), &
+         "list_every (is_not_positive_integer, 'abc') failed")
+  contains
+    function is_not_positive_integer (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+      bool = .true.
+      select type (x)
+      type is (integer)
+         bool = (x < 1)
+      end select
+    end function is_not_positive_integer
+  end subroutine test_list_every
+
   subroutine run_tests
     !
     ! FIXME: Add a test for list_classify that checks it doesn't
@@ -1399,6 +1420,7 @@ contains
     call test_list_span
     call test_list_break
     call test_list_any
+    call test_list_every
   end subroutine run_tests
 
 end module test__cons_lists
