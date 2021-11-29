@@ -1143,6 +1143,40 @@ contains
     end function is_positive_integer
   end subroutine test_list_find_tail
 
+  subroutine test_list_take_while
+    type(cons_t) :: lst1, lst2, lst3
+    class(*), allocatable :: obj1, obj2, obj3
+    lst1 = 1.0 ** (-1) ** 17 ** 5 ** 7 ** nil_list
+    obj1 = list_take_while (is_not_positive_integer, lst1)
+    call check (list_length (obj1) == 2, "list_length (obj1) == 2 failed (for list_take_while)")
+    call check (first (obj1) .eqr. 1.0, "first (obj1) .eqr. 1.0 failed (for list_take_while)")
+    call check (second (obj1) .eqi. (-1), "second (obj1) .eqi. (-1) failed (for list_take_while)")
+    call check (is_nil_list (cddr (obj1)), "is_nil_list (cddr (obj1)) failed (for list_take_while)")
+    lst2 = 1.0 ** (-1) ** 17 ** 5 ** cons (7, 1234.0)
+    obj2 = list_take_while (is_not_positive_integer, lst2)
+    call check (list_length (obj2) == 2, "list_length (obj2) == 2 failed (for list_take_while)")
+    call check (first (obj2) .eqr. 1.0, "first (obj2) .eqr. 1.0 failed (for list_take_while)")
+    call check (second (obj2) .eqi. (-1), "second (obj2) .eqi. (-1) failed (for list_take_while)")
+    call check (is_nil_list (cddr (obj2)), "is_nil_list (cddr (obj2)) failed (for list_take_while)")
+    lst3 = 1 ** (-1) ** (-17) ** (-4321) ** (-7) ** nil_list
+    obj3 = list_take_while (is_not_positive_integer, lst3)
+    call check (is_nil_list (obj3), "is_nil_list (obj3) failed (for list_take_while)")
+    call check (is_nil_list (list_take_while (is_not_positive_integer, nil_list)), &
+         "is_nil_list (list_take_while (is_not_positive_integer, nil_list)) failed (for list_take_while)")
+    call check (is_nil_list (list_take_while (is_not_positive_integer, 1234)), &
+         "is_nil_list (list_take_while (is_not_positive_integer, 1234)) failed (for list_take_while)")
+  contains
+    function is_not_positive_integer (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+      bool = .true.
+      select type (x)
+      type is (integer)
+         bool = (x < 1)
+      end select
+    end function is_not_positive_integer
+  end subroutine test_list_take_while
+
   subroutine test_list_drop_while
     type(cons_t) :: lst1, lst2, lst3
     class(*), allocatable :: obj1, obj2, obj3
@@ -1235,6 +1269,7 @@ contains
     call test_list_append_modify_elements
     call test_list_find
     call test_list_find_tail
+    call test_list_take_while
     call test_list_drop_while
   end subroutine run_tests
 

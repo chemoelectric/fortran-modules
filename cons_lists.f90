@@ -294,7 +294,8 @@ module cons_lists
   ! Searching.
   public :: list_find ! Find a list's first element that satisfies a predicate.
   public :: list_find_tail ! Find a list's first tail whose CAR satisfies a predicate.
-  public :: list_drop_while ! Find a list's first tail whose CAR does not satisfy a predicate.
+  public :: list_take_while ! Keep only initial elements that satisfy a predicate.
+  public :: list_drop_while ! Drop initial elements that satisfy a predicate.
 
   ! Overloading of `iota'.
   interface iota
@@ -3682,6 +3683,38 @@ contains
        end if
     end do
   end subroutine list_find_tail
+
+  function list_take_while (pred, lst) result (match)
+    procedure(list_predicate_t) :: pred
+    class(*) :: lst
+    type(cons_t) :: match
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+    logical :: match_found
+
+    match = nil_list
+    if (is_cons_pair (lst)) then
+       call uncons (lst, head, tail)
+       if (pred (head)) then
+          cursor = head ** nil_list
+          match = cursor
+          match_found = .false.
+          do while (.not. match_found .and. is_cons_pair (tail))
+             call uncons (tail, head, tail)
+             if (pred (head)) then
+                new_pair = head ** nil_list
+                call set_cdr (cursor, new_pair)
+                cursor = new_pair
+             else
+                match_found = .true.
+             end if
+          end do
+       end if
+    end if
+  end function list_take_while
 
   function list_drop_while (pred, lst) result (match)
     procedure(list_predicate_t) :: pred
