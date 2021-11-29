@@ -249,6 +249,8 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_find_tail ! Find a list's first tail whose CAR satisfies a predicate.
   public :: list_take_while ! Keep only initial elements that satisfy a predicate.
   public :: list_drop_while ! Drop initial elements that satisfy a predicate.
+  public :: list_span ! Split where a predicate first is unsatisfied.
+  !public :: list_break ! Split where a predicate first is satisfied.
 
   ! Overloading of `iota'.
   interface iota
@@ -1573,7 +1575,7 @@ m4_forloop([k],[1],n,[dnl
 
   function list_take_while (pred, lst) result (match)
     procedure(list_predicate_t) :: pred
-    class(*) :: lst
+    class(*), intent(in) :: lst
     type(cons_t) :: match
 
     class(*), allocatable :: head
@@ -1605,7 +1607,7 @@ m4_forloop([k],[1],n,[dnl
 
   function list_drop_while (pred, lst) result (match)
     procedure(list_predicate_t) :: pred
-    class(*) :: lst
+    class(*), intent(in) :: lst
     class(*), allocatable :: match
 
     class(*), allocatable :: head
@@ -1623,5 +1625,45 @@ m4_forloop([k],[1],n,[dnl
     end do
     match = tail
   end function list_drop_while
+
+  subroutine list_span (pred, lst, lst_initial, lst_rest)
+    procedure(list_predicate_t) :: pred
+    class(*) :: lst
+    type(cons_t) :: lst_initial
+    class(*), allocatable :: lst_rest
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail, tl
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+    type(cons_t) :: initial
+    class(*), allocatable :: rest
+    logical :: match_found
+
+    initial = nil_list
+    rest = lst
+    if (is_cons_pair (lst)) then
+       call uncons (lst, head, tail)
+       if (pred (head)) then
+          cursor = head ** nil_list
+          rest = tail
+          initial = cursor
+          match_found = .false.
+          do while (.not. match_found .and. is_cons_pair (tail))
+             call uncons (tail, head, tail)
+             if (pred (head)) then
+                new_pair = head ** nil_list
+                call set_cdr (cursor, new_pair)
+                cursor = new_pair
+                rest = tail
+             else
+                match_found = .true.
+             end if
+          end do
+       end if
+    end if
+    lst_initial = initial
+    lst_rest = rest
+  end subroutine list_span
 
 end module cons_lists

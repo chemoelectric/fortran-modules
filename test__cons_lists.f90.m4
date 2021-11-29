@@ -1145,7 +1145,7 @@ contains
 
   subroutine test_list_take_while
     type(cons_t) :: lst1, lst2, lst3
-    class(*), allocatable :: obj1, obj2, obj3
+    type(cons_t) :: obj1, obj2, obj3
     lst1 = 1.0 ** (-1) ** 17 ** 5 ** 7 ** nil_list
     obj1 = list_take_while (is_not_positive_integer, lst1)
     call check (list_length (obj1) == 2, "list_length (obj1) == 2 failed (for list_take_while)")
@@ -1213,6 +1213,58 @@ contains
     end function is_not_positive_integer
   end subroutine test_list_drop_while
 
+  subroutine test_list_span
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5
+    class(*), allocatable :: pseudo_lst6
+    type(cons_t) :: obj1a, obj2a, obj3a, obj4a, obj5a, obj6a
+    class(*), allocatable :: obj1b, obj2b, obj3b, obj4b, obj5b, obj6b
+    lst1 = 1.0 ** (-1) ** 17 ** 5 ** 7 ** nil_list
+    call list_span (is_not_positive_integer, lst1, obj1a, obj1b)
+    call check (list_length (obj1a) == 2, "list_length (obj1a) == 2 failed (for list_span)")
+    call check (first (obj1a) .eqr. 1.0, "first (obj1a) .eqr. 1.0 failed (for list_span)")
+    call check (second (obj1a) .eqi. (-1), "second (obj1a) .eqi. (-1) failed (for list_span)")
+    call check (is_nil_list (cddr (obj1a)), "is_nil_list (cddr (obj1a)) failed (for list_span)")
+    call check (list_length (obj1b) == 3, "list_length (obj1b) == 3 failed (for list_span)")
+    call check (first (obj1b) .eqi. 17, "first (obj1b) .eqi. 17 failed (for list_span)")
+    call check (second (obj1b) .eqi. 5, "second (obj1b) .eqi. 5 failed (for list_span)")
+    call check (third (obj1b) .eqi. 7, "third (obj1b) .eqi. 7 failed (for list_span)")
+    call check (is_nil_list (cdddr (obj1b)), "is_nil_list (cdddr (obj1b)) failed (for list_span)")
+    lst2 = 1.0 ** (-1) ** 17 ** 5 ** cons (7, 1234.0)
+    call list_span (is_not_positive_integer, lst2, obj2a, obj2b)
+    call check (list_length (obj2a) == 2, "list_length (obj2a) == 2 failed (for list_span)")
+    call check (first (obj2a) .eqr. 1.0, "first (obj2a) .eqr. 1.0 failed (for list_span)")
+    call check (second (obj2a) .eqi. (-1), "second (obj2a) .eqi. (-1) failed (for list_span)")
+    call check (is_nil_list (cddr (obj2a)), "is_nil_list (cddr (obj2a)) failed (for list_span)")
+    lst3 = 1 ** (-1) ** (-17) ** (-4321) ** (-7) ** nil_list
+    call list_span (is_not_positive_integer, lst3, obj3a, obj3b)
+    call check (is_nil_list (obj3a), "is_nil_list (obj3a) failed (for list_span)")
+    lst4 = 1.0 ** 1 ** (-17) ** (-4321) ** (-7) ** nil_list
+    call list_span (is_not_positive_integer, lst4, obj4a, obj4b)
+    call check (list_length (obj4a) == 1, "list_length (obj4a) == 1 failed (for list_span)")
+    call check (first (obj4a) .eqr. 1.0, "first (obj4a) .eqr. 1.0 failed (for list_span)")
+    call check (list_length (obj4b) == 4, "list_length (obj4b) == 4  failed (for list_span)")
+    call check (first (obj4b) .eqi. 1, "first (obj4b) .eqi. 1 failed (for list_span)")
+    call check (second (obj4b) .eqi. (-17), "second (obj4b) .eqi. (-17) failed (for list_span)")
+    lst5 = nil_list
+    call list_span (is_not_positive_integer, lst5, obj5a, obj5b)
+    call check (is_nil_list (obj5a), "is_nil_list (obj5a) failed (for list_span)")
+    call check (is_nil_list (obj5b), "is_nil_list (obj5b) failed (for list_span)")
+    pseudo_lst6 = 1234
+    call list_span (is_not_positive_integer, pseudo_lst6, obj6a, obj6b)
+    call check (is_nil_list (obj6a), "is_nil_list (obj6a) failed (for list_span)")
+    call check (obj6b .eqi. 1234, "obj6b .eqi. 1234 failed (for list_span)")
+  contains
+    function is_not_positive_integer (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+      bool = .true.
+      select type (x)
+      type is (integer)
+         bool = (x < 1)
+      end select
+    end function is_not_positive_integer
+  end subroutine test_list_span
+
   subroutine run_tests
     !
     ! FIXME: Add a test for list_classify that checks it doesn't
@@ -1271,6 +1323,7 @@ contains
     call test_list_find_tail
     call test_list_take_while
     call test_list_drop_while
+    call test_list_span
   end subroutine run_tests
 
 end module test__cons_lists
