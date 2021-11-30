@@ -1437,6 +1437,17 @@ contains
          "list_equals (integer_list_eq, list_zip1 (iota (100)), list_zip1 (iota (100))) failed")
   end subroutine test_list_equals
 
+  subroutine test_list_count
+    call check (list_count (is_positive_integer, nil_list) == 0, "list_count (is_positive_integer, nil_list) == 0 failed")
+    call check (list_count (is_positive_integer, 1234) == 0, "list_count (is_positive_integer, 1234) == 0 failed")
+    call check (list_count (is_positive_integer, iota (100, -50)) == 49, &
+         "list_count (is_positive_integer, iota (100, -50)) == 49 failed")
+    call check (list_count (is_positive_integer, 'abc' ** 3 ** 2.0 ** (-5) ** 6 ** nil_list) == 2, &
+         "list_count (is_positive_integer, 'abc' ** 3 ** 2.0 ** (-5) ** 6 ** nil_list) == 2 failed")
+    call check (list_count (is_positive_integer, 'abc' ** 3 ** 2.0 ** (-5) ** cons (6, 'xyz')) == 2, &
+         "list_count (is_positive_integer, 'abc' ** 3 ** 2.0 ** (-5) ** cons (6, 'xyz')) == 2 failed")
+  end subroutine test_list_count
+
   subroutine run_tests
     !
     ! FIXME: Add tests that check various subroutines do not clobber
@@ -1505,6 +1516,7 @@ contains
     call test_list_index0
     call test_list_index1
     call test_list_equals
+    call test_list_count
   end subroutine run_tests
 
 end module test__cons_lists

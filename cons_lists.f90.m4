@@ -300,6 +300,9 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   ! Test equality or equivalence of all the elements.
   public :: list_equals
 
+  ! Counting elements that satisfy a predicate.
+  public :: list_count
+
   ! Overloading of `iota'.
   interface iota
      module procedure iota_given_length
@@ -2029,5 +2032,25 @@ m4_forloop([k],[1],n,[dnl
        call error_abort ("first argument to list_equals is not a cons_t")
     end select
   end function list_equals
+
+  recursive function list_count (pred, lst) result (count)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    integer :: count
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    integer :: n
+
+    n = 0
+    tail = lst
+    do while (is_cons_pair (tail))
+       call uncons (tail, head, tail)
+       if (pred (head)) then
+          n = n + 1
+       end if
+    end do
+    count = n
+  end function list_count
 
 end module cons_lists
