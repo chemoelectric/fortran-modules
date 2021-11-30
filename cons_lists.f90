@@ -299,16 +299,18 @@ module cons_lists
   public :: list_foreach_procedure_t
   public :: list_foreach
 
-  public :: list_map ! A generic function for mapping element values.
+  public :: list_map          ! A generic function for mapping element values.
+  public :: list_map_in_place ! A generic function for mapping in place.
 
   ! Call a function on list elements, to map (modify) their values.
   public :: list_map_elements_procedure_t
-  public :: list_map_elements ! Can be called as `list_map'.
+  public :: list_map_elements          ! Can be called as `list_map'.
+  public :: list_map_elements_in_place ! Can be called as `list_map_in_place'.
 
   ! Call a subroutine on list elements, to modify (map) their values.
   public :: list_modify_elements_procedure_t
-  public :: list_modify_elements ! Can be called as `list_map'.
-  public :: list_modify_elements_in_place
+  public :: list_modify_elements          ! Can be called as `list_map'.
+  public :: list_modify_elements_in_place ! Can be called as `list_map_in_place'.
   public :: list_append_modify_elements
 
   ! Searching.
@@ -342,6 +344,12 @@ module cons_lists
      module procedure list_map_elements
      module procedure list_modify_elements
   end interface list_map
+
+  ! Overloading of `list_map_in_place'.
+  interface list_map_in_place
+     module procedure list_map_elements_in_place
+     module procedure list_modify_elements_in_place
+  end interface list_map_in_place
 
 contains
 
@@ -3573,6 +3581,31 @@ contains
        lst_m = lst
     end if
   end function list_map_elements
+
+  subroutine list_map_elements_in_place (func, lst)
+    !
+    ! Modify the elements of a list, in place, using a function to
+    ! map the individual elements. The work is guaranteed to be done
+    ! in list order.
+    !
+    ! If lst is a dotted list, its final CDR is left unmodified.
+    !
+    procedure(list_map_elements_procedure_t) :: func
+    class(*), intent(in) :: lst
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    type(cons_t) :: lst1
+    
+    tail = lst
+    do while (is_cons_pair (tail))
+       lst1 = cons_t_cast (tail)
+       call uncons (lst1, head, tail)
+       head = func (head)
+       call set_car (lst1, head)
+       deallocate (head)
+    end do
+  end subroutine list_map_elements_in_place
 
   function list_modify_elements (subr, lst) result (lst_m)
     !
