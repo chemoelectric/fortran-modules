@@ -129,6 +129,11 @@ module cons_lists
   ! can be (and in this module will be) regarded as degenerate `dotted
   ! lists'.
   !
+  ! NOTE: Fortran procedures do not take multiple arguments, the way
+  ! Scheme procedures do. However, the list_zip2, list_zip3, etc.,
+  ! functions can be used to turn multiple-argument problems into
+  ! single-argument problems.
+  !
 
   use :: cons_types
   use :: cons_procedure_types
