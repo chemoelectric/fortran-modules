@@ -1493,6 +1493,7 @@ contains
     call test_list_foreach
     call test_list_map_elements
     call test_list_map_elements_in_place
+    call test_list_append_map_elements
     call test_list_modify_elements
     call test_list_modify_elements_in_place
     call test_list_append_modify_elements
