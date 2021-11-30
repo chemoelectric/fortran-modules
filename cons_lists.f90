@@ -161,11 +161,12 @@ module cons_lists
 
   public :: cons_t_cast         ! Assume an object is a cons_t.
 
-  public :: list_length ! The number of CAR elements in a proper or dotted list.
-  public :: is_proper_list ! Is an object a list but neither dotted nor circular?
-  public :: is_dotted_list ! Is an object a non-list or a `list' that ends in something other than nil?
-  public :: is_circular_list    ! Is an object a circular list?
-  public :: list_classify ! Is the object a dotted list? Is it a circular list?
+  public :: list_length      ! The number of CAR elements in a proper or dotted list.
+  public :: list_length_plus ! The number of CAR elements in a proper or dotted list, or -1 for a circular list.
+  public :: is_proper_list   ! Is an object a list but neither dotted nor circular?
+  public :: is_dotted_list   ! Is an object a non-list or a `list' that ends in something other than nil?
+  public :: is_circular_list ! Is an object a circular list?
+  public :: list_classify    ! Is the object a dotted list? Is it a circular list?
 
   ! Permutations of car and cdr, for returning elements of a tree.
   public :: car
@@ -529,6 +530,45 @@ contains
        tail = cdr (tail)
     end do
   end function list_length
+
+  function list_length_plus (lst) result (length)
+    !
+    ! A variant of list_length that returns -1 if the list is
+    ! circular.
+    !
+    class(*), intent(in) :: lst
+    integer :: length
+
+    class(*), allocatable :: lead
+    class(*), allocatable :: lag
+    logical :: done
+
+    length = 0
+    lead = lst
+    lag = lst
+    done = .false.
+    do while (.not. done .and. is_cons_pair (lead))
+       lead = cdr (lead)
+       length = length + 1
+       if (is_cons_pair (lead)) then
+          lead = cdr (lead)
+          lag = cdr (lag)
+          length = length + 1
+          select type (lead)
+          class is (cons_t)
+             select type (lag)
+             class is (cons_t)
+                if (cons_t_eq (lead, lag)) then
+                   length = -1
+                   done = .true.
+                end if
+             end select
+          end select
+       else
+          done = .true.
+       end if
+    end do
+  end function list_length_plus
 
   function is_proper_list (obj) result (is_proper)
     class(*), intent(in) :: obj

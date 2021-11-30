@@ -230,6 +230,26 @@ contains
     call check (list_length ('abc') == 0, "list_length ('abc') == 0 failed")
   end subroutine test_list_length
 
+  subroutine test_list_length_plus
+    call check (list_length_plus (nil_list) == 0, "list_length_plus (nil_list) == 0 failed")
+    call check (list_length_plus (1 ** nil_list) == 1, "list_length_plus (1 ** nil_list) == 1 failed")
+    call check (list_length_plus (iota (20)) == 20, "list_length_plus (iota (20)) == 20 failed")
+    call check (list_length_plus (make_list (200, 'a')) == 200, "list_length_plus (make_list (200, 'a')) == 200 failed")
+    call check (list_length_plus (0.0 ** cons (1, 2)) == 2, "list_length_plus (0.0 ** cons (1, 2)) == 2 failed")
+    call check (list_length_plus (cons (1, 2)) == 1, "list_length_plus (cons (1, 2)) == 1 failed")
+    !
+    ! A degenerate case.
+    !
+    call check (list_length_plus ('abc') == 0, "list_length_plus ('abc') == 0 failed")
+    !
+    ! FIXME: Test circular cases.
+    !
+    call check (list_length_plus (circular_list (iota (10))) == -1, &
+         "list_length_plus (circular_list (iota (10))) == -1 failed")
+    call check (list_length_plus (list_append (iota (10), circular_list (iota (10)))) == -1, &
+         "list_length_plus (list_append (iota (10), circular_list (iota (10)))) == -1 failed")
+  end subroutine test_list_length_plus
+
   subroutine test_is_proper_list
     call check (.not. is_proper_list (4), ".not. is_proper_list (4) failed")
     call check (is_proper_list (nil_list), "is_proper_list (nil_list) failed")
@@ -1424,6 +1444,7 @@ contains
     call test_list_cons
     call test_set_car_and_set_cdr
     call test_list_length
+    call test_list_length_plus
     call test_car_cadr_caddr_cadddr
     call test_first_second_etc
     call test_list_ref0
