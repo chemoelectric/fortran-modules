@@ -274,9 +274,7 @@ module cons_lists
   public :: list_concatenate      ! Concatenate a list of lists.
 
   ! Zipping: joining the elements of separate lists into a list of
-  ! lists. (The list_zip1, list_zip2, ..., implementations may be
-  ! significantly faster than list_zip.)
-  public :: list_zip  ! Use the elements of a list as the arguments.
+  ! lists.
   public :: list_zip1 ! Box each element of a list in a length-1 list.
   public :: list_zip2
   public :: list_zip3
@@ -288,9 +286,7 @@ module cons_lists
   public :: list_zip9
 
   ! Unzipping: separating the elements of a list of lists into
-  ! separate lists. (The list_unzip1, list_unzip2, ...,
-  ! implementations may be significantly faster than list_unzip.)
-  public :: list_unzip  ! Return the separated lists as a list of lists.
+  ! separate lists.
   public :: list_unzip1 ! Unbox each element of a list of length-1 lists.
   public :: list_unzip2
   public :: list_unzip3
@@ -1955,60 +1951,6 @@ contains
     end if
   end function list_concatenate
 
-  function list_zip (lists) result (lst_z)
-    type :: zipper_t
-       type(cons_t) :: lst
-       type(cons_t) :: tails
-       logical :: exhausted
-    end type zipper_t
-
-    class(cons_t), intent(in) :: lists
-    type(cons_t) :: lst_z
-
-    type(zipper_t) :: zipper
-
-    zipper%lst = nil_list
-    zipper%tails = list_reverse (lists)
-    zipper%exhausted = .false.
-    do while (.not. zipper%exhausted .and. is_cons_pair (zipper%tails))
-       zipper = zip_one_row (zipper)
-    end do
-    lst_z = zipper%lst
-    call list_reverse_in_place (lst_z)
-
-  contains
-
-    function zip_one_row (zipper_in) result (zipper_out)
-      type(zipper_t), intent(in) :: zipper_in
-      type(zipper_t) :: zipper_out
-
-      class(*), allocatable :: p
-      type(cons_t) :: z
-      type(cons_t) :: t
-
-      zipper_out = zipper_in
-
-      z = nil_list
-      t = nil_list
-      p = zipper_in%tails
-      do while (.not. zipper_out%exhausted .and. is_cons_pair (p))
-         if (is_cons_pair (car (p))) then
-            z = cons (caar (p), z)
-            t = cons (cdar (p), t)
-            p = cdr (p)
-         else
-            zipper_out%exhausted = .true.
-         end if
-      end do
-      if (.not. zipper_out%exhausted) then
-         zipper_out%lst = cons (z, zipper_out%lst)
-         call list_reverse_in_place (t)
-         zipper_out%tails = t
-      end if
-    end function zip_one_row
-
-  end function list_zip
-
   function list_zip1 (lst1) result (lst_z)
     class(*), intent(in) :: lst1
     type(cons_t) :: lst_z
@@ -2755,39 +2697,6 @@ contains
        end if
     end if
   end function list_zip9
-
-  function list_unzip (lst, n) result (lists)
-    class(*), intent(in) :: lst
-    integer, intent(in) :: n
-    type(cons_t) :: lists
-
-    class(*), allocatable :: lst1, row, element
-    type(cons_t) :: head, tail
-    integer :: i
-
-    lists = make_list (n, nil_list)
-
-    lst1 = lst
-    do while (is_cons_pair (lst1))
-       call uncons (lst1, row, lst1)
-       tail = lists
-       lists = nil_list
-       do i = 1, n
-          call uncons (row, element, row)
-          lists = (element ** cons_t_cast (car (tail))) ** lists
-          tail = cons_t_cast (cdr (tail))
-       end do
-       call list_reverse_in_place (lists)
-    end do
-
-    tail = lists
-    do while (list_is_pair (tail))
-       head = cons_t_cast (car (tail))
-       call list_reverse_in_place (head)
-       call set_car (tail, head)
-       tail = cons_t_cast (cdr (tail))
-    end do
-  end function list_unzip
 
   subroutine list_unzip1 (lst_zipped, lst1)
     class(*) :: lst_zipped

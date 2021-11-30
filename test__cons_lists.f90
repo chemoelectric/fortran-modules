@@ -736,47 +736,6 @@ contains
     end do
   end subroutine test_list_concatenate
 
-  subroutine test_list_zip
-    type(cons_t) :: lst1, lst2
-    call check (is_nil_list (list_zip (nil_list)), "is_nil_list (list_zip (nil_list)) failed")
-    call check (is_nil_list (list_zip (((1 ** nil_list) ** nil_list ** (2 ** 3 ** nil_list) ** nil_list))), &
-         "is_nil_list (list_zip (((1 ** nil_list) ** nil_list ** (2 ** 3 ** nil_list) ** nil_list))) failed")
-    call check (list_length (list_zip (((123 ** nil_list) ** nil_list))) == 1, &
-         "list_length (list_zip (((123 ** nil_list) ** nil_list))) == 1 failed")
-    call check (caar (list_zip (((123 ** nil_list) ** nil_list))) .eqi. 123, &
-         "caar (list_zip (((123 ** nil_list) ** nil_list))) .eqi. 123 failed")
-    call check (is_nil_list (cdar (list_zip (((123 ** nil_list) ** nil_list)))), &
-         "is_nil_list (cdar (list_zip (((123 ** nil_list) ** nil_list)))) failed")
-    lst1 = (123 ** 456 ** 789 ** nil_list) &
-         ** (1.0 ** 2.0 ** 3.0 ** 4.0 ** nil_list) &
-         ** (5.0 ** 6.0 ** 7.0 ** nil_list) &
-         ** nil_list
-    call check (caar (lst1) .eqi. 123, "caar (lst1) .eqi. 123 failed (for list_zip)")
-    call check (cadar (lst1) .eqi. 456, "cadar (lst1) .eqi. 456 failed (for list_zip)")
-    call check (caddar (lst1) .eqi. 789, "caddar (lst1) .eqi. 789 failed (for list_zip)")
-    call check (caar (cdr (lst1)) .eqr. 1.0, "caar (cdr (lst1)) .eqr. 1.0 failed (for list_zip)")
-    call check (cadar (cdr (lst1)) .eqr. 2.0, "cadar (cdr (lst1)) .eqr. 2.0 failed (for list_zip)")
-    call check (caddar (cdr (lst1)) .eqr. 3.0, "caddar (cdr (lst1)) .eqr. 3.0 failed (for list_zip)")
-    call check (cadddr (cadr (lst1)) .eqr. 4.0, "caddd (cadr (lst1)) .eqr. 4.0 failed (for list_zip)")
-    call check (caar (cddr (lst1)) .eqr. 5.0, "caar (cddr (lst1)) .eqr. 5.0 failed (for list_zip)")
-    call check (cadar (cddr (lst1)) .eqr. 6.0, "cadar (cddr (lst1)) .eqr. 6.0 failed (for list_zip)")
-    call check (caddar (cddr (lst1)) .eqr. 7.0, "caddar (cddr (lst1)) .eqr. 7.0 failed (for list_zip)")
-    lst2 = list_zip (lst1)
-    call check (list_length (lst2) == 3, "list_length (lst2) == 3 failed (for list_zip)")
-    call check (list_length (car (lst2)) == 3, "list_length (car (lst2)) == 3 failed (for list_zip)")
-    call check (list_length (cadr (lst2)) == 3, "list_length (cadr (lst2)) == 3 failed (for list_zip)")
-    call check (list_length (caddr (lst2)) == 3, "list_length (caddr (lst2)) == 3 failed (for list_zip)")
-    call check (first (first (lst2)) .eqi. 123, "first (first (lst2)) .eqi. 123 failed (for list_zip)")
-    call check (second (first (lst2)) .eqr. 1.0, "second (first (lst2)) .eqr. 1.0 failed (for list_zip)")
-    call check (third (first (lst2)) .eqr. 5.0, "third (first (lst2)) .eqr. 5.0 failed (for list_zip)")
-    call check (first (second (lst2)) .eqi. 456, "first (second (lst2)) .eqi. 456 failed (for list_zip)")
-    call check (second (second (lst2)) .eqr. 2.0, "second (second (lst2)) .eqr. 2.0 failed (for list_zip)")
-    call check (third (second (lst2)) .eqr. 6.0, "third (second (lst2)) .eqr. 6.0 failed (for list_zip)")
-    call check (first (third (lst2)) .eqi. 789, "first (third (lst2)) .eqi. 789 failed (for list_zip)")
-    call check (second (third (lst2)) .eqr. 3.0, "second (third (lst2)) .eqr. 3.0 failed (for list_zip)")
-    call check (third (third (lst2)) .eqr. 7.0, "third (third (lst2)) .eqr. 7.0 failed (for list_zip)")
-  end subroutine test_list_zip
-
   subroutine test_list_zip1
     type(cons_t) :: lst1, lst1_z
     type(cons_t) :: lst2, lst2_z
@@ -815,51 +774,6 @@ contains
     call check (cadar (cdr (lst_z)) .eqi. 4, "cadar (cdr (lst_z)) .eqi. 4 failed (for list_zip3)")
     call check (caddar (cdr (lst_z)) .eqi. 6, "caddar (cdr (lst_z)) .eqi. 6 failed (for list_zip3)")
   end subroutine test_list_zip3
-
-  subroutine test_list_unzip
-    type(cons_t) :: lst1, lst2, lst3, lst4
-    type(cons_t) :: lists1, lists2, lists3, lists4
-    lst1 = list1 (1.0) ** list2 (2.0, 2.1) ** list1 (3.0) ** nil_list
-    lists1 = list_unzip (lst1, 1)
-    call check (list_length (lists1) == 1, "list_length (lists1) == 1 failed (for list_unzip)")
-    call check (list_length (car (lists1)) == 3, "list_length (car (lists1)) == 3 failed (for list_unzip)")
-    call check (car (car (lists1)) .eqr. 1.0, "car (car (lists1)) .eqr. 1.0 failed (for list_unzip)")
-    call check (cadr (car (lists1)) .eqr. 2.0, "cadr (car (lists1)) .eqr. 2.0 failed (for list_unzip)")
-    call check (caddr (car (lists1)) .eqr. 3.0, "caddr (car (lists1)) .eqr. 3.0 failed (for list_unzip)")
-    lst2 = list3 (1, 2, 3) ** list2 (4, 5) ** list4 (6, 7, 8, 9) ** nil_list
-    lists2 = list_unzip (lst2, 2)
-    call check (list_length (lists2) == 2, "list_length (lists2) == 2 failed (for list_unzip)")
-    call check (list_length (car (lists2)) == 3, "list_length (car (lists2)) == 3 failed (for list_unzip)")
-    call check (list_length (cadr (lists2)) == 3, "list_length (cadr (lists2)) == 3 failed (for list_unzip)")
-    call check (car (car (lists2)) .eqi. 1, "car (car (lists2)) .eqi. 1 failed (for list_unzip)")
-    call check (cadr (car (lists2)) .eqi. 4, "cadr (car (lists2)) .eqi. 4 failed (for list_unzip)")
-    call check (caddr (car (lists2)) .eqi. 6, "caddr (car (lists2)) .eqi. 6 failed (for list_unzip)")
-    call check (car (cadr (lists2)) .eqi. 2, "car (cadr (lists2)) .eqi. 2 failed (for list_unzip)")
-    call check (cadr (cadr (lists2)) .eqi. 5, "cadr (cadr (lists2)) .eqi. 5 failed (for list_unzip)")
-    call check (caddr (cadr (lists2)) .eqi. 7, "caddr (cadr (lists2)) .eqi. 7 failed (for list_unzip)")
-    lst3 = list3 (1, 2, 3) ** list3 (4, 5, 6) ** (7 ** circular_list (list1 (8))) ** nil_list
-    lists3 = list_unzip (lst3, 3)
-    call check (list_length (lists3) == 3, "list_length (lists3) == 3 failed (for list_unzip)")
-    call check (list_length (car (lists3)) == 3, "list_length (car (lists3)) == 3 failed (for list_unzip)")
-    call check (list_length (cadr (lists3)) == 3, "list_length (cadr (lists3)) == 3 failed (for list_unzip)")
-    call check (list_length (caddr (lists3)) == 3, "list_length (caddr (lists3)) == 3 failed (for list_unzip)")
-    call check (car (car (lists3)) .eqi. 1, "car (car (lists3)) .eqi. 1 failed (for list_unzip)")
-    call check (cadr (car (lists3)) .eqi. 4, "cadr (car (lists3)) .eqi. 4 failed (for list_unzip)")
-    call check (caddr (car (lists3)) .eqi. 7, "caddr (car (lists3)) .eqi. 7 failed (for list_unzip)")
-    call check (car (cadr (lists3)) .eqi. 2, "car (cadr (lists3)) .eqi. 2 failed (for list_unzip)")
-    call check (cadr (cadr (lists3)) .eqi. 5, "cadr (cadr (lists3)) .eqi. 5 failed (for list_unzip)")
-    call check (caddr (cadr (lists3)) .eqi. 8, "caddr (cadr (lists3)) .eqi. 8 failed (for list_unzip)")
-    call check (car (caddr (lists3)) .eqi. 3, "car (caddr (lists3)) .eqi. 3 failed (for list_unzip)")
-    call check (cadr (caddr (lists3)) .eqi. 6, "cadr (caddr (lists3)) .eqi. 6 failed (for list_unzip)")
-    call check (caddr (caddr (lists3)) .eqi. 8, "caddr (caddr (lists3)) .eqi. 8 failed (for list_unzip)")
-    lst4 = nil_list
-    lists4 = list_unzip (lst4, 4)
-    call check (list_length (lists4) == 4, "list_length (lists4) == 4 failed (for list_unzip)")
-    call check (is_nil_list (car (lists4)), "is_nil_list (car (lists4)) failed (for list_unzip)")
-    call check (is_nil_list (cadr (lists4)), "is_nil_list (cadr (lists4)) failed (for list_unzip)")
-    call check (is_nil_list (caddr (lists4)), "is_nil_list (caddr (lists4)) failed (for list_unzip)")
-    call check (is_nil_list (cadddr (lists4)), "is_nil_list (cadddr (lists4)) failed (for list_unzip)")
-  end subroutine test_list_unzip
 
   subroutine test_list_unzip1
     type(cons_t) :: lst_zipped, lst1, lst2, lst3
@@ -1537,10 +1451,8 @@ contains
     call test_list_append_in_place
     call test_list_append_reverse_in_place
     call test_list_concatenate
-    call test_list_zip
     call test_list_zip1
     call test_list_zip3
-    call test_list_unzip
     call test_list_unzip1
     call test_list_unzip2
     call test_list_unzip3
