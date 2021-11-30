@@ -84,6 +84,12 @@ contains
     bool = integer_cast (obj1) == integer_cast (obj2)
   end function integer_eq
 
+  function integer_lt (obj1, obj2) result (bool)
+    class(*), intent(in) :: obj1, obj2
+    logical :: bool
+    bool = integer_cast (obj1) < integer_cast (obj2)
+  end function integer_lt
+
   function real_eq (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1, obj2
     logical :: bool
@@ -1440,6 +1446,45 @@ contains
          "list_index1 (is_positive_integer, 'abc') == 0 failed")
   end subroutine test_list_index1
 
+  subroutine test_list_equals
+    call check (list_equals (integer_eq, nil_list, nil_list), &
+         "list_equals (integer_eq, nil_list, nil_list) failed")
+    call check (list_equals (real_eq, nil_list, nil_list), &
+         "list_equals (real_eq, nil_list, nil_list) failed")
+    call check (.not. list_equals (integer_eq, nil_list, 1 ** nil_list), &
+         ".not. list_equals (integer_eq, nil_list, 1 ** nil_list) failed")
+    call check (.not. list_equals (real_eq, nil_list, 1.0 ** nil_list), &
+         ".not. list_equals (real_eq, nil_list, 1.0 ** nil_list) failed")
+    call check (.not. list_equals (integer_eq, 1 ** nil_list, nil_list), &
+         ".not. list_equals (integer_eq, 1 ** nil_list, nil_list) failed")
+    call check (.not. list_equals (real_eq, 1.0 ** nil_list, nil_list), &
+         ".not. list_equals (real_eq, 1.0 ** nil_list, nil_list) failed")
+    call check (list_equals (integer_eq, 1 ** nil_list, 1 ** nil_list), &
+         "list_equals (integer_eq, 1 ** nil_list, 1 ** nil_list) failed")
+    call check (list_equals (real_eq, 1.0 ** nil_list, 1.0 ** nil_list), &
+         "list_equals (real_eq, 1.0 ** nil_list, 1.0 ** nil_list) failed")
+    call check (.not. list_equals (integer_eq, 1 ** nil_list, 2 ** nil_list), &
+         ".not. list_equals (integer_eq, 1 ** nil_list, 2 ** nil_list) failed")
+    call check (.not. list_equals (real_eq, 1.0 ** nil_list, 2.0 ** nil_list), &
+         ".not. list_equals (real_eq, 1.0 ** nil_list, 2.0 ** nil_list) failed")
+    call check (list_equals (integer_eq, iota (100), iota (100)), &
+         "list_equals (integer_eq, iota (100), iota (100)) failed")
+    call check (.not. list_equals (integer_eq, iota (100), iota (120)), &
+         ".not. list_equals (integer_eq, iota (100), iota (120)) failed")
+    call check (list_equals (integer_eq, iota (100), list_append (iota (50), iota (50, 50))), &
+         "list_equals (integer_eq, iota (100), list_append (iota (50), iota (50, 50))) failed")
+    call check (.not. list_equals (integer_eq, iota (100), list_append (iota (50), iota (50, 51))), &
+         ".not. list_equals (integer_eq, iota (100), list_append (iota (50), iota (50, 51))) failed")
+    !
+    ! Now use list_equals to test for less-than. (The name
+    ! `list_equals' is really a misnomer.)
+    !
+    call check (list_equals (integer_lt, iota (100), iota (100, 1)), &
+         "list_equals (integer_lt, iota (100), iota (100, 1)) failed")
+    call check (.not. list_equals (integer_lt, iota (100), list_append (iota (99, 1), list1 (-1))), &
+         ".not. list_equals (integer_lt, iota (100), list_append (iota (99, 1), list1 (-1))) failed")
+  end subroutine test_list_equals
+
   subroutine run_tests
     !
     ! FIXME: Add a test for list_classify that checks it doesn't
@@ -1507,6 +1552,7 @@ contains
     call test_list_every
     call test_list_index0
     call test_list_index1
+    call test_list_equals
   end subroutine run_tests
 
 end module test__cons_lists

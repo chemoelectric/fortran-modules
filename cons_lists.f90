@@ -93,14 +93,23 @@ module cons_procedure_types
        class(*), intent(inout), allocatable :: x
      end subroutine list_modify_elements_procedure_t
 
-     function list_predicate_t (x) result (bool)
+     function list_predicate1_t (x) result (bool)
        !
-       ! For passing predicates to procedures.
+       ! For passing one-argument predicates to procedures.
        !
        use :: cons_types
        class(*), intent(in) :: x
        logical :: bool
-     end function list_predicate_t
+     end function list_predicate1_t
+
+     function list_predicate2_t (x, y) result (bool)
+       !
+       ! For passing two-argument predicates to procedures.
+       !
+       use :: cons_types
+       class(*), intent(in) :: x, y
+       logical :: bool
+     end function list_predicate2_t
 
   end interface
 
@@ -127,9 +136,10 @@ module cons_lists
   implicit none
   private
 
-  public :: cons_t              ! The type of a CONS-pair or NIL-list.
+  public :: cons_t              ! The type of a NIL-list or CONS-pair.
   public :: nil_list            ! The canonical NIL-list.
 
+  public :: is_cons_t           ! Is an object either a NIL-list or CONS-pair?
   public :: is_nil_list         ! Is an object a NIL-list?
   public :: is_cons_pair        ! Is an object a CONS-pair?
 
@@ -315,6 +325,10 @@ module cons_lists
   public :: list_modify_elements_in_place ! Can be called as `list_map_in_place'.
   public :: list_append_modify_elements   ! Can be called as `list_append_map'.
 
+  ! Types for predicates.
+  public :: list_predicate1_t ! A predicate taking one argument.
+  public :: list_predicate2_t ! A predicate taking two arguments.
+
   ! Searching.
   public :: list_find       ! Find a list's first element that satisfies a predicate.
   public :: list_find_tail  ! Find a list's first tail whose CAR satisfies a predicate.
@@ -327,6 +341,9 @@ module cons_lists
   public :: list_index0     ! Return the index (starting at 0) of the first match.
   public :: list_index1     ! Return the index (starting at 1) of the first match.
   public :: list_indexn     ! Return the index (starting at n) of the first match.
+
+  ! Test equality or equivalence of all the elements.
+  public :: list_equals
 
   ! Overloading of `iota'.
   interface iota
@@ -368,6 +385,17 @@ contains
     write (error_unit, '("cons_lists error: ", a)') msg
     call abort
   end subroutine error_abort
+
+  function is_cons_t (obj) result (is_cons)
+    class(*), intent(in) :: obj
+    logical is_cons
+    select type (obj)
+    class is (cons_t)
+       is_cons = .true.
+    class default
+       is_cons = .false.
+    end select
+  end function is_cons_t
 
   function is_nil_list (obj) result (is_nil)
     class(*), intent(in) :: obj
@@ -3823,7 +3851,7 @@ contains
     !
     ! If `match_found' is set to .false., then `match' is left unchanged.
     !
-    procedure(list_predicate_t) :: pred
+    procedure(list_predicate1_t) :: pred
     class(*) :: lst
     logical, intent(out) :: match_found
     class(*), allocatable :: match
@@ -3849,7 +3877,7 @@ contains
     !
     ! If `match_found' is set to .false., then `match' is left unchanged.
     !
-    procedure(list_predicate_t) :: pred
+    procedure(list_predicate1_t) :: pred
     class(*) :: lst
     logical, intent(out) :: match_found
     class(*), allocatable :: match
@@ -3870,7 +3898,7 @@ contains
   end subroutine list_find_tail
 
   function list_take_while (pred, lst) result (match)
-    procedure(list_predicate_t) :: pred
+    procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     type(cons_t) :: match
 
@@ -3902,7 +3930,7 @@ contains
   end function list_take_while
 
   function list_drop_while (pred, lst) result (match)
-    procedure(list_predicate_t) :: pred
+    procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     class(*), allocatable :: match
 
@@ -3923,7 +3951,7 @@ contains
   end function list_drop_while
 
   subroutine list_span (pred, lst, lst_initial, lst_rest)
-    procedure(list_predicate_t) :: pred
+    procedure(list_predicate1_t) :: pred
     class(*) :: lst
     type(cons_t) :: lst_initial
     class(*), allocatable :: lst_rest
@@ -3963,7 +3991,7 @@ contains
   end subroutine list_span
 
   subroutine list_break (pred, lst, lst_initial, lst_rest)
-    procedure(list_predicate_t) :: pred
+    procedure(list_predicate1_t) :: pred
     class(*) :: lst
     type(cons_t) :: lst_initial
     class(*), allocatable :: lst_rest
@@ -4003,7 +4031,7 @@ contains
   end subroutine list_break
 
   function list_any (pred, lst) result (match_found)
-    procedure(list_predicate_t) :: pred
+    procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     logical :: match_found
 
@@ -4024,7 +4052,7 @@ contains
   end function list_any
 
   function list_every (pred, lst) result (mismatch_found)
-    procedure(list_predicate_t) :: pred
+    procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     logical :: mismatch_found
 
@@ -4048,7 +4076,7 @@ contains
     !
     ! Returns -1 if there is no match.
     !
-    procedure(list_predicate_t) :: pred
+    procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     integer :: index
     index = list_indexn (pred, lst, 0)
@@ -4058,7 +4086,7 @@ contains
     !
     ! Returns 0 if there is no match.
     !
-    procedure(list_predicate_t) :: pred
+    procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     integer :: index
     index = list_indexn (pred, lst, 1)
@@ -4068,7 +4096,7 @@ contains
     !
     ! Returns n - 1 if there is no match.
     !
-    procedure(list_predicate_t) :: pred
+    procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     integer, intent(in) :: n
     integer :: index
@@ -4095,5 +4123,70 @@ contains
        index = n - 1
     end if
   end function list_indexn
+
+  function list_equals (pred, lst1, lst2) result (bool)
+    !
+    ! In the call
+    !
+    !    list_equals (pred, lst1, lst2)
+    !
+    ! pred is applied with an element of lst1 as its first argument
+    ! and an element of lst2 as its second argument.
+    !
+    ! The current implementation does not handle circular lists.
+    !
+    ! It is an error if lst1 or lst2 is a dotted list.
+    !
+    ! NOTE: THE NAME list_equals IS A MISNOMER. The function is really
+    !       application of ANY predicate to all the element pairs.
+    !
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1, lst2
+    logical :: bool
+
+    type(cons_t) :: p, q
+    class(*), allocatable :: p_hd, p_tl, q_hd, q_tl
+
+    bool = .true.
+    select type (lst1)
+    class is (cons_t)
+       select type (lst2)
+       class is (cons_t)
+          p = lst1
+          q = lst2
+          do while (bool .and. list_is_pair (p))
+             if (list_is_nil (q)) then
+                bool = .false.
+             else
+                call uncons (p, p_hd, p_tl)
+                call uncons (q, q_hd, q_tl)
+                if (.not. pred (p_hd, q_hd)) then
+                   bool = .false.
+                else
+                   select type (p_tl)
+                   class is (cons_t)
+                      p = p_tl
+                   class default
+                      call error_abort ("first argument to list_equals is a dotted list")
+                   end select
+                   select type (q_tl)
+                   class is (cons_t)
+                      q = q_tl
+                   class default
+                      call error_abort ("second argument to list_equals is a dotted list")
+                   end select
+                end if
+             end if
+          end do
+          if (.not. list_is_nil (q)) then
+             bool = .false.
+          end if
+       class default
+          call error_abort ("second argument to list_equals is not a cons_t")
+       end select
+    class default
+       call error_abort ("first argument to list_equals is not a cons_t")
+    end select
+  end function list_equals
 
 end module cons_lists
