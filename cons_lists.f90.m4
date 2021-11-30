@@ -73,7 +73,7 @@ module cons_procedure_types
 
   abstract interface
 
-     subroutine list_foreach_procedure_t (x)
+     recursive subroutine list_foreach_procedure_t (x)
        !
        ! The type of a subroutine passed to list_foreach.
        !
@@ -81,7 +81,7 @@ module cons_procedure_types
        class(*), intent(in) :: x
      end subroutine list_foreach_procedure_t
 
-     function list_map_elements_procedure_t (x)
+     recursive function list_map_elements_procedure_t (x)
        !
        ! The type of a function passed to list_map_elements.
        !
@@ -95,7 +95,7 @@ module cons_procedure_types
        class(*), pointer :: list_map_elements_procedure_t
      end function list_map_elements_procedure_t
 
-     subroutine list_modify_elements_procedure_t (x)
+     recursive subroutine list_modify_elements_procedure_t (x)
        !
        ! The type of a subroutine passed to list_modify_elements.
        !
@@ -103,7 +103,7 @@ module cons_procedure_types
        class(*), intent(inout), allocatable :: x
      end subroutine list_modify_elements_procedure_t
 
-     function list_predicate1_t (x) result (bool)
+     recursive function list_predicate1_t (x) result (bool)
        !
        ! For passing one-argument predicates to procedures.
        !
@@ -112,7 +112,7 @@ module cons_procedure_types
        logical :: bool
      end function list_predicate1_t
 
-     function list_predicate2_t (x, y) result (bool)
+     recursive function list_predicate2_t (x, y) result (bool)
        !
        ! For passing two-argument predicates to procedures.
        !
