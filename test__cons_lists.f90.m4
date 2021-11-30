@@ -96,6 +96,12 @@ contains
     bool = real_cast (obj1) == real_cast (obj2)
   end function real_eq
 
+  function integer_list_eq (obj1, obj2) result (bool)
+    class(*), intent(in) :: obj1, obj2
+    logical :: bool
+    bool = list_equals (integer_eq, obj1, obj2)
+  end function integer_list_eq
+
   function cosine_func (x)
     class(*), intent(in) :: x
     class(*), pointer :: cosine_func
@@ -1483,6 +1489,11 @@ contains
          "list_equals (integer_lt, iota (100), iota (100, 1)) failed")
     call check (.not. list_equals (integer_lt, iota (100), list_append (iota (99, 1), list1 (-1))), &
          ".not. list_equals (integer_lt, iota (100), list_append (iota (99, 1), list1 (-1))) failed")
+    !
+    ! Try a recursion.
+    !
+    call check (list_equals (integer_list_eq, list_zip1 (iota (100)), list_zip1 (iota (100))), &
+         "list_equals (integer_list_eq, list_zip1 (iota (100)), list_zip1 (iota (100))) failed")
   end subroutine test_list_equals
 
   subroutine run_tests

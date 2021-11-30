@@ -3560,7 +3560,7 @@ contains
     call list_unzip1 (lst_zipped, lst)
   end function list_unzip1f
 
-  subroutine list_foreach (subr, lst)
+  recursive subroutine list_foreach (subr, lst)
     !
     ! Run a subroutine on list elements, for the sake of side effects
     ! (such as printing). The work is guaranteed to be done in list
@@ -3579,7 +3579,7 @@ contains
     end do
   end subroutine list_foreach
 
-  function list_map_elements (func, lst) result (lst_m)
+  recursive function list_map_elements (func, lst) result (lst_m)
     !
     ! Modify the elements of a list, using a function to map the
     ! individual elements. The work is guaranteed to be done in list
@@ -3618,7 +3618,7 @@ contains
     end if
   end function list_map_elements
 
-  subroutine list_map_elements_in_place (func, lst)
+  recursive subroutine list_map_elements_in_place (func, lst)
     !
     ! Modify the elements of a list, in place, using a function to
     ! map the individual elements. The work is guaranteed to be done
@@ -3671,7 +3671,7 @@ contains
     tail = tl
   end subroutine list_append_map_elements__get_next
 
-  function list_append_map_elements (func, lst) result (lst_am)
+  recursive function list_append_map_elements (func, lst) result (lst_am)
     !
     ! Modify the elements of a list, using a function to map the
     ! individual elements. The outputs should be lists, and they will
@@ -3715,7 +3715,7 @@ contains
     end if
   end function list_append_map_elements
 
-  function list_modify_elements (subr, lst) result (lst_m)
+  recursive function list_modify_elements (subr, lst) result (lst_m)
     !
     ! Modify the elements of a list, using a subroutine to map the
     ! individual elements. The work is guaranteed to be done in list
@@ -3753,7 +3753,7 @@ contains
     end if
   end function list_modify_elements
 
-  subroutine list_modify_elements_in_place (subr, lst)
+  recursive subroutine list_modify_elements_in_place (subr, lst)
     !
     ! Modify the elements of a list, in place, using a subroutine to
     ! map the individual elements. The work is guaranteed to be done
@@ -3803,7 +3803,7 @@ contains
     tail = tl
   end subroutine list_append_modify_elements__get_next
 
-  function list_append_modify_elements (subr, lst) result (lst_am)
+  recursive function list_append_modify_elements (subr, lst) result (lst_am)
     !
     ! Modify the elements of a list, using a subroutine to map the
     ! individual elements. The outputs should be lists, and they will
@@ -3847,7 +3847,7 @@ contains
     end if
   end function list_append_modify_elements
 
-  subroutine list_find (pred, lst, match_found, match)
+  recursive subroutine list_find (pred, lst, match_found, match)
     !
     ! If `match_found' is set to .false., then `match' is left unchanged.
     !
@@ -3873,7 +3873,7 @@ contains
     end do
   end subroutine list_find
 
-  subroutine list_find_tail (pred, lst, match_found, match)
+  recursive subroutine list_find_tail (pred, lst, match_found, match)
     !
     ! If `match_found' is set to .false., then `match' is left unchanged.
     !
@@ -3897,7 +3897,7 @@ contains
     end do
   end subroutine list_find_tail
 
-  function list_take_while (pred, lst) result (match)
+  recursive function list_take_while (pred, lst) result (match)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     type(cons_t) :: match
@@ -3929,7 +3929,7 @@ contains
     end if
   end function list_take_while
 
-  function list_drop_while (pred, lst) result (match)
+  recursive function list_drop_while (pred, lst) result (match)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     class(*), allocatable :: match
@@ -3950,7 +3950,7 @@ contains
     match = tail
   end function list_drop_while
 
-  subroutine list_span (pred, lst, lst_initial, lst_rest)
+  recursive subroutine list_span (pred, lst, lst_initial, lst_rest)
     procedure(list_predicate1_t) :: pred
     class(*) :: lst
     type(cons_t) :: lst_initial
@@ -3990,7 +3990,7 @@ contains
     lst_rest = rest
   end subroutine list_span
 
-  subroutine list_break (pred, lst, lst_initial, lst_rest)
+  recursive subroutine list_break (pred, lst, lst_initial, lst_rest)
     procedure(list_predicate1_t) :: pred
     class(*) :: lst
     type(cons_t) :: lst_initial
@@ -4030,7 +4030,7 @@ contains
     lst_rest = rest
   end subroutine list_break
 
-  function list_any (pred, lst) result (match_found)
+  recursive function list_any (pred, lst) result (match_found)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     logical :: match_found
@@ -4051,7 +4051,7 @@ contains
     match_found = found
   end function list_any
 
-  function list_every (pred, lst) result (mismatch_found)
+  recursive function list_every (pred, lst) result (mismatch_found)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     logical :: mismatch_found
@@ -4072,7 +4072,7 @@ contains
     mismatch_found = .not. bool
   end function list_every
 
-  function list_index0 (pred, lst) result (index)
+  recursive function list_index0 (pred, lst) result (index)
     !
     ! Returns -1 if there is no match.
     !
@@ -4082,7 +4082,7 @@ contains
     index = list_indexn (pred, lst, 0)
   end function list_index0
 
-  function list_index1 (pred, lst) result (index)
+  recursive function list_index1 (pred, lst) result (index)
     !
     ! Returns 0 if there is no match.
     !
@@ -4092,7 +4092,7 @@ contains
     index = list_indexn (pred, lst, 1)
   end function list_index1
 
-  function list_indexn (pred, lst, n) result (index)
+  recursive function list_indexn (pred, lst, n) result (index)
     !
     ! Returns n - 1 if there is no match.
     !
@@ -4124,7 +4124,7 @@ contains
     end if
   end function list_indexn
 
-  function list_equals (pred, lst1, lst2) result (bool)
+  recursive function list_equals (pred, lst1, lst2) result (bool)
     !
     ! In the call
     !
