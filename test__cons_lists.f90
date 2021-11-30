@@ -117,10 +117,16 @@ contains
     bool = .not. is_positive_integer (x)
   end function is_not_positive_integer
   
-  subroutine do_nothing_subr (x)
+  function passthru_func (x)
+    class(*), intent(in) :: x
+    class(*), pointer :: passthru_func
+    allocate (passthru_func, source = x)
+  end function passthru_func
+
+  subroutine passthru_subr (x)
     class(*), intent(inout), allocatable :: x
     continue
-  end subroutine do_nothing_subr
+  end subroutine passthru_subr
 
   subroutine test_is_nil_list
     call check (.not. is_nil_list ('abc'), ".not. is_nil_list ('abc') failed")
@@ -1048,6 +1054,30 @@ contains
     call check (obj2 .eqi. 123, "obj2 .eqi. 123 failed (for list_map_elements_in_place)")
   end subroutine test_list_map_elements_in_place
 
+  subroutine test_list_append_map_elements
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
+    class(*), allocatable :: obj1, obj2
+    integer :: i
+    lst1 = list_append_map (passthru_func, list3 (list2 (1, 2), list1(3), list2 (4, 5)))
+    call check (list_length (lst1) == 5, "list_length (lst1) == 5 failed (for list_append_map_elements)")
+    do i = 1, 5
+       call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1) == i failed (for list_append_map_elements)")
+    end do
+    lst2 = list_append_map (passthru_func, make_list (5, nil_list))
+    call check (list_length (lst2) == 0, "list_length (lst2) == 0 failed (for list_append_map_elements)")
+    lst3 = list_append_map (passthru_func, nil_list)
+    call check (list_length (lst3) == 0, "list_length (lst3) == 0 failed (for list_append_map_elements)")
+    lst4 = list_append_map (passthru_func, list2 (1, 2) ** cons (list1(3), 4.0))
+    call check (list_length (lst4) == 3, "list_length (lst4) == 3 failed (for list_append_map_elements)")
+    call check (car (lst4) .eqi. 1, "car (lst4) .eqi. 1 failed (for list_append_map_elements)")
+    call check (cadr (lst4) .eqi. 2, "cadr (lst4) .eqi. 2 failed (for list_append_map_elements)")
+    call check (caddr (lst4) .eqi. 3, "caddr (lst4) .eqi. 3 failed (for list_append_map_elements)")
+    lst5 = list_append_map (passthru_func, 'abc')
+    call check (list_length (lst5) == 0, "list_length (lst5) == 0 failed (for list_append_map_elements)")
+    lst6 = list_append_map (passthru_func, make_list (100, nil_list))
+    call check (list_length (lst6) == 0, "list_length (lst6) == 0 failed (for list_append_map_elements)")
+  end subroutine test_list_append_map_elements
+
   subroutine test_list_modify_elements
     type(cons_t) :: lst1, lst2, lst3, lst4
     integer :: i
@@ -1144,23 +1174,23 @@ contains
     type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
     class(*), allocatable :: obj1, obj2
     integer :: i
-    lst1 = list_append_modify_elements (do_nothing_subr, list3 (list2 (1, 2), list1(3), list2 (4, 5)))
+    lst1 = list_append_map (passthru_subr, list3 (list2 (1, 2), list1(3), list2 (4, 5)))
     call check (list_length (lst1) == 5, "list_length (lst1) == 5 failed (for list_append_modify_elements)")
     do i = 1, 5
        call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1) == i failed (for list_append_modify_elements)")
     end do
-    lst2 = list_append_modify_elements (do_nothing_subr, make_list (5, nil_list))
+    lst2 = list_append_map (passthru_subr, make_list (5, nil_list))
     call check (list_length (lst2) == 0, "list_length (lst2) == 0 failed (for list_append_modify_elements)")
-    lst3 = list_append_modify_elements (do_nothing_subr, nil_list)
+    lst3 = list_append_map (passthru_subr, nil_list)
     call check (list_length (lst3) == 0, "list_length (lst3) == 0 failed (for list_append_modify_elements)")
-    lst4 = list_append_modify_elements (do_nothing_subr, list2 (1, 2) ** cons (list1(3), 4.0))
+    lst4 = list_append_map (passthru_subr, list2 (1, 2) ** cons (list1(3), 4.0))
     call check (list_length (lst4) == 3, "list_length (lst4) == 3 failed (for list_append_modify_elements)")
     call check (car (lst4) .eqi. 1, "car (lst4) .eqi. 1 failed (for list_append_modify_elements)")
     call check (cadr (lst4) .eqi. 2, "cadr (lst4) .eqi. 2 failed (for list_append_modify_elements)")
     call check (caddr (lst4) .eqi. 3, "caddr (lst4) .eqi. 3 failed (for list_append_modify_elements)")
-    lst5 = list_append_modify_elements (do_nothing_subr, 'abc')
+    lst5 = list_append_map (passthru_subr, 'abc')
     call check (list_length (lst5) == 0, "list_length (lst5) == 0 failed (for list_append_modify_elements)")
-    lst6 = list_append_modify_elements (do_nothing_subr, make_list (100, nil_list))
+    lst6 = list_append_map (passthru_subr, make_list (100, nil_list))
     call check (list_length (lst6) == 0, "list_length (lst6) == 0 failed (for list_append_modify_elements)")
   end subroutine test_list_append_modify_elements
 
