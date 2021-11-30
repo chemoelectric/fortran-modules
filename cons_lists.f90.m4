@@ -81,6 +81,20 @@ module cons_procedure_types
        class(*), intent(in) :: x
      end subroutine list_foreach_procedure_t
 
+     function list_map_elements_procedure_t (x)
+       !
+       ! The type of a function passed to list_map_elements.
+       !
+       ! (FIXME: This type of function seems to work with gfortran
+       !         11.2.0, whereas other types I have tried did not.
+       !         How much of this is the compiler not working
+       !         properly?)
+       !
+       use :: cons_types
+       class(*), intent(in) :: x
+       class(*), pointer :: list_map_elements_procedure_t
+     end function list_map_elements_procedure_t
+
      subroutine list_modify_elements_procedure_t (x)
        !
        ! The type of a subroutine passed to list_modify_elements.
@@ -238,9 +252,15 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_foreach_procedure_t
   public :: list_foreach
 
+  public :: list_map ! A generic function for mapping element values.
+
+  ! Call a function on list elements, to map (modify) their values.
+  public :: list_map_elements_procedure_t
+  public :: list_map_elements ! Can be called as `list_map'.
+
   ! Call a subroutine on list elements, to modify (map) their values.
   public :: list_modify_elements_procedure_t
-  public :: list_modify_elements
+  public :: list_modify_elements ! Can be called as `list_map'.
   public :: list_modify_elements_in_place
   public :: list_append_modify_elements
 
@@ -269,6 +289,12 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   interface operator(**)
      module procedure list_cons
   end interface operator(**)
+
+  ! Overloading of `list_map'.
+  interface list_map
+     module procedure list_map_elements
+     module procedure list_modify_elements
+  end interface list_map
 
 contains
 
@@ -1395,6 +1421,45 @@ m4_forloop([k],[1],n,[dnl
        call subr (head)
     end do
   end subroutine list_foreach
+
+  function list_map_elements (func, lst) result (lst_m)
+    !
+    ! Modify the elements of a list, using a function to map the
+    ! individual elements. The work is guaranteed to be done in list
+    ! order.
+    !
+    ! (This is like SRFI-1's `map-in-order'.)
+    !
+    ! If lst is a dotted list, its final CDR is retained. The return
+    ! value thus might not be a cons_t.
+    !
+    procedure(list_map_elements_procedure_t) :: func
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_m
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+
+    if (is_cons_pair (lst)) then
+       call uncons (lst, head, tail)
+       head = func (head)
+       cursor = cons (head, tail)
+       deallocate (head)
+       lst_m = cursor
+       do while (is_cons_pair (tail))
+          call uncons (tail, head, tail)
+          head = func (head)
+          new_pair = cons (head, tail)
+          deallocate (head)
+          call set_cdr (cursor, new_pair)
+          cursor = new_pair
+       end do
+    else
+       lst_m = lst
+    end if
+  end function list_map_elements
 
   function list_modify_elements (subr, lst) result (lst_m)
     !

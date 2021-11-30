@@ -90,6 +90,38 @@ contains
     bool = real_cast (obj1) == real_cast (obj2)
   end function real_eq
 
+  function cosine_func (x)
+    class(*), intent(in) :: x
+    class(*), pointer :: cosine_func
+    allocate (cosine_func, source = cos (real_cast (x)))
+  end function cosine_func
+
+  subroutine cosine_subr (x)
+    class(*), intent(inout), allocatable :: x
+    x = cos (real_cast (x))
+  end subroutine cosine_subr
+
+  function is_positive_integer (x) result (bool)
+    class(*), intent(in) :: x
+    logical :: bool
+    bool = .false.
+    select type (x)
+    type is (integer)
+       bool = (1 <= x)
+    end select
+  end function is_positive_integer
+
+  function is_not_positive_integer (x) result (bool)
+    class(*), intent(in) :: x
+    logical :: bool
+    bool = .not. is_positive_integer (x)
+  end function is_not_positive_integer
+  
+  subroutine do_nothing_subr (x)
+    class(*), intent(inout), allocatable :: x
+    continue
+  end subroutine do_nothing_subr
+
   subroutine test_is_nil_list
     call check (.not. is_nil_list ('abc'), ".not. is_nil_list ('abc') failed")
     call check (is_nil_list (nil_list), "is_nil_list (nil_list) failed")
@@ -924,41 +956,68 @@ contains
     end subroutine side_effector
   end subroutine test_list_foreach
 
+  subroutine test_list_map_elements
+    type(cons_t) :: lst1, lst2, lst3, lst4
+    integer :: i
+    real :: x, y
+    lst1 = acos (0.25) ** acos (0.50) ** acos (0.75) ** nil_list
+    lst2 = cons_t_cast (list_map (cosine_func, lst1))
+    do i = 1, 3
+       y = i * 0.25
+       x = acos (y)
+       call check (abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001 failed (for list_map_elements)")
+       call check (abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001 failed (for list_map_elements)")
+    end do
+    call check (is_nil_list (list_map (cosine_func, nil_list)), &
+         "is_nil_list (list_map (cosine_func, nil_list)) failed")
+    call check (list_map (cosine_func, 123) .eqi. 123, &
+         "list_map (cosine_func, 123) .eqi. 123 failed")
+    lst3 = acos (0.25) ** acos (0.50) ** cons (acos (0.75), 123)
+    lst4 = cons_t_cast (list_map (cosine_func, lst3))
+    do i = 1, 3
+       y = i * 0.25
+       x = acos (y)
+       call check (abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001 failed (for list_map_elements)")
+       call check (abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001 failed (for list_map_elements)")
+    end do
+    call check (cdr (list_last_pair (lst4)) .eqi. 123, &
+         "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_map_elements)")
+  end subroutine test_list_map_elements
+
   subroutine test_list_modify_elements
     type(cons_t) :: lst1, lst2, lst3, lst4
     integer :: i
     real :: x, y
     lst1 = acos (0.25) ** acos (0.50) ** acos (0.75) ** nil_list
-    lst2 = cons_t_cast (list_modify_elements (cosine_wrapper, lst1))
+    lst2 = cons_t_cast (list_map (cosine_subr, lst1))
     do i = 1, 3
        y = i * 0.25
        x = acos (y)
        call check (abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001 failed (for list_modify_elements)")
+            "abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001 failed (for list_modify_elements as list_map)")
        call check (abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001 failed (for list_modify_elements)")
+            "abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001 failed (for list_modify_elements as list_map)")
     end do
-    call check (is_nil_list (list_modify_elements (cosine_wrapper, nil_list)), &
-         "is_nil_list (list_modify_elements (cosine_wrapper, nil_list)) failed")
-    call check (list_modify_elements (cosine_wrapper, 123) .eqi. 123, &
-         "list_modify_elements (cosine_wrapper, 123) .eqi. 123 failed")
+    call check (is_nil_list (list_map (cosine_subr, nil_list)), &
+         "is_nil_list (list_map (cosine_subr, nil_list)) failed")
+    call check (list_map (cosine_subr, 123) .eqi. 123, &
+         "list_map (cosine_subr, 123) .eqi. 123 failed")
     lst3 = acos (0.25) ** acos (0.50) ** cons (acos (0.75), 123)
-    lst4 = cons_t_cast (list_modify_elements (cosine_wrapper, lst3))
+    lst4 = cons_t_cast (list_map (cosine_subr, lst3))
     do i = 1, 3
        y = i * 0.25
        x = acos (y)
        call check (abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001 failed (for list_modify_elements)")
+            "abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001 failed (for list_modify_elements as list_map)")
        call check (abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001 failed (for list_modify_elements)")
+            "abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001 failed (for list_modify_elements as list_map)")
     end do
     call check (cdr (list_last_pair (lst4)) .eqi. 123, &
-         "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_modify_elements)")
-  contains
-    subroutine cosine_wrapper (x)
-      class(*), intent(inout), allocatable :: x
-      x = cos (real_cast (x))
-    end subroutine cosine_wrapper
+         "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_modify_elements as list_map)")
   end subroutine test_list_modify_elements
 
   subroutine test_list_modify_elements_in_place
@@ -971,88 +1030,78 @@ contains
        y = i * 0.25
        x = acos (y)
        call check (abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001 failed (for list_modify_elements)")
+            "abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001 failed (for list_modify_elements_in_place)")
     end do
     lst2 = lst1
-    call list_modify_elements_in_place (cosine_wrapper, lst2)
+    call list_modify_elements_in_place (cosine_subr, lst2)
     do i = 1, 3
        y = i * 0.25
        x = acos (y)
        call check (abs (real_cast (list_ref1 (lst1, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst1, i)) - y) < 0.0001 failed (for list_modify_elements)")
+            "abs (real_cast (list_ref1 (lst1, i)) - y) < 0.0001 failed (for list_modify_elements_in_place)")
        call check (abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001 failed (for list_modify_elements)")
+            "abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001 failed (for list_modify_elements_in_place)")
     end do
     !
     lst3 = acos (0.25) ** acos (0.50) ** cons (acos (0.75), 123)
     call check (cdr (list_last_pair (lst3)) .eqi. 123, &
-         "cdr (list_last_pair (lst3)) .eqi. 123 failed (for list_modify_elements)")
+         "cdr (list_last_pair (lst3)) .eqi. 123 failed (for list_modify_elements_in_place)")
     do i = 1, 3
        y = i * 0.25
        x = acos (y)
        call check (abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001 failed (for list_modify_elements)")
+            "abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001 failed (for list_modify_elements_in_place)")
     end do
     lst4 = lst3
-    call list_modify_elements_in_place (cosine_wrapper, lst4)
+    call list_modify_elements_in_place (cosine_subr, lst4)
     call check (cdr (list_last_pair (lst3)) .eqi. 123, &
-         "cdr (list_last_pair (lst3)) .eqi. 123 failed (for list_modify_elements)")
+         "cdr (list_last_pair (lst3)) .eqi. 123 failed (for list_modify_elements_in_place)")
     call check (cdr (list_last_pair (lst4)) .eqi. 123, &
-         "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_modify_elements)")
+         "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_modify_elements_in_place)")
     do i = 1, 3
        y = i * 0.25
        x = acos (y)
        call check (abs (real_cast (list_ref1 (lst3, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst3, i)) - y) < 0.0001 failed (for list_modify_elements)")
+            "abs (real_cast (list_ref1 (lst3, i)) - y) < 0.0001 failed (for list_modify_elements_in_place)")
        call check (abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001 failed (for list_modify_elements)")
+            "abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001 failed (for list_modify_elements_in_place)")
     end do
     !
     lst5 = nil_list
     lst6 = lst5
-    call list_modify_elements_in_place (cosine_wrapper, lst6)
-    call check (is_nil_list (lst5), "is_nil_list (lst5) failed (for list_modify_elements)")
-    call check (is_nil_list (lst6), "is_nil_list (lst6) failed (for list_modify_elements)")
+    call list_modify_elements_in_place (cosine_subr, lst6)
+    call check (is_nil_list (lst5), "is_nil_list (lst5) failed (for list_modify_elements_in_place)")
+    call check (is_nil_list (lst6), "is_nil_list (lst6) failed (for list_modify_elements_in_place)")
     !
     obj1 = 123
     obj2 = obj1
-    call list_modify_elements_in_place (cosine_wrapper, obj2)
-    call check (obj1 .eqi. 123, "obj1 .eqi. 123 failed (for list_modify_elements)")
-    call check (obj2 .eqi. 123, "obj2 .eqi. 123 failed (for list_modify_elements)")
-  contains
-    subroutine cosine_wrapper (x)
-      class(*), intent(inout), allocatable :: x
-      x = cos (real_cast (x))
-    end subroutine cosine_wrapper
+    call list_modify_elements_in_place (cosine_subr, obj2)
+    call check (obj1 .eqi. 123, "obj1 .eqi. 123 failed (for list_modify_elements_in_place)")
+    call check (obj2 .eqi. 123, "obj2 .eqi. 123 failed (for list_modify_elements_in_place)")
   end subroutine test_list_modify_elements_in_place
 
   subroutine test_list_append_modify_elements
     type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
     class(*), allocatable :: obj1, obj2
     integer :: i
-    lst1 = list_append_modify_elements (do_nothing, list3 (list2 (1, 2), list1(3), list2 (4, 5)))
+    lst1 = list_append_modify_elements (do_nothing_subr, list3 (list2 (1, 2), list1(3), list2 (4, 5)))
     call check (list_length (lst1) == 5, "list_length (lst1) == 5 failed (for list_append_modify_elements)")
     do i = 1, 5
        call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1) == i failed (for list_append_modify_elements)")
     end do
-    lst2 = list_append_modify_elements (do_nothing, make_list (5, nil_list))
+    lst2 = list_append_modify_elements (do_nothing_subr, make_list (5, nil_list))
     call check (list_length (lst2) == 0, "list_length (lst2) == 0 failed (for list_append_modify_elements)")
-    lst3 = list_append_modify_elements (do_nothing, nil_list)
+    lst3 = list_append_modify_elements (do_nothing_subr, nil_list)
     call check (list_length (lst3) == 0, "list_length (lst3) == 0 failed (for list_append_modify_elements)")
-    lst4 = list_append_modify_elements (do_nothing, list2 (1, 2) ** cons (list1(3), 4.0))
+    lst4 = list_append_modify_elements (do_nothing_subr, list2 (1, 2) ** cons (list1(3), 4.0))
     call check (list_length (lst4) == 3, "list_length (lst4) == 3 failed (for list_append_modify_elements)")
     call check (car (lst4) .eqi. 1, "car (lst4) .eqi. 1 failed (for list_append_modify_elements)")
     call check (cadr (lst4) .eqi. 2, "cadr (lst4) .eqi. 2 failed (for list_append_modify_elements)")
     call check (caddr (lst4) .eqi. 3, "caddr (lst4) .eqi. 3 failed (for list_append_modify_elements)")
-    lst5 = list_append_modify_elements (do_nothing, 'abc')
+    lst5 = list_append_modify_elements (do_nothing_subr, 'abc')
     call check (list_length (lst5) == 0, "list_length (lst5) == 0 failed (for list_append_modify_elements)")
-    lst6 = list_append_modify_elements (do_nothing, make_list (100, nil_list))
+    lst6 = list_append_modify_elements (do_nothing_subr, make_list (100, nil_list))
     call check (list_length (lst6) == 0, "list_length (lst6) == 0 failed (for list_append_modify_elements)")
-  contains
-    subroutine do_nothing (x)
-      class(*), intent(inout), allocatable :: x
-      continue
-    end subroutine do_nothing
   end subroutine test_list_append_modify_elements
 
   subroutine test_list_find
@@ -1083,16 +1132,6 @@ contains
     call list_find (is_positive_integer, pseudo_lst5, match_found5, obj5)
     call check (.not. match_found5, ".not. match_found5 failed (for list_find)")
     call check (obj5 .eqi. 1024, "obj5 .eqi. 1025 failed (for list_find)")
-  contains
-    function is_positive_integer (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-      bool = .false.
-      select type (x)
-      type is (integer)
-         bool = (1 <= x)
-      end select
-    end function is_positive_integer
   end subroutine test_list_find
 
   subroutine test_list_find_tail
@@ -1131,16 +1170,6 @@ contains
     call list_find_tail (is_positive_integer, pseudo_lst5, match_found5, obj5)
     call check (.not. match_found5, ".not. match_found5 failed (for list_find_tail)")
     call check (obj5 .eqi. 1024, "obj5 .eqi. 1025 failed (for list_find_tail)")
-  contains
-    function is_positive_integer (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-      bool = .false.
-      select type (x)
-      type is (integer)
-         bool = (1 <= x)
-      end select
-    end function is_positive_integer
   end subroutine test_list_find_tail
 
   subroutine test_list_take_while
@@ -1165,16 +1194,6 @@ contains
          "is_nil_list (list_take_while (is_not_positive_integer, nil_list)) failed (for list_take_while)")
     call check (is_nil_list (list_take_while (is_not_positive_integer, 1234)), &
          "is_nil_list (list_take_while (is_not_positive_integer, 1234)) failed (for list_take_while)")
-  contains
-    function is_not_positive_integer (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-      bool = .true.
-      select type (x)
-      type is (integer)
-         bool = (x < 1)
-      end select
-    end function is_not_positive_integer
   end subroutine test_list_take_while
 
   subroutine test_list_drop_while
@@ -1201,16 +1220,6 @@ contains
          "is_nil_list (list_drop_while (is_not_positive_integer, nil_list)) failed (for list_drop_while)")
     call check (list_drop_while (is_not_positive_integer, 1234) .eqi. 1234, &
          "list_drop_while (is_not_positive_integer, 1234) .eqi. 1234 failed (for list_drop_while)")
-  contains
-    function is_not_positive_integer (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-      bool = .true.
-      select type (x)
-      type is (integer)
-         bool = (x < 1)
-      end select
-    end function is_not_positive_integer
   end subroutine test_list_drop_while
 
   subroutine test_list_span
@@ -1253,16 +1262,6 @@ contains
     call list_span (is_not_positive_integer, pseudo_lst6, obj6a, obj6b)
     call check (is_nil_list (obj6a), "is_nil_list (obj6a) failed (for list_span)")
     call check (obj6b .eqi. 1234, "obj6b .eqi. 1234 failed (for list_span)")
-  contains
-    function is_not_positive_integer (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-      bool = .true.
-      select type (x)
-      type is (integer)
-         bool = (x < 1)
-      end select
-    end function is_not_positive_integer
   end subroutine test_list_span
 
   subroutine test_list_break
@@ -1305,16 +1304,6 @@ contains
     call list_break (is_positive_integer, pseudo_lst6, obj6a, obj6b)
     call check (is_nil_list (obj6a), "is_nil_list (obj6a) failed (for list_break)")
     call check (obj6b .eqi. 1234, "obj6b .eqi. 1234 failed (for list_break)")
-  contains
-    function is_positive_integer (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-      bool = .false.
-      select type (x)
-      type is (integer)
-         bool = (1 <= x)
-      end select
-    end function is_positive_integer
   end subroutine test_list_break
 
   subroutine test_list_any
@@ -1326,16 +1315,6 @@ contains
          ".not. list_any (is_positive_integer, nil_list) failed")
     call check (.not. list_any (is_positive_integer, 'abc'), &
          ".not. list_any (is_positive_integer, 'abc') failed")
-  contains
-    function is_positive_integer (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-      bool = .false.
-      select type (x)
-      type is (integer)
-         bool = (1 <= x)
-      end select
-    end function is_positive_integer
   end subroutine test_list_any
 
   subroutine test_list_every
@@ -1347,16 +1326,6 @@ contains
          "list_every (is_not_positive_integer, nil_list) failed")
     call check (list_every (is_not_positive_integer, 'abc'), &
          "list_every (is_not_positive_integer, 'abc') failed")
-  contains
-    function is_not_positive_integer (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-      bool = .true.
-      select type (x)
-      type is (integer)
-         bool = (x < 1)
-      end select
-    end function is_not_positive_integer
   end subroutine test_list_every
 
   subroutine test_list_index0
@@ -1368,16 +1337,6 @@ contains
          "list_index0 (is_positive_integer, nil_list) == -1 failed")
     call check (list_index0 (is_positive_integer, 'abc') == -1, &
          "list_index0 (is_positive_integer, 'abc') == -1 failed")
-  contains
-    function is_positive_integer (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-      bool = .false.
-      select type (x)
-      type is (integer)
-         bool = (1 <= x)
-      end select
-    end function is_positive_integer
   end subroutine test_list_index0
 
   subroutine test_list_index1
@@ -1389,16 +1348,6 @@ contains
          "list_index1 (is_positive_integer, nil_list) == 0 failed")
     call check (list_index1 (is_positive_integer, 'abc') == 0, &
          "list_index1 (is_positive_integer, 'abc') == 0 failed")
-  contains
-    function is_positive_integer (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-      bool = .false.
-      select type (x)
-      type is (integer)
-         bool = (1 <= x)
-      end select
-    end function is_positive_integer
   end subroutine test_list_index1
 
   subroutine run_tests
@@ -1452,6 +1401,7 @@ contains
     call test_list_unzip4
     call test_list_unzip1f
     call test_list_foreach
+    call test_list_map_elements
     call test_list_modify_elements
     call test_list_modify_elements_in_place
     call test_list_append_modify_elements
