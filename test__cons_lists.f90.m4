@@ -1477,6 +1477,37 @@ contains
          "list_count (is_positive_integer, 'abc' ** 3 ** 2.0 ** (-5) ** cons (6, 'xyz')) == 2 failed")
   end subroutine test_list_count
 
+  subroutine test_list_filter
+    type(cons_t) :: lst1a, lst1b
+    type(cons_t) :: lst2a, lst2b
+    type(cons_t) :: lst3a, lst3b
+    call check (list_equals (integer_eq, list_filter (is_positive_integer, nil_list), nil_list), &
+         "list_equals (list_filter (is_positive_integer, nil_list), nil_list) failed")
+    call check (list_filter (is_positive_integer, 1234.0) .eqr. 1234.0, &
+         "list_filter (is_positive_integer, 1234.0) .eqr. 1234.0 failed")
+    call check (list_equals (integer_eq, list_filter (is_positive_integer, 1 ** nil_list), 1 ** nil_list), &
+         "list_equals (integer_eq, list_filter (is_positive_integer, 1 ** nil_list), 1 ** nil_list) failed")
+    call check (list_equals (integer_eq, list_filter (is_positive_integer, 1 ** 2 ** nil_list), 1 ** 2 ** nil_list), &
+         "list_equals (integer_eq, list_filter (is_positive_integer, 1 ** 2 ** nil_list), 1 ** 2 ** nil_list) failed")
+    call check (list_equals (integer_eq, list_filter (is_positive_integer, 1 ** (-2) ** nil_list), 1 ** nil_list), &
+         "list_equals (integer_eq, list_filter (is_positive_integer, 1 ** (-2) ** nil_list), 1 ** nil_list) failed")
+    call check (list_equals (integer_eq, list_filter (is_positive_integer, (-1) ** 2 ** nil_list), 2 ** nil_list), &
+         "list_equals (integer_eq, list_filter (is_positive_integer, (-1) ** 2 ** nil_list), 2 ** nil_list) failed")
+    call check (list_equals (integer_eq, list_filter (is_positive_integer, (-1) ** (-2) ** nil_list), nil_list), &
+         "list_equals (integer_eq, list_filter (is_positive_integer, (-1) ** (-2) ** nil_list), nil_list) failed")
+    lst1a = (-1) ** 2 ** (-3) ** (-4) ** 5 ** 6 ** (-7) ** (-8) ** (-9) ** nil_list
+    lst1b = 2 ** 5 ** 6 ** nil_list
+    call check (list_equals (integer_eq, list_filter (is_positive_integer, lst1a), lst1b), &
+         "list_equals (integer_eq, list_filter (is_positive_integer, lst1a), lst1b) failed")
+    lst2a = cons_t_cast (list_append (lst1a, list3 (7, 8, 9)))
+    lst2b = cons_t_cast (list_append (lst1b, list3 (7, 8, 9)))
+    call check (list_equals (integer_eq, list_filter (is_positive_integer, lst2a), lst2b), &
+         "list_equals (integer_eq, list_filter (is_positive_integer, lst2a), lst2b) failed")
+    !
+    ! FIXME: Maybe write some more tests for dotted lists.
+    !
+  end subroutine test_list_filter
+
   subroutine run_tests
     !
     ! FIXME: Add tests that check various subroutines do not clobber
@@ -1547,6 +1578,7 @@ contains
     call test_list_index1
     call test_list_equals
     call test_list_count
+    call test_list_filter
   end subroutine run_tests
 
 end module test__cons_lists

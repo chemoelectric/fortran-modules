@@ -298,6 +298,10 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_indexn     ! Return the index (starting at n) of the first match.
 
   public :: list_equals     ! Test equality of two lists (though actually this is much more general).
+  !
+  ! FIXME: Add something like list_equals that ignores the end of a
+  !        dotted list.
+  !
 
   public :: list_count      ! Count elements that satisfy a predicate.
   public :: list_filter     ! Keep elements that satisfy a predicate.
@@ -2183,7 +2187,7 @@ m4_forloop([k],[1],n,[dnl
           do while (.not. done)
              if (.not. is_cons_pair (current_position)) then
                 ! The current position is the end of the list (a nil
-                ! or a non-list).
+                ! list or a non-list).
                 call set_cdr (cursor, current_position)
                 done = .true.
              else

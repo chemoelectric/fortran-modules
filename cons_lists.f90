@@ -345,6 +345,10 @@ module cons_lists
   public :: list_indexn     ! Return the index (starting at n) of the first match.
 
   public :: list_equals     ! Test equality of two lists (though actually this is much more general).
+  !
+  ! FIXME: Add something like list_equals that ignores the end of a
+  !        dotted list.
+  !
 
   public :: list_count      ! Count elements that satisfy a predicate.
   public :: list_filter     ! Keep elements that satisfy a predicate.
@@ -4263,7 +4267,8 @@ contains
 
   recursive function list_filter (pred, lst) result (lst_f)
     !
-    ! This implementation tries to share a tail with the original.
+    ! This implementation tries to share the longest possible tail
+    ! with the original.
     !
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
@@ -4295,7 +4300,7 @@ contains
           do while (.not. done)
              if (.not. is_cons_pair (current_position)) then
                 ! The current position is the end of the list (a nil
-                ! or a non-list).
+                ! list or a non-list).
                 call set_cdr (cursor, current_position)
                 done = .true.
              else
