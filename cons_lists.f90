@@ -547,8 +547,12 @@ contains
     class(*), intent(in) :: lst
     integer :: length
 
+    ! Detect circularity by having a `lead' reference move through the
+    ! list at a higher rate than a `lag' reference. In a circular
+    ! list, eventually `lead' will catch up with `lag'.
     class(*), allocatable :: lead
     class(*), allocatable :: lag
+
     logical :: done
 
     length = 0
@@ -636,8 +640,12 @@ contains
     logical :: is_dotted
     logical :: is_circular
 
+    ! Detect circularity by having a `lead' reference move through the
+    ! list at a higher rate than a `lag' reference. In a circular
+    ! list, eventually `lead' will catch up with `lag'.
     class(*), allocatable :: lead
     class(*), allocatable :: lag
+
     logical :: is_dot
     logical :: is_circ
     logical :: done
