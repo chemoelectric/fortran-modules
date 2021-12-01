@@ -23,10 +23,8 @@
 ! SOFTWARE.
 
 !!!
-!!! WARNING: gfortran will generate trampolines for some of the tests;
-!!!          these tests may not work on a hardened system. (A
-!!!          different compiler might use a method other than
-!!!          trampolining: lambda lifting, for instance.)
+!!! WARNING: gfortran will generate trampolines for some kinds of
+!!!          tests; these tests may not work on a hardened system.
 !!!
 
 module test__cons_lists
@@ -908,6 +906,9 @@ contains
     end do
   contains
     subroutine side_effector (x)
+      !
+      ! gfortran will generate a trampoline for this procedure.
+      !
       class(*), intent(in) :: x
       integer :: i
       i = integer_cast (x)
