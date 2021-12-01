@@ -138,12 +138,12 @@ contains
     continue
   end subroutine passthru_subr
 
-  subroutine test_is_cons_t
-    call check (.not. is_cons_t ('abc'), ".not. is_cons_t ('abc') failed")
-    call check (is_cons_t (nil_list), "is_cons_t (nil_list) failed")
-    call check (is_cons_t (iota (15)), "is_cons_t (iota (15)) failed")
-    call check (is_cons_t (cons ('a', 'b')), "is_cons_t (cons ('a', 'b')) failed")
-  end subroutine test_is_cons_t
+  subroutine test_is_nil_or_pair
+    call check (.not. is_nil_or_pair ('abc'), ".not. is_nil_or_pair ('abc') failed")
+    call check (is_nil_or_pair (nil_list), "is_nil_or_pair (nil_list) failed")
+    call check (is_nil_or_pair (iota (15)), "is_nil_or_pair (iota (15)) failed")
+    call check (is_nil_or_pair (cons ('a', 'b')), "is_nil_or_pair (cons ('a', 'b')) failed")
+  end subroutine test_is_nil_or_pair
 
   subroutine test_is_nil_list
     call check (.not. is_nil_list ('abc'), ".not. is_nil_list ('abc') failed")
@@ -1454,7 +1454,7 @@ contains
     ! FIXME: Add tests that check various subroutines do not clobber
     ! their arguments. (list_classify, for example.)
     !
-    call test_is_cons_t
+    call test_is_nil_or_pair
     call test_is_nil_list
     call test_is_cons_pair
     call test_list_is_nil

@@ -154,7 +154,7 @@ module cons_lists
   public :: cons_t              ! The type of a NIL-list or CONS-pair.
   public :: nil_list            ! The canonical NIL-list.
 
-  public :: is_cons_t           ! Is an object either a NIL-list or CONS-pair?
+  public :: is_nil_or_pair      ! Is an object either a NIL-list or CONS-pair?
   public :: is_nil_list         ! Is an object a NIL-list?
   public :: is_cons_pair        ! Is an object a CONS-pair?
 
@@ -164,12 +164,12 @@ module cons_lists
   ! cons_t_eq(x,y) is like Scheme's `(eq? x y)' for two lists.
   public :: cons_t_eq           ! Are the two cons_t equivalent?
 
-  public :: cons            ! The fundamental CONS-pair constructor.
-  public :: uncons          ! The fundamental CONS-pair deconstructor.
+  public :: cons                ! The fundamental CONS-pair constructor.
+  public :: uncons              ! The fundamental CONS-pair deconstructor.
 
   ! Notation: `elem1 ** elem2 ** elem3 ** nil_list'
-  public :: operator(**)     ! An infix notation for `list_cons'.
-  public :: list_cons        ! CONS assuming the right side is a list.
+  public :: operator(**)        ! An infix notation for `list_cons'.
+  public :: list_cons           ! CONS assuming the right side is a list.
 
   public :: set_car             ! Change the CAR of a CONS-pair.
   public :: set_cdr             ! Change the CDR of a CONS-pair.
@@ -344,7 +344,7 @@ contains
     CALL_ABORT
   end subroutine error_abort
 
-  function is_cons_t (obj) result (is_cons)
+  function is_nil_or_pair (obj) result (is_cons)
     class(*), intent(in) :: obj
     logical is_cons
     select type (obj)
@@ -353,7 +353,7 @@ contains
     class default
        is_cons = .false.
     end select
-  end function is_cons_t
+  end function is_nil_or_pair
 
   function is_nil_list (obj) result (is_nil)
     class(*), intent(in) :: obj
