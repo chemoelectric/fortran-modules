@@ -222,19 +222,19 @@ module cons_lists
   public :: list_ref1       ! Return the ith element, starting at i=1.
   public :: list_refn       ! Return the ith element, starting at i=n.
 
-  public :: list_last           ! Return the last CAR element.
-  public :: list_last_pair ! Return the last CONS-pair of a (possibly dotted) list.
+  public :: list_last       ! Return the last CAR element.
+  public :: list_last_pair  ! Return the last CONS-pair of a (possibly dotted) list.
 
   public :: make_list ! Make a list that is one element value repeated.
 
   ! Return a list that is a sequence of integers. (The name `IOTA' is
   ! taken from SRFI-1 and was inspired by APL.)
-  public :: iota        ! The overloaded identifier for the following.
+  public :: iota            ! `iota' = the generic procedure.
   public :: iota_given_length
   public :: iota_given_length_start
   public :: iota_given_length_start_step
 
-  public :: circular_list       ! Make a circular list.
+  public :: circular_list       ! Make a circular list by joining ends.
 
   ! Make and unmake lists of the given lengths.
   public :: list1
