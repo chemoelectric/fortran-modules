@@ -916,6 +916,34 @@ contains
     end subroutine side_effector
   end subroutine test_list_foreach
 
+  subroutine test_list_pair_foreach
+    type(cons_t) :: lst1
+    type(cons_t), dimension(1 : 100) :: arr1
+    integer :: i
+    lst1 = iota(100, 1)
+    !
+    ! Convert the linked list to an array of length-1 lists.
+    !
+    call list_pair_foreach (side_effector, lst1)
+    do i = 1, 100
+       call check (car (arr1(i)) .eqi. i, "car (arr1(i)) .eqi. i failed (for list_pair_foreach)")
+       call check (is_nil_list (cdr (arr1(i))), "is_nil_list (cdr (arr1(i))) failed (for list_pair_foreach)")
+    end do
+  contains
+    subroutine side_effector (x)
+      !
+      ! gfortran will generate a trampoline for this procedure.
+      !
+      class(*), intent(in) :: x
+      integer :: i
+      type(cons_t) :: pair
+      i = integer_cast (car (x))
+      pair = cons_t_cast (x)
+      call set_cdr (pair, nil_list)
+      arr1(i) = pair
+    end subroutine side_effector
+  end subroutine test_list_pair_foreach
+
   subroutine test_list_map_elements
     type(cons_t) :: lst1, lst2, lst3, lst4
     integer :: i
@@ -1500,6 +1528,7 @@ contains
     call test_list_unzip4
     call test_list_unzip1f
     call test_list_foreach
+    call test_list_pair_foreach
     call test_list_map_elements
     call test_list_map_elements_in_place
     call test_list_append_map_elements

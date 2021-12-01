@@ -260,9 +260,9 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   ! instead of a subroutine.
   public :: list_unzip1f ! Unboxes elements from length-1 lists.
 
-  ! Call a subroutine on list elements, to produce side effects.
   public :: list_foreach_procedure_t
-  public :: list_foreach
+  public :: list_foreach      ! Call a subroutine on list elements, to produce side effects.
+  public :: list_pair_foreach ! Call a subroutine on list pairs, to produce side effects.
 
   public :: list_map          ! A generic function for mapping element values.
   public :: list_map_in_place ! A generic function for mapping in place.
@@ -1430,6 +1430,27 @@ m4_forloop([k],[1],n,[dnl
        call subr (head)
     end do
   end subroutine list_foreach
+
+  recursive subroutine list_pair_foreach (subr, lst)
+    !
+    ! Run a subroutine on list pairs, for the sake of side effects
+    ! (such as printing). The work is guaranteed to be done in list
+    ! order. The application may reliably apply set_cdr to the pairs
+    ! it is given.
+    !
+    procedure(list_foreach_procedure_t) :: subr
+    class(*), intent(in) :: lst
+
+    class(*), allocatable :: lst1
+    class(*), allocatable :: tail
+
+    lst1 = lst
+    do while (is_cons_pair (lst1))
+       tail = cdr (lst1)
+       call subr (lst1)
+       lst1 = tail
+    end do
+  end subroutine list_pair_foreach
 
   recursive function list_map_elements (func, lst) result (lst_m)
     !
