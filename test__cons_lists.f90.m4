@@ -1479,7 +1479,8 @@ contains
 
   subroutine test_list_filter
     !
-    ! FIXME: More test cases are needed.
+    ! FIXME: More test cases are needed. I have already had bugs slip
+    !        past these.
     !
     type(cons_t) :: lst1a, lst1b
     type(cons_t) :: lst2a, lst2b
@@ -1512,7 +1513,8 @@ contains
 
   subroutine test_list_remove
     !
-    ! FIXME: More test cases are needed.
+    ! FIXME: More test cases are needed. I have already had bugs slip
+    !        past these.
     !
     type(cons_t) :: lst1a, lst1b
     type(cons_t) :: lst2a, lst2b
@@ -1630,6 +1632,42 @@ contains
     !
   end subroutine test_list_partition
 
+  subroutine test_list_delete
+    !
+    ! FIXME: More test cases are needed.
+    !
+    type(cons_t) :: lst1a, lst1b
+    type(cons_t) :: lst2a, lst2b
+    call check (list_equals (integer_eq, list_delete (0, integer_lt, nil_list), nil_list), &
+         "list_equals (list_delete (0, integer_lt, nil_list), nil_list) failed")
+    call check (list_delete (0, integer_lt, 1234.0) .eqr. 1234.0, &
+         "list_delete (0, integer_lt, 1234.0) .eqr. 1234.0 failed")
+    call check (list_equals (integer_eq, list_delete (0, integer_lt, 1 ** nil_list), nil_list), &
+         "list_equals (integer_eq, list_delete (0, integer_lt, 1 ** nil_list), nil_list) failed")
+    call check (list_equals (integer_eq, list_delete (0, integer_lt, (-1) ** nil_list), (-1) ** nil_list), &
+         "list_equals (integer_eq, list_delete (0, integer_lt, (-1) ** nil_list), (-1) ** nil_list) failed")
+    call check (list_equals (integer_eq, list_delete (0, integer_lt, 1 ** 2 ** nil_list), nil_list), &
+         "list_equals (integer_eq, list_delete (0, integer_lt, 1 ** 2 ** nil_list), nil_list) failed")
+    call check (list_equals (integer_eq, list_delete (0, integer_lt, 1 ** (-2) ** nil_list), (-2) ** nil_list), &
+         "list_equals (integer_eq, list_delete (0, integer_lt, 1 ** (-2) ** nil_list), (-2) ** nil_list) failed")
+    call check (list_equals (integer_eq, list_delete (0, integer_lt, (-1) ** 2 ** nil_list), (-1) ** nil_list), &
+         "list_equals (integer_eq, list_delete (0, integer_lt, (-1) ** 2 ** nil_list), (-1) ** nil_list) failed")
+    call check (list_equals (integer_eq, list_delete (0, integer_lt, (-1) ** (-2) ** nil_list), &
+         (-1) ** (-2) ** nil_list), &
+         "list_equals (integer_eq, list_delete (0, integer_lt, (-1) ** (-2) ** nil_list), (-1) ** (-2) ** nil_list) failed")
+    lst1a = (-1) ** 2 ** (-3) ** (-4) ** 5 ** 6 ** (-7) ** (-8) ** (-9) ** nil_list
+    lst1b = (-1) ** (-3) ** (-4) ** (-7) ** (-8) ** (-9) ** nil_list
+    call check (list_equals (integer_eq, list_delete (0, integer_lt, lst1a), lst1b), &
+         "list_equals (integer_eq, list_delete (0, integer_lt, lst1a), lst1b) failed")
+    lst2a = cons_t_cast (list_append (lst1a, list3 (7, 8, 9)))
+    lst2b = lst1b
+    call check (list_equals (integer_eq, list_delete (0, integer_lt, lst2a), lst2b), &
+         "list_equals (integer_eq, list_delete (0, integer_lt, lst2a), lst2b) failed")
+    !
+    ! FIXME: Maybe write some more tests for dotted lists.
+    !
+  end subroutine test_list_delete
+
   subroutine run_tests
     !
     ! FIXME: Add tests that check various subroutines do not clobber
@@ -1703,6 +1741,7 @@ contains
     call test_list_filter
     call test_list_remove
     call test_list_partition
+    call test_list_delete
   end subroutine run_tests
 
 end module test__cons_lists

@@ -307,6 +307,7 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_filter     ! Keep elements that satisfy a predicate.
   public :: list_remove     ! Remove elements that satisfy a predicate.
   public :: list_partition  ! Do both `filter' and `remove' at the same time.
+  public :: list_delete     ! Remove elements that satisfy a comparison with a given object.
 
   ! Overloading of `iota'.
   interface iota
@@ -2087,49 +2088,49 @@ m4_forloop([k],[1],n,[dnl
     count = n
   end function list_count
 
-  recursive function skip_unsatisfying_elements (pred, lst) result (next)
-    procedure(list_predicate1_t) :: pred
-    class(*), intent(in) :: lst
-    class(*), allocatable :: next
-
-    class(*), allocatable :: p
-    logical :: found_end_or_satisfying_elements_element
-
-    p = lst
-    found_end_or_satisfying_elements_element = .false.
-    do while (.not. found_end_or_satisfying_elements_element)
-       if (.not. is_cons_pair (p)) then
-          found_end_or_satisfying_elements_element = .true.
-       else if (pred (car (p))) then
-          found_end_or_satisfying_elements_element = .true.
-       else
-          p = cdr (p)
-       end if
-    end do
-    next = p
-  end function skip_unsatisfying_elements
-
   recursive function skip_satisfying_elements (pred, lst) result (next)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     class(*), allocatable :: next
 
     class(*), allocatable :: p
-    logical :: found_end_or_unsatisfying_elements_element
+    logical :: found_end_or_unsatisfying_element
 
     p = lst
-    found_end_or_unsatisfying_elements_element = .false.
-    do while (.not. found_end_or_unsatisfying_elements_element)
+    found_end_or_unsatisfying_element = .false.
+    do while (.not. found_end_or_unsatisfying_element)
        if (.not. is_cons_pair (p)) then
-          found_end_or_unsatisfying_elements_element = .true.
+          found_end_or_unsatisfying_element = .true.
        else if (.not. pred (car (p))) then
-          found_end_or_unsatisfying_elements_element = .true.
+          found_end_or_unsatisfying_element = .true.
        else
           p = cdr (p)
        end if
     end do
     next = p
   end function skip_satisfying_elements
+
+  recursive function skip_unsatisfying_elements (pred, lst) result (next)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: next
+
+    class(*), allocatable :: p
+    logical :: found_end_or_satisfying_element
+
+    p = lst
+    found_end_or_satisfying_element = .false.
+    do while (.not. found_end_or_satisfying_element)
+       if (.not. is_cons_pair (p)) then
+          found_end_or_satisfying_element = .true.
+       else if (pred (car (p))) then
+          found_end_or_satisfying_element = .true.
+       else
+          p = cdr (p)
+       end if
+    end do
+    next = p
+  end function skip_unsatisfying_elements
 
   subroutine copy_list_segment (from, to, segment, last_pair)
     class(*), intent(in) :: from
@@ -2217,9 +2218,6 @@ m4_forloop([k],[1],n,[dnl
     ! This implementation tries to share the longest possible tail
     ! with the original.
     !
-    ! At this time, what happens to the end of a dotted list should be
-    ! considered unspecified.
-    !
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     class(*), allocatable :: lst_r
@@ -2278,6 +2276,8 @@ m4_forloop([k],[1],n,[dnl
     ! This implementation tries to share the longest possible tail
     ! with the original.
     !
+    ! At this time, what happens to the end of a dotted list should be
+    ! considered unspecified.
     !
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
@@ -2444,6 +2444,115 @@ m4_forloop([k],[1],n,[dnl
     end subroutine first_position_does_not_satisfy
 
   end subroutine list_partition
+
+  recursive function skip_quasiequal_elements (x, pred, lst) result (next)
+    class(*), intent(in) :: x
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: next
+
+    class(*), allocatable :: p
+    logical :: found_end_or_unsatisfying_element
+
+    p = lst
+    found_end_or_unsatisfying_element = .false.
+    do while (.not. found_end_or_unsatisfying_element)
+       if (.not. is_cons_pair (p)) then
+          found_end_or_unsatisfying_element = .true.
+       else if (.not. pred (x, car (p))) then
+          found_end_or_unsatisfying_element = .true.
+       else
+          p = cdr (p)
+       end if
+    end do
+    next = p
+  end function skip_quasiequal_elements
+
+  recursive function skip_quasiunequal_elements (x, pred, lst) result (next)
+    class(*), intent(in) :: x
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: next
+
+    class(*), allocatable :: p
+    logical :: found_end_or_satisfying_element
+
+    p = lst
+    found_end_or_satisfying_element = .false.
+    do while (.not. found_end_or_satisfying_element)
+       if (.not. is_cons_pair (p)) then
+          found_end_or_satisfying_element = .true.
+       else if (pred (x, car (p))) then
+          found_end_or_satisfying_element = .true.
+       else
+          p = cdr (p)
+       end if
+    end do
+    next = p
+  end function skip_quasiunequal_elements
+
+  recursive function list_delete (x, pred, lst) result (lst_d)
+    !
+    ! NOTE: The argument order is different from that of SRFI-1's
+    !       `delete' procedure. I have ordered the arguments to be
+    !       reminiscent of infix notation.
+    !
+    ! This implementation tries to share the longest possible tail
+    ! with the original.
+    !
+    class(*), intent(in) :: x
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_d
+
+    class(*), allocatable :: retval
+    class(*), allocatable :: current_position
+    class(*), allocatable :: lookahead
+    type(cons_t) :: segment
+    type(cons_t) :: cursor, next_cursor
+    logical :: done
+
+    current_position = skip_quasiequal_elements (x, pred, lst)
+    if (.not. is_cons_pair (current_position)) then
+       ! There are no elements that do not satisfy the predicate.
+       retval = current_position
+    else
+       lookahead = skip_quasiunequal_elements (x, pred, cdr (current_position))
+       if (.not. is_cons_pair (lookahead)) then
+          ! A tail of the original is the entire result.
+          retval = current_position
+       else
+          ! One must construct a new list, though it may share a tail
+          ! with the original.
+          call copy_list_segment (current_position, lookahead, segment, cursor)
+          retval = segment
+          current_position = skip_quasiequal_elements (x, pred, cdr (lookahead))
+          done = .false.
+          do while (.not. done)
+             if (.not. is_cons_pair (current_position)) then
+                ! The current position is the end of the list (a nil
+                ! list or a non-list).
+                call set_cdr (cursor, current_position)
+                done = .true.
+             else
+                lookahead = skip_quasiunequal_elements (x, pred, cdr (current_position))
+                if (.not. is_cons_pair (lookahead)) then
+                   ! We have found a common tail.
+                   call set_cdr (cursor, current_position)
+                   done = .true.
+                else
+                   ! Append another segment.
+                   call copy_list_segment (current_position, lookahead, segment, next_cursor)
+                   call set_cdr (cursor, segment)
+                   cursor = next_cursor
+                   current_position = skip_quasiequal_elements (x, pred, cdr (lookahead))
+                end if
+             end if
+          end do
+       end if
+    end if
+    lst_d = retval
+  end function list_delete
 
 m4_if(DEBUGGING,[true],[dnl
   function integer_cast (obj) result (int)
