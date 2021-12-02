@@ -306,6 +306,7 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_count      ! Count elements that satisfy a predicate.
   public :: list_filter     ! Keep elements that satisfy a predicate.
   public :: list_remove     ! Remove elements that satisfy a predicate.
+  public :: list_partition  ! Do both `filter' and `remove' at the same time.
 
   ! Overloading of `iota'.
   interface iota
@@ -345,7 +346,7 @@ contains
     character(*), intent(in) :: msg
     write (error_unit, '()')
     write (error_unit, '("cons_lists error: ", a)') msg
-    CALL_ABORT
+    error stop
   end subroutine error_abort
 
   function is_nil_or_pair (obj) result (is_cons)
@@ -2142,11 +2143,11 @@ m4_forloop([k],[1],n,[dnl
     type(cons_t) :: new_pair
 
     call uncons (from, head, tail)
-    cursor = cons (head, tail)
+    cursor = cons (head, nil_list)
     segment = cursor
     do while (.not. cons_t_eq (cons_t_cast (tail), cons_t_cast (to)))
        call uncons (tail, head, tail)
-       new_pair = cons (head, tail)
+       new_pair = cons (head, nil_list)
        call set_cdr (cursor, new_pair)
        cursor = new_pair
     end do
@@ -2211,14 +2212,17 @@ m4_forloop([k],[1],n,[dnl
     lst_f = retval
   end function list_filter
 
-  recursive function list_remove (pred, lst) result (lst_f)
+  recursive function list_remove (pred, lst) result (lst_r)
     !
     ! This implementation tries to share the longest possible tail
     ! with the original.
     !
+    ! At this time, what happens to the end of a dotted list should be
+    ! considered unspecified.
+    !
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
-    class(*), allocatable :: lst_f
+    class(*), allocatable :: lst_r
 
     class(*), allocatable :: retval
     class(*), allocatable :: current_position
@@ -2229,7 +2233,7 @@ m4_forloop([k],[1],n,[dnl
 
     current_position = skip_satisfying_elements (pred, lst)
     if (.not. is_cons_pair (current_position)) then
-       ! There are no elements that satisfy the predicate.
+       ! There are no elements that do not satisfy the predicate.
        retval = current_position
     else
        lookahead = skip_unsatisfying_elements (pred, cdr (current_position))
@@ -2266,7 +2270,190 @@ m4_forloop([k],[1],n,[dnl
           end do
        end if
     end if
-    lst_f = retval
+    lst_r = retval
   end function list_remove
 
+  recursive subroutine list_partition (pred, lst, lst_f, lst_r)
+    !
+    ! This implementation tries to share the longest possible tail
+    ! with the original.
+    !
+    !
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_f ! The `filter' output.
+    class(*), allocatable :: lst_r ! The `remove' output.
+
+    class(*), allocatable :: retval_f, retval_r
+    class(*), allocatable :: current_position
+    class(*), allocatable :: lookahead
+    type(cons_t) :: segment
+    type(cons_t) :: cursor_f
+    type(cons_t) :: cursor_r
+    type(cons_t) :: next_cursor
+    logical :: done
+
+    if (.not. is_cons_pair (lst)) then
+       ! There are no elements that satisfy the predicate, and none
+       ! that do not satisfy the predicate.
+       !
+       ! The original (possibly degenerate) list is entirely
+       ! arbitrarily put in retval_f instead of retval_r.
+       retval_f = lst
+       retval_r = nil_list
+    else
+       current_position = lst
+       if (pred (car (current_position))) then
+          call first_position_satisfies
+       else
+          call first_position_does_not_satisfy
+       end if
+    end if
+
+    lst_f = retval_f
+    lst_r = retval_r
+
+  contains
+
+    subroutine first_position_satisfies
+      lookahead = skip_satisfying_elements (pred, cdr (current_position))
+      if (.not. is_cons_pair (lookahead)) then
+         ! The original is the entire retval_f.
+         retval_f = current_position
+         retval_r = nil_list
+      else
+         ! One must construct a new list, though it may share a
+         ! tail with the original.
+         call copy_list_segment (current_position, lookahead, segment, cursor_f)
+         retval_f = segment
+         current_position = lookahead
+         lookahead = skip_unsatisfying_elements (pred, cdr (current_position))
+         if (.not. is_cons_pair (lookahead)) then
+            ! A tail of the original is the entire retval_r.
+            retval_r = current_position
+         else
+            ! One must construct a new list, though it may share a
+            ! tail with the original.
+            call copy_list_segment (current_position, lookahead, segment, cursor_r)
+            retval_r = segment
+            current_position = lookahead
+            done = .false.
+            do while (.not. done)
+               if (.not. is_cons_pair (current_position)) then
+                  ! The current position is the end of the list (a nil
+                  ! list or a non-list).
+                  call set_cdr (cursor_f, current_position)
+                  done = .true.
+               else
+                  lookahead = skip_satisfying_elements (pred, cdr (current_position))
+                  if (.not. is_cons_pair (lookahead)) then
+                     ! We have found a common tail to attach to
+                     ! setval_f (via cursor_f).
+                     call set_cdr (cursor_f, current_position)
+                     done = .true.
+                  else
+                     ! Append another segment to retval_f (using
+                     ! cursor_f).
+                     call copy_list_segment (current_position, lookahead, segment, next_cursor)
+                     call set_cdr (cursor_f, segment)
+                     cursor_f = next_cursor
+                     current_position = lookahead
+                     lookahead = skip_unsatisfying_elements (pred, cdr (current_position))
+                     if (.not. is_cons_pair (lookahead)) then
+                        ! We have found a common tail to attach to
+                        ! setval_r (via cursor_r).
+                        call set_cdr (cursor_r, current_position)
+                        done = .true.
+                     else
+                        ! Append another segment to retval_r (using
+                        ! cursor_r).
+                        call copy_list_segment (current_position, lookahead, segment, next_cursor)
+                        call set_cdr (cursor_r, segment)
+                        cursor_r = next_cursor
+                        current_position = lookahead
+                     end if
+                  end if
+               end if
+            end do
+         end if
+      end if
+    end subroutine first_position_satisfies
+
+    subroutine first_position_does_not_satisfy
+      lookahead = skip_unsatisfying_elements (pred, cdr (current_position))
+      if (.not. is_cons_pair (lookahead)) then
+         ! The original is the entire retval_r.
+         retval_f = nil_list
+         retval_r = current_position
+      else
+         ! One must construct a new list, though it may share a
+         ! tail with the original.
+         call copy_list_segment (current_position, lookahead, segment, cursor_r)
+         retval_r = segment
+         current_position = lookahead
+         lookahead = skip_satisfying_elements (pred, cdr (current_position))
+         if (.not. is_cons_pair (lookahead)) then
+            ! A tail of the original is the entire retval_f.
+            retval_f = current_position
+         else
+            ! One must construct a new list, though it may share a
+            ! tail with the original.
+            call copy_list_segment (current_position, lookahead, segment, cursor_f)
+            retval_f = segment
+            current_position = lookahead
+            done = .false.
+            do while (.not. done)
+               if (.not. is_cons_pair (current_position)) then
+                  ! The current position is the end of the list (a nil
+                  ! list or a non-list).
+                  call set_cdr (cursor_r, current_position)
+                  done = .true.
+               else
+                  lookahead = skip_unsatisfying_elements (pred, cdr (current_position))
+                  if (.not. is_cons_pair (lookahead)) then
+                     ! We have found a common tail to attach to
+                     ! setval_r (via cursor_r).
+                     call set_cdr (cursor_r, current_position)
+                     done = .true.
+                  else
+                     ! Append another segment to retval_r (using
+                     ! cursor_r).
+                     call copy_list_segment (current_position, lookahead, segment, next_cursor)
+                     call set_cdr (cursor_r, segment)
+                     cursor_r = next_cursor
+                     current_position = lookahead
+                     lookahead = skip_satisfying_elements (pred, cdr (current_position))
+                     if (.not. is_cons_pair (lookahead)) then
+                        ! We have found a common tail to attach to
+                        ! setval_f (via cursor_f).
+                        call set_cdr (cursor_f, current_position)
+                        done = .true.
+                     else
+                        ! Append another segment to retval_f (using
+                        ! cursor_f).
+                        call copy_list_segment (current_position, lookahead, segment, next_cursor)
+                        call set_cdr (cursor_f, segment)
+                        cursor_f = next_cursor
+                        current_position = lookahead
+                     end if
+                  end if
+               end if
+            end do
+         end if
+      end if
+    end subroutine first_position_does_not_satisfy
+
+  end subroutine list_partition
+
+m4_if(DEBUGGING,[true],[dnl
+  function integer_cast (obj) result (int)
+    class(*), intent(in) :: obj
+    integer :: int
+    select type (obj)
+    type is (integer)
+       int = obj
+    end select
+  end function integer_cast
+])dnl
+dnl
 end module cons_lists

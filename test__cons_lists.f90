@@ -49,7 +49,7 @@ contains
     character(*), intent(in) :: msg
     write (error_unit, '()')
     write (error_unit, '("test__cons_lists error: ", a)') msg
-    call abort
+    error stop
   end subroutine error_abort
 
   subroutine check (boolean, msg)
@@ -1478,9 +1478,11 @@ contains
   end subroutine test_list_count
 
   subroutine test_list_filter
+    !
+    ! FIXME: More test cases are needed.
+    !
     type(cons_t) :: lst1a, lst1b
     type(cons_t) :: lst2a, lst2b
-    type(cons_t) :: lst3a, lst3b
     call check (list_equals (integer_eq, list_filter (is_positive_integer, nil_list), nil_list), &
          "list_equals (list_filter (is_positive_integer, nil_list), nil_list) failed")
     call check (list_filter (is_positive_integer, 1234.0) .eqr. 1234.0, &
@@ -1509,9 +1511,11 @@ contains
   end subroutine test_list_filter
 
   subroutine test_list_remove
+    !
+    ! FIXME: More test cases are needed.
+    !
     type(cons_t) :: lst1a, lst1b
     type(cons_t) :: lst2a, lst2b
-    type(cons_t) :: lst3a, lst3b
     call check (list_equals (integer_eq, list_remove (is_positive_integer, nil_list), nil_list), &
          "list_equals (list_remove (is_positive_integer, nil_list), nil_list) failed")
     call check (list_remove (is_positive_integer, 1234.0) .eqr. 1234.0, &
@@ -1541,6 +1545,90 @@ contains
     ! FIXME: Maybe write some more tests for dotted lists.
     !
   end subroutine test_list_remove
+
+  subroutine test_list_partition
+    !
+    ! FIXME: More test cases are needed.
+    !
+    class(*), allocatable :: obj1_b, obj1_c
+    class(*), allocatable :: obj2_b, obj2_c
+    class(*), allocatable :: obj3_b, obj3_c
+    class(*), allocatable :: obj4_b, obj4_c
+    class(*), allocatable :: obj5_b, obj5_c
+    class(*), allocatable :: obj6_b, obj6_c
+    class(*), allocatable :: obj7_b, obj7_c
+    class(*), allocatable :: obj99_b, obj99_c
+    class(*), allocatable :: obj_b, obj_c
+    type(cons_t) :: lst1a, lst1b, lst1c
+    type(cons_t) :: lst2a, lst2b, lst2c
+    !
+    call list_partition (is_positive_integer, nil_list, obj1_b, obj1_c)
+    call check (list_equals (integer_eq, obj1_b, nil_list), &
+         "list_equals (integer_eq, obj1_b, nil_list) failed (for list_partition)")
+    call check (list_equals (integer_eq, obj1_c, nil_list), &
+         "list_equals (integer_eq, obj1_c, nil_list) failed (for list_partition)")
+    !
+    call list_partition (is_positive_integer, 1 ** nil_list, obj2_b, obj2_c)
+    call check (list_equals (integer_eq, obj2_b, 1 ** nil_list), &
+         "list_equals (integer_eq, obj2_b, 1 ** nil_list) failed (for list_partition)")
+    call check (list_equals (integer_eq, obj2_c, nil_list), &
+         "list_equals (integer_eq, obj2_c, nil_list) failed (for list_partition)")
+    !
+    call list_partition (is_positive_integer, (-1) ** nil_list, obj3_b, obj3_c)
+    call check (list_equals (integer_eq, obj3_b, nil_list), &
+         "list_equals (integer_eq, obj3_b, nil_list) failed (for list_partition)")
+    call check (list_equals (integer_eq, obj3_c, (-1) ** nil_list), &
+         "list_equals (integer_eq, obj3_c, (-1) ** nil_list) failed (for list_partition)")
+    !
+    call list_partition (is_positive_integer, 1 ** 2 ** nil_list, obj4_b, obj4_c)
+    call check (list_equals (integer_eq, obj4_b, 1 ** 2 ** nil_list), &
+         "list_equals (integer_eq, obj4_b, 1 ** 2 ** nil_list) failed (for list_partition)")
+    call check (list_equals (integer_eq, obj4_c, nil_list), &
+         "list_equals (integer_eq, obj4_c, nil_list) failed (for list_partition)")
+    !
+    call list_partition (is_positive_integer, 1 ** (-2) ** nil_list, obj5_b, obj5_c)
+    call check (list_equals (integer_eq, obj5_b, 1 ** nil_list), &
+         "list_equals (integer_eq, obj5_b, 1 ** nil_list) failed (for list_partition)")
+    call check (list_equals (integer_eq, obj5_c, (-2) ** nil_list), &
+         "list_equals (integer_eq, obj5_c, (-2) ** nil_list) failed (for list_partition)")
+    !
+    call list_partition (is_positive_integer, (-1) ** 2 ** nil_list, obj6_b, obj6_c)
+    call check (list_equals (integer_eq, obj6_b, 2 ** nil_list), &
+         "list_equals (integer_eq, obj6_b, 2 ** nil_list) failed (for list_partition)")
+    call check (list_equals (integer_eq, obj6_c, (-1) ** nil_list), &
+         "list_equals (integer_eq, obj6_c, (-1) ** nil_list) failed (for list_partition)")
+    !
+    call list_partition (is_positive_integer, (-1) ** (-2) ** nil_list, obj7_b, obj7_c)
+    call check (list_equals (integer_eq, obj7_b, nil_list), &
+         "list_equals (integer_eq, obj7_b, nil_list) failed (for list_partition)")
+    call check (list_equals (integer_eq, obj7_c, (-1) ** (-2) ** nil_list), &
+         "list_equals (integer_eq, obj7_c, (-1) ** (-2) ** nil_list) failed (for list_partition)")
+    !
+    lst1a = (-1) ** 2 ** (-3) ** (-4) ** 5 ** 6 ** (-7) ** (-8) ** (-9) ** nil_list
+    lst1b = 2 ** 5 ** 6 ** nil_list
+    lst1c = (-1) ** (-3) ** (-4) ** (-7) ** (-8) ** (-9) ** nil_list
+    call list_partition (is_positive_integer, lst1a, obj_b, obj_c)
+    call check (list_equals (integer_eq, obj_b, lst1b), "list_equals (integer_eq, obj_b, lst1b) failed (for list_partition)")
+    call check (list_equals (integer_eq, obj_c, lst1c), "list_equals (integer_eq, obj_c, lst1c) failed (for list_partition)")
+    !
+    lst2a = cons_t_cast (list_append (lst1a, list3 (7, 8, 9)))
+    lst2b = 2 ** 5 ** 6 ** 7 ** 8 ** 9 ** nil_list
+    lst2c = lst1c
+    call list_partition (is_positive_integer, lst2a, obj_b, obj_c)
+    call check (list_equals (integer_eq, obj_b, lst2b), "list_equals (integer_eq, obj_b, lst2b) failed (for list_partition)")
+    call check (list_equals (integer_eq, obj_c, lst2c), "list_equals (integer_eq, obj_c, lst2c) failed (for list_partition)")
+    !
+    ! The following is an explicitly `unspecified result', but let s
+    ! test it anyway.
+    !
+    call list_partition (is_positive_integer, 1234.0, obj99_b, obj99_c)
+    call check (obj99_b .eqr. 1234.0, "obj99_b .eqr. 1234.0 failed (for list_partition)")
+    call check (list_equals (integer_eq, obj99_c, nil_list), &
+         "list_equals (integer_eq, obj99_c, nil_list) failed (for list_partition)")
+    !
+    ! FIXME: Maybe write some more tests for dotted lists.
+    !
+  end subroutine test_list_partition
 
   subroutine run_tests
     !
@@ -1614,6 +1702,7 @@ contains
     call test_list_count
     call test_list_filter
     call test_list_remove
+    call test_list_partition
   end subroutine run_tests
 
 end module test__cons_lists

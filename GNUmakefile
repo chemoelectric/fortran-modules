@@ -26,21 +26,18 @@
 .DELETE_ON_ERROR:
 
 # At least Fortran 2008 is needed.
-FORTRAN_STANDARD = gnu
+#FORTRAN_STANDARD = gnu
 #FORTRAN_STANDARD = f2018
-#FORTRAN_STANDARD = f2008
+FORTRAN_STANDARD = f2008
 
 OBJEXT = o
 
 M4 = m4
 #M4 = m4-heirloom -B10000"
+M4FLAGS =
 COMPILE.m4 = $(M4) $(M4FLAGS) $(XM4FLAGS)
 
-ifeq ($(FORTRAN_STANDARD),gnu)
-M4FLAGS = -DCALL_ABORT="call abort"
-else
-M4FLAGS = -DCALL_ABORT="!call abort"
-endif
+#M4FLAGS += -DDEBUGGING=true
 
 # How deep should car-cdr permutations go?
 M4FLAGS += -DCADADR_MAX=4
