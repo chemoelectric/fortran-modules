@@ -340,6 +340,7 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_filter_map ! Filter out elements while mapping those kept.
   public :: list_fold       ! `The fundamental list iterator.'
   public :: list_fold_right ! `The fundamental list recursion operator.' (Not for use on very long lists.)
+  public :: list_pair_fold  ! Like list_fold, but applied to sublists.
 
   ! Overloading of `iota'.
   interface iota
@@ -2803,6 +2804,26 @@ m4_forloop([k],[1],n,[dnl
     end function recursion
 
   end function list_fold_right
+
+  recursive function list_pair_fold (kons, knil, lst) result (folded_result)
+    procedure(list_kons_procedure_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst
+    class(*), allocatable :: folded_result
+
+    class(*), allocatable :: retval, new_retval
+    class(*), allocatable :: tail, new_tail
+
+    retval = knil
+    tail = lst
+    do while (is_cons_pair (tail))
+       new_tail = cdr (tail)
+       call kons (tail, retval, new_retval)
+       retval = new_retval
+       tail = new_tail
+    end do
+    folded_result = retval
+  end function list_pair_fold
 
 m4_if(DEBUGGING,[true],[dnl
   function integer_cast (obj) result (int)

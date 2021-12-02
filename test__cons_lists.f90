@@ -166,6 +166,13 @@ contains
     kons = cons (kar, kdr)
   end subroutine cons_subr
 
+  subroutine kons_for_destructive_reverse (pair, tail, kons)
+    class(*), intent(in) :: pair, tail
+    class(*), allocatable, intent(out) :: kons
+    call set_cdr (cons_t_cast (pair), tail)
+    kons = pair
+  end subroutine kons_for_destructive_reverse
+
   subroutine test_is_nil_or_pair
     call check (.not. is_nil_or_pair ('abc'), ".not. is_nil_or_pair ('abc') failed")
     call check (is_nil_or_pair (nil_list), "is_nil_or_pair (nil_list) failed")
@@ -1752,7 +1759,7 @@ contains
     !
   end subroutine test_list_delete_duplicates
 
-  subroutine test_filter_map
+  subroutine test_list_filter_map
     call check (list_equals (integer_eq, list_filter_map (increment_if_positive, nil_list), nil_list), &
          "check0010 failed (for list_filter_map)")
     call check (list_filter_map (increment_if_positive, 1234.0) .eqr. 1234.0, &
@@ -1775,25 +1782,38 @@ contains
          "check0080 failed (for list_filter_map)")
     call check (list_equals (integer_eq, list_filter_map (increment_if_positive, iota (101, -50)), iota (50, 2)), &
          "check0090 failed (for list_filter_map)")
-  end subroutine test_filter_map
+  end subroutine test_list_filter_map
 
-  subroutine test_fold
+  subroutine test_list_fold
     call check (list_fold (akkumulate, 1234.0, nil_list) .eqr. 1234.0, &
          "list_fold (akkumulate, 1234.0, nil_list) .eqr. 1234.0 failed")
     call check (list_fold (akkumulate, 100, iota (10, 1)) .eqi. 155, &
          "list_fold (akkumulate, 100, iota (10, 1)) .eqi. 155 failed")
     call check (list_equals (integer_eq, list_fold (cons_subr, nil_list, iota (10, 1)), iota (10, 10, -1)), &
          "list_equals (integer_eq, list_fold (cons_subr, nil_list, iota (10, 1)), iota (10, 10, -1)) failed")
-  end subroutine test_fold
+  end subroutine test_list_fold
 
-  subroutine test_fold_right
+  subroutine test_list_fold_right
     call check (list_fold_right (akkumulate, 1234.0, nil_list) .eqr. 1234.0, &
          "list_fold_right (akkumulate, 1234.0, nil_list) .eqr. 1234.0 failed")
     call check (list_fold_right (akkumulate, 100, iota (10, 1)) .eqi. 155, &
          "list_fold_right (akkumulate, 100, iota (10, 1)) .eqi. 155 failed")
     call check (list_equals (integer_eq, list_fold_right (cons_subr, nil_list, iota (10, 1)), iota (10, 1)), &
          "list_equals (integer_eq, list_fold_right (cons_subr, nil_list, iota (10, 1)), iota (10, 1)) failed")
-  end subroutine test_fold_right
+  end subroutine test_list_fold_right
+
+  subroutine test_list_pair_fold
+    class(*), allocatable :: lst1a, lst1b
+    !
+    ! Destructively reverse a list. (An example given in SRFI-1.)
+    !
+    lst1a = iota (100, 1)
+    lst1b = list_pair_fold (kons_for_destructive_reverse, nil_list, lst1a)
+    call check (list_equals (integer_eq, lst1b, iota (100, 100, -1)), &
+         "list_equals (integer_eq, lst1b, iota (100, 100, -1)) failed (for list_pair_fold)")
+    call check (list_equals (integer_eq, lst1a, 1 ** nil_list), &
+         "list_equals (integer_eq, lst1a, 1 ** nil_list) failed (for list_pair_fold)")
+  end subroutine test_list_pair_fold
 
   subroutine run_tests
     !
@@ -1870,9 +1890,10 @@ contains
     call test_list_partition
     call test_list_delete
     call test_list_delete_duplicates
-    call test_filter_map
-    call test_fold
-    call test_fold_right
+    call test_list_filter_map
+    call test_list_fold
+    call test_list_fold_right
+    call test_list_pair_fold
   end subroutine run_tests
 
 end module test__cons_lists
