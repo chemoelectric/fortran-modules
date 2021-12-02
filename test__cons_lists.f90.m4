@@ -1508,6 +1508,40 @@ contains
     !
   end subroutine test_list_filter
 
+  subroutine test_list_remove
+    type(cons_t) :: lst1a, lst1b
+    type(cons_t) :: lst2a, lst2b
+    type(cons_t) :: lst3a, lst3b
+    call check (list_equals (integer_eq, list_remove (is_positive_integer, nil_list), nil_list), &
+         "list_equals (list_remove (is_positive_integer, nil_list), nil_list) failed")
+    call check (list_remove (is_positive_integer, 1234.0) .eqr. 1234.0, &
+         "list_remove (is_positive_integer, 1234.0) .eqr. 1234.0 failed")
+    call check (list_equals (integer_eq, list_remove (is_positive_integer, 1 ** nil_list), nil_list), &
+         "list_equals (integer_eq, list_remove (is_positive_integer, 1 ** nil_list), nil_list) failed")
+    call check (list_equals (integer_eq, list_remove (is_positive_integer, (-1) ** nil_list), (-1) ** nil_list), &
+         "list_equals (integer_eq, list_remove (is_positive_integer, (-1) ** nil_list), (-1) ** nil_list) failed")
+    call check (list_equals (integer_eq, list_remove (is_positive_integer, 1 ** 2 ** nil_list), nil_list), &
+         "list_equals (integer_eq, list_remove (is_positive_integer, 1 ** 2 ** nil_list), nil_list) failed")
+    call check (list_equals (integer_eq, list_remove (is_positive_integer, 1 ** (-2) ** nil_list), (-2) ** nil_list), &
+         "list_equals (integer_eq, list_remove (is_positive_integer, 1 ** (-2) ** nil_list), (-2) ** nil_list) failed")
+    call check (list_equals (integer_eq, list_remove (is_positive_integer, (-1) ** 2 ** nil_list), (-1) ** nil_list), &
+         "list_equals (integer_eq, list_remove (is_positive_integer, (-1) ** 2 ** nil_list), (-1) ** nil_list) failed")
+    call check (list_equals (integer_eq, list_remove (is_positive_integer, (-1) ** (-2) ** nil_list), &
+         (-1) ** (-2) ** nil_list), &
+         "list_equals (integer_eq, list_remove (is_positive_integer, (-1) ** (-2) ** nil_list), (-1) ** (-2) ** nil_list) failed")
+    lst1a = (-1) ** 2 ** (-3) ** (-4) ** 5 ** 6 ** (-7) ** (-8) ** (-9) ** nil_list
+    lst1b = (-1) ** (-3) ** (-4) ** (-7) ** (-8) ** (-9) ** nil_list
+    call check (list_equals (integer_eq, list_remove (is_positive_integer, lst1a), lst1b), &
+         "list_equals (integer_eq, list_remove (is_positive_integer, lst1a), lst1b) failed")
+    lst2a = cons_t_cast (list_append (lst1a, list3 (7, 8, 9)))
+    lst2b = lst1b
+    call check (list_equals (integer_eq, list_remove (is_positive_integer, lst2a), lst2b), &
+         "list_equals (integer_eq, list_remove (is_positive_integer, lst2a), lst2b) failed")
+    !
+    ! FIXME: Maybe write some more tests for dotted lists.
+    !
+  end subroutine test_list_remove
+
   subroutine run_tests
     !
     ! FIXME: Add tests that check various subroutines do not clobber
@@ -1579,6 +1613,7 @@ contains
     call test_list_equals
     call test_list_count
     call test_list_filter
+    call test_list_remove
   end subroutine run_tests
 
 end module test__cons_lists

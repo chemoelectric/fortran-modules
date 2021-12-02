@@ -352,6 +352,7 @@ module cons_lists
 
   public :: list_count      ! Count elements that satisfy a predicate.
   public :: list_filter     ! Keep elements that satisfy a predicate.
+  public :: list_remove     ! Remove elements that satisfy a predicate.
 
   ! Overloading of `iota'.
   interface iota
@@ -4322,5 +4323,63 @@ contains
     end if
     lst_f = retval
   end function list_filter
+
+  recursive function list_remove (pred, lst) result (lst_f)
+    !
+    ! This implementation tries to share the longest possible tail
+    ! with the original.
+    !
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_f
+
+    class(*), allocatable :: retval
+    class(*), allocatable :: current_position
+    class(*), allocatable :: lookahead
+    type(cons_t) :: segment
+    type(cons_t) :: cursor, next_cursor
+    logical :: done
+
+    current_position = skip_satisfying_elements (pred, lst)
+    if (.not. is_cons_pair (current_position)) then
+       ! There are no elements that satisfy the predicate.
+       retval = current_position
+    else
+       lookahead = skip_unsatisfying_elements (pred, cdr (current_position))
+       if (.not. is_cons_pair (lookahead)) then
+          ! A tail of the original is the entire result.
+          retval = current_position
+       else
+          ! One must construct a new list, though it may share a tail
+          ! with the original.
+          call copy_list_segment (current_position, lookahead, segment, cursor)
+          retval = segment
+          current_position = skip_satisfying_elements (pred, cdr (lookahead))
+          done = .false.
+          do while (.not. done)
+             if (.not. is_cons_pair (current_position)) then
+                ! The current position is the end of the list (a nil
+                ! list or a non-list).
+                call set_cdr (cursor, current_position)
+                done = .true.
+             else
+                lookahead = skip_unsatisfying_elements (pred, cdr (current_position))
+                if (.not. is_cons_pair (lookahead)) then
+                   ! We have found a common tail.
+                   call set_cdr (cursor, current_position)
+                   done = .true.
+                else
+                   ! Append another segment.
+                   call copy_list_segment (current_position, lookahead, segment, next_cursor)
+                   call set_cdr (cursor, segment)
+                   cursor = next_cursor
+                   current_position = skip_satisfying_elements (pred, cdr (lookahead))
+                end if
+             end if
+          end do
+       end if
+    end if
+    lst_f = retval
+  end function list_remove
 
 end module cons_lists
