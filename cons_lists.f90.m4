@@ -308,6 +308,7 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_remove     ! Remove elements that satisfy a predicate.
   public :: list_partition  ! Do both `filter' and `remove' at the same time.
   public :: list_delete     ! Remove elements that satisfy a comparison with a given object.
+  public :: list_delete_duplicates ! O(n**2) duplicate-element deletion.
 
   ! Overloading of `iota'.
   interface iota
@@ -2553,6 +2554,142 @@ m4_forloop([k],[1],n,[dnl
     end if
     lst_d = retval
   end function list_delete
+
+  recursive function contains_match (lst, pred, x) result (match_found)
+    class(*), intent(in) :: lst
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: x
+    logical :: match_found
+
+    class(*), allocatable :: head, tail
+
+    match_found = .false.
+    tail = lst
+    do while (.not. match_found .and. is_cons_pair (tail))
+       call uncons (tail, head, tail)
+       match_found = pred (head, x)
+    end do
+  end function contains_match
+
+  recursive subroutine skip_duplicated_elements (kept_elements, pred, lst, next)
+    type(cons_t), intent(in) :: kept_elements
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(out) :: next
+
+    class(*), allocatable :: p
+    logical :: done
+
+    p = lst
+    done = .false.
+    do while (.not. done)
+       if (.not. is_cons_pair (p)) then
+          done = .true.
+       else if (.not. contains_match (kept_elements, pred, car (p))) then
+          done = .true.
+       else
+          p = cdr (p)
+       end if
+    end do
+    next = p
+  end subroutine skip_duplicated_elements
+
+  recursive subroutine skip_unduplicated_elements (kept_elements, pred, lst, next)
+    type(cons_t), intent(inout) :: kept_elements
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(out) :: next
+
+    type(cons_t) :: kept
+    class(*), allocatable :: p
+    class(*), allocatable :: element
+    logical :: done
+
+    kept = kept_elements
+    p = lst
+    done = .false.
+    do while (.not. done)
+       if (.not. is_cons_pair (p)) then
+          done = .true.
+       else
+          element = car (p)
+          if (contains_match (kept, pred, element)) then
+             done = .true.
+          else
+             kept = element ** kept
+             p = cdr (p)
+          end if
+       end if
+    end do
+    next = p
+    kept_elements = kept
+  end subroutine skip_unduplicated_elements
+
+  recursive function list_delete_duplicates (pred, lst) result (lst_dd)
+    !
+    ! NOTE: The argument order is different from that of SRFI-1's
+    !       `delete-duplicates' procedure.
+    !
+    ! This implementation tries to share the longest possible tail
+    ! with the original.
+    !
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_dd
+
+    type(cons_t) :: kept_elements
+    class(*), allocatable :: head, tail
+    class(*), allocatable :: retval
+    class(*), allocatable :: current_position
+    class(*), allocatable :: lookahead
+    type(cons_t) :: segment
+    type(cons_t) :: cursor, next_cursor
+    logical :: done
+
+    kept_elements = nil_list
+
+    current_position = lst
+    if (.not. is_cons_pair (current_position)) then
+       ! There are no elements from which to delete duplicates.
+       retval = current_position
+    else
+       call skip_unduplicated_elements (kept_elements, pred, current_position, lookahead)
+       if (.not. is_cons_pair (lookahead)) then
+          ! The original is the entire result.
+          retval = current_position
+       else
+          ! One must construct a new list, though it may share a tail
+          ! with the original.
+          call copy_list_segment (current_position, lookahead, segment, cursor)
+          retval = segment
+          call skip_duplicated_elements (kept_elements, pred, cdr (lookahead), current_position)
+          done = .false.
+          do while (.not. done)
+             if (.not. is_cons_pair (current_position)) then
+                ! The current position is the end of the list (a nil
+                ! list or a non-list).
+                call set_cdr (cursor, current_position)
+                done = .true.
+             else
+                kept_elements = car (current_position) ** kept_elements
+                call skip_unduplicated_elements (kept_elements, pred, cdr (current_position), lookahead)
+                if (.not. is_cons_pair (lookahead)) then
+                   ! We have found a common tail.
+                   call set_cdr (cursor, current_position)
+                   done = .true.
+                else
+                   ! Append another segment.
+                   call copy_list_segment (current_position, lookahead, segment, next_cursor)
+                   call set_cdr (cursor, segment)
+                   cursor = next_cursor
+                   call skip_duplicated_elements (kept_elements, pred, cdr (lookahead), current_position)
+                end if
+             end if
+          end do
+       end if
+    end if
+    lst_dd = retval
+  end function list_delete_duplicates
 
 m4_if(DEBUGGING,[true],[dnl
   function integer_cast (obj) result (int)

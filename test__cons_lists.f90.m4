@@ -1668,6 +1668,66 @@ contains
     !
   end subroutine test_list_delete
 
+  subroutine test_list_delete_duplicates
+    !
+    ! FIXME: More test cases are needed.
+    !
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, nil_list), nil_list), &
+         "check0010 failed (for list_delete_duplicates)")
+    call check (list_delete_duplicates (integer_eq, 1234.0) .eqr. 1234.0, &
+         "check0020 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, 1 ** nil_list), 1 ** nil_list), &
+         "check0030 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, 1 ** 1 ** nil_list), 1 ** nil_list), &
+         "check0040 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, 1 ** 1 ** 1 ** nil_list), 1 ** nil_list), &
+         "check0050 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, 1 ** 2 ** nil_list), 1 ** 2 ** nil_list), &
+         "check0060 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, 1 ** 1 ** 2 ** nil_list), 1 ** 2 ** nil_list), &
+         "check0070 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, 1 ** 2 ** 2 ** nil_list), 1 ** 2 ** nil_list), &
+         "check0080 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, 1 ** 2 ** 1 ** nil_list), 1 ** 2 ** nil_list), &
+         "check0090 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, 1 ** 1 ** 1 ** 2 ** nil_list), &
+         1 ** 2 ** nil_list), &
+         "check0100 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, 1 ** 1 ** 2 ** 2 ** nil_list), &
+         1 ** 2 ** nil_list), &
+         "check0110 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, 1 ** 2 ** 1 ** 2 ** nil_list), &
+         1 ** 2 ** nil_list), &
+         "check0120 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, 2 ** 1 ** 1 ** 2 ** nil_list), &
+         2 ** 1 ** nil_list), &
+         "check0130 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, 2 ** 1 ** 1 ** 1 ** nil_list), &
+         2 ** 1 ** nil_list), &
+         "check0140 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, iota (100)), iota (100)), &
+         "check0150 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, &
+         list_append (list_append (list_append (iota (100), iota (100)), iota (100)), iota (100))), &
+         iota (100)), &
+         "check0160 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, &
+         list_take (circular_list (list5 (1, 2, 3, 4, 5)), 100)), &
+         list5 (1, 2, 3, 4, 5)), &
+         "check0170 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, &
+         list_take (circular_list (list5 (1, 2, 3, 4, 5)), 101)), &
+         list5 (1, 2, 3, 4, 5)), &
+         "check0180 failed (for list_delete_duplicates)")
+    call check (list_equals (integer_eq, list_delete_duplicates (integer_eq, &
+         list_take (circular_list (list9 (1, 1, 1, 1, 2, 2, 2, 2, 1)), 101)), &
+         list2 (1, 2)), &
+         "check0190 failed (for list_delete_duplicates)")
+    !
+    ! FIXME: Maybe write some more tests for dotted lists.
+    !
+  end subroutine test_list_delete_duplicates
+
   subroutine run_tests
     !
     ! FIXME: Add tests that check various subroutines do not clobber
@@ -1742,6 +1802,7 @@ contains
     call test_list_remove
     call test_list_partition
     call test_list_delete
+    call test_list_delete_duplicates
   end subroutine run_tests
 
 end module test__cons_lists
