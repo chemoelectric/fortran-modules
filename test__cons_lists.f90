@@ -1805,7 +1805,7 @@ contains
   subroutine test_list_pair_fold
     class(*), allocatable :: lst1a, lst1b
     !
-    ! Destructively reverse a list. (An example given in SRFI-1.)
+    ! An example from SRFI-1: destructively reverse a list.
     !
     lst1a = iota (100, 1)
     lst1b = list_pair_fold (kons_for_destructive_reverse, nil_list, lst1a)
@@ -1814,6 +1814,22 @@ contains
     call check (list_equals (integer_eq, lst1a, 1 ** nil_list), &
          "list_equals (integer_eq, lst1a, 1 ** nil_list) failed (for list_pair_fold)")
   end subroutine test_list_pair_fold
+
+  subroutine test_list_pair_fold_right
+    class(*), allocatable :: lst1a, lst1b
+    !
+    ! Adapted from an example in SRFI-1.
+    !
+    lst1a = list3 (1, 2, 3)
+    lst1b = list_pair_fold_right (cons_subr, nil_list, lst1a)
+    call check (list_length (lst1b) == 3, "list_length (lst1b) == 3 failed (for list_pair_fold_right)")
+    call check (list_equals (integer_eq, first (lst1b), list3 (1, 2, 3)), &
+         "list_equals (integer_eq, car (lst1b), list3 (1, 2, 3)) failed (for list_pair_fold_right)")
+    call check (list_equals (integer_eq, second (lst1b), list2 (2, 3)), &
+         "list_equals (integer_eq, second (lst1b), list2 (2, 3)) failed (for list_pair_fold_right)")
+    call check (list_equals (integer_eq, third (lst1b), list1 (3)), &
+         "list_equals (integer_eq, third (lst1b), list1 (3)) failed (for list_pair_fold_right)")
+  end subroutine test_list_pair_fold_right
 
   subroutine run_tests
     !
@@ -1894,6 +1910,7 @@ contains
     call test_list_fold
     call test_list_fold_right
     call test_list_pair_fold
+    call test_list_pair_fold_right
   end subroutine run_tests
 
 end module test__cons_lists

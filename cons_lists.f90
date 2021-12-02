@@ -388,6 +388,7 @@ module cons_lists
   public :: list_fold       ! `The fundamental list iterator.'
   public :: list_fold_right ! `The fundamental list recursion operator.' (Not for use on very long lists.)
   public :: list_pair_fold  ! Like list_fold, but applied to sublists.
+  public :: list_pair_fold_right ! Like list_fold_right, but applied to sublists.
 
   ! Overloading of `iota'.
   interface iota
@@ -4937,5 +4938,32 @@ contains
     end do
     folded_result = retval
   end function list_pair_fold
+
+  recursive function list_pair_fold_right (kons, knil, lst) result (folded_result)
+    !
+    ! WARNING: This implementation is recursive and uses O(n) stack
+    !          space. If you need a non-recursive equivalent, reverse
+    !          the list and then use `list_fold'.
+    !
+    procedure(list_kons_procedure_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst
+    class(*), allocatable :: folded_result
+
+    folded_result = recursion (lst)
+
+  contains
+
+    recursive function recursion (lst) result (folded_result)
+      class(*), intent(in) :: lst
+      class(*), allocatable :: folded_result
+      if (.not. is_cons_pair (lst)) then
+         folded_result = knil
+      else
+         call kons (lst, recursion (cdr (lst)), folded_result)
+      end if
+    end function recursion
+
+  end function list_pair_fold_right
 
 end module cons_lists
