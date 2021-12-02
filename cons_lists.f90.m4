@@ -88,7 +88,9 @@ module cons_procedure_types
        ! (FIXME: This type of function seems to work with gfortran
        !         11.2.0, whereas other types I have tried did not.
        !         How much of this is the compiler not working
-       !         properly?)
+       !         properly? Also, gfortran considers this a
+       !         `surprising' use of a POINTER-valued function, and
+       !         might issue a warning.)
        !
        use :: cons_types
        class(*), intent(in) :: x
@@ -102,6 +104,17 @@ module cons_procedure_types
        use :: cons_types
        class(*), intent(inout), allocatable :: x
      end subroutine list_modify_elements_procedure_t
+
+     recursive subroutine list_filter_map_procedure_t (x, keep)
+       !
+       ! The type of a subroutine passed to list_filter_map. If the
+       ! value of `x' is to be mapped and kept, set `x' to the mapped
+       ! value and `keep' .true.; otherwise set `keep' .false.
+       !
+       use :: cons_types
+       class(*), intent(inout), allocatable :: x
+       logical, intent(out) :: keep
+     end subroutine list_filter_map_procedure_t
 
      recursive function list_predicate1_t (x) result (bool)
        !
@@ -309,6 +322,7 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_partition  ! Do both `filter' and `remove' at the same time.
   public :: list_delete     ! Remove elements that satisfy a comparison with a given object.
   public :: list_delete_duplicates ! O(n**2) duplicate-element deletion.
+  public :: list_filter_map ! Filter out elements while mapping those kept.
 
   ! Overloading of `iota'.
   interface iota
@@ -1114,9 +1128,6 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
     class(*), intent(in) :: lst
     integer, intent(in) :: n
     type(cons_t) :: lst_dr
-
-    class(cons_t), allocatable :: tail
-
     lst_dr = list_take (lst, list_length (lst) - n)
   end function list_drop_right
 
@@ -1566,7 +1577,6 @@ m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: lst
     type(cons_t) :: lst_am
 
-    class(*), allocatable :: head
     class(*), allocatable :: tail
     class(*), allocatable :: lst_start
     class(*), allocatable :: lst_part
@@ -1698,7 +1708,6 @@ m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: lst
     type(cons_t) :: lst_am
 
-    class(*), allocatable :: head
     class(*), allocatable :: tail
     class(*), allocatable :: lst_start
     class(*), allocatable :: lst_part
@@ -1736,7 +1745,6 @@ m4_forloop([k],[1],n,[dnl
     logical, intent(out) :: match_found
     class(*), allocatable :: match
 
-    class(*), allocatable :: head
     class(*), allocatable :: tail
     class(*), allocatable :: element
 
@@ -1762,7 +1770,6 @@ m4_forloop([k],[1],n,[dnl
     logical, intent(out) :: match_found
     class(*), allocatable :: match
 
-    class(*), allocatable :: head
     class(*), allocatable :: tail
 
     match_found = .false.
@@ -1814,7 +1821,6 @@ m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: lst
     class(*), allocatable :: match
 
-    class(*), allocatable :: head
     class(*), allocatable :: tail
     logical :: match_found
 
@@ -1837,7 +1843,7 @@ m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: lst_rest
 
     class(*), allocatable :: head
-    class(*), allocatable :: tail, tl
+    class(*), allocatable :: tail
     type(cons_t) :: cursor
     type(cons_t) :: new_pair
     type(cons_t) :: initial
@@ -1877,7 +1883,7 @@ m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: lst_rest
 
     class(*), allocatable :: head
-    class(*), allocatable :: tail, tl
+    class(*), allocatable :: tail
     type(cons_t) :: cursor
     type(cons_t) :: new_pair
     type(cons_t) :: initial
@@ -1915,7 +1921,6 @@ m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: lst
     logical :: match_found
 
-    class(*), allocatable :: head
     class(*), allocatable :: tail
     logical :: found
 
@@ -1936,7 +1941,6 @@ m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: lst
     logical :: mismatch_found
 
-    class(*), allocatable :: head
     class(*), allocatable :: tail
     logical :: bool
 
@@ -1981,7 +1985,6 @@ m4_forloop([k],[1],n,[dnl
     integer, intent(in) :: n
     integer :: index
 
-    class(*), allocatable :: head
     class(*), allocatable :: tail
     integer :: i
     logical :: found
@@ -2640,7 +2643,6 @@ m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: lst_dd
 
     type(cons_t) :: kept_elements
-    class(*), allocatable :: head, tail
     class(*), allocatable :: retval
     class(*), allocatable :: current_position
     class(*), allocatable :: lookahead
@@ -2692,6 +2694,48 @@ m4_forloop([k],[1],n,[dnl
     end if
     lst_dd = retval
   end function list_delete_duplicates
+
+  recursive function list_filter_map (subr, lst) result (lst_fm)
+    procedure(list_filter_map_procedure_t) :: subr
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_fm
+
+    class(*), allocatable :: retval
+    class(*), allocatable :: element
+    class(*), allocatable :: tail
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+    logical :: all_done
+    logical :: keep
+
+    retval = nil_list
+    tail = lst
+    all_done = .false.
+    do while (.not. all_done)
+       if (.not. is_cons_pair (tail)) then
+          if (is_cons_pair (retval)) then
+             call set_cdr (cursor, tail) ! Preserve the end of a dotted list.
+          else
+             retval = tail ! Preserve a degenerate dotted list.
+          end if
+          all_done = .true.
+       else
+          call uncons (tail, element, tail)
+          call subr (element, keep)
+          if (keep) then
+             if (is_cons_pair (retval)) then
+                new_pair = element ** nil_list
+                call set_cdr (cursor, new_pair)
+                cursor = new_pair
+             else
+                cursor = element ** nil_list
+                retval = cursor
+             end if
+          end if
+       end if
+    end do
+    lst_fm = retval
+  end function list_filter_map
 
 m4_if(DEBUGGING,[true],[dnl
   function integer_cast (obj) result (int)

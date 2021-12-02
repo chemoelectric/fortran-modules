@@ -135,8 +135,24 @@ contains
 
   subroutine passthru_subr (x)
     class(*), intent(inout), allocatable :: x
-    continue
+    x = x
   end subroutine passthru_subr
+
+  subroutine increment_if_positive (x, keep)
+    class(*), intent(inout), allocatable :: x
+    logical, intent(out) :: keep
+    select type (x)
+    type is (integer)
+       if (1 <= x) then
+          x = x + 1
+          keep = .true.
+       else
+          keep = .false.
+       end if
+    class default
+       keep = .false.
+    end select
+  end subroutine increment_if_positive
 
   subroutine test_is_nil_or_pair
     call check (.not. is_nil_or_pair ('abc'), ".not. is_nil_or_pair ('abc') failed")
@@ -341,14 +357,12 @@ contains
 
   subroutine test_list_last
     type(cons_t) :: lst
-    integer :: i
     lst = iota (15, 1)
     call check (list_last (lst) .eqi. 15, "list_last (lst) .eqi. 15 failed")
   end subroutine test_list_last
 
   subroutine test_list_last_pair
     type(cons_t) :: lst
-    integer :: i
     lst = iota (15, 1)
     call check (car (list_last_pair (lst)) .eqi. 15, "car (list_last_pair (lst)) .eqi. 15 failed")
     call check (is_nil_list (cdr (list_last_pair (lst))), "is_nil_list (cdr (list_last_pair (lst))) failed")
@@ -715,7 +729,7 @@ contains
     !
     ! FIXME: Add a test to check for clobbered arguments.
     !
-    type(cons_t) :: lst1, lst2
+    type(cons_t) :: lst1
     integer :: i
     lst1 = 1 ** 2 ** 3 ** nil_list
     call list_append_in_place (lst1, 4 ** 5 ** 6 ** nil_list)
@@ -1038,7 +1052,6 @@ contains
 
   subroutine test_list_append_map_elements
     type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
-    class(*), allocatable :: obj1, obj2
     integer :: i
     lst1 = list_append_map (passthru_func, list3 (list2 (1, 2), list1(3), list2 (4, 5)))
     call check (list_length (lst1) == 5, "list_length (lst1) == 5 failed (for list_append_map_elements)")
@@ -1154,7 +1167,6 @@ contains
 
   subroutine test_list_append_modify_elements
     type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
-    class(*), allocatable :: obj1, obj2
     integer :: i
     lst1 = list_append_map (passthru_subr, list3 (list2 (1, 2), list1(3), list2 (4, 5)))
     call check (list_length (lst1) == 5, "list_length (lst1) == 5 failed (for list_append_modify_elements)")
@@ -1186,9 +1198,9 @@ contains
     call check (match_found1, "match_found1 failed (for list_find)")
     call check (obj1 .eqi. 17, "obj1 .eqi. 17 failed (for list_find)")
     lst2 = 1.0 ** (-1) ** 17 ** 5 ** cons (7, 1234.0)
-    call list_find (is_positive_integer, lst2, match_found1, obj1)
-    call check (match_found1, "match_found1 failed (for list_find)")
-    call check (obj1 .eqi. 17, "obj1 .eqi. 17 failed (for list_find)")
+    call list_find (is_positive_integer, lst2, match_found2, obj2)
+    call check (match_found2, "match_found2 failed (for list_find)")
+    call check (obj2 .eqi. 17, "obj1 .eqi. 17 failed (for list_find)")
     lst3 = 1.0 ** (-1) ** (-17) ** 'abc' ** (-7) ** nil_list
     obj3 = 1024
     call list_find (is_positive_integer, lst3, match_found3, obj3)
@@ -1728,6 +1740,31 @@ contains
     !
   end subroutine test_list_delete_duplicates
 
+  subroutine test_filter_map
+    call check (list_equals (integer_eq, list_filter_map (increment_if_positive, nil_list), nil_list), &
+         "check0010 failed (for list_filter_map)")
+    call check (list_filter_map (increment_if_positive, 1234.0) .eqr. 1234.0, &
+         "check0020 failed (for list_filter_map)")
+    call check (list_equals (integer_eq, list_filter_map (increment_if_positive, 1 ** nil_list), 2 ** nil_list), &
+         "check0030 failed (for list_filter_map)")
+    call check (list_equals (integer_eq, list_filter_map (increment_if_positive, 0 ** nil_list), nil_list), &
+         "check0040 failed (for list_filter_map)")
+    call check (list_equals (integer_eq, list_filter_map (increment_if_positive, (-1) ** nil_list), nil_list), &
+         "check0050 failed (for list_filter_map)")
+    call check (list_equals (integer_eq, list_filter_map (increment_if_positive, (-1) ** 0 ** 1 ** nil_list), 2 ** nil_list), &
+         "check0060 failed (for list_filter_map)")
+    call check (list_equals (integer_eq, list_filter_map (increment_if_positive, &
+         list_take (circular_list ((-1) ** 1 ** nil_list), 100)), &
+         make_list (50, 2)), &
+         "check0070 failed (for list_filter_map)")
+    call check (list_equals (integer_eq, list_filter_map (increment_if_positive, &
+         list_take (circular_list ((-1) ** 1 ** nil_list), 101)), &
+         make_list (50, 2)), &
+         "check0080 failed (for list_filter_map)")
+    call check (list_equals (integer_eq, list_filter_map (increment_if_positive, iota (101, -50)), iota (50, 2)), &
+         "check0090 failed (for list_filter_map)")
+  end subroutine test_filter_map
+
   subroutine run_tests
     !
     ! FIXME: Add tests that check various subroutines do not clobber
@@ -1803,6 +1840,7 @@ contains
     call test_list_partition
     call test_list_delete
     call test_list_delete_duplicates
+    call test_filter_map
   end subroutine run_tests
 
 end module test__cons_lists
