@@ -154,6 +154,11 @@ contains
     end select
   end subroutine increment_if_positive
 
+  subroutine akkumulate (kar, kdr, kons)
+    class(*), allocatable, intent(inout) :: kar, kdr, kons
+    kons = integer_cast (kdr) + integer_cast (kar)
+  end subroutine akkumulate
+
   subroutine test_is_nil_or_pair
     call check (.not. is_nil_or_pair ('abc'), ".not. is_nil_or_pair ('abc') failed")
     call check (is_nil_or_pair (nil_list), "is_nil_or_pair (nil_list) failed")
@@ -1765,6 +1770,13 @@ contains
          "check0090 failed (for list_filter_map)")
   end subroutine test_filter_map
 
+  subroutine test_fold
+    call check (list_fold (akkumulate, 1234.0, nil_list) .eqr. 1234.0, &
+         "list_fold (akkumulate, 1234.0, nil_list) .eqr. 1234.0 failed")
+    call check (list_fold (akkumulate, 100, iota (10, 1)) .eqi. 155, &
+         "list_fold (akkumulate, 100, iota (10, 1)) .eqi. 155 failed")
+  end subroutine test_fold
+
   subroutine run_tests
     !
     ! FIXME: Add tests that check various subroutines do not clobber
@@ -1841,6 +1853,7 @@ contains
     call test_list_delete
     call test_list_delete_duplicates
     call test_filter_map
+    call test_fold
   end subroutine run_tests
 
 end module test__cons_lists

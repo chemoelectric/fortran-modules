@@ -83,6 +83,12 @@ module cons_procedure_types
 
      recursive function list_map_elements_procedure_t (x)
        !
+       ! FIXME: CONSIDER DOING WITHOUT THESE
+       ! FIXME: CONSIDER DOING WITHOUT THESE
+       ! FIXME: CONSIDER DOING WITHOUT THESE
+       ! FIXME: CONSIDER DOING WITHOUT THESE
+       ! FIXME: CONSIDER DOING WITHOUT THESE
+       !
        ! The type of a function passed to list_map_elements.
        !
        ! (FIXME: This type of function seems to work with gfortran
@@ -115,6 +121,14 @@ module cons_procedure_types
        class(*), intent(inout), allocatable :: x
        logical, intent(out) :: keep
      end subroutine list_filter_map_procedure_t
+
+     recursive subroutine list_kons_procedure_t (kar, kdr, kons_result)
+       !
+       ! The type of the `kons' argument to a fold procedure.
+       !
+       use :: cons_types
+       class(*), allocatable, intent(inout) :: kar, kdr, kons_result
+     end subroutine list_kons_procedure_t
 
      recursive function list_predicate1_t (x) result (bool)
        !
@@ -323,6 +337,7 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_delete     ! Remove elements that satisfy a comparison with a given object.
   public :: list_delete_duplicates ! O(n**2) duplicate-element deletion.
   public :: list_filter_map ! Filter out elements while mapping those kept.
+  public :: list_fold       ! `The fundamental list iterator.'
 
   ! Overloading of `iota'.
   interface iota
@@ -2736,6 +2751,24 @@ m4_forloop([k],[1],n,[dnl
     end do
     lst_fm = retval
   end function list_filter_map
+
+  recursive function list_fold (kons, knil, lst) result (folded_result)
+    procedure(list_kons_procedure_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst
+    class(*), allocatable :: folded_result
+
+    class(*), allocatable :: retval
+    class(*), allocatable :: head, tail
+
+    retval = knil
+    tail = lst
+    do while (is_cons_pair (tail))
+       call uncons (tail, head, tail)
+       call kons (head, retval, retval)
+    end do
+    folded_result = retval
+  end function list_fold
 
 m4_if(DEBUGGING,[true],[dnl
   function integer_cast (obj) result (int)
