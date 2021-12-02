@@ -2630,8 +2630,10 @@ m4_forloop([k],[1],n,[dnl
     ! NOTE: The argument order is different from that of SRFI-1's
     !       `delete-duplicates' procedure.
     !
-    ! This implementation tries to share the longest possible tail
-    ! with the original.
+    ! This implementation tries to share a tail with the original,
+    ! although not necessarily the longest one. (Finding the longest
+    ! tail may require working backwards from the end of lst, but this
+    ! implementation works forwards from the beginning.)
     !
     procedure(list_predicate2_t) :: pred
     class(*), intent(in) :: lst
