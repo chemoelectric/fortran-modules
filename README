@@ -4,6 +4,17 @@ Fortran modules for general programming
 cons_lists.f90     -- Lisp-style CONS-pairs for Fortran
                       (Expat license)
 
+Regarding my use of m4
+----------------------
+
+I use m4 to generate source code, but the generated source code is
+meant to be treated as the ‘actual’ Fortran source. You do not need to
+have or run m4 just to use the Fortran code.
+
+Using m4 not only makes some tasks much easier, but reduces the
+opportunity for coding errors. And it is much more powerful than the C
+preprocessor (cpp or fpp); it is a true macroprocessor, and is
+standard on POSIX systems.
 
 References
 ----------
