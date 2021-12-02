@@ -155,9 +155,16 @@ contains
   end subroutine increment_if_positive
 
   subroutine akkumulate (kar, kdr, kons)
-    class(*), allocatable, intent(inout) :: kar, kdr, kons
+    class(*), intent(in) :: kar, kdr
+    class(*), allocatable, intent(out) :: kons
     kons = integer_cast (kdr) + integer_cast (kar)
   end subroutine akkumulate
+
+  subroutine cons_subr (kar, kdr, kons)
+    class(*), intent(in) :: kar, kdr
+    class(*), allocatable, intent(out) :: kons
+    kons = cons (kar, kdr)
+  end subroutine cons_subr
 
   subroutine test_is_nil_or_pair
     call check (.not. is_nil_or_pair ('abc'), ".not. is_nil_or_pair ('abc') failed")
@@ -1775,7 +1782,18 @@ contains
          "list_fold (akkumulate, 1234.0, nil_list) .eqr. 1234.0 failed")
     call check (list_fold (akkumulate, 100, iota (10, 1)) .eqi. 155, &
          "list_fold (akkumulate, 100, iota (10, 1)) .eqi. 155 failed")
+    call check (list_equals (integer_eq, list_fold (cons_subr, nil_list, iota (10, 1)), iota (10, 10, -1)), &
+         "list_equals (integer_eq, list_fold (cons_subr, nil_list, iota (10, 1)), iota (10, 10, -1)) failed")
   end subroutine test_fold
+
+  subroutine test_fold_right
+    call check (list_fold_right (akkumulate, 1234.0, nil_list) .eqr. 1234.0, &
+         "list_fold_right (akkumulate, 1234.0, nil_list) .eqr. 1234.0 failed")
+    call check (list_fold_right (akkumulate, 100, iota (10, 1)) .eqi. 155, &
+         "list_fold_right (akkumulate, 100, iota (10, 1)) .eqi. 155 failed")
+    call check (list_equals (integer_eq, list_fold_right (cons_subr, nil_list, iota (10, 1)), iota (10, 1)), &
+         "list_equals (integer_eq, list_fold_right (cons_subr, nil_list, iota (10, 1)), iota (10, 1)) failed")
+  end subroutine test_fold_right
 
   subroutine run_tests
     !
@@ -1854,6 +1872,7 @@ contains
     call test_list_delete_duplicates
     call test_filter_map
     call test_fold
+    call test_fold_right
   end subroutine run_tests
 
 end module test__cons_lists

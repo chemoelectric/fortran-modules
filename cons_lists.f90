@@ -117,7 +117,8 @@ module cons_procedure_types
        ! The type of the `kons' argument to a fold procedure.
        !
        use :: cons_types
-       class(*), allocatable, intent(inout) :: kar, kdr, kons_result
+       class(*), intent(in) :: kar, kdr
+       class(*), allocatable, intent(out) :: kons_result
      end subroutine list_kons_procedure_t
 
      recursive function list_predicate1_t (x) result (bool)
@@ -385,6 +386,7 @@ module cons_lists
   public :: list_delete_duplicates ! O(n**2) duplicate-element deletion.
   public :: list_filter_map ! Filter out elements while mapping those kept.
   public :: list_fold       ! `The fundamental list iterator.'
+  public :: list_fold_right ! `The fundamental list recursion operator.' (Not for use on very long lists.)
 
   ! Overloading of `iota'.
   interface iota
@@ -4871,16 +4873,48 @@ contains
     class(*), intent(in) :: lst
     class(*), allocatable :: folded_result
 
-    class(*), allocatable :: retval
+    class(*), allocatable :: retval, new_retval
     class(*), allocatable :: head, tail
 
     retval = knil
     tail = lst
     do while (is_cons_pair (tail))
        call uncons (tail, head, tail)
-       call kons (head, retval, retval)
+       call kons (head, retval, new_retval)
+       retval = new_retval
     end do
     folded_result = retval
   end function list_fold
+
+  recursive function list_fold_right (kons, knil, lst) result (folded_result)
+    !
+    ! WARNING: This implementation is recursive and uses O(n) stack
+    !          space. If you need a non-recursive equivalent, reverse
+    !          the list and then use `list_fold'.
+    !
+    procedure(list_kons_procedure_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst
+    class(*), allocatable :: folded_result
+
+    folded_result = recursion (lst)
+
+  contains
+
+    recursive function recursion (lst) result (folded_result)
+      class(*), intent(in) :: lst
+      class(*), allocatable :: folded_result
+
+      class(*), allocatable :: head, tail
+
+      if (.not. is_cons_pair (lst)) then
+         folded_result = knil
+      else
+         call uncons (lst, head, tail)
+         call kons (head, recursion (tail), folded_result)
+      end if
+    end function recursion
+
+  end function list_fold_right
 
 end module cons_lists
