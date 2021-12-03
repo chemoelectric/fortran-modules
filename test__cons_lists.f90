@@ -136,7 +136,7 @@ contains
     logical :: bool
     bool = (10 < integer_cast (x))
   end function greater_than_10
-  
+
   subroutine passthru_subr (x)
     class(*), intent(inout), allocatable :: x
     x = x
@@ -169,6 +169,16 @@ contains
     class(*), allocatable, intent(out) :: kons
     kons = cons (kar, kdr)
   end subroutine cons_subr
+
+  subroutine car_subr (x)
+    class(*), allocatable, intent(inout) :: x
+    x = car (x)
+  end subroutine car_subr
+
+  subroutine cdr_subr (x)
+    class(*), allocatable, intent(inout) :: x
+    x = cdr (x)
+  end subroutine cdr_subr
 
   subroutine kons_for_destructive_reverse (pair, tail, kons)
     class(*), intent(in) :: pair, tail
@@ -1770,15 +1780,41 @@ contains
   end subroutine test_list_reduce_right
 
   subroutine test_list_unfold
+    class(*), allocatable :: lst
+    type(cons_t) :: head
+    type(cons_t) :: tail
+
     !
     ! Examples from SRFI-1.
     !
 
     ! List of squares: 1**2 ... 10**2
-    call check (list_equals (integer_eq, &
-         list_unfold (greater_than_10, integer_square_subr, integer_incr_subr, 1), &
-         list10 (1, 4, 9, 16, 25, 36, 49, 64, 81, 100)), &
+    lst = list_unfold (greater_than_10, integer_square_subr, integer_incr_subr, 1)
+    call check (list_equals (integer_eq, lst, list10 (1, 4, 9, 16, 25, 36, 49, 64, 81, 100)), &
          "check0010 failed (for list_unfold)")
+
+    ! Copy a proper list.
+    lst = list_unfold (is_nil_list, car_subr, cdr_subr, iota (100, 1))
+    call check (list_equals (integer_eq, lst, iota (100, 1)), "check0020 failed (for list_unfold)")
+
+    ! Copy a possibly improper list.
+    lst = list_unfold (is_not_cons_pair, car_subr, cdr_subr, cons (1, cons (2, 1234.0)), passthru_subr)
+    call check (car (lst) .eqi. 1, "check0030 failed (for list_unfold)")
+    call check (cadr (lst) .eqi. 2, "check0040 failed (for list_unfold)")
+    call check (cddr (lst) .eqr. 1234.0, "check0050 failed (for list_unfold)")
+
+    ! Append HEAD onto TAIL.
+    head = iota (75, 1)
+    tail = iota (25, 76)
+    lst = list_unfold (is_nil_list, car_subr, cdr_subr, head, set_to_tail)
+    call check (list_equals (integer_eq, lst, iota (100, 1)), "check0060 failed (for list_unfold)")
+  contains
+
+    subroutine set_to_tail (x)
+      class(*), allocatable, intent(inout) :: x
+      x = tail
+    end subroutine set_to_tail
+
   end subroutine test_list_unfold
 
   subroutine run_tests

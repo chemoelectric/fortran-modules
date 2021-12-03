@@ -154,6 +154,10 @@ module cons_lists
   public :: is_nil_list         ! Is an object a NIL-list?
   public :: is_cons_pair        ! Is an object a CONS-pair?
 
+  public :: is_not_nil_or_pair  ! Is an object neither a NIL-list nor CONS-pair?
+  public :: is_not_nil_list     ! Is an object not a NIL-list?
+  public :: is_not_cons_pair    ! Is an object not a CONS-pair?
+
   public :: list_is_nil         ! Is a cons_t a NIL-list?
   public :: list_is_pair        ! Is a cons_t a CONS-pair?
 
@@ -484,6 +488,24 @@ contains
     end select
   end function is_cons_pair
 
+  function is_not_nil_or_pair (obj) result (is_not_cons)
+    class(*), intent(in) :: obj
+    logical :: is_not_cons
+    is_not_cons = .not. is_nil_or_pair (obj)
+  end function is_not_nil_or_pair
+
+  function is_not_nil_list (obj) result (is_not_nil)
+    class(*), intent(in) :: obj
+    logical :: is_not_nil
+    is_not_nil = .not. is_nil_list (obj)
+  end function is_not_nil_list
+
+  function is_not_cons_pair (obj) result (is_not_pair)
+    class(*), intent(in) :: obj
+    logical :: is_not_pair
+    is_not_pair = .not. is_cons_pair (obj)
+  end function is_not_cons_pair
+  
   function list_is_nil (lst) result (is_nil)
     class(cons_t), intent(in) :: lst
     logical is_nil
