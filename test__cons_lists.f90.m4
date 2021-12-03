@@ -1871,7 +1871,7 @@ contains
     head = iota (75, 75, -1)
     tail = iota (25, 76)
     lst = list_unfold_right (is_nil_list, car_subr, cdr_subr, head, tail)
-    call check (list_equals (integer_eq, lst, iota (100, 1)), "check0060 failed (for list_unfold_right)")
+    call check (list_equals (integer_eq, lst, iota (100, 1)), "check0030 failed (for list_unfold_right)")
   end subroutine test_list_unfold_right
 
   subroutine run_tests
