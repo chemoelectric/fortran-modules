@@ -100,12 +100,6 @@ contains
     bool = list_equals (integer_eq, obj1, obj2)
   end function integer_list_eq
 
-  function cosine_func (x)
-    class(*), intent(in) :: x
-    class(*), pointer :: cosine_func
-    allocate (cosine_func, source = cos (real_cast (x)))
-  end function cosine_func
-
   subroutine cosine_subr (x)
     class(*), intent(inout), allocatable :: x
     x = cos (real_cast (x))
@@ -127,12 +121,6 @@ contains
     bool = .not. is_positive_integer (x)
   end function is_not_positive_integer
   
-  function passthru_func (x)
-    class(*), intent(in) :: x
-    class(*), pointer :: passthru_func
-    allocate (passthru_func, source = x)
-  end function passthru_func
-
   subroutine passthru_subr (x)
     class(*), intent(inout), allocatable :: x
     x = x
