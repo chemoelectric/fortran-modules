@@ -167,6 +167,12 @@ contains
     max_x_y = max (integer_cast (x), integer_cast (y))
   end subroutine integer_max_subr
 
+  subroutine append_subr (x, y, append_x_y)
+    class(*), intent(in) :: x, y
+    class(*), allocatable, intent(out) :: append_x_y
+    append_x_y = list_append (x, y)
+  end subroutine append_subr
+
   subroutine test_is_nil_or_pair
     call check (.not. is_nil_or_pair ('abc'), ".not. is_nil_or_pair ('abc') failed")
     call check (is_nil_or_pair (nil_list), "is_nil_or_pair (nil_list) failed")
@@ -1729,6 +1735,24 @@ contains
          "list_reduce (integer_max_subr, 0, cons (10000, list_append (iota (100), iota (50)))) .eqi. 10000 failed")
   end subroutine test_list_reduce
 
+  subroutine test_list_reduce_right
+    !
+    ! An example from SRFI-1: append a bunch of lists together.
+    !
+    call check (is_nil_list (list_reduce_right (append_subr, nil_list, nil_list)), &
+         "is_nil_list (list_reduce_right (append_subr, nil_list, nil_list)) failed")
+    call check (is_nil_list (list_reduce_right (append_subr, nil_list, make_list (100, nil_list))), &
+         "is_nil_list (list_reduce_right (append_subr, nil_list, make_list (100, nil_list))) failed")
+    call check (list_equals (integer_eq, &
+         list_reduce_right (append_subr, nil_list, list_zip1 (iota (100, 1))), &
+         iota (100, 1)), &
+         "check0010 failed (for list_reduce_right)")
+    call check (list_equals (integer_eq, &
+         list_reduce_right (append_subr, nil_list, list_zip2 (iota (50, 1, 2), iota (50, 2, 2))), &
+         iota (100, 1)), &
+         "check0020 failed (for list_reduce_right)")
+  end subroutine test_list_reduce_right
+
   subroutine run_tests
     !
     ! FIXME: Add tests that check various subroutines do not clobber
@@ -1807,6 +1831,7 @@ contains
     call test_list_pair_fold
     call test_list_pair_fold_right
     call test_list_reduce
+    call test_list_reduce_right
   end subroutine run_tests
 
 end module test__cons_lists

@@ -363,6 +363,7 @@ module cons_lists
   public :: list_pair_fold  ! Like list_fold, but applied to sublists.
   public :: list_pair_fold_right ! Like list_fold_right, but applied to sublists.
   public :: list_reduce     ! A variant of list_fold. (See SRFI-1.)
+  public :: list_reduce_right ! A variant of list_fold_right. (See SRFI-1.)
 
   ! Overloading of `iota'.
   interface iota
@@ -4816,5 +4817,38 @@ contains
        reduced_result = right_identity
     end if
   end function list_reduce
+
+  recursive function list_reduce_right (kons, right_identity, lst) result (reduced_result)
+    procedure(list_kons_procedure_t) :: kons
+    class(*), intent(in) :: right_identity
+    class(*), intent(in) :: lst
+    class(*), allocatable :: reduced_result
+
+    class(*), allocatable :: head, tail
+
+    if (is_cons_pair (lst)) then
+       call uncons (lst, head, tail)
+       reduced_result = recursion (head, tail)
+    else
+       reduced_result = right_identity
+    end if
+
+  contains
+
+    recursive function recursion (head, lst1) result (reduced_result)
+      class(*), intent(in) :: head, lst1
+      class(*), allocatable :: reduced_result
+
+      class(*), allocatable :: hd, tl
+
+      if (is_cons_pair (lst1)) then
+         call uncons (lst1, hd, tl)
+         call kons (head, recursion (hd, tl), reduced_result)
+      else
+         reduced_result = head
+      end if
+    end function recursion
+
+  end function list_reduce_right
 
 end module cons_lists
