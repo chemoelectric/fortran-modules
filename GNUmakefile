@@ -49,7 +49,7 @@ M4FLAGS += -DLISTN_MAX=9
 M4FLAGS += -DZIP_MAX=9
 
 FC = gfortran
-FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all -Wall -Wno-surprising
+FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all -Wall
 COMPILE.f90 = $(FC) $(FCFLAGS) $(XFCFLAGS)
 FCFLAG_WNO_TRAMPOLINES = -Wno-trampolines
 

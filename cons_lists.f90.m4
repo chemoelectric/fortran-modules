@@ -81,28 +81,6 @@ module cons_procedure_types
        class(*), intent(in) :: x
      end subroutine list_foreach_procedure_t
 
-     recursive function list_map_elements_procedure_t (x)
-       !
-       ! FIXME: CONSIDER DOING WITHOUT THESE
-       ! FIXME: CONSIDER DOING WITHOUT THESE
-       ! FIXME: CONSIDER DOING WITHOUT THESE
-       ! FIXME: CONSIDER DOING WITHOUT THESE
-       ! FIXME: CONSIDER DOING WITHOUT THESE
-       !
-       ! The type of a function passed to list_map_elements.
-       !
-       ! (FIXME: This type of function seems to work with gfortran
-       !         11.2.0, whereas other types I have tried did not.
-       !         How much of this is the compiler not working
-       !         properly? Also, gfortran considers this a
-       !         `surprising' use of a POINTER-valued function, and
-       !         might issue a warning.)
-       !
-       use :: cons_types
-       class(*), intent(in) :: x
-       class(*), pointer :: list_map_elements_procedure_t
-     end function list_map_elements_procedure_t
-
      recursive subroutine list_modify_elements_procedure_t (x)
        !
        ! The type of a subroutine passed to list_modify_elements.
@@ -296,13 +274,8 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_map_in_place ! A generic function for mapping in place.
   public :: list_append_map   ! A generic function for mapping then concatenating.
 
-  ! Call a function on list elements, to map (modify) their values.
-  public :: list_map_elements_procedure_t
-  public :: list_map_elements          ! Can be called as `list_map'.
-  public :: list_map_elements_in_place ! Can be called as `list_map_in_place'.
-  public :: list_append_map_elements   ! Can be called as `list_append_map'.
-
-  ! Call a subroutine on list elements, to modify (map) their values.
+  ! Call a one-argument subroutine on list elements, to modify (map)
+  ! their values.
   public :: list_modify_elements_procedure_t
   public :: list_modify_elements          ! Can be called as `list_map'.
   public :: list_modify_elements_in_place ! Can be called as `list_map_in_place'.
@@ -358,19 +331,16 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
 
   ! Overloading of `list_map'.
   interface list_map
-     module procedure list_map_elements
      module procedure list_modify_elements
   end interface list_map
 
   ! Overloading of `list_map_in_place'.
   interface list_map_in_place
-     module procedure list_map_elements_in_place
      module procedure list_modify_elements_in_place
   end interface list_map_in_place
 
   ! Overloading of `list_append_map'.
   interface list_append_map
-     module procedure list_append_map_elements
      module procedure list_append_modify_elements
   end interface list_append_map
 
@@ -1489,149 +1459,13 @@ m4_forloop([k],[1],n,[dnl
     end do
   end subroutine list_pair_foreach
 
-  recursive function list_map_elements (func, lst) result (lst_m)
-    !
-    ! Modify the elements of a list, using a function to map the
-    ! individual elements. The work is guaranteed to be done in list
-    ! order.
-    !
-    ! (This is like SRFI-1's `map-in-order'.)
-    !
-    ! If lst is a dotted list, its final CDR is retained. The return
-    ! value thus might not be a cons_t.
-    !
-    procedure(list_map_elements_procedure_t) :: func
-    class(*), intent(in) :: lst
-    class(*), allocatable :: lst_m
-
-    class(*), allocatable :: head
-    class(*), allocatable :: tail
-    type(cons_t) :: cursor
-    type(cons_t) :: new_pair
-
-    if (is_cons_pair (lst)) then
-       call uncons (lst, head, tail)
-       head = func (head)
-       cursor = cons (head, tail)
-       deallocate (head)
-       lst_m = cursor
-       do while (is_cons_pair (tail))
-          call uncons (tail, head, tail)
-          head = func (head)
-          new_pair = cons (head, tail)
-          deallocate (head)
-          call set_cdr (cursor, new_pair)
-          cursor = new_pair
-       end do
-    else
-       lst_m = lst
-    end if
-  end function list_map_elements
-
-  recursive subroutine list_map_elements_in_place (func, lst)
-    !
-    ! Modify the elements of a list, in place, using a function to
-    ! map the individual elements. The work is guaranteed to be done
-    ! in list order.
-    !
-    ! If lst is a dotted list, its final CDR is left unmodified.
-    !
-    procedure(list_map_elements_procedure_t) :: func
-    class(*), intent(in) :: lst
-
-    class(*), allocatable :: head
-    class(*), allocatable :: tail
-    type(cons_t) :: lst1
-    
-    tail = lst
-    do while (is_cons_pair (tail))
-       lst1 = cons_t_cast (tail)
-       call uncons (lst1, head, tail)
-       head = func (head)
-       call set_car (lst1, head)
-       deallocate (head)
-    end do
-  end subroutine list_map_elements_in_place
-
-  subroutine list_append_map_elements__get_next (func, lst, next, tail)
-    !
-    ! Get the next element that is not a nil list.
-    !
-    ! (To avoid having a Fortran compiler generate a trampoline, this
-    ! subroutine is lambda-lifted rather than nested within
-    ! list_append_map_elements.)
-    !
-    procedure(list_map_elements_procedure_t) :: func
-    class(*) :: lst
-    class(*), allocatable :: next
-    class(*), allocatable :: tail
-
-    class(*), allocatable :: hd
-    class(*), allocatable :: tl
-
-    call uncons (lst, hd, tl)
-    hd = func (hd)
-    do while (is_nil_list (hd) .and. is_cons_pair (tl))
-       deallocate (hd)
-       call uncons (tl, hd, tl)
-       hd = func (hd)
-    end do
-    next = hd
-    deallocate (hd)
-    tail = tl
-  end subroutine list_append_map_elements__get_next
-
-  recursive function list_append_map_elements (func, lst) result (lst_am)
-    !
-    ! Modify the elements of a list, using a function to map the
-    ! individual elements. The outputs should be lists, and they will
-    ! be appended to each other.
-    !
-    ! (This is like SRFI-1's `append-map', but calling a subroutine
-    ! instead of a function for each element.)
-    !
-    ! If lst is a dotted list, its final CDR is ignored.
-    !
-    procedure(list_map_elements_procedure_t) :: func
-    class(*), intent(in) :: lst
-    type(cons_t) :: lst_am
-
-    class(*), allocatable :: tail
-    class(*), allocatable :: lst_start
-    class(*), allocatable :: lst_part
-    type(cons_t) :: lst1
-    type(cons_t) :: cursor
-
-    lst_am = nil_list
-    if (is_cons_pair (lst)) then
-       call list_append_map_elements__get_next (func, lst, lst_start, tail)
-       if (is_cons_pair (lst_start)) then
-          lst1 = cons_t_cast (lst_start)
-          lst_am = lst1
-          cursor = list_last_pair (lst1)
-          do while (is_cons_pair (tail))
-             call list_append_map_elements__get_next (func, tail, lst_part, tail)
-             select type (lst_part)
-             class is (cons_t)
-                lst1 = lst_part
-                call set_cdr (cursor, lst1)
-                cursor = list_last_pair (lst1)
-             class default
-                call error_abort ("list_append_map_elements with a non-list element")
-             end select
-          end do
-       end if
-    end if
-  end function list_append_map_elements
-
   recursive function list_modify_elements (subr, lst) result (lst_m)
     !
     ! Modify the elements of a list, using a subroutine to map the
     ! individual elements. The work is guaranteed to be done in list
     ! order.
     !
-    ! (This is like SRFI-1's `map-in-order', but calling a subroutine
-    ! instead of a function for each element.)
+    ! (This is like SRFI-1's `map-in-order'.)
     !
     ! If lst is a dotted list, its final CDR is retained. The return
     ! value thus might not be a cons_t.

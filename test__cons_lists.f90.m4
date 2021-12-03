@@ -977,121 +977,6 @@ contains
     end subroutine side_effector
   end subroutine test_list_pair_foreach
 
-  subroutine test_list_map_elements
-    type(cons_t) :: lst1, lst2, lst3, lst4
-    integer :: i
-    real :: x, y
-    lst1 = acos (0.25) ** acos (0.50) ** acos (0.75) ** nil_list
-    lst2 = cons_t_cast (list_map (cosine_func, lst1))
-    do i = 1, 3
-       y = i * 0.25
-       x = acos (y)
-       call check (abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001 failed (for list_map_elements)")
-       call check (abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001 failed (for list_map_elements)")
-    end do
-    call check (is_nil_list (list_map (cosine_func, nil_list)), &
-         "is_nil_list (list_map (cosine_func, nil_list)) failed")
-    call check (list_map (cosine_func, 123) .eqi. 123, &
-         "list_map (cosine_func, 123) .eqi. 123 failed")
-    lst3 = acos (0.25) ** acos (0.50) ** cons (acos (0.75), 123)
-    lst4 = cons_t_cast (list_map (cosine_func, lst3))
-    do i = 1, 3
-       y = i * 0.25
-       x = acos (y)
-       call check (abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001 failed (for list_map_elements)")
-       call check (abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001 failed (for list_map_elements)")
-    end do
-    call check (cdr (list_last_pair (lst4)) .eqi. 123, &
-         "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_map_elements)")
-  end subroutine test_list_map_elements
-
-  subroutine test_list_map_elements_in_place
-    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
-    class(*), allocatable :: obj1, obj2
-    integer :: i
-    real :: x, y
-    lst1 = acos (0.25) ** acos (0.50) ** acos (0.75) ** nil_list
-    do i = 1, 3
-       y = i * 0.25
-       x = acos (y)
-       call check (abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001 failed (for list_map_elements_in_place)")
-    end do
-    lst2 = lst1
-    call list_map_in_place (cosine_func, lst2)
-    do i = 1, 3
-       y = i * 0.25
-       x = acos (y)
-       call check (abs (real_cast (list_ref1 (lst1, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst1, i)) - y) < 0.0001 failed (for list_map_elements_in_place)")
-       call check (abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001 failed (for list_map_elements_in_place)")
-    end do
-    !
-    lst3 = acos (0.25) ** acos (0.50) ** cons (acos (0.75), 123)
-    call check (cdr (list_last_pair (lst3)) .eqi. 123, &
-         "cdr (list_last_pair (lst3)) .eqi. 123 failed (for list_map_elements_in_place)")
-    do i = 1, 3
-       y = i * 0.25
-       x = acos (y)
-       call check (abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001 failed (for list_map_elements_in_place)")
-    end do
-    lst4 = lst3
-    call list_map_in_place (cosine_func, lst4)
-    call check (cdr (list_last_pair (lst3)) .eqi. 123, &
-         "cdr (list_last_pair (lst3)) .eqi. 123 failed (for list_map_elements_in_place)")
-    call check (cdr (list_last_pair (lst4)) .eqi. 123, &
-         "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_map_elements_in_place)")
-    do i = 1, 3
-       y = i * 0.25
-       x = acos (y)
-       call check (abs (real_cast (list_ref1 (lst3, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst3, i)) - y) < 0.0001 failed (for list_map_elements_in_place)")
-       call check (abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001 failed (for list_map_elements_in_place)")
-    end do
-    !
-    lst5 = nil_list
-    lst6 = lst5
-    call list_map_in_place (cosine_func, lst6)
-    call check (is_nil_list (lst5), "is_nil_list (lst5) failed (for list_map_elements_in_place)")
-    call check (is_nil_list (lst6), "is_nil_list (lst6) failed (for list_map_elements_in_place)")
-    !
-    obj1 = 123
-    obj2 = obj1
-    call list_map_in_place (cosine_func, obj2)
-    call check (obj1 .eqi. 123, "obj1 .eqi. 123 failed (for list_map_elements_in_place)")
-    call check (obj2 .eqi. 123, "obj2 .eqi. 123 failed (for list_map_elements_in_place)")
-  end subroutine test_list_map_elements_in_place
-
-  subroutine test_list_append_map_elements
-    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
-    integer :: i
-    lst1 = list_append_map (passthru_func, list3 (list2 (1, 2), list1(3), list2 (4, 5)))
-    call check (list_length (lst1) == 5, "list_length (lst1) == 5 failed (for list_append_map_elements)")
-    do i = 1, 5
-       call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1) == i failed (for list_append_map_elements)")
-    end do
-    lst2 = list_append_map (passthru_func, make_list (5, nil_list))
-    call check (list_length (lst2) == 0, "list_length (lst2) == 0 failed (for list_append_map_elements)")
-    lst3 = list_append_map (passthru_func, nil_list)
-    call check (list_length (lst3) == 0, "list_length (lst3) == 0 failed (for list_append_map_elements)")
-    lst4 = list_append_map (passthru_func, list2 (1, 2) ** cons (list1(3), 4.0))
-    call check (list_length (lst4) == 3, "list_length (lst4) == 3 failed (for list_append_map_elements)")
-    call check (car (lst4) .eqi. 1, "car (lst4) .eqi. 1 failed (for list_append_map_elements)")
-    call check (cadr (lst4) .eqi. 2, "cadr (lst4) .eqi. 2 failed (for list_append_map_elements)")
-    call check (caddr (lst4) .eqi. 3, "caddr (lst4) .eqi. 3 failed (for list_append_map_elements)")
-    lst5 = list_append_map (passthru_func, 'abc')
-    call check (list_length (lst5) == 0, "list_length (lst5) == 0 failed (for list_append_map_elements)")
-    lst6 = list_append_map (passthru_func, make_list (100, nil_list))
-    call check (list_length (lst6) == 0, "list_length (lst6) == 0 failed (for list_append_map_elements)")
-  end subroutine test_list_append_map_elements
-
   subroutine test_list_modify_elements
     type(cons_t) :: lst1, lst2, lst3, lst4
     integer :: i
@@ -1883,9 +1768,6 @@ contains
     call test_list_unzip1f
     call test_list_foreach
     call test_list_pair_foreach
-    call test_list_map_elements
-    call test_list_map_elements_in_place
-    call test_list_append_map_elements
     call test_list_modify_elements
     call test_list_modify_elements_in_place
     call test_list_append_modify_elements
