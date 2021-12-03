@@ -220,11 +220,32 @@ contains
     call check (is_cons_pair (cons ('a', 'b')), "is_cons_pair (cons ('a', 'b')) failed")
   end subroutine test_is_cons_pair
 
+  subroutine test_is_not_nil_or_pair
+    call check (is_not_nil_or_pair ('abc'), "is_not_nil_or_pair ('abc') failed")
+    call check (.not. is_not_nil_or_pair (nil_list), ".not. is_not_nil_or_pair (nil_list) failed")
+    call check (.not. is_not_nil_or_pair (iota (15)), ".not. is_not_nil_or_pair (iota (15)) failed")
+    call check (.not. is_not_nil_or_pair (cons ('a', 'b')), ".not. is_not_nil_or_pair (cons ('a', 'b')) failed")
+  end subroutine test_is_not_nil_or_pair
+
+  subroutine test_is_not_nil_list
+    call check (is_not_nil_list ('abc'), "is_not_nil_list ('abc') failed")
+    call check (.not. is_not_nil_list (nil_list), ".not. is_not_nil_list (nil_list) failed")
+    call check (is_not_nil_list (iota (15)), "is_not_nil_list (iota (15)) failed")
+    call check (is_not_nil_list (cons ('a', 'b')), "is_not_nil_list (cons ('a', 'b')) failed")
+  end subroutine test_is_not_nil_list
+
   subroutine test_list_is_nil
     call check (list_is_nil (nil_list), "list_is_nil (nil_list) failed")
     call check (.not. list_is_nil (iota (15)), ".not. list_is_nil (iota (15)) failed")
     call check (.not. list_is_nil (cons('a', 'b')), ".not. list_is_nil (cons('a', 'b')) failed")
   end subroutine test_list_is_nil
+
+  subroutine test_is_not_cons_pair
+    call check (is_not_cons_pair ('abc'), "is_not_cons_pair ('abc') failed")
+    call check (is_not_cons_pair (nil_list), "is_not_cons_pair (nil_list) failed")
+    call check (.not. is_not_cons_pair (iota (15)), ".not. is_not_cons_pair (iota (15)) failed")
+    call check (.not. is_not_cons_pair (cons ('a', 'b')), ".not. is_not_cons_pair (cons ('a', 'b')) failed")
+  end subroutine test_is_not_cons_pair
 
   subroutine test_list_is_pair
     call check (.not. list_is_pair (nil_list), ".not. list_is_pair (nil_list) failed")
@@ -1825,6 +1846,9 @@ contains
     call test_is_nil_or_pair
     call test_is_nil_list
     call test_is_cons_pair
+    call test_is_not_nil_or_pair
+    call test_is_not_nil_list
+    call test_is_not_cons_pair
     call test_list_is_nil
     call test_list_is_pair
     call test_cons_t_eq
