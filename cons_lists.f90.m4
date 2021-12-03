@@ -334,6 +334,11 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_unfold_right_with_tail     ! A special case of the generic `list_unfold_right'.
   public :: list_unfold_right_with_nil_tail ! A special case of the generic `list_unfold_right'.
 
+  ! Association lists: lists of key-value pairs.
+  public :: alist_cons   ! CONS a key-value pair.
+  public :: alist_copy   ! Copy an association list, making copies of the key-value pairs.
+  public :: alist_delete ! Delete all entries with a given key (though actually this is much more general).
+
   ! Overloading of `iota'.
   interface iota
      module procedure iota_given_length
@@ -2896,6 +2901,148 @@ m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: lst
     lst = list_unfold_right_with_tail (pred, f, g, seed, nil_list)
   end function list_unfold_right_with_nil_tail
+
+  function alist_cons (k, v, alst) result (cons_kv_alst)
+    class(*), intent(in) :: k, v, alst
+    class(*), allocatable :: cons_kv_alst
+    cons_kv_alst = cons (cons (k, v), alst)
+  end function alist_cons
+
+  function alist_copy (alst) result (alst_c)
+    class(*), intent(in) :: alst
+    class(*), allocatable :: alst_c
+
+    class(*), allocatable :: head, tail, k, v
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+    
+    select type (alst)
+    class is (cons_t)
+       if (list_is_nil (alst)) then
+          alst_c = nil_list
+       else
+          call uncons (alst, head, tail)
+          call uncons (head, k, v)
+          cursor = cons (cons (k, v), tail)
+          alst_c = cursor
+          do while (is_cons_pair (tail))
+             call uncons (tail, head, tail)
+             call uncons (head, k, v)
+             new_pair = cons (cons (k, v), tail)
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+          end do
+       end if
+    class default
+       alst_c = alst
+    end select
+  end function alist_copy
+
+  recursive function skip_key_matches (x, pred, lst) result (next)
+    class(*), intent(in) :: x
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: next
+
+    class(*), allocatable :: p
+    logical :: found_end_or_unsatisfying_element
+
+    p = lst
+    found_end_or_unsatisfying_element = .false.
+    do while (.not. found_end_or_unsatisfying_element)
+       if (.not. is_cons_pair (p)) then
+          found_end_or_unsatisfying_element = .true.
+       else if (.not. pred (x, caar (p))) then
+          found_end_or_unsatisfying_element = .true.
+       else
+          p = cdr (p)
+       end if
+    end do
+    next = p
+  end function skip_key_matches
+
+  recursive function skip_key_mismatches (x, pred, lst) result (next)
+    class(*), intent(in) :: x
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: next
+
+    class(*), allocatable :: p
+    logical :: found_end_or_satisfying_element
+
+    p = lst
+    found_end_or_satisfying_element = .false.
+    do while (.not. found_end_or_satisfying_element)
+       if (.not. is_cons_pair (p)) then
+          found_end_or_satisfying_element = .true.
+       else if (pred (x, caar (p))) then
+          found_end_or_satisfying_element = .true.
+       else
+          p = cdr (p)
+       end if
+    end do
+    next = p
+  end function skip_key_mismatches
+
+  recursive function alist_delete (key, pred, alst) result (alst_d)
+    !
+    ! NOTE: The argument order is different from that of SRFI-1's
+    !       `alist-delete' procedure. I have ordered the arguments to
+    !       be reminiscent of infix notation.
+    !
+    class(*), intent(in) :: key
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: alst
+    class(*), allocatable :: alst_d
+
+    class(*), allocatable :: retval
+    class(*), allocatable :: current_position
+    class(*), allocatable :: lookahead
+    type(cons_t) :: segment
+    type(cons_t) :: cursor, next_cursor
+    logical :: done
+
+    current_position = skip_key_matches (key, pred, alst)
+    if (.not. is_cons_pair (current_position)) then
+       ! There are no elements that do not satisfy the predicate.
+       retval = current_position
+    else
+       lookahead = skip_key_mismatches (key, pred, cdr (current_position))
+       if (.not. is_cons_pair (lookahead)) then
+          ! A tail of the original is the entire result.
+          retval = current_position
+       else
+          ! One must construct a new list, though it may share a tail
+          ! with the original.
+          call copy_list_segment (current_position, lookahead, segment, cursor)
+          retval = segment
+          current_position = skip_key_matches (key, pred, cdr (lookahead))
+          done = .false.
+          do while (.not. done)
+             if (.not. is_cons_pair (current_position)) then
+                ! The current position is the end of the list (a nil
+                ! list or a non-list).
+                call set_cdr (cursor, current_position)
+                done = .true.
+             else
+                lookahead = skip_key_mismatches (key, pred, cdr (current_position))
+                if (.not. is_cons_pair (lookahead)) then
+                   ! We have found a common tail.
+                   call set_cdr (cursor, current_position)
+                   done = .true.
+                else
+                   ! Append another segment.
+                   call copy_list_segment (current_position, lookahead, segment, next_cursor)
+                   call set_cdr (cursor, segment)
+                   cursor = next_cursor
+                   current_position = skip_key_matches (key, pred, cdr (lookahead))
+                end if
+             end if
+          end do
+       end if
+    end if
+    alst_d = retval
+  end function alist_delete
 
 m4_if(DEBUGGING,[true],[dnl
   function integer_cast (obj) result (int)

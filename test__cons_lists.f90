@@ -100,6 +100,13 @@ contains
     bool = list_equals (integer_eq, obj1, obj2)
   end function integer_list_eq
 
+  function integer_pair_eq (obj1, obj2) result (bool)
+    class(*), intent(in) :: obj1, obj2
+    logical :: bool
+    bool = (integer_cast (car (obj1)) == integer_cast (car (obj2))) &
+         .and. (integer_cast (cdr (obj1)) == integer_cast (cdr (obj2)))
+  end function integer_pair_eq
+
   subroutine cosine_subr (x)
     class(*), intent(inout), allocatable :: x
     x = cos (real_cast (x))
@@ -1874,6 +1881,51 @@ contains
     call check (list_equals (integer_eq, lst, iota (100, 1)), "check0030 failed (for list_unfold_right)")
   end subroutine test_list_unfold_right
 
+  subroutine test_alist_cons
+    class(*), allocatable :: lst
+    lst = alist_cons (1, 2, alist_cons (3, 4, nil_list))
+    call check (car (first (lst)) .eqi. 1, "car (first (lst)) .eqi. 1 failed (for alist_cons)")
+    call check (cdr (first (lst)) .eqi. 2, "cdr (first (lst)) .eqi. 2 failed (for alist_cons)")
+    call check (car (second (lst)) .eqi. 3, "car (second (lst)) .eqi. 3 failed (for alist_cons)")
+    call check (cdr (second (lst)) .eqi. 4, "cdr (second (lst)) .eqi. 4 failed (for alist_cons)")
+    call check (is_nil_list (cddr (lst)), "is_nil_list (cddr (lst)) failed (for alist_cons)")
+  end subroutine test_alist_cons
+
+  subroutine test_alist_copy
+    class(*), allocatable :: lst1, lst2
+    lst1 = alist_cons (1, 2, alist_cons (3, 4, nil_list))
+    lst2 = alist_copy (lst1)
+    call set_car (cons_t_cast (first (lst2)), 10)
+    call set_cdr (cons_t_cast (second (lst2)), 40)
+    call check (car (first (lst1)) .eqi. 1, "car (first (lst1)) .eqi. 1 failed (for alist_copy)")
+    call check (cdr (first (lst1)) .eqi. 2, "cdr (first (lst1)) .eqi. 2 failed (for alist_copy)")
+    call check (car (second (lst1)) .eqi. 3, "car (second (lst1)) .eqi. 3 failed (for alist_copy)")
+    call check (cdr (second (lst1)) .eqi. 4, "cdr (second (lst1)) .eqi. 4 failed (for alist_copy)")
+    call check (is_nil_list (cddr (lst1)), "is_nil_list (cddr (lst1)) failed (for alist_copy)")
+    call check (car (first (lst2)) .eqi. 10, "car (first (lst2)) .eqi. 10 failed (for alist_copy)")
+    call check (cdr (first (lst2)) .eqi. 2, "cdr (first (lst2)) .eqi. 2 failed (for alist_copy)")
+    call check (car (second (lst2)) .eqi. 3, "car (second (lst2)) .eqi. 3 failed (for alist_copy)")
+    call check (cdr (second (lst2)) .eqi. 40, "cdr (second (lst2)) .eqi. 40 failed (for alist_copy)")
+    call check (is_nil_list (cddr (lst2)), "is_nil_list (cddr (lst2)) failed (for alist_copy)")
+  end subroutine test_alist_copy
+
+  subroutine test_alist_delete
+    !
+    ! FIXME: More test cases are needed.
+    !
+    class(*), allocatable :: lst1, lst2, lst3
+    class(*), allocatable :: lst2_ref, lst3_ref
+    lst1 = alist_cons (3, 26, alist_cons (1, 5, alist_cons (1, 2, alist_cons (3, 4, alist_cons (1, 7, nil_list)))))
+    lst2 = alist_delete (1, integer_eq, lst1)
+    lst3 = alist_delete (3, integer_eq, lst1)
+    lst2_ref = alist_cons (3, 26, alist_cons (3, 4, nil_list))
+    lst3_ref = alist_cons (1, 5, alist_cons (1, 2, alist_cons (1, 7, nil_list)))
+    call check (list_equals (integer_pair_eq, lst2, lst2_ref), &
+         "list_equals (integer_pair_eq, lst2, lst2_ref) failed (for alist_delete)")
+    call check (list_equals (integer_pair_eq, lst3, lst3_ref), &
+         "list_equals (integer_pair_eq, lst3, lst3_ref) failed (for alist_delete)")
+  end subroutine test_alist_delete
+
   subroutine run_tests
     !
     ! FIXME: Add tests that check various subroutines do not clobber
@@ -1958,6 +2010,9 @@ contains
     call test_list_reduce_right
     call test_list_unfold
     call test_list_unfold_right
+    call test_alist_cons
+    call test_alist_copy
+    call test_alist_delete
   end subroutine run_tests
 
 end module test__cons_lists
