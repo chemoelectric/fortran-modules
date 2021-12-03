@@ -335,9 +335,10 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_unfold_right_with_nil_tail ! A special case of the generic `list_unfold_right'.
 
   ! Association lists: lists of key-value CONS-pairs.
+  public :: alist_assoc  ! Return the first pair with a given key (though actually this is more general).
   public :: alist_cons   ! CONS a key-value pair.
   public :: alist_copy   ! Copy an association list, making copies of the key-value pairs.
-  public :: alist_delete ! Delete all entries with a given key (though actually this is much more general).
+  public :: alist_delete ! Delete all entries with a given key (though actually this is more general).
 
   ! Overloading of `iota'.
   interface iota
@@ -3043,6 +3044,22 @@ m4_forloop([k],[1],n,[dnl
     end if
     alst_d = retval
   end function alist_delete
+
+  function alist_assoc (key, pred, alst) result (alst_a)
+    !
+    ! NOTE: SRFI-1's `assoc' returns `#f' if there is no match. This
+    !       function returns a nil list, instead.
+    !
+    ! NOTE: The argument order is different from that of SRFI-1's
+    !       `assoc' procedure. I have ordered the arguments to be
+    !       reminiscent of infix notation.
+    !
+    class(*), intent(in) :: key
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: alst
+    class(*), allocatable :: alst_a
+    alst_a = skip_key_mismatches (key, pred, alst)
+  end function alist_assoc
 
 m4_if(DEBUGGING,[true],[dnl
   function integer_cast (obj) result (int)
