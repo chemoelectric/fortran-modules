@@ -416,7 +416,7 @@ module cons_lists
   public :: list_unfold_right_with_tail     ! A special case of the generic `list_unfold_right'.
   public :: list_unfold_right_with_nil_tail ! A special case of the generic `list_unfold_right'.
 
-  ! Association lists: lists of key-value pairs.
+  ! Association lists: lists of key-value CONS-pairs.
   public :: alist_cons   ! CONS a key-value pair.
   public :: alist_copy   ! Copy an association list, making copies of the key-value pairs.
   public :: alist_delete ! Delete all entries with a given key (though actually this is much more general).
