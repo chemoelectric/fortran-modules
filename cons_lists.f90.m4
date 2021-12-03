@@ -329,6 +329,11 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_unfold_with_tail_gen ! A special case of the generic `list_unfold'.
   public :: list_unfold_with_nil_tail ! A special case of the generic `list_unfold'.
 
+  ! `The fundamental iterative list constructor.' See SRFI-1.
+  public :: list_unfold_right               ! The generic functions.
+  public :: list_unfold_right_with_tail     ! A special case of the generic `list_unfold_right'.
+  public :: list_unfold_right_with_nil_tail ! A special case of the generic `list_unfold_right'.
+
   ! Overloading of `iota'.
   interface iota
      module procedure iota_given_length
@@ -362,6 +367,12 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
      module procedure list_unfold_with_tail_gen
      module procedure list_unfold_with_nil_tail
   end interface list_unfold
+
+  ! Overloading of `list_unfold_right'.
+  interface list_unfold_right
+     module procedure list_unfold_right_with_tail
+     module procedure list_unfold_right_with_nil_tail
+  end interface list_unfold_right
 
 contains
 
@@ -2853,6 +2864,38 @@ m4_forloop([k],[1],n,[dnl
     end function recursion
 
   end function list_unfold_with_nil_tail
+
+  recursive function list_unfold_right_with_tail (pred, f, g, seed, tail) result (lst)
+    procedure(list_predicate1_t) :: pred
+    procedure(list_modify_elements_procedure_t) :: f
+    procedure(list_modify_elements_procedure_t) :: g
+    class(*), intent(in) :: seed
+    class(*), intent(in) :: tail
+    class(*), allocatable :: lst
+
+    class(*), allocatable :: f_of_seed
+    class(*), allocatable :: current_seed
+    class(*), allocatable :: retval
+
+    retval = tail
+    current_seed = seed
+    do while (.not. pred (current_seed))
+       f_of_seed = current_seed
+       call f (f_of_seed)
+       retval = cons (f_of_seed, retval)
+       call g (current_seed)
+    end do
+    lst = retval
+  end function list_unfold_right_with_tail
+
+  recursive function list_unfold_right_with_nil_tail (pred, f, g, seed) result (lst)
+    procedure(list_predicate1_t) :: pred
+    procedure(list_modify_elements_procedure_t) :: f
+    procedure(list_modify_elements_procedure_t) :: g
+    class(*), intent(in) :: seed
+    class(*), allocatable :: lst
+    lst = list_unfold_right_with_tail (pred, f, g, seed, nil_list)
+  end function list_unfold_right_with_nil_tail
 
 m4_if(DEBUGGING,[true],[dnl
   function integer_cast (obj) result (int)

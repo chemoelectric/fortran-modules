@@ -115,6 +115,11 @@ contains
     x = integer_cast (x) + 1
   end subroutine integer_incr_subr
 
+  subroutine integer_decr_subr (x)
+    class(*), intent(inout), allocatable :: x
+    x = integer_cast (x) - 1
+  end subroutine integer_decr_subr
+
   function is_positive_integer (x) result (bool)
     class(*), intent(in) :: x
     logical :: bool
@@ -136,6 +141,12 @@ contains
     logical :: bool
     bool = (10 < integer_cast (x))
   end function greater_than_10
+
+  function equals_0 (x) result (bool)
+    class(*), intent(in) :: x
+    logical :: bool
+    bool = (integer_cast (x) == 0)
+  end function equals_0
 
   subroutine passthru_subr (x)
     class(*), intent(inout), allocatable :: x
@@ -1838,6 +1849,31 @@ contains
 
   end subroutine test_list_unfold
 
+  subroutine test_list_unfold_right
+    class(*), allocatable :: lst
+    type(cons_t) :: head
+    type(cons_t) :: tail
+
+    !
+    ! Examples from SRFI-1.
+    !
+
+    ! List of squares: 1**2 ... 10**2
+    lst = list_unfold_right (equals_0, integer_square_subr, integer_decr_subr, 10)
+    call check (list_equals (integer_eq, lst, list10 (1, 4, 9, 16, 25, 36, 49, 64, 81, 100)), &
+         "check0010 failed (for list_unfold_right)")
+
+    ! Reverse a proper list.
+    lst = list_unfold_right (is_nil_list, car_subr, cdr_subr, iota (100, 1))
+    call check (list_equals (integer_eq, lst, iota (100, 100, -1)), "check0020 failed (for list_unfold_right)")
+
+    ! Append-reverse HEAD onto TAIL.
+    head = iota (75, 75, -1)
+    tail = iota (25, 76)
+    lst = list_unfold_right (is_nil_list, car_subr, cdr_subr, head, tail)
+    call check (list_equals (integer_eq, lst, iota (100, 1)), "check0060 failed (for list_unfold_right)")
+  end subroutine test_list_unfold_right
+
   subroutine run_tests
     !
     ! FIXME: Add tests that check various subroutines do not clobber
@@ -1921,6 +1957,7 @@ contains
     call test_list_reduce
     call test_list_reduce_right
     call test_list_unfold
+    call test_list_unfold_right
   end subroutine run_tests
 
 end module test__cons_lists
