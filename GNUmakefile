@@ -43,10 +43,10 @@ COMPILE.m4 = $(M4) $(M4FLAGS) $(XM4FLAGS)
 M4FLAGS += -DCADADR_MAX=4
 
 # How many arguments should list1.. and unlist1.. go up to?
-M4FLAGS += -DLISTN_MAX=9
+M4FLAGS += -DLISTN_MAX=20
 
 # How many arguments should zips and unzips go up to?
-M4FLAGS += -DZIP_MAX=9
+M4FLAGS += -DZIP_MAX=10
 
 FC = gfortran
 FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all -Wall

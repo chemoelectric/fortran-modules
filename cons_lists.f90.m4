@@ -312,11 +312,18 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_delete_duplicates ! O(n**2) duplicate-element deletion.
   public :: list_filter_map ! Filter out elements while mapping those kept.
   public :: list_fold       ! `The fundamental list iterator.'
-  public :: list_fold_right ! `The fundamental list recursion operator.' (Not for use on very long lists.)
+  public :: list_fold_right ! `The fundamental list recursion operator.' (Not for use on VERY long lists.)
   public :: list_pair_fold  ! Like list_fold, but applied to sublists.
-  public :: list_pair_fold_right ! Like list_fold_right, but applied to sublists.
+  public :: list_pair_fold_right ! Like list_fold_right, but applied to sublists. (Not for use on VERY long lists.)
   public :: list_reduce     ! A variant of list_fold. (See SRFI-1.)
-  public :: list_reduce_right ! A variant of list_fold_right. (See SRFI-1.)
+  public :: list_reduce_right ! A variant of list_fold_right. (See SRFI-1. Not for use on VERY long lists.)
+
+  ! `The fundamental recursive list constructor.' See
+  ! SRFI-1. Implemented recursively and so not for use to make VERY
+  ! long lists. (Lists tens of thousands of pairs long, for instance.)
+  public :: list_unfold               ! The generic function.
+  public :: list_unfold_with_tail_gen ! A special case of the generic `list_unfold'.
+  public :: list_unfold_with_nil_tail ! A special case of the generic `list_unfold'.
 
   ! Overloading of `iota'.
   interface iota
@@ -345,6 +352,12 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   interface list_append_map
      module procedure list_append_modify_elements
   end interface list_append_map
+
+  ! Overloading of `list_unfold'.
+  interface list_unfold
+     module procedure list_unfold_with_tail_gen
+     module procedure list_unfold_with_nil_tail
+  end interface list_unfold
 
 contains
 
@@ -888,8 +901,11 @@ dnl
   end function circular_list
 dnl
 m4_forloop([n],[1],LISTN_MAX,[
-  function list[]n (obj1[]m4_forloop([k],[2],n,[, obj[]k])) result (lst)
-    class(*), intent(in) :: obj1[]m4_forloop([k],[2],n,[, obj[]k])
+  function list[]n (obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+])obj[]k])) result (lst)
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: obj[]k
+])dnl
     type(cons_t) :: lst
 
     lst = obj[]n ** nil_list
@@ -900,13 +916,16 @@ m4_forloop([k],[2],n,[    lst = obj[]m4_eval(n - k + 1) ** lst
 ])dnl
 dnl
 m4_forloop([n],[1],LISTN_MAX,[
-  subroutine unlist[]n (lst, obj1[]m4_forloop([k],[2],n,[, obj[]k]))
+  subroutine unlist[]n (lst, obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+])obj[]k]))
     !
     ! This subroutine `unlists' the n elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1[]m4_forloop([k],[2],n,[, obj[]k])
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable :: obj[]k
+])dnl
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -926,13 +945,16 @@ m4_forloop([k],[2],n,[dnl
 ])dnl
 dnl
 m4_forloop([n],[1],LISTN_MAX,[
-  subroutine unlist[]n[]_with_tail (lst, obj1[]m4_forloop([k],[2],n,[, obj[]k]), tail)
+  subroutine unlist[]n[]_with_tail (lst, obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+])obj[]k]), tail)
     !
     ! This subroutine `unlists' the leading n elements of lst, and
     ! also returns the tail.
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1[]m4_forloop([k],[2],n,[, obj[]k])
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable :: obj[]k
+])dnl
     class(*), allocatable :: tail
 
     class(*), allocatable :: hd
@@ -1290,8 +1312,11 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
   end function list_concatenate
 dnl
 m4_forloop([n],[1],ZIP_MAX,[
-  function list_zip[]n (lst1[]m4_forloop([k],[2],n,[, lst[]k])) result (lst_z)
-    class(*), intent(in) :: lst1[]m4_forloop([k],[2],n,[, lst[]k])
+  function list_zip[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+])lst[]k])) result (lst_z)
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
     type(cons_t) :: lst_z
 
 m4_forloop([k],[1],n,[dnl
@@ -1360,9 +1385,12 @@ m4_if(k,n,[dnl
 ])dnl
 dnl
 m4_forloop([n],[1],ZIP_MAX,[
-  subroutine list_unzip[]n (lst_zipped, lst1[]m4_forloop([k],[2],n,[, lst[]k]))
+  subroutine list_unzip[]n (lst_zipped, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+])lst[]k]))
     class(*) :: lst_zipped
-    type(cons_t) :: lst1[]m4_forloop([k],[2],n,[, lst[]k])
+m4_forloop([k],[1],n,[dnl
+    type(cons_t) :: lst[]k
+])dnl
 
 m4_forloop([k],[1],n,[dnl
     type(cons_t) :: cursor[]k
@@ -2737,6 +2765,72 @@ m4_forloop([k],[1],n,[dnl
     end function recursion
 
   end function list_reduce_right
+
+  recursive function list_unfold_with_tail_gen (pred, f, g, seed, tail_gen) result (lst)
+    procedure(list_predicate1_t) :: pred
+    procedure(list_modify_elements_procedure_t) :: f
+    procedure(list_modify_elements_procedure_t) :: g
+    class(*), intent(in) :: seed
+    procedure(list_modify_elements_procedure_t) :: tail_gen
+    class(*), allocatable :: lst
+
+    lst = recursion (seed)
+
+  contains
+
+    recursive function recursion (seed) result (lst)
+      class(*), intent(in) :: seed
+      class(*), allocatable :: lst
+
+      class(*), allocatable :: f_of_seed
+      class(*), allocatable :: g_of_seed
+      class(*), allocatable :: tail_gen_of_seed
+
+      if (pred (seed)) then
+         tail_gen_of_seed = seed
+         call tail_gen (tail_gen_of_seed)
+         lst = tail_gen_of_seed
+      else
+         f_of_seed = seed
+         call f (f_of_seed)
+         g_of_seed = seed
+         call g (g_of_seed)
+         lst = cons (f_of_seed, recursion (g_of_seed))
+      end if
+    end function recursion
+
+  end function list_unfold_with_tail_gen
+
+  recursive function list_unfold_with_nil_tail (pred, f, g, seed) result (lst)
+    procedure(list_predicate1_t) :: pred
+    procedure(list_modify_elements_procedure_t) :: f
+    procedure(list_modify_elements_procedure_t) :: g
+    class(*), intent(in) :: seed
+    class(*), allocatable :: lst
+
+    lst = recursion (seed)
+
+  contains
+
+    recursive function recursion (seed) result (lst)
+      class(*), intent(in) :: seed
+      class(*), allocatable :: lst
+
+      class(*), allocatable :: f_of_seed
+      class(*), allocatable :: g_of_seed
+
+      if (pred (seed)) then
+         lst = nil_list
+      else
+         f_of_seed = seed
+         call f (f_of_seed)
+         g_of_seed = seed
+         call g (g_of_seed)
+         lst = cons (f_of_seed, recursion (g_of_seed))
+      end if
+    end function recursion
+
+  end function list_unfold_with_nil_tail
 
 m4_if(DEBUGGING,[true],[dnl
   function integer_cast (obj) result (int)

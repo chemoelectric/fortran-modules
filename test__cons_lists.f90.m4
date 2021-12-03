@@ -105,6 +105,16 @@ contains
     x = cos (real_cast (x))
   end subroutine cosine_subr
 
+  subroutine integer_square_subr (x)
+    class(*), intent(inout), allocatable :: x
+    x = integer_cast (x) * integer_cast (x)
+  end subroutine integer_square_subr
+
+  subroutine integer_incr_subr (x)
+    class(*), intent(inout), allocatable :: x
+    x = integer_cast (x) + 1
+  end subroutine integer_incr_subr
+
   function is_positive_integer (x) result (bool)
     class(*), intent(in) :: x
     logical :: bool
@@ -120,6 +130,12 @@ contains
     logical :: bool
     bool = .not. is_positive_integer (x)
   end function is_not_positive_integer
+
+  function greater_than_10 (x) result (bool)
+    class(*), intent(in) :: x
+    logical :: bool
+    bool = (10 < integer_cast (x))
+  end function greater_than_10
   
   subroutine passthru_subr (x)
     class(*), intent(inout), allocatable :: x
@@ -1753,6 +1769,18 @@ contains
          "check0020 failed (for list_reduce_right)")
   end subroutine test_list_reduce_right
 
+  subroutine test_list_unfold
+    !
+    ! Examples from SRFI-1.
+    !
+
+    ! List of squares: 1**2 ... 10**2
+    call check (list_equals (integer_eq, &
+         list_unfold (greater_than_10, integer_square_subr, integer_incr_subr, 1), &
+         list10 (1, 4, 9, 16, 25, 36, 49, 64, 81, 100)), &
+         "check0010 failed (for list_unfold)")
+  end subroutine test_list_unfold
+
   subroutine run_tests
     !
     ! FIXME: Add tests that check various subroutines do not clobber
@@ -1832,6 +1860,7 @@ contains
     call test_list_pair_fold_right
     call test_list_reduce
     call test_list_reduce_right
+    call test_list_unfold
   end subroutine run_tests
 
 end module test__cons_lists

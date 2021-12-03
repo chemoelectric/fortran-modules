@@ -252,6 +252,17 @@ module cons_lists
   public :: list7
   public :: list8
   public :: list9
+  public :: list10
+  public :: list11
+  public :: list12
+  public :: list13
+  public :: list14
+  public :: list15
+  public :: list16
+  public :: list17
+  public :: list18
+  public :: list19
+  public :: list20
   public :: unlist1
   public :: unlist2
   public :: unlist3
@@ -261,6 +272,17 @@ module cons_lists
   public :: unlist7
   public :: unlist8
   public :: unlist9
+  public :: unlist10
+  public :: unlist11
+  public :: unlist12
+  public :: unlist13
+  public :: unlist14
+  public :: unlist15
+  public :: unlist16
+  public :: unlist17
+  public :: unlist18
+  public :: unlist19
+  public :: unlist20
   public :: unlist1_with_tail
   public :: unlist2_with_tail
   public :: unlist3_with_tail
@@ -270,6 +292,17 @@ module cons_lists
   public :: unlist7_with_tail
   public :: unlist8_with_tail
   public :: unlist9_with_tail
+  public :: unlist10_with_tail
+  public :: unlist11_with_tail
+  public :: unlist12_with_tail
+  public :: unlist13_with_tail
+  public :: unlist14_with_tail
+  public :: unlist15_with_tail
+  public :: unlist16_with_tail
+  public :: unlist17_with_tail
+  public :: unlist18_with_tail
+  public :: unlist19_with_tail
+  public :: unlist20_with_tail
 
   public :: list_reverse          ! Make a reversed copy.
   public :: list_reverse_in_place ! Reverse a list without copying. (The argument must be a cons_t.)
@@ -296,6 +329,7 @@ module cons_lists
   public :: list_zip7
   public :: list_zip8
   public :: list_zip9
+  public :: list_zip10
 
   ! Unzipping: separating the elements of a list of lists into
   ! separate lists.
@@ -308,6 +342,7 @@ module cons_lists
   public :: list_unzip7
   public :: list_unzip8
   public :: list_unzip9
+  public :: list_unzip10
 
   ! list_unzip1f is the same as list_unzip1, except as a function
   ! instead of a subroutine.
@@ -359,11 +394,18 @@ module cons_lists
   public :: list_delete_duplicates ! O(n**2) duplicate-element deletion.
   public :: list_filter_map ! Filter out elements while mapping those kept.
   public :: list_fold       ! `The fundamental list iterator.'
-  public :: list_fold_right ! `The fundamental list recursion operator.' (Not for use on very long lists.)
+  public :: list_fold_right ! `The fundamental list recursion operator.' (Not for use on VERY long lists.)
   public :: list_pair_fold  ! Like list_fold, but applied to sublists.
-  public :: list_pair_fold_right ! Like list_fold_right, but applied to sublists.
+  public :: list_pair_fold_right ! Like list_fold_right, but applied to sublists. (Not for use on VERY long lists.)
   public :: list_reduce     ! A variant of list_fold. (See SRFI-1.)
-  public :: list_reduce_right ! A variant of list_fold_right. (See SRFI-1.)
+  public :: list_reduce_right ! A variant of list_fold_right. (See SRFI-1. Not for use on VERY long lists.)
+
+  ! `The fundamental recursive list constructor.' See
+  ! SRFI-1. Implemented recursively and so not for use to make VERY
+  ! long lists. (Lists tens of thousands of pairs long, for instance.)
+  public :: list_unfold               ! The generic function.
+  public :: list_unfold_with_tail_gen ! A special case of the generic `list_unfold'.
+  public :: list_unfold_with_nil_tail ! A special case of the generic `list_unfold'.
 
   ! Overloading of `iota'.
   interface iota
@@ -392,6 +434,12 @@ module cons_lists
   interface list_append_map
      module procedure list_append_modify_elements
   end interface list_append_map
+
+  ! Overloading of `list_unfold'.
+  interface list_unfold
+     module procedure list_unfold_with_tail_gen
+     module procedure list_unfold_with_nil_tail
+  end interface list_unfold
 
 contains
 
@@ -1108,7 +1156,8 @@ contains
   end function list1
 
   function list2 (obj1, obj2) result (lst)
-    class(*), intent(in) :: obj1, obj2
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
     type(cons_t) :: lst
 
     lst = obj2 ** nil_list
@@ -1116,7 +1165,9 @@ contains
   end function list2
 
   function list3 (obj1, obj2, obj3) result (lst)
-    class(*), intent(in) :: obj1, obj2, obj3
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
     type(cons_t) :: lst
 
     lst = obj3 ** nil_list
@@ -1125,7 +1176,10 @@ contains
   end function list3
 
   function list4 (obj1, obj2, obj3, obj4) result (lst)
-    class(*), intent(in) :: obj1, obj2, obj3, obj4
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
     type(cons_t) :: lst
 
     lst = obj4 ** nil_list
@@ -1135,7 +1189,11 @@ contains
   end function list4
 
   function list5 (obj1, obj2, obj3, obj4, obj5) result (lst)
-    class(*), intent(in) :: obj1, obj2, obj3, obj4, obj5
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
     type(cons_t) :: lst
 
     lst = obj5 ** nil_list
@@ -1146,7 +1204,12 @@ contains
   end function list5
 
   function list6 (obj1, obj2, obj3, obj4, obj5, obj6) result (lst)
-    class(*), intent(in) :: obj1, obj2, obj3, obj4, obj5, obj6
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
     type(cons_t) :: lst
 
     lst = obj6 ** nil_list
@@ -1158,7 +1221,13 @@ contains
   end function list6
 
   function list7 (obj1, obj2, obj3, obj4, obj5, obj6, obj7) result (lst)
-    class(*), intent(in) :: obj1, obj2, obj3, obj4, obj5, obj6, obj7
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
     type(cons_t) :: lst
 
     lst = obj7 ** nil_list
@@ -1171,7 +1240,14 @@ contains
   end function list7
 
   function list8 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8) result (lst)
-    class(*), intent(in) :: obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
     type(cons_t) :: lst
 
     lst = obj8 ** nil_list
@@ -1185,7 +1261,15 @@ contains
   end function list8
 
   function list9 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9) result (lst)
-    class(*), intent(in) :: obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
     type(cons_t) :: lst
 
     lst = obj9 ** nil_list
@@ -1198,6 +1282,401 @@ contains
     lst = obj2 ** lst
     lst = obj1 ** lst
   end function list9
+
+  function list10 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    type(cons_t) :: lst
+
+    lst = obj10 ** nil_list
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list10
+
+  function list11 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    type(cons_t) :: lst
+
+    lst = obj11 ** nil_list
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list11
+
+  function list12 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    type(cons_t) :: lst
+
+    lst = obj12 ** nil_list
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list12
+
+  function list13 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    type(cons_t) :: lst
+
+    lst = obj13 ** nil_list
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list13
+
+  function list14 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    type(cons_t) :: lst
+
+    lst = obj14 ** nil_list
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list14
+
+  function list15 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    type(cons_t) :: lst
+
+    lst = obj15 ** nil_list
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list15
+
+  function list16 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+    type(cons_t) :: lst
+
+    lst = obj16 ** nil_list
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list16
+
+  function list17 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+    class(*), intent(in) :: obj17
+    type(cons_t) :: lst
+
+    lst = obj17 ** nil_list
+    lst = obj16 ** lst
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list17
+
+  function list18 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+    class(*), intent(in) :: obj17
+    class(*), intent(in) :: obj18
+    type(cons_t) :: lst
+
+    lst = obj18 ** nil_list
+    lst = obj17 ** lst
+    lst = obj16 ** lst
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list18
+
+  function list19 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+    class(*), intent(in) :: obj17
+    class(*), intent(in) :: obj18
+    class(*), intent(in) :: obj19
+    type(cons_t) :: lst
+
+    lst = obj19 ** nil_list
+    lst = obj18 ** lst
+    lst = obj17 ** lst
+    lst = obj16 ** lst
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list19
+
+  function list20 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+    class(*), intent(in) :: obj17
+    class(*), intent(in) :: obj18
+    class(*), intent(in) :: obj19
+    class(*), intent(in) :: obj20
+    type(cons_t) :: lst
+
+    lst = obj20 ** nil_list
+    lst = obj19 ** lst
+    lst = obj18 ** lst
+    lst = obj17 ** lst
+    lst = obj16 ** lst
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list20
 
   subroutine unlist1 (lst, obj1)
     !
@@ -1224,7 +1703,8 @@ contains
     ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -1245,7 +1725,9 @@ contains
     ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2, obj3
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -1268,7 +1750,10 @@ contains
     ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2, obj3, obj4
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -1293,7 +1778,11 @@ contains
     ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2, obj3, obj4, obj5
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -1320,7 +1809,12 @@ contains
     ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2, obj3, obj4, obj5, obj6
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -1349,7 +1843,13 @@ contains
     ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2, obj3, obj4, obj5, obj6, obj7
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -1380,7 +1880,14 @@ contains
     ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -1413,7 +1920,15 @@ contains
     ! allowed to be dotted, in which case the extra value is ignored).
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -1442,6 +1957,687 @@ contains
     end if
   end subroutine unlist9
 
+  subroutine unlist10 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10)
+    !
+    ! This subroutine `unlists' the 10 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    tail = lst
+    call uncons (tail, head, tail)
+    obj1 = head
+    call uncons (tail, head, tail)
+    obj2 = head
+    call uncons (tail, head, tail)
+    obj3 = head
+    call uncons (tail, head, tail)
+    obj4 = head
+    call uncons (tail, head, tail)
+    obj5 = head
+    call uncons (tail, head, tail)
+    obj6 = head
+    call uncons (tail, head, tail)
+    obj7 = head
+    call uncons (tail, head, tail)
+    obj8 = head
+    call uncons (tail, head, tail)
+    obj9 = head
+    call uncons (tail, head, tail)
+    obj10 = head
+    if (is_cons_pair (tail)) then
+       call error_abort ("unlist10 of a list that is too long")
+    end if
+  end subroutine unlist10
+
+  subroutine unlist11 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11)
+    !
+    ! This subroutine `unlists' the 11 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    tail = lst
+    call uncons (tail, head, tail)
+    obj1 = head
+    call uncons (tail, head, tail)
+    obj2 = head
+    call uncons (tail, head, tail)
+    obj3 = head
+    call uncons (tail, head, tail)
+    obj4 = head
+    call uncons (tail, head, tail)
+    obj5 = head
+    call uncons (tail, head, tail)
+    obj6 = head
+    call uncons (tail, head, tail)
+    obj7 = head
+    call uncons (tail, head, tail)
+    obj8 = head
+    call uncons (tail, head, tail)
+    obj9 = head
+    call uncons (tail, head, tail)
+    obj10 = head
+    call uncons (tail, head, tail)
+    obj11 = head
+    if (is_cons_pair (tail)) then
+       call error_abort ("unlist11 of a list that is too long")
+    end if
+  end subroutine unlist11
+
+  subroutine unlist12 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12)
+    !
+    ! This subroutine `unlists' the 12 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    tail = lst
+    call uncons (tail, head, tail)
+    obj1 = head
+    call uncons (tail, head, tail)
+    obj2 = head
+    call uncons (tail, head, tail)
+    obj3 = head
+    call uncons (tail, head, tail)
+    obj4 = head
+    call uncons (tail, head, tail)
+    obj5 = head
+    call uncons (tail, head, tail)
+    obj6 = head
+    call uncons (tail, head, tail)
+    obj7 = head
+    call uncons (tail, head, tail)
+    obj8 = head
+    call uncons (tail, head, tail)
+    obj9 = head
+    call uncons (tail, head, tail)
+    obj10 = head
+    call uncons (tail, head, tail)
+    obj11 = head
+    call uncons (tail, head, tail)
+    obj12 = head
+    if (is_cons_pair (tail)) then
+       call error_abort ("unlist12 of a list that is too long")
+    end if
+  end subroutine unlist12
+
+  subroutine unlist13 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13)
+    !
+    ! This subroutine `unlists' the 13 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    tail = lst
+    call uncons (tail, head, tail)
+    obj1 = head
+    call uncons (tail, head, tail)
+    obj2 = head
+    call uncons (tail, head, tail)
+    obj3 = head
+    call uncons (tail, head, tail)
+    obj4 = head
+    call uncons (tail, head, tail)
+    obj5 = head
+    call uncons (tail, head, tail)
+    obj6 = head
+    call uncons (tail, head, tail)
+    obj7 = head
+    call uncons (tail, head, tail)
+    obj8 = head
+    call uncons (tail, head, tail)
+    obj9 = head
+    call uncons (tail, head, tail)
+    obj10 = head
+    call uncons (tail, head, tail)
+    obj11 = head
+    call uncons (tail, head, tail)
+    obj12 = head
+    call uncons (tail, head, tail)
+    obj13 = head
+    if (is_cons_pair (tail)) then
+       call error_abort ("unlist13 of a list that is too long")
+    end if
+  end subroutine unlist13
+
+  subroutine unlist14 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14)
+    !
+    ! This subroutine `unlists' the 14 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: obj14
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    tail = lst
+    call uncons (tail, head, tail)
+    obj1 = head
+    call uncons (tail, head, tail)
+    obj2 = head
+    call uncons (tail, head, tail)
+    obj3 = head
+    call uncons (tail, head, tail)
+    obj4 = head
+    call uncons (tail, head, tail)
+    obj5 = head
+    call uncons (tail, head, tail)
+    obj6 = head
+    call uncons (tail, head, tail)
+    obj7 = head
+    call uncons (tail, head, tail)
+    obj8 = head
+    call uncons (tail, head, tail)
+    obj9 = head
+    call uncons (tail, head, tail)
+    obj10 = head
+    call uncons (tail, head, tail)
+    obj11 = head
+    call uncons (tail, head, tail)
+    obj12 = head
+    call uncons (tail, head, tail)
+    obj13 = head
+    call uncons (tail, head, tail)
+    obj14 = head
+    if (is_cons_pair (tail)) then
+       call error_abort ("unlist14 of a list that is too long")
+    end if
+  end subroutine unlist14
+
+  subroutine unlist15 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15)
+    !
+    ! This subroutine `unlists' the 15 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: obj14
+    class(*), allocatable :: obj15
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    tail = lst
+    call uncons (tail, head, tail)
+    obj1 = head
+    call uncons (tail, head, tail)
+    obj2 = head
+    call uncons (tail, head, tail)
+    obj3 = head
+    call uncons (tail, head, tail)
+    obj4 = head
+    call uncons (tail, head, tail)
+    obj5 = head
+    call uncons (tail, head, tail)
+    obj6 = head
+    call uncons (tail, head, tail)
+    obj7 = head
+    call uncons (tail, head, tail)
+    obj8 = head
+    call uncons (tail, head, tail)
+    obj9 = head
+    call uncons (tail, head, tail)
+    obj10 = head
+    call uncons (tail, head, tail)
+    obj11 = head
+    call uncons (tail, head, tail)
+    obj12 = head
+    call uncons (tail, head, tail)
+    obj13 = head
+    call uncons (tail, head, tail)
+    obj14 = head
+    call uncons (tail, head, tail)
+    obj15 = head
+    if (is_cons_pair (tail)) then
+       call error_abort ("unlist15 of a list that is too long")
+    end if
+  end subroutine unlist15
+
+  subroutine unlist16 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16)
+    !
+    ! This subroutine `unlists' the 16 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: obj14
+    class(*), allocatable :: obj15
+    class(*), allocatable :: obj16
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    tail = lst
+    call uncons (tail, head, tail)
+    obj1 = head
+    call uncons (tail, head, tail)
+    obj2 = head
+    call uncons (tail, head, tail)
+    obj3 = head
+    call uncons (tail, head, tail)
+    obj4 = head
+    call uncons (tail, head, tail)
+    obj5 = head
+    call uncons (tail, head, tail)
+    obj6 = head
+    call uncons (tail, head, tail)
+    obj7 = head
+    call uncons (tail, head, tail)
+    obj8 = head
+    call uncons (tail, head, tail)
+    obj9 = head
+    call uncons (tail, head, tail)
+    obj10 = head
+    call uncons (tail, head, tail)
+    obj11 = head
+    call uncons (tail, head, tail)
+    obj12 = head
+    call uncons (tail, head, tail)
+    obj13 = head
+    call uncons (tail, head, tail)
+    obj14 = head
+    call uncons (tail, head, tail)
+    obj15 = head
+    call uncons (tail, head, tail)
+    obj16 = head
+    if (is_cons_pair (tail)) then
+       call error_abort ("unlist16 of a list that is too long")
+    end if
+  end subroutine unlist16
+
+  subroutine unlist17 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17)
+    !
+    ! This subroutine `unlists' the 17 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: obj14
+    class(*), allocatable :: obj15
+    class(*), allocatable :: obj16
+    class(*), allocatable :: obj17
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    tail = lst
+    call uncons (tail, head, tail)
+    obj1 = head
+    call uncons (tail, head, tail)
+    obj2 = head
+    call uncons (tail, head, tail)
+    obj3 = head
+    call uncons (tail, head, tail)
+    obj4 = head
+    call uncons (tail, head, tail)
+    obj5 = head
+    call uncons (tail, head, tail)
+    obj6 = head
+    call uncons (tail, head, tail)
+    obj7 = head
+    call uncons (tail, head, tail)
+    obj8 = head
+    call uncons (tail, head, tail)
+    obj9 = head
+    call uncons (tail, head, tail)
+    obj10 = head
+    call uncons (tail, head, tail)
+    obj11 = head
+    call uncons (tail, head, tail)
+    obj12 = head
+    call uncons (tail, head, tail)
+    obj13 = head
+    call uncons (tail, head, tail)
+    obj14 = head
+    call uncons (tail, head, tail)
+    obj15 = head
+    call uncons (tail, head, tail)
+    obj16 = head
+    call uncons (tail, head, tail)
+    obj17 = head
+    if (is_cons_pair (tail)) then
+       call error_abort ("unlist17 of a list that is too long")
+    end if
+  end subroutine unlist17
+
+  subroutine unlist18 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18)
+    !
+    ! This subroutine `unlists' the 18 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: obj14
+    class(*), allocatable :: obj15
+    class(*), allocatable :: obj16
+    class(*), allocatable :: obj17
+    class(*), allocatable :: obj18
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    tail = lst
+    call uncons (tail, head, tail)
+    obj1 = head
+    call uncons (tail, head, tail)
+    obj2 = head
+    call uncons (tail, head, tail)
+    obj3 = head
+    call uncons (tail, head, tail)
+    obj4 = head
+    call uncons (tail, head, tail)
+    obj5 = head
+    call uncons (tail, head, tail)
+    obj6 = head
+    call uncons (tail, head, tail)
+    obj7 = head
+    call uncons (tail, head, tail)
+    obj8 = head
+    call uncons (tail, head, tail)
+    obj9 = head
+    call uncons (tail, head, tail)
+    obj10 = head
+    call uncons (tail, head, tail)
+    obj11 = head
+    call uncons (tail, head, tail)
+    obj12 = head
+    call uncons (tail, head, tail)
+    obj13 = head
+    call uncons (tail, head, tail)
+    obj14 = head
+    call uncons (tail, head, tail)
+    obj15 = head
+    call uncons (tail, head, tail)
+    obj16 = head
+    call uncons (tail, head, tail)
+    obj17 = head
+    call uncons (tail, head, tail)
+    obj18 = head
+    if (is_cons_pair (tail)) then
+       call error_abort ("unlist18 of a list that is too long")
+    end if
+  end subroutine unlist18
+
+  subroutine unlist19 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19)
+    !
+    ! This subroutine `unlists' the 19 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: obj14
+    class(*), allocatable :: obj15
+    class(*), allocatable :: obj16
+    class(*), allocatable :: obj17
+    class(*), allocatable :: obj18
+    class(*), allocatable :: obj19
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    tail = lst
+    call uncons (tail, head, tail)
+    obj1 = head
+    call uncons (tail, head, tail)
+    obj2 = head
+    call uncons (tail, head, tail)
+    obj3 = head
+    call uncons (tail, head, tail)
+    obj4 = head
+    call uncons (tail, head, tail)
+    obj5 = head
+    call uncons (tail, head, tail)
+    obj6 = head
+    call uncons (tail, head, tail)
+    obj7 = head
+    call uncons (tail, head, tail)
+    obj8 = head
+    call uncons (tail, head, tail)
+    obj9 = head
+    call uncons (tail, head, tail)
+    obj10 = head
+    call uncons (tail, head, tail)
+    obj11 = head
+    call uncons (tail, head, tail)
+    obj12 = head
+    call uncons (tail, head, tail)
+    obj13 = head
+    call uncons (tail, head, tail)
+    obj14 = head
+    call uncons (tail, head, tail)
+    obj15 = head
+    call uncons (tail, head, tail)
+    obj16 = head
+    call uncons (tail, head, tail)
+    obj17 = head
+    call uncons (tail, head, tail)
+    obj18 = head
+    call uncons (tail, head, tail)
+    obj19 = head
+    if (is_cons_pair (tail)) then
+       call error_abort ("unlist19 of a list that is too long")
+    end if
+  end subroutine unlist19
+
+  subroutine unlist20 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
+    !
+    ! This subroutine `unlists' the 20 elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: obj14
+    class(*), allocatable :: obj15
+    class(*), allocatable :: obj16
+    class(*), allocatable :: obj17
+    class(*), allocatable :: obj18
+    class(*), allocatable :: obj19
+    class(*), allocatable :: obj20
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    tail = lst
+    call uncons (tail, head, tail)
+    obj1 = head
+    call uncons (tail, head, tail)
+    obj2 = head
+    call uncons (tail, head, tail)
+    obj3 = head
+    call uncons (tail, head, tail)
+    obj4 = head
+    call uncons (tail, head, tail)
+    obj5 = head
+    call uncons (tail, head, tail)
+    obj6 = head
+    call uncons (tail, head, tail)
+    obj7 = head
+    call uncons (tail, head, tail)
+    obj8 = head
+    call uncons (tail, head, tail)
+    obj9 = head
+    call uncons (tail, head, tail)
+    obj10 = head
+    call uncons (tail, head, tail)
+    obj11 = head
+    call uncons (tail, head, tail)
+    obj12 = head
+    call uncons (tail, head, tail)
+    obj13 = head
+    call uncons (tail, head, tail)
+    obj14 = head
+    call uncons (tail, head, tail)
+    obj15 = head
+    call uncons (tail, head, tail)
+    obj16 = head
+    call uncons (tail, head, tail)
+    obj17 = head
+    call uncons (tail, head, tail)
+    obj18 = head
+    call uncons (tail, head, tail)
+    obj19 = head
+    call uncons (tail, head, tail)
+    obj20 = head
+    if (is_cons_pair (tail)) then
+       call error_abort ("unlist20 of a list that is too long")
+    end if
+  end subroutine unlist20
+
   subroutine unlist1_with_tail (lst, obj1, tail)
     !
     ! This subroutine `unlists' the leading 1 elements of lst, and
@@ -1466,7 +2662,8 @@ contains
     ! also returns the tail.
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
     class(*), allocatable :: tail
 
     class(*), allocatable :: hd
@@ -1486,7 +2683,9 @@ contains
     ! also returns the tail.
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2, obj3
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
     class(*), allocatable :: tail
 
     class(*), allocatable :: hd
@@ -1508,7 +2707,10 @@ contains
     ! also returns the tail.
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2, obj3, obj4
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
     class(*), allocatable :: tail
 
     class(*), allocatable :: hd
@@ -1532,7 +2734,11 @@ contains
     ! also returns the tail.
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2, obj3, obj4, obj5
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
     class(*), allocatable :: tail
 
     class(*), allocatable :: hd
@@ -1558,7 +2764,12 @@ contains
     ! also returns the tail.
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2, obj3, obj4, obj5, obj6
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
     class(*), allocatable :: tail
 
     class(*), allocatable :: hd
@@ -1586,7 +2797,13 @@ contains
     ! also returns the tail.
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2, obj3, obj4, obj5, obj6, obj7
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
     class(*), allocatable :: tail
 
     class(*), allocatable :: hd
@@ -1616,7 +2833,14 @@ contains
     ! also returns the tail.
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
     class(*), allocatable :: tail
 
     class(*), allocatable :: hd
@@ -1648,7 +2872,15 @@ contains
     ! also returns the tail.
     !
     class(cons_t) :: lst
-    class(*), allocatable :: obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
     class(*), allocatable :: tail
 
     class(*), allocatable :: hd
@@ -1675,6 +2907,676 @@ contains
     obj9 = hd
     tail = tl
   end subroutine unlist9_with_tail
+
+  subroutine unlist10_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, tail)
+    !
+    ! This subroutine `unlists' the leading 10 elements of lst, and
+    ! also returns the tail.
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: tail
+
+    class(*), allocatable :: hd
+    class(*), allocatable :: tl
+
+    tl = lst
+    call uncons (tl, hd, tl)
+    obj1 = hd
+    call uncons (tl, hd, tl)
+    obj2 = hd
+    call uncons (tl, hd, tl)
+    obj3 = hd
+    call uncons (tl, hd, tl)
+    obj4 = hd
+    call uncons (tl, hd, tl)
+    obj5 = hd
+    call uncons (tl, hd, tl)
+    obj6 = hd
+    call uncons (tl, hd, tl)
+    obj7 = hd
+    call uncons (tl, hd, tl)
+    obj8 = hd
+    call uncons (tl, hd, tl)
+    obj9 = hd
+    call uncons (tl, hd, tl)
+    obj10 = hd
+    tail = tl
+  end subroutine unlist10_with_tail
+
+  subroutine unlist11_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, tail)
+    !
+    ! This subroutine `unlists' the leading 11 elements of lst, and
+    ! also returns the tail.
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: tail
+
+    class(*), allocatable :: hd
+    class(*), allocatable :: tl
+
+    tl = lst
+    call uncons (tl, hd, tl)
+    obj1 = hd
+    call uncons (tl, hd, tl)
+    obj2 = hd
+    call uncons (tl, hd, tl)
+    obj3 = hd
+    call uncons (tl, hd, tl)
+    obj4 = hd
+    call uncons (tl, hd, tl)
+    obj5 = hd
+    call uncons (tl, hd, tl)
+    obj6 = hd
+    call uncons (tl, hd, tl)
+    obj7 = hd
+    call uncons (tl, hd, tl)
+    obj8 = hd
+    call uncons (tl, hd, tl)
+    obj9 = hd
+    call uncons (tl, hd, tl)
+    obj10 = hd
+    call uncons (tl, hd, tl)
+    obj11 = hd
+    tail = tl
+  end subroutine unlist11_with_tail
+
+  subroutine unlist12_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, tail)
+    !
+    ! This subroutine `unlists' the leading 12 elements of lst, and
+    ! also returns the tail.
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: tail
+
+    class(*), allocatable :: hd
+    class(*), allocatable :: tl
+
+    tl = lst
+    call uncons (tl, hd, tl)
+    obj1 = hd
+    call uncons (tl, hd, tl)
+    obj2 = hd
+    call uncons (tl, hd, tl)
+    obj3 = hd
+    call uncons (tl, hd, tl)
+    obj4 = hd
+    call uncons (tl, hd, tl)
+    obj5 = hd
+    call uncons (tl, hd, tl)
+    obj6 = hd
+    call uncons (tl, hd, tl)
+    obj7 = hd
+    call uncons (tl, hd, tl)
+    obj8 = hd
+    call uncons (tl, hd, tl)
+    obj9 = hd
+    call uncons (tl, hd, tl)
+    obj10 = hd
+    call uncons (tl, hd, tl)
+    obj11 = hd
+    call uncons (tl, hd, tl)
+    obj12 = hd
+    tail = tl
+  end subroutine unlist12_with_tail
+
+  subroutine unlist13_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, tail)
+    !
+    ! This subroutine `unlists' the leading 13 elements of lst, and
+    ! also returns the tail.
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: tail
+
+    class(*), allocatable :: hd
+    class(*), allocatable :: tl
+
+    tl = lst
+    call uncons (tl, hd, tl)
+    obj1 = hd
+    call uncons (tl, hd, tl)
+    obj2 = hd
+    call uncons (tl, hd, tl)
+    obj3 = hd
+    call uncons (tl, hd, tl)
+    obj4 = hd
+    call uncons (tl, hd, tl)
+    obj5 = hd
+    call uncons (tl, hd, tl)
+    obj6 = hd
+    call uncons (tl, hd, tl)
+    obj7 = hd
+    call uncons (tl, hd, tl)
+    obj8 = hd
+    call uncons (tl, hd, tl)
+    obj9 = hd
+    call uncons (tl, hd, tl)
+    obj10 = hd
+    call uncons (tl, hd, tl)
+    obj11 = hd
+    call uncons (tl, hd, tl)
+    obj12 = hd
+    call uncons (tl, hd, tl)
+    obj13 = hd
+    tail = tl
+  end subroutine unlist13_with_tail
+
+  subroutine unlist14_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, tail)
+    !
+    ! This subroutine `unlists' the leading 14 elements of lst, and
+    ! also returns the tail.
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: obj14
+    class(*), allocatable :: tail
+
+    class(*), allocatable :: hd
+    class(*), allocatable :: tl
+
+    tl = lst
+    call uncons (tl, hd, tl)
+    obj1 = hd
+    call uncons (tl, hd, tl)
+    obj2 = hd
+    call uncons (tl, hd, tl)
+    obj3 = hd
+    call uncons (tl, hd, tl)
+    obj4 = hd
+    call uncons (tl, hd, tl)
+    obj5 = hd
+    call uncons (tl, hd, tl)
+    obj6 = hd
+    call uncons (tl, hd, tl)
+    obj7 = hd
+    call uncons (tl, hd, tl)
+    obj8 = hd
+    call uncons (tl, hd, tl)
+    obj9 = hd
+    call uncons (tl, hd, tl)
+    obj10 = hd
+    call uncons (tl, hd, tl)
+    obj11 = hd
+    call uncons (tl, hd, tl)
+    obj12 = hd
+    call uncons (tl, hd, tl)
+    obj13 = hd
+    call uncons (tl, hd, tl)
+    obj14 = hd
+    tail = tl
+  end subroutine unlist14_with_tail
+
+  subroutine unlist15_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, tail)
+    !
+    ! This subroutine `unlists' the leading 15 elements of lst, and
+    ! also returns the tail.
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: obj14
+    class(*), allocatable :: obj15
+    class(*), allocatable :: tail
+
+    class(*), allocatable :: hd
+    class(*), allocatable :: tl
+
+    tl = lst
+    call uncons (tl, hd, tl)
+    obj1 = hd
+    call uncons (tl, hd, tl)
+    obj2 = hd
+    call uncons (tl, hd, tl)
+    obj3 = hd
+    call uncons (tl, hd, tl)
+    obj4 = hd
+    call uncons (tl, hd, tl)
+    obj5 = hd
+    call uncons (tl, hd, tl)
+    obj6 = hd
+    call uncons (tl, hd, tl)
+    obj7 = hd
+    call uncons (tl, hd, tl)
+    obj8 = hd
+    call uncons (tl, hd, tl)
+    obj9 = hd
+    call uncons (tl, hd, tl)
+    obj10 = hd
+    call uncons (tl, hd, tl)
+    obj11 = hd
+    call uncons (tl, hd, tl)
+    obj12 = hd
+    call uncons (tl, hd, tl)
+    obj13 = hd
+    call uncons (tl, hd, tl)
+    obj14 = hd
+    call uncons (tl, hd, tl)
+    obj15 = hd
+    tail = tl
+  end subroutine unlist15_with_tail
+
+  subroutine unlist16_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, tail)
+    !
+    ! This subroutine `unlists' the leading 16 elements of lst, and
+    ! also returns the tail.
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: obj14
+    class(*), allocatable :: obj15
+    class(*), allocatable :: obj16
+    class(*), allocatable :: tail
+
+    class(*), allocatable :: hd
+    class(*), allocatable :: tl
+
+    tl = lst
+    call uncons (tl, hd, tl)
+    obj1 = hd
+    call uncons (tl, hd, tl)
+    obj2 = hd
+    call uncons (tl, hd, tl)
+    obj3 = hd
+    call uncons (tl, hd, tl)
+    obj4 = hd
+    call uncons (tl, hd, tl)
+    obj5 = hd
+    call uncons (tl, hd, tl)
+    obj6 = hd
+    call uncons (tl, hd, tl)
+    obj7 = hd
+    call uncons (tl, hd, tl)
+    obj8 = hd
+    call uncons (tl, hd, tl)
+    obj9 = hd
+    call uncons (tl, hd, tl)
+    obj10 = hd
+    call uncons (tl, hd, tl)
+    obj11 = hd
+    call uncons (tl, hd, tl)
+    obj12 = hd
+    call uncons (tl, hd, tl)
+    obj13 = hd
+    call uncons (tl, hd, tl)
+    obj14 = hd
+    call uncons (tl, hd, tl)
+    obj15 = hd
+    call uncons (tl, hd, tl)
+    obj16 = hd
+    tail = tl
+  end subroutine unlist16_with_tail
+
+  subroutine unlist17_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17, tail)
+    !
+    ! This subroutine `unlists' the leading 17 elements of lst, and
+    ! also returns the tail.
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: obj14
+    class(*), allocatable :: obj15
+    class(*), allocatable :: obj16
+    class(*), allocatable :: obj17
+    class(*), allocatable :: tail
+
+    class(*), allocatable :: hd
+    class(*), allocatable :: tl
+
+    tl = lst
+    call uncons (tl, hd, tl)
+    obj1 = hd
+    call uncons (tl, hd, tl)
+    obj2 = hd
+    call uncons (tl, hd, tl)
+    obj3 = hd
+    call uncons (tl, hd, tl)
+    obj4 = hd
+    call uncons (tl, hd, tl)
+    obj5 = hd
+    call uncons (tl, hd, tl)
+    obj6 = hd
+    call uncons (tl, hd, tl)
+    obj7 = hd
+    call uncons (tl, hd, tl)
+    obj8 = hd
+    call uncons (tl, hd, tl)
+    obj9 = hd
+    call uncons (tl, hd, tl)
+    obj10 = hd
+    call uncons (tl, hd, tl)
+    obj11 = hd
+    call uncons (tl, hd, tl)
+    obj12 = hd
+    call uncons (tl, hd, tl)
+    obj13 = hd
+    call uncons (tl, hd, tl)
+    obj14 = hd
+    call uncons (tl, hd, tl)
+    obj15 = hd
+    call uncons (tl, hd, tl)
+    obj16 = hd
+    call uncons (tl, hd, tl)
+    obj17 = hd
+    tail = tl
+  end subroutine unlist17_with_tail
+
+  subroutine unlist18_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, tail)
+    !
+    ! This subroutine `unlists' the leading 18 elements of lst, and
+    ! also returns the tail.
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: obj14
+    class(*), allocatable :: obj15
+    class(*), allocatable :: obj16
+    class(*), allocatable :: obj17
+    class(*), allocatable :: obj18
+    class(*), allocatable :: tail
+
+    class(*), allocatable :: hd
+    class(*), allocatable :: tl
+
+    tl = lst
+    call uncons (tl, hd, tl)
+    obj1 = hd
+    call uncons (tl, hd, tl)
+    obj2 = hd
+    call uncons (tl, hd, tl)
+    obj3 = hd
+    call uncons (tl, hd, tl)
+    obj4 = hd
+    call uncons (tl, hd, tl)
+    obj5 = hd
+    call uncons (tl, hd, tl)
+    obj6 = hd
+    call uncons (tl, hd, tl)
+    obj7 = hd
+    call uncons (tl, hd, tl)
+    obj8 = hd
+    call uncons (tl, hd, tl)
+    obj9 = hd
+    call uncons (tl, hd, tl)
+    obj10 = hd
+    call uncons (tl, hd, tl)
+    obj11 = hd
+    call uncons (tl, hd, tl)
+    obj12 = hd
+    call uncons (tl, hd, tl)
+    obj13 = hd
+    call uncons (tl, hd, tl)
+    obj14 = hd
+    call uncons (tl, hd, tl)
+    obj15 = hd
+    call uncons (tl, hd, tl)
+    obj16 = hd
+    call uncons (tl, hd, tl)
+    obj17 = hd
+    call uncons (tl, hd, tl)
+    obj18 = hd
+    tail = tl
+  end subroutine unlist18_with_tail
+
+  subroutine unlist19_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, tail)
+    !
+    ! This subroutine `unlists' the leading 19 elements of lst, and
+    ! also returns the tail.
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: obj14
+    class(*), allocatable :: obj15
+    class(*), allocatable :: obj16
+    class(*), allocatable :: obj17
+    class(*), allocatable :: obj18
+    class(*), allocatable :: obj19
+    class(*), allocatable :: tail
+
+    class(*), allocatable :: hd
+    class(*), allocatable :: tl
+
+    tl = lst
+    call uncons (tl, hd, tl)
+    obj1 = hd
+    call uncons (tl, hd, tl)
+    obj2 = hd
+    call uncons (tl, hd, tl)
+    obj3 = hd
+    call uncons (tl, hd, tl)
+    obj4 = hd
+    call uncons (tl, hd, tl)
+    obj5 = hd
+    call uncons (tl, hd, tl)
+    obj6 = hd
+    call uncons (tl, hd, tl)
+    obj7 = hd
+    call uncons (tl, hd, tl)
+    obj8 = hd
+    call uncons (tl, hd, tl)
+    obj9 = hd
+    call uncons (tl, hd, tl)
+    obj10 = hd
+    call uncons (tl, hd, tl)
+    obj11 = hd
+    call uncons (tl, hd, tl)
+    obj12 = hd
+    call uncons (tl, hd, tl)
+    obj13 = hd
+    call uncons (tl, hd, tl)
+    obj14 = hd
+    call uncons (tl, hd, tl)
+    obj15 = hd
+    call uncons (tl, hd, tl)
+    obj16 = hd
+    call uncons (tl, hd, tl)
+    obj17 = hd
+    call uncons (tl, hd, tl)
+    obj18 = hd
+    call uncons (tl, hd, tl)
+    obj19 = hd
+    tail = tl
+  end subroutine unlist19_with_tail
+
+  subroutine unlist20_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
+    !
+    ! This subroutine `unlists' the leading 20 elements of lst, and
+    ! also returns the tail.
+    !
+    class(cons_t) :: lst
+    class(*), allocatable :: obj1
+    class(*), allocatable :: obj2
+    class(*), allocatable :: obj3
+    class(*), allocatable :: obj4
+    class(*), allocatable :: obj5
+    class(*), allocatable :: obj6
+    class(*), allocatable :: obj7
+    class(*), allocatable :: obj8
+    class(*), allocatable :: obj9
+    class(*), allocatable :: obj10
+    class(*), allocatable :: obj11
+    class(*), allocatable :: obj12
+    class(*), allocatable :: obj13
+    class(*), allocatable :: obj14
+    class(*), allocatable :: obj15
+    class(*), allocatable :: obj16
+    class(*), allocatable :: obj17
+    class(*), allocatable :: obj18
+    class(*), allocatable :: obj19
+    class(*), allocatable :: obj20
+    class(*), allocatable :: tail
+
+    class(*), allocatable :: hd
+    class(*), allocatable :: tl
+
+    tl = lst
+    call uncons (tl, hd, tl)
+    obj1 = hd
+    call uncons (tl, hd, tl)
+    obj2 = hd
+    call uncons (tl, hd, tl)
+    obj3 = hd
+    call uncons (tl, hd, tl)
+    obj4 = hd
+    call uncons (tl, hd, tl)
+    obj5 = hd
+    call uncons (tl, hd, tl)
+    obj6 = hd
+    call uncons (tl, hd, tl)
+    obj7 = hd
+    call uncons (tl, hd, tl)
+    obj8 = hd
+    call uncons (tl, hd, tl)
+    obj9 = hd
+    call uncons (tl, hd, tl)
+    obj10 = hd
+    call uncons (tl, hd, tl)
+    obj11 = hd
+    call uncons (tl, hd, tl)
+    obj12 = hd
+    call uncons (tl, hd, tl)
+    obj13 = hd
+    call uncons (tl, hd, tl)
+    obj14 = hd
+    call uncons (tl, hd, tl)
+    obj15 = hd
+    call uncons (tl, hd, tl)
+    obj16 = hd
+    call uncons (tl, hd, tl)
+    obj17 = hd
+    call uncons (tl, hd, tl)
+    obj18 = hd
+    call uncons (tl, hd, tl)
+    obj19 = hd
+    call uncons (tl, hd, tl)
+    obj20 = hd
+    tail = tl
+  end subroutine unlist20_with_tail
 
   function list_reverse (lst) result (lst_r)
     !
@@ -2056,7 +3958,8 @@ contains
   end function list_zip1
 
   function list_zip2 (lst1, lst2) result (lst_z)
-    class(*), intent(in) :: lst1, lst2
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
     type(cons_t) :: lst_z
 
     class(*), allocatable :: head1, tail1
@@ -2106,7 +4009,9 @@ contains
   end function list_zip2
 
   function list_zip3 (lst1, lst2, lst3) result (lst_z)
-    class(*), intent(in) :: lst1, lst2, lst3
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
     type(cons_t) :: lst_z
 
     class(*), allocatable :: head1, tail1
@@ -2167,7 +4072,10 @@ contains
   end function list_zip3
 
   function list_zip4 (lst1, lst2, lst3, lst4) result (lst_z)
-    class(*), intent(in) :: lst1, lst2, lst3, lst4
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
     type(cons_t) :: lst_z
 
     class(*), allocatable :: head1, tail1
@@ -2239,7 +4147,11 @@ contains
   end function list_zip4
 
   function list_zip5 (lst1, lst2, lst3, lst4, lst5) result (lst_z)
-    class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
     type(cons_t) :: lst_z
 
     class(*), allocatable :: head1, tail1
@@ -2322,7 +4234,12 @@ contains
   end function list_zip5
 
   function list_zip6 (lst1, lst2, lst3, lst4, lst5, lst6) result (lst_z)
-    class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
     type(cons_t) :: lst_z
 
     class(*), allocatable :: head1, tail1
@@ -2416,7 +4333,13 @@ contains
   end function list_zip6
 
   function list_zip7 (lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_z)
-    class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
     type(cons_t) :: lst_z
 
     class(*), allocatable :: head1, tail1
@@ -2521,7 +4444,14 @@ contains
   end function list_zip7
 
   function list_zip8 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_z)
-    class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
     type(cons_t) :: lst_z
 
     class(*), allocatable :: head1, tail1
@@ -2637,7 +4567,15 @@ contains
   end function list_zip8
 
   function list_zip9 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_z)
-    class(*), intent(in) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
     type(cons_t) :: lst_z
 
     class(*), allocatable :: head1, tail1
@@ -2763,6 +4701,153 @@ contains
     end if
   end function list_zip9
 
+  function list_zip10 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    ! Using is_cons_pair rather than is_nil_list lets us handle
+    ! degenerate dotted lists at the same time as nil lists.
+    if (.not. is_cons_pair (lst1)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst2)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst3)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst4)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst5)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst6)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst7)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst8)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst9)) then
+       lst_z = nil_list
+    else if (.not. is_cons_pair (lst10)) then
+       lst_z = nil_list
+    else
+       call uncons (lst1, head1, tail1)
+       call uncons (lst2, head2, tail2)
+       call uncons (lst3, head3, tail3)
+       call uncons (lst4, head4, tail4)
+       call uncons (lst5, head5, tail5)
+       call uncons (lst6, head6, tail6)
+       call uncons (lst7, head7, tail7)
+       call uncons (lst8, head8, tail8)
+       call uncons (lst9, head9, tail9)
+       call uncons (lst10, head10, tail10)
+       row = nil_list
+       row = head10 ** row
+       row = head9 ** row
+       row = head8 ** row
+       row = head7 ** row
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil_list
+       cursor = lst_z
+       if (.not. is_cons_pair (tail1)) then
+          continue
+       else if (.not. is_cons_pair (tail2)) then
+          continue
+       else if (.not. is_cons_pair (tail3)) then
+          continue
+       else if (.not. is_cons_pair (tail4)) then
+          continue
+       else if (.not. is_cons_pair (tail5)) then
+          continue
+       else if (.not. is_cons_pair (tail6)) then
+          continue
+       else if (.not. is_cons_pair (tail7)) then
+          continue
+       else if (.not. is_cons_pair (tail8)) then
+          continue
+       else if (.not. is_cons_pair (tail9)) then
+          continue
+       else if (.not. is_cons_pair (tail10)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             call uncons (tail10, head10, tail10)
+             row = nil_list
+             row = head10 ** row
+             row = head9 ** row
+             row = head8 ** row
+             row = head7 ** row
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil_list
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (.not. is_cons_pair (tail1)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail2)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail3)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail4)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail5)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail6)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail7)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail8)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail9)) then
+                done = .true.
+             else if (.not. is_cons_pair (tail10)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function list_zip10
+
   subroutine list_unzip1 (lst_zipped, lst1)
     class(*) :: lst_zipped
     type(cons_t) :: lst1
@@ -2802,7 +4887,8 @@ contains
 
   subroutine list_unzip2 (lst_zipped, lst1, lst2)
     class(*) :: lst_zipped
-    type(cons_t) :: lst1, lst2
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -2851,7 +4937,9 @@ contains
 
   subroutine list_unzip3 (lst_zipped, lst1, lst2, lst3)
     class(*) :: lst_zipped
-    type(cons_t) :: lst1, lst2, lst3
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+    type(cons_t) :: lst3
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -2912,7 +5000,10 @@ contains
 
   subroutine list_unzip4 (lst_zipped, lst1, lst2, lst3, lst4)
     class(*) :: lst_zipped
-    type(cons_t) :: lst1, lst2, lst3, lst4
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+    type(cons_t) :: lst3
+    type(cons_t) :: lst4
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -2985,7 +5076,11 @@ contains
 
   subroutine list_unzip5 (lst_zipped, lst1, lst2, lst3, lst4, lst5)
     class(*) :: lst_zipped
-    type(cons_t) :: lst1, lst2, lst3, lst4, lst5
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+    type(cons_t) :: lst3
+    type(cons_t) :: lst4
+    type(cons_t) :: lst5
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -3070,7 +5165,12 @@ contains
 
   subroutine list_unzip6 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6)
     class(*) :: lst_zipped
-    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+    type(cons_t) :: lst3
+    type(cons_t) :: lst4
+    type(cons_t) :: lst5
+    type(cons_t) :: lst6
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -3167,7 +5267,13 @@ contains
 
   subroutine list_unzip7 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7)
     class(*) :: lst_zipped
-    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+    type(cons_t) :: lst3
+    type(cons_t) :: lst4
+    type(cons_t) :: lst5
+    type(cons_t) :: lst6
+    type(cons_t) :: lst7
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -3276,7 +5382,14 @@ contains
 
   subroutine list_unzip8 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8)
     class(*) :: lst_zipped
-    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+    type(cons_t) :: lst3
+    type(cons_t) :: lst4
+    type(cons_t) :: lst5
+    type(cons_t) :: lst6
+    type(cons_t) :: lst7
+    type(cons_t) :: lst8
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -3397,7 +5510,15 @@ contains
 
   subroutine list_unzip9 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9)
     class(*) :: lst_zipped
-    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+    type(cons_t) :: lst3
+    type(cons_t) :: lst4
+    type(cons_t) :: lst5
+    type(cons_t) :: lst6
+    type(cons_t) :: lst7
+    type(cons_t) :: lst8
+    type(cons_t) :: lst9
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -3527,6 +5648,160 @@ contains
        lst9 = nil_list
     end select
   end subroutine list_unzip9
+
+  subroutine list_unzip10 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10)
+    class(*) :: lst_zipped
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+    type(cons_t) :: lst3
+    type(cons_t) :: lst4
+    type(cons_t) :: lst5
+    type(cons_t) :: lst6
+    type(cons_t) :: lst7
+    type(cons_t) :: lst8
+    type(cons_t) :: lst9
+    type(cons_t) :: lst10
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+    type(cons_t) :: cursor3
+    type(cons_t) :: cursor4
+    type(cons_t) :: cursor5
+    type(cons_t) :: cursor6
+    type(cons_t) :: cursor7
+    type(cons_t) :: cursor8
+    type(cons_t) :: cursor9
+    type(cons_t) :: cursor10
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    select type (lst_zipped)
+    class is (cons_t)
+       if (list_is_nil (lst_zipped)) then
+          lst1 = nil_list
+          lst2 = nil_list
+          lst3 = nil_list
+          lst4 = nil_list
+          lst5 = nil_list
+          lst6 = nil_list
+          lst7 = nil_list
+          lst8 = nil_list
+          lst9 = nil_list
+          lst10 = nil_list
+       else
+          call uncons (lst_zipped, head, tail)
+          head_zipped = cons_t_cast (head)
+          call uncons (head_zipped, head, tl)
+          lst1 = head ** nil_list
+          cursor1 = lst1
+          head_zipped = cons_t_cast (tl)
+          call uncons (head_zipped, head, tl)
+          lst2 = head ** nil_list
+          cursor2 = lst2
+          head_zipped = cons_t_cast (tl)
+          call uncons (head_zipped, head, tl)
+          lst3 = head ** nil_list
+          cursor3 = lst3
+          head_zipped = cons_t_cast (tl)
+          call uncons (head_zipped, head, tl)
+          lst4 = head ** nil_list
+          cursor4 = lst4
+          head_zipped = cons_t_cast (tl)
+          call uncons (head_zipped, head, tl)
+          lst5 = head ** nil_list
+          cursor5 = lst5
+          head_zipped = cons_t_cast (tl)
+          call uncons (head_zipped, head, tl)
+          lst6 = head ** nil_list
+          cursor6 = lst6
+          head_zipped = cons_t_cast (tl)
+          call uncons (head_zipped, head, tl)
+          lst7 = head ** nil_list
+          cursor7 = lst7
+          head_zipped = cons_t_cast (tl)
+          call uncons (head_zipped, head, tl)
+          lst8 = head ** nil_list
+          cursor8 = lst8
+          head_zipped = cons_t_cast (tl)
+          call uncons (head_zipped, head, tl)
+          lst9 = head ** nil_list
+          cursor9 = lst9
+          head_zipped = cons_t_cast (tl)
+          call uncons (head_zipped, head, tl)
+          lst10 = head ** nil_list
+          cursor10 = lst10
+          head_zipped = cons_t_cast (tl)
+          do while (is_cons_pair (tail))
+             call uncons (tail, head, tail)
+             head_zipped = cons_t_cast (head)
+             call uncons (head_zipped, head, tl)
+             new_pair = head ** nil_list
+             call set_cdr (cursor1, new_pair)
+             cursor1 = new_pair
+             head_zipped = cons_t_cast (tl)
+             call uncons (head_zipped, head, tl)
+             new_pair = head ** nil_list
+             call set_cdr (cursor2, new_pair)
+             cursor2 = new_pair
+             head_zipped = cons_t_cast (tl)
+             call uncons (head_zipped, head, tl)
+             new_pair = head ** nil_list
+             call set_cdr (cursor3, new_pair)
+             cursor3 = new_pair
+             head_zipped = cons_t_cast (tl)
+             call uncons (head_zipped, head, tl)
+             new_pair = head ** nil_list
+             call set_cdr (cursor4, new_pair)
+             cursor4 = new_pair
+             head_zipped = cons_t_cast (tl)
+             call uncons (head_zipped, head, tl)
+             new_pair = head ** nil_list
+             call set_cdr (cursor5, new_pair)
+             cursor5 = new_pair
+             head_zipped = cons_t_cast (tl)
+             call uncons (head_zipped, head, tl)
+             new_pair = head ** nil_list
+             call set_cdr (cursor6, new_pair)
+             cursor6 = new_pair
+             head_zipped = cons_t_cast (tl)
+             call uncons (head_zipped, head, tl)
+             new_pair = head ** nil_list
+             call set_cdr (cursor7, new_pair)
+             cursor7 = new_pair
+             head_zipped = cons_t_cast (tl)
+             call uncons (head_zipped, head, tl)
+             new_pair = head ** nil_list
+             call set_cdr (cursor8, new_pair)
+             cursor8 = new_pair
+             head_zipped = cons_t_cast (tl)
+             call uncons (head_zipped, head, tl)
+             new_pair = head ** nil_list
+             call set_cdr (cursor9, new_pair)
+             cursor9 = new_pair
+             head_zipped = cons_t_cast (tl)
+             head = car (head_zipped)
+             new_pair = head ** nil_list
+             call set_cdr (cursor10, new_pair)
+             cursor10 = new_pair
+          end do
+       end if
+    class default
+       lst1 = nil_list
+       lst2 = nil_list
+       lst3 = nil_list
+       lst4 = nil_list
+       lst5 = nil_list
+       lst6 = nil_list
+       lst7 = nil_list
+       lst8 = nil_list
+       lst9 = nil_list
+       lst10 = nil_list
+    end select
+  end subroutine list_unzip10
 
   function list_unzip1f (lst_zipped) result (lst)
     class(*), intent(in) :: lst_zipped
@@ -4850,5 +7125,71 @@ contains
     end function recursion
 
   end function list_reduce_right
+
+  recursive function list_unfold_with_tail_gen (pred, f, g, seed, tail_gen) result (lst)
+    procedure(list_predicate1_t) :: pred
+    procedure(list_modify_elements_procedure_t) :: f
+    procedure(list_modify_elements_procedure_t) :: g
+    class(*), intent(in) :: seed
+    procedure(list_modify_elements_procedure_t) :: tail_gen
+    class(*), allocatable :: lst
+
+    lst = recursion (seed)
+
+  contains
+
+    recursive function recursion (seed) result (lst)
+      class(*), intent(in) :: seed
+      class(*), allocatable :: lst
+
+      class(*), allocatable :: f_of_seed
+      class(*), allocatable :: g_of_seed
+      class(*), allocatable :: tail_gen_of_seed
+
+      if (pred (seed)) then
+         tail_gen_of_seed = seed
+         call tail_gen (tail_gen_of_seed)
+         lst = tail_gen_of_seed
+      else
+         f_of_seed = seed
+         call f (f_of_seed)
+         g_of_seed = seed
+         call g (g_of_seed)
+         lst = cons (f_of_seed, recursion (g_of_seed))
+      end if
+    end function recursion
+
+  end function list_unfold_with_tail_gen
+
+  recursive function list_unfold_with_nil_tail (pred, f, g, seed) result (lst)
+    procedure(list_predicate1_t) :: pred
+    procedure(list_modify_elements_procedure_t) :: f
+    procedure(list_modify_elements_procedure_t) :: g
+    class(*), intent(in) :: seed
+    class(*), allocatable :: lst
+
+    lst = recursion (seed)
+
+  contains
+
+    recursive function recursion (seed) result (lst)
+      class(*), intent(in) :: seed
+      class(*), allocatable :: lst
+
+      class(*), allocatable :: f_of_seed
+      class(*), allocatable :: g_of_seed
+
+      if (pred (seed)) then
+         lst = nil_list
+      else
+         f_of_seed = seed
+         call f (f_of_seed)
+         g_of_seed = seed
+         call g (g_of_seed)
+         lst = cons (f_of_seed, recursion (g_of_seed))
+      end if
+    end function recursion
+
+  end function list_unfold_with_nil_tail
 
 end module cons_lists
