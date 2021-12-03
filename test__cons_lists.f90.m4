@@ -161,6 +161,12 @@ contains
     kons = pair
   end subroutine kons_for_destructive_reverse
 
+  subroutine integer_max_subr (x, y, max_x_y)
+    class(*), intent(in) :: x, y
+    class(*), allocatable, intent(out) :: max_x_y
+    max_x_y = max (integer_cast (x), integer_cast (y))
+  end subroutine integer_max_subr
+
   subroutine test_is_nil_or_pair
     call check (.not. is_nil_or_pair ('abc'), ".not. is_nil_or_pair ('abc') failed")
     call check (is_nil_or_pair (nil_list), "is_nil_or_pair (nil_list) failed")
@@ -1704,6 +1710,25 @@ contains
          "list_equals (integer_eq, third (lst1b), list1 (3)) failed (for list_pair_fold_right)")
   end subroutine test_list_pair_fold_right
 
+  subroutine test_list_reduce
+    !
+    ! An example from SRFI-1: take the max of a list of non-negative
+    ! integers.
+    !
+    call check (list_reduce (integer_max_subr, 0, nil_list) .eqi. 0, &
+         "list_reduce (integer_max_subr, 0, nil_list) .eqi. 0 failed")
+    call check (list_reduce (integer_max_subr, 0, make_list (1, 0)) .eqi. 0, &
+         "list_reduce (integer_max_subr, 0, make_list (1, 0)) .eqi. 0 failed")
+    call check (list_reduce (integer_max_subr, 0, make_list (100, 0)) .eqi. 0, &
+         "list_reduce (integer_max_subr, 0, make_list (100, 0)) .eqi. 0 failed")
+    call check (list_reduce (integer_max_subr, 0, iota (50)) .eqi. 49, &
+         "list_reduce (integer_max_subr, 0, iota (50)) .eqi. 49 failed")
+    call check (list_reduce (integer_max_subr, 0, list_append (iota (100), iota (50))) .eqi. 99, &
+         "list_reduce (integer_max_subr, 0, list_append (iota (100), iota (50))) .eqi. 99 failed")
+    call check (list_reduce (integer_max_subr, 0, cons (10000, list_append (iota (100), iota (50)))) .eqi. 10000, &
+         "list_reduce (integer_max_subr, 0, cons (10000, list_append (iota (100), iota (50)))) .eqi. 10000 failed")
+  end subroutine test_list_reduce
+
   subroutine run_tests
     !
     ! FIXME: Add tests that check various subroutines do not clobber
@@ -1781,6 +1806,7 @@ contains
     call test_list_fold_right
     call test_list_pair_fold
     call test_list_pair_fold_right
+    call test_list_reduce
   end subroutine run_tests
 
 end module test__cons_lists

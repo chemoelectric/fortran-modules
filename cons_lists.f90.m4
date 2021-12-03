@@ -315,6 +315,7 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_fold_right ! `The fundamental list recursion operator.' (Not for use on very long lists.)
   public :: list_pair_fold  ! Like list_fold, but applied to sublists.
   public :: list_pair_fold_right ! Like list_fold_right, but applied to sublists.
+  public :: list_reduce     ! A variant of list_fold. (See SRFI-1.)
 
   ! Overloading of `iota'.
   interface iota
@@ -2686,6 +2687,22 @@ m4_forloop([k],[1],n,[dnl
     end function recursion
 
   end function list_pair_fold_right
+
+  recursive function list_reduce (kons, right_identity, lst) result (reduced_result)
+    procedure(list_kons_procedure_t) :: kons
+    class(*), intent(in) :: right_identity
+    class(*), intent(in) :: lst
+    class(*), allocatable :: reduced_result
+
+    class(*), allocatable :: head, tail
+
+    if (is_cons_pair (lst)) then
+       call uncons (lst, head, tail)
+       reduced_result = list_fold (kons, head, tail)
+    else
+       reduced_result = right_identity
+    end if
+  end function list_reduce
 
 m4_if(DEBUGGING,[true],[dnl
   function integer_cast (obj) result (int)
