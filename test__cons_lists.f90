@@ -107,6 +107,21 @@ contains
          .and. (integer_cast (cdr (obj1)) == integer_cast (cdr (obj2)))
   end function integer_pair_eq
 
+  function integer_cmp (obj1, obj2) result (i)
+    class(*), intent(in) :: obj1, obj2
+    integer :: i
+    integer :: x, y
+    x = integer_cast (obj1)
+    y = integer_cast (obj2)
+    if (x < y) then
+       i = -1
+    else if (x == y) then
+       i = 0
+    else
+       i = 1
+    end if
+  end function integer_cmp
+
   subroutine cosine_subr (x)
     class(*), intent(inout), allocatable :: x
     x = cos (real_cast (x))
@@ -1942,6 +1957,17 @@ contains
     call check (integer_pair_eq (pair4, cons (4, 7)), "integer_pair_eq (pair4, cons (4, 7)) failed (for alist_assoc)")
   end subroutine test_alist_assoc
 
+  subroutine test_list_merge
+    type(cons_t) :: lst1, lst2, lst_m
+integer::i
+    lst1 = 2 ** 3 ** 10 ** 2 ** nil_list
+    lst2 = 2 ** 4 ** 5 ** 3 ** nil_list
+    lst_m = list_merge (lst1, integer_cmp, lst2)
+do i = 1,list_length(lst_m)
+print*,integer_cast(list_ref1(lst_m,i))
+end do
+  end subroutine test_list_merge
+
   subroutine run_tests
     !
     ! FIXME: Add tests that check various subroutines do not clobber
@@ -2030,6 +2056,7 @@ contains
     call test_alist_copy
     call test_alist_delete
     call test_alist_assoc
+    call test_list_merge
   end subroutine run_tests
 
 end module test__cons_lists

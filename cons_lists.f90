@@ -117,6 +117,15 @@ module cons_procedure_types
        logical :: bool
      end function list_predicate2_t
 
+     recursive function list_comparison2_t (x, y) result (i)
+       !
+       ! Return i < 0 if x < y; 0 if x == y; i > 0 if x > y.
+       !
+       use :: cons_types
+       class(*), intent(in) :: x, y
+       integer :: i
+     end function list_comparison2_t
+
   end interface
 
 end module cons_procedure_types
@@ -421,6 +430,11 @@ module cons_lists
   public :: alist_cons   ! CONS a key-value pair.
   public :: alist_copy   ! Copy an association list, making copies of the key-value pairs.
   public :: alist_delete ! Delete all entries with a given key (though actually this is more general).
+
+  ! Sorting. (NOTE: Sorting is not included in SRFI-1.)
+  public :: list_merge        ! Merge two lists.
+  public :: list_update_merge ! Merge two lists, in a `linear updating' fashion.
+  !public :: list_mergesort      ! Top-down stable mergesort.
 
   ! Overloading of `iota'.
   interface iota
@@ -7428,5 +7442,157 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        alst_a = nil_list
     end if
   end function alist_assoc
+
+!!$  recursive function skip_x_lte_lst (x, compare, lst) result (next)
+!!$    class(*), intent(in) :: x
+!!$    procedure(list_comparison2_t) :: compare
+!!$    class(*), intent(in) :: lst
+!!$    class(*), allocatable :: next
+!!$
+!!$    class(*), allocatable :: p
+!!$    logical :: found_end_or_unsatisfying_element
+!!$
+!!$    p = lst
+!!$    found_end_or_unsatisfying_element = .false.
+!!$    do while (.not. found_end_or_unsatisfying_element)
+!!$       if (.not. is_cons_pair (p)) then
+!!$          found_end_or_unsatisfying_element = .true.
+!!$       else if (0 < compare (x, car (p))) then
+!!$          found_end_or_unsatisfying_element = .true.
+!!$       else
+!!$          p = cdr (p)
+!!$       end if
+!!$    end do
+!!$    next = p
+!!$  end function skip_x_lte_lst
+!!$
+!!$  recursive function skip_lst_gt_y (lst, compare, y) result (next)
+!!$    class(*), intent(in) :: lst
+!!$    procedure(list_comparison2_t) :: compare
+!!$    class(*), intent(in) :: y
+!!$    class(*), allocatable :: next
+!!$
+!!$    class(*), allocatable :: p
+!!$    logical :: found_end_or_unsatisfying_element
+!!$
+!!$    p = lst
+!!$    found_end_or_unsatisfying_element = .false.
+!!$    do while (.not. found_end_or_unsatisfying_element)
+!!$       if (.not. is_cons_pair (p)) then
+!!$          found_end_or_unsatisfying_element = .true.
+!!$       else if (compare (car (p), y) <= 0) then
+!!$          found_end_or_unsatisfying_element = .true.
+!!$       else
+!!$          p = cdr (p)
+!!$       end if
+!!$    end do
+!!$    next = p
+!!$  end function skip_lst_gt_y
+
+  function list_merge (lst1, compare, lst2) result (lst_m)
+    !
+    ! NOTE: I have ordered the arguments to be reminiscent of infix
+    !       notation.
+    !
+    ! It is assumed lst1 and lst2 are proper lists.
+    !
+    class(*), intent(in) :: lst1
+    procedure(list_comparison2_t) :: compare 
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_m
+    lst_m = list_update_merge (list_copy (lst1), compare, list_copy (lst2))
+  end function list_merge
+
+  function list_update_merge (lst1, compare, lst2) result (lst_m)
+    !
+    ! NOTE: I have ordered the arguments to be reminiscent of infix
+    !       notation.
+    !
+    ! It is assumed lst1 and lst2 are proper lists.
+    !
+    class(*), intent(in) :: lst1
+    procedure(list_comparison2_t) :: compare 
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_m
+
+    type(cons_t) :: p1
+    type(cons_t) :: p2
+
+    select type (lst1)
+    class is (cons_t)
+       select type (lst2)
+       class is (cons_t)
+          p1 = lst1
+          p2 = lst2
+          lst_m = merge_lists (p1, p2)
+       class default
+          call error_abort ("the third argument to list_update_merge is not a cons_t")
+       end select
+    class default
+       call error_abort ("the first argument to list_update_merge is not a cons_t")
+    end select
+
+  contains
+
+    function merge_lists (p1, p2) result (lst_m)
+      type(cons_t) :: p1
+      type(cons_t) :: p2
+      type(cons_t) :: lst_m
+
+      class(*), allocatable :: hd1, tl1
+      class(*), allocatable :: hd2, tl2
+      type(cons_t) :: cursor
+      logical :: p1_is_active
+      logical :: done
+
+      if (.not. list_is_pair (p1)) then
+         lst_m = p2
+      else if (.not. list_is_pair (p2)) then
+         lst_m = p1
+      else
+         call uncons (p1, hd1, tl1)
+         call uncons (p2, hd2, tl2)
+         if (compare (hd1, hd2) <= 0) then
+            p1_is_active = .true.
+            cursor = p1
+            p1 = cons_t_cast (tl1)
+         else
+            p1_is_active = .false.
+            cursor = p2
+            p2 = cons_t_cast (tl2)
+         end if
+         lst_m = cursor
+         done = .false.
+         do while (.not. done)
+            if (.not. list_is_pair (p1)) then
+               call set_cdr (cursor, p2)
+               done = .true.
+            else if (.not. list_is_pair (p2)) then
+               call set_cdr (cursor, p1)
+               done = .true.
+            else
+               call uncons (p1, hd1, tl1)
+               call uncons (p2, hd2, tl2)
+               if (compare (hd1, hd2) <= 0) then
+                  if (.not. p1_is_active) then
+                     call set_cdr (cursor, p1)
+                     p1_is_active = .true.
+                  end if
+                  cursor = p1
+                  p1 = cons_t_cast (tl1)
+               else
+                  if (p1_is_active) then
+                     call set_cdr (cursor, p2)
+                     p1_is_active = .false.
+                  end if
+                  cursor = p2
+                  p2 = cons_t_cast (tl2)
+               end if
+            end if
+         end do
+      end if
+    end function merge_lists
+
+  end function list_update_merge
 
 end module cons_lists
