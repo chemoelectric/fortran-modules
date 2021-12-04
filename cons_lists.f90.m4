@@ -352,7 +352,8 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   ! Sorting. (NOTE: Sorting is not included in SRFI-1.)
   public :: list_merge        ! Merge two sorted lists.
   public :: list_update_merge ! Merge two sorted lists, in a `linear updating' fashion.
-  !public :: list_mergesort      ! Top-down stable mergesort.
+  !public :: list_mergesort    ! Stable mergesort.
+  !public :: list_update_mergesort ! Stable `linear updating' mergesort.
 
   ! Overloading of `iota'.
   interface iota
@@ -3129,7 +3130,7 @@ m4_forloop([k],[1],n,[dnl
 !!$    next = p
 !!$  end function skip_lst_gt_y
 
-  function list_merge (lst1, compare, lst2) result (lst_m)
+  recursive function list_merge (lst1, compare, lst2) result (lst_m)
     !
     ! NOTE: I have ordered the arguments to be reminiscent of infix
     !       notation.
@@ -3143,7 +3144,7 @@ m4_forloop([k],[1],n,[dnl
     lst_m = list_update_merge (list_copy (lst1), compare, list_copy (lst2))
   end function list_merge
 
-  function list_update_merge (lst1, compare, lst2) result (lst_m)
+  recursive function list_update_merge (lst1, compare, lst2) result (lst_m)
     !
     ! NOTE: I have ordered the arguments to be reminiscent of infix
     !       notation.
@@ -3174,7 +3175,7 @@ m4_forloop([k],[1],n,[dnl
 
   contains
 
-    function merge_lists (p1, p2) result (lst_m)
+    recursive function merge_lists (p1, p2) result (lst_m)
       type(cons_t) :: p1
       type(cons_t) :: p2
       type(cons_t) :: lst_m
