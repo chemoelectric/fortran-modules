@@ -1960,8 +1960,8 @@ contains
   subroutine test_list_merge
     type(cons_t) :: lst1, lst2, lst_m
 integer::i
-    lst1 = 2 ** 3 ** 10 ** 2 ** nil_list
-    lst2 = 2 ** 4 ** 5 ** 3 ** nil_list
+    lst1 = 2 ** 3 ** 5 ** 10 ** nil_list
+    lst2 = 2 ** 4 ** 4 ** 5 ** 15 ** nil_list
     lst_m = list_merge (lst1, integer_cmp, lst2)
 do i = 1,list_length(lst_m)
 print*,integer_cast(list_ref1(lst_m,i))

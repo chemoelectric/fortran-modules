@@ -432,8 +432,8 @@ module cons_lists
   public :: alist_delete ! Delete all entries with a given key (though actually this is more general).
 
   ! Sorting. (NOTE: Sorting is not included in SRFI-1.)
-  public :: list_merge        ! Merge two lists.
-  public :: list_update_merge ! Merge two lists, in a `linear updating' fashion.
+  public :: list_merge        ! Merge two sorted lists.
+  public :: list_update_merge ! Merge two sorted lists, in a `linear updating' fashion.
   !public :: list_mergesort      ! Top-down stable mergesort.
 
   ! Overloading of `iota'.
@@ -7543,6 +7543,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
       class(*), allocatable :: hd2, tl2
       type(cons_t) :: cursor
       logical :: p1_is_active
+      logical :: p1_is_active_is_changed
       logical :: done
 
       if (.not. list_is_pair (p1)) then
@@ -7564,30 +7565,59 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
          lst_m = cursor
          done = .false.
          do while (.not. done)
-            if (.not. list_is_pair (p1)) then
-               call set_cdr (cursor, p2)
-               done = .true.
-            else if (.not. list_is_pair (p2)) then
-               call set_cdr (cursor, p1)
-               done = .true.
-            else
-               call uncons (p1, hd1, tl1)
-               call uncons (p2, hd2, tl2)
-               if (compare (hd1, hd2) <= 0) then
-                  if (.not. p1_is_active) then
-                     call set_cdr (cursor, p1)
-                     p1_is_active = .true.
-                  end if
-                  cursor = p1
-                  p1 = cons_t_cast (tl1)
-               else
-                  if (p1_is_active) then
+            if (p1_is_active) then
+               p1_is_active_is_changed = .false.
+               do while (.not. p1_is_active_is_changed)
+                  if (.not. list_is_pair (p1)) then
                      call set_cdr (cursor, p2)
-                     p1_is_active = .false.
+                     p1_is_active_is_changed = .true.
+                     done = .true.
+                  else if (.not. list_is_pair (p2)) then
+                     call set_cdr (cursor, p1)
+                     p1_is_active_is_changed = .true.
+                     done = .true.
+                  else
+                     call uncons (p1, hd1, tl1)
+                     call uncons (p2, hd2, tl2)
+                     if (compare (hd1, hd2) <= 0) then
+                        cursor = p1
+                        p1 = cons_t_cast (tl1)
+                     else
+                        call set_cdr (cursor, p2)
+                        p1_is_active = .false.
+                        p1_is_active_is_changed = .true.
+                        cursor = p2
+                        p2 = cons_t_cast (tl2)
+                     end if
                   end if
-                  cursor = p2
-                  p2 = cons_t_cast (tl2)
-               end if
+               end do
+            else
+               p1_is_active_is_changed = .false.
+               do while (.not. p1_is_active_is_changed)
+                  if (.not. list_is_pair (p1)) then
+                     call set_cdr (cursor, p2)
+                     p1_is_active_is_changed = .true.
+                     done = .true.
+                  else if (.not. list_is_pair (p2)) then
+                     call set_cdr (cursor, p1)
+                     p1_is_active_is_changed = .true.
+                     done = .true.
+                  else
+                     call uncons (p1, hd1, tl1)
+                     call uncons (p2, hd2, tl2)
+                     if (compare (hd1, hd2) <= 0) then
+                        call set_cdr (cursor, p1)
+                        p1_is_active = .true.
+                        p1_is_active_is_changed = .true.
+                        cursor = p1
+                        p1 = cons_t_cast (tl1)
+                     else
+                        call set_cdr (cursor, p2)
+                        cursor = p2
+                        p2 = cons_t_cast (tl2)
+                     end if
+                  end if
+               end do
             end if
          end do
       end if
