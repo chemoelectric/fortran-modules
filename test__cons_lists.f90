@@ -1634,31 +1634,31 @@ contains
     !
     type(cons_t) :: lst1a, lst1b
     type(cons_t) :: lst2a, lst2b
-    call check (list_equals (integer_eq, list_delete (0, integer_lt, nil_list), nil_list), &
-         "list_equals (list_delete (0, integer_lt, nil_list), nil_list) failed")
-    call check (list_delete (0, integer_lt, 1234.0) .eqr. 1234.0, &
-         "list_delete (0, integer_lt, 1234.0) .eqr. 1234.0 failed")
-    call check (list_equals (integer_eq, list_delete (0, integer_lt, 1 ** nil_list), nil_list), &
-         "list_equals (integer_eq, list_delete (0, integer_lt, 1 ** nil_list), nil_list) failed")
-    call check (list_equals (integer_eq, list_delete (0, integer_lt, (-1) ** nil_list), (-1) ** nil_list), &
-         "list_equals (integer_eq, list_delete (0, integer_lt, (-1) ** nil_list), (-1) ** nil_list) failed")
-    call check (list_equals (integer_eq, list_delete (0, integer_lt, 1 ** 2 ** nil_list), nil_list), &
-         "list_equals (integer_eq, list_delete (0, integer_lt, 1 ** 2 ** nil_list), nil_list) failed")
-    call check (list_equals (integer_eq, list_delete (0, integer_lt, 1 ** (-2) ** nil_list), (-2) ** nil_list), &
-         "list_equals (integer_eq, list_delete (0, integer_lt, 1 ** (-2) ** nil_list), (-2) ** nil_list) failed")
-    call check (list_equals (integer_eq, list_delete (0, integer_lt, (-1) ** 2 ** nil_list), (-1) ** nil_list), &
-         "list_equals (integer_eq, list_delete (0, integer_lt, (-1) ** 2 ** nil_list), (-1) ** nil_list) failed")
-    call check (list_equals (integer_eq, list_delete (0, integer_lt, (-1) ** (-2) ** nil_list), &
+    call check (list_equals (integer_eq, list_delete (integer_lt, 0, nil_list), nil_list), &
+         "list_equals (list_delete (integer_lt, 0, nil_list), nil_list) failed")
+    call check (list_delete (integer_lt, 0, 1234.0) .eqr. 1234.0, &
+         "list_delete (integer_lt, 0, 1234.0) .eqr. 1234.0 failed")
+    call check (list_equals (integer_eq, list_delete (integer_lt, 0, 1 ** nil_list), nil_list), &
+         "list_equals (integer_eq, list_delete (integer_lt, 0, 1 ** nil_list), nil_list) failed")
+    call check (list_equals (integer_eq, list_delete (integer_lt, 0, (-1) ** nil_list), (-1) ** nil_list), &
+         "list_equals (integer_eq, list_delete (integer_lt, 0, (-1) ** nil_list), (-1) ** nil_list) failed")
+    call check (list_equals (integer_eq, list_delete (integer_lt, 0, 1 ** 2 ** nil_list), nil_list), &
+         "list_equals (integer_eq, list_delete (integer_lt, 0, 1 ** 2 ** nil_list), nil_list) failed")
+    call check (list_equals (integer_eq, list_delete (integer_lt, 0, 1 ** (-2) ** nil_list), (-2) ** nil_list), &
+         "list_equals (integer_eq, list_delete (integer_lt, 0, 1 ** (-2) ** nil_list), (-2) ** nil_list) failed")
+    call check (list_equals (integer_eq, list_delete (integer_lt, 0, (-1) ** 2 ** nil_list), (-1) ** nil_list), &
+         "list_equals (integer_eq, list_delete (integer_lt, 0, (-1) ** 2 ** nil_list), (-1) ** nil_list) failed")
+    call check (list_equals (integer_eq, list_delete (integer_lt, 0, (-1) ** (-2) ** nil_list), &
          (-1) ** (-2) ** nil_list), &
-         "list_equals (integer_eq, list_delete (0, integer_lt, (-1) ** (-2) ** nil_list), (-1) ** (-2) ** nil_list) failed")
+         "list_equals (integer_eq, list_delete (integer_lt, 0, (-1) ** (-2) ** nil_list), (-1) ** (-2) ** nil_list) failed")
     lst1a = (-1) ** 2 ** (-3) ** (-4) ** 5 ** 6 ** (-7) ** (-8) ** (-9) ** nil_list
     lst1b = (-1) ** (-3) ** (-4) ** (-7) ** (-8) ** (-9) ** nil_list
-    call check (list_equals (integer_eq, list_delete (0, integer_lt, lst1a), lst1b), &
-         "list_equals (integer_eq, list_delete (0, integer_lt, lst1a), lst1b) failed")
+    call check (list_equals (integer_eq, list_delete (integer_lt, 0, lst1a), lst1b), &
+         "list_equals (integer_eq, list_delete (integer_lt, 0, lst1a), lst1b) failed")
     lst2a = cons_t_cast (list_append (lst1a, list3 (7, 8, 9)))
     lst2b = lst1b
-    call check (list_equals (integer_eq, list_delete (0, integer_lt, lst2a), lst2b), &
-         "list_equals (integer_eq, list_delete (0, integer_lt, lst2a), lst2b) failed")
+    call check (list_equals (integer_eq, list_delete (integer_lt, 0, lst2a), lst2b), &
+         "list_equals (integer_eq, list_delete (integer_lt, 0, lst2a), lst2b) failed")
     !
     ! FIXME: Maybe write some more tests for dotted lists.
     !
@@ -1931,8 +1931,8 @@ contains
     class(*), allocatable :: lst1, lst2, lst3
     class(*), allocatable :: lst2_ref, lst3_ref
     lst1 = alist_cons (3, 26, alist_cons (1, 5, alist_cons (1, 2, alist_cons (3, 4, alist_cons (1, 7, nil_list)))))
-    lst2 = alist_delete (1, integer_eq, lst1)
-    lst3 = alist_delete (3, integer_eq, lst1)
+    lst2 = alist_delete (integer_eq, 1, lst1)
+    lst3 = alist_delete (integer_eq, 3, lst1)
     lst2_ref = alist_cons (3, 26, alist_cons (3, 4, nil_list))
     lst3_ref = alist_cons (1, 5, alist_cons (1, 2, alist_cons (1, 7, nil_list)))
     call check (list_equals (integer_pair_eq, lst2, lst2_ref), &
@@ -1944,13 +1944,13 @@ contains
   subroutine test_alist_assoc
     class(*), allocatable :: lst1
     type(cons_t) :: pair1, pair2, pair3, pair4
-    call check (is_nil_list (alist_assoc (1234, integer_eq, nil_list)), &
+    call check (is_nil_list (alist_assoc (integer_eq, 1234, nil_list)), &
          "is_nil_list (alist_assoc (1234, integer_eq, nil_list)) failed (for alist_assoc)")
     lst1 = alist_cons (3, 26, alist_cons (1, 5, alist_cons (1, 2, alist_cons (3, 4, alist_cons (4, 7, nil_list)))))
-    pair1 = alist_assoc (0, integer_eq, lst1)
-    pair2 = alist_assoc (1, integer_eq, lst1)
-    pair3 = alist_assoc (3, integer_eq, lst1)
-    pair4 = alist_assoc (4, integer_eq, lst1)
+    pair1 = alist_assoc (integer_eq, 0, lst1)
+    pair2 = alist_assoc (integer_eq, 1, lst1)
+    pair3 = alist_assoc (integer_eq, 3, lst1)
+    pair4 = alist_assoc (integer_eq, 4, lst1)
     call check (is_nil_list (pair1), "is_nil_list (pair1) failed (for alist_assoc)")
     call check (integer_pair_eq (pair2, cons (1, 5)), "integer_pair_eq (pair2, cons (1, 5)) failed (for alist_assoc)")
     call check (integer_pair_eq (pair3, cons (3, 26)), "integer_pair_eq (pair3, cons (3, 26)) failed (for alist_assoc)")
@@ -1959,13 +1959,11 @@ contains
 
   subroutine test_list_merge
     type(cons_t) :: lst1, lst2, lst_m
-integer::i
-    lst1 = 2 ** 3 ** 5 ** 10 ** nil_list
+    lst1 = 2 ** 3 ** 5 ** 6 ** 10 ** nil_list
     lst2 = 2 ** 4 ** 4 ** 5 ** 15 ** nil_list
-    lst_m = list_merge (lst1, integer_cmp, lst2)
-do i = 1,list_length(lst_m)
-print*,integer_cast(list_ref1(lst_m,i))
-end do
+    lst_m = list_merge (integer_cmp, lst1, lst2)
+    call check (list_equals (integer_eq, lst_m, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)), &
+         "list_equals (integer_eq, lst_m, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)) failed (for list_merge)")
   end subroutine test_list_merge
 
   subroutine run_tests

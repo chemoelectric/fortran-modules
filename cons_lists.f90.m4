@@ -350,10 +350,10 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: alist_delete ! Delete all entries with a given key (though actually this is more general).
 
   ! Sorting. (NOTE: Sorting is not included in SRFI-1.)
-  public :: list_merge        ! Merge two sorted lists.
-  public :: list_update_merge ! Merge two sorted lists, in a `linear updating' fashion.
-  !public :: list_mergesort    ! Stable mergesort.
-  !public :: list_update_mergesort ! Stable `linear updating' mergesort.
+  public :: list_merge            ! Merge two sorted lists.
+  public :: list_update_merge     ! Merge two sorted lists, in a `linear updating' fashion.
+  public :: list_mergesort        ! Stable mergesort.
+  public :: list_update_mergesort ! Stable `linear updating' mergesort.
 
   ! Overloading of `iota'.
   interface iota
@@ -2432,17 +2432,16 @@ m4_forloop([k],[1],n,[dnl
     next = p
   end function skip_quasiunequal_elements
 
-  recursive function list_delete (x, pred, lst) result (lst_d)
+  recursive function list_delete (pred, x, lst) result (lst_d)
     !
     ! NOTE: The argument order is different from that of SRFI-1's
-    !       `delete' procedure. I have ordered the arguments to be
-    !       reminiscent of infix notation.
+    !       `delete' procedure.
     !
     ! This implementation tries to share the longest possible tail
     ! with the original.
     !
-    class(*), intent(in) :: x
     procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: x
     class(*), intent(in) :: lst
     class(*), allocatable :: lst_d
 
@@ -3000,14 +2999,13 @@ m4_forloop([k],[1],n,[dnl
     next = p
   end function skip_key_mismatches
 
-  recursive function alist_delete (key, pred, alst) result (alst_d)
+  recursive function alist_delete (pred, key, alst) result (alst_d)
     !
     ! NOTE: The argument order is different from that of SRFI-1's
-    !       `alist-delete' procedure. I have ordered the arguments to
-    !       be reminiscent of infix notation.
+    !       `alist-delete' procedure.
     !
-    class(*), intent(in) :: key
     procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: key
     class(*), intent(in) :: alst
     class(*), allocatable :: alst_d
 
@@ -3060,17 +3058,16 @@ m4_forloop([k],[1],n,[dnl
     alst_d = retval
   end function alist_delete
 
-  function alist_assoc (key, pred, alst) result (alst_a)
+  function alist_assoc (pred, key, alst) result (alst_a)
     !
     ! NOTE: SRFI-1's `assoc' returns `#f' if there is no match. This
     !       function returns a nil list, instead.
     !
     ! NOTE: The argument order is different from that of SRFI-1's
-    !       `assoc' procedure. I have ordered the arguments to be
-    !       reminiscent of infix notation.
+    !       `assoc' procedure.
     !
-    class(*), intent(in) :: key
     procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: key
     class(*), intent(in) :: alst
     type(cons_t) :: alst_a
 
@@ -3084,75 +3081,23 @@ m4_forloop([k],[1],n,[dnl
     end if
   end function alist_assoc
 
-!!$  recursive function skip_x_lte_lst (x, compare, lst) result (next)
-!!$    class(*), intent(in) :: x
-!!$    procedure(list_comparison2_t) :: compare
-!!$    class(*), intent(in) :: lst
-!!$    class(*), allocatable :: next
-!!$
-!!$    class(*), allocatable :: p
-!!$    logical :: found_end_or_unsatisfying_element
-!!$
-!!$    p = lst
-!!$    found_end_or_unsatisfying_element = .false.
-!!$    do while (.not. found_end_or_unsatisfying_element)
-!!$       if (.not. is_cons_pair (p)) then
-!!$          found_end_or_unsatisfying_element = .true.
-!!$       else if (0 < compare (x, car (p))) then
-!!$          found_end_or_unsatisfying_element = .true.
-!!$       else
-!!$          p = cdr (p)
-!!$       end if
-!!$    end do
-!!$    next = p
-!!$  end function skip_x_lte_lst
-!!$
-!!$  recursive function skip_lst_gt_y (lst, compare, y) result (next)
-!!$    class(*), intent(in) :: lst
-!!$    procedure(list_comparison2_t) :: compare
-!!$    class(*), intent(in) :: y
-!!$    class(*), allocatable :: next
-!!$
-!!$    class(*), allocatable :: p
-!!$    logical :: found_end_or_unsatisfying_element
-!!$
-!!$    p = lst
-!!$    found_end_or_unsatisfying_element = .false.
-!!$    do while (.not. found_end_or_unsatisfying_element)
-!!$       if (.not. is_cons_pair (p)) then
-!!$          found_end_or_unsatisfying_element = .true.
-!!$       else if (compare (car (p), y) <= 0) then
-!!$          found_end_or_unsatisfying_element = .true.
-!!$       else
-!!$          p = cdr (p)
-!!$       end if
-!!$    end do
-!!$    next = p
-!!$  end function skip_lst_gt_y
-
-  recursive function list_merge (lst1, compare, lst2) result (lst_m)
-    !
-    ! NOTE: I have ordered the arguments to be reminiscent of infix
-    !       notation.
+  recursive function list_merge (compare, lst1, lst2) result (lst_m)
     !
     ! It is assumed lst1 and lst2 are proper lists.
     !
-    class(*), intent(in) :: lst1
     procedure(list_comparison2_t) :: compare 
+    class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     type(cons_t) :: lst_m
-    lst_m = list_update_merge (list_copy (lst1), compare, list_copy (lst2))
+    lst_m = list_update_merge (compare, list_copy (lst1), list_copy (lst2))
   end function list_merge
 
-  recursive function list_update_merge (lst1, compare, lst2) result (lst_m)
-    !
-    ! NOTE: I have ordered the arguments to be reminiscent of infix
-    !       notation.
+  recursive function list_update_merge (compare, lst1, lst2) result (lst_m)
     !
     ! It is assumed lst1 and lst2 are proper lists.
     !
-    class(*), intent(in) :: lst1
     procedure(list_comparison2_t) :: compare 
+    class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     type(cons_t) :: lst_m
 
@@ -3265,6 +3210,84 @@ m4_forloop([k],[1],n,[dnl
     end function merge_lists
 
   end function list_update_merge
+
+  recursive function list_mergesort (compare, lst) result (lst_ms)
+    procedure(list_comparison2_t) :: compare 
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_ms
+    lst_ms = list_update_mergesort (compare, list_copy (lst))
+  end function list_mergesort
+
+  recursive function list_update_mergesort (compare, lst) result (lst_ms)
+    procedure(list_comparison2_t) :: compare 
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_ms
+
+    type(cons_t) :: p
+
+    select type (lst)
+    class is (cons_t)
+       if (.not. list_is_pair (lst)) then
+          ! A list of length zero.
+          lst_ms = lst
+       else if (.not. is_cons_pair (cdr (lst))) then
+          ! A list of length one.
+          lst_ms = cons_t_cast (lst)
+       else
+          p = lst
+          lst_ms = mergesort (p)
+       end if
+    class default
+       call error_abort ("the second argument to list_update_mergesort is not a cons_t")
+    end select
+
+  contains
+
+    recursive function mergesort (p) result (lst_ms)
+      !
+      ! A bottom-up mergesort.
+      !
+      type(cons_t) :: p
+      type(cons_t) :: lst_ms
+
+      integer, parameter :: array_size = 64
+
+      type(cons_t), dimension(1 : array_size) :: array
+      type(cons_t) :: tail
+      integer :: i
+      logical :: done
+    
+      array = nil_list
+      do while (list_is_pair (p))
+         tail = cons_t_cast (cdr (p))
+         call set_cdr (p, nil_list)
+         i = 1
+         done = .false.
+         do while (.not. done)
+            if (array_size < i) then
+               i = array_size
+               done = .true.
+            else if (list_is_nil (array(i))) then
+               done = .true.
+            else
+               p = list_update_merge (compare, array(i), p)
+               array(i) = nil_list
+               i = i + 1
+            end if
+         end do
+         array(i) = p
+         p = tail
+      end do
+
+      p = nil_list
+      do i = 1, array_size
+         p = list_update_merge (compare, array(i), p)
+      end do
+
+      lst_ms = p
+    end function mergesort
+
+  end function list_update_mergesort
 
 m4_if(DEBUGGING,[true],[dnl
   function integer_cast (obj) result (int)
