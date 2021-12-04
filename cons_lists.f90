@@ -417,7 +417,7 @@ module cons_lists
   public :: list_unfold_right_with_nil_tail ! A special case of the generic `list_unfold_right'.
 
   ! Association lists: lists of key-value CONS-pairs.
-  public :: alist_assoc  ! Return the first pair with a given key (though actually this is more general).
+  public :: alist_assoc  ! Return the key-value pair with a given key (though actually this is more general).
   public :: alist_cons   ! CONS a key-value pair.
   public :: alist_copy   ! Copy an association list, making copies of the key-value pairs.
   public :: alist_delete ! Delete all entries with a given key (though actually this is more general).
@@ -7417,8 +7417,16 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: key
     procedure(list_predicate2_t) :: pred
     class(*), intent(in) :: alst
-    class(*), allocatable :: alst_a
-    alst_a = skip_key_mismatches (key, pred, alst)
+    type(cons_t) :: alst_a
+
+    class(*), allocatable :: sublist
+
+    sublist = skip_key_mismatches (key, pred, alst)
+    if (is_cons_pair (sublist)) then
+       alst_a = cons_t_cast (car (sublist))
+    else
+       alst_a = nil_list
+    end if
   end function alist_assoc
 
 end module cons_lists

@@ -1927,27 +1927,19 @@ contains
   end subroutine test_alist_delete
 
   subroutine test_alist_assoc
-    class(*), allocatable :: lst1, lst2, lst3, lst4, lst5
-    class(*), allocatable :: lst2_ref, lst3_ref, lst4_ref, lst5_ref
+    class(*), allocatable :: lst1
+    type(cons_t) :: pair1, pair2, pair3, pair4
     call check (is_nil_list (alist_assoc (1234, integer_eq, nil_list)), &
          "is_nil_list (alist_assoc (1234, integer_eq, nil_list)) failed (for alist_assoc)")
     lst1 = alist_cons (3, 26, alist_cons (1, 5, alist_cons (1, 2, alist_cons (3, 4, alist_cons (4, 7, nil_list)))))
-    lst2 = alist_assoc (0, integer_eq, lst1)
-    lst3 = alist_assoc (1, integer_eq, lst1)
-    lst4 = alist_assoc (3, integer_eq, lst1)
-    lst5 = alist_assoc (4, integer_eq, lst1)
-    lst2_ref = nil_list
-    lst3_ref = alist_cons (1, 5, alist_cons (1, 2, alist_cons (3, 4, alist_cons (4, 7, nil_list))))
-    lst4_ref = lst1
-    lst5_ref = alist_cons (4, 7, nil_list)
-    call check (list_equals (integer_pair_eq, lst2, lst2_ref), &
-         "list_equals (integer_pair_eq, lst2, lst2_ref) failed (for alist_assoc)")
-    call check (list_equals (integer_pair_eq, lst3, lst3_ref), &
-         "list_equals (integer_pair_eq, lst3, lst3_ref) failed (for alist_assoc)")
-    call check (list_equals (integer_pair_eq, lst4, lst4_ref), &
-         "list_equals (integer_pair_eq, lst4, lst4_ref) failed (for alist_assoc)")
-    call check (list_equals (integer_pair_eq, lst5, lst5_ref), &
-         "list_equals (integer_pair_eq, lst5, lst5_ref) failed (for alist_assoc)")
+    pair1 = alist_assoc (0, integer_eq, lst1)
+    pair2 = alist_assoc (1, integer_eq, lst1)
+    pair3 = alist_assoc (3, integer_eq, lst1)
+    pair4 = alist_assoc (4, integer_eq, lst1)
+    call check (is_nil_list (pair1), "is_nil_list (pair1) failed (for alist_assoc)")
+    call check (integer_pair_eq (pair2, cons (1, 5)), "integer_pair_eq (pair2, cons (1, 5)) failed (for alist_assoc)")
+    call check (integer_pair_eq (pair3, cons (3, 26)), "integer_pair_eq (pair3, cons (3, 26)) failed (for alist_assoc)")
+    call check (integer_pair_eq (pair4, cons (4, 7)), "integer_pair_eq (pair4, cons (4, 7)) failed (for alist_assoc)")
   end subroutine test_alist_assoc
 
   subroutine run_tests
