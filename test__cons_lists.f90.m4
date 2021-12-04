@@ -1966,6 +1966,22 @@ contains
          "list_equals (integer_eq, lst_m, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)) failed (for list_merge)")
   end subroutine test_list_merge
 
+  subroutine test_list_mergesort
+    !
+    ! FIXME: NEEDS MORE TESTS. INCLUDING STABILITY TESTS
+    !
+    type(cons_t) :: lst1a, lst1b
+    type(cons_t) :: lst2a, lst2b
+    lst1a = iota (100, 100, -1)
+    lst1b = list_mergesort (integer_cmp, lst1a)
+    call check (list_equals (integer_eq, lst1b, iota (100, 1)), &
+         "list_equals (integer_eq, lst1b, iota (100, 1)) failed (for list_mergesort)")
+    lst2a = list10 (15, 2, 3, 4, 5, 6, 4, 5, 10, 2)
+    lst2b = list_mergesort (integer_cmp, lst2a)
+    call check (list_equals (integer_eq, lst2b, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)), &
+         "list_equals (integer_eq, lst2b, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)) failed (for list_mergesort)")
+  end subroutine test_list_mergesort
+
   subroutine run_tests
     !
     ! FIXME: Add tests that check various subroutines do not clobber
@@ -2055,6 +2071,7 @@ contains
     call test_alist_delete
     call test_alist_assoc
     call test_list_merge
+    call test_list_mergesort
   end subroutine run_tests
 
 end module test__cons_lists
