@@ -339,6 +339,7 @@ module cons_lists
   public :: list_destructive_reverse
   public :: list_destructive_take
   public :: list_destructive_drop_right
+  public :: list_destructive_split
 
   ! Zipping: joining the elements of separate lists into a list of
   ! lists.
@@ -3933,6 +3934,32 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        end select
     end if
   end subroutine list_split
+
+  subroutine list_destructive_split (lst, n, lst_left, lst_right)
+    !
+    ! If n is positive, then lst must be a CONS-pair.
+    !
+    ! lst_left will be a cons_t, but lst_right need not be.
+    !
+    class(*) :: lst
+    integer :: n
+    type(cons_t) :: lst_left
+    class(*), allocatable :: lst_right
+
+    class(*), allocatable :: lst1
+
+    if (n <= 0) then
+       lst_left = nil_list
+       lst_right = lst
+    else if (.not. is_cons_pair (lst)) then
+       call error_abort ("positive list_destructive_split of an object with no pairs")
+    else
+       lst_left = copy_head (lst)
+       lst1 = list_drop (lst_left, n - 1)
+       lst_right = cdr (lst1)
+       call set_cdr (cons_t_cast (lst1), nil_list)
+    end if
+  end subroutine list_destructive_split
 
   function list_append (lst1, lst2) result (lst_a)
     !
@@ -7750,7 +7777,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
          lst_ss = insertion_sort (p, n)
       else
          n_half = n / 2
-         call list_split (p, n_half, p_left, p_tail) ! FIXME: Use list_destructive_split, once it is implemented.
+         call list_destructive_split (p, n_half, p_left, p_tail)
          p_left = merge_sort (p_left, n_half)
          p_right = merge_sort (cons_t_cast (p_tail), n - n_half)
          lst_ss = list_destructive_merge (compare, p_left, p_right)

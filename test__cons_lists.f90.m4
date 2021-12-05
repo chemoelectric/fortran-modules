@@ -861,6 +861,55 @@ contains
     call check (right .eqi. 123, "check0250 failed for list_split")
   end subroutine test_list_split
 
+  subroutine test_list_destructive_split
+    type(cons_t) :: left
+    class(*), allocatable :: right
+    integer :: i
+    call list_destructive_split (nil_list, 0, left, right)
+    call check (is_nil_list (left), "check0010 failed for list_destructive_split")
+    call check (is_nil_list (right), "check0020 failed for list_destructive_split")
+    call list_destructive_split (1 ** 2 ** 3 ** nil_list, 0, left, right)
+    call check (is_nil_list (left), "check0030 failed for list_destructive_split")
+    call check (list_length (cons_t_cast (right)) == 3, "check0040 failed for list_destructive_split")
+    do i = 1, 3
+       call check (list_ref1 (cons_t_cast (right), i) .eqi. i, "check0050 failed for list_destructive_split")
+    end do
+    call list_destructive_split (1 ** 2 ** 3 ** nil_list, 1, left, right)
+    call check (list_length (left) == 1, "check0060 failed for list_destructive_split")
+    do i = 1, 1
+       call check (list_ref1 (left, i) .eqi. i, "check0070 failed for list_destructive_split")
+    end do
+    call check (list_length (cons_t_cast (right)) == 2, "check0080 failed for list_destructive_split")
+    do i = 1, 2
+       call check (list_ref1 (cons_t_cast (right), i) .eqi. (1 + i), "check0090 failed for list_destructive_split")
+    end do
+    call list_destructive_split (1 ** 2 ** 3 ** nil_list, 2, left, right)
+    call check (list_length (left) == 2, "check0100 failed for list_destructive_split")
+    do i = 1, 2
+       call check (list_ref1 (left, i) .eqi. i, "check0110 failed for list_destructive_split")
+    end do
+    call check (list_length (cons_t_cast (right)) == 1, "check0120 failed for list_destructive_split")
+    do i = 1, 1
+       call check (list_ref1 (cons_t_cast (right), i) .eqi. (2 + i), "check0130 failed for list_destructive_split")
+    end do
+    call list_destructive_split (1 ** 2 ** 3 ** nil_list, 3, left, right)
+    call check (list_length (left) == 3, "check0140 failed for list_destructive_split")
+    do i = 1, 3
+       call check (list_ref1 (left, i) .eqi. i, "check0150 failed for list_destructive_split")
+    end do
+    call check (is_nil_list (right), "check0160 failed for list_destructive_split")
+    call list_destructive_split (cons (1, 2), 1, left, right)
+    call check (list_length (left) == 1, "check0170 failed for list_destructive_split")
+    call check (car (left) .eqi. 1, "check0180 failed for list_destructive_split")
+    call check (right .eqi. 2, "check0190 failed for list_destructive_split")
+    !
+    ! Let us check a degenerate case.
+    !
+    call list_destructive_split (123, 0, left, right)
+    call check (is_nil_list (left), "check0240 failed for list_destructive_split")
+    call check (right .eqi. 123, "check0250 failed for list_destructive_split")
+  end subroutine test_list_destructive_split
+
   subroutine test_list_append
     type(cons_t) :: lst1, lst2
     integer :: i
@@ -2099,6 +2148,7 @@ contains
     call test_list_drop_right
     call test_list_destructive_drop_right
     call test_list_split
+    call test_list_destructive_split
     call test_list_append
     call test_list_append_reverse
     call test_list_append_in_place
