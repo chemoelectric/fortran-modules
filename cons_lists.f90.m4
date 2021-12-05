@@ -253,7 +253,6 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
 ])dnl
 
   public :: list_reverse          ! Make a reversed copy.
-  public :: list_reverse_in_place ! Reverse a list without copying. (The argument must be a cons_t.)
   public :: list_copy             ! Make a copy in the original order.
   public :: list_take             ! Copy the first n CAR elements.
   public :: list_drop             ! Drop the first n CAR elements (by performing n CDR operations).
@@ -262,8 +261,6 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: list_split            ! A combination of list_take and list_drop.
   public :: list_append           ! Concatenate two lists.
   public :: list_append_reverse   ! Concatenate the reverse of one list to another list.
-  public :: list_append_in_place  ! Concatenate two lists, without copying.
-  public :: list_append_reverse_in_place ! Reverse the first list and then append, without copying.
   public :: list_concatenate      ! Concatenate a list of lists.
 
   public :: list_destructive_reverse
@@ -1438,12 +1435,23 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
   end function list_append
 
   function list_destructive_append (lst1, lst2) result (lst_a)
-    !
-    ! FIXME: Write a real destructive version.
-    !
     class(*) :: lst1, lst2
     class(*), allocatable :: lst_a
-    lst_a = list_append (lst1, lst2)
+
+    type(cons_t) :: p
+
+    select type (lst1)
+    class is (cons_t)
+       if (list_is_nil (lst1)) then
+          lst_a = lst2
+       else
+          p = copy_first_pair (lst1)
+          call list_append_in_place (p, lst2)
+          lst_a = p
+       end if
+    class default
+       lst_a = lst2
+    end select
   end function list_destructive_append
 
   function list_append_reverse (lst1, lst2) result (lst_ar)
@@ -1472,12 +1480,9 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
   end function list_append_reverse
 
   function list_destructive_append_reverse (lst1, lst2) result (lst_ar)
-    !
-    ! FIXME: Write a real destructive version.
-    !
     class(*) :: lst1, lst2
     class(*), allocatable :: lst_ar
-    lst_ar = list_append_reverse (lst1, lst2)
+    lst_ar = list_destructive_append (list_destructive_reverse (lst1), lst2)
   end function list_destructive_append_reverse
 
   subroutine list_append_in_place (lst1, lst2)
@@ -1487,25 +1492,11 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
     type(cons_t) :: lst1
     class(*) :: lst2
     if (list_is_nil (lst1)) then
-       call error_abort ("list_append_in_place to an empty list")
+       call error_abort ("list_append_in_place of an empty list")
     else
        call set_cdr (list_last_pair (lst1), lst2)
     end if
   end subroutine list_append_in_place
-
-  subroutine list_append_reverse_in_place (lst1, lst2)
-    !
-    ! lst1 must be a non-empty, non-circular list.
-    !
-    type(cons_t) :: lst1
-    class(*) :: lst2
-    if (list_is_nil (lst1)) then
-       call error_abort ("list_append_reverse_in_place to an empty list")
-    else
-       call list_reverse_in_place (lst1)
-       call list_append_in_place (lst1, lst2)
-    end if
-  end subroutine list_append_reverse_in_place
 
   function list_concatenate (lists) result (lst_concat)
     !

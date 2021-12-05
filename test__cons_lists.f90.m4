@@ -592,17 +592,6 @@ contains
     call check (is_nil_list (list_destructive_reverse (.true.)), "is_nil_list (list_destructive_reverse (.true.)) failed")
   end subroutine test_list_destructive_reverse
 
-  subroutine test_list_reverse_in_place
-    type(cons_t) :: lst
-    integer :: i
-    lst = iota (15, 1)
-    call list_reverse_in_place (lst)
-    call check (list_length (lst) == 15, "list_length (lst) == 15 failed (for list_reverse_in_place)")
-    do i = 1, 15
-       call check (list_ref1 (lst, i) .eqi. (16 - i), "list_ref1 (lst, i) .eqi. (16 - i) failed (for list_reverse_in_place)")
-    end do
-  end subroutine test_list_reverse_in_place
-
   subroutine test_list_copy
     type(cons_t) :: lst1, lst2, lst3, lst4
     integer :: i
@@ -930,6 +919,27 @@ contains
     call check (list_append (5, 6) .eqi. 6, "list_append (5, 6) .eqi. 6 failed")
   end subroutine test_list_append
 
+  subroutine test_list_destructive_append
+    type(cons_t) :: lst1, lst2
+    integer :: i
+    call check (is_nil_list (list_destructive_append (nil_list, nil_list)), &
+         "is_nil_list (list_destructive_append (nil_list, nil_list)) failed")
+    lst1 = cons_t_cast (list_destructive_append (nil_list, 1 ** 2 ** 3 ** nil_list))
+    call check (list_length (lst1) == 3, "list_length (lst1) == 3 failed (for list_destructive_append)")
+    do i = 1, 3
+       call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1, i) .eqi. i (for list_destructive_append)")
+    end do
+    lst2 = cons_t_cast (list_destructive_append (1 ** 2 ** 3 ** nil_list, 4 ** 5 ** 6 ** nil_list))
+    call check (list_length (lst2) == 6, "list_length (lst2) == 6 failed (for list_destructive_append)")
+    do i = 1, 6
+       call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i (for list_destructive_append)")
+    end do
+    !
+    ! Let us check a degenerate case.
+    !
+    call check (list_destructive_append (5, 6) .eqi. 6, "list_destructive_append (5, 6) .eqi. 6 failed")
+  end subroutine test_list_destructive_append
+
   subroutine test_list_append_reverse
     type(cons_t) :: lst
     integer :: i
@@ -946,33 +956,21 @@ contains
     call check (list_append_reverse (5, 6) .eqi. 6, "list_append_reverse (5, 6) .eqi. 6 failed")
   end subroutine test_list_append_reverse
 
-  subroutine test_list_append_in_place
-    !
-    ! FIXME: Add a test to check for clobbered arguments.
-    !
-    type(cons_t) :: lst1
-    integer :: i
-    lst1 = 1 ** 2 ** 3 ** nil_list
-    call list_append_in_place (lst1, 4 ** 5 ** 6 ** nil_list)
-    call check (list_length (lst1) == 6, "list_length (lst1) == 6 failed (for list_append_in_place)")
-    do i = 1, 6
-       call check (list_ref1 (lst1, i) .eqi. i, "list_ref1 (lst1, i) .eqi. i (for list_append_in_place)")
-    end do
-  end subroutine test_list_append_in_place
-
-  subroutine test_list_append_reverse_in_place
-    !
-    ! FIXME: Add a test to check for clobbered arguments.
-    !
+  subroutine test_list_destructive_append_reverse
     type(cons_t) :: lst
     integer :: i
-    lst = 3 ** 2 ** 1 ** nil_list
-    call list_append_reverse_in_place (lst, 4 ** 5 ** 6 ** nil_list)
-    call check (list_length (lst) == 6, "list_length (lst) == 6 failed (for list_append_reverse_in_place)")
+    call check (is_nil_list (list_destructive_append_reverse (nil_list, nil_list)), &
+         "is_nil_list (list_destructive_append_reverse (nil_list, nil_list)) failed")
+    lst = cons_t_cast (list_destructive_append_reverse (3 ** 2 ** 1 ** nil_list, 4 ** 5 ** 6 ** nil_list))
+    call check (list_length (lst) == 6, "list_length (lst) == 6 failed (for list_destructive_append_reverse)")
     do i = 1, 6
-       call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i (for list_append_reverse_in_place)")
+       call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i (for list_destructive_append_reverse)")
     end do
-  end subroutine test_list_append_reverse_in_place
+    !
+    ! Let us check a degenerate case.
+    !
+    call check (list_destructive_append_reverse (5, 6) .eqi. 6, "list_destructive_append_reverse (5, 6) .eqi. 6 failed")
+  end subroutine test_list_destructive_append_reverse
 
   subroutine test_list_concatenate
     type(cons_t) :: lst1, lst2
@@ -1242,66 +1240,6 @@ contains
     call check (cdr (list_last_pair (lst4)) .eqi. 123, &
          "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_destructive_modify_elements as list_map)")
   end subroutine test_list_destructive_modify_elements
-
-  subroutine test_list_modify_elements_in_place
-    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
-    class(*), allocatable :: obj1, obj2
-    integer :: i
-    real :: x, y
-    lst1 = acos (0.25) ** acos (0.50) ** acos (0.75) ** nil_list
-    do i = 1, 3
-       y = i * 0.25
-       x = acos (y)
-       call check (abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001 failed (for list_modify_elements_in_place)")
-    end do
-    lst2 = lst1
-    call list_map_in_place (cosine_subr, lst2)
-    do i = 1, 3
-       y = i * 0.25
-       x = acos (y)
-       call check (abs (real_cast (list_ref1 (lst1, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst1, i)) - y) < 0.0001 failed (for list_modify_elements_in_place)")
-       call check (abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001 failed (for list_modify_elements_in_place)")
-    end do
-    !
-    lst3 = acos (0.25) ** acos (0.50) ** cons (acos (0.75), 123)
-    call check (cdr (list_last_pair (lst3)) .eqi. 123, &
-         "cdr (list_last_pair (lst3)) .eqi. 123 failed (for list_modify_elements_in_place)")
-    do i = 1, 3
-       y = i * 0.25
-       x = acos (y)
-       call check (abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001 failed (for list_modify_elements_in_place)")
-    end do
-    lst4 = lst3
-    call list_map_in_place (cosine_subr, lst4)
-    call check (cdr (list_last_pair (lst3)) .eqi. 123, &
-         "cdr (list_last_pair (lst3)) .eqi. 123 failed (for list_modify_elements_in_place)")
-    call check (cdr (list_last_pair (lst4)) .eqi. 123, &
-         "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_modify_elements_in_place)")
-    do i = 1, 3
-       y = i * 0.25
-       x = acos (y)
-       call check (abs (real_cast (list_ref1 (lst3, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst3, i)) - y) < 0.0001 failed (for list_modify_elements_in_place)")
-       call check (abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001, &
-            "abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001 failed (for list_modify_elements_in_place)")
-    end do
-    !
-    lst5 = nil_list
-    lst6 = lst5
-    call list_map_in_place (cosine_subr, lst6)
-    call check (is_nil_list (lst5), "is_nil_list (lst5) failed (for list_modify_elements_in_place)")
-    call check (is_nil_list (lst6), "is_nil_list (lst6) failed (for list_modify_elements_in_place)")
-    !
-    obj1 = 123
-    obj2 = obj1
-    call list_map_in_place (cosine_subr, obj2)
-    call check (obj1 .eqi. 123, "obj1 .eqi. 123 failed (for list_modify_elements_in_place)")
-    call check (obj2 .eqi. 123, "obj2 .eqi. 123 failed (for list_modify_elements_in_place)")
-  end subroutine test_list_modify_elements_in_place
 
   subroutine test_list_append_modify_elements
     type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
@@ -2187,7 +2125,6 @@ contains
     call test_list_unlist
     call test_list_reverse
     call test_list_destructive_reverse
-    call test_list_reverse_in_place
     call test_list_copy
     call test_list_take
     call test_list_destructive_take
@@ -2198,9 +2135,9 @@ contains
     call test_list_split
     call test_list_destructive_split
     call test_list_append
+    call test_list_destructive_append
     call test_list_append_reverse
-    call test_list_append_in_place
-    call test_list_append_reverse_in_place
+    call test_list_destructive_append_reverse
     call test_list_concatenate
     call test_list_zip1
     call test_list_zip3
@@ -2213,7 +2150,6 @@ contains
     call test_list_pair_foreach
     call test_list_modify_elements
     call test_list_destructive_modify_elements
-    call test_list_modify_elements_in_place
     call test_list_append_modify_elements
     call test_list_find
     call test_list_find_tail
