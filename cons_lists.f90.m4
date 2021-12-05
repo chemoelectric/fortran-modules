@@ -330,6 +330,10 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_index1     ! Return the index (starting at 1) of the first match.
   public :: list_indexn     ! Return the index (starting at n) of the first match.
 
+  public :: list_destructive_take_while
+  public :: list_destructive_span
+  public :: list_destructive_break
+
   public :: list_equals     ! Test equality of two lists (though actually this is much more general).
   !
   ! FIXME: Add something like list_equals that ignores the end of a
@@ -349,6 +353,10 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_pair_fold_right ! Like list_fold_right, but applied to sublists. (Not for use on VERY long lists.)
   public :: list_reduce     ! A variant of list_fold. (See SRFI-1.)
   public :: list_reduce_right ! A variant of list_fold_right. (See SRFI-1. Not for use on VERY long lists.)
+
+  public :: list_destructive_filter
+  public :: list_destructive_remove
+  public :: list_destructive_partition
 
   ! `The fundamental recursive list constructor.' See
   ! SRFI-1. Implemented recursively and so not for use to make VERY
@@ -1936,6 +1944,16 @@ m4_forloop([k],[1],n,[dnl
     end if
   end function list_take_while
 
+  recursive function list_destructive_take_while (pred, lst) result (match)
+    !
+    ! FIXME: Write a real destructive version.
+    !
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t) :: match
+    match = list_take_while (pred, lst)
+  end function list_destructive_take_while
+
   recursive function list_drop_while (pred, lst) result (match)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
@@ -1996,6 +2014,17 @@ m4_forloop([k],[1],n,[dnl
     lst_rest = rest
   end subroutine list_span
 
+  recursive subroutine list_destructive_span (pred, lst, lst_initial, lst_rest)
+    !
+    ! FIXME: Write a real destructive version.
+    !
+    procedure(list_predicate1_t) :: pred
+    class(*) :: lst
+    type(cons_t) :: lst_initial
+    class(*), allocatable :: lst_rest
+    call list_span (pred, lst, lst_initial, lst_rest)
+  end subroutine list_destructive_span
+
   recursive subroutine list_break (pred, lst, lst_initial, lst_rest)
     procedure(list_predicate1_t) :: pred
     class(*) :: lst
@@ -2035,6 +2064,17 @@ m4_forloop([k],[1],n,[dnl
     lst_initial = initial
     lst_rest = rest
   end subroutine list_break
+
+  recursive subroutine list_destructive_break (pred, lst, lst_initial, lst_rest)
+    !
+    ! FIXME: Write a real destructive version.
+    !
+    procedure(list_predicate1_t) :: pred
+    class(*) :: lst
+    type(cons_t) :: lst_initial
+    class(*), allocatable :: lst_rest
+    call list_break (pred, lst, lst_initial, lst_rest)
+  end subroutine list_destructive_break
 
   recursive function list_any (pred, lst) result (match_found)
     procedure(list_predicate1_t) :: pred
@@ -2337,6 +2377,16 @@ m4_forloop([k],[1],n,[dnl
     lst_f = retval
   end function list_filter
 
+  recursive function list_destructive_filter (pred, lst) result (lst_f)
+    !
+    ! FIXME: Write a real destructive version.
+    !
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_f
+    lst_f = list_filter (pred, lst)
+  end function list_destructive_filter
+
   recursive function list_remove (pred, lst) result (lst_r)
     !
     ! This implementation tries to share the longest possible tail
@@ -2394,6 +2444,16 @@ m4_forloop([k],[1],n,[dnl
     end if
     lst_r = retval
   end function list_remove
+
+  recursive function list_destructive_remove (pred, lst) result (lst_r)
+    !
+    ! FIXME: Write a real destructive version.
+    !
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_r
+    lst_r = list_remove (pred, lst)
+  end function list_destructive_remove
 
   recursive subroutine list_partition (pred, lst, lst_f, lst_r)
     !
@@ -2568,6 +2628,17 @@ m4_forloop([k],[1],n,[dnl
     end subroutine first_position_does_not_satisfy
 
   end subroutine list_partition
+
+  recursive subroutine list_destructive_partition (pred, lst, lst_f, lst_r)
+    !
+    ! FIXME: Write a real destructive version.
+    !
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_f ! The `filter' output.
+    class(*), allocatable :: lst_r ! The `remove' output.
+    call list_partition (pred, lst, lst_f, lst_r)
+  end subroutine list_destructive_partition
 
   recursive function skip_quasiequal_elements (x, pred, lst) result (next)
     class(*), intent(in) :: x
