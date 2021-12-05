@@ -294,7 +294,6 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_pair_foreach ! Call a subroutine on list pairs, to produce side effects.
 
   public :: list_map          ! A generic function for mapping element values.
-  public :: list_map_in_place ! A generic function for mapping in place.
   public :: list_append_map   ! A generic function for mapping then concatenating.
 
   public :: list_destructive_map
@@ -304,7 +303,6 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   ! their values.
   public :: list_modify_elements_procedure_t
   public :: list_modify_elements          ! Can be called as `list_map'.
-  public :: list_modify_elements_in_place ! Can be called as `list_map_in_place'.
   public :: list_append_modify_elements   ! Can be called as `list_append_map'.
 
   public :: list_destructive_modify_elements
@@ -403,11 +401,6 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   interface list_map
      module procedure list_modify_elements
   end interface list_map
-
-  ! Overloading of `list_map_in_place'.
-  interface list_map_in_place
-     module procedure list_modify_elements_in_place
-  end interface list_map_in_place
 
   ! Overloading of `list_append_map'.
   interface list_append_map
