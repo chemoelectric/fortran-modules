@@ -300,12 +300,18 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: list_map_in_place ! A generic function for mapping in place.
   public :: list_append_map   ! A generic function for mapping then concatenating.
 
+  public :: list_destructive_map
+  public :: list_destructive_append_map
+
   ! Call a one-argument subroutine on list elements, to modify (map)
   ! their values.
   public :: list_modify_elements_procedure_t
   public :: list_modify_elements          ! Can be called as `list_map'.
   public :: list_modify_elements_in_place ! Can be called as `list_map_in_place'.
   public :: list_append_modify_elements   ! Can be called as `list_append_map'.
+
+  public :: list_destructive_modify_elements
+  public :: list_destructive_append_modify_elements
 
   ! Types for predicates.
   public :: list_predicate1_t ! A predicate taking one argument.
@@ -395,6 +401,16 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   interface list_append_map
      module procedure list_append_modify_elements
   end interface list_append_map
+
+  ! Overloading of `list_destructive_map'.
+  interface list_destructive_map
+     module procedure list_destructive_modify_elements
+  end interface list_destructive_map
+
+  ! Overloading of `list_destructive_append_map'.
+  interface list_destructive_append_map
+     module procedure list_destructive_append_modify_elements
+  end interface list_destructive_append_map
 
   ! Overloading of `list_unfold'.
   interface list_unfold
@@ -1725,6 +1741,18 @@ m4_forloop([k],[1],n,[dnl
     end if
   end function list_modify_elements
 
+  recursive function list_destructive_modify_elements (subr, lst) result (lst_m)
+    !
+    ! FIXME: Write a real destructive version. (There is already
+    !        list_modify_elements_in_place to call for most of the
+    !        work.)
+    !
+    procedure(list_modify_elements_procedure_t) :: subr
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_m
+    lst_m = list_modify_elements (subr, lst)
+  end function list_destructive_modify_elements
+
   recursive subroutine list_modify_elements_in_place (subr, lst)
     !
     ! Modify the elements of a list, in place, using a subroutine to
@@ -1817,6 +1845,16 @@ m4_forloop([k],[1],n,[dnl
        end if
     end if
   end function list_append_modify_elements
+
+  recursive function list_destructive_append_modify_elements (subr, lst) result (lst_am)
+    !
+    ! FIXME: Write a real destructive version.
+    !
+    procedure(list_modify_elements_procedure_t) :: subr
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_am
+    lst_am = list_append_modify_elements (subr, lst)
+  end function list_destructive_append_modify_elements
 
   recursive subroutine list_find (pred, lst, match_found, match)
     !
