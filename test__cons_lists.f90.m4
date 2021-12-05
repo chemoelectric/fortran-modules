@@ -122,6 +122,21 @@ contains
     end if
   end function integer_cmp
 
+  function integer_least_digit_cmp (obj1, obj2) result (i)
+    class(*), intent(in) :: obj1, obj2
+    integer :: i
+    integer :: x, y
+    x = mod (integer_cast (obj1), 10)
+    y = mod (integer_cast (obj2), 10)
+    if (x < y) then
+       i = -1
+    else if (x == y) then
+       i = 0
+    else
+       i = 1
+    end if
+  end function integer_least_digit_cmp
+
   subroutine cosine_subr (x)
     class(*), intent(inout), allocatable :: x
     x = cos (real_cast (x))
@@ -2059,11 +2074,13 @@ contains
   end subroutine test_list_merge
 
   subroutine test_list_stable_sort
-    !
-    ! FIXME: NEEDS MORE TESTS. INCLUDING STABILITY TESTS
-    !
     type(cons_t) :: lst1a, lst1b
     type(cons_t) :: lst2a, lst2b
+    class(*), allocatable :: lst3a
+    type(cons_t) :: lst3b, lst3c
+    type(cons_t) :: p
+    integer :: i
+    integer :: k
     lst1a = iota (100, 100, -1)
     lst1b = list_stable_sort (integer_cmp, lst1a)
     call check (list_equals (integer_eq, lst1b, iota (100, 1)), &
@@ -2072,14 +2089,39 @@ contains
     lst2b = list_stable_sort (integer_cmp, lst2a)
     call check (list_equals (integer_eq, lst2b, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)), &
          "list_equals (integer_eq, lst2b, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)) failed (for list_stable_sort)")
+    lst3a = iota (10, 99, -1)
+    lst3a = list_append (iota (10, 89, -1), lst3a)
+    lst3a = list_append (iota (10, 79, -1), lst3a)
+    lst3a = list_append (iota (10, 69, -1), lst3a)
+    lst3a = list_append (iota (10, 59, -1), lst3a)
+    lst3a = list_append (iota (10, 49, -1), lst3a)
+    lst3a = list_append (iota (10, 39, -1), lst3a)
+    lst3a = list_append (iota (10, 29, -1), lst3a)
+    lst3a = list_append (iota (10, 19, -1), lst3a)
+    lst3a = list_append (iota (10, 9, -1), lst3a)
+    lst3b = list_stable_sort (integer_cmp, lst3a)
+    call check (list_length (lst3b) == 100, "list_length (lst3b) == 100 failed (for list_stable_sort)")
+    call check (list_equals (integer_eq, lst3b, iota (100)), &
+         "list_equals (integer_eq, lst3b, iota (100)) failed (for list_stable_sort)")
+    !
+    ! Test stability.
+    !
+    lst3c = list_stable_sort (integer_least_digit_cmp, lst3a)
+    call check (list_length (lst3c) == 100, "list_length (lst3c) == 100 failed (for list_stable_sort)")
+    p = lst3c
+    do i = 0, 99
+       k = integer_cast (car (p))
+       call check (mod (k, 10) == i / 10, "mod (k, 10) == i / 10 failed (for list_stable_sort)")
+       call check (k / 10 == mod (i, 10), "k / 10 == mod (i, 10) failed (for list_stable_sort)")
+       p = cons_t_cast (cdr (p))
+    end do
   end subroutine test_list_stable_sort
 
   subroutine test_list_unstable_sort
-    !
-    ! FIXME: NEEDS MORE TESTS.
-    !
     type(cons_t) :: lst1a, lst1b
     type(cons_t) :: lst2a, lst2b
+    class(*), allocatable :: lst3a
+    type(cons_t) :: lst3b
     lst1a = iota (100, 100, -1)
     lst1b = list_unstable_sort (integer_cmp, lst1a)
     call check (list_equals (integer_eq, lst1b, iota (100, 1)), &
@@ -2088,6 +2130,20 @@ contains
     lst2b = list_unstable_sort (integer_cmp, lst2a)
     call check (list_equals (integer_eq, lst2b, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)), &
          "list_equals (integer_eq, lst2b, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)) failed (for list_unstable_sort)")
+    lst3a = iota (10, 99, -1)
+    lst3a = list_append (iota (10, 89, -1), lst3a)
+    lst3a = list_append (iota (10, 79, -1), lst3a)
+    lst3a = list_append (iota (10, 69, -1), lst3a)
+    lst3a = list_append (iota (10, 59, -1), lst3a)
+    lst3a = list_append (iota (10, 49, -1), lst3a)
+    lst3a = list_append (iota (10, 39, -1), lst3a)
+    lst3a = list_append (iota (10, 29, -1), lst3a)
+    lst3a = list_append (iota (10, 19, -1), lst3a)
+    lst3a = list_append (iota (10, 9, -1), lst3a)
+    lst3b = list_unstable_sort (integer_cmp, lst3a)
+    call check (list_length (lst3b) == 100, "list_length (lst3b) == 100 failed (for list_unstable_sort)")
+    call check (list_equals (integer_eq, lst3b, iota (100)), &
+         "list_equals (integer_eq, lst3b, iota (100)) failed (for list_unstable_sort)")
   end subroutine test_list_unstable_sort
 
   subroutine run_tests
