@@ -138,6 +138,10 @@ module cons_lists
   ! Request for Implementation SRFI-1 (List Library).  See
   ! https://srfi.schemers.org/srfi-1/srfi-1.html
   !
+  ! Procedures with `destructive' in their names are the `linear
+  ! updating' alternatives: they are allowed to (but NOT required to)
+  ! destroy their inputs.
+  !
   ! Please keep in mind that the term `list' is used only loosely in
   ! Scheme. The fundamental `list' object types are actually the nil
   ! `list' and the CAR-CDR pair; furthermore, objects other than those
@@ -331,6 +335,8 @@ module cons_lists
   public :: list_append_reverse_in_place ! Reverse the first list and then append, without copying.
   public :: list_concatenate      ! Concatenate a list of lists.
 
+  public :: list_destructive_reverse
+
   ! Zipping: joining the elements of separate lists into a list of
   ! lists.
   public :: list_zip1 ! Box each element of a list in a length-1 list.
@@ -432,10 +438,10 @@ module cons_lists
   public :: alist_delete ! Delete all entries with a given key (though actually this is more general).
 
   ! Sorting. (NOTE: Sorting is not included in SRFI-1.)
-  public :: list_merge              ! Merge two sorted lists.
-  public :: list_update_merge       ! Merge two sorted lists, in a `linear updating' fashion.
-  public :: list_stable_sort        ! Stable mergesort.
-  public :: list_update_stable_sort ! Stable `linear updating' mergesort.
+  public :: list_merge                   ! Merge two sorted lists.
+  public :: list_destructive_merge
+  public :: list_stable_sort             ! Stable mergesort.
+  public :: list_destructive_stable_sort
 
   ! Overloading of `iota'.
   interface iota
@@ -486,6 +492,21 @@ contains
     write (error_unit, '("cons_lists error: ", a)') msg
     error stop
   end subroutine error_abort
+
+  function copy_head (lst) result (lst1)
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst1
+
+    class(*), allocatable :: head, tail
+
+    select type (lst)
+    class is (cons_t)
+       call uncons (lst, head, tail)
+       lst1 = cons (head, tail)
+    class default
+       call error_abort ("copy_head of an object that is not a cons pair")
+    end select
+  end function copy_head
 
   function is_nil_or_pair (obj) result (is_cons)
     class(*), intent(in) :: obj
@@ -3650,6 +3671,26 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end do
   end function list_reverse
 
+  function list_destructive_reverse (lst) result (lst_r)
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_r
+
+    type(cons_t) :: lst1
+
+    select type (lst)
+    class is (cons_t)
+       if (list_is_pair (lst)) then
+          lst1 = copy_head (lst)
+          call list_reverse_in_place (lst1)
+          lst_r = lst1
+       else
+          lst_r = nil_list
+       end if
+    class default
+       lst_r = nil_list
+    end select
+  end function list_destructive_reverse
+
   subroutine list_reverse_in_place (lst)
     type(cons_t), intent(inout) :: lst
 
@@ -3657,7 +3698,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     type(cons_t) :: tail
 
     lst_r = nil_list
-    do while (is_cons_pair (lst))
+    do while (list_is_pair (lst))
        tail = cons_t_cast (cdr (lst))
        call set_cdr (lst, lst_r)
        lst_r = lst
@@ -7449,10 +7490,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     type(cons_t) :: lst_m
-    lst_m = list_update_merge (compare, list_copy (lst1), list_copy (lst2))
+    lst_m = list_destructive_merge (compare, list_copy (lst1), list_copy (lst2))
   end function list_merge
 
-  recursive function list_update_merge (compare, lst1, lst2) result (lst_m)
+  recursive function list_destructive_merge (compare, lst1, lst2) result (lst_m)
     !
     ! It is assumed lst1 and lst2 are proper lists.
     !
@@ -7472,10 +7513,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           p2 = lst2
           lst_m = merge_lists (p1, p2)
        class default
-          call error_abort ("the third argument to list_update_merge is not a cons_t")
+          call error_abort ("the third argument to list_destructive_merge is not a cons_t")
        end select
     class default
-       call error_abort ("the first argument to list_update_merge is not a cons_t")
+       call error_abort ("the first argument to list_destructive_merge is not a cons_t")
     end select
 
   contains
@@ -7569,16 +7610,16 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
       end if
     end function merge_lists
 
-  end function list_update_merge
+  end function list_destructive_merge
 
   recursive function list_stable_sort (compare, lst) result (lst_ms)
     procedure(list_comparison2_t) :: compare 
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ms
-    lst_ms = list_update_stable_sort (compare, list_copy (lst))
+    lst_ms = list_destructive_stable_sort (compare, list_copy (lst))
   end function list_stable_sort
 
-  recursive function list_update_stable_sort (compare, lst) result (lst_ss)
+  recursive function list_destructive_stable_sort (compare, lst) result (lst_ss)
     procedure(list_comparison2_t) :: compare 
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ss
@@ -7600,7 +7641,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           lst_ss = merge_sort (p, list_length (p))
        end if
     class default
-       call error_abort ("the second argument to list_update_stable_sort is not a cons_t")
+       call error_abort ("the second argument to list_destructive_stable_sort is not a cons_t")
     end select
 
   contains
@@ -7673,13 +7714,13 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
          lst_ss = insertion_sort (p, n)
       else
          n_half = n / 2
-         call list_split (p, n_half, p_left, p_tail) ! FIXME: Use list_update_split, once it is implemented.
+         call list_split (p, n_half, p_left, p_tail) ! FIXME: Use list_destructive_split, once it is implemented.
          p_left = merge_sort (p_left, n_half)
          p_right = merge_sort (cons_t_cast (p_tail), n - n_half)
-         lst_ss = list_update_merge (compare, p_left, p_right)
+         lst_ss = list_destructive_merge (compare, p_left, p_right)
       end if
     end function merge_sort
 
-  end function list_update_stable_sort
+  end function list_destructive_stable_sort
 
 end module cons_lists

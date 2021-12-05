@@ -573,6 +573,25 @@ contains
     call check (is_nil_list (list_reverse (.true.)), "is_nil_list (list_reverse (.true.)) failed")
   end subroutine test_list_reverse
 
+  subroutine test_list_destructive_reverse
+    type(cons_t) :: lst1, lst2
+    integer :: i
+    lst1 = iota (15, 1)
+    lst2 = list_destructive_reverse (lst1)
+    call set_car (lst1, nil_list)
+    call set_cdr (lst1, nil_list)
+    call check (list_length (lst1) == 1, "list_length (lst1) == 1 failed (for list_destructive_reverse)")
+    call check (is_nil_list (car (lst1)), "is_nil_list (car (lst1)) failed (for list_destructive_reverse)")
+    call check (list_length (lst2) == 15, "list_length (lst2) == 15 failed (for list_destructive_reverse)")
+    do i = 1, 15
+       call check (list_ref1 (lst2, i) .eqi. (16 - i), "list_ref1 (lst2, i) .eqi. (16 - i) failed (for list_destructive_reverse)")
+    end do
+    !
+    ! Test a degenerate case.
+    !
+    call check (is_nil_list (list_destructive_reverse (.true.)), "is_nil_list (list_destructive_reverse (.true.)) failed")
+  end subroutine test_list_destructive_reverse
+
   subroutine test_list_reverse_in_place
     type(cons_t) :: lst
     integer :: i
@@ -2016,6 +2035,7 @@ contains
     call test_circular_list
     call test_list_unlist
     call test_list_reverse
+    call test_list_destructive_reverse
     call test_list_reverse_in_place
     call test_list_copy
     call test_list_take
