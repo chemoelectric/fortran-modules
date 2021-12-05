@@ -463,10 +463,13 @@ module cons_lists
   public :: alist_destructive_delete
 
   ! Sorting. (NOTE: Sorting is not included in SRFI-1.)
-  public :: list_merge                   ! Merge two sorted lists.
+  public :: list_merge          ! Merge two sorted lists.
+  public :: list_stable_sort    ! Stable sorting.
+  public :: list_unstable_sort  ! Sorting that may be (but is not required to be) unstable.
+
   public :: list_destructive_merge
-  public :: list_stable_sort             ! Stable mergesort.
   public :: list_destructive_stable_sort
+  public :: list_destructive_unstable_sort
 
   ! Overloading of `iota'.
   interface iota
@@ -7854,11 +7857,11 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   end function list_destructive_merge
 
-  recursive function list_stable_sort (compare, lst) result (lst_ms)
+  recursive function list_stable_sort (compare, lst) result (lst_ss)
     procedure(list_comparison2_t) :: compare 
     class(*), intent(in) :: lst
-    type(cons_t) :: lst_ms
-    lst_ms = list_destructive_stable_sort (compare, list_copy (lst))
+    type(cons_t) :: lst_ss
+    lst_ss = list_destructive_stable_sort (compare, list_copy (lst))
   end function list_stable_sort
 
   recursive function list_destructive_stable_sort (compare, lst) result (lst_ss)
@@ -7964,5 +7967,25 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end function merge_sort
 
   end function list_destructive_stable_sort
+
+  recursive function list_unstable_sort (compare, lst) result (lst_us)
+    !
+    ! This implementation is just the stable sort.
+    !
+    procedure(list_comparison2_t) :: compare 
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_us
+    lst_us = list_stable_sort (compare, lst)
+  end function list_unstable_sort
+
+  recursive function list_destructive_unstable_sort (compare, lst) result (lst_us)
+    !
+    ! This implementation is just the stable sort.
+    !
+    procedure(list_comparison2_t) :: compare 
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_us
+    lst_us = list_destructive_stable_sort (compare, lst)
+  end function list_destructive_unstable_sort
 
 end module cons_lists
