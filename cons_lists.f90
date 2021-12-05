@@ -439,6 +439,8 @@ module cons_lists
   public :: list_destructive_filter
   public :: list_destructive_remove
   public :: list_destructive_partition
+  public :: list_destructive_delete
+  public :: list_destructive_delete_duplicates
 
   ! `The fundamental recursive list constructor.' See
   ! SRFI-1. Implemented recursively and so not for use to make VERY
@@ -457,6 +459,8 @@ module cons_lists
   public :: alist_cons   ! CONS a key-value pair.
   public :: alist_copy   ! Copy an association list, making copies of the key-value pairs.
   public :: alist_delete ! Delete all entries with a given key (though actually this is more general).
+
+  public :: alist_destructive_delete
 
   ! Sorting. (NOTE: Sorting is not included in SRFI-1.)
   public :: list_merge                   ! Merge two sorted lists.
@@ -7097,6 +7101,17 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     lst_d = retval
   end function list_delete
 
+  recursive function list_destructive_delete (pred, x, lst) result (lst_d)
+    !
+    ! FIXME: Write a real destructive version.
+    !
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: x
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_d
+    lst_d = list_delete (pred, x, lst)
+  end function list_destructive_delete
+
   recursive function contains_match (lst, pred, x) result (match_found)
     class(*), intent(in) :: lst
     procedure(list_predicate2_t) :: pred
@@ -7233,6 +7248,16 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
     lst_dd = retval
   end function list_delete_duplicates
+
+  recursive function list_destructive_delete_duplicates (pred, lst) result (lst_dd)
+    !
+    ! FIXME: Write a real destructive version.
+    !
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_dd
+    lst_dd = list_delete_duplicates (pred, lst)
+  end function list_destructive_delete_duplicates
 
   recursive function list_filter_map (subr, lst) result (lst_fm)
     procedure(list_filter_map_procedure_t) :: subr
@@ -7660,6 +7685,17 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
     alst_d = retval
   end function alist_delete
+
+  recursive function alist_destructive_delete (pred, key, alst) result (alst_d)
+    !
+    ! FIXME: Write a real destructive version.
+    !
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: key
+    class(*), intent(in) :: alst
+    class(*), allocatable :: alst_d
+    alst_d = alist_delete (pred, key, alst)
+  end function alist_destructive_delete
 
   function alist_assoc (pred, key, alst) result (alst_a)
     !
