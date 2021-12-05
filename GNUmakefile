@@ -57,18 +57,18 @@ FCFLAG_WTRAMPOLINES = -Wtrampolines
 %.anchor: %.f90
 	$(COMPILE.f90) -c -fsyntax-only $(<) && touch $(@)
 
-cons_lists.anchor: cons_lists.f90
-	$(COMPILE.f90) $(FCFLAG_WTRAMPOLINES) -c -fsyntax-only $(<) && touch $(@)
-
 %.$(OBJEXT): %.anchor
 	$(COMPILE.f90) -c $(<:.anchor=.f90) -o $(@)
-
-cons_lists.$(OBJEXT): cons_lists.anchor
-	$(COMPILE.f90) $(FCFLAG_WTRAMPOLINES) -c $(<:.anchor=.f90) -o $(@)
 
 .PRECIOUS: %.f90
 %.f90: %.f90.m4 common-macros.m4
 	$(COMPILE.m4) $(<) > $(@)
+
+# The core modules are to be kept free of trampolines.
+cons_lists.anchor: cons_lists.f90
+	$(COMPILE.f90) $(FCFLAG_WTRAMPOLINES) -c -fsyntax-only $(<) && touch $(@)
+cons_lists.$(OBJEXT): cons_lists.anchor
+	$(COMPILE.f90) $(FCFLAG_WTRAMPOLINES) -c $(<:.anchor=.f90) -o $(@)
 
 .PHONY: all default
 default: all

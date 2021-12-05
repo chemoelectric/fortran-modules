@@ -340,6 +340,9 @@ module cons_lists
   public :: list_destructive_take
   public :: list_destructive_drop_right
   public :: list_destructive_split
+  public :: list_destructive_append
+  public :: list_destructive_append_reverse
+  public :: list_destructive_concatenate
 
   ! Zipping: joining the elements of separate lists into a list of
   ! lists.
@@ -3999,6 +4002,15 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end select
   end function list_append
 
+  function list_destructive_append (lst1, lst2) result (lst_a)
+    !
+    ! FIXME: Write a real destructive version.
+    !
+    class(*) :: lst1, lst2
+    class(*), allocatable :: lst_a
+    lst_a = list_append (lst1, lst2)
+  end function list_destructive_append
+
   function list_append_reverse (lst1, lst2) result (lst_ar)
     !
     ! The tail of the result is shared with lst2. The CAR elements of
@@ -4023,6 +4035,15 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        end do
     end select
   end function list_append_reverse
+
+  function list_destructive_append_reverse (lst1, lst2) result (lst_ar)
+    !
+    ! FIXME: Write a real destructive version.
+    !
+    class(*) :: lst1, lst2
+    class(*), allocatable :: lst_ar
+    lst_ar = list_append_reverse (lst1, lst2)
+  end function list_destructive_append_reverse
 
   subroutine list_append_in_place (lst1, lst2)
     !
@@ -4075,6 +4096,15 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        end do
     end if
   end function list_concatenate
+
+  function list_destructive_concatenate (lists) result (lst_concat)
+    !
+    ! FIXME: Write a real destructive version.
+    !
+    class(cons_t), intent(in) :: lists
+    class(*), allocatable :: lst_concat
+    lst_concat = list_concatenate (lists)
+  end function list_destructive_concatenate
 
   function list_zip1 (lst1) result (lst_z)
     class(*), intent(in) :: lst1
