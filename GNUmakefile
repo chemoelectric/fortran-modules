@@ -64,9 +64,14 @@ FCFLAG_WTRAMPOLINES = -Wtrampolines
 %.f90: %.f90.m4 common-macros.m4
 	$(COMPILE.m4) $(<) > $(@)
 
-# The core modules are to be kept free of trampolines. (This design
-# choice results in less code re-use, but probably faster code. Mainly
-# it is to let the core modules work without executable stacks.)
+#
+# The core modules are to be kept free of trampolines, which gfortran
+# generates on AMD64 and other platforms.
+#
+# Avoidance of trampolines results in less code re-use, but probably
+# faster code. Mainly, however, it is not for code speed but to let
+# the core modules work with hardened, non-executable stacks.
+#
 cons_lists.anchor: cons_lists.f90
 	$(COMPILE.f90) $(FCFLAG_WTRAMPOLINES) -c -fsyntax-only $(<) && touch $(@)
 cons_lists.$(OBJEXT): cons_lists.anchor
