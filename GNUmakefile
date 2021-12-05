@@ -64,7 +64,9 @@ FCFLAG_WTRAMPOLINES = -Wtrampolines
 %.f90: %.f90.m4 common-macros.m4
 	$(COMPILE.m4) $(<) > $(@)
 
-# The core modules are to be kept free of trampolines.
+# The core modules are to be kept free of trampolines. (This design
+# choice results in less code re-use, but probably faster code. Mainly
+# it is to let the core modules work without executable stacks.)
 cons_lists.anchor: cons_lists.f90
 	$(COMPILE.f90) $(FCFLAG_WTRAMPOLINES) -c -fsyntax-only $(<) && touch $(@)
 cons_lists.$(OBJEXT): cons_lists.anchor
