@@ -150,7 +150,8 @@ module cons_lists
   !
   ! Procedures with `destructive' in their names are the `linear
   ! updating' alternatives: they are allowed to (but NOT required to)
-  ! destroy their inputs.
+  ! destroy their inputs. They might not work with circular lists as
+  ! inputs.
   !
   ! Please keep in mind that the term `list' is used only loosely in
   ! Scheme. The fundamental `list' object types are actually the nil
@@ -266,6 +267,7 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: list_concatenate      ! Concatenate a list of lists.
 
   public :: list_destructive_reverse
+  public :: list_destructive_take
 
   ! Zipping: joining the elements of separate lists into a list of
   ! lists.
@@ -428,13 +430,8 @@ dnl
 
     class(*), allocatable :: head, tail
 
-    select type (lst)
-    class is (cons_t)
-       call uncons (lst, head, tail)
-       lst1 = cons (head, tail)
-    class default
-       call error_abort ("copy_head of an object that is not a cons pair")
-    end select
+    call uncons (lst, head, tail)
+    lst1 = cons (head, tail)
   end function copy_head
 
   function is_nil_or_pair (obj) result (is_cons)
@@ -1192,6 +1189,28 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
        end select
     end if
   end function list_take
+
+  function list_destructive_take (lst, n) result (lst_t)
+    !
+    ! This will not work as you might expect, if the input is a
+    ! circular list.
+    !
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t) :: lst_t
+
+    type(cons_t) :: lst1
+
+    if (n <= 0) then
+       lst_t = nil_list
+    else if (.not. is_cons_pair (lst)) then
+       lst_t = nil_list
+    else
+       lst1 = copy_head (lst)
+       call set_cdr (cons_t_cast (list_drop (lst1, n - 1)), nil_list)
+       lst_t = lst1
+    end if
+  end function list_destructive_take
 
   function list_drop (lst, n) result (obj)
     !

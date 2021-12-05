@@ -657,6 +657,29 @@ contains
     call check (is_nil_list (list_take (123, 0)), "is_nil_list (list_take (123, 0)) failed")
   end subroutine test_list_take
 
+  subroutine test_list_destructive_take
+    type(cons_t) :: lst1, lst2, lst3
+    integer :: i
+    call check (is_nil_list (list_destructive_take (nil_list, 0)), "is_nil_list (list_destructive_take (nil_list, 0)) failed")
+    lst1 = iota (15, 1)
+    call check (is_nil_list (list_destructive_take (lst1, 0)), "is_nil_list (list_destructive_take (lst1, 0)) failed")
+    lst2 = list_destructive_take (lst1, 10)
+    call check (list_length (lst2) == 10, "list_length (lst2) == 10 failed (for list_destructive_take)")
+    do i = 1, 10
+       call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i failed (for list_destructive_take)")
+    end do
+    lst1 = iota (15, 1)
+    lst3 = list_destructive_take (lst1, 15)
+    call check (list_length (lst3) == 15, "list_length (lst3) == 15 failed (for list_destructive_take)")
+    do i = 1, 15
+       call check (list_ref1 (lst3, i) .eqi. i, "list_ref1 (lst3, i) .eqi. i failed (for list_destructive_take)")
+    end do
+    !
+    ! Let us check a degenerate case.
+    !
+    call check (is_nil_list (list_destructive_take (123, 0)), "is_nil_list (list_destructive_take (123, 0)) failed")
+  end subroutine test_list_destructive_take
+
   subroutine test_list_drop
     type(cons_t) :: lst1, lst2, lst3, lst4, lst6, lst7
     class(*), allocatable :: obj5
@@ -2039,6 +2062,7 @@ contains
     call test_list_reverse_in_place
     call test_list_copy
     call test_list_take
+    call test_list_destructive_take
     call test_list_drop
     call test_list_take_right
     call test_list_drop_right
