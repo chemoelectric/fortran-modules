@@ -268,6 +268,7 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
 
   public :: list_destructive_reverse
   public :: list_destructive_take
+  public :: list_destructive_drop_right
 
   ! Zipping: joining the elements of separate lists into a list of
   ! lists.
@@ -1259,6 +1260,8 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
 
   function list_drop_right (lst, n) result (lst_dr)
     !
+    ! FIXME: Should the result really be forced into a cons_t?
+    !
     ! list_drop_right *copies* the elements. The result is a cons_t.
     !
     ! lst may be dotted, but must not be circular.
@@ -1268,6 +1271,20 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
     type(cons_t) :: lst_dr
     lst_dr = list_take (lst, list_length (lst) - n)
   end function list_drop_right
+
+  function list_destructive_drop_right (lst, n) result (lst_dr)
+    !
+    ! FIXME: Should the result really be forced into a cons_t?
+    !
+    ! list_drop_right *copies* the elements. The result is a cons_t.
+    !
+    ! lst may be dotted, but must not be circular.
+    !
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t) :: lst_dr
+    lst_dr = list_destructive_take (lst, list_length (lst) - n)
+  end function list_destructive_drop_right
 
   subroutine list_split (lst, n, lst_left, lst_right)
     !

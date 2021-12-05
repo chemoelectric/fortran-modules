@@ -768,6 +768,37 @@ contains
     call check (is_nil_list (list_drop_right (123, 0)), "is_nil_list (list_drop_right (123, 0)) failed")
   end subroutine test_list_drop_right
 
+  subroutine test_list_destructive_drop_right
+    type(cons_t) :: lst1, lst2, lst3, lst4
+    integer :: i
+    call check (is_nil_list (list_destructive_drop_right (nil_list, 0)), &
+         "is_nil_list (list_destructive_drop_right (nil_list, 0)) failed")
+    lst1 = iota (15, 1)
+    call check (is_nil_list (list_destructive_drop_right (lst1, 15)), &
+         "is_nil_list (list_destructive_drop_right (lst1, 15)) failed")
+    lst2 = cons_t_cast (list_destructive_drop_right (lst1, 10))
+    call check (list_length (lst2) == 5, "list_length (lst2) == 5 failed (for list_destructive_drop_right)")
+    do i = 1, 5
+       call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i failed (for list_destructive_drop_right)")
+    end do
+    lst1 = iota (15, 1)
+    lst3 = list_destructive_drop_right (lst1, 0)
+    call check (list_length (lst3) == 15, "list_length (lst3) == 15 failed (for list_destructive_drop_right)")
+    do i = 1, 15
+       call check (list_ref1 (lst3, i) .eqi. i, "list_ref1 (lst3, i) .eqi. i failed (for list_destructive_drop_right)")
+    end do
+    lst4 = list_destructive_drop_right (0.0 ** cons (1, 2), 1)
+    call check (list_length (lst4) == 1, "list_length (lst4) == 1 failed (for list_destructive_drop_right)")
+    call check (car (lst4) .eqr. 0.0, "car (lst4) .eqr. 0.0 (for list_destructive_drop_right)")
+    call check (is_nil_list (list_destructive_drop_right (cons (1, 2), 1)), &
+         "is_nil_list (list_destructive_drop_right (cons (1, 2), 1)) failed")
+    !
+    ! Let us check a degenerate case.
+    !
+    call check (is_nil_list (list_destructive_drop_right (123, 0)), &
+         "is_nil_list (list_destructive_drop_right (123, 0)) failed")
+  end subroutine test_list_destructive_drop_right
+
   subroutine test_list_split
     !
     ! FIXME: For list_split, add tests that you can output to the same
@@ -2066,6 +2097,7 @@ contains
     call test_list_drop
     call test_list_take_right
     call test_list_drop_right
+    call test_list_destructive_drop_right
     call test_list_split
     call test_list_append
     call test_list_append_reverse
