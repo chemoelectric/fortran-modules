@@ -6103,15 +6103,19 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end function list_modify_elements
 
   recursive function list_destructive_modify_elements (subr, lst) result (lst_m)
-    !
-    ! FIXME: Write a real destructive version. (There is already
-    !        list_modify_elements_in_place to call for most of the
-    !        work.)
-    !
     procedure(list_modify_elements_procedure_t) :: subr
     class(*), intent(in) :: lst
     class(*), allocatable :: lst_m
-    lst_m = list_modify_elements (subr, lst)
+
+    type(cons_t) :: lst1
+
+    if (.not. is_cons_pair (lst)) then
+       lst_m = lst
+    else
+       lst1 = copy_first_pair (lst)
+       call list_modify_elements_in_place (subr, lst1)
+       lst_m = lst1
+    end if
   end function list_destructive_modify_elements
 
   recursive subroutine list_modify_elements_in_place (subr, lst)

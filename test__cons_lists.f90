@@ -1211,6 +1211,38 @@ contains
          "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_modify_elements as list_map)")
   end subroutine test_list_modify_elements
 
+  subroutine test_list_destructive_modify_elements
+    type(cons_t) :: lst1, lst2, lst3, lst4
+    integer :: i
+    real :: x, y
+    lst1 = acos (0.25) ** acos (0.50) ** acos (0.75) ** nil_list
+    lst2 = cons_t_cast (list_map (cosine_subr, lst1))
+    do i = 1, 3
+       y = i * 0.25
+       x = acos (y)
+       call check (abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst1, i)) - x) < 0.0001 failed (for list_destructive_modify_elements as list_map)")
+       call check (abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst2, i)) - y) < 0.0001 failed (for list_destructive_modify_elements as list_map)")
+    end do
+    call check (is_nil_list (list_map (cosine_subr, nil_list)), &
+         "is_nil_list (list_map (cosine_subr, nil_list)) failed")
+    call check (list_map (cosine_subr, 123) .eqi. 123, &
+         "list_map (cosine_subr, 123) .eqi. 123 failed")
+    lst3 = acos (0.25) ** acos (0.50) ** cons (acos (0.75), 123)
+    lst4 = cons_t_cast (list_map (cosine_subr, lst3))
+    do i = 1, 3
+       y = i * 0.25
+       x = acos (y)
+       call check (abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst3, i)) - x) < 0.0001 failed (for list_destructive_modify_elements as list_map)")
+       call check (abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001, &
+            "abs (real_cast (list_ref1 (lst4, i)) - y) < 0.0001 failed (for list_destructive_modify_elements as list_map)")
+    end do
+    call check (cdr (list_last_pair (lst4)) .eqi. 123, &
+         "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_destructive_modify_elements as list_map)")
+  end subroutine test_list_destructive_modify_elements
+
   subroutine test_list_modify_elements_in_place
     type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
     class(*), allocatable :: obj1, obj2
@@ -2164,6 +2196,7 @@ contains
     call test_list_foreach
     call test_list_pair_foreach
     call test_list_modify_elements
+    call test_list_destructive_modify_elements
     call test_list_modify_elements_in_place
     call test_list_append_modify_elements
     call test_list_find
