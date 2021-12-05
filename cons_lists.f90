@@ -497,7 +497,7 @@ contains
     error stop
   end subroutine error_abort
 
-  function copy_head (lst) result (lst1)
+  function copy_first_pair (lst) result (lst1)
     class(*), intent(in) :: lst
     type(cons_t) :: lst1
 
@@ -505,7 +505,7 @@ contains
 
     call uncons (lst, head, tail)
     lst1 = cons (head, tail)
-  end function copy_head
+  end function copy_first_pair
 
   function is_nil_or_pair (obj) result (is_cons)
     class(*), intent(in) :: obj
@@ -3679,7 +3679,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     select type (lst)
     class is (cons_t)
        if (list_is_pair (lst)) then
-          lst1 = copy_head (lst)
+          lst1 = copy_first_pair (lst)
           call list_reverse_in_place (lst1)
           lst_r = lst1
        else
@@ -3804,7 +3804,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     else if (.not. is_cons_pair (lst)) then
        lst_t = nil_list
     else
-       lst1 = copy_head (lst)
+       lst1 = copy_first_pair (lst)
        call set_cdr (cons_t_cast (list_drop (lst1, n - 1)), nil_list)
        lst_t = lst1
     end if
@@ -3954,7 +3954,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     else if (.not. is_cons_pair (lst)) then
        call error_abort ("positive list_destructive_split of an object with no pairs")
     else
-       lst_left = copy_head (lst)
+       lst_left = copy_first_pair (lst)
        lst1 = list_drop (lst_left, n - 1)
        lst_right = cdr (lst1)
        call set_cdr (cons_t_cast (lst1), nil_list)
