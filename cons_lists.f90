@@ -7583,11 +7583,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ss
 
-    !
-    ! FIXME: Increase this when implementing insertion sort (or other
-    !        sort) for small pieces.
-    !
-    integer, parameter :: small_size = 1
+    integer, parameter :: small_size = 11
 
     type(cons_t) :: p
 
@@ -7601,7 +7597,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           ! List of length one.
           lst_ss = p
        else
-          lst_ss = stable_sort (p, list_length (p))
+          lst_ss = merge_sort (p, list_length (p))
        end if
     class default
        call error_abort ("the second argument to list_update_stable_sort is not a cons_t")
@@ -7609,7 +7605,59 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   contains
 
-    recursive function stable_sort (p, n) result (lst_ss)
+    recursive function insertion_sort (p, n) result (lst_ss)
+      !
+      ! Put CONS pairs into an array and do an insertion sort on the
+      ! array.
+      !
+      type(cons_t) :: p
+      integer :: n
+      type(cons_t) :: lst_ss
+
+      type(cons_t), dimension(1:small_size) :: array
+      type(cons_t) :: x
+      integer :: i, j
+      logical :: done
+
+      if (n <= 1) then
+         lst_ss = p
+      else
+         ! Fill the array with CONS pairs.
+         do i = 1, n
+            array(i) = p
+            p = cons_t_cast (cdr (p))
+         end do
+
+         ! Do an insertion sort on the array.
+         do i = 2, n
+            x = array(i)
+            j = i - 1
+            done = .false.
+            do while (.not. done)
+               if (j == 0) then
+                  done = .true.
+               else if (compare (car (array(j)), car (x)) <= 0) then
+                  done = .true.
+               else
+                  array(j + 1) = array(j)
+                  j = j - 1
+               end if
+            end do
+            array(j + 1) = x
+         end do
+
+         ! Connect the CONS pairs into a list.
+         call set_cdr (array(n), nil_list)
+         do i = n - 1, 1, -1
+            call set_cdr (array(i), array(i + 1))
+         end do
+
+         ! The result.
+         lst_ss = array(1)
+      end if
+    end function insertion_sort
+
+    recursive function merge_sort (p, n) result (lst_ss)
       !
       ! A top-down merge sort using non-tail recursion.
       !
@@ -7622,18 +7670,15 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
       class(*), allocatable :: p_tail
 
       if (n <= small_size) then
-         !
-         ! FIXME: Put insertion or other sort here.
-         !
-         lst_ss = p
+         lst_ss = insertion_sort (p, n)
       else
          n_half = n / 2
-         call list_split (p, n_half, p_left, p_tail)
-         p_left = stable_sort (p_left, n_half)
-         p_right = stable_sort (cons_t_cast (p_tail), n - n_half)
+         call list_split (p, n_half, p_left, p_tail) ! FIXME: Use list_update_split, once it is implemented.
+         p_left = merge_sort (p_left, n_half)
+         p_right = merge_sort (cons_t_cast (p_tail), n - n_half)
          lst_ss = list_update_merge (compare, p_left, p_right)
       end if
-    end function stable_sort
+    end function merge_sort
 
   end function list_update_stable_sort
 
