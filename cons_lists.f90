@@ -432,10 +432,10 @@ module cons_lists
   public :: alist_delete ! Delete all entries with a given key (though actually this is more general).
 
   ! Sorting. (NOTE: Sorting is not included in SRFI-1.)
-  public :: list_merge            ! Merge two sorted lists.
-  public :: list_update_merge     ! Merge two sorted lists, in a `linear updating' fashion.
-  public :: list_mergesort        ! Stable mergesort.
-  public :: list_update_mergesort ! Stable `linear updating' mergesort.
+  public :: list_merge              ! Merge two sorted lists.
+  public :: list_update_merge       ! Merge two sorted lists, in a `linear updating' fashion.
+  public :: list_stable_sort        ! Stable mergesort.
+  public :: list_update_stable_sort ! Stable `linear updating' mergesort.
 
   ! Overloading of `iota'.
   interface iota
@@ -7571,82 +7571,70 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   end function list_update_merge
 
-  recursive function list_mergesort (compare, lst) result (lst_ms)
+  recursive function list_stable_sort (compare, lst) result (lst_ms)
     procedure(list_comparison2_t) :: compare 
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ms
-    lst_ms = list_update_mergesort (compare, list_copy (lst))
-  end function list_mergesort
+    lst_ms = list_update_stable_sort (compare, list_copy (lst))
+  end function list_stable_sort
 
-  recursive function list_update_mergesort (compare, lst) result (lst_ms)
+  recursive function list_update_stable_sort (compare, lst) result (lst_ss)
     procedure(list_comparison2_t) :: compare 
     class(*), intent(in) :: lst
-    type(cons_t) :: lst_ms
+    type(cons_t) :: lst_ss
+
+    !
+    ! FIXME: Increase this when implementing insertion sort (or other
+    !        sort) for small pieces.
+    !
+    integer, parameter :: small_size = 1
 
     type(cons_t) :: p
 
     select type (lst)
     class is (cons_t)
-       if (.not. list_is_pair (lst)) then
-          ! A list of length zero.
-          lst_ms = lst
-       else if (.not. is_cons_pair (cdr (lst))) then
-          ! A list of length one.
-          lst_ms = cons_t_cast (lst)
+       p = lst
+       if (.not. list_is_pair (p)) then
+          ! List of length zero.
+          lst_ss = p
+       else if (.not. is_cons_pair (cdr (p))) then
+          ! List of length one.
+          lst_ss = p
        else
-          p = lst
-          lst_ms = mergesort (p)
+          lst_ss = stable_sort (p, list_length (p))
        end if
     class default
-       call error_abort ("the second argument to list_update_mergesort is not a cons_t")
+       call error_abort ("the second argument to list_update_stable_sort is not a cons_t")
     end select
 
   contains
 
-    recursive function mergesort (p) result (lst_ms)
+    recursive function stable_sort (p, n) result (lst_ss)
       !
-      ! A bottom-up mergesort.
+      ! A top-down merge sort using non-tail recursion.
       !
       type(cons_t) :: p
-      type(cons_t) :: lst_ms
+      integer :: n
+      type(cons_t) :: lst_ss
 
-      integer, parameter :: array_size = 64
+      integer :: n_half
+      type(cons_t) :: p_left, p_right
+      class(*), allocatable :: p_tail
 
-      type(cons_t), dimension(1 : array_size) :: array
-      type(cons_t) :: tail
-      integer :: i
-      logical :: done
-    
-      array = nil_list
-      do while (list_is_pair (p))
-         tail = cons_t_cast (cdr (p))
-         call set_cdr (p, nil_list)
-         i = 1
-         done = .false.
-         do while (.not. done)
-            if (array_size < i) then
-               i = array_size
-               done = .true.
-            else if (list_is_nil (array(i))) then
-               done = .true.
-            else
-               p = list_update_merge (compare, array(i), p)
-               array(i) = nil_list
-               i = i + 1
-            end if
-         end do
-         array(i) = p
-         p = tail
-      end do
+      if (n <= small_size) then
+         !
+         ! FIXME: Put insertion or other sort here.
+         !
+         lst_ss = p
+      else
+         n_half = n / 2
+         call list_split (p, n_half, p_left, p_tail)
+         p_left = stable_sort (p_left, n_half)
+         p_right = stable_sort (cons_t_cast (p_tail), n - n_half)
+         lst_ss = list_update_merge (compare, p_left, p_right)
+      end if
+    end function stable_sort
 
-      p = nil_list
-      do i = 1, array_size
-         p = list_update_merge (compare, array(i), p)
-      end do
-
-      lst_ms = p
-    end function mergesort
-
-  end function list_update_mergesort
+  end function list_update_stable_sort
 
 end module cons_lists
