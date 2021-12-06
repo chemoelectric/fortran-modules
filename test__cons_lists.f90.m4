@@ -252,6 +252,9 @@ contains
     call check (is_nil_or_pair (nil_list), "is_nil_or_pair (nil_list) failed")
     call check (is_nil_or_pair (iota (15)), "is_nil_or_pair (iota (15)) failed")
     call check (is_nil_or_pair (cons ('a', 'b')), "is_nil_or_pair (cons ('a', 'b')) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_is_nil_or_pair
 
   subroutine test_is_nil_list
@@ -259,6 +262,9 @@ contains
     call check (is_nil_list (nil_list), "is_nil_list (nil_list) failed")
     call check (.not. is_nil_list (iota (15)), ".not. is_nil_list (iota (15)) failed")
     call check (.not. is_nil_list (cons ('a', 'b')), ".not. is_nil_list (cons ('a', 'b')) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_is_nil_list
 
   subroutine test_is_cons_pair
@@ -266,6 +272,9 @@ contains
     call check (.not. is_cons_pair (nil_list), ".not. is_cons_pair (nil_list) failed")
     call check (is_cons_pair (iota (15)), "is_cons_pair (iota (15)) failed")
     call check (is_cons_pair (cons ('a', 'b')), "is_cons_pair (cons ('a', 'b')) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_is_cons_pair
 
   subroutine test_is_not_nil_or_pair
@@ -273,6 +282,9 @@ contains
     call check (.not. is_not_nil_or_pair (nil_list), ".not. is_not_nil_or_pair (nil_list) failed")
     call check (.not. is_not_nil_or_pair (iota (15)), ".not. is_not_nil_or_pair (iota (15)) failed")
     call check (.not. is_not_nil_or_pair (cons ('a', 'b')), ".not. is_not_nil_or_pair (cons ('a', 'b')) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_is_not_nil_or_pair
 
   subroutine test_is_not_nil_list
@@ -280,12 +292,18 @@ contains
     call check (.not. is_not_nil_list (nil_list), ".not. is_not_nil_list (nil_list) failed")
     call check (is_not_nil_list (iota (15)), "is_not_nil_list (iota (15)) failed")
     call check (is_not_nil_list (cons ('a', 'b')), "is_not_nil_list (cons ('a', 'b')) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_is_not_nil_list
 
   subroutine test_list_is_nil
     call check (list_is_nil (nil_list), "list_is_nil (nil_list) failed")
     call check (.not. list_is_nil (iota (15)), ".not. list_is_nil (iota (15)) failed")
     call check (.not. list_is_nil (cons('a', 'b')), ".not. list_is_nil (cons('a', 'b')) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_is_nil
 
   subroutine test_is_not_cons_pair
@@ -293,12 +311,18 @@ contains
     call check (is_not_cons_pair (nil_list), "is_not_cons_pair (nil_list) failed")
     call check (.not. is_not_cons_pair (iota (15)), ".not. is_not_cons_pair (iota (15)) failed")
     call check (.not. is_not_cons_pair (cons ('a', 'b')), ".not. is_not_cons_pair (cons ('a', 'b')) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_is_not_cons_pair
 
   subroutine test_list_is_pair
     call check (.not. list_is_pair (nil_list), ".not. list_is_pair (nil_list) failed")
     call check (list_is_pair (iota (15)), "list_is_pair (iota (15)) failed")
     call check (list_is_pair (cons('a', 'b')), "list_is_pair (cons('a', 'b')) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_is_pair
 
   subroutine test_cons_t_eq
@@ -314,6 +338,9 @@ contains
     call check (cons_t_eq (pair2, pair2), "cons_t_eq (pair2, pair2) failed")
     call check (.not. cons_t_eq (pair1, pair2), ".not. cons_t_eq (pair1, pair2) failed")
     call check (.not. cons_t_eq (pair2, pair1), ".not. cons_t_eq (pair2, pair1) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_cons_t_eq
 
   subroutine test_uncons_car_cdr
@@ -329,6 +356,9 @@ contains
     call check (y .eqr. 15.0, "y .eqr. 15.0 failed (for uncons)")
     call check (car (pair) .eqi. 5, "car (pair) .eqi. 5 failed")
     call check (cdr (pair) .eqr. 15.0, "cdr (pair) .eqr. 15.0 failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_uncons_car_cdr
 
   subroutine test_list_cons
@@ -341,6 +371,9 @@ contains
     call check (caar (lst2) .eqi. 1, "caar (lst2) .eqi. 1 failed (for operator(**))")
     call check (cdar (lst2) .eqi. 2, "cdar (lst2) .eqi. 1 failed (for operator(**))")
     call check (cadr (lst2) .eqr. 3.0, "cadr (lst2) .eqr. 3.0 failed (for operator(**))")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_cons
 
   subroutine test_set_car_and_set_cdr
@@ -350,6 +383,9 @@ contains
     call set_cdr (pair, 2.0)
     call check (car (pair) .eqi. 1, "car (pair) .eqi. 1 failed (for set_car)")
     call check (cdr (pair) .eqr. 2.0, "cdr (pair) .eqr. 2.0 failed (for set_cdr)")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_set_car_and_set_cdr
 
   subroutine test_list_length
@@ -363,6 +399,9 @@ contains
     ! A degenerate case.
     !
     call check (list_length ('abc') == 0, "list_length ('abc') == 0 failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_length
 
   subroutine test_list_length_plus
@@ -383,6 +422,9 @@ contains
          "list_length_plus (circular_list (iota (10))) == -1 failed")
     call check (list_length_plus (list_append (iota (10), circular_list (iota (10)))) == -1, &
          "list_length_plus (list_append (iota (10), circular_list (iota (10)))) == -1 failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_length_plus
 
   subroutine test_is_proper_list
@@ -393,6 +435,9 @@ contains
          "is_proper_list (circular_list (1 ** 2 ** 3 ** nil_list)) failed")
     call check (.not. is_proper_list (cons (1, 2)), ".not. is_proper_list (cons (1, 2)) failed")
     call check (.not. is_proper_list ('a' ** 3.0 ** cons (1, 2)), ".not. is_proper_list ('a' ** 3.0 ** cons (1, 2)) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_is_proper_list
 
   subroutine test_is_dotted_list
@@ -403,6 +448,9 @@ contains
          "is_dotted_list (circular_list (1 ** 2 ** 3 ** nil_list)) failed")
     call check (is_dotted_list (cons (1, 2)), "is_dotted_list (cons (1, 2)) failed")
     call check (is_dotted_list ('a' ** 3.0 ** cons (1, 2)), "is_dotted_list ('a' ** 3.0 ** cons (1, 2)) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_is_dotted_list
 
   subroutine test_is_circular_list
@@ -413,6 +461,9 @@ contains
          "is_circular_list (circular_list (1 ** 2 ** 3 ** nil_list)) failed")
     call check (is_circular_list (1.0 ** 2.0 ** circular_list (1 ** 2 ** 3 ** nil_list)), &
          "is_circular_list (1.0 ** 2.0 ** circular_list (1 ** 2 ** 3 ** nil_list)) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_is_circular_list
 
   subroutine test_car_cadr_caddr_cadddr
@@ -422,6 +473,9 @@ contains
     call check (cadr (lst) .eqi. 2, "cadr (lst) .eqi. 2 failed")
     call check (caddr (lst) .eqi. 3, "caddr (lst) .eqi. 3 failed")
     call check (cadddr (lst) .eqi. 4, "cadddr (lst) .eqi. 4 failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_car_cadr_caddr_cadddr
 
   subroutine test_first_second_etc
@@ -437,6 +491,9 @@ contains
     call check (eighth (lst) .eqi. 8, "eighth (lst) .eqi. 8 failed")
     call check (ninth (lst) .eqi. 9, "ninth (lst) .eqi. 9 failed")
     call check (tenth (lst) .eqi. 10, "tenth (lst) .eqi. 10 failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_first_second_etc
 
   subroutine test_list_ref0
@@ -446,6 +503,9 @@ contains
     do i = 0, 14
        call check (list_ref0 (lst, i) .eqi. (i + 1), "list_ref0 (lst, i) .eqi. (i + 1) failed")
     end do
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_ref0
 
   subroutine test_list_ref1
@@ -455,6 +515,9 @@ contains
     do i = 1, 15
        call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i failed")
     end do
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_ref1
 
   subroutine test_list_refn
@@ -467,12 +530,18 @@ contains
     do i = -1, 13
        call check (list_refn (lst, i, -1) .eqi. (i + 2), "list_refn (lst, i, -1) .eqi. (i + 2) failed")
     end do
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_refn
 
   subroutine test_list_last
     type(cons_t) :: lst
     lst = iota (15, 1)
     call check (list_last (lst) .eqi. 15, "list_last (lst) .eqi. 15 failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_last
 
   subroutine test_list_last_pair
@@ -480,6 +549,9 @@ contains
     lst = iota (15, 1)
     call check (car (list_last_pair (lst)) .eqi. 15, "car (list_last_pair (lst)) .eqi. 15 failed")
     call check (is_nil_list (cdr (list_last_pair (lst))), "is_nil_list (cdr (list_last_pair (lst))) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_last_pair
 
   subroutine test_make_list
@@ -491,6 +563,9 @@ contains
     do i = 1, 30
        call check (list_ref1 (lst, i) .eqr. 5.0, "list_ref1 (lst, i) .eqr. 5.0 failed (for make_list)")
     end do
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_make_list
 
   subroutine test_iota
@@ -508,6 +583,9 @@ contains
     do i = 0, 99
        call check (list_ref0 (lst, i) .eqi. (20 * i), "list_ref0 (lst, i) .eqi. (20 * i) failed (for iota (100, 0, 20))")
     end do
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_iota
 
   subroutine test_circular_list
@@ -524,6 +602,9 @@ contains
     do i = 0, 3
        call check (list_ref0 (lst, i) .eqi. i, "list_ref0 (lst, i) .eqi. i failed (for circular_list)")
     end do
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_circular_list
 
   subroutine test_list_unlist
@@ -567,6 +648,9 @@ contains
     call unlist2_with_tail (lst4, x, y, tail)
     call check ((x .eqi. 123) .and. (y .eqi. 456) .and. (tail .eqi. 789), &
          "(x .eqi. 123) .and. (y .eqi. 456) .and. (tail .eqi. 789) failed (for unlist2_with_tail of a dotted list)")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_unlist
 
   subroutine test_list_reverse
@@ -586,6 +670,9 @@ contains
     ! Test a degenerate case.
     !
     call check (is_nil_list (list_reverse (.true.)), "is_nil_list (list_reverse (.true.)) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_reverse
 
   subroutine test_list_destructive_reverse
@@ -605,6 +692,9 @@ contains
     ! Test a degenerate case.
     !
     call check (is_nil_list (list_destructive_reverse (.true.)), "is_nil_list (list_destructive_reverse (.true.)) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_destructive_reverse
 
   subroutine test_list_copy
@@ -632,6 +722,9 @@ contains
     ! Now do a degenerate dotted list.
     !
     call check (list_copy (123.0) .eqr. 123.0, "list_copy (123.0) .eqr. 123.0 failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_copy
 
   subroutine test_list_take
@@ -659,6 +752,9 @@ contains
     ! Let us check a degenerate case.
     !
     call check (is_nil_list (list_take (123, 0)), "is_nil_list (list_take (123, 0)) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_take
 
   subroutine test_list_destructive_take
@@ -682,6 +778,9 @@ contains
     ! Let us check a degenerate case.
     !
     call check (is_nil_list (list_destructive_take (123, 0)), "is_nil_list (list_destructive_take (123, 0)) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_destructive_take
 
   subroutine test_list_drop
@@ -720,6 +819,9 @@ contains
     ! Let us check a degenerate case.
     !
     call check (list_drop (123, 0) .eqi. 123, "list_drop (123, 0) .eqi. 123 failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_drop
 
   subroutine test_list_take_right
@@ -744,6 +846,9 @@ contains
     ! Let us check a degenerate case.
     !
     call check (list_take_right (123, 0) .eqi. 123, "list_take_right (123, 0) .eqi. 123 failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_take_right
 
   subroutine test_list_drop_right
@@ -770,6 +875,9 @@ contains
     ! Let us check a degenerate case.
     !
     call check (is_nil_list (list_drop_right (123, 0)), "is_nil_list (list_drop_right (123, 0)) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_drop_right
 
   subroutine test_list_destructive_drop_right
@@ -801,6 +909,9 @@ contains
     !
     call check (is_nil_list (list_destructive_drop_right (123, 0)), &
          "is_nil_list (list_destructive_drop_right (123, 0)) failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_destructive_drop_right
 
   subroutine test_list_split
@@ -863,6 +974,9 @@ contains
     call list_split (123, 0, left, right)
     call check (is_nil_list (left), "check0240 failed for list_split")
     call check (right .eqi. 123, "check0250 failed for list_split")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_split
 
   subroutine test_list_destructive_split
@@ -912,6 +1026,9 @@ contains
     call list_destructive_split (123, 0, left, right)
     call check (is_nil_list (left), "check0240 failed for list_destructive_split")
     call check (right .eqi. 123, "check0250 failed for list_destructive_split")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_destructive_split
 
   subroutine test_list_append
@@ -932,6 +1049,9 @@ contains
     ! Let us check a degenerate case.
     !
     call check (list_append (5, 6) .eqi. 6, "list_append (5, 6) .eqi. 6 failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_append
 
   subroutine test_list_destructive_append
@@ -953,6 +1073,9 @@ contains
     ! Let us check a degenerate case.
     !
     call check (list_destructive_append (5, 6) .eqi. 6, "list_destructive_append (5, 6) .eqi. 6 failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_destructive_append
 
   subroutine test_list_append_reverse
@@ -969,6 +1092,9 @@ contains
     ! Let us check a degenerate case.
     !
     call check (list_append_reverse (5, 6) .eqi. 6, "list_append_reverse (5, 6) .eqi. 6 failed")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_append_reverse
 
   subroutine test_list_destructive_append_reverse
@@ -985,6 +1111,8 @@ contains
     ! Let us check a degenerate case.
     !
     call check (list_destructive_append_reverse (5, 6) .eqi. 6, "list_destructive_append_reverse (5, 6) .eqi. 6 failed")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_destructive_append_reverse
 
   subroutine test_list_concatenate
@@ -1007,6 +1135,8 @@ contains
     do i = 1, 10
        call check (list_ref1 (lst2, i) .eqi. i, "list_ref1 (lst2, i) .eqi. i (for list_concatenate)")
     end do
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_concatenate
 
   subroutine test_list_zip1
@@ -1027,6 +1157,8 @@ contains
     call check (list_length (lst2_z) == 1, "list_length (lst2_z) == 1 failed (for list_zip1)")
     call check (list_length (car (lst2_z)) == 1, "list_length (car (lst2_z)) == 1 failed (for list_zip1)")
     call check (caar (lst2_z) .eqi. 123, "caar (lst2_z) .eqi. 123 failed (for list_zip1)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_zip1
 
   subroutine test_list_zip3
@@ -1046,6 +1178,8 @@ contains
     call check (caar (cdr (lst_z)) .eqi. 2, "caar (cdr (lst_z)) .eqi. 2 failed (for list_zip3)")
     call check (cadar (cdr (lst_z)) .eqi. 4, "cadar (cdr (lst_z)) .eqi. 4 failed (for list_zip3)")
     call check (caddar (cdr (lst_z)) .eqi. 6, "caddar (cdr (lst_z)) .eqi. 6 failed (for list_zip3)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_zip3
 
   subroutine test_list_unzip1
@@ -1060,6 +1194,8 @@ contains
     call check (is_nil_list (lst2), "is_nil_list (lst2) failed (for list_unzip1)")
     call list_unzip1 (1234, lst3)
     call check (is_nil_list (lst3), "is_nil_list (lst3) failed (for list_unzip1)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_unzip1
 
   subroutine test_list_unzip2
@@ -1080,6 +1216,8 @@ contains
     call list_unzip2 ('abc', lst5, lst6)
     call check (is_nil_list (lst5), "is_nil_list (lst5) failed (for list_unzip2)")
     call check (is_nil_list (lst6), "is_nil_list (lst6) failed (for list_unzip2)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_unzip2
 
   subroutine test_list_unzip3
@@ -1098,6 +1236,8 @@ contains
     call check (car (lst3) .eqi. 3, "car (lst3) .eqi. 3 failed (for list_unzip3)")
     call check (cadr (lst3) .eqi. 6, "cadr (lst3) .eqi. 6 failed (for list_unzip3)")
     call check (caddr (lst3) .eqi. 8, "caddr (lst3) .eqi. 8 failed (for list_unzip3)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_unzip3
 
   subroutine test_list_unzip4
@@ -1112,6 +1252,8 @@ contains
     call check (is_nil_list (lst6), "is_nil_list (lst6) failed (for list_unzip4)")
     call check (is_nil_list (lst7), "is_nil_list (lst7) failed (for list_unzip4)")
     call check (is_nil_list (lst8), "is_nil_list (lst8) failed (for list_unzip4)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_unzip4
 
   subroutine test_list_unzip1f
@@ -1141,6 +1283,8 @@ contains
     call check (is_nil_list (lst5), "is_nil_list (lst5) failed (for list_unzip1f)")
     lst6 = list_unzip1f (456)
     call check (is_nil_list (lst6), "is_nil_list (lst6) failed (for list_unzip1f)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_unzip1f
 
   subroutine test_list_foreach
@@ -1152,6 +1296,8 @@ contains
     do i = 1, 100
        call check (arr1(i) == i, "arr1(i) == i failed (for list_foreach)")
     end do
+    call list_discard_oneshot
+    call list_deallocate_discarded
   contains
     subroutine side_effector (x)
       !
@@ -1177,6 +1323,8 @@ contains
        call check (car (arr1(i)) .eqi. i, "car (arr1(i)) .eqi. i failed (for list_pair_foreach)")
        call check (is_nil_list (cdr (arr1(i))), "is_nil_list (cdr (arr1(i))) failed (for list_pair_foreach)")
     end do
+    call list_discard_oneshot
+    call list_deallocate_discarded
   contains
     subroutine side_effector (x)
       !
@@ -1222,6 +1370,8 @@ contains
     end do
     call check (cdr (list_last_pair (lst4)) .eqi. 123, &
          "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_modify_elements as list_map)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_modify_elements
 
   subroutine test_list_destructive_modify_elements
@@ -1254,6 +1404,8 @@ contains
     end do
     call check (cdr (list_last_pair (lst4)) .eqi. 123, &
          "cdr (list_last_pair (lst4)) .eqi. 123 failed (for list_destructive_modify_elements as list_map)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_destructive_modify_elements
 
   subroutine test_list_append_modify_elements
@@ -1277,6 +1429,8 @@ contains
     call check (list_length (lst5) == 0, "list_length (lst5) == 0 failed (for list_append_modify_elements)")
     lst6 = list_append_map (passthru_subr, make_list (100, nil_list))
     call check (list_length (lst6) == 0, "list_length (lst6) == 0 failed (for list_append_modify_elements)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_append_modify_elements
 
   subroutine test_list_find
@@ -1307,6 +1461,8 @@ contains
     call list_find (is_positive_integer, pseudo_lst5, match_found5, obj5)
     call check (.not. match_found5, ".not. match_found5 failed (for list_find)")
     call check (obj5 .eqi. 1024, "obj5 .eqi. 1025 failed (for list_find)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_find
 
   subroutine test_list_find_tail
@@ -1345,6 +1501,8 @@ contains
     call list_find_tail (is_positive_integer, pseudo_lst5, match_found5, obj5)
     call check (.not. match_found5, ".not. match_found5 failed (for list_find_tail)")
     call check (obj5 .eqi. 1024, "obj5 .eqi. 1025 failed (for list_find_tail)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_find_tail
 
   subroutine test_list_take_while
@@ -1369,6 +1527,8 @@ contains
          "is_nil_list (list_take_while (is_not_positive_integer, nil_list)) failed (for list_take_while)")
     call check (is_nil_list (list_take_while (is_not_positive_integer, 1234)), &
          "is_nil_list (list_take_while (is_not_positive_integer, 1234)) failed (for list_take_while)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_take_while
 
   subroutine test_list_drop_while
@@ -1395,6 +1555,8 @@ contains
          "is_nil_list (list_drop_while (is_not_positive_integer, nil_list)) failed (for list_drop_while)")
     call check (list_drop_while (is_not_positive_integer, 1234) .eqi. 1234, &
          "list_drop_while (is_not_positive_integer, 1234) .eqi. 1234 failed (for list_drop_while)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_drop_while
 
   subroutine test_list_span
@@ -1437,6 +1599,8 @@ contains
     call list_span (is_not_positive_integer, pseudo_lst6, obj6a, obj6b)
     call check (is_nil_list (obj6a), "is_nil_list (obj6a) failed (for list_span)")
     call check (obj6b .eqi. 1234, "obj6b .eqi. 1234 failed (for list_span)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_span
 
   subroutine test_list_break
@@ -1479,6 +1643,8 @@ contains
     call list_break (is_positive_integer, pseudo_lst6, obj6a, obj6b)
     call check (is_nil_list (obj6a), "is_nil_list (obj6a) failed (for list_break)")
     call check (obj6b .eqi. 1234, "obj6b .eqi. 1234 failed (for list_break)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_break
 
   subroutine test_list_any
@@ -1501,6 +1667,8 @@ contains
          "list_every (is_not_positive_integer, nil_list) failed")
     call check (list_every (is_not_positive_integer, 'abc'), &
          "list_every (is_not_positive_integer, 'abc') failed")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_every
 
   subroutine test_list_index0
@@ -1512,6 +1680,8 @@ contains
          "list_index0 (is_positive_integer, nil_list) == -1 failed")
     call check (list_index0 (is_positive_integer, 'abc') == -1, &
          "list_index0 (is_positive_integer, 'abc') == -1 failed")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_index0
 
   subroutine test_list_index1
@@ -1523,6 +1693,8 @@ contains
          "list_index1 (is_positive_integer, nil_list) == 0 failed")
     call check (list_index1 (is_positive_integer, 'abc') == 0, &
          "list_index1 (is_positive_integer, 'abc') == 0 failed")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_index1
 
   subroutine test_list_equals
@@ -1567,6 +1739,8 @@ contains
     !
     call check (list_equals (integer_list_eq, list_zip1 (iota (100)), list_zip1 (iota (100))), &
          "list_equals (integer_list_eq, list_zip1 (iota (100)), list_zip1 (iota (100))) failed")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_equals
 
   subroutine test_list_count
@@ -1578,6 +1752,8 @@ contains
          "list_count (is_positive_integer, 'abc' ** 3 ** 2.0 ** (-5) ** 6 ** nil_list) == 2 failed")
     call check (list_count (is_positive_integer, 'abc' ** 3 ** 2.0 ** (-5) ** cons (6, 'xyz')) == 2, &
          "list_count (is_positive_integer, 'abc' ** 3 ** 2.0 ** (-5) ** cons (6, 'xyz')) == 2 failed")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_count
 
   subroutine test_list_filter
@@ -1612,6 +1788,8 @@ contains
     !
     ! FIXME: Maybe write some more tests for dotted lists.
     !
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_filter
 
   subroutine test_list_remove
@@ -1649,6 +1827,8 @@ contains
     !
     ! FIXME: Maybe write some more tests for dotted lists.
     !
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_remove
 
   subroutine test_list_partition
@@ -1733,6 +1913,8 @@ contains
     !
     ! FIXME: Maybe write some more tests for dotted lists.
     !
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_partition
 
   subroutine test_list_delete
@@ -1769,6 +1951,8 @@ contains
     !
     ! FIXME: Maybe write some more tests for dotted lists.
     !
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_delete
 
   subroutine test_list_delete_duplicates
@@ -1829,6 +2013,8 @@ contains
     !
     ! FIXME: Maybe write some more tests for dotted lists.
     !
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_delete_duplicates
 
   subroutine test_list_filter_map
@@ -1854,6 +2040,8 @@ contains
          "check0080 failed (for list_filter_map)")
     call check (list_equals (integer_eq, list_filter_map (increment_if_positive, iota (101, -50)), iota (50, 2)), &
          "check0090 failed (for list_filter_map)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_filter_map
 
   subroutine test_list_fold
@@ -1863,6 +2051,8 @@ contains
          "list_fold (akkumulate, 100, iota (10, 1)) .eqi. 155 failed")
     call check (list_equals (integer_eq, list_fold (cons_subr, nil_list, iota (10, 1)), iota (10, 10, -1)), &
          "list_equals (integer_eq, list_fold (cons_subr, nil_list, iota (10, 1)), iota (10, 10, -1)) failed")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_fold
 
   subroutine test_list_fold_right
@@ -1872,6 +2062,8 @@ contains
          "list_fold_right (akkumulate, 100, iota (10, 1)) .eqi. 155 failed")
     call check (list_equals (integer_eq, list_fold_right (cons_subr, nil_list, iota (10, 1)), iota (10, 1)), &
          "list_equals (integer_eq, list_fold_right (cons_subr, nil_list, iota (10, 1)), iota (10, 1)) failed")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_fold_right
 
   subroutine test_list_pair_fold
@@ -1885,6 +2077,8 @@ contains
          "list_equals (integer_eq, lst1b, iota (100, 100, -1)) failed (for list_pair_fold)")
     call check (list_equals (integer_eq, lst1a, 1 ** nil_list), &
          "list_equals (integer_eq, lst1a, 1 ** nil_list) failed (for list_pair_fold)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_pair_fold
 
   subroutine test_list_pair_fold_right
@@ -1901,6 +2095,8 @@ contains
          "list_equals (integer_eq, second (lst1b), list2 (2, 3)) failed (for list_pair_fold_right)")
     call check (list_equals (integer_eq, third (lst1b), list1 (3)), &
          "list_equals (integer_eq, third (lst1b), list1 (3)) failed (for list_pair_fold_right)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_pair_fold_right
 
   subroutine test_list_reduce
@@ -1920,6 +2116,8 @@ contains
          "list_reduce (integer_max_subr, 0, list_append (iota (100), iota (50))) .eqi. 99 failed")
     call check (list_reduce (integer_max_subr, 0, cons (10000, list_append (iota (100), iota (50)))) .eqi. 10000, &
          "list_reduce (integer_max_subr, 0, cons (10000, list_append (iota (100), iota (50)))) .eqi. 10000 failed")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_reduce
 
   subroutine test_list_reduce_right
@@ -1938,6 +2136,8 @@ contains
          list_reduce_right (append_subr, nil_list, list_zip2 (iota (50, 1, 2), iota (50, 2, 2))), &
          iota (100, 1)), &
          "check0020 failed (for list_reduce_right)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_reduce_right
 
   subroutine test_list_unfold
@@ -1969,6 +2169,9 @@ contains
     tail = iota (25, 76)
     lst = list_unfold (is_nil_list, car_subr, cdr_subr, head, set_to_tail)
     call check (list_equals (integer_eq, lst, iota (100, 1)), "check0060 failed (for list_unfold)")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   contains
 
     subroutine set_to_tail (x)
@@ -2001,6 +2204,9 @@ contains
     tail = iota (25, 76)
     lst = list_unfold_right (is_nil_list, car_subr, cdr_subr, head, tail)
     call check (list_equals (integer_eq, lst, iota (100, 1)), "check0030 failed (for list_unfold_right)")
+
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_list_unfold_right
 
   subroutine test_alist_cons
@@ -2011,6 +2217,8 @@ contains
     call check (car (second (lst)) .eqi. 3, "car (second (lst)) .eqi. 3 failed (for alist_cons)")
     call check (cdr (second (lst)) .eqi. 4, "cdr (second (lst)) .eqi. 4 failed (for alist_cons)")
     call check (is_nil_list (cddr (lst)), "is_nil_list (cddr (lst)) failed (for alist_cons)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_alist_cons
 
   subroutine test_alist_copy
@@ -2029,6 +2237,8 @@ contains
     call check (car (second (lst2)) .eqi. 3, "car (second (lst2)) .eqi. 3 failed (for alist_copy)")
     call check (cdr (second (lst2)) .eqi. 40, "cdr (second (lst2)) .eqi. 40 failed (for alist_copy)")
     call check (is_nil_list (cddr (lst2)), "is_nil_list (cddr (lst2)) failed (for alist_copy)")
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_alist_copy
 
   subroutine test_alist_delete
@@ -2046,7 +2256,9 @@ contains
          "list_equals (integer_pair_eq, lst2, lst2_ref) failed (for alist_delete)")
     call check (list_equals (integer_pair_eq, lst3, lst3_ref), &
          "list_equals (integer_pair_eq, lst3, lst3_ref) failed (for alist_delete)")
-    call list_discard3 (lst1, lst2_ref, lst3_ref)
+    call list_discard5 (lst1, lst2, lst3, lst2_ref, lst3_ref)
+    call list_discard_oneshot
+    call list_deallocate_discarded
   end subroutine test_alist_delete
 
   subroutine test_alist_assoc
@@ -2083,6 +2295,7 @@ contains
     call check (list_equals (integer_eq, lst_m, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)), &
          "list_equals (integer_eq, lst_m, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)) failed (for list_merge)")
     call list_discard3 (lst1, lst2, lst_m)
+    call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_list_merge
 
@@ -2132,6 +2345,11 @@ contains
     end do
     call list_discard3 (lst3a, lst3b, lst3c)
 
+    call list_discard_oneshot
+    call list_discard_oneshot
+    call list_discard_oneshot
+    call list_deallocate_discarded
+    call list_deallocate_discarded
     call list_deallocate_discarded
   end subroutine test_list_stable_sort
 
@@ -2169,6 +2387,7 @@ contains
          "list_equals (integer_eq, lst3b, iota (100)) failed (for list_unstable_sort)")
     call list_discard2 (lst3a, lst3b)
 
+    call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_list_unstable_sort
 

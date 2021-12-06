@@ -533,7 +533,6 @@ module cons_lists
 
   type(cons_t) :: garbage_list = nil_list
   type(cons_t) :: oneshot_list = nil_list
-  type(cons_t) :: oneshot_list_end = nil_list
 
 contains
 
@@ -822,23 +821,18 @@ contains
   function list_oneshot (input) result (output)
     type(cons_t) :: input
     type(cons_t) :: output
-
-    logical :: oneshot_list_is_new
-
-    oneshot_list_is_new = list_is_nil (oneshot_list)
     oneshot_list = input ** oneshot_list
-    if (oneshot_list_is_new) then
-       oneshot_list_end = oneshot_list
-    end if
     output = input
   end function list_oneshot
 
   subroutine list_discard_oneshot
-    if (list_is_pair (oneshot_list)) then
-       call set_cdr (oneshot_list_end, garbage_list)
-       oneshot_list = nil_list
-       oneshot_list_end = nil_list
-    end if
+    type(cons_t) :: p
+    p = oneshot_list
+    oneshot_list = nil_list
+    do while (list_is_pair (p))
+       call list_discard (car (p))
+       p = cons_t_cast (cdr (p))
+    end do
   end subroutine list_discard_oneshot
 
   subroutine list_deallocate_discarded
