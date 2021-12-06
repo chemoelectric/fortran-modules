@@ -249,10 +249,11 @@ contains
 
   subroutine test_is_nil_or_pair
     call check (.not. is_nil_or_pair ('abc'), ".not. is_nil_or_pair ('abc') failed")
-    call check (is_nil_or_pair (nil_list), "is_nil_or_pair (nil_list) failed")
-    call check (is_nil_or_pair (iota (15)), "is_nil_or_pair (iota (15)) failed")
-    call check (is_nil_or_pair (cons ('a', 'b')), "is_nil_or_pair (cons ('a', 'b')) failed")
-
+    ! nil_list does not need a list_oneshot wrapper, but let us test
+    ! that it can be given a nil_list without crashing the program.
+    call check (is_nil_or_pair (list_oneshot (nil_list)), "is_nil_or_pair (list_oneshot (nil_list)) failed")
+    call check (is_nil_or_pair (list_oneshot (iota (15))), "is_nil_or_pair (list_oneshot (iota (15))) failed")
+    call check (is_nil_or_pair (list_oneshot (cons ('a', 'b'))), "is_nil_or_pair (list_oneshot (cons ('a', 'b'))) failed")
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_is_nil_or_pair

@@ -821,7 +821,9 @@ contains
   function list_oneshot (input) result (output)
     type(cons_t) :: input
     type(cons_t) :: output
-    oneshot_list = input ** oneshot_list
+    if (list_is_pair (input)) then
+       oneshot_list = input ** oneshot_list
+    end if
     output = input
   end function list_oneshot
 
