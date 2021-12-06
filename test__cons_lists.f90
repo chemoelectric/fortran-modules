@@ -261,9 +261,9 @@ contains
   subroutine test_is_nil_list
     call check (.not. is_nil_list ('abc'), ".not. is_nil_list ('abc') failed")
     call check (is_nil_list (nil_list), "is_nil_list (nil_list) failed")
-    call check (.not. is_nil_list (iota (15)), ".not. is_nil_list (iota (15)) failed")
-    call check (.not. is_nil_list (cons ('a', 'b')), ".not. is_nil_list (cons ('a', 'b')) failed")
-
+    call check (.not. is_nil_list (list_oneshot (iota (15))), ".not. is_nil_list (list_oneshot (iota (15))) failed")
+    call check (.not. is_nil_list (list_oneshot (cons ('a', 'b'))), &
+         ".not. is_nil_list (list_oneshot (cons ('a', 'b'))) failed")
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_is_nil_list
@@ -271,8 +271,8 @@ contains
   subroutine test_is_cons_pair
     call check (.not. is_cons_pair ('abc'), ".not. is_cons_pair ('abc') failed")
     call check (.not. is_cons_pair (nil_list), ".not. is_cons_pair (nil_list) failed")
-    call check (is_cons_pair (iota (15)), "is_cons_pair (iota (15)) failed")
-    call check (is_cons_pair (cons ('a', 'b')), "is_cons_pair (cons ('a', 'b')) failed")
+    call check (is_cons_pair (list_oneshot (iota (15))), "is_cons_pair (list_oneshot (iota (15))) failed")
+    call check (is_cons_pair (list_oneshot (cons ('a', 'b'))), "is_cons_pair (list_oneshot (cons ('a', 'b'))) failed")
 
     call list_discard_oneshot
     call list_deallocate_discarded
@@ -281,9 +281,10 @@ contains
   subroutine test_is_not_nil_or_pair
     call check (is_not_nil_or_pair ('abc'), "is_not_nil_or_pair ('abc') failed")
     call check (.not. is_not_nil_or_pair (nil_list), ".not. is_not_nil_or_pair (nil_list) failed")
-    call check (.not. is_not_nil_or_pair (iota (15)), ".not. is_not_nil_or_pair (iota (15)) failed")
-    call check (.not. is_not_nil_or_pair (cons ('a', 'b')), ".not. is_not_nil_or_pair (cons ('a', 'b')) failed")
-
+    call check (.not. is_not_nil_or_pair (list_oneshot (iota (15))), &
+         ".not. is_not_nil_or_pair (list_oneshot (iota (15))) failed")
+    call check (.not. is_not_nil_or_pair (list_oneshot (cons ('a', 'b'))), &
+         ".not. is_not_nil_or_pair (list_oneshot (cons ('a', 'b'))) failed")
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_is_not_nil_or_pair
@@ -291,18 +292,16 @@ contains
   subroutine test_is_not_nil_list
     call check (is_not_nil_list ('abc'), "is_not_nil_list ('abc') failed")
     call check (.not. is_not_nil_list (nil_list), ".not. is_not_nil_list (nil_list) failed")
-    call check (is_not_nil_list (iota (15)), "is_not_nil_list (iota (15)) failed")
-    call check (is_not_nil_list (cons ('a', 'b')), "is_not_nil_list (cons ('a', 'b')) failed")
-
+    call check (is_not_nil_list (list_oneshot (iota (15))), "is_not_nil_list (list_oneshot (iota (15))) failed")
+    call check (is_not_nil_list (list_oneshot (cons ('a', 'b'))), "is_not_nil_list (list_oneshot (cons ('a', 'b'))) failed")
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_is_not_nil_list
 
   subroutine test_list_is_nil
     call check (list_is_nil (nil_list), "list_is_nil (nil_list) failed")
-    call check (.not. list_is_nil (iota (15)), ".not. list_is_nil (iota (15)) failed")
+    call check (.not. list_is_nil (list_oneshot (iota (15))), ".not. list_is_nil (list_oneshot (iota (15))) failed")
     call check (.not. list_is_nil (cons('a', 'b')), ".not. list_is_nil (cons('a', 'b')) failed")
-
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_list_is_nil
@@ -310,18 +309,17 @@ contains
   subroutine test_is_not_cons_pair
     call check (is_not_cons_pair ('abc'), "is_not_cons_pair ('abc') failed")
     call check (is_not_cons_pair (nil_list), "is_not_cons_pair (nil_list) failed")
-    call check (.not. is_not_cons_pair (iota (15)), ".not. is_not_cons_pair (iota (15)) failed")
-    call check (.not. is_not_cons_pair (cons ('a', 'b')), ".not. is_not_cons_pair (cons ('a', 'b')) failed")
-
+    call check (.not. is_not_cons_pair (list_oneshot (iota (15))), ".not. is_not_cons_pair (list_oneshot (iota (15))) failed")
+    call check (.not. is_not_cons_pair (list_oneshot (cons ('a', 'b'))), &
+         ".not. is_not_cons_pair (list_oneshot (cons ('a', 'b'))) failed")
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_is_not_cons_pair
 
   subroutine test_list_is_pair
     call check (.not. list_is_pair (nil_list), ".not. list_is_pair (nil_list) failed")
-    call check (list_is_pair (iota (15)), "list_is_pair (iota (15)) failed")
-    call check (list_is_pair (cons('a', 'b')), "list_is_pair (cons('a', 'b')) failed")
-
+    call check (list_is_pair (list_oneshot (iota (15))), "list_is_pair (list_oneshot (iota (15))) failed")
+    call check (list_is_pair (list_oneshot (cons ('a', 'b'))), "list_is_pair (list_oneshot (cons ('a', 'b'))) failed")
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_list_is_pair
@@ -331,15 +329,19 @@ contains
     pair1 = 1 ** nil_list
     pair2 = cons (1, 2)
     call check (cons_t_eq (nil_list, nil_list), "cons_t_eq (nil_list, nil_list) failed")
-    call check (.not. cons_t_eq (nil_list, 1 ** nil_list), ".not. cons_t_eq (nil_list, 1 ** nil_list) failed")
-    call check (.not. cons_t_eq (1 ** nil_list, nil_list), ".not. cons_t_eq (1 ** nil_list, nil_list) failed")
-    call check (.not. cons_t_eq (1 ** nil_list, 1 ** nil_list), ".not. cons_t_eq (1 ** nil_list, 1 ** nil_list) failed")
-    call check (.not. cons_t_eq (cons (1, 2), cons (1, 2)), ".not. cons_t_eq (cons (1, 2), cons (1, 2)) failed")
+    call check (.not. cons_t_eq (nil_list, list_oneshot (1 ** nil_list)), &
+         ".not. cons_t_eq (nil_list, list_oneshot (1 ** nil_list)) failed")
+    call check (.not. cons_t_eq (list_oneshot (1 ** nil_list), nil_list), &
+         ".not. cons_t_eq (list_oneshot (1 ** nil_list), nil_list) failed")
+    call check (.not. cons_t_eq (list_oneshot (1 ** nil_list), list_oneshot (1 ** nil_list)), &
+         ".not. cons_t_eq (list_oneshot (1 ** nil_list), list_oneshot (1 ** nil_list)) failed")
+    call check (.not. cons_t_eq (list_oneshot (cons (1, 2)), list_oneshot (cons (1, 2))), &
+         ".not. cons_t_eq (list_oneshot (cons (1, 2)), list_oneshot (cons (1, 2))) failed")
     call check (cons_t_eq (pair1, pair1), "cons_t_eq (pair1, pair1) failed")
     call check (cons_t_eq (pair2, pair2), "cons_t_eq (pair2, pair2) failed")
     call check (.not. cons_t_eq (pair1, pair2), ".not. cons_t_eq (pair1, pair2) failed")
     call check (.not. cons_t_eq (pair2, pair1), ".not. cons_t_eq (pair2, pair1) failed")
-
+    call list_discard2 (pair1, pair2)
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_cons_t_eq
@@ -357,7 +359,7 @@ contains
     call check (y .eqr. 15.0, "y .eqr. 15.0 failed (for uncons)")
     call check (car (pair) .eqi. 5, "car (pair) .eqi. 5 failed")
     call check (cdr (pair) .eqr. 15.0, "cdr (pair) .eqr. 15.0 failed")
-
+    call list_discard1 (pair)
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_uncons_car_cdr
@@ -372,7 +374,7 @@ contains
     call check (caar (lst2) .eqi. 1, "caar (lst2) .eqi. 1 failed (for operator(**))")
     call check (cdar (lst2) .eqi. 2, "cdar (lst2) .eqi. 1 failed (for operator(**))")
     call check (cadr (lst2) .eqr. 3.0, "cadr (lst2) .eqr. 3.0 failed (for operator(**))")
-
+    call list_discard2 (lst1, lst2)
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_list_cons
