@@ -24,6 +24,7 @@
 # https://aoterodelaroza.github.io/devnotes/modern-fortran-makefiles/
 
 .DELETE_ON_ERROR:
+.DEFAULT_GOAL = default
 
 # At least Fortran 2008 is needed.
 #FORTRAN_STANDARD = gnu
