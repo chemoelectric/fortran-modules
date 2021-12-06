@@ -2052,7 +2052,6 @@ contains
   subroutine test_alist_assoc
     class(*), allocatable :: lst1
     type(cons_t) :: pair1, pair2, pair3, pair4
-    type(cons_t) :: pair2_ref, pair3_ref, pair4_ref
     call check (is_nil_list (alist_assoc (integer_eq, 1234, nil_list)), &
          "is_nil_list (alist_assoc (1234, integer_eq, nil_list)) failed (for alist_assoc)")
     lst1 = alist_cons (3, 26, alist_cons (1, 5, alist_cons (1, 2, alist_cons (3, 4, alist_cons (4, 7, nil_list)))))
@@ -2060,19 +2059,19 @@ contains
     pair2 = alist_assoc (integer_eq, 1, lst1)
     pair3 = alist_assoc (integer_eq, 3, lst1)
     pair4 = alist_assoc (integer_eq, 4, lst1)
-    pair2_ref = cons (1, 5)
-    pair3_ref = cons (3, 26)
-    pair4_ref = cons (4, 7)
     call check (is_nil_list (pair1), "is_nil_list (pair1) failed (for alist_assoc)")
-    call check (integer_pair_eq (pair2, pair2_ref), "integer_pair_eq (pair2, pair2_ref) failed (for alist_assoc)")
-    call check (integer_pair_eq (pair3, pair3_ref), "integer_pair_eq (pair3, pair3_ref) failed (for alist_assoc)")
-    call check (integer_pair_eq (pair4, pair4_ref), "integer_pair_eq (pair4, pair4_ref) failed (for alist_assoc)")
+    call check (integer_pair_eq (pair2, list_oneshot (cons (1, 5))), &
+         "integer_pair_eq (pair2, list_oneshot (cons (1, 5))) failed (for alist_assoc)")
+    call check (integer_pair_eq (pair3, list_oneshot (cons (3, 26))), &
+         "integer_pair_eq (pair3, list_oneshot (cons (3, 26))) failed (for alist_assoc)")
+    call check (integer_pair_eq (pair4, list_oneshot (cons (4, 7))), &
+         "integer_pair_eq (pair4, list_oneshot (cons (4, 7))) failed (for alist_assoc)")
     call list_discard1 (lst1)
-    call list_discard3 (pair2_ref, pair3_ref, pair4_ref)
     ! The following are not really needed but are a test that the
     ! system does not do double frees.
     call list_discard4 (pair1, pair2, pair3, pair4)
 
+    call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_alist_assoc
 

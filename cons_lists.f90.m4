@@ -39,8 +39,6 @@ module cons_types
   ! Please use module cons_lists, rather than this module directly.
   !
 
-  use :: iso_fortran_env
-
   implicit none
   private
 
@@ -49,13 +47,13 @@ module cons_types
   public :: nil_list
   public :: bit__cons_pair_t_garbage
 
-  integer(int8), parameter :: bit__cons_pair_t_garbage = 0
+  integer, parameter :: bit__cons_pair_t_garbage = 0
 
   ! A private type representing the CAR-CDR-tuple of a CONS-pair.
   type :: cons_pair_t
      class(*), allocatable :: car
      class(*), allocatable :: cdr
-     integer(int8) :: status
+     integer :: status
   end type cons_pair_t
 
   ! A public type that is a NIL-list or a reference to a
@@ -206,6 +204,8 @@ m4_forloop([n],[4],LIST_DISCARDN_MAX,[dnl
 ])dnl
 ])dnl
 ])dnl
+  public :: list_oneshot        ! Add an item to the `oneshots' list.
+  public :: list_discard_oneshot      ! Discard the oneshots.
   public :: list_deallocate_discarded ! Deallocate discarded CONS-pairs.
 
   public :: cons                ! The fundamental CONS-pair constructor.
@@ -450,6 +450,8 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   end interface list_unfold_right
 
   type(cons_t) :: garbage_list = nil_list
+  type(cons_t) :: oneshot_list = nil_list
+  type(cons_t) :: oneshot_list_end = nil_list
 
 contains
 
@@ -557,13 +559,9 @@ dnl
 
   subroutine cons_t_discard (pair)
     type(cons_t) :: pair
-    !
-    ! FIXME: The following ought to be done under protection of a
-    !        lock. (Consider OpenMP, etc.)
-    !
     if (.not. btest (pair%p%status, bit__cons_pair_t_garbage)) then
        pair%p%status = ibset (pair%p%status, bit__cons_pair_t_garbage)
-       garbage_list = cons (pair, garbage_list)
+       garbage_list = pair ** garbage_list
     end if
   end subroutine cons_t_discard
 
@@ -613,13 +611,30 @@ m4_forloop([k],[1],n,[dnl
   end subroutine list_discard[]n
 ])dnl
 
-  subroutine list_deallocate_discarded
-    !
-    ! FIXME: The following ought to be done under protection of a
-    !        lock. (Consider OpenMP, etc.)
-    !
-    type(cons_t) :: p, q, entry
+  function list_oneshot (input) result (output)
+    type(cons_t) :: input
+    type(cons_t) :: output
 
+    logical :: oneshot_list_is_new
+
+    oneshot_list_is_new = list_is_nil (oneshot_list)
+    oneshot_list = input ** oneshot_list
+    if (oneshot_list_is_new) then
+       oneshot_list_end = oneshot_list
+    end if
+    output = input
+  end function list_oneshot
+
+  subroutine list_discard_oneshot
+    if (list_is_pair (oneshot_list)) then
+       call set_cdr (oneshot_list_end, garbage_list)
+       oneshot_list = nil_list
+       oneshot_list_end = nil_list
+    end if
+  end subroutine list_discard_oneshot
+
+  subroutine list_deallocate_discarded
+    type(cons_t) :: p, q, entry
     p = garbage_list
     garbage_list = nil_list
     do while (list_is_pair (p))
