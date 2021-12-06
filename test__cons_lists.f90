@@ -2046,11 +2046,13 @@ contains
          "list_equals (integer_pair_eq, lst2, lst2_ref) failed (for alist_delete)")
     call check (list_equals (integer_pair_eq, lst3, lst3_ref), &
          "list_equals (integer_pair_eq, lst3, lst3_ref) failed (for alist_delete)")
+    call list_discard3 (lst1, lst2_ref, lst3_ref)
   end subroutine test_alist_delete
 
   subroutine test_alist_assoc
     class(*), allocatable :: lst1
     type(cons_t) :: pair1, pair2, pair3, pair4
+    type(cons_t) :: pair2_ref, pair3_ref, pair4_ref
     call check (is_nil_list (alist_assoc (integer_eq, 1234, nil_list)), &
          "is_nil_list (alist_assoc (1234, integer_eq, nil_list)) failed (for alist_assoc)")
     lst1 = alist_cons (3, 26, alist_cons (1, 5, alist_cons (1, 2, alist_cons (3, 4, alist_cons (4, 7, nil_list)))))
@@ -2058,10 +2060,20 @@ contains
     pair2 = alist_assoc (integer_eq, 1, lst1)
     pair3 = alist_assoc (integer_eq, 3, lst1)
     pair4 = alist_assoc (integer_eq, 4, lst1)
+    pair2_ref = cons (1, 5)
+    pair3_ref = cons (3, 26)
+    pair4_ref = cons (4, 7)
     call check (is_nil_list (pair1), "is_nil_list (pair1) failed (for alist_assoc)")
-    call check (integer_pair_eq (pair2, cons (1, 5)), "integer_pair_eq (pair2, cons (1, 5)) failed (for alist_assoc)")
-    call check (integer_pair_eq (pair3, cons (3, 26)), "integer_pair_eq (pair3, cons (3, 26)) failed (for alist_assoc)")
-    call check (integer_pair_eq (pair4, cons (4, 7)), "integer_pair_eq (pair4, cons (4, 7)) failed (for alist_assoc)")
+    call check (integer_pair_eq (pair2, pair2_ref), "integer_pair_eq (pair2, pair2_ref) failed (for alist_assoc)")
+    call check (integer_pair_eq (pair3, pair3_ref), "integer_pair_eq (pair3, pair3_ref) failed (for alist_assoc)")
+    call check (integer_pair_eq (pair4, pair4_ref), "integer_pair_eq (pair4, pair4_ref) failed (for alist_assoc)")
+    call list_discard1 (lst1)
+    call list_discard3 (pair2_ref, pair3_ref, pair4_ref)
+    ! The following are not really needed but are a test that the
+    ! system does not do double frees.
+    call list_discard4 (pair1, pair2, pair3, pair4)
+
+    call list_deallocate_discarded
   end subroutine test_alist_assoc
 
   subroutine test_list_merge
@@ -2071,6 +2083,8 @@ contains
     lst_m = list_merge (integer_cmp, lst1, lst2)
     call check (list_equals (integer_eq, lst_m, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)), &
          "list_equals (integer_eq, lst_m, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)) failed (for list_merge)")
+    call list_discard3 (lst1, lst2, lst_m)
+    call list_deallocate_discarded
   end subroutine test_list_merge
 
   subroutine test_list_stable_sort
@@ -2081,14 +2095,19 @@ contains
     type(cons_t) :: p
     integer :: i
     integer :: k
+
     lst1a = iota (100, 100, -1)
     lst1b = list_stable_sort (integer_cmp, lst1a)
     call check (list_equals (integer_eq, lst1b, iota (100, 1)), &
          "list_equals (integer_eq, lst1b, iota (100, 1)) failed (for list_stable_sort)")
+    call list_discard2 (lst1a, lst1b)
+
     lst2a = list10 (15, 2, 3, 4, 5, 6, 4, 5, 10, 2)
     lst2b = list_stable_sort (integer_cmp, lst2a)
     call check (list_equals (integer_eq, lst2b, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)), &
          "list_equals (integer_eq, lst2b, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)) failed (for list_stable_sort)")
+    call list_discard2 (lst2a, lst2b)
+
     lst3a = iota (10, 99, -1)
     lst3a = list_append (iota (10, 89, -1), lst3a)
     lst3a = list_append (iota (10, 79, -1), lst3a)
@@ -2103,10 +2122,7 @@ contains
     call check (list_length (lst3b) == 100, "list_length (lst3b) == 100 failed (for list_stable_sort)")
     call check (list_equals (integer_eq, lst3b, iota (100)), &
          "list_equals (integer_eq, lst3b, iota (100)) failed (for list_stable_sort)")
-    !
-    ! Test stability.
-    !
-    lst3c = list_stable_sort (integer_least_digit_cmp, lst3a)
+    lst3c = list_stable_sort (integer_least_digit_cmp, lst3a) ! Test stability.
     call check (list_length (lst3c) == 100, "list_length (lst3c) == 100 failed (for list_stable_sort)")
     p = lst3c
     do i = 0, 99
@@ -2115,6 +2131,9 @@ contains
        call check (k / 10 == mod (i, 10), "k / 10 == mod (i, 10) failed (for list_stable_sort)")
        p = cons_t_cast (cdr (p))
     end do
+    call list_discard3 (lst3a, lst3b, lst3c)
+
+    call list_deallocate_discarded
   end subroutine test_list_stable_sort
 
   subroutine test_list_unstable_sort
@@ -2122,14 +2141,19 @@ contains
     type(cons_t) :: lst2a, lst2b
     class(*), allocatable :: lst3a
     type(cons_t) :: lst3b
+
     lst1a = iota (100, 100, -1)
     lst1b = list_unstable_sort (integer_cmp, lst1a)
     call check (list_equals (integer_eq, lst1b, iota (100, 1)), &
          "list_equals (integer_eq, lst1b, iota (100, 1)) failed (for list_unstable_sort)")
+    call list_discard2 (lst1a, lst1b)
+
     lst2a = list10 (15, 2, 3, 4, 5, 6, 4, 5, 10, 2)
     lst2b = list_unstable_sort (integer_cmp, lst2a)
     call check (list_equals (integer_eq, lst2b, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)), &
          "list_equals (integer_eq, lst2b, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)) failed (for list_unstable_sort)")
+    call list_discard2 (lst2a, lst2b)
+
     lst3a = iota (10, 99, -1)
     lst3a = list_append (iota (10, 89, -1), lst3a)
     lst3a = list_append (iota (10, 79, -1), lst3a)
@@ -2144,6 +2168,9 @@ contains
     call check (list_length (lst3b) == 100, "list_length (lst3b) == 100 failed (for list_unstable_sort)")
     call check (list_equals (integer_eq, lst3b, iota (100)), &
          "list_equals (integer_eq, lst3b, iota (100)) failed (for list_unstable_sort)")
+    call list_discard2 (lst3a, lst3b)
+
+    call list_deallocate_discarded
   end subroutine test_list_unstable_sort
 
   subroutine run_tests

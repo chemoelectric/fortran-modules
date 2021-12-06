@@ -40,6 +40,9 @@ COMPILE.m4 = $(M4) $(M4FLAGS) $(XM4FLAGS)
 
 #M4FLAGS += -DDEBUGGING=true
 
+# How many lists can be discarded with one call?
+M4FLAGS += -DLIST_DISCARDN_MAX=10
+
 # How deep should car-cdr permutations go?
 M4FLAGS += -DCADADR_MAX=4
 

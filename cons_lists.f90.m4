@@ -39,17 +39,23 @@ module cons_types
   ! Please use module cons_lists, rather than this module directly.
   !
 
+  use :: iso_fortran_env
+
   implicit none
   private
 
   public :: cons_pair_t
   public :: cons_t
   public :: nil_list
+  public :: bit__cons_pair_t_garbage
+
+  integer(int8), parameter :: bit__cons_pair_t_garbage = 0
 
   ! A private type representing the CAR-CDR-tuple of a CONS-pair.
   type :: cons_pair_t
      class(*), allocatable :: car
      class(*), allocatable :: cdr
+     integer(int8) :: status
   end type cons_pair_t
 
   ! A public type that is a NIL-list or a reference to a
@@ -187,6 +193,20 @@ module cons_lists
 
   ! cons_t_eq(x,y) is like Scheme's `(eq? x y)' for two lists.
   public :: cons_t_eq           ! Are the two cons_t equivalent?
+
+  public :: cons_t_discard      ! Discard a CONS-pair.
+  public :: list_discard        ! Recursively discard an entire CONS-pair tree.
+  public :: list_discard1       ! A synonym for list_discard.
+m4_if(m4_eval(2 <= LIST_DISCARDN_MAX),[1],[dnl
+  public :: list_discard2       ! Recursively discard 2 trees.
+m4_if(m4_eval(3 <= LIST_DISCARDN_MAX),[1],[dnl
+  public :: list_discard3       ! Recursively discard 3 trees, etc.
+m4_forloop([n],[4],LIST_DISCARDN_MAX,[dnl
+  public :: list_discard[]n
+])dnl
+])dnl
+])dnl
+  public :: list_deallocate_discarded ! Deallocate discarded CONS-pairs.
 
   public :: cons                ! The fundamental CONS-pair constructor.
   public :: uncons              ! The fundamental CONS-pair deconstructor.
@@ -429,6 +449,8 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
      module procedure list_unfold_right_with_nil_tail
   end interface list_unfold_right
 
+  type(cons_t) :: garbage_list = nil_list
+
 contains
 
 m4_if(DEBUGGING,[true],[dnl
@@ -533,6 +555,83 @@ dnl
     end if
   end function cons_t_eq
 
+  subroutine cons_t_discard (pair)
+    type(cons_t) :: pair
+    !
+    ! FIXME: The following ought to be done under protection of a
+    !        lock. (Consider OpenMP, etc.)
+    !
+    if (.not. btest (pair%p%status, bit__cons_pair_t_garbage)) then
+       pair%p%status = ibset (pair%p%status, bit__cons_pair_t_garbage)
+       garbage_list = cons (pair, garbage_list)
+    end if
+  end subroutine cons_t_discard
+
+  recursive subroutine list_discard (lst)
+    class(*) :: lst
+
+    type(cons_t) :: pair
+    class(*), allocatable :: the_car, the_cdr
+    logical :: done
+
+    select type (lst)
+    class is (cons_t)
+       pair = lst
+       done = .false.
+       do while (.not. done)
+          if (.not. associated (pair%p)) then
+             done = .true.
+          else if (btest (pair%p%status, bit__cons_pair_t_garbage)) then
+             done = .true.
+          else
+             the_car = pair%p%car
+             the_cdr = pair%p%cdr
+             call cons_t_discard (pair)
+             select type (the_car)
+             class is (cons_t)
+                call list_discard (the_car)
+             end select
+             select type (the_cdr)
+             class is (cons_t)
+                pair = the_cdr
+             end select
+          end if
+       end do
+    end select
+  end subroutine list_discard
+dnl
+m4_forloop([n],[1],LIST_DISCARDN_MAX,[
+  subroutine list_discard[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+])lst[]k]))
+m4_forloop([k],[1],n,[dnl
+    class(*) :: lst[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    call list_discard (lst[]k)
+])dnl
+  end subroutine list_discard[]n
+])dnl
+
+  subroutine list_deallocate_discarded
+    !
+    ! FIXME: The following ought to be done under protection of a
+    !        lock. (Consider OpenMP, etc.)
+    !
+    type(cons_t) :: p, q, entry
+
+    p = garbage_list
+    garbage_list = nil_list
+    do while (list_is_pair (p))
+       q = cons_t_cast (cdr (p))
+       entry = cons_t_cast (car (p))
+       deallocate (entry%p)
+       nullify (entry%p)
+       deallocate (p%p)
+       p = q
+    end do
+  end subroutine list_deallocate_discarded
+
   function cons (car_value, cdr_value) result (pair)
     class(*), intent(in) :: car_value
     class(*), intent(in) :: cdr_value
@@ -542,6 +641,7 @@ dnl
 
     car_cdr%car = car_value
     car_cdr%cdr = cdr_value
+    car_cdr%status = 0
     allocate (pair%p, source = car_cdr)
   end function cons
 
@@ -2683,6 +2783,9 @@ m4_forloop([k],[1],n,[dnl
 
   recursive function list_delete (pred, x, lst) result (lst_d)
     !
+    ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME: Needs to deallocate, optionally.
+    !
+    !
     ! NOTE: The argument order is different from that of SRFI-1's
     !       `delete' procedure.
     !
@@ -2744,6 +2847,9 @@ m4_forloop([k],[1],n,[dnl
   end function list_delete
 
   recursive function list_destructive_delete (pred, x, lst) result (lst_d)
+    !
+    ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME: Needs to deallocate, optionally.
+    !
     !
     ! FIXME: Write a real destructive version.
     !
@@ -2826,6 +2932,9 @@ m4_forloop([k],[1],n,[dnl
 
   recursive function list_delete_duplicates (pred, lst) result (lst_dd)
     !
+    ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME: Needs to deallocate, optionally.
+    !
+    !
     ! NOTE: The argument order is different from that of SRFI-1's
     !       `delete-duplicates' procedure.
     !
@@ -2892,6 +3001,8 @@ m4_forloop([k],[1],n,[dnl
   end function list_delete_duplicates
 
   recursive function list_destructive_delete_duplicates (pred, lst) result (lst_dd)
+    !
+    ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME: Needs to deallocate, optionally.
     !
     ! FIXME: Write a real destructive version.
     !
@@ -3270,6 +3381,8 @@ m4_forloop([k],[1],n,[dnl
   end function skip_key_mismatches
 
   recursive function alist_delete (pred, key, alst) result (alst_d)
+    !
+    ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME: Needs to deallocate, optionally.
     !
     ! NOTE: The argument order is different from that of SRFI-1's
     !       `alist-delete' procedure.

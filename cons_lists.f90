@@ -29,17 +29,23 @@ module cons_types
   ! Please use module cons_lists, rather than this module directly.
   !
 
+  use :: iso_fortran_env
+
   implicit none
   private
 
   public :: cons_pair_t
   public :: cons_t
   public :: nil_list
+  public :: bit__cons_pair_t_garbage
+
+  integer(int8), parameter :: bit__cons_pair_t_garbage = 0
 
   ! A private type representing the CAR-CDR-tuple of a CONS-pair.
   type :: cons_pair_t
      class(*), allocatable :: car
      class(*), allocatable :: cdr
+     integer(int8) :: status
   end type cons_pair_t
 
   ! A public type that is a NIL-list or a reference to a
@@ -177,6 +183,20 @@ module cons_lists
 
   ! cons_t_eq(x,y) is like Scheme's `(eq? x y)' for two lists.
   public :: cons_t_eq           ! Are the two cons_t equivalent?
+
+  public :: cons_t_discard      ! Discard a CONS-pair.
+  public :: list_discard        ! Recursively discard an entire CONS-pair tree.
+  public :: list_discard1       ! A synonym for list_discard.
+  public :: list_discard2       ! Recursively discard 2 trees.
+  public :: list_discard3       ! Recursively discard 3 trees, etc.
+  public :: list_discard4
+  public :: list_discard5
+  public :: list_discard6
+  public :: list_discard7
+  public :: list_discard8
+  public :: list_discard9
+  public :: list_discard10
+  public :: list_deallocate_discarded ! Deallocate discarded CONS-pairs.
 
   public :: cons                ! The fundamental CONS-pair constructor.
   public :: uncons              ! The fundamental CONS-pair deconstructor.
@@ -511,6 +531,8 @@ module cons_lists
      module procedure list_unfold_right_with_nil_tail
   end interface list_unfold_right
 
+  type(cons_t) :: garbage_list = nil_list
+
 contains
 
   subroutine error_abort (msg)
@@ -604,6 +626,220 @@ contains
     end if
   end function cons_t_eq
 
+  subroutine cons_t_discard (pair)
+    type(cons_t) :: pair
+    !
+    ! FIXME: The following ought to be done under protection of a
+    !        lock. (Consider OpenMP, etc.)
+    !
+    if (.not. btest (pair%p%status, bit__cons_pair_t_garbage)) then
+       pair%p%status = ibset (pair%p%status, bit__cons_pair_t_garbage)
+       garbage_list = cons (pair, garbage_list)
+    end if
+  end subroutine cons_t_discard
+
+  recursive subroutine list_discard (lst)
+    class(*) :: lst
+
+    type(cons_t) :: pair
+    class(*), allocatable :: the_car, the_cdr
+    logical :: done
+
+    select type (lst)
+    class is (cons_t)
+       pair = lst
+       done = .false.
+       do while (.not. done)
+          if (.not. associated (pair%p)) then
+             done = .true.
+          else if (btest (pair%p%status, bit__cons_pair_t_garbage)) then
+             done = .true.
+          else
+             the_car = pair%p%car
+             the_cdr = pair%p%cdr
+             call cons_t_discard (pair)
+             select type (the_car)
+             class is (cons_t)
+                call list_discard (the_car)
+             end select
+             select type (the_cdr)
+             class is (cons_t)
+                pair = the_cdr
+             end select
+          end if
+       end do
+    end select
+  end subroutine list_discard
+
+  subroutine list_discard1 (lst1)
+    class(*) :: lst1
+
+    call list_discard (lst1)
+  end subroutine list_discard1
+
+  subroutine list_discard2 (lst1, lst2)
+    class(*) :: lst1
+    class(*) :: lst2
+
+    call list_discard (lst1)
+    call list_discard (lst2)
+  end subroutine list_discard2
+
+  subroutine list_discard3 (lst1, lst2, lst3)
+    class(*) :: lst1
+    class(*) :: lst2
+    class(*) :: lst3
+
+    call list_discard (lst1)
+    call list_discard (lst2)
+    call list_discard (lst3)
+  end subroutine list_discard3
+
+  subroutine list_discard4 (lst1, lst2, lst3, lst4)
+    class(*) :: lst1
+    class(*) :: lst2
+    class(*) :: lst3
+    class(*) :: lst4
+
+    call list_discard (lst1)
+    call list_discard (lst2)
+    call list_discard (lst3)
+    call list_discard (lst4)
+  end subroutine list_discard4
+
+  subroutine list_discard5 (lst1, lst2, lst3, lst4, lst5)
+    class(*) :: lst1
+    class(*) :: lst2
+    class(*) :: lst3
+    class(*) :: lst4
+    class(*) :: lst5
+
+    call list_discard (lst1)
+    call list_discard (lst2)
+    call list_discard (lst3)
+    call list_discard (lst4)
+    call list_discard (lst5)
+  end subroutine list_discard5
+
+  subroutine list_discard6 (lst1, lst2, lst3, lst4, lst5, lst6)
+    class(*) :: lst1
+    class(*) :: lst2
+    class(*) :: lst3
+    class(*) :: lst4
+    class(*) :: lst5
+    class(*) :: lst6
+
+    call list_discard (lst1)
+    call list_discard (lst2)
+    call list_discard (lst3)
+    call list_discard (lst4)
+    call list_discard (lst5)
+    call list_discard (lst6)
+  end subroutine list_discard6
+
+  subroutine list_discard7 (lst1, lst2, lst3, lst4, lst5, lst6, lst7)
+    class(*) :: lst1
+    class(*) :: lst2
+    class(*) :: lst3
+    class(*) :: lst4
+    class(*) :: lst5
+    class(*) :: lst6
+    class(*) :: lst7
+
+    call list_discard (lst1)
+    call list_discard (lst2)
+    call list_discard (lst3)
+    call list_discard (lst4)
+    call list_discard (lst5)
+    call list_discard (lst6)
+    call list_discard (lst7)
+  end subroutine list_discard7
+
+  subroutine list_discard8 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8)
+    class(*) :: lst1
+    class(*) :: lst2
+    class(*) :: lst3
+    class(*) :: lst4
+    class(*) :: lst5
+    class(*) :: lst6
+    class(*) :: lst7
+    class(*) :: lst8
+
+    call list_discard (lst1)
+    call list_discard (lst2)
+    call list_discard (lst3)
+    call list_discard (lst4)
+    call list_discard (lst5)
+    call list_discard (lst6)
+    call list_discard (lst7)
+    call list_discard (lst8)
+  end subroutine list_discard8
+
+  subroutine list_discard9 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9)
+    class(*) :: lst1
+    class(*) :: lst2
+    class(*) :: lst3
+    class(*) :: lst4
+    class(*) :: lst5
+    class(*) :: lst6
+    class(*) :: lst7
+    class(*) :: lst8
+    class(*) :: lst9
+
+    call list_discard (lst1)
+    call list_discard (lst2)
+    call list_discard (lst3)
+    call list_discard (lst4)
+    call list_discard (lst5)
+    call list_discard (lst6)
+    call list_discard (lst7)
+    call list_discard (lst8)
+    call list_discard (lst9)
+  end subroutine list_discard9
+
+  subroutine list_discard10 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10)
+    class(*) :: lst1
+    class(*) :: lst2
+    class(*) :: lst3
+    class(*) :: lst4
+    class(*) :: lst5
+    class(*) :: lst6
+    class(*) :: lst7
+    class(*) :: lst8
+    class(*) :: lst9
+    class(*) :: lst10
+
+    call list_discard (lst1)
+    call list_discard (lst2)
+    call list_discard (lst3)
+    call list_discard (lst4)
+    call list_discard (lst5)
+    call list_discard (lst6)
+    call list_discard (lst7)
+    call list_discard (lst8)
+    call list_discard (lst9)
+    call list_discard (lst10)
+  end subroutine list_discard10
+
+  subroutine list_deallocate_discarded
+    !
+    ! FIXME: The following ought to be done under protection of a
+    !        lock. (Consider OpenMP, etc.)
+    !
+    type(cons_t) :: p, q, entry
+
+    p = garbage_list
+    garbage_list = nil_list
+    do while (list_is_pair (p))
+       q = cons_t_cast (cdr (p))
+       entry = cons_t_cast (car (p))
+       deallocate (entry%p)
+       nullify (entry%p)
+       deallocate (p%p)
+       p = q
+    end do
+  end subroutine list_deallocate_discarded
+
   function cons (car_value, cdr_value) result (pair)
     class(*), intent(in) :: car_value
     class(*), intent(in) :: cdr_value
@@ -613,6 +849,7 @@ contains
 
     car_cdr%car = car_value
     car_cdr%cdr = cdr_value
+    car_cdr%status = 0
     allocate (pair%p, source = car_cdr)
   end function cons
 
@@ -7032,6 +7269,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   recursive function list_delete (pred, x, lst) result (lst_d)
     !
+    ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME: Needs to deallocate, optionally.
+    !
+    !
     ! NOTE: The argument order is different from that of SRFI-1's
     !       `delete' procedure.
     !
@@ -7093,6 +7333,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end function list_delete
 
   recursive function list_destructive_delete (pred, x, lst) result (lst_d)
+    !
+    ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME: Needs to deallocate, optionally.
+    !
     !
     ! FIXME: Write a real destructive version.
     !
@@ -7175,6 +7418,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   recursive function list_delete_duplicates (pred, lst) result (lst_dd)
     !
+    ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME: Needs to deallocate, optionally.
+    !
+    !
     ! NOTE: The argument order is different from that of SRFI-1's
     !       `delete-duplicates' procedure.
     !
@@ -7241,6 +7487,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end function list_delete_duplicates
 
   recursive function list_destructive_delete_duplicates (pred, lst) result (lst_dd)
+    !
+    ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME: Needs to deallocate, optionally.
     !
     ! FIXME: Write a real destructive version.
     !
@@ -7619,6 +7867,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end function skip_key_mismatches
 
   recursive function alist_delete (pred, key, alst) result (alst_d)
+    !
+    ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME: Needs to deallocate, optionally.
     !
     ! NOTE: The argument order is different from that of SRFI-1's
     !       `alist-delete' procedure.
