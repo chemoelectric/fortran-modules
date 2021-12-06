@@ -204,8 +204,6 @@ m4_forloop([n],[4],LIST_DISCARDN_MAX,[dnl
 ])dnl
 ])dnl
 ])dnl
-  public :: list_oneshot        ! Add an item to the `oneshots' list.
-  public :: list_discard_oneshot      ! Discard the oneshots.
   public :: list_deallocate_discarded ! Deallocate discarded CONS-pairs.
 
   public :: cons                ! The fundamental CONS-pair constructor.
@@ -450,7 +448,6 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   end interface list_unfold_right
 
   type(cons_t) :: garbage_list = nil_list
-  type(cons_t) :: oneshot_list = nil_list
 
 contains
 
@@ -609,30 +606,6 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
   end subroutine list_discard[]n
 ])dnl
-
-  function list_oneshot (input) result (output)
-    class(*) :: input
-    type(cons_t) :: output
-    select type (input)
-    class is (cons_t)
-       if (list_is_pair (input)) then
-          oneshot_list = input ** oneshot_list
-       end if
-       output = input
-    class default
-       call error_abort ("list_oneshot of an object that is not a cons_t")
-    end select
-  end function list_oneshot
-
-  subroutine list_discard_oneshot
-    type(cons_t) :: p
-    p = oneshot_list
-    oneshot_list = nil_list
-    do while (list_is_pair (p))
-       call list_discard (car (p))
-       p = cons_t_cast (cdr (p))
-    end do
-  end subroutine list_discard_oneshot
 
   subroutine list_deallocate_discarded
     type(cons_t) :: p, q, entry
