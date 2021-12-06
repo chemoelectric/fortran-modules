@@ -58,6 +58,12 @@ contains
     if (.not. boolean) call error_abort (msg)
   end subroutine check
 
+  function os (input) result (output)
+    class(*) :: input
+    type(cons_t) :: output
+    output = list_oneshot (input)
+  end function os
+
   function integer_cast (obj) result (int)
     class(*), intent(in) :: obj
     integer :: int
@@ -251,9 +257,9 @@ contains
     call check (.not. is_nil_or_pair ('abc'), ".not. is_nil_or_pair ('abc') failed")
     ! nil_list does not need a list_oneshot wrapper, but let us test
     ! that it can be given a nil_list without crashing the program.
-    call check (is_nil_or_pair (list_oneshot (nil_list)), "is_nil_or_pair (list_oneshot (nil_list)) failed")
-    call check (is_nil_or_pair (list_oneshot (iota (15))), "is_nil_or_pair (list_oneshot (iota (15))) failed")
-    call check (is_nil_or_pair (list_oneshot (cons ('a', 'b'))), "is_nil_or_pair (list_oneshot (cons ('a', 'b'))) failed")
+    call check (is_nil_or_pair (os (nil_list)), "is_nil_or_pair (os (nil_list)) failed")
+    call check (is_nil_or_pair (os (iota (15))), "is_nil_or_pair (os (iota (15))) failed")
+    call check (is_nil_or_pair (os (cons ('a', 'b'))), "is_nil_or_pair (os (cons ('a', 'b'))) failed")
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_is_nil_or_pair
@@ -261,9 +267,9 @@ contains
   subroutine test_is_nil_list
     call check (.not. is_nil_list ('abc'), ".not. is_nil_list ('abc') failed")
     call check (is_nil_list (nil_list), "is_nil_list (nil_list) failed")
-    call check (.not. is_nil_list (list_oneshot (iota (15))), ".not. is_nil_list (list_oneshot (iota (15))) failed")
-    call check (.not. is_nil_list (list_oneshot (cons ('a', 'b'))), &
-         ".not. is_nil_list (list_oneshot (cons ('a', 'b'))) failed")
+    call check (.not. is_nil_list (os (iota (15))), ".not. is_nil_list (os (iota (15))) failed")
+    call check (.not. is_nil_list (os (cons ('a', 'b'))), &
+         ".not. is_nil_list (os (cons ('a', 'b'))) failed")
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_is_nil_list
@@ -271,8 +277,8 @@ contains
   subroutine test_is_cons_pair
     call check (.not. is_cons_pair ('abc'), ".not. is_cons_pair ('abc') failed")
     call check (.not. is_cons_pair (nil_list), ".not. is_cons_pair (nil_list) failed")
-    call check (is_cons_pair (list_oneshot (iota (15))), "is_cons_pair (list_oneshot (iota (15))) failed")
-    call check (is_cons_pair (list_oneshot (cons ('a', 'b'))), "is_cons_pair (list_oneshot (cons ('a', 'b'))) failed")
+    call check (is_cons_pair (os (iota (15))), "is_cons_pair (os (iota (15))) failed")
+    call check (is_cons_pair (os (cons ('a', 'b'))), "is_cons_pair (os (cons ('a', 'b'))) failed")
 
     call list_discard_oneshot
     call list_deallocate_discarded
@@ -281,10 +287,10 @@ contains
   subroutine test_is_not_nil_or_pair
     call check (is_not_nil_or_pair ('abc'), "is_not_nil_or_pair ('abc') failed")
     call check (.not. is_not_nil_or_pair (nil_list), ".not. is_not_nil_or_pair (nil_list) failed")
-    call check (.not. is_not_nil_or_pair (list_oneshot (iota (15))), &
-         ".not. is_not_nil_or_pair (list_oneshot (iota (15))) failed")
-    call check (.not. is_not_nil_or_pair (list_oneshot (cons ('a', 'b'))), &
-         ".not. is_not_nil_or_pair (list_oneshot (cons ('a', 'b'))) failed")
+    call check (.not. is_not_nil_or_pair (os (iota (15))), &
+         ".not. is_not_nil_or_pair (os (iota (15))) failed")
+    call check (.not. is_not_nil_or_pair (os (cons ('a', 'b'))), &
+         ".not. is_not_nil_or_pair (os (cons ('a', 'b'))) failed")
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_is_not_nil_or_pair
@@ -292,15 +298,15 @@ contains
   subroutine test_is_not_nil_list
     call check (is_not_nil_list ('abc'), "is_not_nil_list ('abc') failed")
     call check (.not. is_not_nil_list (nil_list), ".not. is_not_nil_list (nil_list) failed")
-    call check (is_not_nil_list (list_oneshot (iota (15))), "is_not_nil_list (list_oneshot (iota (15))) failed")
-    call check (is_not_nil_list (list_oneshot (cons ('a', 'b'))), "is_not_nil_list (list_oneshot (cons ('a', 'b'))) failed")
+    call check (is_not_nil_list (os (iota (15))), "is_not_nil_list (os (iota (15))) failed")
+    call check (is_not_nil_list (os (cons ('a', 'b'))), "is_not_nil_list (os (cons ('a', 'b'))) failed")
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_is_not_nil_list
 
   subroutine test_list_is_nil
     call check (list_is_nil (nil_list), "list_is_nil (nil_list) failed")
-    call check (.not. list_is_nil (list_oneshot (iota (15))), ".not. list_is_nil (list_oneshot (iota (15))) failed")
+    call check (.not. list_is_nil (os (iota (15))), ".not. list_is_nil (os (iota (15))) failed")
     call check (.not. list_is_nil (cons('a', 'b')), ".not. list_is_nil (cons('a', 'b')) failed")
     call list_discard_oneshot
     call list_deallocate_discarded
@@ -309,17 +315,17 @@ contains
   subroutine test_is_not_cons_pair
     call check (is_not_cons_pair ('abc'), "is_not_cons_pair ('abc') failed")
     call check (is_not_cons_pair (nil_list), "is_not_cons_pair (nil_list) failed")
-    call check (.not. is_not_cons_pair (list_oneshot (iota (15))), ".not. is_not_cons_pair (list_oneshot (iota (15))) failed")
-    call check (.not. is_not_cons_pair (list_oneshot (cons ('a', 'b'))), &
-         ".not. is_not_cons_pair (list_oneshot (cons ('a', 'b'))) failed")
+    call check (.not. is_not_cons_pair (os (iota (15))), ".not. is_not_cons_pair (os (iota (15))) failed")
+    call check (.not. is_not_cons_pair (os (cons ('a', 'b'))), &
+         ".not. is_not_cons_pair (os (cons ('a', 'b'))) failed")
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_is_not_cons_pair
 
   subroutine test_list_is_pair
     call check (.not. list_is_pair (nil_list), ".not. list_is_pair (nil_list) failed")
-    call check (list_is_pair (list_oneshot (iota (15))), "list_is_pair (list_oneshot (iota (15))) failed")
-    call check (list_is_pair (list_oneshot (cons ('a', 'b'))), "list_is_pair (list_oneshot (cons ('a', 'b'))) failed")
+    call check (list_is_pair (os (iota (15))), "list_is_pair (os (iota (15))) failed")
+    call check (list_is_pair (os (cons ('a', 'b'))), "list_is_pair (os (cons ('a', 'b'))) failed")
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_list_is_pair
@@ -329,14 +335,14 @@ contains
     pair1 = 1 ** nil_list
     pair2 = cons (1, 2)
     call check (cons_t_eq (nil_list, nil_list), "cons_t_eq (nil_list, nil_list) failed")
-    call check (.not. cons_t_eq (nil_list, list_oneshot (1 ** nil_list)), &
-         ".not. cons_t_eq (nil_list, list_oneshot (1 ** nil_list)) failed")
-    call check (.not. cons_t_eq (list_oneshot (1 ** nil_list), nil_list), &
-         ".not. cons_t_eq (list_oneshot (1 ** nil_list), nil_list) failed")
-    call check (.not. cons_t_eq (list_oneshot (1 ** nil_list), list_oneshot (1 ** nil_list)), &
-         ".not. cons_t_eq (list_oneshot (1 ** nil_list), list_oneshot (1 ** nil_list)) failed")
-    call check (.not. cons_t_eq (list_oneshot (cons (1, 2)), list_oneshot (cons (1, 2))), &
-         ".not. cons_t_eq (list_oneshot (cons (1, 2)), list_oneshot (cons (1, 2))) failed")
+    call check (.not. cons_t_eq (nil_list, os (1 ** nil_list)), &
+         ".not. cons_t_eq (nil_list, os (1 ** nil_list)) failed")
+    call check (.not. cons_t_eq (os (1 ** nil_list), nil_list), &
+         ".not. cons_t_eq (os (1 ** nil_list), nil_list) failed")
+    call check (.not. cons_t_eq (os (1 ** nil_list), os (1 ** nil_list)), &
+         ".not. cons_t_eq (os (1 ** nil_list), os (1 ** nil_list)) failed")
+    call check (.not. cons_t_eq (os (cons (1, 2)), os (cons (1, 2))), &
+         ".not. cons_t_eq (os (cons (1, 2)), os (cons (1, 2))) failed")
     call check (cons_t_eq (pair1, pair1), "cons_t_eq (pair1, pair1) failed")
     call check (cons_t_eq (pair2, pair2), "cons_t_eq (pair2, pair2) failed")
     call check (.not. cons_t_eq (pair1, pair2), ".not. cons_t_eq (pair1, pair2) failed")
@@ -2061,9 +2067,9 @@ contains
   subroutine test_list_fold_right
     call check (list_fold_right (akkumulate, 1234.0, nil_list) .eqr. 1234.0, &
          "list_fold_right (akkumulate, 1234.0, nil_list) .eqr. 1234.0 failed")
-    call check (list_fold_right (akkumulate, 100, iota (10, 1)) .eqi. 155, &
+    call check (list_fold_right (akkumulate, 100, os (iota (10, 1))) .eqi. 155, &
          "list_fold_right (akkumulate, 100, iota (10, 1)) .eqi. 155 failed")
-    call check (list_equals (integer_eq, list_fold_right (cons_subr, nil_list, iota (10, 1)), iota (10, 1)), &
+    call check (list_equals (integer_eq, os (list_fold_right (cons_subr, nil_list, os (iota (10, 1)))), os (iota (10, 1))), &
          "list_equals (integer_eq, list_fold_right (cons_subr, nil_list, iota (10, 1)), iota (10, 1)) failed")
     call list_discard_oneshot
     call list_deallocate_discarded
@@ -2076,10 +2082,11 @@ contains
     !
     lst1a = iota (100, 1)
     lst1b = list_pair_fold (kons_for_destructive_reverse, nil_list, lst1a)
-    call check (list_equals (integer_eq, lst1b, iota (100, 100, -1)), &
+    call check (list_equals (integer_eq, lst1b, os (iota (100, 100, -1))), &
          "list_equals (integer_eq, lst1b, iota (100, 100, -1)) failed (for list_pair_fold)")
-    call check (list_equals (integer_eq, lst1a, 1 ** nil_list), &
-         "list_equals (integer_eq, lst1a, 1 ** nil_list) failed (for list_pair_fold)")
+    call check (list_equals (integer_eq, lst1a, os (1 ** nil_list)), &
+         "list_equals (integer_eq, lst1a, os (1 ** nil_list)) failed (for list_pair_fold)")
+    call list_discard2 (lst1a, lst1b)
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_list_pair_fold
@@ -2092,12 +2099,13 @@ contains
     lst1a = list3 (1, 2, 3)
     lst1b = list_pair_fold_right (cons_subr, nil_list, lst1a)
     call check (list_length (lst1b) == 3, "list_length (lst1b) == 3 failed (for list_pair_fold_right)")
-    call check (list_equals (integer_eq, first (lst1b), list3 (1, 2, 3)), &
-         "list_equals (integer_eq, car (lst1b), list3 (1, 2, 3)) failed (for list_pair_fold_right)")
-    call check (list_equals (integer_eq, second (lst1b), list2 (2, 3)), &
-         "list_equals (integer_eq, second (lst1b), list2 (2, 3)) failed (for list_pair_fold_right)")
-    call check (list_equals (integer_eq, third (lst1b), list1 (3)), &
-         "list_equals (integer_eq, third (lst1b), list1 (3)) failed (for list_pair_fold_right)")
+    call check (list_equals (integer_eq, first (lst1b), os (list3 (1, 2, 3))), &
+         "list_equals (integer_eq, car (lst1b), os (list3 (1, 2, 3))) failed (for list_pair_fold_right)")
+    call check (list_equals (integer_eq, second (lst1b), os (list2 (2, 3))), &
+         "list_equals (integer_eq, second (lst1b), os (list2 (2, 3))) failed (for list_pair_fold_right)")
+    call check (list_equals (integer_eq, third (lst1b), os (list1 (3))), &
+         "list_equals (integer_eq, third (lst1b), os (list1 (3))) failed (for list_pair_fold_right)")
+    call list_discard2 (lst1a, lst1b)
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_list_pair_fold_right
@@ -2109,16 +2117,16 @@ contains
     !
     call check (list_reduce (integer_max_subr, 0, nil_list) .eqi. 0, &
          "list_reduce (integer_max_subr, 0, nil_list) .eqi. 0 failed")
-    call check (list_reduce (integer_max_subr, 0, make_list (1, 0)) .eqi. 0, &
-         "list_reduce (integer_max_subr, 0, make_list (1, 0)) .eqi. 0 failed")
-    call check (list_reduce (integer_max_subr, 0, make_list (100, 0)) .eqi. 0, &
-         "list_reduce (integer_max_subr, 0, make_list (100, 0)) .eqi. 0 failed")
-    call check (list_reduce (integer_max_subr, 0, iota (50)) .eqi. 49, &
-         "list_reduce (integer_max_subr, 0, iota (50)) .eqi. 49 failed")
-    call check (list_reduce (integer_max_subr, 0, list_append (iota (100), iota (50))) .eqi. 99, &
-         "list_reduce (integer_max_subr, 0, list_append (iota (100), iota (50))) .eqi. 99 failed")
-    call check (list_reduce (integer_max_subr, 0, cons (10000, list_append (iota (100), iota (50)))) .eqi. 10000, &
-         "list_reduce (integer_max_subr, 0, cons (10000, list_append (iota (100), iota (50)))) .eqi. 10000 failed")
+    call check (list_reduce (integer_max_subr, 0, os (make_list (1, 0))) .eqi. 0, &
+         "list_reduce (integer_max_subr, 0, os (make_list (1, 0))) .eqi. 0 failed")
+    call check (list_reduce (integer_max_subr, 0, os (make_list (100, 0))) .eqi. 0, &
+         "list_reduce (integer_max_subr, 0, os (make_list (100, 0))) .eqi. 0 failed")
+    call check (list_reduce (integer_max_subr, 0, os (iota (50))) .eqi. 49, &
+         "list_reduce (integer_max_subr, 0, os (iota (50))) .eqi. 49 failed")
+    call check (list_reduce (integer_max_subr, 0, os (list_append (os (iota (100)), iota (50)))) .eqi. 99, &
+         "list_reduce (integer_max_subr, 0, os (cons_t_cast (list_append (os (iota (100)), iota (50))))) .eqi. 99 failed")
+    call check (list_reduce (integer_max_subr, 0, os (cons (10000, list_append (os (iota (100)), iota (50))))) .eqi. 10000, &
+         "list_reduce (integer_max_subr, 0, os (cons (10000, list_append (os (iota (100)), iota (50))))) .eqi. 10000 failed")
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_list_reduce
@@ -2129,16 +2137,19 @@ contains
     !
     call check (is_nil_list (list_reduce_right (append_subr, nil_list, nil_list)), &
          "is_nil_list (list_reduce_right (append_subr, nil_list, nil_list)) failed")
-    call check (is_nil_list (list_reduce_right (append_subr, nil_list, make_list (100, nil_list))), &
-         "is_nil_list (list_reduce_right (append_subr, nil_list, make_list (100, nil_list))) failed")
+    call check (is_nil_list (list_reduce_right (append_subr, nil_list, os (make_list (100, nil_list)))), &
+         "is_nil_list (list_reduce_right (append_subr, nil_list, os (make_list (100, nil_list)))) failed")
     call check (list_equals (integer_eq, &
-         list_reduce_right (append_subr, nil_list, list_zip1 (iota (100, 1))), &
-         iota (100, 1)), &
+         os (list_reduce_right (append_subr, nil_list, &
+         &                      os (list_zip1 (os (iota (100, 1)))))), &
+         os (iota (100, 1))), &
          "check0010 failed (for list_reduce_right)")
     call check (list_equals (integer_eq, &
-         list_reduce_right (append_subr, nil_list, list_zip2 (iota (50, 1, 2), iota (50, 2, 2))), &
-         iota (100, 1)), &
-         "check0020 failed (for list_reduce_right)")
+        os (list_reduce_right (append_subr, nil_list, &
+        &                      os (list_zip2 (os (iota (50, 1, 2)), &
+        &                                     os (iota (50, 2, 2)))))), &
+        os (iota (100, 1))), &
+        "check0020 failed (for list_reduce_right)")
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_list_reduce_right
@@ -2154,24 +2165,28 @@ contains
 
     ! List of squares: 1**2 ... 10**2
     lst = list_unfold (greater_than_10, integer_square_subr, integer_incr_subr, 1)
-    call check (list_equals (integer_eq, lst, list10 (1, 4, 9, 16, 25, 36, 49, 64, 81, 100)), &
+    call check (list_equals (integer_eq, lst, os (list10 (1, 4, 9, 16, 25, 36, 49, 64, 81, 100))), &
          "check0010 failed (for list_unfold)")
+    call list_discard1 (lst)
 
     ! Copy a proper list.
     lst = list_unfold (is_nil_list, car_subr, cdr_subr, iota (100, 1))
-    call check (list_equals (integer_eq, lst, iota (100, 1)), "check0020 failed (for list_unfold)")
+    call check (list_equals (integer_eq, lst, os (iota (100, 1))), "check0020 failed (for list_unfold)")
+    call list_discard1 (lst)
 
     ! Copy a possibly improper list.
     lst = list_unfold (is_not_cons_pair, car_subr, cdr_subr, cons (1, cons (2, 1234.0)), passthru_subr)
     call check (car (lst) .eqi. 1, "check0030 failed (for list_unfold)")
     call check (cadr (lst) .eqi. 2, "check0040 failed (for list_unfold)")
     call check (cddr (lst) .eqr. 1234.0, "check0050 failed (for list_unfold)")
+    call list_discard1 (lst)
 
     ! Append HEAD onto TAIL.
     head = iota (75, 1)
     tail = iota (25, 76)
     lst = list_unfold (is_nil_list, car_subr, cdr_subr, head, set_to_tail)
-    call check (list_equals (integer_eq, lst, iota (100, 1)), "check0060 failed (for list_unfold)")
+    call check (list_equals (integer_eq, lst, os (iota (100, 1))), "check0060 failed (for list_unfold)")
+    call list_discard3 (lst, head, tail)
 
     call list_discard_oneshot
     call list_deallocate_discarded
@@ -2195,18 +2210,21 @@ contains
 
     ! List of squares: 1**2 ... 10**2
     lst = list_unfold_right (equals_0, integer_square_subr, integer_decr_subr, 10)
-    call check (list_equals (integer_eq, lst, list10 (1, 4, 9, 16, 25, 36, 49, 64, 81, 100)), &
+    call check (list_equals (integer_eq, lst, os (list10 (1, 4, 9, 16, 25, 36, 49, 64, 81, 100))), &
          "check0010 failed (for list_unfold_right)")
+    call list_discard1 (lst)
 
     ! Reverse a proper list.
     lst = list_unfold_right (is_nil_list, car_subr, cdr_subr, iota (100, 1))
-    call check (list_equals (integer_eq, lst, iota (100, 100, -1)), "check0020 failed (for list_unfold_right)")
+    call check (list_equals (integer_eq, lst, os (iota (100, 100, -1))), "check0020 failed (for list_unfold_right)")
+    call list_discard1 (lst)
 
     ! Append-reverse HEAD onto TAIL.
     head = iota (75, 75, -1)
     tail = iota (25, 76)
     lst = list_unfold_right (is_nil_list, car_subr, cdr_subr, head, tail)
-    call check (list_equals (integer_eq, lst, iota (100, 1)), "check0030 failed (for list_unfold_right)")
+    call check (list_equals (integer_eq, lst, os (iota (100, 1))), "check0030 failed (for list_unfold_right)")
+    call list_discard3 (lst, head, tail)
 
     call list_discard_oneshot
     call list_deallocate_discarded
@@ -2220,6 +2238,7 @@ contains
     call check (car (second (lst)) .eqi. 3, "car (second (lst)) .eqi. 3 failed (for alist_cons)")
     call check (cdr (second (lst)) .eqi. 4, "cdr (second (lst)) .eqi. 4 failed (for alist_cons)")
     call check (is_nil_list (cddr (lst)), "is_nil_list (cddr (lst)) failed (for alist_cons)")
+    call list_discard1 (lst)
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_alist_cons
@@ -2240,6 +2259,7 @@ contains
     call check (car (second (lst2)) .eqi. 3, "car (second (lst2)) .eqi. 3 failed (for alist_copy)")
     call check (cdr (second (lst2)) .eqi. 40, "cdr (second (lst2)) .eqi. 40 failed (for alist_copy)")
     call check (is_nil_list (cddr (lst2)), "is_nil_list (cddr (lst2)) failed (for alist_copy)")
+    call list_discard2 (lst1, lst2)
     call list_discard_oneshot
     call list_deallocate_discarded
   end subroutine test_alist_copy
@@ -2275,12 +2295,12 @@ contains
     pair3 = alist_assoc (integer_eq, 3, lst1)
     pair4 = alist_assoc (integer_eq, 4, lst1)
     call check (is_nil_list (pair1), "is_nil_list (pair1) failed (for alist_assoc)")
-    call check (integer_pair_eq (pair2, list_oneshot (cons (1, 5))), &
-         "integer_pair_eq (pair2, list_oneshot (cons (1, 5))) failed (for alist_assoc)")
-    call check (integer_pair_eq (pair3, list_oneshot (cons (3, 26))), &
-         "integer_pair_eq (pair3, list_oneshot (cons (3, 26))) failed (for alist_assoc)")
-    call check (integer_pair_eq (pair4, list_oneshot (cons (4, 7))), &
-         "integer_pair_eq (pair4, list_oneshot (cons (4, 7))) failed (for alist_assoc)")
+    call check (integer_pair_eq (pair2, os (cons (1, 5))), &
+         "integer_pair_eq (pair2, os (cons (1, 5))) failed (for alist_assoc)")
+    call check (integer_pair_eq (pair3, os (cons (3, 26))), &
+         "integer_pair_eq (pair3, os (cons (3, 26))) failed (for alist_assoc)")
+    call check (integer_pair_eq (pair4, os (cons (4, 7))), &
+         "integer_pair_eq (pair4, os (cons (4, 7))) failed (for alist_assoc)")
     call list_discard1 (lst1)
     ! The following are not really needed but are a test that the
     ! system does not do double frees.

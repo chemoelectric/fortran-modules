@@ -185,7 +185,7 @@ module cons_lists
   public :: cons_t_discard      ! Discard a CONS-pair.
   public :: list_discard        ! Recursively discard an entire CONS-pair tree.
   public :: list_discard1       ! A synonym for list_discard.
-  public :: list_discard2       ! Recursively discard 2 trees.
+  public :: list_discard2       ! Recursively discard 2 trees, in left-to-right order.
   public :: list_discard3       ! Recursively discard 3 trees, etc.
   public :: list_discard4
   public :: list_discard5
@@ -819,12 +819,17 @@ contains
   end subroutine list_discard10
 
   function list_oneshot (input) result (output)
-    type(cons_t) :: input
+    class(*) :: input
     type(cons_t) :: output
-    if (list_is_pair (input)) then
-       oneshot_list = input ** oneshot_list
-    end if
-    output = input
+    select type (input)
+    class is (cons_t)
+       if (list_is_pair (input)) then
+          oneshot_list = input ** oneshot_list
+       end if
+       output = input
+    class default
+       call error_abort ("list_oneshot of an object that is not a cons_t")
+    end select
   end function list_oneshot
 
   subroutine list_discard_oneshot

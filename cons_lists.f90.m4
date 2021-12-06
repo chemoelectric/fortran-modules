@@ -196,7 +196,7 @@ module cons_lists
   public :: list_discard        ! Recursively discard an entire CONS-pair tree.
   public :: list_discard1       ! A synonym for list_discard.
 m4_if(m4_eval(2 <= LIST_DISCARDN_MAX),[1],[dnl
-  public :: list_discard2       ! Recursively discard 2 trees.
+  public :: list_discard2       ! Recursively discard 2 trees, in left-to-right order.
 m4_if(m4_eval(3 <= LIST_DISCARDN_MAX),[1],[dnl
   public :: list_discard3       ! Recursively discard 3 trees, etc.
 m4_forloop([n],[4],LIST_DISCARDN_MAX,[dnl
@@ -611,12 +611,17 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
 
   function list_oneshot (input) result (output)
-    type(cons_t) :: input
+    class(*) :: input
     type(cons_t) :: output
-    if (list_is_pair (input)) then
-       oneshot_list = input ** oneshot_list
-    end if
-    output = input
+    select type (input)
+    class is (cons_t)
+       if (list_is_pair (input)) then
+          oneshot_list = input ** oneshot_list
+       end if
+       output = input
+    class default
+       call error_abort ("list_oneshot of an object that is not a cons_t")
+    end select
   end function list_oneshot
 
   subroutine list_discard_oneshot
