@@ -829,14 +829,14 @@ contains
   end subroutine list_discard10
 
   subroutine list_deallocate_discarded
-    type(cons_t) :: p, q, entry
+    type(cons_t) :: p, q, element
     p = discard_list
     discard_list = nil_list
     do while (list_is_pair (p))
        q = cons_t_cast (cdr (p))
-       entry = cons_t_cast (car (p))
-       deallocate (entry%p)
-       nullify (entry%p)
+       element = cons_t_cast (car (p))
+       deallocate (element%p)
+       nullify (element%p)
        deallocate (p%p)
        p = q
     end do
@@ -4052,14 +4052,17 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   function list_destructive_take (lst, n) result (lst_t)
     !
-    ! This will not work as you might expect, if the input is a
-    ! circular list.
+    ! NOTE: The behavior if `lst' is circular is unspecified.
+    !
+    ! The dropped tail will be added to the discard list.
     !
     class(*), intent(in) :: lst
     integer, intent(in) :: n
     type(cons_t) :: lst_t
 
     type(cons_t) :: lst1
+    type(cons_t) :: new_last_pair
+    class(*), allocatable :: tail_to_discard
 
     if (n <= 0) then
        lst_t = nil_list
@@ -4067,8 +4070,11 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        lst_t = nil_list
     else
        lst1 = copy_first_pair (lst)
-       call set_cdr (cons_t_cast (list_drop (lst1, n - 1)), nil_list)
+       new_last_pair = cons_t_cast (list_drop (lst1, n - 1))
+       tail_to_discard = cdr (new_last_pair)
+       call set_cdr (new_last_pair, nil_list)
        lst_t = lst1
+       call list_discard (tail_to_discard)
     end if
   end function list_destructive_take
 
@@ -4134,8 +4140,6 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   function list_destructive_drop_right (lst, n) result (lst_dr)
     !
     ! FIXME: Should the result really be forced into a cons_t?
-    !
-    ! list_drop_right *copies* the elements. The result is a cons_t.
     !
     ! lst may be dotted, but must not be circular.
     !
