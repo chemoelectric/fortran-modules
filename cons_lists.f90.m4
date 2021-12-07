@@ -473,6 +473,19 @@ module cons_lists
   ! cons_t_eq(x,y) is like Scheme's `(eq? x y)' for two lists.
   public :: cons_t_eq           ! Are the two cons_t equivalent?
 
+  !
+  ! `list_discard' prepares the CONS-pairs in a tree for deallocation
+  ! by a later call to `list_deallocate_discarded'.
+  !
+  ! The `discarded' pairs might actually remain in use until the call
+  ! to `list_deallocate_discarded'! They are merely treated as `no
+  ! longer needed after the next call to
+  ! list_deallocate_discarded'. You should keep that fact in mind when
+  ! using this mechanism.
+  !
+  ! The current implementation should be able to deal with, at least,
+  ! the simpler kinds of circular references.
+  ! 
   public :: list_discard        ! Recursively discard an entire CONS-pair tree.
   public :: list_discard1       ! A synonym for list_discard.
 m4_if(m4_eval(2 <= LIST_DISCARDN_MAX),[1],[dnl
