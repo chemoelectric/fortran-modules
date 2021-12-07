@@ -32,13 +32,35 @@ module cons_types
   implicit none
   private
 
-  public :: cons_pair_t
   public :: cons_t
   public :: nil_list
-  public :: bit__cons_pair_t_discard
+
   public :: assignment(=)
 
-  integer, parameter :: bit__cons_pair_t_discard = 0
+  public :: cons_t_cast
+  public :: cons_t_eq
+
+  public :: is_nil_or_pair
+  public :: is_nil_list
+  public :: is_cons_pair
+  public :: is_not_nil_or_pair
+  public :: is_not_nil_list
+  public :: is_not_cons_pair
+
+  public :: list_is_nil
+  public :: list_is_pair
+
+  public :: cons
+  public :: uncons
+  public :: list_cons
+  public :: car
+  public :: cdr
+
+  public :: set_car
+  public :: set_cdr
+
+  public :: list_discard
+  public :: list_deallocate_discarded
 
   ! A private type representing the CAR-CDR-tuple of a CONS-pair.
   type :: cons_pair_t
@@ -61,13 +83,259 @@ module cons_types
   ! The canonical NIL-list.
   type(cons_t), parameter :: nil_list = cons_t (null ())
 
+  integer, parameter :: bit__cons_pair_t_discard = 0
+  type(cons_t) :: discard_list = nil_list
+
 contains
+
+  subroutine error_abort (msg)
+    use iso_fortran_env, only : error_unit
+    character(*), intent(in) :: msg
+    write (error_unit, '()')
+    write (error_unit, '("cons_types error: ", a)') msg
+    error stop
+  end subroutine error_abort
 
   subroutine cons_t_copy (dst, src)
     class(cons_t), intent(out) :: dst
     class(cons_t), intent(in) :: src
     dst%p => src%p
   end subroutine cons_t_copy
+
+  function cons_t_cast (obj) result (lst)
+    !
+    ! Cast to cons_t, if possible.
+    !
+    class(*), intent(in) :: obj
+    type(cons_t) :: lst
+    select type (obj)
+    class is (cons_t)
+       lst = obj
+    class default
+       call error_abort ("cons_t_cast of an incompatible object")
+    end select
+  end function cons_t_cast
+
+  function cons_t_eq (lst1, lst2) result (eq)
+    class(cons_t), intent(in) :: lst1, lst2
+    logical :: eq
+    if (associated (lst1%p)) then
+       eq = associated (lst2%p) .and. associated (lst1%p, lst2%p)
+    else
+       eq = .not. associated (lst2%p)
+    end if
+  end function cons_t_eq
+
+  function is_nil_or_pair (obj) result (is_cons)
+    class(*), intent(in) :: obj
+    logical is_cons
+    select type (obj)
+    class is (cons_t)
+       is_cons = .true.
+    class default
+       is_cons = .false.
+    end select
+  end function is_nil_or_pair
+
+  function is_nil_list (obj) result (is_nil)
+    class(*), intent(in) :: obj
+    logical is_nil
+    select type (obj)
+    class is (cons_t)
+       is_nil = .not. associated (obj%p)
+    class default
+       is_nil = .false.
+    end select
+  end function is_nil_list
+
+  function is_cons_pair (obj) result (is_pair)
+    class(*), intent(in) :: obj
+    logical is_pair
+    select type (obj)
+    class is (cons_t)
+       is_pair = associated (obj%p)
+    class default
+       is_pair = .false.
+    end select
+  end function is_cons_pair
+
+  function is_not_nil_or_pair (obj) result (is_not_cons)
+    class(*), intent(in) :: obj
+    logical :: is_not_cons
+    is_not_cons = .not. is_nil_or_pair (obj)
+  end function is_not_nil_or_pair
+
+  function is_not_nil_list (obj) result (is_not_nil)
+    class(*), intent(in) :: obj
+    logical :: is_not_nil
+    is_not_nil = .not. is_nil_list (obj)
+  end function is_not_nil_list
+
+  function is_not_cons_pair (obj) result (is_not_pair)
+    class(*), intent(in) :: obj
+    logical :: is_not_pair
+    is_not_pair = .not. is_cons_pair (obj)
+  end function is_not_cons_pair
+  
+  function list_is_nil (lst) result (is_nil)
+    class(cons_t), intent(in) :: lst
+    logical is_nil
+    is_nil = .not. associated (lst%p)
+  end function list_is_nil
+
+  function list_is_pair (lst) result (is_pair)
+    class(cons_t), intent(in) :: lst
+    logical is_pair
+    is_pair = associated (lst%p)
+  end function list_is_pair
+
+  function cons (car_value, cdr_value) result (pair)
+    class(*), intent(in) :: car_value
+    class(*), intent(in) :: cdr_value
+    type(cons_t) :: pair
+
+    type(cons_pair_t) :: car_cdr
+
+    car_cdr%car = car_value
+    car_cdr%cdr = cdr_value
+    allocate (pair%p, source = car_cdr)
+  end function cons
+
+  subroutine uncons (pair, car_value, cdr_value)
+    class(*) :: pair
+    class(*), allocatable :: car_value, cdr_value
+
+    class(*), allocatable :: car_val, cdr_val
+
+    select type (pair)
+    class is (cons_t)
+       if (list_is_pair (pair)) then
+          car_val = pair%p%car
+          cdr_val = pair%p%cdr
+       else
+          call error_abort ("uncons of nil list")
+       end if
+    class default
+       call error_abort ("uncons of an object with no pairs")
+    end select
+    car_value = car_val
+    cdr_value = cdr_val
+  end subroutine uncons
+
+  function list_cons (car_value, cdr_value) result (pair)
+    class(*), intent(in) :: car_value
+    class(cons_t), intent(in) :: cdr_value
+    type(cons_t) :: pair
+
+    type(cons_pair_t) :: car_cdr
+
+    car_cdr%car = car_value
+    car_cdr%cdr = cdr_value
+    allocate (pair%p, source = car_cdr)
+  end function list_cons
+
+  function car (pair) result (element)
+    class(*), intent(in) :: pair
+    class(*), allocatable :: element
+    select type (pair)
+    class is (cons_t)
+       if (list_is_pair (pair)) then
+          element = pair%p%car
+       else
+          call error_abort ("car of nil list")
+       end if
+    class default
+       call error_abort ("car of an object with no pairs")
+    end select
+  end function car
+
+  function cdr (pair) result (element)
+    class(*), intent(in) :: pair
+    class(*), allocatable :: element
+    select type (pair)
+    class is (cons_t)
+       if (list_is_pair (pair)) then
+          element = pair%p%cdr
+       else
+          call error_abort ("cdr of nil list")
+       end if
+    class default
+       call error_abort ("cdr of an object with no pairs")
+    end select
+  end function cdr
+
+  subroutine set_car (pair, car_value)
+    class(cons_t) :: pair
+    class(*), intent(in) :: car_value
+    if (list_is_pair (pair)) then
+       pair%p%car = car_value
+    else
+       call error_abort ("set_car of nil list")
+    end if
+  end subroutine set_car
+
+  subroutine set_cdr (pair, cdr_value)
+    class(cons_t) :: pair
+    class(*), intent(in) :: cdr_value
+    if (list_is_pair (pair)) then
+       pair%p%cdr = cdr_value
+    else
+       call error_abort ("set_cdr of nil list")
+    end if
+  end subroutine set_cdr
+
+  recursive subroutine list_discard (tree)
+    class(*) :: tree
+
+    type(cons_t) :: pair_to_discard, new_entry
+    type(cons_pair_t) :: car_cdr
+    class(*), allocatable :: the_car, the_cdr
+    logical :: done
+
+    select type (tree)
+    class is (cons_t)
+       pair_to_discard = tree
+       done = .false.
+       do while (.not. done)
+          if (.not. associated (pair_to_discard%p)) then
+             done = .true.
+          else if (btest (pair_to_discard%p%status, bit__cons_pair_t_discard)) then
+             done = .true.
+          else
+             the_car = pair_to_discard%p%car
+             the_cdr = pair_to_discard%p%cdr
+             if (.not. btest (pair_to_discard%p%status, bit__cons_pair_t_discard)) then
+                pair_to_discard%p%status = ibset (pair_to_discard%p%status, bit__cons_pair_t_discard)
+                car_cdr%car = pair_to_discard
+                car_cdr%cdr = discard_list
+                allocate (new_entry%p, source = car_cdr)
+             end if
+             select type (the_car)
+             class is (cons_t)
+                call list_discard (the_car)
+             end select
+             select type (the_cdr)
+             class is (cons_t)
+                pair_to_discard = the_cdr
+             end select
+          end if
+       end do
+    end select
+  end subroutine list_discard
+
+  subroutine list_deallocate_discarded
+    type(cons_t) :: p, q, element
+    p = discard_list
+    discard_list = nil_list
+    do while (associated (p%p))
+       q = cons_t_cast (p%p%cdr)
+       element = cons_t_cast (p%p%car)
+       deallocate (element%p)
+       nullify (element%p)
+       deallocate (p%p)
+       p = q
+    end do
+  end subroutine list_deallocate_discarded
 
 end module cons_types
 
@@ -195,7 +463,6 @@ module cons_lists
   ! cons_t_eq(x,y) is like Scheme's `(eq? x y)' for two lists.
   public :: cons_t_eq           ! Are the two cons_t equivalent?
 
-  public :: cons_t_discard      ! Discard a CONS-pair.
   public :: list_discard        ! Recursively discard an entire CONS-pair tree.
   public :: list_discard1       ! A synonym for list_discard.
   public :: list_discard2       ! Recursively discard 2 trees, in left-to-right order.
@@ -542,8 +809,6 @@ module cons_lists
      module procedure list_unfold_right_with_nil_tail
   end interface list_unfold_right
 
-  type(cons_t) :: discard_list = nil_list
-
 contains
 
   subroutine error_abort (msg)
@@ -563,120 +828,6 @@ contains
     call uncons (lst, head, tail)
     lst1 = cons (head, tail)
   end function copy_first_pair
-
-  function is_nil_or_pair (obj) result (is_cons)
-    class(*), intent(in) :: obj
-    logical is_cons
-    select type (obj)
-    class is (cons_t)
-       is_cons = .true.
-    class default
-       is_cons = .false.
-    end select
-  end function is_nil_or_pair
-
-  function is_nil_list (obj) result (is_nil)
-    class(*), intent(in) :: obj
-    logical is_nil
-    select type (obj)
-    class is (cons_t)
-       is_nil = .not. associated (obj%p)
-    class default
-       is_nil = .false.
-    end select
-  end function is_nil_list
-
-  function is_cons_pair (obj) result (is_pair)
-    class(*), intent(in) :: obj
-    logical is_pair
-    select type (obj)
-    class is (cons_t)
-       is_pair = associated (obj%p)
-    class default
-       is_pair = .false.
-    end select
-  end function is_cons_pair
-
-  function is_not_nil_or_pair (obj) result (is_not_cons)
-    class(*), intent(in) :: obj
-    logical :: is_not_cons
-    is_not_cons = .not. is_nil_or_pair (obj)
-  end function is_not_nil_or_pair
-
-  function is_not_nil_list (obj) result (is_not_nil)
-    class(*), intent(in) :: obj
-    logical :: is_not_nil
-    is_not_nil = .not. is_nil_list (obj)
-  end function is_not_nil_list
-
-  function is_not_cons_pair (obj) result (is_not_pair)
-    class(*), intent(in) :: obj
-    logical :: is_not_pair
-    is_not_pair = .not. is_cons_pair (obj)
-  end function is_not_cons_pair
-  
-  function list_is_nil (lst) result (is_nil)
-    class(cons_t), intent(in) :: lst
-    logical is_nil
-    is_nil = .not. associated (lst%p)
-  end function list_is_nil
-
-  function list_is_pair (lst) result (is_pair)
-    class(cons_t), intent(in) :: lst
-    logical is_pair
-    is_pair = associated (lst%p)
-  end function list_is_pair
-
-  function cons_t_eq (lst1, lst2) result (eq)
-    class(cons_t), intent(in) :: lst1, lst2
-    logical :: eq
-    if (associated (lst1%p)) then
-       eq = associated (lst2%p) .and. associated (lst1%p, lst2%p)
-    else
-       eq = .not. associated (lst2%p)
-    end if
-  end function cons_t_eq
-
-  subroutine cons_t_discard (pair)
-    type(cons_t) :: pair
-    if (.not. btest (pair%p%status, bit__cons_pair_t_discard)) then
-       pair%p%status = ibset (pair%p%status, bit__cons_pair_t_discard)
-       discard_list = pair ** discard_list
-    end if
-  end subroutine cons_t_discard
-
-  recursive subroutine list_discard (lst)
-    class(*) :: lst
-
-    type(cons_t) :: pair
-    class(*), allocatable :: the_car, the_cdr
-    logical :: done
-
-    select type (lst)
-    class is (cons_t)
-       pair = lst
-       done = .false.
-       do while (.not. done)
-          if (.not. associated (pair%p)) then
-             done = .true.
-          else if (btest (pair%p%status, bit__cons_pair_t_discard)) then
-             done = .true.
-          else
-             the_car = pair%p%car
-             the_cdr = pair%p%cdr
-             call cons_t_discard (pair)
-             select type (the_car)
-             class is (cons_t)
-                call list_discard (the_car)
-             end select
-             select type (the_cdr)
-             class is (cons_t)
-                pair = the_cdr
-             end select
-          end if
-       end do
-    end select
-  end subroutine list_discard
 
   subroutine list_discard1 (lst1)
     class(*) :: lst1
@@ -827,99 +978,6 @@ contains
     call list_discard (lst9)
     call list_discard (lst10)
   end subroutine list_discard10
-
-  subroutine list_deallocate_discarded
-    type(cons_t) :: p, q, element
-    p = discard_list
-    discard_list = nil_list
-    do while (list_is_pair (p))
-       q = cons_t_cast (cdr (p))
-       element = cons_t_cast (car (p))
-       deallocate (element%p)
-       nullify (element%p)
-       deallocate (p%p)
-       p = q
-    end do
-  end subroutine list_deallocate_discarded
-
-  function cons (car_value, cdr_value) result (pair)
-    class(*), intent(in) :: car_value
-    class(*), intent(in) :: cdr_value
-    type(cons_t) :: pair
-
-    type(cons_pair_t) :: car_cdr
-
-    car_cdr%car = car_value
-    car_cdr%cdr = cdr_value
-    allocate (pair%p, source = car_cdr)
-  end function cons
-
-  subroutine uncons (pair, car_value, cdr_value)
-    class(*) :: pair
-    class(*), allocatable :: car_value, cdr_value
-
-    class(*), allocatable :: car_val, cdr_val
-
-    select type (pair)
-    class is (cons_t)
-       if (list_is_pair (pair)) then
-          car_val = pair%p%car
-          cdr_val = pair%p%cdr
-       else
-          call error_abort ("uncons of nil list")
-       end if
-    class default
-       call error_abort ("uncons of an object with no pairs")
-    end select
-    car_value = car_val
-    cdr_value = cdr_val
-  end subroutine uncons
-
-  function list_cons (car_value, cdr_value) result (pair)
-    class(*), intent(in) :: car_value
-    class(cons_t), intent(in) :: cdr_value
-    type(cons_t) :: pair
-
-    type(cons_pair_t) :: car_cdr
-
-    car_cdr%car = car_value
-    car_cdr%cdr = cdr_value
-    allocate (pair%p, source = car_cdr)
-  end function list_cons
-
-  subroutine set_car (pair, car_value)
-    class(cons_t) :: pair
-    class(*), intent(in) :: car_value
-    if (list_is_pair (pair)) then
-       pair%p%car = car_value
-    else
-       call error_abort ("set_car of nil list")
-    end if
-  end subroutine set_car
-
-  subroutine set_cdr (pair, cdr_value)
-    class(cons_t) :: pair
-    class(*), intent(in) :: cdr_value
-    if (list_is_pair (pair)) then
-       pair%p%cdr = cdr_value
-    else
-       call error_abort ("set_cdr of nil list")
-    end if
-  end subroutine set_cdr
-
-  function cons_t_cast (obj) result (lst)
-    !
-    ! Cast to cons_t, if possible.
-    !
-    class(*), intent(in) :: obj
-    type(cons_t) :: lst
-    select type (obj)
-    class is (cons_t)
-       lst = obj
-    class default
-       call error_abort ("cons_t_cast of an incompatible object")
-    end select
-  end function cons_t_cast
 
   function list_length (lst) result (length)
     class(*), intent(in) :: lst
@@ -1081,36 +1139,6 @@ contains
     is_dotted = is_dot
     is_circular = is_circ
   end subroutine list_classify
-
-  function car (pair) result (element)
-    class(*), intent(in) :: pair
-    class(*), allocatable :: element
-    select type (pair)
-    class is (cons_t)
-       if (list_is_pair (pair)) then
-          element = pair%p%car
-       else
-          call error_abort ("car of nil list")
-       end if
-    class default
-       call error_abort ("car of an object with no pairs")
-    end select
-  end function car
-
-  function cdr (pair) result (element)
-    class(*), intent(in) :: pair
-    class(*), allocatable :: element
-    select type (pair)
-    class is (cons_t)
-       if (list_is_pair (pair)) then
-          element = pair%p%cdr
-       else
-          call error_abort ("cdr of nil list")
-       end if
-    class default
-       call error_abort ("cdr of an object with no pairs")
-    end select
-  end function cdr
 
   function caar (tree) result (element)
     class(*), intent(in) :: tree
