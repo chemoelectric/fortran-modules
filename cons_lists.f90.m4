@@ -46,6 +46,7 @@ module cons_types
   public :: cons_t
   public :: nil_list
   public :: bit__cons_pair_t_discard
+  public :: assignment(=)
 
   integer, parameter :: bit__cons_pair_t_discard = 0
 
@@ -53,8 +54,8 @@ module cons_types
   type :: cons_pair_t
      class(*), allocatable :: car
      class(*), allocatable :: cdr
-     integer :: refcount
-     integer :: status
+     integer :: refcount = 1
+     integer :: status = 0
   end type cons_pair_t
 
   ! A public type that is a NIL-list or a reference to a
@@ -62,10 +63,45 @@ module cons_types
   ! `class(cons_t)'.
   type :: cons_t
      class(cons_pair_t), pointer :: p => null ()
+   contains
+     private
+     procedure, pass(dst) :: cons_t_copy
+!!$     procedure, pass(this) :: cons_t_destroy
+     generic, public :: assignment(=) => cons_t_copy
+!!$     generic, public :: destroy => cons_t_destroy
   end type cons_t
 
   ! The canonical NIL-list.
   type(cons_t), parameter :: nil_list = cons_t (null ())
+
+contains
+
+  subroutine cons_t_copy (dst, src)
+    class(cons_t), intent(out) :: dst
+    class(cons_t), intent(in) :: src
+
+    class(cons_pair_t), pointer :: p
+
+    p => src%p
+    dst%p => p
+    if (associated (p)) then
+       p%refcount = p%refcount + 1
+    end if
+  end subroutine cons_t_copy
+
+!!$  recursive subroutine cons_t_destroy (this)
+!!$    !
+!!$    ! FIXME: Currently this cannot handle circular lists.
+!!$    !
+!!$    class(cons_t) :: this
+!!$
+!!$    class(cons_pair_t), pointer :: p
+!!$
+!!$    p => this%p
+!!$    if (associated (p)) then
+!!$       ! FIXME
+!!$    end if
+!!$  end subroutine cons_t_destroy
 
 end module cons_types
 
@@ -631,7 +667,6 @@ m4_forloop([k],[1],n,[dnl
 
     car_cdr%car = car_value
     car_cdr%cdr = cdr_value
-    car_cdr%status = 0
     allocate (pair%p, source = car_cdr)
   end function cons
 
@@ -1047,19 +1082,19 @@ dnl
 
   function iota_given_length (length) result (lst)
     integer, intent(in) :: length
-    class(cons_t), allocatable :: lst
+    type(cons_t) :: lst
     lst = iota_given_length_start_step (length, 0, 1)
   end function iota_given_length
 
   function iota_given_length_start (length, start) result (lst)
     integer, intent(in) :: length, start
-    class(cons_t), allocatable :: lst
+    type(cons_t) :: lst
     lst = iota_given_length_start_step (length, start, 1)
   end function iota_given_length_start
 
   function iota_given_length_start_step (length, start, step) result (lst)
     integer, intent(in) :: length, start, step
-    class(cons_t), allocatable :: lst
+    type(cons_t) :: lst
 
     integer :: i, n
 
