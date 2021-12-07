@@ -45,14 +45,15 @@ module cons_types
   public :: cons_pair_t
   public :: cons_t
   public :: nil_list
-  public :: bit__cons_pair_t_garbage
+  public :: bit__cons_pair_t_discard
 
-  integer, parameter :: bit__cons_pair_t_garbage = 0
+  integer, parameter :: bit__cons_pair_t_discard = 0
 
   ! A private type representing the CAR-CDR-tuple of a CONS-pair.
   type :: cons_pair_t
      class(*), allocatable :: car
      class(*), allocatable :: cdr
+     integer :: refcount
      integer :: status
   end type cons_pair_t
 
@@ -447,7 +448,7 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
      module procedure list_unfold_right_with_nil_tail
   end interface list_unfold_right
 
-  type(cons_t) :: garbage_list = nil_list
+  type(cons_t) :: discard_list = nil_list
 
 contains
 
@@ -555,9 +556,9 @@ dnl
 
   subroutine cons_t_discard (pair)
     type(cons_t) :: pair
-    if (.not. btest (pair%p%status, bit__cons_pair_t_garbage)) then
-       pair%p%status = ibset (pair%p%status, bit__cons_pair_t_garbage)
-       garbage_list = pair ** garbage_list
+    if (.not. btest (pair%p%status, bit__cons_pair_t_discard)) then
+       pair%p%status = ibset (pair%p%status, bit__cons_pair_t_discard)
+       discard_list = pair ** discard_list
     end if
   end subroutine cons_t_discard
 
@@ -575,7 +576,7 @@ dnl
        do while (.not. done)
           if (.not. associated (pair%p)) then
              done = .true.
-          else if (btest (pair%p%status, bit__cons_pair_t_garbage)) then
+          else if (btest (pair%p%status, bit__cons_pair_t_discard)) then
              done = .true.
           else
              the_car = pair%p%car
@@ -609,8 +610,8 @@ m4_forloop([k],[1],n,[dnl
 
   subroutine list_deallocate_discarded
     type(cons_t) :: p, q, entry
-    p = garbage_list
-    garbage_list = nil_list
+    p = discard_list
+    discard_list = nil_list
     do while (list_is_pair (p))
        q = cons_t_cast (cdr (p))
        entry = cons_t_cast (car (p))
