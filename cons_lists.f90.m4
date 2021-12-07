@@ -54,7 +54,6 @@ module cons_types
   type :: cons_pair_t
      class(*), allocatable :: car
      class(*), allocatable :: cdr
-     integer :: refcount = 1
      integer :: status = 0
   end type cons_pair_t
 
@@ -66,9 +65,7 @@ module cons_types
    contains
      private
      procedure, pass(dst) :: cons_t_copy
-!!$     procedure, pass(this) :: cons_t_destroy
      generic, public :: assignment(=) => cons_t_copy
-!!$     generic, public :: destroy => cons_t_destroy
   end type cons_t
 
   ! The canonical NIL-list.
@@ -79,29 +76,8 @@ contains
   subroutine cons_t_copy (dst, src)
     class(cons_t), intent(out) :: dst
     class(cons_t), intent(in) :: src
-
-    class(cons_pair_t), pointer :: p
-
-    p => src%p
-    dst%p => p
-    if (associated (p)) then
-       p%refcount = p%refcount + 1
-    end if
+    dst%p => src%p
   end subroutine cons_t_copy
-
-!!$  recursive subroutine cons_t_destroy (this)
-!!$    !
-!!$    ! FIXME: Currently this cannot handle circular lists.
-!!$    !
-!!$    class(cons_t) :: this
-!!$
-!!$    class(cons_pair_t), pointer :: p
-!!$
-!!$    p => this%p
-!!$    if (associated (p)) then
-!!$       ! FIXME
-!!$    end if
-!!$  end subroutine cons_t_destroy
 
 end module cons_types
 
