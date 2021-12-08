@@ -269,6 +269,31 @@ contains
 
   end subroutine mark_from_roots
 
+  subroutine sweep
+    integer :: addr
+
+    do addr = 1, size (heap%pairs)
+       if (btest (heap%pairs(addr)%status, mark_bit)) then
+          ! Reachable.
+          heap%pairs(addr)%status = ibclr (heap%pairs(addr)%status, mark_bit)
+       else
+          ! Unreachable.
+          if (allocated (heap%pairs(addr)%car)) then
+             deallocate (heap%pairs(addr)%car)
+          end if
+          if (allocated (heap%pairs(addr)%cdr)) then
+             deallocate (heap%pairs(addr)%cdr)
+          end if
+          block                 ! Return the entry to the free list.
+            integer :: tmp
+            tmp = heap%free_list
+            heap%free_list = addr
+            heap%pairs(addr)%next = tmp
+          end block
+       end if
+    end do
+  end subroutine sweep
+
 end module NEW_cons_types
 
 module cons_types
