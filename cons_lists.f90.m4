@@ -103,6 +103,13 @@ contains
   end function growth_function
 
   subroutine expand_heap
+
+    ! FIXME:
+    ! FIXME: Detect if size would overflow, set to maximum instead. Beyond that, out of memory error.
+    ! FIXME:
+    ! FIXME: Detect allocation failure. Treat as out of memory error.
+    ! FIXME:
+
     type(cons_pair_t), dimension(:), allocatable :: new_pairs
     integer :: n_old, n_new
     integer :: i
@@ -129,6 +136,13 @@ contains
   end subroutine expand_heap
 
   subroutine expand_roots
+
+    ! FIXME:
+    ! FIXME: Detect if size would overflow, set to maximum instead. Beyond that, out of memory error.
+    ! FIXME:
+    ! FIXME: Detect allocation failure. Treat as out of memory error.
+    ! FIXME:
+
     type(cons_t), dimension(:), allocatable :: new_lists
     integer :: n_old, n_new
     integer :: i
@@ -281,7 +295,6 @@ contains
 
   subroutine sweep
     integer :: addr
-
     do addr = 1, size (heap%pairs)
        if (btest (heap%pairs(addr)%status, mark_bit)) then
           ! Reachable.
