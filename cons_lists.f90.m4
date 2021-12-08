@@ -34,7 +34,8 @@ dnl
 
 module NEW_cons_types ! FIXME: This will replace the original ‘cons_types’.
   !
-  ! Lisp-style CONS-pairs for Fortran, with garbage collection.
+  ! Lisp-style CONS-pairs for Fortran, with a simple mark-and-sweep
+  ! garbage collector.
   !
   ! Please use module cons_lists, rather than this module directly.
   !
@@ -55,7 +56,8 @@ module NEW_cons_types ! FIXME: This will replace the original ‘cons_types’.
   type :: cons_pair_t
      class(*), allocatable :: car
      class(*), allocatable :: cdr
-     integer :: status ! Status bits, or free list link, or work list link.
+     integer :: status ! Status bits.
+     integer :: next   ! The next entry in the free list or a work list.
   end type cons_pair_t
 
   type :: cons_t
@@ -100,9 +102,7 @@ contains
     n = 2 * m                   ! Double the size of the array.
   end function growth_function
 
-  subroutine expand_heap (heap)
-    type(heap_t), intent(inout) :: heap
-
+  subroutine expand_heap
     type(cons_pair_t), dimension(:), allocatable :: new_pairs
     integer :: n_old, n_new
     integer :: i
@@ -122,15 +122,13 @@ contains
 
     ! Add the new pairs to the free list.
     do i = n_old + 1, n_new - 1
-       heap%pairs(i)%status = i
+       heap%pairs(i)%next = i
     end do
-    heap%pairs(n_new)%status = heap%free_list
+    heap%pairs(n_new)%next = heap%free_list
     heap%free_list = n_old + 1
   end subroutine expand_heap
 
-  subroutine expand_roots (roots)
-    type(roots_t), intent(inout) :: roots
-
+  subroutine expand_roots
     type(cons_t), dimension(:), allocatable :: new_lists
     integer :: n_old, n_new
     integer :: i
@@ -164,7 +162,7 @@ contains
 
     ! Add the new cons_t to the roots list.
     if (roots%free_list == nil_address) then
-       call expand_roots (roots)
+       call expand_roots
     end if
     dst%here = roots%free_list
     roots%free_list = roots%lists(dst%here)%next
@@ -207,6 +205,79 @@ contains
     type(cons_t) :: this
     call cons_t_discard (this)
   end subroutine cons_t_finalize
+
+  subroutine mark_from_roots
+    integer :: work_list
+    integer :: addr
+
+    work_list = nil_address
+
+    addr = roots%roots_list
+    do while (addr /= nil_address)
+       if (.not. btest (heap%pairs(addr)%status, mark_bit)) then
+          heap%pairs(addr)%status = ibset (heap%pairs(addr)%status, mark_bit)
+          block
+            ! Add the root to the work list.
+            integer :: tmp
+            tmp = work_list
+            work_list = addr
+            roots%lists(addr)%next = tmp            
+          end block
+          call mark_reachables
+       end if
+       addr = roots%lists(addr)%next
+    end do
+
+  contains
+
+    subroutine mark_reachables
+      integer :: addr, addr1
+
+      do while (work_list /= nil_address)
+         addr = work_list       ! Get the head of the work list.
+         work_list = roots%lists(addr)%next ! Remove the head.
+         block                  ! Add the addr to the free list.
+           integer :: tmp
+           tmp = roots%free_list
+           roots%free_list = addr
+           roots%lists(addr)%next = tmp
+         end block
+
+         select type (car => heap%pairs(addr)%car)
+         class is (cons_t)
+            addr1 = car%pair
+            if (addr1 /= nil_address) then
+               if (.not. btest (heap%pairs(addr1)%status, mark_bit)) then
+                  heap%pairs(addr1)%status = ibset (heap%pairs(addr1)%status, mark_bit)
+                  block         ! Add addr1 to the work list.
+                    integer :: tmp
+                    tmp = work_list
+                    work_list = addr1
+                    roots%lists(addr1)%next = tmp
+                  end block
+               end if
+            end if
+         end select
+
+         select type (cdr => heap%pairs(addr)%cdr)
+         class is (cons_t)
+            addr1 = cdr%pair
+            if (addr1 /= nil_address) then
+               if (.not. btest (heap%pairs(addr1)%status, mark_bit)) then
+                  heap%pairs(addr1)%status = ibset (heap%pairs(addr1)%status, mark_bit)
+                  block         ! Add addr1 to the work list.
+                    integer :: tmp
+                    tmp = work_list
+                    work_list = addr1
+                    roots%lists(addr1)%next = tmp
+                  end block
+               end if
+            end if
+         end select
+      end do
+    end subroutine mark_reachables
+
+  end subroutine mark_from_roots
 
 end module NEW_cons_types
 
