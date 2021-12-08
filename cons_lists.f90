@@ -22,6 +22,184 @@
 ! CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
 
+module NEW_cons_types ! FIXME: This will replace the original  cons_types .
+  !
+  ! Lisp-style CONS-pairs for Fortran, with garbage collection.
+  !
+  ! Please use module cons_lists, rather than this module directly.
+  !
+
+  implicit none
+  private
+
+  public :: cons_t
+  public :: nil_list
+  public :: assignment(=)
+
+  integer, parameter :: initial_heap_size = 2 ** 8
+  integer, parameter :: initial_roots_size = 2 ** 8
+  integer, parameter :: nil_address = 0
+  integer, parameter :: mark_bit = 0
+
+  ! A private type representing the CAR-CDR-tuple of a CONS-pair.
+  type :: cons_pair_t
+     class(*), allocatable :: car
+     class(*), allocatable :: cdr
+     integer :: status ! Status bits, or free list link, or work list link.
+  end type cons_pair_t
+
+  type :: cons_t
+     integer :: pair = nil_address ! Address of a cons_pair_t in the heap.
+     integer :: here = nil_address ! Where I am in the roots_t table.
+     integer :: prev = nil_address ! Previous entry in a roots list.
+     integer :: next = nil_address ! Next entry in a roots list.
+   contains
+     private
+     procedure, pass(dst) :: cons_t_copy
+     procedure, pass(this) :: cons_t_discard
+     generic, public :: assignment(=) => cons_t_copy
+     generic, public :: discard => cons_t_discard
+     final :: cons_t_finalize
+  end type cons_t
+
+  type :: heap_t
+     type(cons_pair_t), dimension(:), allocatable :: pairs
+     integer :: free_list = nil_address
+  end type heap_t
+
+  type :: roots_t
+     type(cons_t), dimension(:), allocatable :: lists
+     integer :: roots_list = nil_address
+     integer :: free_list = nil_address
+  end type roots_t
+
+  type(heap_t) :: heap = heap_t ()
+  type(roots_t) :: roots = roots_t ()
+
+  ! The canonical nil list.
+  type(cons_t), parameter :: nil_list = cons_t ()
+
+contains
+
+  function growth_function (m) result (n)
+    !
+    ! How to increase the size of array storage.
+    !
+    integer, intent(in) :: m
+    integer :: n
+    n = 2 * m                   ! Double the size of the array.
+  end function growth_function
+
+  subroutine expand_heap (heap)
+    type(heap_t), intent(inout) :: heap
+
+    type(cons_pair_t), dimension(:), allocatable :: new_pairs
+    integer :: n_old, n_new
+    integer :: i
+
+    if (.not. allocated (heap%pairs)) then
+       n_old = 0
+       n_new = initial_heap_size
+       allocate (heap%pairs(1:n_new))
+    else
+       ! Move the pairs to a larger array.
+       n_old = size (heap%pairs)
+       n_new = growth_function (n_old)
+       allocate (new_pairs(1:n_new))
+       new_pairs(1:n_old) = heap%pairs
+       call move_alloc (new_pairs, heap%pairs)
+    end if
+
+    ! Add the new pairs to the free list.
+    do i = n_old + 1, n_new - 1
+       heap%pairs(i)%status = i
+    end do
+    heap%pairs(n_new)%status = heap%free_list
+    heap%free_list = n_old + 1
+  end subroutine expand_heap
+
+  subroutine expand_roots (roots)
+    type(roots_t), intent(inout) :: roots
+
+    type(cons_t), dimension(:), allocatable :: new_lists
+    integer :: n_old, n_new
+    integer :: i
+
+    if (.not. allocated (roots%lists)) then
+       n_old = 0
+       n_new = initial_roots_size
+       allocate (roots%lists(1:n_new))
+    else
+       ! Move the lists to a larger array.
+       n_old = size (roots%lists)
+       n_new = growth_function (n_old)
+       allocate (new_lists(1:n_new))
+       new_lists(1:n_old) = roots%lists
+       call move_alloc (new_lists, roots%lists)
+    end if
+
+    ! Add the new lists to the free list.
+    do i = n_old + 1, n_new - 1
+       roots%lists(i)%next = i
+    end do
+    roots%lists(n_new)%next = roots%free_list
+    roots%free_list = n_old + 1
+  end subroutine expand_roots
+
+  subroutine cons_t_copy (dst, src)
+    class(cons_t), intent(out), target :: dst
+    class(cons_t), intent(in) :: src
+
+    dst%pair = src%pair
+
+    ! Add the new cons_t to the roots list.
+    if (roots%free_list == nil_address) then
+       call expand_roots (roots)
+    end if
+    dst%here = roots%free_list
+    roots%free_list = roots%lists(dst%here)%next
+    block
+      integer :: tmp
+      tmp = roots%roots_list
+      roots%roots_list = dst%here
+      dst%prev = 0
+      dst%next = tmp
+    end block
+  end subroutine cons_t_copy
+
+  subroutine cons_t_discard (this)
+    class(cons_t), intent(inout) :: this
+
+    ! If `this' is a root, remove it from the roots list.
+    if (this%here /= nil_address) then
+       roots%lists(this%prev)%next = this%next
+       roots%lists(this%next)%prev = this%prev
+
+       ! Return its array entry to the free list.
+       block
+         integer :: tmp
+         tmp = roots%free_list
+         roots%free_list = this%here
+         this%here = tmp
+       end block
+
+       ! Make it safe to call cons_t_discard again.
+       this%here = nil_address
+       this%prev = nil_address
+       this%next = nil_address
+
+       ! Make `this' a nil list.
+       this%pair = nil_address
+    end if
+  end subroutine cons_t_discard
+
+  subroutine cons_t_finalize (this)
+    type(cons_t) :: this
+    call cons_t_discard (this)
+  end subroutine cons_t_finalize
+
+end module NEW_cons_types
+
 module cons_types
   !
   ! Lisp-style CONS-pairs for Fortran.
