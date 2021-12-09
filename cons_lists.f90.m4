@@ -93,15 +93,29 @@ module NEW_cons_types ! FIXME: This will replace the original ‘cons_types’.
   ! The canonical nil list.
   type(cons_t), parameter :: nil_list = cons_t ()
 
+  interface error_abort
+     module procedure error_abort_1
+     module procedure error_abort_2
+  end interface error_abort
+
 contains
   
-  subroutine error_abort (msg)
+  subroutine error_abort_1 (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
     write (error_unit, '()')
     write (error_unit, '("cons_types error: ", a)') msg
     error stop
-  end subroutine error_abort
+  end subroutine error_abort_1
+
+  subroutine error_abort_2 (msg, error_status)
+    use iso_fortran_env, only : error_unit
+    character(*), intent(in) :: msg
+    integer, intent(in) :: error_status
+    write (error_unit, '()')
+    write (error_unit, '("cons_types error: ", a, " with status code ", i3)') msg, error_status
+    error stop
+  end subroutine error_abort_2
 
   function growth_function (m) result (n)
     !
@@ -140,7 +154,7 @@ contains
        n_new = initial_heap_size
        allocate (heap%pairs(1:n_new), stat = error_status)
        if (error_status /= 0) then
-          call error_abort ("virtual memory exhausted")
+          call error_abort ("virtual memory exhausted", error_status)
        end if
     else
        ! Move the pairs to a larger array.
@@ -148,7 +162,7 @@ contains
        n_new = growth_function (n_old)
        allocate (new_pairs(1:n_new), stat = error_status)
        if (error_status /= 0) then
-          call error_abort ("virtual memory exhausted")
+          call error_abort ("virtual memory exhausted", error_status)
        end if
        new_pairs(1:n_old) = heap%pairs
        call move_alloc (new_pairs, heap%pairs)
@@ -173,7 +187,7 @@ contains
        n_new = initial_roots_size
        allocate (roots%lists(1:n_new), stat = error_status)
        if (error_status /= 0) then
-          call error_abort ("virtual memory exhausted")
+          call error_abort ("virtual memory exhausted", error_status)
        end if
     else
        ! Move the lists to a larger array.
@@ -181,7 +195,7 @@ contains
        n_new = growth_function (n_old)
        allocate (new_lists(1:n_new), stat = error_status)
        if (error_status /= 0) then
-          call error_abort ("virtual memory exhausted")
+          call error_abort ("virtual memory exhausted", error_status)
        end if
        new_lists(1:n_old) = roots%lists
        call move_alloc (new_lists, roots%lists)
@@ -322,6 +336,7 @@ contains
 
   subroutine sweep
     integer :: addr
+    integer :: error_status
     do addr = 1, size (heap%pairs)
        if (btest (heap%pairs(addr)%status, mark_bit)) then
           ! Reachable.
@@ -329,10 +344,16 @@ contains
        else
           ! Unreachable.
           if (allocated (heap%pairs(addr)%car)) then
-             deallocate (heap%pairs(addr)%car)
+             deallocate (heap%pairs(addr)%car, stat = error_status)
+             if (error_status /= 0) then
+                call error_abort ("deallocation failed", error_status)
+             end if
           end if
           if (allocated (heap%pairs(addr)%cdr)) then
-             deallocate (heap%pairs(addr)%cdr)
+             deallocate (heap%pairs(addr)%cdr, stat = error_status)
+             if (error_status /= 0) then
+                call error_abort ("deallocation failed", error_status)
+             end if
           end if
           block                 ! Return the entry to the free list.
             integer :: tmp
