@@ -32,7 +32,7 @@ dnl size with the -B option.
 dnl
 dnl
 
-module NEW_cons_types ! FIXME: This will replace the original ‘cons_types’.
+module cons_types ! FIXME: This will replace the original ‘cons_types’.
   !
   ! Lisp-style CONS-pairs for Fortran, with a simple mark-and-sweep
   ! garbage collector.
@@ -58,7 +58,12 @@ module NEW_cons_types ! FIXME: This will replace the original ‘cons_types’.
   public :: is_not_cons_pair    ! Logical inverse (that is, .NOT.) of is_cons_pair.
   public :: list_is_nil         ! Is a cons_t nil?
   public :: list_is_pair        ! Does a cons_t refer to a CONS-pair? (That is, is it non-nil?)
-  public :: cons                ! The fundamental constructor.
+  public :: cons                ! The fundamental constructor: make a CAR-CDR pair.
+  public :: uncons              ! The fundamental deconstructor: get the CAR and CDR from a pair.
+  public :: get_car             ! Get just the CAR.
+  public :: get_cdr             ! Get just the CDR.
+  public :: set_car             ! Change the CAR.
+  public :: set_cdr             ! Change the CDR.
   
   ! For the common case of 32-bit Fortran numerics,
   ! almost_max_storage=1073741824 and max_storage=2147483647. That is
@@ -261,6 +266,99 @@ contains
       dst%next = tmp
     end block
   end function cons
+
+  subroutine uncons (lst, car_value, cdr_value)
+    class(*) :: lst
+    class(*), allocatable :: car_value, cdr_value
+
+    class(*), allocatable :: car_val, cdr_val
+    integer :: addr
+
+    select type (lst)
+    class is (cons_t)
+       if (list_is_pair (lst)) then
+          addr = lst%pair
+          car_val = heap%pairs(addr)%car
+          cdr_val = heap%pairs(addr)%cdr
+       else
+          call error_abort ("uncons of nil list")
+       end if
+    class default
+       call error_abort ("uncons of an object with no pairs")
+    end select
+    car_value = car_val
+    cdr_value = cdr_val
+  end subroutine uncons
+
+  subroutine get_car (lst, car_value)
+    class(*) :: lst
+    class(*), allocatable :: car_value
+
+    class(*), allocatable :: car_val
+    integer :: addr
+
+    select type (lst)
+    class is (cons_t)
+       if (list_is_pair (lst)) then
+          addr = lst%pair
+          car_val = heap%pairs(addr)%car
+       else
+          call error_abort ("get_car of nil list")
+       end if
+    class default
+       call error_abort ("get_car of an object with no pairs")
+    end select
+    car_value = car_val
+  end subroutine get_car
+
+  subroutine get_cdr (lst, cdr_value)
+    class(*) :: lst
+    class(*), allocatable :: cdr_value
+
+    class(*), allocatable :: cdr_val
+    integer :: addr
+
+    select type (lst)
+    class is (cons_t)
+       if (list_is_pair (lst)) then
+          addr = lst%pair
+          cdr_val = heap%pairs(addr)%cdr
+       else
+          call error_abort ("get_cdr of nil list")
+       end if
+    class default
+       call error_abort ("get_cdr of an object with no pairs")
+    end select
+    cdr_value = cdr_val
+  end subroutine get_cdr
+
+  subroutine set_car (lst, car_value)
+    class(cons_t) :: lst
+    class(*), intent(in) :: car_value
+
+    integer :: addr
+
+    if (list_is_pair (lst)) then
+       addr = lst%pair
+       heap%pairs(addr)%car = car_value
+    else
+       call error_abort ("set_car of nil list")
+    end if
+  end subroutine set_car
+
+  subroutine set_cdr (lst, cdr_value)
+    class(cons_t) :: lst
+    class(*), intent(in) :: cdr_value
+
+    integer :: addr
+
+    if (list_is_pair (lst)) then
+       addr = lst%pair
+       heap%pairs(addr)%car = cdr_value
+    else
+       call error_abort ("set_cdr of nil list")
+    end if
+  end subroutine set_cdr
 
   subroutine collect_garbage
     call mark_from_roots
@@ -534,9 +632,9 @@ contains
     end do
   end subroutine sweep
 
-end module NEW_cons_types
+end module cons_types
 
-module cons_types
+module OLD_cons_types ! FIXME
   !
   ! Lisp-style CONS-pairs for Fortran.
   !
@@ -838,7 +936,7 @@ contains
     end do
   end subroutine list_deallocate_discarded
 
-end module cons_types
+end module OLD_cons_types
 
 module cons_procedure_types
   !
@@ -964,31 +1062,31 @@ module cons_lists
   ! cons_t_eq(x,y) is like Scheme's `(eq? x y)' for two lists.
   public :: cons_t_eq           ! Are the two cons_t equivalent?
 
-  !
-  ! `list_discard' prepares the CONS-pairs in a tree for deallocation
-  ! by a later call to `list_deallocate_discarded'.
-  !
-  ! The `discarded' pairs might actually remain in use until the call
-  ! to `list_deallocate_discarded'! They are merely treated as `no
-  ! longer needed after the next call to
-  ! list_deallocate_discarded'. You should keep that fact in mind when
-  ! using this mechanism.
-  !
-  ! The current implementation should be able to deal with, at least,
-  ! the simpler kinds of circular references.
-  ! 
-  public :: list_discard        ! Recursively discard an entire CONS-pair tree.
-  public :: list_discard1       ! A synonym for list_discard.
-m4_if(m4_eval(2 <= LIST_DISCARDN_MAX),[1],[dnl
-  public :: list_discard2       ! Recursively discard 2 trees, in left-to-right order.
-m4_if(m4_eval(3 <= LIST_DISCARDN_MAX),[1],[dnl
-  public :: list_discard3       ! Recursively discard 3 trees, etc.
-m4_forloop([n],[4],LIST_DISCARDN_MAX,[dnl
-  public :: list_discard[]n
-])dnl
-])dnl
-])dnl
-  public :: list_deallocate_discarded ! Deallocate discarded CONS-pairs.
+!!$  !
+!!$  ! `list_discard' prepares the CONS-pairs in a tree for deallocation
+!!$  ! by a later call to `list_deallocate_discarded'.
+!!$  !
+!!$  ! The `discarded' pairs might actually remain in use until the call
+!!$  ! to `list_deallocate_discarded'! They are merely treated as `no
+!!$  ! longer needed after the next call to
+!!$  ! list_deallocate_discarded'. You should keep that fact in mind when
+!!$  ! using this mechanism.
+!!$  !
+!!$  ! The current implementation should be able to deal with, at least,
+!!$  ! the simpler kinds of circular references.
+!!$  ! 
+!!$  public :: list_discard        ! Recursively discard an entire CONS-pair tree.
+!!$  public :: list_discard1       ! A synonym for list_discard.
+!!$m4_if(m4_eval(2 <= LIST_DISCARDN_MAX),[1],[dnl
+!!$  public :: list_discard2       ! Recursively discard 2 trees, in left-to-right order.
+!!$m4_if(m4_eval(3 <= LIST_DISCARDN_MAX),[1],[dnl
+!!$  public :: list_discard3       ! Recursively discard 3 trees, etc.
+!!$m4_forloop([n],[4],LIST_DISCARDN_MAX,[dnl
+!!$  public :: list_discard[]n
+!!$])dnl
+!!$])dnl
+!!$])dnl
+!!$  public :: list_deallocate_discarded ! Deallocate discarded CONS-pairs.
 
   public :: cons                ! The fundamental CONS-pair constructor.
   public :: uncons              ! The fundamental CONS-pair deconstructor.
@@ -1261,19 +1359,19 @@ dnl
     call uncons (lst, head, tail)
     lst1 = cons (head, tail)
   end function copy_first_pair
-dnl
-m4_forloop([n],[1],LIST_DISCARDN_MAX,[
-  subroutine list_discard[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
-])lst[]k]))
-m4_forloop([k],[1],n,[dnl
-    class(*) :: lst[]k
-])dnl
-
-m4_forloop([k],[1],n,[dnl
-    call list_discard (lst[]k)
-])dnl
-  end subroutine list_discard[]n
-])dnl
+!!$dnl
+!!$m4_forloop([n],[1],LIST_DISCARDN_MAX,[
+!!$  subroutine list_discard[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+!!$])lst[]k]))
+!!$m4_forloop([k],[1],n,[dnl
+!!$    class(*) :: lst[]k
+!!$])dnl
+!!$
+!!$m4_forloop([k],[1],n,[dnl
+!!$    call list_discard (lst[]k)
+!!$])dnl
+!!$  end subroutine list_discard[]n
+!!$])dnl
 
   function list_cons (car_value, cdr_value) result (pair)
     class(*), intent(in) :: car_value
@@ -1281,6 +1379,18 @@ m4_forloop([k],[1],n,[dnl
     type(cons_t) :: pair
     pair = cons (car_value, cdr_value)
   end function list_cons
+
+  function car (pair) result (car_value)
+    class(*), intent(in) :: pair
+    class(*), allocatable :: car_value
+    call get_car (pair, car_value)
+  end function car
+
+  function cdr (pair) result (cdr_value)
+    class(*), intent(in) :: pair
+    class(*), allocatable :: cdr_value
+    call get_cdr (pair, cdr_value)
+  end function cdr
 
   function list_length (lst) result (length)
     class(*), intent(in) :: lst
@@ -1860,15 +1970,15 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
     !
     ! NOTE: The behavior if `lst' is circular is unspecified.
     !
-    ! The dropped tail will be added to the discard list.
-    !
+!!$    ! The dropped tail will be added to the discard list.
+!!$    !
     class(*), intent(in) :: lst
     integer, intent(in) :: n
     type(cons_t) :: lst_t
 
     type(cons_t) :: lst1
     type(cons_t) :: new_last_pair
-    class(*), allocatable :: tail_to_discard
+!!$    class(*), allocatable :: tail_to_discard
 
     if (n <= 0) then
        lst_t = nil_list
@@ -1877,10 +1987,10 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
     else
        lst1 = copy_first_pair (lst)
        new_last_pair = cons_t_cast (list_drop (lst1, n - 1))
-       tail_to_discard = cdr (new_last_pair)
+!!$       tail_to_discard = cdr (new_last_pair)
        call set_cdr (new_last_pair, nil_list)
        lst_t = lst1
-       call list_discard (tail_to_discard)
+!!$       call list_discard (tail_to_discard)
     end if
   end function list_destructive_take
 

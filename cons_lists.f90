@@ -22,7 +22,7 @@
 ! CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
 
-module NEW_cons_types ! FIXME: This will replace the original  cons_types .
+module cons_types ! FIXME: This will replace the original  cons_types .
   !
   ! Lisp-style CONS-pairs for Fortran, with a simple mark-and-sweep
   ! garbage collector.
@@ -48,7 +48,12 @@ module NEW_cons_types ! FIXME: This will replace the original  cons_types .
   public :: is_not_cons_pair    ! Logical inverse (that is, .NOT.) of is_cons_pair.
   public :: list_is_nil         ! Is a cons_t nil?
   public :: list_is_pair        ! Does a cons_t refer to a CONS-pair? (That is, is it non-nil?)
-  public :: cons                ! The fundamental constructor.
+  public :: cons                ! The fundamental constructor: make a CAR-CDR pair.
+  public :: uncons              ! The fundamental deconstructor: get the CAR and CDR from a pair.
+  public :: get_car             ! Get just the CAR.
+  public :: get_cdr             ! Get just the CDR.
+  public :: set_car             ! Change the CAR.
+  public :: set_cdr             ! Change the CDR.
   
   ! For the common case of 32-bit Fortran numerics,
   ! almost_max_storage=1073741824 and max_storage=2147483647. That is
@@ -251,6 +256,99 @@ contains
       dst%next = tmp
     end block
   end function cons
+
+  subroutine uncons (lst, car_value, cdr_value)
+    class(*) :: lst
+    class(*), allocatable :: car_value, cdr_value
+
+    class(*), allocatable :: car_val, cdr_val
+    integer :: addr
+
+    select type (lst)
+    class is (cons_t)
+       if (list_is_pair (lst)) then
+          addr = lst%pair
+          car_val = heap%pairs(addr)%car
+          cdr_val = heap%pairs(addr)%cdr
+       else
+          call error_abort ("uncons of nil list")
+       end if
+    class default
+       call error_abort ("uncons of an object with no pairs")
+    end select
+    car_value = car_val
+    cdr_value = cdr_val
+  end subroutine uncons
+
+  subroutine get_car (lst, car_value)
+    class(*) :: lst
+    class(*), allocatable :: car_value
+
+    class(*), allocatable :: car_val
+    integer :: addr
+
+    select type (lst)
+    class is (cons_t)
+       if (list_is_pair (lst)) then
+          addr = lst%pair
+          car_val = heap%pairs(addr)%car
+       else
+          call error_abort ("get_car of nil list")
+       end if
+    class default
+       call error_abort ("get_car of an object with no pairs")
+    end select
+    car_value = car_val
+  end subroutine get_car
+
+  subroutine get_cdr (lst, cdr_value)
+    class(*) :: lst
+    class(*), allocatable :: cdr_value
+
+    class(*), allocatable :: cdr_val
+    integer :: addr
+
+    select type (lst)
+    class is (cons_t)
+       if (list_is_pair (lst)) then
+          addr = lst%pair
+          cdr_val = heap%pairs(addr)%cdr
+       else
+          call error_abort ("get_cdr of nil list")
+       end if
+    class default
+       call error_abort ("get_cdr of an object with no pairs")
+    end select
+    cdr_value = cdr_val
+  end subroutine get_cdr
+
+  subroutine set_car (lst, car_value)
+    class(cons_t) :: lst
+    class(*), intent(in) :: car_value
+
+    integer :: addr
+
+    if (list_is_pair (lst)) then
+       addr = lst%pair
+       heap%pairs(addr)%car = car_value
+    else
+       call error_abort ("set_car of nil list")
+    end if
+  end subroutine set_car
+
+  subroutine set_cdr (lst, cdr_value)
+    class(cons_t) :: lst
+    class(*), intent(in) :: cdr_value
+
+    integer :: addr
+
+    if (list_is_pair (lst)) then
+       addr = lst%pair
+       heap%pairs(addr)%car = cdr_value
+    else
+       call error_abort ("set_cdr of nil list")
+    end if
+  end subroutine set_cdr
 
   subroutine collect_garbage
     call mark_from_roots
@@ -524,9 +622,9 @@ contains
     end do
   end subroutine sweep
 
-end module NEW_cons_types
+end module cons_types
 
-module cons_types
+module OLD_cons_types ! FIXME
   !
   ! Lisp-style CONS-pairs for Fortran.
   !
@@ -828,7 +926,7 @@ contains
     end do
   end subroutine list_deallocate_discarded
 
-end module cons_types
+end module OLD_cons_types
 
 module cons_procedure_types
   !
@@ -954,31 +1052,31 @@ module cons_lists
   ! cons_t_eq(x,y) is like Scheme's `(eq? x y)' for two lists.
   public :: cons_t_eq           ! Are the two cons_t equivalent?
 
-  !
-  ! `list_discard' prepares the CONS-pairs in a tree for deallocation
-  ! by a later call to `list_deallocate_discarded'.
-  !
-  ! The `discarded' pairs might actually remain in use until the call
-  ! to `list_deallocate_discarded'! They are merely treated as `no
-  ! longer needed after the next call to
-  ! list_deallocate_discarded'. You should keep that fact in mind when
-  ! using this mechanism.
-  !
-  ! The current implementation should be able to deal with, at least,
-  ! the simpler kinds of circular references.
-  ! 
-  public :: list_discard        ! Recursively discard an entire CONS-pair tree.
-  public :: list_discard1       ! A synonym for list_discard.
-  public :: list_discard2       ! Recursively discard 2 trees, in left-to-right order.
-  public :: list_discard3       ! Recursively discard 3 trees, etc.
-  public :: list_discard4
-  public :: list_discard5
-  public :: list_discard6
-  public :: list_discard7
-  public :: list_discard8
-  public :: list_discard9
-  public :: list_discard10
-  public :: list_deallocate_discarded ! Deallocate discarded CONS-pairs.
+!!$  !
+!!$  ! `list_discard' prepares the CONS-pairs in a tree for deallocation
+!!$  ! by a later call to `list_deallocate_discarded'.
+!!$  !
+!!$  ! The `discarded' pairs might actually remain in use until the call
+!!$  ! to `list_deallocate_discarded'! They are merely treated as `no
+!!$  ! longer needed after the next call to
+!!$  ! list_deallocate_discarded'. You should keep that fact in mind when
+!!$  ! using this mechanism.
+!!$  !
+!!$  ! The current implementation should be able to deal with, at least,
+!!$  ! the simpler kinds of circular references.
+!!$  ! 
+!!$  public :: list_discard        ! Recursively discard an entire CONS-pair tree.
+!!$  public :: list_discard1       ! A synonym for list_discard.
+!!$!!$  public :: list_discard2       ! Recursively discard 2 trees, in left-to-right order.
+!!$!!$  public :: list_discard3       ! Recursively discard 3 trees, etc.
+!!$!!$  public :: list_discard4
+!!$!!$  public :: list_discard5
+!!$!!$  public :: list_discard6
+!!$!!$  public :: list_discard7
+!!$!!$  public :: list_discard8
+!!$!!$  public :: list_discard9
+!!$!!$  public :: list_discard10
+!!$!!$!!$!!$  public :: list_deallocate_discarded ! Deallocate discarded CONS-pairs.
 
   public :: cons                ! The fundamental CONS-pair constructor.
   public :: uncons              ! The fundamental CONS-pair deconstructor.
@@ -1332,163 +1430,175 @@ contains
     call uncons (lst, head, tail)
     lst1 = cons (head, tail)
   end function copy_first_pair
-
-  subroutine list_discard1 (lst1)
-    class(*) :: lst1
-
-    call list_discard (lst1)
-  end subroutine list_discard1
-
-  subroutine list_discard2 (lst1, lst2)
-    class(*) :: lst1
-    class(*) :: lst2
-
-    call list_discard (lst1)
-    call list_discard (lst2)
-  end subroutine list_discard2
-
-  subroutine list_discard3 (lst1, lst2, lst3)
-    class(*) :: lst1
-    class(*) :: lst2
-    class(*) :: lst3
-
-    call list_discard (lst1)
-    call list_discard (lst2)
-    call list_discard (lst3)
-  end subroutine list_discard3
-
-  subroutine list_discard4 (lst1, lst2, lst3, lst4)
-    class(*) :: lst1
-    class(*) :: lst2
-    class(*) :: lst3
-    class(*) :: lst4
-
-    call list_discard (lst1)
-    call list_discard (lst2)
-    call list_discard (lst3)
-    call list_discard (lst4)
-  end subroutine list_discard4
-
-  subroutine list_discard5 (lst1, lst2, lst3, lst4, lst5)
-    class(*) :: lst1
-    class(*) :: lst2
-    class(*) :: lst3
-    class(*) :: lst4
-    class(*) :: lst5
-
-    call list_discard (lst1)
-    call list_discard (lst2)
-    call list_discard (lst3)
-    call list_discard (lst4)
-    call list_discard (lst5)
-  end subroutine list_discard5
-
-  subroutine list_discard6 (lst1, lst2, lst3, lst4, lst5, lst6)
-    class(*) :: lst1
-    class(*) :: lst2
-    class(*) :: lst3
-    class(*) :: lst4
-    class(*) :: lst5
-    class(*) :: lst6
-
-    call list_discard (lst1)
-    call list_discard (lst2)
-    call list_discard (lst3)
-    call list_discard (lst4)
-    call list_discard (lst5)
-    call list_discard (lst6)
-  end subroutine list_discard6
-
-  subroutine list_discard7 (lst1, lst2, lst3, lst4, lst5, lst6, lst7)
-    class(*) :: lst1
-    class(*) :: lst2
-    class(*) :: lst3
-    class(*) :: lst4
-    class(*) :: lst5
-    class(*) :: lst6
-    class(*) :: lst7
-
-    call list_discard (lst1)
-    call list_discard (lst2)
-    call list_discard (lst3)
-    call list_discard (lst4)
-    call list_discard (lst5)
-    call list_discard (lst6)
-    call list_discard (lst7)
-  end subroutine list_discard7
-
-  subroutine list_discard8 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8)
-    class(*) :: lst1
-    class(*) :: lst2
-    class(*) :: lst3
-    class(*) :: lst4
-    class(*) :: lst5
-    class(*) :: lst6
-    class(*) :: lst7
-    class(*) :: lst8
-
-    call list_discard (lst1)
-    call list_discard (lst2)
-    call list_discard (lst3)
-    call list_discard (lst4)
-    call list_discard (lst5)
-    call list_discard (lst6)
-    call list_discard (lst7)
-    call list_discard (lst8)
-  end subroutine list_discard8
-
-  subroutine list_discard9 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9)
-    class(*) :: lst1
-    class(*) :: lst2
-    class(*) :: lst3
-    class(*) :: lst4
-    class(*) :: lst5
-    class(*) :: lst6
-    class(*) :: lst7
-    class(*) :: lst8
-    class(*) :: lst9
-
-    call list_discard (lst1)
-    call list_discard (lst2)
-    call list_discard (lst3)
-    call list_discard (lst4)
-    call list_discard (lst5)
-    call list_discard (lst6)
-    call list_discard (lst7)
-    call list_discard (lst8)
-    call list_discard (lst9)
-  end subroutine list_discard9
-
-  subroutine list_discard10 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10)
-    class(*) :: lst1
-    class(*) :: lst2
-    class(*) :: lst3
-    class(*) :: lst4
-    class(*) :: lst5
-    class(*) :: lst6
-    class(*) :: lst7
-    class(*) :: lst8
-    class(*) :: lst9
-    class(*) :: lst10
-
-    call list_discard (lst1)
-    call list_discard (lst2)
-    call list_discard (lst3)
-    call list_discard (lst4)
-    call list_discard (lst5)
-    call list_discard (lst6)
-    call list_discard (lst7)
-    call list_discard (lst8)
-    call list_discard (lst9)
-    call list_discard (lst10)
-  end subroutine list_discard10
-
+!!$!!$
+!!$  subroutine list_discard1 (lst1)
+!!$!!$    class(*) :: lst1
+!!$!!$
+!!$!!$    call list_discard (lst1)
+!!$!!$  end subroutine list_discard1
+!!$
+!!$  subroutine list_discard2 (lst1, lst2)
+!!$!!$    class(*) :: lst1
+!!$!!$    class(*) :: lst2
+!!$!!$
+!!$!!$    call list_discard (lst1)
+!!$!!$    call list_discard (lst2)
+!!$!!$  end subroutine list_discard2
+!!$
+!!$  subroutine list_discard3 (lst1, lst2, lst3)
+!!$!!$    class(*) :: lst1
+!!$!!$    class(*) :: lst2
+!!$!!$    class(*) :: lst3
+!!$!!$
+!!$!!$    call list_discard (lst1)
+!!$!!$    call list_discard (lst2)
+!!$!!$    call list_discard (lst3)
+!!$!!$  end subroutine list_discard3
+!!$
+!!$  subroutine list_discard4 (lst1, lst2, lst3, lst4)
+!!$!!$    class(*) :: lst1
+!!$!!$    class(*) :: lst2
+!!$!!$    class(*) :: lst3
+!!$!!$    class(*) :: lst4
+!!$!!$
+!!$!!$    call list_discard (lst1)
+!!$!!$    call list_discard (lst2)
+!!$!!$    call list_discard (lst3)
+!!$!!$    call list_discard (lst4)
+!!$!!$  end subroutine list_discard4
+!!$
+!!$  subroutine list_discard5 (lst1, lst2, lst3, lst4, lst5)
+!!$!!$    class(*) :: lst1
+!!$!!$    class(*) :: lst2
+!!$!!$    class(*) :: lst3
+!!$!!$    class(*) :: lst4
+!!$!!$    class(*) :: lst5
+!!$!!$
+!!$!!$    call list_discard (lst1)
+!!$!!$    call list_discard (lst2)
+!!$!!$    call list_discard (lst3)
+!!$!!$    call list_discard (lst4)
+!!$!!$    call list_discard (lst5)
+!!$!!$  end subroutine list_discard5
+!!$
+!!$  subroutine list_discard6 (lst1, lst2, lst3, lst4, lst5, lst6)
+!!$!!$    class(*) :: lst1
+!!$!!$    class(*) :: lst2
+!!$!!$    class(*) :: lst3
+!!$!!$    class(*) :: lst4
+!!$!!$    class(*) :: lst5
+!!$!!$    class(*) :: lst6
+!!$!!$
+!!$!!$    call list_discard (lst1)
+!!$!!$    call list_discard (lst2)
+!!$!!$    call list_discard (lst3)
+!!$!!$    call list_discard (lst4)
+!!$!!$    call list_discard (lst5)
+!!$!!$    call list_discard (lst6)
+!!$!!$  end subroutine list_discard6
+!!$
+!!$  subroutine list_discard7 (lst1, lst2, lst3, lst4, lst5, lst6, lst7)
+!!$!!$    class(*) :: lst1
+!!$!!$    class(*) :: lst2
+!!$!!$    class(*) :: lst3
+!!$!!$    class(*) :: lst4
+!!$!!$    class(*) :: lst5
+!!$!!$    class(*) :: lst6
+!!$!!$    class(*) :: lst7
+!!$!!$
+!!$!!$    call list_discard (lst1)
+!!$!!$    call list_discard (lst2)
+!!$!!$    call list_discard (lst3)
+!!$!!$    call list_discard (lst4)
+!!$!!$    call list_discard (lst5)
+!!$!!$    call list_discard (lst6)
+!!$!!$    call list_discard (lst7)
+!!$!!$  end subroutine list_discard7
+!!$
+!!$  subroutine list_discard8 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8)
+!!$!!$    class(*) :: lst1
+!!$!!$    class(*) :: lst2
+!!$!!$    class(*) :: lst3
+!!$!!$    class(*) :: lst4
+!!$!!$    class(*) :: lst5
+!!$!!$    class(*) :: lst6
+!!$!!$    class(*) :: lst7
+!!$!!$    class(*) :: lst8
+!!$!!$
+!!$!!$    call list_discard (lst1)
+!!$!!$    call list_discard (lst2)
+!!$!!$    call list_discard (lst3)
+!!$!!$    call list_discard (lst4)
+!!$!!$    call list_discard (lst5)
+!!$!!$    call list_discard (lst6)
+!!$!!$    call list_discard (lst7)
+!!$!!$    call list_discard (lst8)
+!!$!!$  end subroutine list_discard8
+!!$
+!!$  subroutine list_discard9 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9)
+!!$!!$    class(*) :: lst1
+!!$!!$    class(*) :: lst2
+!!$!!$    class(*) :: lst3
+!!$!!$    class(*) :: lst4
+!!$!!$    class(*) :: lst5
+!!$!!$    class(*) :: lst6
+!!$!!$    class(*) :: lst7
+!!$!!$    class(*) :: lst8
+!!$!!$    class(*) :: lst9
+!!$!!$
+!!$!!$    call list_discard (lst1)
+!!$!!$    call list_discard (lst2)
+!!$!!$    call list_discard (lst3)
+!!$!!$    call list_discard (lst4)
+!!$!!$    call list_discard (lst5)
+!!$!!$    call list_discard (lst6)
+!!$!!$    call list_discard (lst7)
+!!$!!$    call list_discard (lst8)
+!!$!!$    call list_discard (lst9)
+!!$!!$  end subroutine list_discard9
+!!$
+!!$  subroutine list_discard10 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10)
+!!$!!$    class(*) :: lst1
+!!$!!$    class(*) :: lst2
+!!$!!$    class(*) :: lst3
+!!$!!$    class(*) :: lst4
+!!$!!$    class(*) :: lst5
+!!$!!$    class(*) :: lst6
+!!$!!$    class(*) :: lst7
+!!$!!$    class(*) :: lst8
+!!$!!$    class(*) :: lst9
+!!$!!$    class(*) :: lst10
+!!$!!$
+!!$!!$    call list_discard (lst1)
+!!$!!$    call list_discard (lst2)
+!!$!!$    call list_discard (lst3)
+!!$!!$    call list_discard (lst4)
+!!$!!$    call list_discard (lst5)
+!!$!!$    call list_discard (lst6)
+!!$!!$    call list_discard (lst7)
+!!$!!$    call list_discard (lst8)
+!!$!!$    call list_discard (lst9)
+!!$!!$    call list_discard (lst10)
+!!$!!$  end subroutine list_discard10
+!!$
   function list_cons (car_value, cdr_value) result (pair)
     class(*), intent(in) :: car_value
     class(cons_t), intent(in) :: cdr_value
     type(cons_t) :: pair
     pair = cons (car_value, cdr_value)
   end function list_cons
+
+  function car (pair) result (car_value)
+    class(*), intent(in) :: pair
+    class(*), allocatable :: car_value
+    call get_car (pair, car_value)
+  end function car
+
+  function cdr (pair) result (cdr_value)
+    class(*), intent(in) :: pair
+    class(*), allocatable :: cdr_value
+    call get_cdr (pair, cdr_value)
+  end function cdr
 
   function list_length (lst) result (length)
     class(*), intent(in) :: lst
@@ -4593,15 +4703,15 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     !
     ! NOTE: The behavior if `lst' is circular is unspecified.
     !
-    ! The dropped tail will be added to the discard list.
-    !
+!!$    ! The dropped tail will be added to the discard list.
+!!$    !
     class(*), intent(in) :: lst
     integer, intent(in) :: n
     type(cons_t) :: lst_t
 
     type(cons_t) :: lst1
     type(cons_t) :: new_last_pair
-    class(*), allocatable :: tail_to_discard
+!!$    class(*), allocatable :: tail_to_discard
 
     if (n <= 0) then
        lst_t = nil_list
@@ -4610,10 +4720,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     else
        lst1 = copy_first_pair (lst)
        new_last_pair = cons_t_cast (list_drop (lst1, n - 1))
-       tail_to_discard = cdr (new_last_pair)
+!!$       tail_to_discard = cdr (new_last_pair)
        call set_cdr (new_last_pair, nil_list)
        lst_t = lst1
-       call list_discard (tail_to_discard)
+!!$       call list_discard (tail_to_discard)
     end if
   end function list_destructive_take
 
