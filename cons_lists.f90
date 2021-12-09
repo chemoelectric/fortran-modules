@@ -39,7 +39,9 @@ module NEW_cons_types ! FIXME: This will replace the original  cons_types .
 
   integer, parameter :: initial_heap_size = 2 ** 8
   integer, parameter :: initial_roots_size = 2 ** 8
+
   integer, parameter :: nil_address = 0
+
   integer, parameter :: mark_bit = 0
 
   ! A private type representing the CAR-CDR-tuple of a CONS-pair.
@@ -82,37 +84,62 @@ module NEW_cons_types ! FIXME: This will replace the original  cons_types .
   type(cons_t), parameter :: nil_list = cons_t ()
 
 contains
+  
+  subroutine error_abort (msg)
+    use iso_fortran_env, only : error_unit
+    character(*), intent(in) :: msg
+    write (error_unit, '()')
+    write (error_unit, '("cons_types error: ", a)') msg
+    error stop
+  end subroutine error_abort
 
   function growth_function (m) result (n)
     !
     ! How to increase the size of array storage.
     !
+    use, intrinsic :: iso_fortran_env, only : numeric_storage_size
+
+    ! For the common case of 32-bit Fortran numerics,
+    ! almost_max_storage = 1073741824 and max_storage =
+    ! 2147483647. That is a lot of storage for CONS-pair, do you not
+    ! think? (Addressing contiguous memory is another matter. Then
+    ! those numbers are not so big on a 64-bit platform.)
+    integer, parameter :: almost_max_storage = 2 ** (numeric_storage_size - 2)
+    integer, parameter :: max_storage = almost_max_storage + (almost_max_storage - 1)
+
     integer, intent(in) :: m
     integer :: n
-    n = 2 * m                   ! Double the size of the array.
+
+    if (m < almost_max_storage) then
+       n = 2 * m                ! Double the size of the array.
+    else if (m < max_storage) then
+       n = max_storage
+    else
+       call error_abort ("garbage collector capacity exceeded")
+    end if
   end function growth_function
 
   subroutine expand_heap
-
-    ! FIXME:
-    ! FIXME: Detect if size would overflow, set to maximum instead. Beyond that, out of memory error.
-    ! FIXME:
-    ! FIXME: Detect allocation failure. Treat as out of memory error.
-    ! FIXME:
-
     type(cons_pair_t), dimension(:), allocatable :: new_pairs
     integer :: n_old, n_new
     integer :: i
+    integer :: error_status
 
     if (.not. allocated (heap%pairs)) then
        n_old = 0
        n_new = initial_heap_size
-       allocate (heap%pairs(1:n_new))
+       allocate (heap%pairs(1:n_new), stat = error_status)
+       if (error_status /= 0) then
+          call error_abort ("virtual memory exhausted")
+       end if
     else
        ! Move the pairs to a larger array.
        n_old = size (heap%pairs)
        n_new = growth_function (n_old)
-       allocate (new_pairs(1:n_new))
+       allocate (new_pairs(1:n_new), stat = error_status)
+       if (error_status /= 0) then
+          call error_abort ("virtual memory exhausted")
+       end if
        new_pairs(1:n_old) = heap%pairs
        call move_alloc (new_pairs, heap%pairs)
     end if
@@ -126,26 +153,26 @@ contains
   end subroutine expand_heap
 
   subroutine expand_roots
-
-    ! FIXME:
-    ! FIXME: Detect if size would overflow, set to maximum instead. Beyond that, out of memory error.
-    ! FIXME:
-    ! FIXME: Detect allocation failure. Treat as out of memory error.
-    ! FIXME:
-
     type(cons_t), dimension(:), allocatable :: new_lists
     integer :: n_old, n_new
     integer :: i
+    integer :: error_status
 
     if (.not. allocated (roots%lists)) then
        n_old = 0
        n_new = initial_roots_size
-       allocate (roots%lists(1:n_new))
+       allocate (roots%lists(1:n_new), stat = error_status)
+       if (error_status /= 0) then
+          call error_abort ("virtual memory exhausted")
+       end if
     else
        ! Move the lists to a larger array.
        n_old = size (roots%lists)
        n_new = growth_function (n_old)
-       allocate (new_lists(1:n_new))
+       allocate (new_lists(1:n_new), stat = error_status)
+       if (error_status /= 0) then
+          call error_abort ("virtual memory exhausted")
+       end if
        new_lists(1:n_old) = roots%lists
        call move_alloc (new_lists, roots%lists)
     end if
