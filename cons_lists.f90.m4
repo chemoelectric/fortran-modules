@@ -126,6 +126,26 @@ module cons_types ! FIXME: This will replace the original ‘cons_types’.
 
 contains
   
+m4_if(DEBUGGING,[true],[dnl
+  function integer_cast (obj) result (int)
+    class(*), intent(in) :: obj
+    integer :: int
+    select type (obj)
+    type is (integer)
+       int = obj
+    end select
+  end function integer_cast
+
+  function real_cast (obj) result (r)
+    class(*), intent(in) :: obj
+    real :: r
+    select type (obj)
+    type is (real)
+       r = obj
+    end select
+  end function real_cast
+])dnl
+dnl
   subroutine error_abort_1 (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
@@ -267,9 +287,19 @@ contains
       integer :: tmp
       tmp = roots%roots_list
       roots%roots_list = dst%here
-      dst%prev = 0
+      dst%prev = nil_address
       dst%next = tmp
     end block
+print *, "cons ", dst%prev, dst%here, dst%next
+block
+integer :: i
+i = roots%roots_list
+do while (i /= nil_address)
+print *, "roots list: ", i
+!print *, "cons ", roots%lists(i)%prev, roots%lists(i)%here, roots%lists(i)%next
+i = roots%lists(i)%next
+end do
+end block
   end function cons
 
   subroutine uncons (lst, car_value, cdr_value)
@@ -306,7 +336,9 @@ contains
     class is (cons_t)
        if (list_is_pair (lst)) then
           addr = lst%pair
+print *, "get_car addr = ", addr
           car_val = heap%pairs(addr)%car
+!!$print *, addr, integer_cast(heap%pairs(addr)%car), real_cast(heap%pairs(addr)%car)
        else
           call error_abort ("get_car of nil list")
        end if
@@ -345,7 +377,10 @@ contains
 
     if (list_is_pair (lst)) then
        addr = lst%pair
+!!$print *, addr, integer_cast(car_value), integer_cast(heap%pairs(addr)%car), real_cast(heap%pairs(addr)%car)
        heap%pairs(addr)%car = car_value
+!!$print *, addr, integer_cast(car_value), integer_cast(heap%pairs(addr)%car), real_cast(heap%pairs(addr)%car)
+!print *, "set_car addr = ", addr
     else
        call error_abort ("set_car of nil list")
     end if
@@ -359,7 +394,7 @@ contains
 
     if (list_is_pair (lst)) then
        addr = lst%pair
-       heap%pairs(addr)%car = cdr_value
+       heap%pairs(addr)%cdr = cdr_value
     else
        call error_abort ("set_cdr of nil list")
     end if
@@ -447,6 +482,10 @@ contains
     end do
     heap%pairs(n_new)%next = heap%free_list
     heap%free_list = n_old + 1
+!!$print *,heap%free_list
+!!$do i = 1,n_new
+!!$print *, heap%pairs(i)%next
+!!$end do
   end subroutine expand_heap
 
   subroutine expand_roots
@@ -463,6 +502,7 @@ contains
           call error_abort ("virtual memory exhausted", error_status)
        end if
        roots%free_list = nil_address
+       roots%roots_list = nil_address
     else
        ! Move the lists to a larger array.
        n_old = size (roots%lists)
@@ -481,6 +521,10 @@ contains
     end do
     roots%lists(n_new)%next = roots%free_list
     roots%free_list = n_old + 1
+!!$print *,roots%free_list
+!!$do i = 1,n_new
+!!$print *, roots%lists(i)%next
+!!$end do
   end subroutine expand_roots
 
   subroutine cons_t_copy (dst, src)
@@ -502,6 +546,15 @@ contains
       dst%prev = nil_address
       dst%next = tmp
     end block
+!!$print *, "cons_t_copy ", dst%prev, dst%here, dst%next
+!!$block
+!!$integer :: i
+!!$i = roots%roots_list
+!!$do while (i /= nil_address)
+!!$!print *, "cons_t_copy ", roots%lists(i)%prev, roots%lists(i)%here, roots%lists(i)%next
+!!$i = roots%lists(i)%next
+!!$end do
+!!$end block
   end subroutine cons_t_copy
 
   subroutine cons_t_discard (this)
@@ -1354,6 +1407,15 @@ m4_if(DEBUGGING,[true],[dnl
        int = obj
     end select
   end function integer_cast
+
+  function real_cast (obj) result (r)
+    class(*), intent(in) :: obj
+    real :: r
+    select type (obj)
+    type is (real)
+       r = obj
+    end select
+  end function real_cast
 ])dnl
 dnl
   subroutine error_abort (msg)
