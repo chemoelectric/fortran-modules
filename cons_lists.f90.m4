@@ -238,7 +238,12 @@ contains
     car_cdr%cdr = cdr_value
 
     if (heap%free_list == nil_address) then
-       call collect_garbage
+       if (.not. allocated (heap%pairs)) then
+          call expand_heap      ! Create an initial heap.
+          call expand_roots     ! Create an initial roots list.
+       else
+          call collect_garbage
+       end if
     end if
 
     ! Pop an address from the heap's free list.
@@ -423,6 +428,7 @@ contains
        if (error_status /= 0) then
           call error_abort ("virtual memory exhausted", error_status)
        end if
+       heap%free_list = nil_address
     else
        ! Move the pairs to a larger array.
        n_old = size (heap%pairs)
@@ -437,7 +443,7 @@ contains
 
     ! Add the new pairs to the free list.
     do i = n_old + 1, n_new - 1
-       heap%pairs(i)%next = i
+       heap%pairs(i)%next = i + 1
     end do
     heap%pairs(n_new)%next = heap%free_list
     heap%free_list = n_old + 1
@@ -456,6 +462,7 @@ contains
        if (error_status /= 0) then
           call error_abort ("virtual memory exhausted", error_status)
        end if
+       roots%free_list = nil_address
     else
        ! Move the lists to a larger array.
        n_old = size (roots%lists)
@@ -470,7 +477,7 @@ contains
 
     ! Add the new lists to the free list.
     do i = n_old + 1, n_new - 1
-       roots%lists(i)%next = i
+       roots%lists(i)%next = i + 1
     end do
     roots%lists(n_new)%next = roots%free_list
     roots%free_list = n_old + 1
