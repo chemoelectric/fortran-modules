@@ -489,7 +489,7 @@ contains
       integer :: tmp
       tmp = roots%roots_list
       roots%roots_list = dst%here
-      dst%prev = 0
+      dst%prev = nil_address
       dst%next = tmp
     end block
   end subroutine cons_t_copy
@@ -499,8 +499,15 @@ contains
 
     ! If `this' is a root, remove it from the roots list.
     if (this%here /= nil_address) then
-       roots%lists(this%prev)%next = this%next
-       roots%lists(this%next)%prev = this%prev
+       if (this%prev == nil_address) then
+          roots%roots_list = this%next
+       else
+          roots%lists(this%prev)%next = this%next
+       end if
+
+       if (this%next /= nil_address) then
+          roots%lists(this%next)%prev = this%prev
+       end if
 
        ! Return its array entry to the free list.
        block
@@ -509,15 +516,15 @@ contains
          roots%free_list = this%here
          this%here = tmp
        end block
-
-       ! Make it safe to call cons_t_discard again.
-       this%here = nil_address
-       this%prev = nil_address
-       this%next = nil_address
-
-       ! Make `this' a nil list.
-       this%pair = nil_address
     end if
+
+    ! Make it safe to call cons_t_discard again.
+    this%here = nil_address
+    this%prev = nil_address
+    this%next = nil_address
+
+    ! Make `this' a nil list.
+    this%pair = nil_address
   end subroutine cons_t_discard
 
   subroutine cons_t_finalize (this)
