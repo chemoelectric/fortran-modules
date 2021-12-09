@@ -30,12 +30,33 @@ module NEW_cons_types ! FIXME: This will replace the original  cons_types .
   ! Please use module cons_lists, rather than this module directly.
   !
 
+  use, intrinsic :: iso_fortran_env, only : numeric_storage_size
+
   implicit none
   private
 
-  public :: cons_t
-  public :: nil_list
   public :: assignment(=)
+  public :: cons_t              ! Either a nil list or a reference to a CONS-pair.
+  public :: nil_list            ! The canonical nil list.
+  public :: cons_t_cast         ! Cast to a cons_t, if possible.
+  public :: cons_t_eq           ! Are two cons_t both nil or both references to the same CONS-pair?
+  public :: is_nil_or_pair      ! Is an object a cons_t?
+  public :: is_nil_list         ! Is an object a nil cons_t?
+  public :: is_cons_pair        ! Is an object a reference to a CONS-pair (that is, a non-nil cons_t)?
+  public :: is_not_nil_or_pair  ! Logical inverse (that is, .NOT.) of is_nil_or_pair.
+  public :: is_not_nil_list     ! Logical inverse (that is, .NOT.) of is_nil_list.
+  public :: is_not_cons_pair    ! Logical inverse (that is, .NOT.) of is_cons_pair.
+  public :: list_is_nil         ! Is a cons_t nil?
+  public :: list_is_pair        ! Does a cons_t refer to a CONS-pair? (That is, is it non-nil?)
+  public :: cons                ! The fundamental constructor.
+  
+  ! For the common case of 32-bit Fortran numerics,
+  ! almost_max_storage=1073741824 and max_storage=2147483647. That is
+  ! a lot of storage for CONS-pair, do you not think? (Addressing
+  ! contiguous memory is another matter. Then those numbers are not so
+  ! big on a 64-bit platform.)
+  integer, parameter :: almost_max_storage = 2 ** (numeric_storage_size - 2)
+  integer, parameter :: max_storage = almost_max_storage + (almost_max_storage - 1)
 
   integer, parameter :: initial_heap_size = 2 ** 8
   integer, parameter :: initial_roots_size = 2 ** 8
@@ -107,20 +128,168 @@ contains
     error stop
   end subroutine error_abort_2
 
+  function cons_t_cast (obj) result (lst)
+    !
+    ! Cast to cons_t, if possible.
+    !
+    class(*), intent(in) :: obj
+    type(cons_t) :: lst
+    select type (obj)
+    class is (cons_t)
+       lst = obj
+    class default
+       call error_abort ("cons_t_cast of an incompatible object")
+    end select
+  end function cons_t_cast
+
+  function cons_t_eq (lst1, lst2) result (eq)
+    class(cons_t), intent(in) :: lst1, lst2
+    logical :: eq
+    eq = (lst1%pair == lst2%pair)
+  end function cons_t_eq
+
+  function is_nil_or_pair (obj) result (is_cons)
+    class(*), intent(in) :: obj
+    logical is_cons
+    select type (obj)
+    class is (cons_t)
+       is_cons = .true.
+    class default
+       is_cons = .false.
+    end select
+  end function is_nil_or_pair
+
+  function is_nil_list (obj) result (is_nil)
+    class(*), intent(in) :: obj
+    logical is_nil
+    select type (obj)
+    class is (cons_t)
+       is_nil = (obj%pair == nil_address)
+    class default
+       is_nil = .false.
+    end select
+  end function is_nil_list
+
+  function is_cons_pair (obj) result (is_pair)
+    class(*), intent(in) :: obj
+    logical is_pair
+    select type (obj)
+    class is (cons_t)
+       is_pair = (obj%pair /= nil_address)
+    class default
+       is_pair = .false.
+    end select
+  end function is_cons_pair
+
+  function is_not_nil_or_pair (obj) result (is_not_cons)
+    class(*), intent(in) :: obj
+    logical :: is_not_cons
+    is_not_cons = .not. is_nil_or_pair (obj)
+  end function is_not_nil_or_pair
+
+  function is_not_nil_list (obj) result (is_not_nil)
+    class(*), intent(in) :: obj
+    logical :: is_not_nil
+    is_not_nil = .not. is_nil_list (obj)
+  end function is_not_nil_list
+
+  function is_not_cons_pair (obj) result (is_not_pair)
+    class(*), intent(in) :: obj
+    logical :: is_not_pair
+    is_not_pair = .not. is_cons_pair (obj)
+  end function is_not_cons_pair
+  
+  function list_is_nil (lst) result (is_nil)
+    class(cons_t), intent(in) :: lst
+    logical is_nil
+    is_nil = (lst%pair == nil_address)
+  end function list_is_nil
+
+  function list_is_pair (lst) result (is_pair)
+    class(cons_t), intent(in) :: lst
+    logical is_pair
+    is_pair = (lst%pair /= nil_address)
+  end function list_is_pair
+
+  function cons (car_value, cdr_value) result (dst)
+    class(*), intent(in) :: car_value
+    class(*), intent(in) :: cdr_value
+    type(cons_t) :: dst
+
+    type(cons_pair_t) :: car_cdr
+    integer :: car_cdr_addr
+
+    car_cdr%car = car_value
+    car_cdr%cdr = cdr_value
+
+    if (heap%free_list == nil_address) then
+       call collect_garbage
+    end if
+
+    ! Pop an address from the heap's free list.
+    car_cdr_addr = heap%free_list
+    heap%free_list = heap%pairs(car_cdr_addr)%next
+
+    ! For neatness, clear the free list link.
+    car_cdr%next = nil_address
+
+    ! Put the pair in the heap.
+    heap%pairs(car_cdr_addr) = car_cdr
+
+    ! Add a new cons_t to the roots list.
+    dst%pair = car_cdr_addr
+    if (roots%free_list == nil_address) then
+       call expand_roots
+    end if
+    dst%here = roots%free_list
+    roots%free_list = roots%lists(dst%here)%next
+    block
+      integer :: tmp
+      tmp = roots%roots_list
+      roots%roots_list = dst%here
+      dst%prev = 0
+      dst%next = tmp
+    end block
+  end function cons
+
+  subroutine collect_garbage
+    call mark_from_roots
+    call sweep
+    if (.not. buffer_looks_good ()) then
+       call expand_heap
+    end if
+
+  contains
+
+    function buffer_looks_good () result (bool)
+      logical :: bool
+
+      integer, parameter :: buffer = 16
+
+      integer :: addr
+      integer :: i
+
+      if (size (heap%pairs) == max_storage) then
+         ! The garbage collector is at maximum capacity.
+         bool = (heap%free_list /= nil_address)
+      else
+         ! Require that the free list have some buffer in it.
+         addr = heap%free_list
+         i = buffer
+         do while (i /= 0 .and. addr /= nil_address)
+            addr = heap%pairs(addr)%next
+            i = i - 1
+         end do
+         bool = (i == 0)
+      end if
+    end function buffer_looks_good
+
+  end subroutine collect_garbage
+
   function growth_function (m) result (n)
     !
     ! How to increase the size of array storage.
     !
-    use, intrinsic :: iso_fortran_env, only : numeric_storage_size
-
-    ! For the common case of 32-bit Fortran numerics,
-    ! almost_max_storage = 1073741824 and max_storage =
-    ! 2147483647. That is a lot of storage for CONS-pair, do you not
-    ! think? (Addressing contiguous memory is another matter. Then
-    ! those numbers are not so big on a 64-bit platform.)
-    integer, parameter :: almost_max_storage = 2 ** (numeric_storage_size - 2)
-    integer, parameter :: max_storage = almost_max_storage + (almost_max_storage - 1)
-
     integer, intent(in) :: m
     integer :: n
 
@@ -387,7 +556,6 @@ module cons_types
 
   public :: cons
   public :: uncons
-  public :: list_cons
   public :: car
   public :: cdr
 
@@ -556,18 +724,6 @@ contains
     car_value = car_val
     cdr_value = cdr_val
   end subroutine uncons
-
-  function list_cons (car_value, cdr_value) result (pair)
-    class(*), intent(in) :: car_value
-    class(cons_t), intent(in) :: cdr_value
-    type(cons_t) :: pair
-
-    type(cons_pair_t) :: car_cdr
-
-    car_cdr%car = car_value
-    car_cdr%cdr = cdr_value
-    allocate (pair%p, source = car_cdr)
-  end function list_cons
 
   function car (pair) result (element)
     class(*), intent(in) :: pair
@@ -1326,6 +1482,13 @@ contains
     call list_discard (lst9)
     call list_discard (lst10)
   end subroutine list_discard10
+
+  function list_cons (car_value, cdr_value) result (pair)
+    class(*), intent(in) :: car_value
+    class(cons_t), intent(in) :: cdr_value
+    type(cons_t) :: pair
+    pair = cons (car_value, cdr_value)
+  end function list_cons
 
   function list_length (lst) result (length)
     class(*), intent(in) :: lst
