@@ -254,9 +254,6 @@ dnl
     type(cons_pair_t) :: car_cdr
     integer :: car_cdr_addr
 
-    car_cdr%car = car_value
-    car_cdr%cdr = cdr_value
-
     if (heap%free_list == nil_address) then
        if (.not. allocated (heap%pairs)) then
           call expand_heap      ! Create an initial heap.
@@ -265,6 +262,9 @@ dnl
           call collect_garbage
        end if
     end if
+
+    car_cdr%car = car_value
+    car_cdr%cdr = cdr_value
 
     ! Pop an address from the heap's free list.
     car_cdr_addr = heap%free_list
@@ -289,17 +289,20 @@ dnl
       roots%roots_list = dst%here
       dst%prev = nil_address
       dst%next = tmp
+      if (tmp /= nil_address) then
+         roots%lists(tmp)%prev = dst%here
+      end if
     end block
-print *, "cons ", dst%prev, dst%here, dst%next
-block
-integer :: i
-i = roots%roots_list
-do while (i /= nil_address)
-print *, "roots list: ", i
-!print *, "cons ", roots%lists(i)%prev, roots%lists(i)%here, roots%lists(i)%next
-i = roots%lists(i)%next
-end do
-end block
+!!$print *, "cons ", dst%prev, dst%here, dst%next
+!!$block
+!!$integer :: i
+!!$i = roots%roots_list
+!!$do while (i /= nil_address)
+!!$print *, "roots list: ", i
+!!$!print *, "cons ", roots%lists(i)%prev, roots%lists(i)%here, roots%lists(i)%next
+!!$i = roots%lists(i)%next
+!!$end do
+!!$end block
   end function cons
 
   subroutine uncons (lst, car_value, cdr_value)
@@ -336,7 +339,7 @@ end block
     class is (cons_t)
        if (list_is_pair (lst)) then
           addr = lst%pair
-print *, "get_car addr = ", addr
+!!$print *, "get_car addr = ", addr
           car_val = heap%pairs(addr)%car
 !!$print *, addr, integer_cast(heap%pairs(addr)%car), real_cast(heap%pairs(addr)%car)
        else
@@ -380,7 +383,7 @@ print *, "get_car addr = ", addr
 !!$print *, addr, integer_cast(car_value), integer_cast(heap%pairs(addr)%car), real_cast(heap%pairs(addr)%car)
        heap%pairs(addr)%car = car_value
 !!$print *, addr, integer_cast(car_value), integer_cast(heap%pairs(addr)%car), real_cast(heap%pairs(addr)%car)
-!print *, "set_car addr = ", addr
+!!$print *, "set_car addr = ", addr
     else
        call error_abort ("set_car of nil list")
     end if
@@ -531,21 +534,25 @@ print *, "get_car addr = ", addr
     class(cons_t), intent(out), target :: dst
     class(cons_t), intent(in) :: src
 
-    dst%pair = src%pair
-
-    ! Add the new cons_t to the roots list.
-    if (roots%free_list == nil_address) then
-       call expand_roots
+    if (src%pair /= nil_address) then
+       ! Add a new cons_t to the roots list.
+       dst%pair = src%pair
+       if (roots%free_list == nil_address) then
+          call expand_roots
+       end if
+       dst%here = roots%free_list
+       roots%free_list = roots%lists(dst%here)%next
+       block
+         integer :: tmp
+         tmp = roots%roots_list
+         roots%roots_list = dst%here
+         dst%prev = nil_address
+         dst%next = tmp
+         if (tmp /= nil_address) then
+            roots%lists(tmp)%prev = dst%here
+         end if
+       end block
     end if
-    dst%here = roots%free_list
-    roots%free_list = roots%lists(dst%here)%next
-    block
-      integer :: tmp
-      tmp = roots%roots_list
-      roots%roots_list = dst%here
-      dst%prev = nil_address
-      dst%next = tmp
-    end block
 !!$print *, "cons_t_copy ", dst%prev, dst%here, dst%next
 !!$block
 !!$integer :: i
@@ -596,42 +603,56 @@ print *, "get_car addr = ", addr
   end subroutine cons_t_finalize
 
   subroutine mark_from_roots
-    integer :: work_list
+
+    type :: stack_t
+       integer :: root
+       type(stack_t), pointer :: next
+    end type stack_t
+
+    type(stack_t), pointer :: stack
     integer :: addr
 
-    work_list = nil_address
-
+    stack => null ()
     addr = roots%roots_list
     do while (addr /= nil_address)
+!!$print *,addr
        if (.not. btest (heap%pairs(addr)%status, mark_bit)) then
           heap%pairs(addr)%status = ibset (heap%pairs(addr)%status, mark_bit)
-          block
-            ! Add the root to the work list.
-            integer :: tmp
-            tmp = work_list
-            work_list = addr
-            roots%lists(addr)%next = tmp            
+          block                 ! Push the root.
+            type(stack_t), pointer :: new_head
+            allocate (new_head)
+            new_head%root = addr
+            new_head%next => stack
+            stack => new_head
           end block
           call mark_reachables
        end if
+!!$print *, "addr before/after: ", addr, roots%lists(addr)%next
        addr = roots%lists(addr)%next
     end do
 
   contains
 
     subroutine mark_reachables
+      type(stack_t), pointer :: p
       integer :: addr, addr1
 
-      do while (work_list /= nil_address)
-         addr = work_list       ! Get the head of the work list.
-         work_list = roots%lists(addr)%next ! Remove the head.
-         block                  ! Add the addr to the free list.
+      do while (associated (stack))
+         ! Pop a root.
+         p => stack
+         addr = p%root
+         stack => p%next
+         deallocate (p)
+
+         ! Add the addr to the free list.
+         block
            integer :: tmp
            tmp = roots%free_list
            roots%free_list = addr
            roots%lists(addr)%next = tmp
          end block
 
+         ! See if the CAR should go on the work list.
          select type (car => heap%pairs(addr)%car)
          class is (cons_t)
             addr1 = car%pair
@@ -639,15 +660,17 @@ print *, "get_car addr = ", addr
                if (.not. btest (heap%pairs(addr1)%status, mark_bit)) then
                   heap%pairs(addr1)%status = ibset (heap%pairs(addr1)%status, mark_bit)
                   block         ! Add addr1 to the work list.
-                    integer :: tmp
-                    tmp = work_list
-                    work_list = addr1
-                    roots%lists(addr1)%next = tmp
+                    type(stack_t), pointer :: tmp
+                    tmp => stack
+                    allocate (stack)
+                    stack%root = addr1
+                    stack%next => tmp
                   end block
                end if
             end if
          end select
 
+         ! See if the CDR should go on the work list.
          select type (cdr => heap%pairs(addr)%cdr)
          class is (cons_t)
             addr1 = cdr%pair
@@ -655,10 +678,11 @@ print *, "get_car addr = ", addr
                if (.not. btest (heap%pairs(addr1)%status, mark_bit)) then
                   heap%pairs(addr1)%status = ibset (heap%pairs(addr1)%status, mark_bit)
                   block         ! Add addr1 to the work list.
-                    integer :: tmp
-                    tmp = work_list
-                    work_list = addr1
-                    roots%lists(addr1)%next = tmp
+                    type(stack_t), pointer :: tmp
+                    tmp => stack
+                    allocate (stack)
+                    stack%root = addr1
+                    stack%next => tmp
                   end block
                end if
             end if
@@ -667,6 +691,79 @@ print *, "get_car addr = ", addr
     end subroutine mark_reachables
 
   end subroutine mark_from_roots
+
+!!$  subroutine mark_from_roots
+!!$    integer :: work_list
+!!$    integer :: addr
+!!$
+!!$    work_list = nil_address
+!!$
+!!$    addr = roots%roots_list
+!!$    do while (addr /= nil_address)
+!!$       if (.not. btest (heap%pairs(addr)%status, mark_bit)) then
+!!$          heap%pairs(addr)%status = ibset (heap%pairs(addr)%status, mark_bit)
+!!$          block
+!!$            ! Add the root to the work list.
+!!$            integer :: tmp
+!!$            tmp = work_list
+!!$            work_list = addr
+!!$            roots%lists(addr)%next = tmp            
+!!$          end block
+!!$          call mark_reachables
+!!$       end if
+!!$       addr = roots%lists(addr)%next
+!!$    end do
+!!$
+!!$  contains
+!!$
+!!$    subroutine mark_reachables
+!!$      integer :: addr, addr1
+!!$
+!!$      do while (work_list /= nil_address)
+!!$         addr = work_list       ! Get the head of the work list.
+!!$         work_list = roots%lists(addr)%next ! Remove the head.
+!!$         block                  ! Add the addr to the free list.
+!!$           integer :: tmp
+!!$           tmp = roots%free_list
+!!$           roots%free_list = addr
+!!$           roots%lists(addr)%next = tmp
+!!$         end block
+!!$
+!!$         select type (car => heap%pairs(addr)%car)
+!!$         class is (cons_t)
+!!$            addr1 = car%pair
+!!$            if (addr1 /= nil_address) then
+!!$               if (.not. btest (heap%pairs(addr1)%status, mark_bit)) then
+!!$                  heap%pairs(addr1)%status = ibset (heap%pairs(addr1)%status, mark_bit)
+!!$                  block         ! Add addr1 to the work list.
+!!$                    integer :: tmp
+!!$                    tmp = work_list
+!!$                    work_list = addr1
+!!$                    roots%lists(addr1)%next = tmp
+!!$                  end block
+!!$               end if
+!!$            end if
+!!$         end select
+!!$
+!!$         select type (cdr => heap%pairs(addr)%cdr)
+!!$         class is (cons_t)
+!!$            addr1 = cdr%pair
+!!$            if (addr1 /= nil_address) then
+!!$               if (.not. btest (heap%pairs(addr1)%status, mark_bit)) then
+!!$                  heap%pairs(addr1)%status = ibset (heap%pairs(addr1)%status, mark_bit)
+!!$                  block         ! Add addr1 to the work list.
+!!$                    integer :: tmp
+!!$                    tmp = work_list
+!!$                    work_list = addr1
+!!$                    roots%lists(addr1)%next = tmp
+!!$                  end block
+!!$               end if
+!!$            end if
+!!$         end select
+!!$      end do
+!!$    end subroutine mark_reachables
+!!$
+!!$  end subroutine mark_from_roots
 
   subroutine sweep
     integer :: addr
