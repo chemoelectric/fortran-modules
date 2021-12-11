@@ -87,7 +87,6 @@ module cons_types ! FIXME: This will replace the original  cons_types .
   ! Please use module cons_lists, rather than this module directly.
   !
 
-  use, intrinsic :: iso_fortran_env, only : numeric_storage_size
   use cons_types_helpers
 
   implicit none
@@ -112,15 +111,12 @@ module cons_types ! FIXME: This will replace the original  cons_types .
   public :: set_car             ! Change the CAR.
   public :: set_cdr             ! Change the CDR.
 
-  ! If the Fortran has 32-bit integers, then max_heap_size =
-  ! 1073741824. (This seems like plenty, although one could in theory
-  ! go just short of twice as high without numeric overflow.)
-  integer, parameter :: max_heap_size = 2 ** (numeric_storage_size - 2)
-
   integer, parameter :: initial_heap_size = 2 ** 8 ! FIXME: Set this higher, perhaps.
 
   ! If free stack is below this after a garbage collection, then
-  ! increase the size of the heap.
+  ! increase the size of the heap. A large number encourages adding
+  ! more space to the heap; a small number encourages reliance on
+  ! mark-and-sweep to find space.
   integer, parameter :: minimum_free_stack = 64
 
   ! A nil heap address.
@@ -153,27 +149,6 @@ module cons_types ! FIXME: This will replace the original  cons_types .
 
 contains
   
-  function integer_cast (obj) result (int)
-    class(*), intent(in) :: obj
-    integer :: int
-    select type (obj)
-    type is (integer)
-       int = obj
-    class default
-       call error_abort ("integer_cast of a non-integer")
-    end select
-  end function integer_cast
-
-  function real_cast (obj) result (r)
-    class(*), intent(in) :: obj
-    real :: r
-    select type (obj)
-    type is (real)
-       r = obj
-    class default
-       call error_abort ("real_cast of a non-real")
-    end select
-  end function real_cast
   subroutine error_abort (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
@@ -439,40 +414,58 @@ print*,"free_stack_height after  = ",free_stack_height
     free_stack_height = initial_heap_size
   end subroutine initialize_heap
 
-  subroutine expand_the_heap
-    type(cons_pair_t), dimension(:), allocatable :: new_heap
-    integer, dimension(:), allocatable :: new_free_stack
-
-    integer :: m, n, i
-
-    m = size (heap)
-    n = 2 * m
-
-    allocate (new_heap(1:n))
-    new_heap(1:m) = heap
-    call move_alloc (new_heap, heap)
-
-    allocate (new_free_stack(1:n))
-    new_free_stack(1:m) = free_stack
-    call move_alloc (new_free_stack, free_stack)
-    do i = m + 1, n
-       free_stack_height = free_stack_height + 1
-       free_stack(free_stack_height) = i
-    end do
-  end subroutine expand_the_heap
-
   subroutine collect_garbage
+    use, intrinsic :: iso_fortran_env, only : numeric_storage_size
+
+    ! If the Fortran implementation has 32-bit integers, then
+    ! max_doubling_size = 1073741824.
+    integer, parameter :: max_doubling_size = 2 ** (numeric_storage_size - 2)
+
+    ! If the Fortran implementation has 32-bit integers, then
+    ! max_heap_size = 2147483647. This is as great as a 32-bit
+    ! signed integer can go.
+    integer, parameter :: max_heap_size = max_doubling_size + (max_doubling_size - 1)
+
     call mark_from_roots
     call sweep
 print*,"free_stack_height after sweep = ",free_stack_height
-    if (free_stack_height < minimum_free_stack) then
-       if (size (heap) < max_heap_size) then
+    if (size (heap) /= max_heap_size) then
+       if (free_stack_height < minimum_free_stack) then
           call expand_the_heap
        end if
     end if
     if (free_stack_height == 0) then
-       call error_abort ("garbage collection failed to free space")
+       call error_abort ("garbage collection failed to free enough space")
     end if
+
+  contains
+
+    subroutine expand_the_heap
+      type(cons_pair_t), dimension(:), allocatable :: new_heap
+      integer, dimension(:), allocatable :: new_free_stack
+
+      integer :: m, n, i
+
+      m = size (heap)
+      if (m < max_doubling_size) then
+         n = 2 * m
+      else
+         n = max_heap_size
+      end if
+
+      allocate (new_heap(1:n))
+      new_heap(1:m) = heap
+      call move_alloc (new_heap, heap)
+
+      allocate (new_free_stack(1:n))
+      new_free_stack(1:m) = free_stack
+      call move_alloc (new_free_stack, free_stack)
+      do i = m + 1, n
+         free_stack(free_stack_height + (n - (i - 1))) = i
+      end do
+      free_stack_height = free_stack_height + (n - m)
+    end subroutine expand_the_heap
+
   end subroutine collect_garbage
 
   subroutine mark_from_roots
@@ -1361,27 +1354,6 @@ module cons_lists
 
 contains
 
-  function integer_cast (obj) result (int)
-    class(*), intent(in) :: obj
-    integer :: int
-    select type (obj)
-    type is (integer)
-       int = obj
-    class default
-       call error_abort ("integer_cast of a non-integer")
-    end select
-  end function integer_cast
-
-  function real_cast (obj) result (r)
-    class(*), intent(in) :: obj
-    real :: r
-    select type (obj)
-    type is (real)
-       r = obj
-    class default
-       call error_abort ("real_cast of a non-real")
-    end select
-  end function real_cast
   subroutine error_abort (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg

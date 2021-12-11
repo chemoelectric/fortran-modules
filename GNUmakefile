@@ -38,7 +38,7 @@ M4 = m4
 M4FLAGS =
 COMPILE.m4 = $(M4) $(M4FLAGS) $(XM4FLAGS)
 
-M4FLAGS += -DDEBUGGING=true
+#M4FLAGS += -DDEBUGGING=true
 
 # How many lists can be discarded with one call?
 M4FLAGS += -DLIST_DISCARDN_MAX=10
