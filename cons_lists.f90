@@ -36,15 +36,19 @@ module cons_types_helpers
      type(integer_link_t), pointer :: next
   end type integer_link_t
 
+  interface error_abort
+     module procedure error_abort_1
+  end interface error_abort
+
 contains
 
-  subroutine error_abort (msg)
+  subroutine error_abort_1 (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
     write (error_unit, '()')
     write (error_unit, '("cons_types_helpers error: ", a)') msg
     error stop
-  end subroutine error_abort
+  end subroutine error_abort_1
 
   subroutine integer_list_cons (ival, ilst, ilst1)
     integer, intent(in) :: ival
@@ -147,15 +151,29 @@ module cons_types ! FIXME: This will replace the original  cons_types .
   ! The canonical nil list.
   type(cons_t), parameter :: nil_list = cons_t ()
 
+  interface error_abort
+     module procedure error_abort_1
+     module procedure error_abort_2
+  end interface error_abort
+
 contains
   
-  subroutine error_abort (msg)
+  subroutine error_abort_1 (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
     write (error_unit, '()')
     write (error_unit, '("cons_types error: ", a)') msg
     error stop
-  end subroutine error_abort
+  end subroutine error_abort_1
+
+  subroutine error_abort_2 (msg, status_code)
+    use iso_fortran_env, only : error_unit
+    character(*), intent(in) :: msg
+    integer, intent(in) :: status_code
+    write (error_unit, '()')
+    write (error_unit, '("cons_types_helpers error: ", a, ", with status code ", i3)') msg, status_code
+    error stop
+  end subroutine error_abort_2
 
   subroutine free_stack_push (addr)
     integer, intent(in) :: addr
@@ -445,6 +463,7 @@ print*,"free_stack_height after sweep = ",free_stack_height
       integer, dimension(:), allocatable :: new_free_stack
 
       integer :: m, n, i
+      integer :: status_code
 
       m = size (heap)
       if (m < max_doubling_size) then
@@ -453,11 +472,17 @@ print*,"free_stack_height after sweep = ",free_stack_height
          n = max_heap_size
       end if
 
-      allocate (new_heap(1:n))
+      allocate (new_heap(1:n), stat = status_code)
+      if (status_code /= 0) then
+         call error_abort ("garbage collector heap expansion failed", status_code)
+      end if
       new_heap(1:m) = heap
       call move_alloc (new_heap, heap)
 
-      allocate (new_free_stack(1:n))
+      allocate (new_free_stack(1:n), stat = status_code)
+      if (status_code /= 0) then
+         call error_abort ("garbage collector heap expansion failed", status_code)
+      end if
       new_free_stack(1:m) = free_stack
       call move_alloc (new_free_stack, free_stack)
       do i = m + 1, n
@@ -628,15 +653,19 @@ module OLD_cons_types ! FIXME
   integer, parameter :: bit__cons_pair_t_discard = 0
   type(cons_t) :: discard_list = nil_list
 
+  interface error_abort
+     module procedure error_abort_1
+  end interface error_abort
+
 contains
 
-  subroutine error_abort (msg)
+  subroutine error_abort_1 (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
     write (error_unit, '()')
     write (error_unit, '("cons_types error: ", a)') msg
     error stop
-  end subroutine error_abort
+  end subroutine error_abort_1
 
   subroutine cons_t_copy (dst, src)
     class(cons_t), intent(out) :: dst
@@ -1352,15 +1381,19 @@ module cons_lists
      module procedure list_unfold_right_with_nil_tail
   end interface list_unfold_right
 
+  interface error_abort
+     module procedure error_abort_1
+  end interface error_abort
+
 contains
 
-  subroutine error_abort (msg)
+  subroutine error_abort_1 (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
     write (error_unit, '()')
     write (error_unit, '("cons_lists error: ", a)') msg
     error stop
-  end subroutine error_abort
+  end subroutine error_abort_1
 
   function copy_first_pair (lst) result (lst1)
     class(*), intent(in) :: lst
