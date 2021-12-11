@@ -127,8 +127,11 @@ module cons_types ! FIXME: This will replace the original ‘cons_types’.
   ! go just short of twice as high without numeric overflow.)
   integer, parameter :: max_heap_size = 2 ** (numeric_storage_size - 2)
 
-!  integer, parameter :: initial_heap_size = 2 ** 8 ! FIXME: Set this higher, perhaps.
-integer, parameter :: initial_heap_size = 2 ** 12 ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME
+  integer, parameter :: initial_heap_size = 2 ** 8 ! FIXME: Set this higher, perhaps.
+
+  ! If free stack is below this after a garbage collection, then
+  ! increase the size of the heap.
+  integer, parameter :: minimum_free_stack = 64
 
   ! A nil heap address.
   integer, parameter :: nil_address = 0
@@ -201,7 +204,6 @@ dnl
     free_stack(free_stack_height) = addr
 
     heap(addr) = pair
-!if (heap(addr)%roots_count /= 0) error stop
   end subroutine free_stack_push
 
   subroutine free_stack_pop (addr)
@@ -218,8 +220,6 @@ print*,"free_stack_height after  = ",free_stack_height
 
     addr = free_stack(free_stack_height)
     free_stack_height = free_stack_height - 1
-
-!if (heap(addr)%roots_count /= 0) error stop
   end subroutine free_stack_pop
 
   function cons_t_cast (obj) result (lst)
@@ -452,13 +452,40 @@ print*,"free_stack_height after  = ",free_stack_height
     free_stack_height = initial_heap_size
   end subroutine initialize_heap
 
+  subroutine expand_the_heap
+    type(cons_pair_t), dimension(:), allocatable :: new_heap
+    integer, dimension(:), allocatable :: new_free_stack
+
+    integer :: m, n, i
+
+    m = size (heap)
+    n = 2 * m
+
+    allocate (new_heap(1:n))
+    new_heap(1:m) = heap
+    call move_alloc (new_heap, heap)
+
+    allocate (new_free_stack(1:n))
+    new_free_stack(1:m) = free_stack
+    call move_alloc (new_free_stack, free_stack)
+    do i = m + 1, n
+       free_stack_height = free_stack_height + 1
+       free_stack(free_stack_height) = i
+    end do
+  end subroutine expand_the_heap
+
   subroutine collect_garbage
     call mark_from_roots
     call sweep
-    !
-    ! FIXME: IF THE FREE STACK SEEMS TOO SHORT HERE, THEN EXPAND THE HEAP.
-    !
-    if (free_stack_height == 0) error stop ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+print*,"free_stack_height after sweep = ",free_stack_height
+    if (free_stack_height < minimum_free_stack) then
+       if (size (heap) < max_heap_size) then
+          call expand_the_heap
+       end if
+    end if
+    if (free_stack_height == 0) then
+       call error_abort ("garbage collection failed to free space")
+    end if
   end subroutine collect_garbage
 
   subroutine mark_from_roots
