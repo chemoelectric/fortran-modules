@@ -224,7 +224,7 @@ contains
 
     if (free_stack_height == 0) then
        if (1 <= garbage_collection_debugging_level) then
-          print *, "collecting garbage automatically ----------------"
+          write (*,*) "collecting garbage automatically ----------------"
        end if
        call collect_garbage
     end if
@@ -239,8 +239,8 @@ contains
     ! call this subroutine to clean garbage at a particular point.
     !
     if (1 <= garbage_collection_debugging_level) then
-       print *, "collecting garbage by program request -----------"
-       print *, "free_stack_height before sweep     = ", free_stack_height
+       write (*,*) "collecting garbage by program request -----------"
+       write (*,*) "free_stack_height before sweep     = ", free_stack_height
     end if
     call collect_garbage
   end subroutine collect_garbage_now
@@ -507,7 +507,7 @@ contains
     call mark_from_roots
     call sweep
     if (1 <= garbage_collection_debugging_level) then
-       print *, "free_stack_height after sweep      = ", free_stack_height
+       write (*,*) "free_stack_height after sweep      = ", free_stack_height
     end if
     if (size (heap) /= max_heap_size) then
        if (free_stack_height < max (minimum_free_heap, 1)) then
@@ -553,7 +553,7 @@ contains
       free_stack_height = free_stack_height + (n - m)
 
       if (1 <= garbage_collection_debugging_level) then
-         print *, "free_stack_height after expansion  = ", free_stack_height
+         write (*,*) "free_stack_height after expansion  = ", free_stack_height
       end if
     end subroutine expand_the_heap
 
@@ -583,7 +583,6 @@ contains
     subroutine mark_reachables
       integer :: addr
       type(cons_pair_t) :: pair, pr
-!!$      class(*), allocatable :: car, cdr
       class(*), allocatable :: field
       integer :: n
       logical :: done
@@ -605,6 +604,9 @@ contains
                   if (0 < pr%roots_count) then
                      ! Mark the reachable object and push its address
                      ! to the stack.
+                     if (5 <= garbage_collection_debugging_level) then
+                        write (*,*) "adding field to work list:", n
+                     end if
                      pr%roots_count = -(pr%roots_count)
                      heap(addr) = pr
                      call integer_list_cons (addr, stack, stack)
@@ -614,38 +616,6 @@ contains
             n = n + 1
             call pair%get_field (n, done, field)
          end do
-
-!!$         ! See if the popped entry's CAR should go on the stack.
-!!$         car = pair%car
-!!$         select type (car)
-!!$         class is (cons_t)
-!!$            addr = car%pair_addr
-!!$            if (addr /= nil_address) then
-!!$               pr = heap(addr)
-!!$               if (0 < pr%roots_count) then
-!!$                  ! Mark the CAR and push it to the stack.
-!!$                  pr%roots_count = -(pr%roots_count)
-!!$                  heap(addr) = pr
-!!$                  call integer_list_cons (addr, stack, stack)
-!!$               end if
-!!$            end if
-!!$         end select
-!!$
-!!$         ! See if the popped entry's CDR should go on the stack.
-!!$         cdr = pair%cdr
-!!$         select type (cdr)
-!!$         class is (cons_t)
-!!$            addr = cdr%pair_addr
-!!$            if (addr /= nil_address) then
-!!$               pr = heap(addr)
-!!$               if (0 < pr%roots_count) then
-!!$                  ! Mark the CDR and push it to the stack.
-!!$                  pr%roots_count = -(pr%roots_count)
-!!$                  heap(addr) = pr
-!!$                  call integer_list_cons (addr, stack, stack)
-!!$               end if
-!!$            end if
-!!$         end select
       end do
     end subroutine mark_reachables
 
