@@ -2426,6 +2426,14 @@ end module test__cons_lists
 
 program main
   use test__cons_lists
+  use cons_types, only: collect_garbage_now
+  use cons_types, only: garbage_collection_debugging_level
+  use cons_types, only: minimum_free_heap
+
   implicit none
+
+  garbage_collection_debugging_level = 1
+  minimum_free_heap = 4
   call run_tests
+  call collect_garbage_now
 end program main
