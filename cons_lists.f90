@@ -22,6 +22,63 @@
 ! CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
 
+module cons_types_helpers
+
+  implicit none
+  private
+
+  public :: integer_link_t
+  public :: integer_list_cons
+  public :: integer_list_uncons
+
+  type :: integer_link_t
+     integer :: ival
+     type(integer_link_t), pointer :: next
+  end type integer_link_t
+
+contains
+
+  subroutine error_abort (msg)
+    use iso_fortran_env, only : error_unit
+    character(*), intent(in) :: msg
+    write (error_unit, '()')
+    write (error_unit, '("cons_types_helpers error: ", a)') msg
+    error stop
+  end subroutine error_abort
+
+  subroutine integer_list_cons (ival, ilst, ilst1)
+    integer, intent(in) :: ival
+    type(integer_link_t), pointer :: ilst
+    type(integer_link_t), pointer :: ilst1
+
+    type(integer_link_t), pointer :: tmp
+
+    allocate (tmp)
+    tmp%ival = ival
+    tmp%next => ilst
+    ilst1 => tmp
+  end subroutine integer_list_cons
+
+  subroutine integer_list_uncons (ilst1, ival, ilst)
+    type(integer_link_t), pointer :: ilst1
+    integer, intent(out) :: ival
+    type(integer_link_t), pointer :: ilst
+
+    type(integer_link_t), pointer :: tmp
+
+    if (associated (ilst1)) then
+       ival = ilst1%ival
+       tmp => ilst1%next
+       ilst1%next => null ()
+       deallocate (ilst1)
+       ilst => tmp
+    else
+       call error_abort ("integer_list_uncons of a null pointer")
+    end if
+  end subroutine integer_list_uncons
+
+end module cons_types_helpers
+
 module cons_types ! FIXME: This will replace the original  cons_types .
   !
   ! Lisp-style CONS-pairs for Fortran, with a simple mark-and-sweep
@@ -31,11 +88,12 @@ module cons_types ! FIXME: This will replace the original  cons_types .
   !
 
   use, intrinsic :: iso_fortran_env, only : numeric_storage_size
+  use cons_types_helpers
 
   implicit none
   private
 
-  public :: assignment(=)
+!!$  public :: assignment(=)
   public :: cons_t              ! Either a nil list or a reference to a CONS-pair.
   public :: nil_list            ! The canonical nil list.
   public :: cons_t_cast         ! Cast to a cons_t, if possible.
@@ -50,39 +108,35 @@ module cons_types ! FIXME: This will replace the original  cons_types .
   public :: list_is_pair        ! Does a cons_t refer to a CONS-pair? (That is, is it non-nil?)
   public :: cons                ! The fundamental constructor: make a CAR-CDR pair.
   public :: uncons              ! The fundamental deconstructor: get the CAR and CDR from a pair.
-  public :: get_car             ! Get just the CAR.
-  public :: get_cdr             ! Get just the CDR.
+  public :: car                 ! Get just the CAR.
+  public :: cdr                 ! Get just the CDR.
   public :: set_car             ! Change the CAR.
   public :: set_cdr             ! Change the CDR.
-  
-  ! For the common case of 32-bit Fortran numerics,
-  ! almost_max_storage=1073741824 and max_storage=2147483647. That is
-  ! a lot of storage for CONS-pair, do you not think? (Addressing
-  ! contiguous memory is another matter. Then those numbers are not so
-  ! big on a 64-bit platform.)
-  integer, parameter :: almost_max_storage = 2 ** (numeric_storage_size - 2)
-  integer, parameter :: max_storage = almost_max_storage + (almost_max_storage - 1)
 
-  integer, parameter :: initial_heap_size = 2 ** 8
-  integer, parameter :: initial_roots_size = 2 ** 8
+  ! If the Fortran has 32-bit integers, then max_heap_size =
+  ! 1073741824. (This seems like plenty, although one could in theory
+  ! go just short of twice as high without numeric overflow.)
+  integer, parameter :: max_heap_size = 2 ** (numeric_storage_size - 2)
 
+!  integer, parameter :: initial_heap_size = 2 ** 8 ! FIXME: Set this higher, perhaps.
+integer, parameter :: initial_heap_size = 2 ** 25 ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME
+
+  ! A nil heap address.
   integer, parameter :: nil_address = 0
-
-  integer, parameter :: mark_bit = 0
 
   ! A private type representing the CAR-CDR-tuple of a CONS-pair.
   type :: cons_pair_t
      class(*), allocatable :: car
      class(*), allocatable :: cdr
-     integer :: status ! Status bits.
-     integer :: next   ! The next entry in the free list or a work list.
+     integer :: roots_count = 0 ! If roots_count is non-zero, this is a garbage collection root.
+     integer :: next_free = nil_address ! For the list of free heap entries.
   end type cons_pair_t
 
+  type(cons_pair_t), dimension(:), allocatable :: heap
+  integer :: free_list
+
   type :: cons_t
-     integer :: pair = nil_address ! Address of a cons_pair_t in the heap.
-     integer :: here = nil_address ! Where I am in the roots_t table.
-     integer :: prev = nil_address ! Previous entry in a roots list.
-     integer :: next = nil_address ! Next entry in a roots list.
+     integer :: pair_addr = nil_address ! Heap address of the CAR and CDR.
    contains
      private
      procedure, pass(dst) :: cons_t_copy
@@ -92,27 +146,8 @@ module cons_types ! FIXME: This will replace the original  cons_types .
      final :: cons_t_finalize
   end type cons_t
 
-  type :: heap_t
-     type(cons_pair_t), dimension(:), allocatable :: pairs
-     integer :: free_list = nil_address
-  end type heap_t
-
-  type :: roots_t
-     type(cons_t), dimension(:), allocatable :: lists
-     integer :: roots_list = nil_address
-     integer :: free_list = nil_address
-  end type roots_t
-
-  type(heap_t) :: heap = heap_t ()
-  type(roots_t) :: roots = roots_t ()
-
   ! The canonical nil list.
   type(cons_t), parameter :: nil_list = cons_t ()
-
-  interface error_abort
-     module procedure error_abort_1
-     module procedure error_abort_2
-  end interface error_abort
 
 contains
   
@@ -122,6 +157,8 @@ contains
     select type (obj)
     type is (integer)
        int = obj
+    class default
+       call error_abort ("integer_cast of a non-integer")
     end select
   end function integer_cast
 
@@ -131,24 +168,40 @@ contains
     select type (obj)
     type is (real)
        r = obj
+    class default
+       call error_abort ("real_cast of a non-real")
     end select
   end function real_cast
-  subroutine error_abort_1 (msg)
+  subroutine error_abort (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
     write (error_unit, '()')
     write (error_unit, '("cons_types error: ", a)') msg
     error stop
-  end subroutine error_abort_1
+  end subroutine error_abort
 
-  subroutine error_abort_2 (msg, error_status)
-    use iso_fortran_env, only : error_unit
-    character(*), intent(in) :: msg
-    integer, intent(in) :: error_status
-    write (error_unit, '()')
-    write (error_unit, '("cons_types error: ", a, " with status code ", i3)') msg, error_status
-    error stop
-  end subroutine error_abort_2
+  subroutine free_list_uncons (addr)
+    integer, intent(out) :: addr
+
+    call ensure_heap_is_initialized
+
+    if (free_list == nil_address) then
+print*,"-------------- collecting garbage ---------------"
+       call collect_garbage
+    end if
+    addr = free_list
+    free_list = heap(addr)%next_free
+    heap(addr)%next_free = nil_address
+  end subroutine free_list_uncons
+
+  subroutine free_list_cons (addr)
+    integer, intent(in) :: addr
+    call clear_car (addr)
+    call clear_cdr (addr)
+    heap(addr)%roots_count = 0
+    heap(addr)%next_free = free_list
+    free_list = addr
+  end subroutine free_list_cons
 
   function cons_t_cast (obj) result (lst)
     !
@@ -167,7 +220,7 @@ contains
   function cons_t_eq (lst1, lst2) result (eq)
     class(cons_t), intent(in) :: lst1, lst2
     logical :: eq
-    eq = (lst1%pair == lst2%pair)
+    eq = (lst1%pair_addr == lst2%pair_addr)
   end function cons_t_eq
 
   function is_nil_or_pair (obj) result (is_cons)
@@ -186,7 +239,7 @@ contains
     logical is_nil
     select type (obj)
     class is (cons_t)
-       is_nil = (obj%pair == nil_address)
+       is_nil = (obj%pair_addr == nil_address)
     class default
        is_nil = .false.
     end select
@@ -197,40 +250,40 @@ contains
     logical is_pair
     select type (obj)
     class is (cons_t)
-       is_pair = (obj%pair /= nil_address)
+       is_pair = (obj%pair_addr /= nil_address)
     class default
        is_pair = .false.
     end select
   end function is_cons_pair
 
-  function is_not_nil_or_pair (obj) result (is_not_cons)
+  function is_not_nil_or_pair (obj) result (bool)
     class(*), intent(in) :: obj
-    logical :: is_not_cons
-    is_not_cons = .not. is_nil_or_pair (obj)
+    logical :: bool
+    bool = .not. is_nil_or_pair (obj)
   end function is_not_nil_or_pair
 
-  function is_not_nil_list (obj) result (is_not_nil)
+  function is_not_nil_list (obj) result (bool)
     class(*), intent(in) :: obj
-    logical :: is_not_nil
-    is_not_nil = .not. is_nil_list (obj)
+    logical :: bool
+    bool = .not. is_nil_list (obj)
   end function is_not_nil_list
 
-  function is_not_cons_pair (obj) result (is_not_pair)
+  function is_not_cons_pair (obj) result (bool)
     class(*), intent(in) :: obj
-    logical :: is_not_pair
-    is_not_pair = .not. is_cons_pair (obj)
+    logical :: bool
+    bool = .not. is_cons_pair (obj)
   end function is_not_cons_pair
   
   function list_is_nil (lst) result (is_nil)
     class(cons_t), intent(in) :: lst
     logical is_nil
-    is_nil = (lst%pair == nil_address)
+    is_nil = (lst%pair_addr == nil_address)
   end function list_is_nil
 
   function list_is_pair (lst) result (is_pair)
     class(cons_t), intent(in) :: lst
     logical is_pair
-    is_pair = (lst%pair /= nil_address)
+    is_pair = (lst%pair_addr /= nil_address)
   end function list_is_pair
 
   function cons (car_value, cdr_value) result (dst)
@@ -238,58 +291,17 @@ contains
     class(*), intent(in) :: cdr_value
     type(cons_t) :: dst
 
-    type(cons_pair_t) :: car_cdr
-    integer :: car_cdr_addr
+    type(cons_pair_t) :: pair
+    integer :: addr
 
-    if (heap%free_list == nil_address) then
-       if (.not. allocated (heap%pairs)) then
-          call expand_heap      ! Create an initial heap.
-          call expand_roots     ! Create an initial roots list.
-       else
-          call collect_garbage
-       end if
-    end if
+    pair%car = car_value
+    pair%cdr = cdr_value
+    pair%roots_count = 1
 
-    car_cdr%car = car_value
-    car_cdr%cdr = cdr_value
+    call free_list_uncons (addr)
 
-    ! Pop an address from the heap's free list.
-    car_cdr_addr = heap%free_list
-    heap%free_list = heap%pairs(car_cdr_addr)%next
-
-    ! For neatness, clear the free list link.
-    car_cdr%next = nil_address
-
-    ! Put the pair in the heap.
-    heap%pairs(car_cdr_addr) = car_cdr
-
-    ! Add a new cons_t to the roots list.
-    dst%pair = car_cdr_addr
-    if (roots%free_list == nil_address) then
-       call expand_roots
-    end if
-    dst%here = roots%free_list
-    roots%free_list = roots%lists(dst%here)%next
-    block
-      integer :: tmp
-      tmp = roots%roots_list
-      roots%roots_list = dst%here
-      dst%prev = nil_address
-      dst%next = tmp
-      if (tmp /= nil_address) then
-         roots%lists(tmp)%prev = dst%here
-      end if
-    end block
-!!$print *, "cons ", dst%prev, dst%here, dst%next
-!!$block
-!!$integer :: i
-!!$i = roots%roots_list
-!!$do while (i /= nil_address)
-!!$print *, "roots list: ", i
-!!$!print *, "cons ", roots%lists(i)%prev, roots%lists(i)%here, roots%lists(i)%next
-!!$i = roots%lists(i)%next
-!!$end do
-!!$end block
+    heap(addr) = pair
+    dst%pair_addr = addr
   end function cons
 
   subroutine uncons (lst, car_value, cdr_value)
@@ -297,291 +309,104 @@ contains
     class(*), allocatable :: car_value, cdr_value
 
     class(*), allocatable :: car_val, cdr_val
-    integer :: addr
 
     select type (lst)
     class is (cons_t)
-       if (list_is_pair (lst)) then
-          addr = lst%pair
-          car_val = heap%pairs(addr)%car
-          cdr_val = heap%pairs(addr)%cdr
-       else
+       if (list_is_nil (lst)) then
           call error_abort ("uncons of nil list")
        end if
+       car_val = heap(lst%pair_addr)%car
+       cdr_val = heap(lst%pair_addr)%cdr
     class default
        call error_abort ("uncons of an object with no pairs")
     end select
+
     car_value = car_val
     cdr_value = cdr_val
   end subroutine uncons
 
-  subroutine get_car (lst, car_value)
+  function car (lst) result (car_value)
     class(*) :: lst
     class(*), allocatable :: car_value
 
-    class(*), allocatable :: car_val
-    integer :: addr
-
     select type (lst)
     class is (cons_t)
-       if (list_is_pair (lst)) then
-          addr = lst%pair
-!!$print *, "get_car addr = ", addr
-          car_val = heap%pairs(addr)%car
-!!$print *, addr, integer_cast(heap%pairs(addr)%car), real_cast(heap%pairs(addr)%car)
-       else
-          call error_abort ("get_car of nil list")
+       if (list_is_nil (lst)) then
+          call error_abort ("car of nil list")
        end if
+       car_value = heap(lst%pair_addr)%car
     class default
-       call error_abort ("get_car of an object with no pairs")
+       call error_abort ("car of an object with no pairs")
     end select
-    car_value = car_val
-  end subroutine get_car
+  end function car
 
-  subroutine get_cdr (lst, cdr_value)
+  function cdr (lst) result (cdr_value)
     class(*) :: lst
     class(*), allocatable :: cdr_value
 
-    class(*), allocatable :: cdr_val
-    integer :: addr
-
     select type (lst)
     class is (cons_t)
-       if (list_is_pair (lst)) then
-          addr = lst%pair
-          cdr_val = heap%pairs(addr)%cdr
-       else
-          call error_abort ("get_cdr of nil list")
-       end if
+       if (list_is_nil (lst)) then
+          call error_abort ("cdr of nil list")
+       endif
+       cdr_value = heap(lst%pair_addr)%cdr
     class default
-       call error_abort ("get_cdr of an object with no pairs")
+       call error_abort ("cdr of an object with no pairs")
     end select
-    cdr_value = cdr_val
-  end subroutine get_cdr
+  end function cdr
 
   subroutine set_car (lst, car_value)
     class(cons_t) :: lst
     class(*), intent(in) :: car_value
 
-    integer :: addr
+    type(cons_pair_t) :: pair
 
-    if (list_is_pair (lst)) then
-       addr = lst%pair
-!!$print *, addr, integer_cast(car_value), integer_cast(heap%pairs(addr)%car), real_cast(heap%pairs(addr)%car)
-       heap%pairs(addr)%car = car_value
-!!$print *, addr, integer_cast(car_value), integer_cast(heap%pairs(addr)%car), real_cast(heap%pairs(addr)%car)
-!!$print *, "set_car addr = ", addr
-    else
+    if (list_is_nil (lst)) then
        call error_abort ("set_car of nil list")
-    end if
+    endif
+
+    pair = heap(lst%pair_addr)
+    pair%car = car_value
+    heap(lst%pair_addr) = pair
   end subroutine set_car
 
   subroutine set_cdr (lst, cdr_value)
     class(cons_t) :: lst
     class(*), intent(in) :: cdr_value
 
-    integer :: addr
+    type(cons_pair_t) :: pair
 
-    if (list_is_pair (lst)) then
-       addr = lst%pair
-       heap%pairs(addr)%cdr = cdr_value
-    else
+    if (list_is_nil (lst)) then
        call error_abort ("set_cdr of nil list")
-    end if
+    endif
+
+    pair = heap(lst%pair_addr)
+    pair%cdr = cdr_value
+    heap(lst%pair_addr) = pair
   end subroutine set_cdr
 
-  subroutine collect_garbage
-    call mark_from_roots
-    call sweep
-    if (.not. buffer_looks_good ()) then
-       call expand_heap
-    end if
-
-  contains
-
-    function buffer_looks_good () result (bool)
-      logical :: bool
-
-      integer, parameter :: buffer = 16
-
-      integer :: addr
-      integer :: i
-
-      if (size (heap%pairs) == max_storage) then
-         ! The garbage collector is at maximum capacity.
-         bool = (heap%free_list /= nil_address)
-      else
-         ! Require that the free list have some buffer in it.
-         addr = heap%free_list
-         i = buffer
-         do while (i /= 0 .and. addr /= nil_address)
-            addr = heap%pairs(addr)%next
-            i = i - 1
-         end do
-         bool = (i == 0)
-      end if
-    end function buffer_looks_good
-
-  end subroutine collect_garbage
-
-  function growth_function (m) result (n)
-    !
-    ! How to increase the size of array storage.
-    !
-    integer, intent(in) :: m
-    integer :: n
-
-    if (m < almost_max_storage) then
-       n = 2 * m                ! Double the size of the array.
-    else if (m < max_storage) then
-       n = max_storage
-    else
-       call error_abort ("garbage collector capacity exceeded")
-    end if
-  end function growth_function
-
-  subroutine expand_heap
-    type(cons_pair_t), dimension(:), allocatable :: new_pairs
-    integer :: n_old, n_new
-    integer :: i
-    integer :: error_status
-
-    if (.not. allocated (heap%pairs)) then
-       n_old = 0
-       n_new = initial_heap_size
-       allocate (heap%pairs(1:n_new), stat = error_status)
-       if (error_status /= 0) then
-          call error_abort ("virtual memory exhausted", error_status)
-       end if
-       heap%free_list = nil_address
-    else
-       ! Move the pairs to a larger array.
-       n_old = size (heap%pairs)
-       n_new = growth_function (n_old)
-       allocate (new_pairs(1:n_new), stat = error_status)
-       if (error_status /= 0) then
-          call error_abort ("virtual memory exhausted", error_status)
-       end if
-       new_pairs(1:n_old) = heap%pairs
-       call move_alloc (new_pairs, heap%pairs)
-    end if
-
-    ! Add the new pairs to the free list.
-    do i = n_old + 1, n_new - 1
-       heap%pairs(i)%next = i + 1
-    end do
-    heap%pairs(n_new)%next = heap%free_list
-    heap%free_list = n_old + 1
-!!$print *,heap%free_list
-!!$do i = 1,n_new
-!!$print *, heap%pairs(i)%next
-!!$end do
-  end subroutine expand_heap
-
-  subroutine expand_roots
-    type(cons_t), dimension(:), allocatable :: new_lists
-    integer :: n_old, n_new
-    integer :: i
-    integer :: error_status
-
-    if (.not. allocated (roots%lists)) then
-       n_old = 0
-       n_new = initial_roots_size
-       allocate (roots%lists(1:n_new), stat = error_status)
-       if (error_status /= 0) then
-          call error_abort ("virtual memory exhausted", error_status)
-       end if
-       roots%free_list = nil_address
-       roots%roots_list = nil_address
-    else
-       ! Move the lists to a larger array.
-       n_old = size (roots%lists)
-       n_new = growth_function (n_old)
-       allocate (new_lists(1:n_new), stat = error_status)
-       if (error_status /= 0) then
-          call error_abort ("virtual memory exhausted", error_status)
-       end if
-       new_lists(1:n_old) = roots%lists
-       call move_alloc (new_lists, roots%lists)
-    end if
-
-    ! Add the new lists to the free list.
-    do i = n_old + 1, n_new - 1
-       roots%lists(i)%next = i + 1
-    end do
-    roots%lists(n_new)%next = roots%free_list
-    roots%free_list = n_old + 1
-!!$print *,roots%free_list
-!!$do i = 1,n_new
-!!$print *, roots%lists(i)%next
-!!$end do
-  end subroutine expand_roots
-
   subroutine cons_t_copy (dst, src)
-    class(cons_t), intent(out), target :: dst
+    class(cons_t), intent(out) :: dst
     class(cons_t), intent(in) :: src
 
-    if (src%pair /= nil_address) then
-       ! Add a new cons_t to the roots list.
-       dst%pair = src%pair
-       if (roots%free_list == nil_address) then
-          call expand_roots
-       end if
-       dst%here = roots%free_list
-       roots%free_list = roots%lists(dst%here)%next
-       block
-         integer :: tmp
-         tmp = roots%roots_list
-         roots%roots_list = dst%here
-         dst%prev = nil_address
-         dst%next = tmp
-         if (tmp /= nil_address) then
-            roots%lists(tmp)%prev = dst%here
-         end if
-       end block
+    integer :: addr
+
+    addr = src%pair_addr
+    if (addr /= nil_address) then
+       heap(addr)%roots_count = heap(addr)%roots_count + 1
     end if
-!!$print *, "cons_t_copy ", dst%prev, dst%here, dst%next
-!!$block
-!!$integer :: i
-!!$i = roots%roots_list
-!!$do while (i /= nil_address)
-!!$!print *, "cons_t_copy ", roots%lists(i)%prev, roots%lists(i)%here, roots%lists(i)%next
-!!$i = roots%lists(i)%next
-!!$end do
-!!$end block
+    dst%pair_addr = addr
   end subroutine cons_t_copy
 
   subroutine cons_t_discard (this)
-    class(cons_t), intent(inout) :: this
+    class(cons_t) :: this
 
-    ! If `this' is a root, remove it from the roots list.
-    if (this%here /= nil_address) then
-       if (this%prev == nil_address) then
-          roots%roots_list = this%next
-       else
-          roots%lists(this%prev)%next = this%next
-       end if
+    integer :: addr
 
-       if (this%next /= nil_address) then
-          roots%lists(this%next)%prev = this%prev
-       end if
-
-       ! Return its array entry to the free list.
-       block
-         integer :: tmp
-         tmp = roots%free_list
-         roots%free_list = this%here
-         this%here = tmp
-       end block
+    addr = this%pair_addr
+    if (addr /= nil_address) then
+       heap(addr)%roots_count = heap(addr)%roots_count - 1
     end if
-
-    ! Make it safe to call cons_t_discard again.
-    this%here = nil_address
-    this%prev = nil_address
-    this%next = nil_address
-
-    ! Make `this' a nil list.
-    this%pair = nil_address
   end subroutine cons_t_discard
 
   subroutine cons_t_finalize (this)
@@ -589,88 +414,103 @@ contains
     call cons_t_discard (this)
   end subroutine cons_t_finalize
 
+  subroutine ensure_heap_is_initialized
+    if (.not. allocated (heap)) then
+       call initialize_heap
+    end if
+  end subroutine ensure_heap_is_initialized
+
+  subroutine initialize_heap
+    integer :: i
+
+    if (allocated (heap)) then
+       call error_abort ("attempt to initialize an already initialized heap")
+    end if
+
+    allocate (heap(1:initial_heap_size))
+    do i = 1, initial_heap_size - 1
+       call clear_car (i)
+       call clear_cdr (i)
+       heap(i)%roots_count = 0
+       heap(i)%next_free = i + 1
+    end do
+    heap(initial_heap_size)%next_free = nil_address
+    free_list = 1
+  end subroutine initialize_heap
+
+  subroutine clear_car (heap_addr)
+    integer, intent(in) :: heap_addr
+    !
+    ! This is an arbitrary value. (FIXME: One might instead deallocate
+    ! the field.)
+    heap(heap_addr)%car = nil_list
+  end subroutine clear_car
+
+  subroutine clear_cdr (heap_addr)
+    integer, intent(in) :: heap_addr
+    !
+    ! This is an arbitrary value. (FIXME: One might instead deallocate
+    ! the field.)
+    heap(heap_addr)%cdr = nil_list
+  end subroutine clear_cdr
+
+  subroutine collect_garbage
+    call mark_from_roots
+    call sweep
+    !
+    ! FIXME: IF THE FREE LIST SEEMS TOO SHORT HERE, THEN EXPAND THE HEAP.
+    !
+  end subroutine collect_garbage
+
   subroutine mark_from_roots
-
-    type :: stack_t
-       integer :: root
-       type(stack_t), pointer :: next
-    end type stack_t
-
-    type(stack_t), pointer :: stack
+    type(integer_link_t), pointer :: work_list ! A stack.
     integer :: addr
 
-    stack => null ()
-    addr = roots%roots_list
-    do while (addr /= nil_address)
-!!$print *,addr
-       if (.not. btest (heap%pairs(addr)%status, mark_bit)) then
-          heap%pairs(addr)%status = ibset (heap%pairs(addr)%status, mark_bit)
-          block                 ! Push the root.
-            type(stack_t), pointer :: new_head
-            allocate (new_head)
-            new_head%root = addr
-            new_head%next => stack
-            stack => new_head
-          end block
+    work_list => null ()
+    do addr = lbound(heap, 1), ubound(heap, 1)
+       if (0 < heap(addr)%roots_count) then
+          ! Mark the heap entry by temporarily negating its roots_count.
+          heap(addr)%roots_count = -(heap(addr)%roots_count)
+          call integer_list_cons (addr, work_list, work_list)
           call mark_reachables
        end if
-!!$print *, "addr before/after: ", addr, roots%lists(addr)%next
-       addr = roots%lists(addr)%next
     end do
 
   contains
 
     subroutine mark_reachables
-      type(stack_t), pointer :: p
       integer :: addr, addr1
+      class(*), allocatable :: car, cdr
 
-      do while (associated (stack))
-         ! Pop a root.
-         p => stack
-         addr = p%root
-         stack => p%next
-         deallocate (p)
+      do while (associated (work_list))
+         ! Pop the head of the work list.
+         call integer_list_uncons (work_list, addr, work_list)
 
-         ! Add the addr to the free list.
-         block
-           integer :: tmp
-           tmp = roots%free_list
-           roots%free_list = addr
-           roots%lists(addr)%next = tmp
-         end block
+         car = heap(addr)%car
+         cdr = heap(addr)%cdr
 
-         ! See if the CAR should go on the work list.
-         select type (car => heap%pairs(addr)%car)
+         ! See if the head entry's CAR should go on the work list.
+         select type (car)
          class is (cons_t)
-            addr1 = car%pair
+            addr1 = car%pair_addr
             if (addr1 /= nil_address) then
-               if (.not. btest (heap%pairs(addr1)%status, mark_bit)) then
-                  heap%pairs(addr1)%status = ibset (heap%pairs(addr1)%status, mark_bit)
-                  block         ! Add addr1 to the work list.
-                    type(stack_t), pointer :: tmp
-                    tmp => stack
-                    allocate (stack)
-                    stack%root = addr1
-                    stack%next => tmp
-                  end block
+               if (0 < heap(addr1)%roots_count) then
+                  ! Mark the CAR and add it to the work list.
+                  heap(addr1)%roots_count = -(heap(addr1)%roots_count)
+                  call integer_list_cons (addr1, work_list, work_list)
                end if
             end if
          end select
 
-         ! See if the CDR should go on the work list.
-         select type (cdr => heap%pairs(addr)%cdr)
+         ! See if the head entry's CDR should go on the work list.
+         select type (cdr)
          class is (cons_t)
-            addr1 = cdr%pair
+            addr1 = cdr%pair_addr
             if (addr1 /= nil_address) then
-               if (.not. btest (heap%pairs(addr1)%status, mark_bit)) then
-                  heap%pairs(addr1)%status = ibset (heap%pairs(addr1)%status, mark_bit)
-                  block         ! Add addr1 to the work list.
-                    type(stack_t), pointer :: tmp
-                    tmp => stack
-                    allocate (stack)
-                    stack%root = addr1
-                    stack%next => tmp
-                  end block
+               if (0 < heap(addr1)%roots_count) then
+                  ! Mark the CDR and add it to the work list.
+                  heap(addr1)%roots_count = -(heap(addr1)%roots_count)
+                  call integer_list_cons (addr1, work_list, work_list)
                end if
             end if
          end select
@@ -679,106 +519,15 @@ contains
 
   end subroutine mark_from_roots
 
-!!$  subroutine mark_from_roots
-!!$    integer :: work_list
-!!$    integer :: addr
-!!$
-!!$    work_list = nil_address
-!!$
-!!$    addr = roots%roots_list
-!!$    do while (addr /= nil_address)
-!!$       if (.not. btest (heap%pairs(addr)%status, mark_bit)) then
-!!$          heap%pairs(addr)%status = ibset (heap%pairs(addr)%status, mark_bit)
-!!$          block
-!!$            ! Add the root to the work list.
-!!$            integer :: tmp
-!!$            tmp = work_list
-!!$            work_list = addr
-!!$            roots%lists(addr)%next = tmp            
-!!$          end block
-!!$          call mark_reachables
-!!$       end if
-!!$       addr = roots%lists(addr)%next
-!!$    end do
-!!$
-!!$  contains
-!!$
-!!$    subroutine mark_reachables
-!!$      integer :: addr, addr1
-!!$
-!!$      do while (work_list /= nil_address)
-!!$         addr = work_list       ! Get the head of the work list.
-!!$         work_list = roots%lists(addr)%next ! Remove the head.
-!!$         block                  ! Add the addr to the free list.
-!!$           integer :: tmp
-!!$           tmp = roots%free_list
-!!$           roots%free_list = addr
-!!$           roots%lists(addr)%next = tmp
-!!$         end block
-!!$
-!!$         select type (car => heap%pairs(addr)%car)
-!!$         class is (cons_t)
-!!$            addr1 = car%pair
-!!$            if (addr1 /= nil_address) then
-!!$               if (.not. btest (heap%pairs(addr1)%status, mark_bit)) then
-!!$                  heap%pairs(addr1)%status = ibset (heap%pairs(addr1)%status, mark_bit)
-!!$                  block         ! Add addr1 to the work list.
-!!$                    integer :: tmp
-!!$                    tmp = work_list
-!!$                    work_list = addr1
-!!$                    roots%lists(addr1)%next = tmp
-!!$                  end block
-!!$               end if
-!!$            end if
-!!$         end select
-!!$
-!!$         select type (cdr => heap%pairs(addr)%cdr)
-!!$         class is (cons_t)
-!!$            addr1 = cdr%pair
-!!$            if (addr1 /= nil_address) then
-!!$               if (.not. btest (heap%pairs(addr1)%status, mark_bit)) then
-!!$                  heap%pairs(addr1)%status = ibset (heap%pairs(addr1)%status, mark_bit)
-!!$                  block         ! Add addr1 to the work list.
-!!$                    integer :: tmp
-!!$                    tmp = work_list
-!!$                    work_list = addr1
-!!$                    roots%lists(addr1)%next = tmp
-!!$                  end block
-!!$               end if
-!!$            end if
-!!$         end select
-!!$      end do
-!!$    end subroutine mark_reachables
-!!$
-!!$  end subroutine mark_from_roots
-
   subroutine sweep
     integer :: addr
-    integer :: error_status
-    do addr = 1, size (heap%pairs)
-       if (btest (heap%pairs(addr)%status, mark_bit)) then
-          ! Reachable.
-          heap%pairs(addr)%status = ibclr (heap%pairs(addr)%status, mark_bit)
+    do addr = lbound (heap, 1), ubound (heap, 1)
+       if (heap(addr)%roots_count < 0) then
+          ! The heap entry is marked. Unmark it.
+          heap(addr)%roots_count = -(heap(addr)%roots_count)
        else
-          ! Unreachable.
-          if (allocated (heap%pairs(addr)%car)) then
-             deallocate (heap%pairs(addr)%car, stat = error_status)
-             if (error_status /= 0) then
-                call error_abort ("deallocation failed", error_status)
-             end if
-          end if
-          if (allocated (heap%pairs(addr)%cdr)) then
-             deallocate (heap%pairs(addr)%cdr, stat = error_status)
-             if (error_status /= 0) then
-                call error_abort ("deallocation failed", error_status)
-             end if
-          end if
-          block                 ! Return the entry to the free list.
-            integer :: tmp
-            tmp = heap%free_list
-            heap%free_list = addr
-            heap%pairs(addr)%next = tmp
-          end block
+          ! The heap entry is unmarked. Return it to the free list.
+          call free_list_cons (addr)
        end if
     end do
   end subroutine sweep
@@ -1580,6 +1329,8 @@ contains
     select type (obj)
     type is (integer)
        int = obj
+    class default
+       call error_abort ("integer_cast of a non-integer")
     end select
   end function integer_cast
 
@@ -1589,6 +1340,8 @@ contains
     select type (obj)
     type is (real)
        r = obj
+    class default
+       call error_abort ("real_cast of a non-real")
     end select
   end function real_cast
   subroutine error_abort (msg)
@@ -1766,17 +1519,17 @@ contains
     pair = cons (car_value, cdr_value)
   end function list_cons
 
-  function car (pair) result (car_value)
-    class(*), intent(in) :: pair
-    class(*), allocatable :: car_value
-    call get_car (pair, car_value)
-  end function car
-
-  function cdr (pair) result (cdr_value)
-    class(*), intent(in) :: pair
-    class(*), allocatable :: cdr_value
-    call get_cdr (pair, cdr_value)
-  end function cdr
+!!$  function car (pair) result (car_value)
+!!$    class(*), intent(in) :: pair
+!!$    class(*), allocatable :: car_value
+!!$    call get_car (pair, car_value)
+!!$  end function car
+!!$
+!!$  function cdr (pair) result (cdr_value)
+!!$    class(*), intent(in) :: pair
+!!$    class(*), allocatable :: cdr_value
+!!$    call get_cdr (pair, cdr_value)
+!!$  end function cdr
 
   function list_length (lst) result (length)
     class(*), intent(in) :: lst

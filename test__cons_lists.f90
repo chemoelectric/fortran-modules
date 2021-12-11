@@ -379,7 +379,6 @@ contains
     call check (list_length (1 ** nil_list) == 1, "list_length (1 ** nil_list) == 1 failed")
     call check (list_length (iota (20)) == 20, "list_length (iota (20)) == 20 failed")
     call check (list_length (make_list (200, 'a')) == 200, "list_length (make_list (200, 'a')) == 200 failed")
-error stop
     call check (list_length (0.0 ** cons (1, 2)) == 2, "list_length (0.0 ** cons (1, 2)) == 2 failed")
     call check (list_length (cons (1, 2)) == 1, "list_length (cons (1, 2)) == 1 failed")
     !
