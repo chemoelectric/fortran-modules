@@ -32,85 +32,240 @@ dnl size with the -B option.
 dnl
 dnl
 
-module cons_types
-  !
-  ! Lisp-style CONS-pairs for Fortran.
-  !
-  ! Please use module cons_lists, rather than this module directly.
-  !
+module cons_types_helpers
 
   implicit none
   private
 
-  public :: cons_t
-  public :: nil_list
+  public :: integer_link_t
+  public :: integer_list_cons
+  public :: integer_list_uncons
 
-  public :: assignment(=)
+  type :: integer_link_t
+     integer :: ival
+     type(integer_link_t), pointer :: next
+  end type integer_link_t
 
-  public :: cons_t_cast
-  public :: cons_t_eq
-
-  public :: is_nil_or_pair
-  public :: is_nil_list
-  public :: is_cons_pair
-  public :: is_not_nil_or_pair
-  public :: is_not_nil_list
-  public :: is_not_cons_pair
-
-  public :: list_is_nil
-  public :: list_is_pair
-
-  public :: cons
-  public :: uncons
-  public :: list_cons
-  public :: car
-  public :: cdr
-
-  public :: set_car
-  public :: set_cdr
-
-  public :: list_discard
-  public :: list_deallocate_discarded
-
-  ! A private type representing the CAR-CDR-tuple of a CONS-pair.
-  type :: cons_pair_t
-     class(*), allocatable :: car
-     class(*), allocatable :: cdr
-     integer :: status = 0
-  end type cons_pair_t
-
-  ! A public type that is a NIL-list or a reference to a
-  ! CAR-CDR-tuple. The class of a Lisp-like list structure is
-  ! `class(cons_t)'.
-  type :: cons_t
-     class(cons_pair_t), pointer :: p => null ()
-   contains
-     private
-     procedure, pass(dst) :: cons_t_copy
-     generic, public :: assignment(=) => cons_t_copy
-  end type cons_t
-
-  ! The canonical NIL-list.
-  type(cons_t), parameter :: nil_list = cons_t (null ())
-
-  integer, parameter :: bit__cons_pair_t_discard = 0
-  type(cons_t) :: discard_list = nil_list
+  interface error_abort
+     module procedure error_abort_1
+  end interface error_abort
 
 contains
 
-  subroutine error_abort (msg)
+  subroutine error_abort_1 (msg)
+    use iso_fortran_env, only : error_unit
+    character(*), intent(in) :: msg
+    write (error_unit, '()')
+    write (error_unit, '("cons_types_helpers error: ", a)') msg
+    error stop
+  end subroutine error_abort_1
+
+  subroutine integer_list_cons (ival, ilst, ilst1)
+    integer, intent(in) :: ival
+    type(integer_link_t), pointer :: ilst
+    type(integer_link_t), pointer :: ilst1
+
+    type(integer_link_t), pointer :: tmp
+
+    allocate (tmp)
+    tmp%ival = ival
+    tmp%next => ilst
+    ilst1 => tmp
+  end subroutine integer_list_cons
+
+  subroutine integer_list_uncons (ilst1, ival, ilst)
+    type(integer_link_t), pointer :: ilst1
+    integer, intent(out) :: ival
+    type(integer_link_t), pointer :: ilst
+
+    type(integer_link_t), pointer :: tmp
+
+    if (associated (ilst1)) then
+       ival = ilst1%ival
+       tmp => ilst1%next
+       ilst1%next => null ()
+       deallocate (ilst1)
+       ilst => tmp
+    else
+       call error_abort ("integer_list_uncons of a null pointer")
+    end if
+  end subroutine integer_list_uncons
+
+end module cons_types_helpers
+
+module cons_types
+  !
+  ! Lisp-style CONS-pairs for Fortran, with a simple mark-and-sweep
+  ! garbage collector.
+  !
+  ! For most list operations, please use cons_lists, rather than this
+  ! module directly. Most of the public interface of cons_types is
+  ! re-exported there.
+  !
+  ! However, you might use this module for such activities such as
+  ! setting the garbage collector debugging level, calling the garbage
+  ! collector directly, deriving a type from cons_pair_t, etc.
+  !
+
+  use cons_types_helpers
+
+  implicit none
+  private
+
+  public :: cons_pair_t         ! The storage for a CONS-pair, or a subtype for storing `anything'.
+  public :: cons_t              ! Either a nil list or a reference to a CONS-pair.
+  public :: nil_list            ! The canonical nil list.
+  public :: cons_t_cast         ! Cast to a cons_t, if possible.
+  public :: cons_t_eq           ! Are two cons_t both nil or both references to the same CONS-pair?
+  public :: is_nil_or_pair      ! Is an object a cons_t?
+  public :: is_nil_list         ! Is an object a nil cons_t?
+  public :: is_cons_pair        ! Is an object a reference to a CONS-pair (that is, a non-nil cons_t)?
+  public :: is_not_nil_or_pair  ! Logical inverse (that is, .NOT.) of is_nil_or_pair.
+  public :: is_not_nil_list     ! Logical inverse (that is, .NOT.) of is_nil_list.
+  public :: is_not_cons_pair    ! Logical inverse (that is, .NOT.) of is_cons_pair.
+  public :: list_is_nil         ! Is a cons_t nil?
+  public :: list_is_pair        ! Does a cons_t refer to a CONS-pair? (That is, is it non-nil?)
+  public :: cons                ! The fundamental constructor: make a CAR-CDR pair.
+  public :: uncons              ! The fundamental deconstructor: get the CAR and CDR from a pair.
+  public :: car                 ! Get just the CAR.
+  public :: cdr                 ! Get just the CDR.
+  public :: set_car             ! Change the CAR.
+  public :: set_cdr             ! Change the CDR.
+
+  public :: collect_garbage_now
+  public :: garbage_collection_debugging_level
+  public :: minimum_free_heap
+
+  integer :: garbage_collection_debugging_level = 0
+
+  ! If free stack is below this after a garbage collection, then
+  ! increase the size of the heap. A large number encourages adding
+  ! more space to the heap; a small number encourages reliance on
+  ! mark-and-sweep to find space.
+  integer :: minimum_free_heap = 64
+
+  integer, parameter :: initial_heap_size = 2 ** 8
+
+  ! A nil heap address.
+  integer, parameter :: nil_address = 0
+
+  ! An extensible type representing the CAR-CDR-tuple of a CONS-pair.
+  type :: cons_pair_t
+     class(*), allocatable :: car
+     class(*), allocatable :: cdr
+
+     ! If roots_count is non-zero, this cons_pair_t is a garbage
+     ! collection root.
+     integer, private :: roots_count = 0
+
+   contains
+
+     procedure, pass :: get_field => get_cons_pair_t_field
+
+  end type cons_pair_t
+
+  type(cons_pair_t), dimension(:), allocatable :: heap
+  integer, dimension(:), allocatable :: free_stack
+  integer :: free_stack_height
+
+  type :: cons_t
+     integer :: pair_addr = nil_address ! Heap address of the CAR and CDR.
+   contains
+     private
+     procedure, pass(dst) :: cons_t_copy
+     procedure, pass(this) :: cons_t_discard
+     generic, public :: assignment(=) => cons_t_copy
+     generic, public :: discard => cons_t_discard
+     final :: cons_t_finalize
+  end type cons_t
+
+  ! The canonical nil list.
+  type(cons_t), parameter :: nil_list = cons_t ()
+
+  interface error_abort
+     module procedure error_abort_1
+     module procedure error_abort_2
+  end interface error_abort
+
+contains
+  
+m4_if(DEBUGGING,[true],[dnl
+  function integer_cast (obj) result (int)
+    class(*), intent(in) :: obj
+    integer :: int
+    select type (obj)
+    type is (integer)
+       int = obj
+    class default
+       call error_abort ("integer_cast of a non-integer")
+    end select
+  end function integer_cast
+
+  function real_cast (obj) result (r)
+    class(*), intent(in) :: obj
+    real :: r
+    select type (obj)
+    type is (real)
+       r = obj
+    class default
+       call error_abort ("real_cast of a non-real")
+    end select
+  end function real_cast
+])dnl
+dnl
+  subroutine error_abort_1 (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
     write (error_unit, '()')
     write (error_unit, '("cons_types error: ", a)') msg
     error stop
-  end subroutine error_abort
+  end subroutine error_abort_1
 
-  subroutine cons_t_copy (dst, src)
-    class(cons_t), intent(out) :: dst
-    class(cons_t), intent(in) :: src
-    dst%p => src%p
-  end subroutine cons_t_copy
+  subroutine error_abort_2 (msg, status_code)
+    use iso_fortran_env, only : error_unit
+    character(*), intent(in) :: msg
+    integer, intent(in) :: status_code
+    write (error_unit, '()')
+    write (error_unit, '("cons_types_helpers error: ", a, ", with status code ", i3)') msg, status_code
+    error stop
+  end subroutine error_abort_2
+
+  subroutine free_stack_push (addr)
+    integer, intent(in) :: addr
+
+    free_stack_height = free_stack_height + 1
+    free_stack(free_stack_height) = addr
+
+    heap(addr) = cons_pair_t ()
+  end subroutine free_stack_push
+
+  subroutine free_stack_pop (addr)
+    integer, intent(out) :: addr
+
+    call ensure_heap_is_initialized
+
+    if (free_stack_height == 0) then
+       if (1 <= garbage_collection_debugging_level) then
+          write (*, '("collecting garbage automatically -----------------")')
+       end if
+       call collect_garbage
+    end if
+
+    addr = free_stack(free_stack_height)
+    free_stack_height = free_stack_height - 1
+  end subroutine free_stack_pop
+
+  subroutine collect_garbage_now
+    !
+    ! Garbage collection is meant to be automatic, but a program might
+    ! call this subroutine to clean garbage at a particular point.
+    !
+    if (1 <= garbage_collection_debugging_level) then
+       write (*, '("collecting garbage by program request ------------")')
+       write (*, '(" free_stack_height before sweep     = ", i12)') free_stack_height
+    end if
+    call collect_garbage
+  end subroutine collect_garbage_now
 
   function cons_t_cast (obj) result (lst)
     !
@@ -129,11 +284,7 @@ contains
   function cons_t_eq (lst1, lst2) result (eq)
     class(cons_t), intent(in) :: lst1, lst2
     logical :: eq
-    if (associated (lst1%p)) then
-       eq = associated (lst2%p) .and. associated (lst1%p, lst2%p)
-    else
-       eq = .not. associated (lst2%p)
-    end if
+    eq = (lst1%pair_addr == lst2%pair_addr)
   end function cons_t_eq
 
   function is_nil_or_pair (obj) result (is_cons)
@@ -152,7 +303,7 @@ contains
     logical is_nil
     select type (obj)
     class is (cons_t)
-       is_nil = .not. associated (obj%p)
+       is_nil = (obj%pair_addr == nil_address)
     class default
        is_nil = .false.
     end select
@@ -163,189 +314,352 @@ contains
     logical is_pair
     select type (obj)
     class is (cons_t)
-       is_pair = associated (obj%p)
+       is_pair = (obj%pair_addr /= nil_address)
     class default
        is_pair = .false.
     end select
   end function is_cons_pair
 
-  function is_not_nil_or_pair (obj) result (is_not_cons)
+  function is_not_nil_or_pair (obj) result (bool)
     class(*), intent(in) :: obj
-    logical :: is_not_cons
-    is_not_cons = .not. is_nil_or_pair (obj)
+    logical :: bool
+    bool = .not. is_nil_or_pair (obj)
   end function is_not_nil_or_pair
 
-  function is_not_nil_list (obj) result (is_not_nil)
+  function is_not_nil_list (obj) result (bool)
     class(*), intent(in) :: obj
-    logical :: is_not_nil
-    is_not_nil = .not. is_nil_list (obj)
+    logical :: bool
+    bool = .not. is_nil_list (obj)
   end function is_not_nil_list
 
-  function is_not_cons_pair (obj) result (is_not_pair)
+  function is_not_cons_pair (obj) result (bool)
     class(*), intent(in) :: obj
-    logical :: is_not_pair
-    is_not_pair = .not. is_cons_pair (obj)
+    logical :: bool
+    bool = .not. is_cons_pair (obj)
   end function is_not_cons_pair
   
   function list_is_nil (lst) result (is_nil)
     class(cons_t), intent(in) :: lst
     logical is_nil
-    is_nil = .not. associated (lst%p)
+    is_nil = (lst%pair_addr == nil_address)
   end function list_is_nil
 
   function list_is_pair (lst) result (is_pair)
     class(cons_t), intent(in) :: lst
     logical is_pair
-    is_pair = associated (lst%p)
+    is_pair = (lst%pair_addr /= nil_address)
   end function list_is_pair
 
-  function cons (car_value, cdr_value) result (pair)
+  function cons (car_value, cdr_value) result (dst)
     class(*), intent(in) :: car_value
     class(*), intent(in) :: cdr_value
-    type(cons_t) :: pair
+    type(cons_t) :: dst
 
-    type(cons_pair_t) :: car_cdr
+    type(cons_pair_t) :: pair
+    integer :: addr
 
-    car_cdr%car = car_value
-    car_cdr%cdr = cdr_value
-    allocate (pair%p, source = car_cdr)
+    pair%car = car_value
+    pair%cdr = cdr_value
+    pair%roots_count = 1
+
+    call free_stack_pop (addr)
+
+    heap(addr) = pair
+    dst%pair_addr = addr
   end function cons
 
-  subroutine uncons (pair, car_value, cdr_value)
-    class(*) :: pair
+  subroutine uncons (lst, car_value, cdr_value)
+    class(*) :: lst
     class(*), allocatable :: car_value, cdr_value
 
-    class(*), allocatable :: car_val, cdr_val
+    type(cons_pair_t) :: pair
 
-    select type (pair)
+    select type (lst)
     class is (cons_t)
-       if (list_is_pair (pair)) then
-          car_val = pair%p%car
-          cdr_val = pair%p%cdr
-       else
+       if (list_is_nil (lst)) then
           call error_abort ("uncons of nil list")
        end if
+       pair = heap(lst%pair_addr)
     class default
        call error_abort ("uncons of an object with no pairs")
     end select
-    car_value = car_val
-    cdr_value = cdr_val
+    car_value = pair%car
+    cdr_value = pair%cdr
   end subroutine uncons
 
-  function list_cons (car_value, cdr_value) result (pair)
-    class(*), intent(in) :: car_value
-    class(cons_t), intent(in) :: cdr_value
-    type(cons_t) :: pair
+  function car (lst) result (car_value)
+    class(*) :: lst
+    class(*), allocatable :: car_value
 
-    type(cons_pair_t) :: car_cdr
-
-    car_cdr%car = car_value
-    car_cdr%cdr = cdr_value
-    allocate (pair%p, source = car_cdr)
-  end function list_cons
-
-  function car (pair) result (element)
-    class(*), intent(in) :: pair
-    class(*), allocatable :: element
-    select type (pair)
+    select type (lst)
     class is (cons_t)
-       if (list_is_pair (pair)) then
-          element = pair%p%car
-       else
+       if (list_is_nil (lst)) then
           call error_abort ("car of nil list")
        end if
+       car_value = heap(lst%pair_addr)%car
     class default
        call error_abort ("car of an object with no pairs")
     end select
   end function car
 
-  function cdr (pair) result (element)
-    class(*), intent(in) :: pair
-    class(*), allocatable :: element
-    select type (pair)
+  function cdr (lst) result (cdr_value)
+    class(*) :: lst
+    class(*), allocatable :: cdr_value
+
+    select type (lst)
     class is (cons_t)
-       if (list_is_pair (pair)) then
-          element = pair%p%cdr
-       else
+       if (list_is_nil (lst)) then
           call error_abort ("cdr of nil list")
-       end if
+       endif
+       cdr_value = heap(lst%pair_addr)%cdr
     class default
        call error_abort ("cdr of an object with no pairs")
     end select
   end function cdr
 
-  subroutine set_car (pair, car_value)
-    class(cons_t) :: pair
+  subroutine set_car (lst, car_value)
+    class(cons_t) :: lst
     class(*), intent(in) :: car_value
-    if (list_is_pair (pair)) then
-       pair%p%car = car_value
-    else
+
+    type(cons_pair_t) :: pair
+
+    if (list_is_nil (lst)) then
        call error_abort ("set_car of nil list")
-    end if
+    endif
+
+    pair = heap(lst%pair_addr)
+    pair%car = car_value
+    heap(lst%pair_addr) = pair
   end subroutine set_car
 
-  subroutine set_cdr (pair, cdr_value)
-    class(cons_t) :: pair
+  subroutine set_cdr (lst, cdr_value)
+    class(cons_t) :: lst
     class(*), intent(in) :: cdr_value
-    if (list_is_pair (pair)) then
-       pair%p%cdr = cdr_value
-    else
+
+    type(cons_pair_t) :: pair
+
+    if (list_is_nil (lst)) then
        call error_abort ("set_cdr of nil list")
-    end if
+    endif
+
+    pair = heap(lst%pair_addr)
+    pair%cdr = cdr_value
+    heap(lst%pair_addr) = pair
   end subroutine set_cdr
 
-  recursive subroutine list_discard (tree)
-    class(*) :: tree
+  subroutine cons_t_copy (dst, src)
+    class(cons_t), intent(out) :: dst
+    class(cons_t), intent(in) :: src
 
-    type(cons_t) :: pair_to_discard, new_entry
-    type(cons_pair_t) :: car_cdr
-    class(*), allocatable :: the_car, the_cdr
-    logical :: done
+    integer :: addr
 
-    select type (tree)
-    class is (cons_t)
-       pair_to_discard = tree
-       done = .false.
-       do while (.not. done)
-          if (.not. associated (pair_to_discard%p)) then
-             done = .true.
-          else if (btest (pair_to_discard%p%status, bit__cons_pair_t_discard)) then
-             done = .true.
-          else
-             the_car = pair_to_discard%p%car
-             the_cdr = pair_to_discard%p%cdr
-             if (.not. btest (pair_to_discard%p%status, bit__cons_pair_t_discard)) then
-                pair_to_discard%p%status = ibset (pair_to_discard%p%status, bit__cons_pair_t_discard)
-                car_cdr%car = pair_to_discard
-                car_cdr%cdr = discard_list
-                allocate (new_entry%p, source = car_cdr)
-             end if
-             select type (the_car)
-             class is (cons_t)
-                call list_discard (the_car)
-             end select
-             select type (the_cdr)
-             class is (cons_t)
-                pair_to_discard = the_cdr
-             end select
-          end if
-       end do
-    end select
-  end subroutine list_discard
+    addr = src%pair_addr
+    if (addr /= nil_address) then
+       heap(addr)%roots_count = heap(addr)%roots_count + 1
+    end if
+    dst%pair_addr = addr
+  end subroutine cons_t_copy
 
-  subroutine list_deallocate_discarded
-    type(cons_t) :: p, q, element
-    p = discard_list
-    discard_list = nil_list
-    do while (associated (p%p))
-       q = cons_t_cast (p%p%cdr)
-       element = cons_t_cast (p%p%car)
-       deallocate (element%p)
-       nullify (element%p)
-       deallocate (p%p)
-       p = q
+  subroutine cons_t_discard (this)
+    class(cons_t) :: this
+
+    integer :: addr
+
+    addr = this%pair_addr
+    if (addr /= nil_address) then
+       heap(addr)%roots_count = heap(addr)%roots_count - 1
+    end if
+  end subroutine cons_t_discard
+
+  subroutine cons_t_finalize (this)
+    type(cons_t) :: this
+    call cons_t_discard (this)
+  end subroutine cons_t_finalize
+
+  subroutine ensure_heap_is_initialized
+    if (.not. allocated (heap)) then
+       call initialize_heap
+    end if
+  end subroutine ensure_heap_is_initialized
+
+  subroutine initialize_heap
+    integer :: i
+
+    if (allocated (heap)) then
+       call error_abort ("attempt to initialize an already initialized heap")
+    end if
+
+    allocate (heap(1:initial_heap_size))
+    allocate (free_stack(1:initial_heap_size))
+    do i = 1, initial_heap_size
+       free_stack(i) = initial_heap_size - (i - 1)
     end do
-  end subroutine list_deallocate_discarded
+    free_stack_height = initial_heap_size
+  end subroutine initialize_heap
+
+  subroutine get_cons_pair_t_field (this, n, n_is_out_of_bounds, field)
+    class(cons_pair_t), intent(inout) :: this
+    integer, intent(in) :: n
+    logical, intent(out) :: n_is_out_of_bounds
+    class(*), allocatable, intent(inout) :: field
+
+    if (n == 1) then
+       n_is_out_of_bounds = .false.
+       field = this%car
+    else if (n == 2) then
+       n_is_out_of_bounds = .false.
+       field = this%cdr
+    else
+       n_is_out_of_bounds = .true.
+    end if
+  end subroutine get_cons_pair_t_field
+
+  subroutine collect_garbage
+    use, intrinsic :: iso_fortran_env, only : numeric_storage_size
+
+    ! If the Fortran implementation has 32-bit integers, then
+    ! max_doubling_size = 1073741824.
+    integer, parameter :: max_doubling_size = 2 ** (numeric_storage_size - 2)
+
+    ! If the Fortran implementation has 32-bit integers, then
+    ! max_heap_size = 2147483647. This is as great as a 32-bit
+    ! signed integer can go.
+    integer, parameter :: max_heap_size = max_doubling_size + (max_doubling_size - 1)
+
+    call mark_from_roots
+    call sweep
+    if (1 <= garbage_collection_debugging_level) then
+       write (*, '(" free_stack_height after sweep      = ", i12)') free_stack_height
+    end if
+    if (size (heap) /= max_heap_size) then
+       if (free_stack_height < max (minimum_free_heap, 1)) then
+          call expand_the_heap
+       end if
+    end if
+    if (free_stack_height == 0) then
+       call error_abort ("garbage collection failed to free enough space")
+    end if
+
+  contains
+
+    subroutine expand_the_heap
+      type(cons_pair_t), dimension(:), allocatable :: new_heap
+      integer, dimension(:), allocatable :: new_free_stack
+
+      integer :: m, n, i
+      integer :: status_code
+
+      m = size (heap)
+      if (m < max_doubling_size) then
+         n = 2 * m
+      else
+         n = max_heap_size
+      end if
+
+      allocate (new_heap(1:n), stat = status_code)
+      if (status_code /= 0) then
+         call error_abort ("garbage collector heap expansion failed", status_code)
+      end if
+      new_heap(1:m) = heap
+      call move_alloc (new_heap, heap)
+
+      allocate (new_free_stack(1:n), stat = status_code)
+      if (status_code /= 0) then
+         call error_abort ("garbage collector heap expansion failed", status_code)
+      end if
+      new_free_stack(1:m) = free_stack
+      call move_alloc (new_free_stack, free_stack)
+      do i = m + 1, n
+         free_stack(free_stack_height + (n - (i - 1))) = i
+      end do
+      free_stack_height = free_stack_height + (n - m)
+
+      if (1 <= garbage_collection_debugging_level) then
+         write (*, '(" free_stack_height after expansion  = ", i12)') free_stack_height
+      end if
+    end subroutine expand_the_heap
+
+  end subroutine collect_garbage
+
+  subroutine mark_from_roots
+    type(integer_link_t), pointer :: stack
+    type(cons_pair_t) :: pair
+    integer :: addr
+
+    stack => null ()
+    do addr = lbound(heap, 1), ubound(heap, 1)
+       pair = heap(addr)
+       if (0 < pair%roots_count) then
+          ! Mark the heap entry by temporarily negating its roots_count.
+          pair%roots_count = -(pair%roots_count)
+          heap(addr) = pair
+          ! Push it to the stack.
+          call integer_list_cons (addr, stack, stack)
+          ! Find things that can be reached through it.
+          call mark_reachables
+       end if
+    end do
+
+  contains
+
+    subroutine mark_reachables
+      integer :: addr
+      type(cons_pair_t) :: pair, pr
+      class(*), allocatable :: field
+      integer :: n
+      logical :: done
+
+      do while (associated (stack))
+         ! Pop the top of the stack.
+         call integer_list_uncons (stack, addr, stack)
+
+         pair = heap(addr)
+
+         n = 1
+         call pair%get_field (n, done, field)
+         do while (.not. done)
+            select type (field)
+            class is (cons_t) ! Objects might be reachable through this field.
+               addr = field%pair_addr
+               if (addr /= nil_address) then
+                  pr = heap(addr)
+                  if (0 < pr%roots_count) then
+                     ! Mark the reachable object and push its address
+                     ! to the stack.
+                     if (5 <= garbage_collection_debugging_level) then
+                        write (*, '("adding field to work list: ", i2)') n
+                     end if
+                     pr%roots_count = -(pr%roots_count)
+                     heap(addr) = pr
+                     call integer_list_cons (addr, stack, stack)
+                  end if
+               end if
+            end select
+            n = n + 1
+            call pair%get_field (n, done, field)
+         end do
+      end do
+    end subroutine mark_reachables
+
+  end subroutine mark_from_roots
+
+  subroutine sweep
+    integer :: addr
+
+    type(cons_pair_t) :: pair
+
+    do addr = lbound (heap, 1), ubound (heap, 1)
+       pair = heap(addr)
+       if (pair%roots_count < 0) then
+          ! The heap entry is marked. Unmark it.
+          pair%roots_count = -(pair%roots_count)
+          heap(addr) = pair
+       else
+          ! The heap entry is unmarked. Return it to the free list.
+          call free_stack_push (addr)
+       end if
+    end do
+  end subroutine sweep
 
 end module cons_types
 
@@ -472,32 +786,6 @@ module cons_lists
 
   ! cons_t_eq(x,y) is like Scheme's `(eq? x y)' for two lists.
   public :: cons_t_eq           ! Are the two cons_t equivalent?
-
-  !
-  ! `list_discard' prepares the CONS-pairs in a tree for deallocation
-  ! by a later call to `list_deallocate_discarded'.
-  !
-  ! The `discarded' pairs might actually remain in use until the call
-  ! to `list_deallocate_discarded'! They are merely treated as `no
-  ! longer needed after the next call to
-  ! list_deallocate_discarded'. You should keep that fact in mind when
-  ! using this mechanism.
-  !
-  ! The current implementation should be able to deal with, at least,
-  ! the simpler kinds of circular references.
-  ! 
-  public :: list_discard        ! Recursively discard an entire CONS-pair tree.
-  public :: list_discard1       ! A synonym for list_discard.
-m4_if(m4_eval(2 <= LIST_DISCARDN_MAX),[1],[dnl
-  public :: list_discard2       ! Recursively discard 2 trees, in left-to-right order.
-m4_if(m4_eval(3 <= LIST_DISCARDN_MAX),[1],[dnl
-  public :: list_discard3       ! Recursively discard 3 trees, etc.
-m4_forloop([n],[4],LIST_DISCARDN_MAX,[dnl
-  public :: list_discard[]n
-])dnl
-])dnl
-])dnl
-  public :: list_deallocate_discarded ! Deallocate discarded CONS-pairs.
 
   public :: cons                ! The fundamental CONS-pair constructor.
   public :: uncons              ! The fundamental CONS-pair deconstructor.
@@ -740,6 +1028,10 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
      module procedure list_unfold_right_with_nil_tail
   end interface list_unfold_right
 
+  interface error_abort
+     module procedure error_abort_1
+  end interface error_abort
+
 contains
 
 m4_if(DEBUGGING,[true],[dnl
@@ -749,17 +1041,30 @@ m4_if(DEBUGGING,[true],[dnl
     select type (obj)
     type is (integer)
        int = obj
+    class default
+       call error_abort ("integer_cast of a non-integer")
     end select
   end function integer_cast
+
+  function real_cast (obj) result (r)
+    class(*), intent(in) :: obj
+    real :: r
+    select type (obj)
+    type is (real)
+       r = obj
+    class default
+       call error_abort ("real_cast of a non-real")
+    end select
+  end function real_cast
 ])dnl
 dnl
-  subroutine error_abort (msg)
+  subroutine error_abort_1 (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
     write (error_unit, '()')
     write (error_unit, '("cons_lists error: ", a)') msg
     error stop
-  end subroutine error_abort
+  end subroutine error_abort_1
 
   function copy_first_pair (lst) result (lst1)
     class(*), intent(in) :: lst
@@ -770,19 +1075,13 @@ dnl
     call uncons (lst, head, tail)
     lst1 = cons (head, tail)
   end function copy_first_pair
-dnl
-m4_forloop([n],[1],LIST_DISCARDN_MAX,[
-  subroutine list_discard[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
-])lst[]k]))
-m4_forloop([k],[1],n,[dnl
-    class(*) :: lst[]k
-])dnl
 
-m4_forloop([k],[1],n,[dnl
-    call list_discard (lst[]k)
-])dnl
-  end subroutine list_discard[]n
-])dnl
+  function list_cons (car_value, cdr_value) result (pair)
+    class(*), intent(in) :: car_value
+    class(cons_t), intent(in) :: cdr_value
+    type(cons_t) :: pair
+    pair = cons (car_value, cdr_value)
+  end function list_cons
 
   function list_length (lst) result (length)
     class(*), intent(in) :: lst
@@ -1362,15 +1661,12 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
     !
     ! NOTE: The behavior if `lst' is circular is unspecified.
     !
-    ! The dropped tail will be added to the discard list.
-    !
     class(*), intent(in) :: lst
     integer, intent(in) :: n
     type(cons_t) :: lst_t
 
     type(cons_t) :: lst1
     type(cons_t) :: new_last_pair
-    class(*), allocatable :: tail_to_discard
 
     if (n <= 0) then
        lst_t = nil_list
@@ -1379,10 +1675,8 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
     else
        lst1 = copy_first_pair (lst)
        new_last_pair = cons_t_cast (list_drop (lst1, n - 1))
-       tail_to_discard = cdr (new_last_pair)
        call set_cdr (new_last_pair, nil_list)
        lst_t = lst1
-       call list_discard (tail_to_discard)
     end if
   end function list_destructive_take
 
