@@ -164,18 +164,6 @@ module cons_types
 
   end type cons_pair_t
 
-!!$  abstract interface
-!!$     ! Get a copy of the nth field of `this', for finding objects
-!!$     ! `reachable' through that field.
-!!$     subroutine get_field_t (this, n, n_is_out_of_bounds, field)
-!!$       import cons_pair_t
-!!$       class(cons_pair_t), intent(inout) :: this
-!!$       integer, intent(in) :: n
-!!$       logical, intent(out) :: n_is_out_of_bounds
-!!$       class(*), allocatable, intent(inout) :: field
-!!$     end subroutine get_field_t
-!!$  end interface
-
   type(cons_pair_t), dimension(:), allocatable :: heap
   integer, dimension(:), allocatable :: free_stack
   integer :: free_stack_height
@@ -258,7 +246,7 @@ dnl
 
     if (free_stack_height == 0) then
        if (1 <= garbage_collection_debugging_level) then
-          write (*,*) "collecting garbage automatically ----------------"
+          write (*, '("collecting garbage automatically -----------------")')
        end if
        call collect_garbage
     end if
@@ -273,8 +261,8 @@ dnl
     ! call this subroutine to clean garbage at a particular point.
     !
     if (1 <= garbage_collection_debugging_level) then
-       write (*,*) "collecting garbage by program request -----------"
-       write (*,*) "free_stack_height before sweep     = ", free_stack_height
+       write (*, '("collecting garbage by program request ------------")')
+       write (*, '(" free_stack_height before sweep     = ", i12)') free_stack_height
     end if
     call collect_garbage
   end subroutine collect_garbage_now
@@ -541,7 +529,7 @@ dnl
     call mark_from_roots
     call sweep
     if (1 <= garbage_collection_debugging_level) then
-       write (*,*) "free_stack_height after sweep      = ", free_stack_height
+       write (*, '(" free_stack_height after sweep      = ", i12)') free_stack_height
     end if
     if (size (heap) /= max_heap_size) then
        if (free_stack_height < max (minimum_free_heap, 1)) then
@@ -587,7 +575,7 @@ dnl
       free_stack_height = free_stack_height + (n - m)
 
       if (1 <= garbage_collection_debugging_level) then
-         write (*,*) "free_stack_height after expansion  = ", free_stack_height
+         write (*, '(" free_stack_height after expansion  = ", i12)') free_stack_height
       end if
     end subroutine expand_the_heap
 
@@ -639,7 +627,7 @@ dnl
                      ! Mark the reachable object and push its address
                      ! to the stack.
                      if (5 <= garbage_collection_debugging_level) then
-                        write (*,*) "adding field to work list:", n
+                        write (*, '("adding field to work list: ", i2)') n
                      end if
                      pr%roots_count = -(pr%roots_count)
                      heap(addr) = pr
