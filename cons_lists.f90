@@ -93,7 +93,6 @@ module cons_types ! FIXME: This will replace the original  cons_types .
   implicit none
   private
 
-!!$  public :: assignment(=)
   public :: cons_t              ! Either a nil list or a reference to a CONS-pair.
   public :: nil_list            ! The canonical nil list.
   public :: cons_t_cast         ! Cast to a cons_t, if possible.
@@ -119,7 +118,7 @@ module cons_types ! FIXME: This will replace the original  cons_types .
   integer, parameter :: max_heap_size = 2 ** (numeric_storage_size - 2)
 
 !  integer, parameter :: initial_heap_size = 2 ** 8 ! FIXME: Set this higher, perhaps.
-integer, parameter :: initial_heap_size = 2 ** 25 ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME
+integer, parameter :: initial_heap_size = 2 ** 12 ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME
 
   ! A nil heap address.
   integer, parameter :: nil_address = 0
@@ -129,11 +128,11 @@ integer, parameter :: initial_heap_size = 2 ** 25 ! FIXME ! FIXME ! FIXME ! FIXM
      class(*), allocatable :: car
      class(*), allocatable :: cdr
      integer :: roots_count = 0 ! If roots_count is non-zero, this is a garbage collection root.
-     integer :: next_free = nil_address ! For the list of free heap entries.
   end type cons_pair_t
 
   type(cons_pair_t), dimension(:), allocatable :: heap
-  integer :: free_list
+  integer, dimension(:), allocatable :: free_stack
+  integer :: free_stack_height
 
   type :: cons_t
      integer :: pair_addr = nil_address ! Heap address of the CAR and CDR.
@@ -180,28 +179,35 @@ contains
     error stop
   end subroutine error_abort
 
-  subroutine free_list_uncons (addr)
+  subroutine free_stack_push (addr)
+    integer, intent(in) :: addr
+
+    type(cons_pair_t) :: pair = cons_pair_t ()
+
+    free_stack_height = free_stack_height + 1
+    free_stack(free_stack_height) = addr
+
+    heap(addr) = pair
+!if (heap(addr)%roots_count /= 0) error stop
+  end subroutine free_stack_push
+
+  subroutine free_stack_pop (addr)
     integer, intent(out) :: addr
 
     call ensure_heap_is_initialized
 
-    if (free_list == nil_address) then
+    if (free_stack_height == 0) then
 print*,"-------------- collecting garbage ---------------"
+print*,"free_stack_height before = ",free_stack_height
        call collect_garbage
+print*,"free_stack_height after  = ",free_stack_height
     end if
-    addr = free_list
-    free_list = heap(addr)%next_free
-    heap(addr)%next_free = nil_address
-  end subroutine free_list_uncons
 
-  subroutine free_list_cons (addr)
-    integer, intent(in) :: addr
-    call clear_car (addr)
-    call clear_cdr (addr)
-    heap(addr)%roots_count = 0
-    heap(addr)%next_free = free_list
-    free_list = addr
-  end subroutine free_list_cons
+    addr = free_stack(free_stack_height)
+    free_stack_height = free_stack_height - 1
+
+!if (heap(addr)%roots_count /= 0) error stop
+  end subroutine free_stack_pop
 
   function cons_t_cast (obj) result (lst)
     !
@@ -298,7 +304,7 @@ print*,"-------------- collecting garbage ---------------"
     pair%cdr = cdr_value
     pair%roots_count = 1
 
-    call free_list_uncons (addr)
+    call free_stack_pop (addr)
 
     heap(addr) = pair
     dst%pair_addr = addr
@@ -308,21 +314,19 @@ print*,"-------------- collecting garbage ---------------"
     class(*) :: lst
     class(*), allocatable :: car_value, cdr_value
 
-    class(*), allocatable :: car_val, cdr_val
+    type(cons_pair_t) :: pair
 
     select type (lst)
     class is (cons_t)
        if (list_is_nil (lst)) then
           call error_abort ("uncons of nil list")
        end if
-       car_val = heap(lst%pair_addr)%car
-       cdr_val = heap(lst%pair_addr)%cdr
+       pair = heap(lst%pair_addr)
     class default
        call error_abort ("uncons of an object with no pairs")
     end select
-
-    car_value = car_val
-    cdr_value = cdr_val
+    car_value = pair%car
+    cdr_value = pair%cdr
   end subroutine uncons
 
   function car (lst) result (car_value)
@@ -428,50 +432,40 @@ print*,"-------------- collecting garbage ---------------"
     end if
 
     allocate (heap(1:initial_heap_size))
-    do i = 1, initial_heap_size - 1
-       call clear_car (i)
-       call clear_cdr (i)
-       heap(i)%roots_count = 0
-       heap(i)%next_free = i + 1
+    allocate (free_stack(1:initial_heap_size))
+    do i = 1, initial_heap_size
+       free_stack(i) = initial_heap_size - (i - 1)
     end do
-    heap(initial_heap_size)%next_free = nil_address
-    free_list = 1
+    free_stack_height = initial_heap_size
   end subroutine initialize_heap
-
-  subroutine clear_car (heap_addr)
-    integer, intent(in) :: heap_addr
-    !
-    ! This is an arbitrary value. (FIXME: One might instead deallocate
-    ! the field.)
-    heap(heap_addr)%car = nil_list
-  end subroutine clear_car
-
-  subroutine clear_cdr (heap_addr)
-    integer, intent(in) :: heap_addr
-    !
-    ! This is an arbitrary value. (FIXME: One might instead deallocate
-    ! the field.)
-    heap(heap_addr)%cdr = nil_list
-  end subroutine clear_cdr
 
   subroutine collect_garbage
     call mark_from_roots
     call sweep
     !
-    ! FIXME: IF THE FREE LIST SEEMS TOO SHORT HERE, THEN EXPAND THE HEAP.
+    ! FIXME: IF THE FREE STACK SEEMS TOO SHORT HERE, THEN EXPAND THE HEAP.
     !
+    if (free_stack_height == 0) error stop ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
   end subroutine collect_garbage
 
   subroutine mark_from_roots
-    type(integer_link_t), pointer :: work_list ! A stack.
+    type(integer_link_t), pointer :: stack
+integer :: n
+    type(cons_pair_t) :: pair
     integer :: addr
 
-    work_list => null ()
+n = 0
+    stack => null ()
     do addr = lbound(heap, 1), ubound(heap, 1)
-       if (0 < heap(addr)%roots_count) then
+       pair = heap(addr)
+       if (0 < pair%roots_count) then
           ! Mark the heap entry by temporarily negating its roots_count.
-          heap(addr)%roots_count = -(heap(addr)%roots_count)
-          call integer_list_cons (addr, work_list, work_list)
+          pair%roots_count = -(pair%roots_count)
+          heap(addr) = pair
+          ! Push it to the stack.
+          call integer_list_cons (addr, stack, stack)
+n = n + 1
+!print*,n, ": push root",addr
           call mark_reachables
        end if
     end do
@@ -479,38 +473,50 @@ print*,"-------------- collecting garbage ---------------"
   contains
 
     subroutine mark_reachables
-      integer :: addr, addr1
+      integer :: addr
+      type(cons_pair_t) :: pair, pr
       class(*), allocatable :: car, cdr
 
-      do while (associated (work_list))
-         ! Pop the head of the work list.
-         call integer_list_uncons (work_list, addr, work_list)
+      do while (associated (stack))
+         ! Pop the top of the stack.
+         call integer_list_uncons (stack, addr, stack)
+n = n - 1
+!print*,n, ": pop node",addr
 
-         car = heap(addr)%car
-         cdr = heap(addr)%cdr
+         pair = heap(addr)
 
-         ! See if the head entry's CAR should go on the work list.
+         ! See if the popped entry's CAR should go on the stack.
+         car = pair%car
          select type (car)
          class is (cons_t)
-            addr1 = car%pair_addr
-            if (addr1 /= nil_address) then
-               if (0 < heap(addr1)%roots_count) then
-                  ! Mark the CAR and add it to the work list.
-                  heap(addr1)%roots_count = -(heap(addr1)%roots_count)
-                  call integer_list_cons (addr1, work_list, work_list)
+            addr = car%pair_addr
+            if (addr /= nil_address) then
+n = n + 1
+!print*,n, ": push CAR",addr
+               pr = heap(addr)
+               if (0 < pr%roots_count) then
+                  ! Mark the CAR and push it to the stack.
+                  pr%roots_count = -(pr%roots_count)
+                  heap(addr) = pr
+                  call integer_list_cons (addr, stack, stack)
                end if
             end if
          end select
 
-         ! See if the head entry's CDR should go on the work list.
+         ! See if the popped entry's CDR should go on the stack.
+         cdr = pair%cdr
          select type (cdr)
          class is (cons_t)
-            addr1 = cdr%pair_addr
-            if (addr1 /= nil_address) then
-               if (0 < heap(addr1)%roots_count) then
-                  ! Mark the CDR and add it to the work list.
-                  heap(addr1)%roots_count = -(heap(addr1)%roots_count)
-                  call integer_list_cons (addr1, work_list, work_list)
+            addr = cdr%pair_addr
+            if (addr /= nil_address) then
+n = n + 1
+!print*,n, ": push CDR",addr
+               pr = heap(addr)
+               if (0 < pr%roots_count) then
+                  ! Mark the CDR and push it to the stack.
+                  pr%roots_count = -(pr%roots_count)
+                  heap(addr) = pr
+                  call integer_list_cons (addr, stack, stack)
                end if
             end if
          end select
@@ -521,13 +527,18 @@ print*,"-------------- collecting garbage ---------------"
 
   subroutine sweep
     integer :: addr
+
+    type(cons_pair_t) :: pair
+
     do addr = lbound (heap, 1), ubound (heap, 1)
-       if (heap(addr)%roots_count < 0) then
+       pair = heap(addr)
+       if (pair%roots_count < 0) then
           ! The heap entry is marked. Unmark it.
-          heap(addr)%roots_count = -(heap(addr)%roots_count)
+          pair%roots_count = -(pair%roots_count)
+          heap(addr) = pair
        else
           ! The heap entry is unmarked. Return it to the free list.
-          call free_list_cons (addr)
+          call free_stack_push (addr)
        end if
     end do
   end subroutine sweep

@@ -100,6 +100,9 @@ test__cons_lists: test__cons_lists.$(OBJEXT) cons_lists.$(OBJEXT)
 
 cons_lists.f90: cadadr.m4
 
+cons_lists.anchor: cons_types_helpers.mod
+cons_types_helpers.mod:
+
 cons_lists.anchor: cons_types.mod
 cons_types.mod:
 
