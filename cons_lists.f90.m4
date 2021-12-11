@@ -135,6 +135,7 @@ module cons_types
   public :: collect_garbage_now
   public :: garbage_collection_debugging_level
   public :: minimum_free_heap
+  public :: initial_heap_size
 
   integer :: garbage_collection_debugging_level = 0
 
@@ -144,7 +145,9 @@ module cons_types
   ! mark-and-sweep to find space.
   integer :: minimum_free_heap = 64
 
-  integer, parameter :: initial_heap_size = 2 ** 8
+  ! This affects the behavior of the garbage collector only if it is
+  ! called before anything is put into the heap.
+  integer :: initial_heap_size = 2 ** 12 ! 4096
 
   ! A nil heap address.
   integer, parameter :: nil_address = 0
@@ -488,6 +491,9 @@ dnl
     if (allocated (heap)) then
        call error_abort ("attempt to initialize an already initialized heap")
     end if
+
+    ! Do not let the initial heap size be non-positive.
+    initial_heap_size = max (initial_heap_size, 1)
 
     allocate (heap(1:initial_heap_size))
     allocate (free_stack(1:initial_heap_size))

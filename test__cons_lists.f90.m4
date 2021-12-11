@@ -2295,11 +2295,13 @@ program main
   use cons_types, only: collect_garbage_now
   use cons_types, only: garbage_collection_debugging_level
   use cons_types, only: minimum_free_heap
+  use cons_types, only: initial_heap_size
 
   implicit none
 
   garbage_collection_debugging_level = 1
   minimum_free_heap = 4
+  initial_heap_size = 1
   call run_tests
   call collect_garbage_now
 end program main
