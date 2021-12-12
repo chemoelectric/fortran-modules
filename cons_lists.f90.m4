@@ -107,6 +107,7 @@ module cons_types
   ! collector directly, deriving a type from cons_pair_t, etc.
   !
 
+  use, intrinsic :: iso_fortran_env, only: int8
   use cons_types_helpers
 
   implicit none
@@ -156,20 +157,22 @@ module cons_types
   type :: cons_pair_t
      class(*), allocatable :: car
      class(*), allocatable :: cdr
-
-     ! If roots_count is non-zero, this cons_pair_t is a garbage
-     ! collection root.
-     integer, private :: roots_count = 0
-
    contains
-
      procedure, pass :: get_field => get_cons_pair_t_field
-
   end type cons_pair_t
 
+  integer, parameter :: bits_kind = int8
+  integer(kind = bits_kind), parameter :: unmarked = 0
+  integer(kind = bits_kind), parameter :: marked = 1
+
   type(cons_pair_t), dimension(:), allocatable :: heap
-  integer, dimension(:), allocatable :: free_stack
-  integer :: free_stack_height
+  integer, dimension(:), allocatable :: roots_count
+  integer(kind = bits_kind), dimension(:), allocatable :: bits
+!!$  integer, dimension(:), allocatable :: free_stack
+  integer :: free_count
+
+  integer(kind = bits_kind), parameter :: unfree_bit = 1
+  integer(kind = bits_kind), parameter :: mark_bit = 2
 
   type :: cons_t
      integer :: pair_addr = nil_address ! Heap address of the CAR and CDR.
@@ -237,30 +240,127 @@ dnl
     error stop
   end subroutine error_abort_2
 
-  subroutine free_stack_push (addr)
+  subroutine set_unfree (addr)
     integer, intent(in) :: addr
+    bits(addr) = ior (bits(addr), unfree_bit)
+  end subroutine set_unfree
 
-    free_stack_height = free_stack_height + 1
-    free_stack(free_stack_height) = addr
+  function is_free (addr) result (bool)
+    integer, intent(in) :: addr
+    logical :: bool
+    bool = (iand (bits(addr), unfree_bit) == 0)
+  end function is_free
 
+  function is_unfree (addr) result (bool)
+    integer, intent(in) :: addr
+    logical :: bool
+    bool = (iand (bits(addr), unfree_bit) /= 0)
+  end function is_unfree
+
+  subroutine set_marked (addr)
+    integer, intent(in) :: addr
+    bits(addr) = ior (bits(addr), mark_bit)
+  end subroutine set_marked
+
+  subroutine set_unmarked (addr)
+    integer, intent(in) :: addr
+    bits(addr) = iand (bits(addr), not (mark_bit))
+  end subroutine set_unmarked
+
+  function is_marked (addr) result (bool)
+    integer, intent(in) :: addr
+    logical :: bool
+    bool = (iand (bits(addr), mark_bit) /= 0)
+  end function is_marked
+
+  function is_unmarked (addr) result (bool)
+    integer, intent(in) :: addr
+    logical :: bool
+    bool = (iand (bits(addr), mark_bit) == 0)
+  end function is_unmarked
+
+  subroutine count_address_as_root (addr)
+    integer, intent(in) :: addr
+    if (addr /= nil_address) then
+       roots_count(addr) = roots_count(addr) + 1
+    end if
+  end subroutine count_address_as_root
+
+  subroutine count_object_as_root (obj)
+    class(*), intent(in) :: obj
+    select type (obj)
+    class is (cons_t)
+       call count_address_as_root (obj%pair_addr)
+    end select
+  end subroutine count_object_as_root
+
+!!$  subroutine return_to_free (addr)
+!!$    integer, intent(in) :: addr
+!!$
+!!$    free_count = free_count + 1
+!!$    free_stack(free_count) = addr
+!!$
+!!$    heap(addr) = cons_pair_t ()
+!!$    roots_count(addr) = 0
+!!$    bits(addr) = 0
+!!$  end subroutine return_to_free
+
+  subroutine return_to_free (addr)
+    integer, intent(in) :: addr
     heap(addr) = cons_pair_t ()
-  end subroutine free_stack_push
+    roots_count(addr) = 0
+    bits(addr) = 0
+    free_count = free_count + 1
+  end subroutine return_to_free
 
-  subroutine free_stack_pop (addr)
+!!$  subroutine free_stack_pop (addr)
+!!$    integer, intent(out) :: addr
+!!$
+!!$    call ensure_heap_is_initialized
+!!$
+!!$    if (free_count == 0) then
+!!$       if (1 <= garbage_collection_debugging_level) then
+!!$          write (*, '("collecting garbage automatically -----------------")')
+!!$       end if
+!!$       call collect_garbage
+!!$    end if
+!!$
+!!$    addr = free_stack(free_count)
+!!$    free_count = free_count - 1
+!!$
+!!$    call set_unfree (addr)
+!!$  end subroutine free_stack_pop
+
+  subroutine get_from_free (addr)
+    !
+    ! FIXME:
+    ! FIXME: Linear-time finding of a free entry.
+    ! FIXME:
+    !
     integer, intent(out) :: addr
+
+    logical :: done
 
     call ensure_heap_is_initialized
 
-    if (free_stack_height == 0) then
-       if (1 <= garbage_collection_debugging_level) then
-          write (*, '("collecting garbage automatically -----------------")')
+    addr = 1
+    done = .false.
+    do while (.not. done)
+       if (addr == size (bits)) then
+          if (1 <= garbage_collection_debugging_level) then
+             write (*, '("collecting garbage automatically ---------")')
+          end if
+          call collect_garbage
+          addr = 1
+       else
+          addr = addr + 1
+          if (is_free (addr)) done = .true.
        end if
-       call collect_garbage
-    end if
-
-    addr = free_stack(free_stack_height)
-    free_stack_height = free_stack_height - 1
-  end subroutine free_stack_pop
+    end do
+    roots_count (addr) = 0
+    call set_unfree (addr)
+    free_count = free_count - 1
+  end subroutine get_from_free
 
   subroutine collect_garbage_now
     !
@@ -268,8 +368,8 @@ dnl
     ! call this subroutine to clean garbage at a particular point.
     !
     if (1 <= garbage_collection_debugging_level) then
-       write (*, '("collecting garbage by program request ------------")')
-       write (*, '(" free_stack_height before sweep     = ", i12)') free_stack_height
+       write (*, '("collecting garbage by program request ----")')
+       write (*, '(" free_count before sweep    = ", i12)') free_count
     end if
     call collect_garbage
   end subroutine collect_garbage_now
@@ -367,12 +467,13 @@ dnl
 
     pair%car = car_value
     pair%cdr = cdr_value
-    pair%roots_count = 1
 
-    call free_stack_pop (addr)
+    call get_from_free (addr)
 
     heap(addr) = pair
     dst%pair_addr = addr
+
+    roots_count(addr) = 1
   end function cons
 
   subroutine uncons (lst, car_value, cdr_value)
@@ -392,6 +493,8 @@ dnl
     end select
     car_value = pair%car
     cdr_value = pair%cdr
+    call count_object_as_root (car_value)
+    call count_object_as_root (cdr_value)
   end subroutine uncons
 
   function car (lst) result (car_value)
@@ -404,6 +507,7 @@ dnl
           call error_abort ("car of nil list")
        end if
        car_value = heap(lst%pair_addr)%car
+       call count_object_as_root (car_value)
     class default
        call error_abort ("car of an object with no pairs")
     end select
@@ -419,6 +523,7 @@ dnl
           call error_abort ("cdr of nil list")
        endif
        cdr_value = heap(lst%pair_addr)%cdr
+       call count_object_as_root (cdr_value)
     class default
        call error_abort ("cdr of an object with no pairs")
     end select
@@ -436,6 +541,7 @@ dnl
 
     pair = heap(lst%pair_addr)
     pair%car = car_value
+    call count_object_as_root (car_value)
     heap(lst%pair_addr) = pair
   end subroutine set_car
 
@@ -451,6 +557,7 @@ dnl
 
     pair = heap(lst%pair_addr)
     pair%cdr = cdr_value
+    call count_object_as_root (cdr_value)
     heap(lst%pair_addr) = pair
   end subroutine set_cdr
 
@@ -461,9 +568,7 @@ dnl
     integer :: addr
 
     addr = src%pair_addr
-    if (addr /= nil_address) then
-       heap(addr)%roots_count = heap(addr)%roots_count + 1
-    end if
+    call count_address_as_root (addr)
 
     call dst%discard
     dst%pair_addr = addr
@@ -477,11 +582,7 @@ dnl
 
     addr = this%pair_addr
     if (addr /= nil_address) then
-!       goto 1000 ! FIXME: DISABLE THIS FOR NOW.    FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-       if (0 < heap(addr)%roots_count) then
-          heap(addr)%roots_count = heap(addr)%roots_count - 1
-       end if
-1000   continue
+       roots_count(addr) = max (roots_count(addr), 1) - 1
     end if
   end subroutine cons_t_discard
 
@@ -507,11 +608,20 @@ dnl
     initial_heap_size = max (initial_heap_size, 1)
 
     allocate (heap(1:initial_heap_size))
-    allocate (free_stack(1:initial_heap_size))
-    do i = 1, initial_heap_size
-       free_stack(i) = initial_heap_size - (i - 1)
-    end do
-    free_stack_height = initial_heap_size
+
+    allocate (roots_count(1:initial_heap_size))
+    roots_count = 0
+
+    allocate (bits(1:initial_heap_size))
+    bits = 0
+
+!!$    allocate (free_stack(1:initial_heap_size))
+!!$    do i = 1, initial_heap_size
+!!$       free_stack(i) = initial_heap_size - (i - 1)
+!!$    end do
+
+    free_count = initial_heap_size
+
   end subroutine initialize_heap
 
   subroutine get_cons_pair_t_field (this, n, n_is_out_of_bounds, field)
@@ -532,11 +642,9 @@ dnl
   end subroutine get_cons_pair_t_field
 
   subroutine collect_garbage
-    use, intrinsic :: iso_fortran_env, only : numeric_storage_size
-
     ! If the Fortran implementation has 32-bit integers, then
     ! max_doubling_size = 1073741824.
-    integer, parameter :: max_doubling_size = 2 ** (numeric_storage_size - 2)
+    integer, parameter :: max_doubling_size = 2 ** (bit_size (1) - 2)
 
     ! If the Fortran implementation has 32-bit integers, then
     ! max_heap_size = 2147483647. This is as great as a 32-bit
@@ -544,19 +652,17 @@ dnl
     integer, parameter :: max_heap_size = max_doubling_size + (max_doubling_size - 1)
 
     if (allocated (heap)) then
-       goto 1000                   ! FIXME: Disable mark and sweep for now.
        call mark_from_roots
        call sweep
-1000   continue
        if (1 <= garbage_collection_debugging_level) then
-          write (*, '(" free_stack_height after sweep      = ", i12)') free_stack_height
+          write (*, '(" free_count after sweep     = ", i12)') free_count
        end if
        if (size (heap) /= max_heap_size) then
-          if (free_stack_height < max (minimum_free_heap, 1)) then
+          if (free_count < max (minimum_free_heap, 1)) then
              call expand_the_heap
           end if
        end if
-       if (free_stack_height == 0) then
+       if (free_count == 0) then
           call error_abort ("garbage collection failed to free enough space")
        end if
     end if
@@ -565,7 +671,9 @@ dnl
 
     subroutine expand_the_heap
       type(cons_pair_t), dimension(:), allocatable :: new_heap
-      integer, dimension(:), allocatable :: new_free_stack
+      integer, dimension(:), allocatable :: new_roots_count
+      integer(kind = bits_kind), dimension(:), allocatable :: new_bits
+!!$      integer, dimension(:), allocatable :: new_free_stack
 
       integer :: m, n, i
       integer :: status_code
@@ -584,19 +692,37 @@ dnl
       new_heap(1:m) = heap
       call move_alloc (new_heap, heap)
 
-      allocate (new_free_stack(1:n), stat = status_code)
+      allocate (new_roots_count(1:n), stat = status_code)
       if (status_code /= 0) then
          call error_abort ("garbage collector heap expansion failed", status_code)
       end if
-      new_free_stack(1:m) = free_stack
-      call move_alloc (new_free_stack, free_stack)
-      do i = m + 1, n
-         free_stack(free_stack_height + (n - (i - 1))) = i
-      end do
-      free_stack_height = free_stack_height + (n - m)
+      new_roots_count(1:m) = roots_count
+      new_roots_count(m + 1:n) = 0
+      call move_alloc (new_roots_count, roots_count)
+
+      allocate (new_bits(1:n), stat = status_code)
+      if (status_code /= 0) then
+         call error_abort ("garbage collector heap expansion failed", status_code)
+      end if
+      new_bits(1:m) = bits
+      new_bits(m + 1:n) = 0
+      call move_alloc (new_bits, bits)
+
+!!$      allocate (new_free_stack(1:n), stat = status_code)
+!!$      if (status_code /= 0) then
+!!$         call error_abort ("garbage collector heap expansion failed", status_code)
+!!$      end if
+!!$      new_free_stack(1:m) = free_stack
+!!$      call move_alloc (new_free_stack, free_stack)
+!!$d      do i = m + 1, n
+!!$         free_stack(free_count + (n - (i - 1))) = i
+!!$      end do
+
+      free_count = free_count + (n - m)
 
       if (1 <= garbage_collection_debugging_level) then
-         write (*, '(" free_stack_height after expansion  = ", i12)') free_stack_height
+         write (*, '(" heap expanded to size      = ", i12)') size (heap)
+         write (*, '(" free_count after expansion = ", i12)') free_count
       end if
     end subroutine expand_the_heap
 
@@ -604,18 +730,21 @@ dnl
 
   subroutine mark_from_roots
     type(integer_link_t), pointer :: stack
-    type(cons_pair_t) :: pair
     integer :: addr
 
     stack => null ()
-    do addr = lbound(heap, 1), ubound(heap, 1)
-       pair = heap(addr)
-       if (0 < pair%roots_count) then
-          ! Mark the heap entry by temporarily negating its roots_count.
-          pair%roots_count = -(pair%roots_count)
-          heap(addr) = pair
+    do addr = 1, size (heap)
+       if (is_unfree (addr) .and. is_unmarked (addr) .and. 0 < roots_count(addr)) then
+          if (5 <= garbage_collection_debugging_level) then
+             write (*, '("adding root to work list:        ", i12, "  roots = ", i12)') addr, roots_count(addr)
+          end if
+
+          ! Mark the heap entry, because it is a root.
+          call set_marked (addr)
+
           ! Push it to the stack.
           call integer_list_cons (addr, stack, stack)
+
           ! Find things that can be reached through it.
           call mark_reachables
        end if
@@ -625,7 +754,7 @@ dnl
 
     subroutine mark_reachables
       integer :: addr
-      type(cons_pair_t) :: pair, pr
+      type(cons_pair_t) :: pair
       class(*), allocatable :: field
       integer :: n
       logical :: done
@@ -633,6 +762,9 @@ dnl
       do while (associated (stack))
          ! Pop the top of the stack.
          call integer_list_uncons (stack, addr, stack)
+         if (5 <= garbage_collection_debugging_level) then
+            write (*, '("removing address from work list: ", i12)') addr
+         end if
 
          pair = heap(addr)
 
@@ -643,15 +775,14 @@ dnl
             class is (cons_t) ! Objects might be reachable through this field.
                addr = field%pair_addr
                if (addr /= nil_address) then
-                  pr = heap(addr)
-                  if (0 < pr%roots_count) then
-                     ! Mark the reachable object and push its address
-                     ! to the stack.
+                  if (is_unfree(addr) .and. is_unmarked (addr)) then
+                     ! Mark the unmarked reachable object and push its
+                     ! address to the stack.
                      if (5 <= garbage_collection_debugging_level) then
-                        write (*, '("adding field to work list: ", i2)') n
+                        write (*, '("adding address to work list:     ", i12, "  field = ", i2, "  roots = ", i12)') &
+                             addr, n, roots_count(addr)
                      end if
-                     pr%roots_count = -(pr%roots_count)
-                     heap(addr) = pr
+                     call set_marked (addr)
                      call integer_list_cons (addr, stack, stack)
                   end if
                end if
@@ -667,17 +798,15 @@ dnl
   subroutine sweep
     integer :: addr
 
-    type(cons_pair_t) :: pair
-
     do addr = lbound (heap, 1), ubound (heap, 1)
-       pair = heap(addr)
-       if (pair%roots_count < 0) then
-          ! The heap entry is marked. Unmark it.
-          pair%roots_count = -(pair%roots_count)
-          heap(addr) = pair
-       else
-          ! The heap entry is unmarked. Return it to the free list.
-          call free_stack_push (addr)
+       if (is_unfree (addr)) then
+          if (is_marked (addr)) then
+             ! Keep this heap entry.
+             call set_unmarked (addr)
+          else
+             ! Return this heap entry to the free list.
+             call return_to_free (addr)
+          end if
        end if
     end do
   end subroutine sweep
