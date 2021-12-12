@@ -62,8 +62,8 @@ contains
 
   subroutine integer_list_cons (ival, ilst, ilst1)
     integer, intent(in) :: ival
-    type(integer_link_t), pointer :: ilst
-    type(integer_link_t), pointer :: ilst1
+    type(integer_link_t), pointer, intent(inout) :: ilst
+    type(integer_link_t), pointer, intent(inout) :: ilst1
 
     type(integer_link_t), pointer :: tmp
 
@@ -74,9 +74,9 @@ contains
   end subroutine integer_list_cons
 
   subroutine integer_list_uncons (ilst1, ival, ilst)
-    type(integer_link_t), pointer :: ilst1
+    type(integer_link_t), pointer, intent(inout) :: ilst1
     integer, intent(out) :: ival
-    type(integer_link_t), pointer :: ilst
+    type(integer_link_t), pointer, intent(inout) :: ilst
 
     type(integer_link_t), pointer :: tmp
 
@@ -177,7 +177,7 @@ module cons_types
      private
      procedure, pass(dst) :: cons_t_copy
      procedure, pass(this) :: cons_t_discard
-     generic, public :: assignment(=) => cons_t_copy
+     !generic, public :: assignment(=) => cons_t_copy          FIXME: assignment is intrinsic, at least for now.
      generic, public :: discard => cons_t_discard
      final :: cons_t_finalize
   end type cons_t
@@ -372,8 +372,8 @@ dnl
   end function cons
 
   subroutine uncons (lst, car_value, cdr_value)
-    class(*) :: lst
-    class(*), allocatable :: car_value, cdr_value
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: car_value, cdr_value
 
     type(cons_pair_t) :: pair
 
@@ -421,7 +421,7 @@ dnl
   end function cdr
 
   subroutine set_car (lst, car_value)
-    class(cons_t) :: lst
+    class(cons_t), intent(in) :: lst
     class(*), intent(in) :: car_value
 
     type(cons_pair_t) :: pair
@@ -436,7 +436,7 @@ dnl
   end subroutine set_car
 
   subroutine set_cdr (lst, cdr_value)
-    class(cons_t) :: lst
+    class(cons_t), intent(in) :: lst
     class(*), intent(in) :: cdr_value
 
     type(cons_pair_t) :: pair
@@ -451,8 +451,10 @@ dnl
   end subroutine set_cdr
 
   subroutine cons_t_copy (dst, src)
-    class(cons_t), intent(out) :: dst
+    class(cons_t), intent(inout) :: dst
     class(cons_t), intent(in) :: src
+
+    ! FIXME: THIS SHOULD DISCARD ITS TARGET IF ALREADY SET.    FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
     integer :: addr
 
@@ -464,7 +466,7 @@ dnl
   end subroutine cons_t_copy
 
   subroutine cons_t_discard (this)
-    class(cons_t) :: this
+    class(cons_t), intent(in) :: this
 
     integer :: addr
 
@@ -475,7 +477,7 @@ dnl
   end subroutine cons_t_discard
 
   subroutine cons_t_finalize (this)
-    type(cons_t) :: this
+    type(cons_t), intent(in) :: this
     call cons_t_discard (this)
   end subroutine cons_t_finalize
 
@@ -1202,9 +1204,9 @@ dnl
     ! If an object is neither dotted nor circular, then it is a proper
     ! list.
     !
-    class(*) :: obj
-    logical :: is_dotted
-    logical :: is_circular
+    class(*), intent(in) :: obj
+    logical, intent(out) :: is_dotted
+    logical, intent(out) :: is_circular
 
     ! Detect circularity by having a `lead' reference move through the
     ! list at a higher rate than a `lag' reference. In a circular
@@ -1480,9 +1482,9 @@ m4_forloop([n],[1],LISTN_MAX,[
     ! This subroutine `unlists' the n elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
+    class(cons_t), intent(in) :: lst
 m4_forloop([k],[1],n,[dnl
-    class(*), allocatable :: obj[]k
+    class(*), allocatable, intent(inout) :: obj[]k
 ])dnl
 
     class(*), allocatable :: head
@@ -1509,11 +1511,11 @@ m4_forloop([n],[1],LISTN_MAX,[
     ! This subroutine `unlists' the leading n elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
+    class(cons_t), intent(in) :: lst
 m4_forloop([k],[1],n,[dnl
-    class(*), allocatable :: obj[]k
+    class(*), allocatable, intent(inout) :: obj[]k
 ])dnl
-    class(*), allocatable :: tail
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -1765,10 +1767,10 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
     !
     ! lst_left will be a cons_t, but lst_right need not be.
     !
-    class(*) :: lst
-    integer :: n
-    type(cons_t) :: lst_left
-    class(*), allocatable :: lst_right
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t), intent(inout) :: lst_left
+    class(*), allocatable, intent(inout) :: lst_right
 
     type(cons_t) :: lst_t
     class(*), allocatable :: head
@@ -1817,10 +1819,10 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
     !
     ! lst_left will be a cons_t, but lst_right need not be.
     !
-    class(*) :: lst
-    integer :: n
-    type(cons_t) :: lst_left
-    class(*), allocatable :: lst_right
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t), intent(inout) :: lst_left
+    class(*), allocatable, intent(inout) :: lst_right
 
     class(*), allocatable :: lst1
 
@@ -1844,7 +1846,7 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
     !
     ! The result need not be a cons_t.
     !
-    class(*) :: lst1, lst2
+    class(*), intent(in) :: lst1, lst2
     class(*), allocatable :: lst_a
 
     class(*), allocatable :: head
@@ -1930,8 +1932,8 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
     !
     ! lst1 must be a non-empty, non-circular list.
     !
-    type(cons_t) :: lst1
-    class(*) :: lst2
+    type(cons_t), intent(inout) :: lst1
+    class(*), intent(in) :: lst2
     if (list_is_nil (lst1)) then
        call error_abort ("list_append_in_place of an empty list")
     else
@@ -2049,9 +2051,9 @@ dnl
 m4_forloop([n],[1],ZIP_MAX,[
   subroutine list_unzip[]n (lst_zipped, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
 ])lst[]k]))
-    class(*) :: lst_zipped
+    class(*), intent(in) :: lst_zipped
 m4_forloop([k],[1],n,[dnl
-    type(cons_t) :: lst[]k
+    type(cons_t), intent(inout) :: lst[]k
 ])dnl
 
 m4_forloop([k],[1],n,[dnl
@@ -2237,9 +2239,9 @@ m4_forloop([k],[1],n,[dnl
     ! list_append_modify_elements.)
     !
     procedure(list_modify_elements_procedure_t) :: subr
-    class(*) :: lst
-    class(*), allocatable :: next
-    class(*), allocatable :: tail
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: next
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -2312,9 +2314,9 @@ m4_forloop([k],[1],n,[dnl
     ! If `match_found' is set to .false., then `match' is left unchanged.
     !
     procedure(list_predicate1_t) :: pred
-    class(*) :: lst
+    class(*), intent(in) :: lst
     logical, intent(out) :: match_found
-    class(*), allocatable :: match
+    class(*), allocatable, intent(inout) :: match
 
     class(*), allocatable :: tail
     class(*), allocatable :: element
@@ -2337,9 +2339,9 @@ m4_forloop([k],[1],n,[dnl
     ! If `match_found' is set to .false., then `match' is left unchanged.
     !
     procedure(list_predicate1_t) :: pred
-    class(*) :: lst
+    class(*), intent(in) :: lst
     logical, intent(out) :: match_found
-    class(*), allocatable :: match
+    class(*), allocatable, intent(inout) :: match
 
     class(*), allocatable :: tail
 
@@ -2419,9 +2421,9 @@ m4_forloop([k],[1],n,[dnl
 
   recursive subroutine list_span (pred, lst, lst_initial, lst_rest)
     procedure(list_predicate1_t) :: pred
-    class(*) :: lst
-    type(cons_t) :: lst_initial
-    class(*), allocatable :: lst_rest
+    class(*), intent(in) :: lst
+    type(cons_t), intent(inout) :: lst_initial
+    class(*), allocatable, intent(inout) :: lst_rest
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2462,17 +2464,17 @@ m4_forloop([k],[1],n,[dnl
     ! FIXME: Write a real destructive version.
     !
     procedure(list_predicate1_t) :: pred
-    class(*) :: lst
-    type(cons_t) :: lst_initial
-    class(*), allocatable :: lst_rest
+    class(*), intent(in) :: lst
+    type(cons_t), intent(inout) :: lst_initial
+    class(*), allocatable, intent(inout) :: lst_rest
     call list_span (pred, lst, lst_initial, lst_rest)
   end subroutine list_destructive_span
 
   recursive subroutine list_break (pred, lst, lst_initial, lst_rest)
     procedure(list_predicate1_t) :: pred
-    class(*) :: lst
-    type(cons_t) :: lst_initial
-    class(*), allocatable :: lst_rest
+    class(*), intent(in) :: lst
+    type(cons_t), intent(inout) :: lst_initial
+    class(*), allocatable, intent(inout) :: lst_rest
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2513,9 +2515,9 @@ m4_forloop([k],[1],n,[dnl
     ! FIXME: Write a real destructive version.
     !
     procedure(list_predicate1_t) :: pred
-    class(*) :: lst
-    type(cons_t) :: lst_initial
-    class(*), allocatable :: lst_rest
+    class(*), intent(in) :: lst
+    type(cons_t), intent(inout) :: lst_initial
+    class(*), allocatable, intent(inout) :: lst_rest
     call list_break (pred, lst, lst_initial, lst_rest)
   end subroutine list_destructive_break
 
@@ -2742,8 +2744,8 @@ m4_forloop([k],[1],n,[dnl
   subroutine copy_list_segment (from, to, segment, last_pair)
     class(*), intent(in) :: from
     class(*), intent(in) :: to
-    type(cons_t) :: segment
-    type(cons_t) :: last_pair
+    type(cons_t), intent(inout) :: segment
+    type(cons_t), intent(inout) :: last_pair
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2908,8 +2910,8 @@ m4_forloop([k],[1],n,[dnl
     !
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
-    class(*), allocatable :: lst_f ! The `filter' output.
-    class(*), allocatable :: lst_r ! The `remove' output.
+    class(*), allocatable, intent(inout) :: lst_f ! The `filter' output.
+    class(*), allocatable, intent(inout) :: lst_r ! The `remove' output.
 
     class(*), allocatable :: retval_f, retval_r
     class(*), allocatable :: current_position
@@ -3078,8 +3080,8 @@ m4_forloop([k],[1],n,[dnl
     !
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
-    class(*), allocatable :: lst_f ! The `filter' output.
-    class(*), allocatable :: lst_r ! The `remove' output.
+    class(*), allocatable, intent(inout) :: lst_f ! The `filter' output.
+    class(*), allocatable, intent(inout) :: lst_r ! The `remove' output.
     call list_partition (pred, lst, lst_f, lst_r)
   end subroutine list_destructive_partition
 

@@ -52,8 +52,8 @@ contains
 
   subroutine integer_list_cons (ival, ilst, ilst1)
     integer, intent(in) :: ival
-    type(integer_link_t), pointer :: ilst
-    type(integer_link_t), pointer :: ilst1
+    type(integer_link_t), pointer, intent(inout) :: ilst
+    type(integer_link_t), pointer, intent(inout) :: ilst1
 
     type(integer_link_t), pointer :: tmp
 
@@ -64,9 +64,9 @@ contains
   end subroutine integer_list_cons
 
   subroutine integer_list_uncons (ilst1, ival, ilst)
-    type(integer_link_t), pointer :: ilst1
+    type(integer_link_t), pointer, intent(inout) :: ilst1
     integer, intent(out) :: ival
-    type(integer_link_t), pointer :: ilst
+    type(integer_link_t), pointer, intent(inout) :: ilst
 
     type(integer_link_t), pointer :: tmp
 
@@ -167,7 +167,7 @@ module cons_types
      private
      procedure, pass(dst) :: cons_t_copy
      procedure, pass(this) :: cons_t_discard
-     generic, public :: assignment(=) => cons_t_copy
+     !generic, public :: assignment(=) => cons_t_copy          FIXME: assignment is intrinsic, at least for now.
      generic, public :: discard => cons_t_discard
      final :: cons_t_finalize
   end type cons_t
@@ -338,8 +338,8 @@ contains
   end function cons
 
   subroutine uncons (lst, car_value, cdr_value)
-    class(*) :: lst
-    class(*), allocatable :: car_value, cdr_value
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: car_value, cdr_value
 
     type(cons_pair_t) :: pair
 
@@ -387,7 +387,7 @@ contains
   end function cdr
 
   subroutine set_car (lst, car_value)
-    class(cons_t) :: lst
+    class(cons_t), intent(in) :: lst
     class(*), intent(in) :: car_value
 
     type(cons_pair_t) :: pair
@@ -402,7 +402,7 @@ contains
   end subroutine set_car
 
   subroutine set_cdr (lst, cdr_value)
-    class(cons_t) :: lst
+    class(cons_t), intent(in) :: lst
     class(*), intent(in) :: cdr_value
 
     type(cons_pair_t) :: pair
@@ -417,8 +417,10 @@ contains
   end subroutine set_cdr
 
   subroutine cons_t_copy (dst, src)
-    class(cons_t), intent(out) :: dst
+    class(cons_t), intent(inout) :: dst
     class(cons_t), intent(in) :: src
+
+    ! FIXME: THIS SHOULD DISCARD ITS TARGET IF ALREADY SET.    FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
     integer :: addr
 
@@ -430,7 +432,7 @@ contains
   end subroutine cons_t_copy
 
   subroutine cons_t_discard (this)
-    class(cons_t) :: this
+    class(cons_t), intent(in) :: this
 
     integer :: addr
 
@@ -441,7 +443,7 @@ contains
   end subroutine cons_t_discard
 
   subroutine cons_t_finalize (this)
-    type(cons_t) :: this
+    type(cons_t), intent(in) :: this
     call cons_t_discard (this)
   end subroutine cons_t_finalize
 
@@ -1236,9 +1238,9 @@ contains
     ! If an object is neither dotted nor circular, then it is a proper
     ! list.
     !
-    class(*) :: obj
-    logical :: is_dotted
-    logical :: is_circular
+    class(*), intent(in) :: obj
+    logical, intent(out) :: is_dotted
+    logical, intent(out) :: is_circular
 
     ! Detect circularity by having a `lead' reference move through the
     ! list at a higher rate than a `lag' reference. In a circular
@@ -2193,8 +2195,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     ! This subroutine `unlists' the 1 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2212,9 +2214,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     ! This subroutine `unlists' the 2 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2234,10 +2236,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     ! This subroutine `unlists' the 3 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2259,11 +2261,11 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     ! This subroutine `unlists' the 4 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2287,12 +2289,12 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     ! This subroutine `unlists' the 5 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2318,13 +2320,13 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     ! This subroutine `unlists' the 6 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2352,14 +2354,14 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     ! This subroutine `unlists' the 7 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2389,15 +2391,15 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     ! This subroutine `unlists' the 8 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2429,16 +2431,16 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     ! This subroutine `unlists' the 9 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2472,17 +2474,17 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     ! This subroutine `unlists' the 10 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2519,18 +2521,18 @@ obj11)
     ! This subroutine `unlists' the 11 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2569,19 +2571,19 @@ obj11, obj12)
     ! This subroutine `unlists' the 12 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2622,20 +2624,20 @@ obj11, obj12, obj13)
     ! This subroutine `unlists' the 13 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2678,21 +2680,21 @@ obj11, obj12, obj13, obj14)
     ! This subroutine `unlists' the 14 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: obj14
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: obj14
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2737,22 +2739,22 @@ obj11, obj12, obj13, obj14, obj15)
     ! This subroutine `unlists' the 15 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: obj14
-    class(*), allocatable :: obj15
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: obj14
+    class(*), allocatable, intent(inout) :: obj15
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2799,23 +2801,23 @@ obj11, obj12, obj13, obj14, obj15, obj16)
     ! This subroutine `unlists' the 16 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: obj14
-    class(*), allocatable :: obj15
-    class(*), allocatable :: obj16
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: obj14
+    class(*), allocatable, intent(inout) :: obj15
+    class(*), allocatable, intent(inout) :: obj16
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2864,24 +2866,24 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17)
     ! This subroutine `unlists' the 17 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: obj14
-    class(*), allocatable :: obj15
-    class(*), allocatable :: obj16
-    class(*), allocatable :: obj17
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: obj14
+    class(*), allocatable, intent(inout) :: obj15
+    class(*), allocatable, intent(inout) :: obj16
+    class(*), allocatable, intent(inout) :: obj17
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2932,25 +2934,25 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18)
     ! This subroutine `unlists' the 18 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: obj14
-    class(*), allocatable :: obj15
-    class(*), allocatable :: obj16
-    class(*), allocatable :: obj17
-    class(*), allocatable :: obj18
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: obj14
+    class(*), allocatable, intent(inout) :: obj15
+    class(*), allocatable, intent(inout) :: obj16
+    class(*), allocatable, intent(inout) :: obj17
+    class(*), allocatable, intent(inout) :: obj18
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -3003,26 +3005,26 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19)
     ! This subroutine `unlists' the 19 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: obj14
-    class(*), allocatable :: obj15
-    class(*), allocatable :: obj16
-    class(*), allocatable :: obj17
-    class(*), allocatable :: obj18
-    class(*), allocatable :: obj19
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: obj14
+    class(*), allocatable, intent(inout) :: obj15
+    class(*), allocatable, intent(inout) :: obj16
+    class(*), allocatable, intent(inout) :: obj17
+    class(*), allocatable, intent(inout) :: obj18
+    class(*), allocatable, intent(inout) :: obj19
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -3077,27 +3079,27 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     ! This subroutine `unlists' the 20 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: obj14
-    class(*), allocatable :: obj15
-    class(*), allocatable :: obj16
-    class(*), allocatable :: obj17
-    class(*), allocatable :: obj18
-    class(*), allocatable :: obj19
-    class(*), allocatable :: obj20
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: obj14
+    class(*), allocatable, intent(inout) :: obj15
+    class(*), allocatable, intent(inout) :: obj16
+    class(*), allocatable, intent(inout) :: obj17
+    class(*), allocatable, intent(inout) :: obj18
+    class(*), allocatable, intent(inout) :: obj19
+    class(*), allocatable, intent(inout) :: obj20
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -3153,9 +3155,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     ! This subroutine `unlists' the leading 1 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3171,10 +3173,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     ! This subroutine `unlists' the leading 2 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3192,11 +3194,11 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     ! This subroutine `unlists' the leading 3 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3216,12 +3218,12 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     ! This subroutine `unlists' the leading 4 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3243,13 +3245,13 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     ! This subroutine `unlists' the leading 5 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3273,14 +3275,14 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     ! This subroutine `unlists' the leading 6 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3306,15 +3308,15 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     ! This subroutine `unlists' the leading 7 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3342,16 +3344,16 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     ! This subroutine `unlists' the leading 8 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3381,17 +3383,17 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     ! This subroutine `unlists' the leading 9 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3423,18 +3425,18 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     ! This subroutine `unlists' the leading 10 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3469,19 +3471,19 @@ obj11, tail)
     ! This subroutine `unlists' the leading 11 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3518,20 +3520,20 @@ obj11, obj12, tail)
     ! This subroutine `unlists' the leading 12 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3570,21 +3572,21 @@ obj11, obj12, obj13, tail)
     ! This subroutine `unlists' the leading 13 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3625,22 +3627,22 @@ obj11, obj12, obj13, obj14, tail)
     ! This subroutine `unlists' the leading 14 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: obj14
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: obj14
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3683,23 +3685,23 @@ obj11, obj12, obj13, obj14, obj15, tail)
     ! This subroutine `unlists' the leading 15 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: obj14
-    class(*), allocatable :: obj15
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: obj14
+    class(*), allocatable, intent(inout) :: obj15
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3744,24 +3746,24 @@ obj11, obj12, obj13, obj14, obj15, obj16, tail)
     ! This subroutine `unlists' the leading 16 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: obj14
-    class(*), allocatable :: obj15
-    class(*), allocatable :: obj16
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: obj14
+    class(*), allocatable, intent(inout) :: obj15
+    class(*), allocatable, intent(inout) :: obj16
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3808,25 +3810,25 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, tail)
     ! This subroutine `unlists' the leading 17 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: obj14
-    class(*), allocatable :: obj15
-    class(*), allocatable :: obj16
-    class(*), allocatable :: obj17
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: obj14
+    class(*), allocatable, intent(inout) :: obj15
+    class(*), allocatable, intent(inout) :: obj16
+    class(*), allocatable, intent(inout) :: obj17
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3875,26 +3877,26 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, tail)
     ! This subroutine `unlists' the leading 18 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: obj14
-    class(*), allocatable :: obj15
-    class(*), allocatable :: obj16
-    class(*), allocatable :: obj17
-    class(*), allocatable :: obj18
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: obj14
+    class(*), allocatable, intent(inout) :: obj15
+    class(*), allocatable, intent(inout) :: obj16
+    class(*), allocatable, intent(inout) :: obj17
+    class(*), allocatable, intent(inout) :: obj18
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -3945,27 +3947,27 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, tail)
     ! This subroutine `unlists' the leading 19 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: obj14
-    class(*), allocatable :: obj15
-    class(*), allocatable :: obj16
-    class(*), allocatable :: obj17
-    class(*), allocatable :: obj18
-    class(*), allocatable :: obj19
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: obj14
+    class(*), allocatable, intent(inout) :: obj15
+    class(*), allocatable, intent(inout) :: obj16
+    class(*), allocatable, intent(inout) :: obj17
+    class(*), allocatable, intent(inout) :: obj18
+    class(*), allocatable, intent(inout) :: obj19
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -4018,28 +4020,28 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! This subroutine `unlists' the leading 20 elements of lst, and
     ! also returns the tail.
     !
-    class(cons_t) :: lst
-    class(*), allocatable :: obj1
-    class(*), allocatable :: obj2
-    class(*), allocatable :: obj3
-    class(*), allocatable :: obj4
-    class(*), allocatable :: obj5
-    class(*), allocatable :: obj6
-    class(*), allocatable :: obj7
-    class(*), allocatable :: obj8
-    class(*), allocatable :: obj9
-    class(*), allocatable :: obj10
-    class(*), allocatable :: obj11
-    class(*), allocatable :: obj12
-    class(*), allocatable :: obj13
-    class(*), allocatable :: obj14
-    class(*), allocatable :: obj15
-    class(*), allocatable :: obj16
-    class(*), allocatable :: obj17
-    class(*), allocatable :: obj18
-    class(*), allocatable :: obj19
-    class(*), allocatable :: obj20
-    class(*), allocatable :: tail
+    class(cons_t), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: obj1
+    class(*), allocatable, intent(inout) :: obj2
+    class(*), allocatable, intent(inout) :: obj3
+    class(*), allocatable, intent(inout) :: obj4
+    class(*), allocatable, intent(inout) :: obj5
+    class(*), allocatable, intent(inout) :: obj6
+    class(*), allocatable, intent(inout) :: obj7
+    class(*), allocatable, intent(inout) :: obj8
+    class(*), allocatable, intent(inout) :: obj9
+    class(*), allocatable, intent(inout) :: obj10
+    class(*), allocatable, intent(inout) :: obj11
+    class(*), allocatable, intent(inout) :: obj12
+    class(*), allocatable, intent(inout) :: obj13
+    class(*), allocatable, intent(inout) :: obj14
+    class(*), allocatable, intent(inout) :: obj15
+    class(*), allocatable, intent(inout) :: obj16
+    class(*), allocatable, intent(inout) :: obj17
+    class(*), allocatable, intent(inout) :: obj18
+    class(*), allocatable, intent(inout) :: obj19
+    class(*), allocatable, intent(inout) :: obj20
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -4324,10 +4326,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     !
     ! lst_left will be a cons_t, but lst_right need not be.
     !
-    class(*) :: lst
-    integer :: n
-    type(cons_t) :: lst_left
-    class(*), allocatable :: lst_right
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t), intent(inout) :: lst_left
+    class(*), allocatable, intent(inout) :: lst_right
 
     type(cons_t) :: lst_t
     class(*), allocatable :: head
@@ -4376,10 +4378,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     !
     ! lst_left will be a cons_t, but lst_right need not be.
     !
-    class(*) :: lst
-    integer :: n
-    type(cons_t) :: lst_left
-    class(*), allocatable :: lst_right
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t), intent(inout) :: lst_left
+    class(*), allocatable, intent(inout) :: lst_right
 
     class(*), allocatable :: lst1
 
@@ -4403,7 +4405,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     !
     ! The result need not be a cons_t.
     !
-    class(*) :: lst1, lst2
+    class(*), intent(in) :: lst1, lst2
     class(*), allocatable :: lst_a
 
     class(*), allocatable :: head
@@ -4489,8 +4491,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     !
     ! lst1 must be a non-empty, non-circular list.
     !
-    type(cons_t) :: lst1
-    class(*) :: lst2
+    type(cons_t), intent(inout) :: lst1
+    class(*), intent(in) :: lst2
     if (list_is_nil (lst1)) then
        call error_abort ("list_append_in_place of an empty list")
     else
@@ -5463,8 +5465,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end function list_zip10
 
   subroutine list_unzip1 (lst_zipped, lst1)
-    class(*) :: lst_zipped
-    type(cons_t) :: lst1
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
 
     type(cons_t) :: cursor1
 
@@ -5500,9 +5502,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end subroutine list_unzip1
 
   subroutine list_unzip2 (lst_zipped, lst1, lst2)
-    class(*) :: lst_zipped
-    type(cons_t) :: lst1
-    type(cons_t) :: lst2
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -5550,10 +5552,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end subroutine list_unzip2
 
   subroutine list_unzip3 (lst_zipped, lst1, lst2, lst3)
-    class(*) :: lst_zipped
-    type(cons_t) :: lst1
-    type(cons_t) :: lst2
-    type(cons_t) :: lst3
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -5613,11 +5615,11 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end subroutine list_unzip3
 
   subroutine list_unzip4 (lst_zipped, lst1, lst2, lst3, lst4)
-    class(*) :: lst_zipped
-    type(cons_t) :: lst1
-    type(cons_t) :: lst2
-    type(cons_t) :: lst3
-    type(cons_t) :: lst4
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -5689,12 +5691,12 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end subroutine list_unzip4
 
   subroutine list_unzip5 (lst_zipped, lst1, lst2, lst3, lst4, lst5)
-    class(*) :: lst_zipped
-    type(cons_t) :: lst1
-    type(cons_t) :: lst2
-    type(cons_t) :: lst3
-    type(cons_t) :: lst4
-    type(cons_t) :: lst5
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -5778,13 +5780,13 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end subroutine list_unzip5
 
   subroutine list_unzip6 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6)
-    class(*) :: lst_zipped
-    type(cons_t) :: lst1
-    type(cons_t) :: lst2
-    type(cons_t) :: lst3
-    type(cons_t) :: lst4
-    type(cons_t) :: lst5
-    type(cons_t) :: lst6
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -5880,14 +5882,14 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end subroutine list_unzip6
 
   subroutine list_unzip7 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7)
-    class(*) :: lst_zipped
-    type(cons_t) :: lst1
-    type(cons_t) :: lst2
-    type(cons_t) :: lst3
-    type(cons_t) :: lst4
-    type(cons_t) :: lst5
-    type(cons_t) :: lst6
-    type(cons_t) :: lst7
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
+    type(cons_t), intent(inout) :: lst7
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -5995,15 +5997,15 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end subroutine list_unzip7
 
   subroutine list_unzip8 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8)
-    class(*) :: lst_zipped
-    type(cons_t) :: lst1
-    type(cons_t) :: lst2
-    type(cons_t) :: lst3
-    type(cons_t) :: lst4
-    type(cons_t) :: lst5
-    type(cons_t) :: lst6
-    type(cons_t) :: lst7
-    type(cons_t) :: lst8
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
+    type(cons_t), intent(inout) :: lst7
+    type(cons_t), intent(inout) :: lst8
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -6123,16 +6125,16 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end subroutine list_unzip8
 
   subroutine list_unzip9 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9)
-    class(*) :: lst_zipped
-    type(cons_t) :: lst1
-    type(cons_t) :: lst2
-    type(cons_t) :: lst3
-    type(cons_t) :: lst4
-    type(cons_t) :: lst5
-    type(cons_t) :: lst6
-    type(cons_t) :: lst7
-    type(cons_t) :: lst8
-    type(cons_t) :: lst9
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
+    type(cons_t), intent(inout) :: lst7
+    type(cons_t), intent(inout) :: lst8
+    type(cons_t), intent(inout) :: lst9
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -6264,17 +6266,17 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end subroutine list_unzip9
 
   subroutine list_unzip10 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10)
-    class(*) :: lst_zipped
-    type(cons_t) :: lst1
-    type(cons_t) :: lst2
-    type(cons_t) :: lst3
-    type(cons_t) :: lst4
-    type(cons_t) :: lst5
-    type(cons_t) :: lst6
-    type(cons_t) :: lst7
-    type(cons_t) :: lst8
-    type(cons_t) :: lst9
-    type(cons_t) :: lst10
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
+    type(cons_t), intent(inout) :: lst7
+    type(cons_t), intent(inout) :: lst8
+    type(cons_t), intent(inout) :: lst9
+    type(cons_t), intent(inout) :: lst10
 
     type(cons_t) :: cursor1
     type(cons_t) :: cursor2
@@ -6549,9 +6551,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! list_append_modify_elements.)
     !
     procedure(list_modify_elements_procedure_t) :: subr
-    class(*) :: lst
-    class(*), allocatable :: next
-    class(*), allocatable :: tail
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: next
+    class(*), allocatable, intent(inout) :: tail
 
     class(*), allocatable :: hd
     class(*), allocatable :: tl
@@ -6624,9 +6626,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! If `match_found' is set to .false., then `match' is left unchanged.
     !
     procedure(list_predicate1_t) :: pred
-    class(*) :: lst
+    class(*), intent(in) :: lst
     logical, intent(out) :: match_found
-    class(*), allocatable :: match
+    class(*), allocatable, intent(inout) :: match
 
     class(*), allocatable :: tail
     class(*), allocatable :: element
@@ -6649,9 +6651,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! If `match_found' is set to .false., then `match' is left unchanged.
     !
     procedure(list_predicate1_t) :: pred
-    class(*) :: lst
+    class(*), intent(in) :: lst
     logical, intent(out) :: match_found
-    class(*), allocatable :: match
+    class(*), allocatable, intent(inout) :: match
 
     class(*), allocatable :: tail
 
@@ -6731,9 +6733,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   recursive subroutine list_span (pred, lst, lst_initial, lst_rest)
     procedure(list_predicate1_t) :: pred
-    class(*) :: lst
-    type(cons_t) :: lst_initial
-    class(*), allocatable :: lst_rest
+    class(*), intent(in) :: lst
+    type(cons_t), intent(inout) :: lst_initial
+    class(*), allocatable, intent(inout) :: lst_rest
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -6774,17 +6776,17 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! FIXME: Write a real destructive version.
     !
     procedure(list_predicate1_t) :: pred
-    class(*) :: lst
-    type(cons_t) :: lst_initial
-    class(*), allocatable :: lst_rest
+    class(*), intent(in) :: lst
+    type(cons_t), intent(inout) :: lst_initial
+    class(*), allocatable, intent(inout) :: lst_rest
     call list_span (pred, lst, lst_initial, lst_rest)
   end subroutine list_destructive_span
 
   recursive subroutine list_break (pred, lst, lst_initial, lst_rest)
     procedure(list_predicate1_t) :: pred
-    class(*) :: lst
-    type(cons_t) :: lst_initial
-    class(*), allocatable :: lst_rest
+    class(*), intent(in) :: lst
+    type(cons_t), intent(inout) :: lst_initial
+    class(*), allocatable, intent(inout) :: lst_rest
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -6825,9 +6827,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! FIXME: Write a real destructive version.
     !
     procedure(list_predicate1_t) :: pred
-    class(*) :: lst
-    type(cons_t) :: lst_initial
-    class(*), allocatable :: lst_rest
+    class(*), intent(in) :: lst
+    type(cons_t), intent(inout) :: lst_initial
+    class(*), allocatable, intent(inout) :: lst_rest
     call list_break (pred, lst, lst_initial, lst_rest)
   end subroutine list_destructive_break
 
@@ -7054,8 +7056,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   subroutine copy_list_segment (from, to, segment, last_pair)
     class(*), intent(in) :: from
     class(*), intent(in) :: to
-    type(cons_t) :: segment
-    type(cons_t) :: last_pair
+    type(cons_t), intent(inout) :: segment
+    type(cons_t), intent(inout) :: last_pair
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -7220,8 +7222,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     !
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
-    class(*), allocatable :: lst_f ! The `filter' output.
-    class(*), allocatable :: lst_r ! The `remove' output.
+    class(*), allocatable, intent(inout) :: lst_f ! The `filter' output.
+    class(*), allocatable, intent(inout) :: lst_r ! The `remove' output.
 
     class(*), allocatable :: retval_f, retval_r
     class(*), allocatable :: current_position
@@ -7390,8 +7392,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     !
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
-    class(*), allocatable :: lst_f ! The `filter' output.
-    class(*), allocatable :: lst_r ! The `remove' output.
+    class(*), allocatable, intent(inout) :: lst_f ! The `filter' output.
+    class(*), allocatable, intent(inout) :: lst_r ! The `remove' output.
     call list_partition (pred, lst, lst_f, lst_r)
   end subroutine list_destructive_partition
 
