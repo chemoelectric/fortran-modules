@@ -436,7 +436,7 @@ contains
 
     addr = this%pair_addr
     if (addr /= nil_address) then
-       heap(addr)%roots_count = heap(addr)%roots_count - 1
+       heap(addr)%roots_count = max (heap(addr)%roots_count, 1) - 1
     end if
   end subroutine cons_t_discard
 
@@ -498,8 +498,10 @@ contains
     ! signed integer can go.
     integer, parameter :: max_heap_size = max_doubling_size + (max_doubling_size - 1)
 
+    goto 1000                   ! FIXME: Disable mark and sweep for now.
     call mark_from_roots
     call sweep
+1000 continue
     if (1 <= garbage_collection_debugging_level) then
        write (*, '(" free_stack_height after sweep      = ", i12)') free_stack_height
     end if
