@@ -158,7 +158,7 @@ module cons_types
   type(cons_pair_t), dimension(:), allocatable :: heap
   integer, dimension(:), allocatable :: roots_count
   integer(kind = bits_kind), dimension(:), allocatable :: bits
-!!$  integer, dimension(:), allocatable :: free_stack
+  integer, dimension(:), allocatable :: free_stack
   integer :: free_count
 
   integer(kind = bits_kind), parameter :: unfree_bit = 1
@@ -177,10 +177,6 @@ module cons_types
 
   ! The canonical nil list.
   type(cons_t), parameter :: nil_list = cons_t ()
-
-!!$  interface cons_t
-!!$     module procedure cons
-!!$  end interface cons_t
 
   interface error_abort
      module procedure error_abort_1
@@ -211,11 +207,11 @@ contains
     bits(addr) = ior (bits(addr), unfree_bit)
   end subroutine set_unfree
 
-  function is_free (addr) result (bool)
-    integer, intent(in) :: addr
-    logical :: bool
-    bool = (iand (bits(addr), unfree_bit) == 0)
-  end function is_free
+!!$  function is_free (addr) result (bool)
+!!$    integer, intent(in) :: addr
+!!$    logical :: bool
+!!$    bool = (iand (bits(addr), unfree_bit) == 0)
+!!$  end function is_free
 
   function is_unfree (addr) result (bool)
     integer, intent(in) :: addr
@@ -252,73 +248,73 @@ contains
     end if
   end subroutine count_address_as_root
 
-!!$  subroutine return_to_free (addr)
-!!$    integer, intent(in) :: addr
-!!$
-!!$    free_count = free_count + 1
-!!$    free_stack(free_count) = addr
-!!$
-!!$    heap(addr) = cons_pair_t ()
-!!$    roots_count(addr) = 0
-!!$    bits(addr) = 0
-!!$  end subroutine return_to_free
-
   subroutine return_to_free (addr)
     integer, intent(in) :: addr
+
+    free_count = free_count + 1
+    free_stack(free_count) = addr
+
     heap(addr) = cons_pair_t ()
     roots_count(addr) = 0
     bits(addr) = 0
-    free_count = free_count + 1
   end subroutine return_to_free
 
-!!$  subroutine free_stack_pop (addr)
-!!$    integer, intent(out) :: addr
-!!$
-!!$    call ensure_heap_is_initialized
-!!$
-!!$    if (free_count == 0) then
-!!$       if (1 <= garbage_collection_debugging_level) then
-!!$          write (*, '("collecting garbage automatically -----------------")')
-!!$       end if
-!!$       call collect_garbage
-!!$    end if
-!!$
-!!$    addr = free_stack(free_count)
-!!$    free_count = free_count - 1
-!!$
-!!$    call set_unfree (addr)
-!!$  end subroutine free_stack_pop
+!!$  subroutine return_to_free (addr)
+!!$    integer, intent(in) :: addr
+!!$    heap(addr) = cons_pair_t ()
+!!$    roots_count(addr) = 0
+!!$    bits(addr) = 0
+!!$    free_count = free_count + 1
+!!$  end subroutine return_to_free
 
   subroutine get_from_free (addr)
-    !
-    ! FIXME:
-    ! FIXME: Linear-time finding of a free entry.
-    ! FIXME:
-    !
     integer, intent(out) :: addr
-
-    logical :: done
 
     call ensure_heap_is_initialized
 
-    addr = 1
-    done = .false.
-    do while (.not. done)
-       if (addr == size (bits)) then
-          if (1 <= garbage_collection_debugging_level) then
-             write (*, '("collecting garbage automatically ---------")')
-          end if
-          call collect_garbage
-          addr = 1
-       else
-          addr = addr + 1
-          if (is_free (addr)) done = .true.
+    if (free_count == 0) then
+       if (1 <= garbage_collection_debugging_level) then
+          write (*, '("collecting garbage automatically ---------")')
        end if
-    end do
-    roots_count (addr) = 0
-    call set_unfree (addr)
+       call collect_garbage
+    end if
+
+    addr = free_stack(free_count)
     free_count = free_count - 1
+
+    call set_unfree (addr)
   end subroutine get_from_free
+
+!!$  subroutine get_from_free (addr)
+!!$    !
+!!$    ! FIXME:
+!!$    ! FIXME: Linear-time finding of a free entry.
+!!$    ! FIXME:
+!!$    !
+!!$    integer, intent(out) :: addr
+!!$
+!!$    logical :: done
+!!$
+!!$    call ensure_heap_is_initialized
+!!$
+!!$    addr = 1
+!!$    done = .false.
+!!$    do while (.not. done)
+!!$       if (addr == size (bits)) then
+!!$          if (1 <= garbage_collection_debugging_level) then
+!!$             write (*, '("collecting garbage automatically ---------")')
+!!$          end if
+!!$          call collect_garbage
+!!$          addr = 1
+!!$       else
+!!$          addr = addr + 1
+!!$          if (is_free (addr)) done = .true.
+!!$       end if
+!!$    end do
+!!$    roots_count (addr) = 0
+!!$    call set_unfree (addr)
+!!$    free_count = free_count - 1
+!!$  end subroutine get_from_free
 
   subroutine collect_garbage_now
     !
@@ -567,10 +563,10 @@ contains
     allocate (bits(1:initial_heap_size))
     bits = 0
 
-!!$    allocate (free_stack(1:initial_heap_size))
-!!$    do i = 1, initial_heap_size
-!!$       free_stack(i) = initial_heap_size - (i - 1)
-!!$    end do
+    allocate (free_stack(1:initial_heap_size))
+    do i = 1, initial_heap_size
+       free_stack(i) = initial_heap_size - (i - 1)
+    end do
 
     free_count = initial_heap_size
 
@@ -625,7 +621,7 @@ contains
       type(cons_pair_t), dimension(:), allocatable :: new_heap
       integer, dimension(:), allocatable :: new_roots_count
       integer(kind = bits_kind), dimension(:), allocatable :: new_bits
-!!$      integer, dimension(:), allocatable :: new_free_stack
+      integer, dimension(:), allocatable :: new_free_stack
 
       integer :: m, n, i
       integer :: status_code
@@ -660,15 +656,15 @@ contains
       new_bits(m + 1:n) = 0
       call move_alloc (new_bits, bits)
 
-!!$      allocate (new_free_stack(1:n), stat = status_code)
-!!$      if (status_code /= 0) then
-!!$         call error_abort ("garbage collector heap expansion failed", status_code)
-!!$      end if
-!!$      new_free_stack(1:m) = free_stack
-!!$      call move_alloc (new_free_stack, free_stack)
-!!$d      do i = m + 1, n
-!!$         free_stack(free_count + (n - (i - 1))) = i
-!!$      end do
+      allocate (new_free_stack(1:n), stat = status_code)
+      if (status_code /= 0) then
+         call error_abort ("garbage collector heap expansion failed", status_code)
+      end if
+      new_free_stack(1:m) = free_stack
+      call move_alloc (new_free_stack, free_stack)
+      do i = m + 1, n
+         free_stack(free_count + (n - (i - 1))) = i
+      end do
 
       free_count = free_count + (n - m)
 
