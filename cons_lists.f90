@@ -178,9 +178,9 @@ module cons_types
   ! The canonical nil list.
   type(cons_t), parameter :: nil_list = cons_t ()
 
-  interface cons_t
-     module procedure cons
-  end interface cons_t
+!!$  interface cons_t
+!!$     module procedure cons
+!!$  end interface cons_t
 
   interface error_abort
      module procedure error_abort_1
@@ -251,14 +251,6 @@ contains
        roots_count(addr) = roots_count(addr) + 1
     end if
   end subroutine count_address_as_root
-
-  subroutine count_object_as_root (obj)
-    class(*), intent(in) :: obj
-    select type (obj)
-    class is (cons_t)
-       call count_address_as_root (obj%pair_addr)
-    end select
-  end subroutine count_object_as_root
 
 !!$  subroutine return_to_free (addr)
 !!$    integer, intent(in) :: addr
@@ -459,8 +451,6 @@ contains
     end select
     car_value = pair%car
     cdr_value = pair%cdr
-    call count_object_as_root (car_value)
-    call count_object_as_root (cdr_value)
   end subroutine uncons
 
   function car (lst) result (car_value)
@@ -473,7 +463,6 @@ contains
           call error_abort ("car of nil list")
        end if
        car_value = heap(lst%pair_addr)%car
-       call count_object_as_root (car_value)
     class default
        call error_abort ("car of an object with no pairs")
     end select
@@ -489,7 +478,6 @@ contains
           call error_abort ("cdr of nil list")
        endif
        cdr_value = heap(lst%pair_addr)%cdr
-       call count_object_as_root (cdr_value)
     class default
        call error_abort ("cdr of an object with no pairs")
     end select
@@ -507,7 +495,6 @@ contains
 
     pair = heap(lst%pair_addr)
     pair%car = car_value
-    call count_object_as_root (car_value)
     heap(lst%pair_addr) = pair
   end subroutine set_car
 
@@ -523,7 +510,6 @@ contains
 
     pair = heap(lst%pair_addr)
     pair%cdr = cdr_value
-    call count_object_as_root (cdr_value)
     heap(lst%pair_addr) = pair
   end subroutine set_cdr
 
