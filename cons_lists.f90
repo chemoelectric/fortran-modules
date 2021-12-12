@@ -105,6 +105,7 @@ module cons_types
 
   public :: cons_pair_t         ! The storage for a CONS-pair, or a subtype for storing `anything'.
   public :: cons_t              ! Either a nil list or a reference to a CONS-pair.
+  public :: list_discard        ! Remove an object as a root for garbage collection, if it is one.
   public :: nil_list            ! The canonical nil list.
   public :: cons_t_cast         ! Cast to a cons_t, if possible.
   public :: cons_t_eq           ! Are two cons_t both nil or both references to the same CONS-pair?
@@ -161,11 +162,14 @@ module cons_types
   integer, dimension(:), allocatable :: free_stack
   integer :: free_count
 
+  ! Bit masks.
   integer(kind = bits_kind), parameter :: unfree_bit = 1
   integer(kind = bits_kind), parameter :: mark_bit = 2
 
   type :: cons_t
-     integer :: pair_addr = nil_address ! Heap address of the CAR and CDR.
+     ! pair_addr = the heap address of the CAR and CDR, or nil_address
+     ! for a nil list.
+     integer :: pair_addr = nil_address
    contains
      private
      procedure, pass(dst) :: cons_t_copy
@@ -282,6 +286,14 @@ contains
     end if
     call collect_garbage
   end subroutine collect_garbage_now
+
+  subroutine list_discard (lst)
+    class(*), intent(in) :: lst
+    select type (lst)
+    class is (cons_t)
+       call lst%discard
+    end select
+  end subroutine list_discard
 
   function cons_t_cast (obj) result (lst)
     !
@@ -826,6 +838,8 @@ module cons_lists
   public :: cons_t              ! The type of a NIL-list or CONS-pair.
   public :: nil_list            ! The canonical NIL-list.
 
+  public :: list_discard        ! Remove an object as a root for garbage collection, if it is one.
+
   public :: is_nil_or_pair      ! Is an object either a NIL-list or CONS-pair?
   public :: is_nil_list         ! Is an object a NIL-list?
   public :: is_cons_pair        ! Is an object a CONS-pair?
@@ -1204,17 +1218,33 @@ contains
     pair = cons (car_value, cdr_value)
   end function list_cons
 
+!!$  function list_length (lst) result (length)
+!!$    class(*), intent(in) :: lst
+!!$    integer :: length
+!!$
+!!$    class(*), allocatable :: tail
+!!$
+!!$    length = 0
+!!$    tail = lst
+!!$    do while (is_cons_pair (tail))
+!!$       length = length + 1
+!!$       tail = cdr (tail)
+!!$    end do
+!!$  end function list_length
+
   function list_length (lst) result (length)
     class(*), intent(in) :: lst
     integer :: length
 
-    class(*), allocatable :: tail
+    class(*), allocatable :: tail, tl
 
     length = 0
     tail = lst
     do while (is_cons_pair (tail))
        length = length + 1
-       tail = cdr (tail)
+       tl = cdr (tail)
+       call list_discard (tail)
+       tail = tl
     end do
   end function list_length
 
