@@ -241,12 +241,6 @@ dnl
     bits(addr) = ior (bits(addr), unfree_bit)
   end subroutine set_unfree
 
-!!$  function is_free (addr) result (bool)
-!!$    integer, intent(in) :: addr
-!!$    logical :: bool
-!!$    bool = (iand (bits(addr), unfree_bit) == 0)
-!!$  end function is_free
-
   function is_unfree (addr) result (bool)
     integer, intent(in) :: addr
     logical :: bool
@@ -293,14 +287,6 @@ dnl
     bits(addr) = 0
   end subroutine return_to_free
 
-!!$  subroutine return_to_free (addr)
-!!$    integer, intent(in) :: addr
-!!$    heap(addr) = cons_pair_t ()
-!!$    roots_count(addr) = 0
-!!$    bits(addr) = 0
-!!$    free_count = free_count + 1
-!!$  end subroutine return_to_free
-
   subroutine get_from_free (addr)
     integer, intent(out) :: addr
 
@@ -318,37 +304,6 @@ dnl
 
     call set_unfree (addr)
   end subroutine get_from_free
-
-!!$  subroutine get_from_free (addr)
-!!$    !
-!!$    ! FIXME:
-!!$    ! FIXME: Linear-time finding of a free entry.
-!!$    ! FIXME:
-!!$    !
-!!$    integer, intent(out) :: addr
-!!$
-!!$    logical :: done
-!!$
-!!$    call ensure_heap_is_initialized
-!!$
-!!$    addr = 1
-!!$    done = .false.
-!!$    do while (.not. done)
-!!$       if (addr == size (bits)) then
-!!$          if (1 <= garbage_collection_debugging_level) then
-!!$             write (*, '("collecting garbage automatically ---------")')
-!!$          end if
-!!$          call collect_garbage
-!!$          addr = 1
-!!$       else
-!!$          addr = addr + 1
-!!$          if (is_free (addr)) done = .true.
-!!$       end if
-!!$    end do
-!!$    roots_count (addr) = 0
-!!$    call set_unfree (addr)
-!!$    free_count = free_count - 1
-!!$  end subroutine get_from_free
 
   subroutine collect_garbage_now
     !
