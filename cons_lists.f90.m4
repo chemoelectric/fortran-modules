@@ -177,13 +177,17 @@ module cons_types
      private
      procedure, pass(dst) :: cons_t_copy
      procedure, pass(this) :: cons_t_discard
-     !generic, public :: assignment(=) => cons_t_copy          FIXME: assignment is intrinsic, at least for now.
+     generic, public :: assignment(=) => cons_t_copy
      generic, public :: discard => cons_t_discard
      final :: cons_t_finalize
   end type cons_t
 
   ! The canonical nil list.
   type(cons_t), parameter :: nil_list = cons_t ()
+
+  interface cons_t
+     module procedure cons
+  end interface cons_t
 
   interface error_abort
      module procedure error_abort_1
@@ -454,15 +458,16 @@ dnl
     class(cons_t), intent(inout) :: dst
     class(cons_t), intent(in) :: src
 
-    ! FIXME: THIS SHOULD DISCARD ITS TARGET IF ALREADY SET.    FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-
     integer :: addr
 
     addr = src%pair_addr
     if (addr /= nil_address) then
        heap(addr)%roots_count = heap(addr)%roots_count + 1
     end if
+
+    call dst%discard
     dst%pair_addr = addr
+
   end subroutine cons_t_copy
 
   subroutine cons_t_discard (this)
@@ -472,7 +477,13 @@ dnl
 
     addr = this%pair_addr
     if (addr /= nil_address) then
-       heap(addr)%roots_count = max (heap(addr)%roots_count, 1) - 1
+print*,"discarding ", addr
+       goto 1000 ! FIXME: DISABLE THIS FOR NOW.    FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+       if (heap(addr)%roots_count == 0) then
+          call error_abort ("roots count error in the garbage collector")
+       end if
+       heap(addr)%roots_count = heap(addr)%roots_count - 1
+1000   continue
     end if
   end subroutine cons_t_discard
 
@@ -534,20 +545,22 @@ dnl
     ! signed integer can go.
     integer, parameter :: max_heap_size = max_doubling_size + (max_doubling_size - 1)
 
-    goto 1000                   ! FIXME: Disable mark and sweep for now.
-    call mark_from_roots
-    call sweep
-1000 continue
-    if (1 <= garbage_collection_debugging_level) then
-       write (*, '(" free_stack_height after sweep      = ", i12)') free_stack_height
-    end if
-    if (size (heap) /= max_heap_size) then
-       if (free_stack_height < max (minimum_free_heap, 1)) then
-          call expand_the_heap
+    if (allocated (heap)) then
+       goto 1000                   ! FIXME: Disable mark and sweep for now.
+       call mark_from_roots
+       call sweep
+1000   continue
+       if (1 <= garbage_collection_debugging_level) then
+          write (*, '(" free_stack_height after sweep      = ", i12)') free_stack_height
        end if
-    end if
-    if (free_stack_height == 0) then
-       call error_abort ("garbage collection failed to free enough space")
+       if (size (heap) /= max_heap_size) then
+          if (free_stack_height < max (minimum_free_heap, 1)) then
+             call expand_the_heap
+          end if
+       end if
+       if (free_stack_height == 0) then
+          call error_abort ("garbage collection failed to free enough space")
+       end if
     end if
 
   contains

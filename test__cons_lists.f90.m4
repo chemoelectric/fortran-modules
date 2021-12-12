@@ -2302,6 +2302,8 @@ program main
   garbage_collection_debugging_level = 1
   minimum_free_heap = 4
   initial_heap_size = 1
+goto 1000
   call run_tests
+1000 continue
   call collect_garbage_now
 end program main
