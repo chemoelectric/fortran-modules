@@ -57,6 +57,7 @@ FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all -Wall $(FCFLAG_WNO_TRAMPOLINES
 COMPILE.f90 = $(FC) $(FCFLAGS) $(XFCFLAGS)
 FCFLAG_WNO_TRAMPOLINES = -Wno-trampolines
 FCFLAG_WTRAMPOLINES = -Wtrampolines
+FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT = -Wno-unused-dummy-argument
 
 %.anchor: %.f90
 	$(COMPILE.f90) -c -fsyntax-only $(<) && touch $(@)
@@ -67,6 +68,11 @@ FCFLAG_WTRAMPOLINES = -Wtrampolines
 .PRECIOUS: %.f90
 %.f90: %.f90.m4 common-macros.m4
 	$(COMPILE.m4) $(<) > $(@)
+
+unused_variables.anchor: unused_variables.f90
+	$(COMPILE.f90) $(FCFLAG_WTRAMPOLINES) $(FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT) -c -fsyntax-only $(<) && touch $(@)
+unused_variables.$(OBJEXT): unused_variables.anchor
+	$(COMPILE.f90) $(FCFLAG_WTRAMPOLINES) $(FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT) -c $(<:.anchor=.f90) -o $(@)
 
 #
 # The core modules are to be kept free of trampolines, which gfortran
@@ -95,10 +101,15 @@ tests: test__cons_lists
 check: tests
 	./test__cons_lists
 
-test__cons_lists: test__cons_lists.$(OBJEXT) cons_lists.$(OBJEXT)
+test__cons_lists: test__cons_lists.$(OBJEXT) cons_lists.$(OBJEXT) unused_variables.$(OBJEXT)
 	$(COMPILE.f90) $(^) -o $(@)
 
 cons_lists.f90: cadadr.m4
+
+unused_variables.anchor: unused_variables.mod
+unused_variables.mod:
+
+cons_lists.anchor: unused_variables.anchor
 
 cons_lists.anchor: cons_types_helpers.mod
 cons_lists.anchor: cons_types.mod

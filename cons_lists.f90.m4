@@ -104,18 +104,25 @@ module cons_types
   !
   ! However, you might use this module for such activities such as
   ! setting the garbage collector debugging level, calling the garbage
-  ! collector directly, deriving a type from cons_pair_t, etc.
+  ! collector directly, deriving a type, etc.
   !
 
   use, intrinsic :: iso_fortran_env, only: int8
+  use unused_variables
   use cons_types_helpers
 
   implicit none
   private
 
-  public :: cons_pair_t         ! The storage for a CONS-pair, or a subtype for storing `anything'.
+  public :: collectible_contents_t ! A base class for box_contents_t, cons_contents_t, etc.
+  public :: box_contents_t      ! The storage for a box_t.
+  public :: cons_contents_t     ! The storage for a CONS-pair.
+  public :: collectible_t       ! FIXME: Document this.
+  public :: box_t               ! FIXME: Document this.
   public :: cons_t              ! Either a nil list or a reference to a CONS-pair.
-  public :: list_discard        ! Remove an object as a root for garbage collection, if it is one.
+  public :: discard_collectible ! Remove an object as a root for garbage collection, if it is one.
+  public :: nil_collectible     ! The canonical nil collectible_t.
+  public :: nil_box             ! The canonical nil box_t.
   public :: nil_list            ! The canonical nil list.
   public :: cons_t_cast         ! Cast to a cons_t, if possible.
   public :: cons_t_eq           ! Are two cons_t both nil or both references to the same CONS-pair?
@@ -154,42 +161,75 @@ module cons_types
   ! A nil heap address.
   integer, parameter :: nil_address = 0
 
-  ! An extensible type representing the CAR-CDR-tuple of a CONS-pair.
-  type :: cons_pair_t
-     class(*), allocatable :: car
-     class(*), allocatable :: cdr
+  ! Anything that might go on the heap.
+  type :: collectible_contents_t
    contains
-     procedure, pass :: get_field => get_cons_pair_t_field
-  end type cons_pair_t
+     procedure, pass :: get_field => get_collectible_contents_t_field
+  end type collectible_contents_t
 
   integer, parameter :: bits_kind = int8
   integer(kind = bits_kind), parameter :: unmarked = 0
   integer(kind = bits_kind), parameter :: marked = 1
 
-  type(cons_pair_t), dimension(:), allocatable :: heap
-  integer, dimension(:), allocatable :: roots_count
-  integer(kind = bits_kind), dimension(:), allocatable :: bits
-  integer, dimension(:), allocatable :: free_stack
-  integer :: free_count
+  ! The garbage collector's heap.
+  type :: collectible_contents_t_pointer_t
+     class(collectible_contents_t), pointer :: p => null ()
+  end type collectible_contents_t_pointer_t
+  type(collectible_contents_t_pointer_t), dimension(:), allocatable :: heap
 
-  ! Bit masks.
+  ! A count of how many roots are associated with a heap entry.
+  integer, dimension(:), allocatable :: roots_count
+
+  ! Bit flags associated with heap entries.
+  integer(kind = bits_kind), dimension(:), allocatable :: bits
+
+  ! Bit masks that go with the bits array.
   integer(kind = bits_kind), parameter :: unfree_bit = 1
   integer(kind = bits_kind), parameter :: mark_bit = 2
 
-  type :: cons_t
-     ! pair_addr = the heap address of the CAR and CDR, or nil_address
-     ! for a nil list.
-     integer :: pair_addr = nil_address
+  ! A stack for speedy provision of free heap entries.
+  integer, dimension(:), allocatable :: free_stack
+  integer :: free_count
+
+  ! A type representing the contents of a box_t.
+  type, extends (collectible_contents_t) :: box_contents_t
+     class(*), allocatable :: contents
+   contains
+     procedure, pass :: get_field => get_box_contents_t_field
+  end type box_contents_t
+
+  ! A type representing the CAR-CDR-tuple of a CONS-pair.
+  type, extends (collectible_contents_t) :: cons_contents_t
+     class(*), allocatable :: car
+     class(*), allocatable :: cdr
+   contains
+     procedure, pass :: get_field => get_cons_contents_t_field
+  end type cons_contents_t
+
+  type :: collectible_t
+     ! The address of an object in the garbage collector's heap, or
+     ! nil_address.
+     integer :: addr = nil_address
    contains
      private
-     procedure, pass(dst) :: cons_t_copy
-     procedure, pass(this) :: cons_t_discard
-     generic, public :: assignment(=) => cons_t_copy
-     generic, public :: discard => cons_t_discard
-     final :: cons_t_finalize
+     procedure, pass(dst) :: collectible_t_copy
+     procedure, pass(this) :: collectible_t_discard
+     generic, public :: assignment(=) => collectible_t_copy
+     generic, public :: discard => collectible_t_discard
+     final :: collectible_t_finalize
+  end type collectible_t
+
+  type, extends (collectible_t) :: box_t
+     ! For boxes.
+  end type box_t
+
+  type, extends (collectible_t) :: cons_t
+     ! For CAR-CDR structures.
   end type cons_t
 
-  ! The canonical nil list.
+  ! The canonical nils.
+  type(collectible_t), parameter :: nil_collectible = collectible_t ()
+  type(box_t), parameter :: nil_box = box_t ()
   type(cons_t), parameter :: nil_list = cons_t ()
 
   interface error_abort
@@ -286,7 +326,9 @@ dnl
     free_count = free_count + 1
     free_stack(free_count) = addr
 
-    heap(addr) = cons_pair_t ()
+!!$    heap(addr) = cons_contents_t ()
+    if (associated (heap(addr)%p)) deallocate (heap(addr)%p)
+    heap(addr)%p => null ()
     roots_count(addr) = 0
     bits(addr) = 0
   end subroutine return_to_free
@@ -321,13 +363,27 @@ dnl
     call collect_garbage
   end subroutine collect_garbage_now
 
-  subroutine list_discard (lst)
-    class(*), intent(in) :: lst
-    select type (lst)
-    class is (cons_t)
-       call lst%discard
+  subroutine discard_collectible (obj)
+    class(*), intent(in) :: obj
+    select type (obj)
+    class is (collectible_t)
+       call obj%discard
     end select
-  end subroutine list_discard
+  end subroutine discard_collectible
+
+  function cons_contents_t_cast (obj) result (pair)
+    !
+    ! Cast to cons_contents_t, if possible.
+    !
+    class(*), intent(in) :: obj
+    type(cons_contents_t) :: pair
+    select type (obj)
+    class is (cons_contents_t)
+       pair = obj
+    class default
+       call error_abort ("cons_contents_t_cast of an incompatible object")
+    end select
+  end function cons_contents_t_cast
 
   function cons_t_cast (obj) result (lst)
     !
@@ -346,7 +402,7 @@ dnl
   function cons_t_eq (lst1, lst2) result (eq)
     class(cons_t), intent(in) :: lst1, lst2
     logical :: eq
-    eq = (lst1%pair_addr == lst2%pair_addr)
+    eq = (lst1%addr == lst2%addr)
   end function cons_t_eq
 
   function is_nil_or_pair (obj) result (is_cons)
@@ -365,7 +421,7 @@ dnl
     logical is_nil
     select type (obj)
     class is (cons_t)
-       is_nil = (obj%pair_addr == nil_address)
+       is_nil = (obj%addr == nil_address)
     class default
        is_nil = .false.
     end select
@@ -376,7 +432,7 @@ dnl
     logical is_pair
     select type (obj)
     class is (cons_t)
-       is_pair = (obj%pair_addr /= nil_address)
+       is_pair = (obj%addr /= nil_address)
     class default
        is_pair = .false.
     end select
@@ -403,13 +459,13 @@ dnl
   function list_is_nil (lst) result (is_nil)
     class(cons_t), intent(in) :: lst
     logical is_nil
-    is_nil = (lst%pair_addr == nil_address)
+    is_nil = (lst%addr == nil_address)
   end function list_is_nil
 
   function list_is_pair (lst) result (is_pair)
     class(cons_t), intent(in) :: lst
     logical is_pair
-    is_pair = (lst%pair_addr /= nil_address)
+    is_pair = (lst%addr /= nil_address)
   end function list_is_pair
 
   function cons (car_value, cdr_value) result (dst)
@@ -417,7 +473,7 @@ dnl
     class(*), intent(in) :: cdr_value
     type(cons_t) :: dst
 
-    type(cons_pair_t) :: pair
+    type(cons_contents_t) :: pair
     integer :: addr
 
     pair%car = car_value
@@ -425,8 +481,8 @@ dnl
 
     call get_from_free (addr)
 
-    heap(addr) = pair
-    dst%pair_addr = addr
+    allocate (heap(addr)%p, source = pair)
+    dst%addr = addr
 
     roots_count(addr) = 1
   end function cons
@@ -435,14 +491,14 @@ dnl
     class(*), intent(in) :: lst
     class(*), allocatable, intent(inout) :: car_value, cdr_value
 
-    type(cons_pair_t) :: pair
+    class(cons_contents_t), allocatable :: pair
 
     select type (lst)
     class is (cons_t)
        if (list_is_nil (lst)) then
           call error_abort ("uncons of nil list")
        end if
-       pair = heap(lst%pair_addr)
+       pair = cons_contents_t_cast (heap(lst%addr)%p)
     class default
        call error_abort ("uncons of an object with no pairs")
     end select
@@ -454,12 +510,15 @@ dnl
     class(*) :: lst
     class(*), allocatable :: car_value
 
+    class(cons_contents_t), allocatable :: pair
+
     select type (lst)
     class is (cons_t)
        if (list_is_nil (lst)) then
           call error_abort ("car of nil list")
        end if
-       car_value = heap(lst%pair_addr)%car
+       pair = cons_contents_t_cast (heap(lst%addr)%p)
+       car_value = pair%car
     class default
        call error_abort ("car of an object with no pairs")
     end select
@@ -469,12 +528,15 @@ dnl
     class(*) :: lst
     class(*), allocatable :: cdr_value
 
+    class(cons_contents_t), allocatable :: pair
+
     select type (lst)
     class is (cons_t)
        if (list_is_nil (lst)) then
           call error_abort ("cdr of nil list")
        endif
-       cdr_value = heap(lst%pair_addr)%cdr
+       pair = cons_contents_t_cast (heap(lst%addr)%p)
+       cdr_value = pair%cdr
     class default
        call error_abort ("cdr of an object with no pairs")
     end select
@@ -484,61 +546,60 @@ dnl
     class(cons_t), intent(in) :: lst
     class(*), intent(in) :: car_value
 
-    type(cons_pair_t) :: pair
+    type(cons_contents_t) :: pair
 
     if (list_is_nil (lst)) then
        call error_abort ("set_car of nil list")
     endif
 
-    pair = heap(lst%pair_addr)
+    pair = cons_contents_t_cast (heap(lst%addr)%p)
     pair%car = car_value
-    heap(lst%pair_addr) = pair
+    allocate (heap(lst%addr)%p, source = pair)
   end subroutine set_car
 
   subroutine set_cdr (lst, cdr_value)
     class(cons_t), intent(in) :: lst
     class(*), intent(in) :: cdr_value
 
-    type(cons_pair_t) :: pair
+    type(cons_contents_t) :: pair
 
     if (list_is_nil (lst)) then
        call error_abort ("set_cdr of nil list")
     endif
 
-    pair = heap(lst%pair_addr)
+    pair = cons_contents_t_cast (heap(lst%addr)%p)
     pair%cdr = cdr_value
-    heap(lst%pair_addr) = pair
+    allocate (heap(lst%addr)%p, source = pair)
   end subroutine set_cdr
 
-  subroutine cons_t_copy (dst, src)
-    class(cons_t), intent(inout) :: dst
-    class(cons_t), intent(in) :: src
+  subroutine collectible_t_copy (dst, src)
+    class(collectible_t), intent(inout) :: dst
+    class(collectible_t), intent(in) :: src
 
     integer :: addr
 
-    addr = src%pair_addr
+    addr = src%addr
     call count_address_as_root (addr)
 
     call dst%discard
-    dst%pair_addr = addr
+    dst%addr = addr
+  end subroutine collectible_t_copy
 
-  end subroutine cons_t_copy
-
-  subroutine cons_t_discard (this)
-    class(cons_t), intent(in) :: this
+  subroutine collectible_t_discard (this)
+    class(collectible_t), intent(in) :: this
 
     integer :: addr
 
-    addr = this%pair_addr
+    addr = this%addr
     if (addr /= nil_address) then
        roots_count(addr) = max (roots_count(addr), 1) - 1
     end if
-  end subroutine cons_t_discard
+  end subroutine collectible_t_discard
 
-  subroutine cons_t_finalize (this)
-    type(cons_t), intent(in) :: this
-    call cons_t_discard (this)
-  end subroutine cons_t_finalize
+  subroutine collectible_t_finalize (this)
+    type(collectible_t), intent(in) :: this
+    call collectible_t_discard (this)
+  end subroutine collectible_t_finalize
 
   subroutine ensure_heap_is_initialized
     if (.not. allocated (heap)) then
@@ -573,8 +634,36 @@ dnl
 
   end subroutine initialize_heap
 
-  subroutine get_cons_pair_t_field (this, n, n_is_out_of_bounds, field)
-    class(cons_pair_t), intent(inout) :: this
+  subroutine get_collectible_contents_t_field (this, n, n_is_out_of_bounds, field)
+    class(collectible_contents_t), intent(inout) :: this
+    integer, intent(in) :: n
+    logical, intent(out) :: n_is_out_of_bounds
+    class(*), allocatable, intent(inout) :: field
+
+    call unused_variable (this)
+    call unused_variable (n)
+    call unused_variable (field)
+
+    n_is_out_of_bounds = .true.
+
+  end subroutine get_collectible_contents_t_field
+
+  subroutine get_box_contents_t_field (this, n, n_is_out_of_bounds, field)
+    class(box_contents_t), intent(inout) :: this
+    integer, intent(in) :: n
+    logical, intent(out) :: n_is_out_of_bounds
+    class(*), allocatable, intent(inout) :: field
+
+    if (n == 1) then
+       n_is_out_of_bounds = .false.
+       field = this%contents
+    else
+       n_is_out_of_bounds = .true.
+    end if
+  end subroutine get_box_contents_t_field
+
+  subroutine get_cons_contents_t_field (this, n, n_is_out_of_bounds, field)
+    class(cons_contents_t), intent(inout) :: this
     integer, intent(in) :: n
     logical, intent(out) :: n_is_out_of_bounds
     class(*), allocatable, intent(inout) :: field
@@ -588,7 +677,7 @@ dnl
     else
        n_is_out_of_bounds = .true.
     end if
-  end subroutine get_cons_pair_t_field
+  end subroutine get_cons_contents_t_field
 
   subroutine collect_garbage
     ! If the Fortran implementation has 32-bit integers, then
@@ -619,7 +708,7 @@ dnl
   contains
 
     subroutine expand_the_heap
-      type(cons_pair_t), dimension(:), allocatable :: new_heap
+      type(collectible_contents_t_pointer_t), dimension(:), allocatable :: new_heap
       integer, dimension(:), allocatable :: new_roots_count
       integer(kind = bits_kind), dimension(:), allocatable :: new_bits
       integer, dimension(:), allocatable :: new_free_stack
@@ -703,7 +792,7 @@ dnl
 
     subroutine mark_reachables
       integer :: addr
-      type(cons_pair_t) :: pair
+      class(collectible_contents_t), allocatable :: collectible
       class(*), allocatable :: field
       integer :: n
       logical :: done
@@ -715,14 +804,14 @@ dnl
             write (*, '("removing address from work list: ", i12)') addr
          end if
 
-         pair = heap(addr)
+         collectible = heap(addr)%p
 
          n = 1
-         call pair%get_field (n, done, field)
+         call collectible%get_field (n, done, field)
          do while (.not. done)
             select type (field)
             class is (cons_t) ! Objects might be reachable through this field.
-               addr = field%pair_addr
+               addr = field%addr
                if (addr /= nil_address) then
                   if (is_unfree(addr) .and. is_unmarked (addr)) then
                      ! Mark the unmarked reachable object and push its
@@ -737,7 +826,7 @@ dnl
                end if
             end select
             n = n + 1
-            call pair%get_field (n, done, field)
+            call collectible%get_field (n, done, field)
          end do
       end do
     end subroutine mark_reachables
@@ -872,7 +961,7 @@ module cons_lists
   public :: cons_t              ! The type of a NIL-list or CONS-pair.
   public :: nil_list            ! The canonical NIL-list.
 
-  public :: list_discard        ! Remove an object as a root for garbage collection, if it is one.
+  public :: discard_collectible ! Remove an object as a root for garbage collection, if it is one.
 
   public :: is_nil_or_pair      ! Is an object either a NIL-list or CONS-pair?
   public :: is_nil_list         ! Is an object a NIL-list?
@@ -1209,7 +1298,7 @@ dnl
     do while (is_cons_pair (tail))
        length = length + 1
        tl = cdr (tail)
-       call list_discard (tail)
+       call discard_collectible (tail)
        tail = tl
     end do
   end function list_length
