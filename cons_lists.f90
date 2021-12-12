@@ -443,12 +443,10 @@ contains
 
     addr = this%pair_addr
     if (addr /= nil_address) then
-print*,"discarding ", addr
-       goto 1000 ! FIXME: DISABLE THIS FOR NOW.    FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-       if (heap(addr)%roots_count == 0) then
-          call error_abort ("roots count error in the garbage collector")
+!       goto 1000 ! FIXME: DISABLE THIS FOR NOW.    FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+       if (0 < heap(addr)%roots_count) then
+          heap(addr)%roots_count = heap(addr)%roots_count - 1
        end if
-       heap(addr)%roots_count = heap(addr)%roots_count - 1
 1000   continue
     end if
   end subroutine cons_t_discard
