@@ -8619,12 +8619,12 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
       ! Put CONS pairs into an array and do an insertion sort on the
       ! array.
       !
-      type(cons_t) :: p
-      integer :: n
+      type(cons_t), intent(in) :: p
+      integer, intent(in) :: n
       type(cons_t) :: lst_ss
 
       type(cons_t), dimension(1:small_size) :: array
-      type(cons_t) :: x
+      type(cons_t) :: q, x
       integer :: i, j
       logical :: done
 
@@ -8632,9 +8632,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
          lst_ss = p
       else
          ! Fill the array with CONS pairs.
+         q = p
          do i = 1, n
-            array(i) = p
-            p = cons_t_cast (cdr (p))
+            array(i) = q
+            q = cons_t_cast (cdr (q))
          end do
 
          ! Do an insertion sort on the array.
@@ -8659,10 +8660,13 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
          call set_cdr (array(n), nil_list)
          do i = n - 1, 1, -1
             call set_cdr (array(i), array(i + 1))
+            call array(i + 1)%discard
          end do
 
          ! The result.
          lst_ss = array(1)
+
+         call array(1)%discard
       end if
     end function insertion_sort
 
@@ -8670,8 +8674,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
       !
       ! A top-down merge sort using non-tail recursion.
       !
-      type(cons_t) :: p
-      integer :: n
+      type(cons_t), intent(in) :: p
+      integer, intent(in) :: n
       type(cons_t) :: lst_ss
 
       integer :: n_half
