@@ -2072,7 +2072,10 @@ contains
        if (list_is_pair (lst1)) then
           tail = cdr (lst1)
           do while (is_cons_pair (tail))
-             lst1 = cons_t_cast (tail)
+             select type (tail)
+             class is (cons_t)
+                lst1 = tail
+             end select
              tail = cdr (lst1)
           end do
           last_pair = lst1
