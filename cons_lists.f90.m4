@@ -2628,7 +2628,10 @@ m4_forloop([k],[1],n,[dnl
 
     tail = lst
     do while (is_cons_pair (tail))
-       lst1 = cons_t_cast (tail)
+       select type (tail)
+       class is (cons_t)
+          lst1 = tail
+       end select
        call uncons (lst1, head, tail)
        call subr (head)
        call set_car (lst1, head)
@@ -2686,7 +2689,10 @@ m4_forloop([k],[1],n,[dnl
     if (is_cons_pair (lst)) then
        call list_append_modify_elements__get_next (subr, lst, lst_start, tail)
        if (is_cons_pair (lst_start)) then
-          lst1 = cons_t_cast (lst_start)
+          select type (lst_start)
+          class is (cons_t)
+             lst1 = lst_start
+          end select
           lst_am = lst1
           cursor = list_last_pair (lst1)
           do while (is_cons_pair (tail))
@@ -3156,7 +3162,7 @@ m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: tail
     type(cons_t) :: cursor
     type(cons_t) :: new_pair
-
+    
     call uncons (from, head, tail)
     cursor = cons (head, nil_list)
     segment = cursor
@@ -4286,11 +4292,21 @@ m4_forloop([k],[1],n,[dnl
          if (compare (hd1, hd2) <= 0) then
             p1_is_active = .true.
             cursor = p1
-            p1 = cons_t_cast (tl1)
+            select type (tl1)
+            class is (cons_t)
+               p1 = tl1
+            class default
+               call expected_list
+            end select
          else
             p1_is_active = .false.
             cursor = p2
-            p2 = cons_t_cast (tl2)
+            select type (tl2)
+            class is (cons_t)
+               p2 = tl2
+            class default
+               call expected_list
+            end select
          end if
          lst_m = cursor
          done = .false.
@@ -4311,13 +4327,23 @@ m4_forloop([k],[1],n,[dnl
                      call uncons (p2, hd2, tl2)
                      if (compare (hd1, hd2) <= 0) then
                         cursor = p1
-                        p1 = cons_t_cast (tl1)
+                        select type (tl1)
+                        class is (cons_t)
+                           p1 = tl1
+                        class default
+                           call expected_list
+                        end select
                      else
                         call set_cdr (cursor, p2)
                         p1_is_active = .false.
                         p1_is_active_is_changed = .true.
                         cursor = p2
-                        p2 = cons_t_cast (tl2)
+                        select type (tl2)
+                        class is (cons_t)
+                           p2 = tl2
+                        class default
+                           call expected_list
+                        end select
                      end if
                   end if
                end do
@@ -4340,11 +4366,21 @@ m4_forloop([k],[1],n,[dnl
                         p1_is_active = .true.
                         p1_is_active_is_changed = .true.
                         cursor = p1
-                        p1 = cons_t_cast (tl1)
+                        select type (tl1)
+                        class is (cons_t)
+                           p1 = tl1
+                        class default
+                           call expected_list
+                        end select
                      else
                         call set_cdr (cursor, p2)
                         cursor = p2
-                        p2 = cons_t_cast (tl2)
+                        select type (tl2)
+                        class is (cons_t)
+                           p2 = tl2
+                        class default
+                           call expected_list
+                        end select
                      end if
                   end if
                end do
@@ -4352,6 +4388,10 @@ m4_forloop([k],[1],n,[dnl
          end do
       end if
     end function merge_lists
+
+    subroutine expected_list
+      call error_abort ("in list_destructive_merge, expected a cons_t")
+    end subroutine expected_list
 
   end function list_destructive_merge
 
