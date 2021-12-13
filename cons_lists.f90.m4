@@ -1469,11 +1469,11 @@ dnl
     lag = lst
     done = .false.
     do while (.not. done .and. is_cons_pair (lead))
-       lead = cdr (lead)
+       lead = cdr (discard (lead))
        length = length + 1
        if (is_cons_pair (lead)) then
-          lead = cdr (lead)
-          lag = cdr (lag)
+          lead = cdr (discard (lead))
+          lag = cdr (discard (lag))
           length = length + 1
           select type (lead)
           class is (cons_t)
@@ -1570,13 +1570,13 @@ dnl
           is_dot = .not. is_nil_list (lead)
           done = .true.
        else
-          lead = cdr (lead)
+          lead = cdr (discard (lead))
           if (.not. is_cons_pair (lead)) then
              is_dot = .not. is_nil_list (lead)
              done = .true.
           else
-             lead = cdr (lead)
-             lag = cdr (lag)
+             lead = cdr (discard (lead))
+             lag = cdr (discard (lag))
              select type (lead)
              class is (cons_t)
                 select type (lag)
