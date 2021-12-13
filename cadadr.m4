@@ -59,6 +59,14 @@ dnl     x = car (x)
 dnl     x = cdr (x)
 dnl     x = car (x)
 dnl
+dnl  FIXME:
+dnl  FIXME:
+dnl  FIXME:
+dnl  FIXME: USE next_left and next_right.
+dnl  FIXME:
+dnl  FIXME:
+dnl  FIXME:
+dnl
 m4_define([m4_bits_to_car_cdr_assignments],
     [m4_forloop([_m4_index],0,m4_eval([($1) - 1]),[dnl
     $3 = m4_least_bit_to_car_or_cdr(m4_eval([($2) >> ]m4_eval(($1) - 1 - _m4_index))) ($3)
@@ -74,6 +82,15 @@ dnl     x = cdr (x)
 dnl     x = car (x)
 dnl
 dnl  for extracting the nth (the $1-th) element of a list.
+dnl
+dnl  FIXME:
+dnl  FIXME:
+dnl  FIXME:
+dnl  FIXME: USE next_left and next_right.
+dnl  FIXME:
+dnl  FIXME:
+dnl  FIXME:
+dnl
 m4_define([m4_bits_to_get_nth_element],
     [m4_bits_to_car_cdr_assignments([$1],m4_eval((1 << ($1)) - 2),[$2])])
 

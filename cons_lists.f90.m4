@@ -96,7 +96,9 @@ module cons_types
 
   ! FIXME: These may be nice, but I should really prefer a better
   !        solution to the finalization problem.
-  public :: list_next           ! Like `lst = cdr (lst)' but removes a garbage collection root.
+  public :: next_left           ! Like `lst = car (lst)' but removes a garbage collection root.
+  public :: next_right          ! Like `lst = cdr (lst)' but removes a garbage collection root.
+  public :: list_next           ! A synonym for next_right.
   public :: cons_t_next         ! Like `lst = cons_t_cast (cdr (lst))' but removes a garbage collection root.
   public :: list_pop            ! Like `call uncons (lst, head, lst)' but removes a garbage collection root.
 
@@ -672,7 +674,29 @@ dnl
     allocate (heap(lst%addr)%p, source = pair)
   end subroutine set_cdr
 
-  subroutine list_next (obj)
+  subroutine next_left (obj)
+    !
+    ! Perform `obj = car (obj)', but without leaving a dangling
+    ! garbage collection root.
+    !
+    class(*), intent(inout), allocatable :: obj
+    select type (lst => obj)
+    class is (cons_t)
+       if (list_is_nil (lst)) then
+          call error_abort ("next_left of nil list")
+       endif
+       block
+         class(cons_contents_t), allocatable :: pair
+         pair = cons_contents_t_cast (heap(lst%addr)%p)
+         call lst%discard
+         obj = pair%car
+       end block
+    class default
+       call error_abort ("next_left of an object with no pairs")
+    end select
+  end subroutine next_left
+
+  subroutine next_right (obj)
     !
     ! Perform `obj = cdr (obj)', but without leaving a dangling
     ! garbage collection root.
@@ -681,7 +705,7 @@ dnl
     select type (lst => obj)
     class is (cons_t)
        if (list_is_nil (lst)) then
-          call error_abort ("list_next of nil list")
+          call error_abort ("next_right of nil list")
        endif
        block
          class(cons_contents_t), allocatable :: pair
@@ -690,8 +714,13 @@ dnl
          obj = pair%cdr
        end block
     class default
-       call error_abort ("list_next of an object with no pairs")
+       call error_abort ("next_right of an object with no pairs")
     end select
+  end subroutine next_right
+
+  subroutine list_next (obj)
+    class(*), intent(inout), allocatable :: obj
+    call next_right (obj)
   end subroutine list_next
 
   subroutine cons_t_next (lst)
@@ -1077,7 +1106,9 @@ module cons_lists
 
   ! FIXME: These may be nice, but I should really prefer a better
   !        solution to the finalization problem.
-  public :: list_next           ! Like `lst = cdr (lst)' but removes a garbage collection root.
+  public :: next_left           ! Like `lst = car (lst)' but removes a garbage collection root.
+  public :: next_right          ! Like `lst = cdr (lst)' but removes a garbage collection root.
+  public :: list_next           ! A synonym for next_right.
   public :: cons_t_next         ! Like `lst = cons_t_cast (cdr (lst))' but removes a garbage collection root.
   public :: list_pop            ! Like `call uncons (lst, head, lst)' but removes a garbage collection root.
 
