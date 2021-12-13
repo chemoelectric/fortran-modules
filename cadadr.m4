@@ -77,11 +77,14 @@ dnl  for extracting the nth element of a list.
 m4_define([m4_bits_to_get_nth_element],
     [m4_bits_to_car_cdr_assignments([$1],m4_eval((1 << ($1)) - 2),[$2])])
 
+dnl  Generate the `public ::' declarations for all the things like
+dnl  `cadadr', of a given length.
 m4_define([m4_length_n_cadadr_public_declarations],
-    [m4_forloop([_m4_bits],0,m4_eval([(1 << ($1)) - 1]),
-       [  public :: c[]m4_bits_to_ad_sequence([$1],_m4_bits)]r[
+    [m4_forloop([_m4_bits],0,m4_eval([(1 << ($1)) - 1]),[dnl
+  public :: c[]m4_bits_to_ad_sequence([$1],_m4_bits)]r[
 ])])
 
+dnl  Generate the definition for a thing like `cadadr'.
 m4_define([m4_cadadr_definition],[dnl
   function c[]m4_bits_to_ad_sequence([$1],[$2])r (tree) result (element)
     class(*), intent(in) :: tree
@@ -91,6 +94,8 @@ m4_bits_to_car_cdr_assignments([$1],[$2],[element])dnl
   end function c[]m4_bits_to_ad_sequence([$1],[$2])r
 ])
 
+dnl  Generate definitions for things all the things like `cadadr' of a
+dnl  given length.
 m4_define([m4_length_n_cadadr_definitions],
     [m4_forloop([_m4_bits],0,m4_eval([(1 << ($1)) - 1]),
        [m4_cadadr_definition([$1],_m4_bits)
