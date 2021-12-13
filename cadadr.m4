@@ -73,7 +73,7 @@ dnl     x = cdr (x)
 dnl     x = cdr (x)
 dnl     x = car (x)
 dnl
-dnl  for extracting the nth element of a list.
+dnl  for extracting the nth (the $1-th) element of a list.
 m4_define([m4_bits_to_get_nth_element],
     [m4_bits_to_car_cdr_assignments([$1],m4_eval((1 << ($1)) - 2),[$2])])
 
