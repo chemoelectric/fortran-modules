@@ -593,7 +593,7 @@ contains
   end subroutine uncons
 
   function car (lst) result (car_value)
-    class(*) :: lst
+    class(*), intent(in) :: lst
     class(*), allocatable :: car_value
 
     class(cons_contents_t), allocatable :: pair
@@ -611,7 +611,7 @@ contains
   end function car
 
   function cdr (lst) result (cdr_value)
-    class(*) :: lst
+    class(*), intent(in) :: lst
     class(*), allocatable :: cdr_value
 
     class(cons_contents_t), allocatable :: pair
@@ -1425,29 +1425,37 @@ contains
     pair = cons (car_value, cdr_value)
   end function list_cons
 
-  ! FIXME: DO WE WANT A PUBLIC SUBROUTINE OF THIS SORT?
-  subroutine discard (obj)
-    class(*), intent(in) :: obj
-    select type (obj)
+  ! FIXME: DO WE WANT A PUBLIC FUNCTION OF THIS SORT?
+  function discard (input) result (output)
+    !
+    ! Fortran will not automatically finalize the INPUT to a function,
+    ! but it WILL finalize the OUTPUT of a function.
+    !
+    ! Therefore wrapping the argument to a function in `discard' will
+    ! cause it to be discarded, if it is collectible.
+    !
+    class(*), intent(in) :: input
+    class(*), allocatable :: output
+    select type (input)
     class is (collectible_t)
-       call obj%discard
+       output = input
+       call input%discard
+    class default
+       output = input
     end select
-  end subroutine discard
+  end function discard
 
   function list_length (lst) result (length)
     class(*), intent(in) :: lst
     integer :: length
 
     class(*), allocatable :: tail
-    class(*), allocatable :: tmp
 
     length = 0
     tail = lst
     do while (is_cons_pair (tail))
        length = length + 1
-       tmp = cdr (tail)
-       call discard (tail)
-       tail = tmp
+       tail = cdr (discard (tail))
     end do
   end function list_length
 
@@ -1855,15 +1863,12 @@ contains
     class(*), allocatable :: element
 
     class(*), allocatable :: tail
-    class(*), allocatable :: tmp
     integer :: j
 
     tail = lst
     j = n
     do while (j < i)
-       tmp = cdr (tail)
-       call discard (tail)
-       tail = tmp
+       tail = cdr (discard (tail))
        j = j + 1
     end do
     element = car (tail)
