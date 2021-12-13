@@ -21,7 +21,7 @@
 ! ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 ! CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
-
+!!$
 module cons_types_helpers
 
   implicit none
@@ -85,8 +85,13 @@ end module cons_types_helpers
 
 module cons_types
   !
-  ! Lisp-style CONS-pairs for Fortran, with a simple mark-and-sweep
-  ! garbage collector.
+  ! Lisp-style boxes, CONS-pairs, (FIXME: ADD VECTORS), etc., for
+  ! Fortran, with a simple mark-and-sweep garbage collector. (FIXME:
+  ! IMPROVE THE GARBAGE COLLECTOR. I THINK IT IS FAILING TO COLLECT
+  ! MOST OF THE GARBAGE, AT LEAST WITH GNU FORTRAN.)
+  !
+  ! For most box operations ... (<-- fill in this text -- FIXME FIXME
+  ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME)
   !
   ! For most list operations, please use cons_lists, rather than this
   ! module directly. Most of the public interface of cons_types is
@@ -1420,17 +1425,29 @@ contains
     pair = cons (car_value, cdr_value)
   end function list_cons
 
+  ! FIXME: DO WE WANT A PUBLIC SUBROUTINE OF THIS SORT?
+  subroutine discard (obj)
+    class(*), intent(in) :: obj
+    select type (obj)
+    class is (collectible_t)
+       call obj%discard
+    end select
+  end subroutine discard
+
   function list_length (lst) result (length)
     class(*), intent(in) :: lst
     integer :: length
 
     class(*), allocatable :: tail
+    class(*), allocatable :: tmp
 
     length = 0
     tail = lst
     do while (is_cons_pair (tail))
        length = length + 1
-       tail = cdr (tail)
+       tmp = cdr (tail)
+       call discard (tail)
+       tail = tmp
     end do
   end function list_length
 
@@ -1838,12 +1855,15 @@ contains
     class(*), allocatable :: element
 
     class(*), allocatable :: tail
+    class(*), allocatable :: tmp
     integer :: j
 
     tail = lst
     j = n
     do while (j < i)
-       tail = cdr (tail)
+       tmp = cdr (tail)
+       call discard (tail)
+       tail = tmp
        j = j + 1
     end do
     element = car (tail)

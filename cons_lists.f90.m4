@@ -31,6 +31,29 @@ dnl However, with an "heirloom" m4 you might have to increase buffer
 dnl size with the -B option.
 dnl
 dnl
+!!$divert(-1)
+!!$
+!!$FIXME:
+!!$FIXME: CONSIDER USING THE C PREPROCESSOR INSTEAD, FOR THESE.
+!!$FIXME:
+!!$
+!!$m4_define([m4_assign_discard],[
+!!$block
+!!$  class(*), allocatable :: tmp_09806bc2_5bb3_11ec_aba4_0cc47a74cf56
+!!$  class(collectible_t), allocatable :: tmp_f59de560_5baf_11ec_b2af_0cc47a74cf56
+!!$  tmp_09806bc2_5bb3_11ec_aba4_0cc47a74cf56 = ($2)
+!!$  select type (tmp_09806bc2_5bb3_11ec_aba4_0cc47a74cf56)
+!!$  class is (collectible_t)
+!!$     allocate (tmp_f59de560_5baf_11ec_b2af_0cc47a74cf56, source = tmp_09806bc2_5bb3_11ec_aba4_0cc47a74cf56)
+!!$     call tmp_09806bc2_5bb3_11ec_aba4_0cc47a74cf56%discard
+!!$     $1 = tmp_f59de560_5baf_11ec_b2af_0cc47a74cf56
+!!$  class default
+!!$     $1 = tmp_09806bc2_5bb3_11ec_aba4_0cc47a74cf56
+!!$  end select
+!!$end block
+!!$])
+!!$
+!!$divert[]dnl
 
 module cons_types_helpers
 
@@ -95,8 +118,13 @@ end module cons_types_helpers
 
 module cons_types
   !
-  ! Lisp-style CONS-pairs for Fortran, with a simple mark-and-sweep
-  ! garbage collector.
+  ! Lisp-style boxes, CONS-pairs, (FIXME: ADD VECTORS), etc., for
+  ! Fortran, with a simple mark-and-sweep garbage collector. (FIXME:
+  ! IMPROVE THE GARBAGE COLLECTOR. I THINK IT IS FAILING TO COLLECT
+  ! MOST OF THE GARBAGE, AT LEAST WITH GNU FORTRAN.)
+  !
+  ! For most box operations ... (<-- fill in this text -- FIXME FIXME
+  ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME)
   !
   ! For most list operations, please use cons_lists, rather than this
   ! module directly. Most of the public interface of cons_types is
@@ -1386,17 +1414,29 @@ dnl
     pair = cons (car_value, cdr_value)
   end function list_cons
 
+  ! FIXME: DO WE WANT A PUBLIC SUBROUTINE OF THIS SORT?
+  subroutine discard (obj)
+    class(*), intent(in) :: obj
+    select type (obj)
+    class is (collectible_t)
+       call obj%discard
+    end select
+  end subroutine discard
+
   function list_length (lst) result (length)
     class(*), intent(in) :: lst
     integer :: length
 
     class(*), allocatable :: tail
+    class(*), allocatable :: tmp
 
     length = 0
     tail = lst
     do while (is_cons_pair (tail))
        length = length + 1
-       tail = cdr (tail)
+       tmp = cdr (tail)
+       call discard (tail)
+       tail = tmp
     end do
   end function list_length
 
@@ -1638,12 +1678,15 @@ dnl
     class(*), allocatable :: element
 
     class(*), allocatable :: tail
+    class(*), allocatable :: tmp
     integer :: j
 
     tail = lst
     j = n
     do while (j < i)
-       tail = cdr (tail)
+       tmp = cdr (tail)
+       call discard (tail)
+       tail = tmp
        j = j + 1
     end do
     element = car (tail)
