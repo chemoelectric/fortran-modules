@@ -1632,169 +1632,265 @@ contains
   function caar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = car (car (tree))
+    element = tree
+    element = car (element)
+    element = car (element)
   end function caar
 
   function cdar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = cdr (car (tree))
+    element = tree
+    element = car (element)
+    element = cdr (element)
   end function cdar
 
   function cadr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = car (cdr (tree))
+    element = tree
+    element = cdr (element)
+    element = car (element)
   end function cadr
 
   function cddr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = cdr (cdr (tree))
+    element = tree
+    element = cdr (element)
+    element = cdr (element)
   end function cddr
 
   function caaar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = car (car (car (tree)))
+    element = tree
+    element = car (element)
+    element = car (element)
+    element = car (element)
   end function caaar
 
   function cdaar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = cdr (car (car (tree)))
+    element = tree
+    element = car (element)
+    element = car (element)
+    element = cdr (element)
   end function cdaar
 
   function cadar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = car (cdr (car (tree)))
+    element = tree
+    element = car (element)
+    element = cdr (element)
+    element = car (element)
   end function cadar
 
   function cddar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = cdr (cdr (car (tree)))
+    element = tree
+    element = car (element)
+    element = cdr (element)
+    element = cdr (element)
   end function cddar
 
   function caadr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = car (car (cdr (tree)))
+    element = tree
+    element = cdr (element)
+    element = car (element)
+    element = car (element)
   end function caadr
 
   function cdadr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = cdr (car (cdr (tree)))
+    element = tree
+    element = cdr (element)
+    element = car (element)
+    element = cdr (element)
   end function cdadr
 
   function caddr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = car (cdr (cdr (tree)))
+    element = tree
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function caddr
 
   function cdddr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = cdr (cdr (cdr (tree)))
+    element = tree
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
   end function cdddr
 
   function caaaar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = car (car (car (car (tree))))
+    element = tree
+    element = car (element)
+    element = car (element)
+    element = car (element)
+    element = car (element)
   end function caaaar
 
   function cdaaar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = cdr (car (car (car (tree))))
+    element = tree
+    element = car (element)
+    element = car (element)
+    element = car (element)
+    element = cdr (element)
   end function cdaaar
 
   function cadaar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = car (cdr (car (car (tree))))
+    element = tree
+    element = car (element)
+    element = car (element)
+    element = cdr (element)
+    element = car (element)
   end function cadaar
 
   function cddaar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = cdr (cdr (car (car (tree))))
+    element = tree
+    element = car (element)
+    element = car (element)
+    element = cdr (element)
+    element = cdr (element)
   end function cddaar
 
   function caadar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = car (car (cdr (car (tree))))
+    element = tree
+    element = car (element)
+    element = cdr (element)
+    element = car (element)
+    element = car (element)
   end function caadar
 
   function cdadar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = cdr (car (cdr (car (tree))))
+    element = tree
+    element = car (element)
+    element = cdr (element)
+    element = car (element)
+    element = cdr (element)
   end function cdadar
 
   function caddar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = car (cdr (cdr (car (tree))))
+    element = tree
+    element = car (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function caddar
 
   function cdddar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = cdr (cdr (cdr (car (tree))))
+    element = tree
+    element = car (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
   end function cdddar
 
   function caaadr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = car (car (car (cdr (tree))))
+    element = tree
+    element = cdr (element)
+    element = car (element)
+    element = car (element)
+    element = car (element)
   end function caaadr
 
   function cdaadr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = cdr (car (car (cdr (tree))))
+    element = tree
+    element = cdr (element)
+    element = car (element)
+    element = car (element)
+    element = cdr (element)
   end function cdaadr
 
   function cadadr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = car (cdr (car (cdr (tree))))
+    element = tree
+    element = cdr (element)
+    element = car (element)
+    element = cdr (element)
+    element = car (element)
   end function cadadr
 
   function cddadr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = cdr (cdr (car (cdr (tree))))
+    element = tree
+    element = cdr (element)
+    element = car (element)
+    element = cdr (element)
+    element = cdr (element)
   end function cddadr
 
   function caaddr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = car (car (cdr (cdr (tree))))
+    element = tree
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
+    element = car (element)
   end function caaddr
 
   function cdaddr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = cdr (car (cdr (cdr (tree))))
+    element = tree
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
+    element = cdr (element)
   end function cdaddr
 
   function cadddr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (tree))))
+    element = tree
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function cadddr
 
   function cddddr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
-    element = cdr (cdr (cdr (cdr (tree))))
+    element = tree
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
   end function cddddr
 
   function first (lst) result (element)
