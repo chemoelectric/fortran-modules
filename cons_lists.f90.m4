@@ -1924,10 +1924,17 @@ m4_forloop([k],[2],n,[    call list_pop (tl, hd)
 
     type(cons_t) :: lst_r
     type(cons_t) :: tail
+    class(*), allocatable :: tmp
 
     lst_r = nil_list
     do while (list_is_pair (lst))
-       tail = cons_t_cast (cdr (lst))
+       tmp = cdr (lst)
+       select type (tmp)
+       class is (cons_t)
+          tail = tmp
+       class default
+          call error_abort ("list reversal of an object that is not a pair")
+       end select
        call set_cdr (lst, lst_r)
        lst_r = lst
        lst = tail
@@ -2027,6 +2034,7 @@ m4_forloop([k],[2],n,[    call list_pop (tl, hd)
 
     type(cons_t) :: lst1
     type(cons_t) :: new_last_pair
+    class(*), allocatable :: old_tail
 
     if (n <= 0) then
        lst_t = nil_list
@@ -2035,7 +2043,19 @@ m4_forloop([k],[2],n,[    call list_pop (tl, hd)
     else
        lst1 = copy_first_pair (lst)
        new_last_pair = cons_t_cast (list_drop (lst1, n - 1))
+       old_tail = cdr (new_last_pair)
        call set_cdr (new_last_pair, nil_list)
+       do while (is_cons_pair (old_tail))
+          select type (p => old_tail)
+          class is (cons_t)
+             block
+               class(*), allocatable :: tmp
+               tmp = cdr (p)
+               call p%discard
+               old_tail = tmp
+             end block
+          end select
+       end do
        lst_t = lst1
     end if
   end function list_destructive_take
