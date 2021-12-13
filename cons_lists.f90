@@ -4917,7 +4917,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        lst_left = copy_first_pair (lst)
        lst1 = list_drop (lst_left, n - 1)
        lst_right = cdr (lst1)
-       call set_cdr (cons_t_cast (lst1), nil_list)
+       select type (lst1)
+       class is (cons_t)
+          call set_cdr (lst1, nil_list)
+       end select
     end if
   end subroutine list_destructive_split
 

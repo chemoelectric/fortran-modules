@@ -2217,7 +2217,10 @@ m4_forloop([k],[2],n,[    call list_pop (tl, hd)
        lst_left = copy_first_pair (lst)
        lst1 = list_drop (lst_left, n - 1)
        lst_right = cdr (lst1)
-       call set_cdr (cons_t_cast (lst1), nil_list)
+       select type (lst1)
+       class is (cons_t)
+          call set_cdr (lst1, nil_list)
+       end select
     end if
   end subroutine list_destructive_split
 
