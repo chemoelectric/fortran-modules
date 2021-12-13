@@ -113,6 +113,17 @@ module cons_types
   public :: nil_collectible     ! The canonical nil collectible_t.
   public :: nil_box             ! The canonical nil box_t.
   public :: nil_list            ! The canonical nil list.
+
+  public :: box_t_cast          ! FIXME: Document this.
+  public :: box_t_eq            ! FIXME: Document this.
+  public :: is_box              ! FIXME: Document this.
+  public :: is_empty_box        ! FIXME: Document this.
+  public :: is_full_box         ! FIXME: Document this.
+  public :: box_is_empty        ! FIXME: Document this.
+  public :: box_is_full         ! FIXME: Document this.
+  public :: put_in_box          ! FIXME: Document this.
+  public :: take_from_box       ! FIXME: Document this.
+
   public :: cons_t_cast         ! Cast to a cons_t, if possible.
   public :: cons_t_eq           ! Are two cons_t both nil or both references to the same CONS-pair?
   public :: is_nil_or_pair      ! Is an object a cons_t?
@@ -327,6 +338,20 @@ contains
     call collect_garbage
   end subroutine collect_garbage_now
 
+  function box_contents_t_cast (obj) result (box_contents)
+    !
+    ! Cast to box_contents_t, if possible.
+    !
+    class(*), intent(in) :: obj
+    type(box_contents_t) :: box_contents
+    select type (obj)
+    class is (box_contents_t)
+       box_contents = obj
+    class default
+       call error_abort ("box_contents_t_cast of an incompatible object")
+    end select
+  end function box_contents_t_cast
+
   function cons_contents_t_cast (obj) result (pair)
     !
     ! Cast to cons_contents_t, if possible.
@@ -340,6 +365,67 @@ contains
        call error_abort ("cons_contents_t_cast of an incompatible object")
     end select
   end function cons_contents_t_cast
+
+  function box_is_empty (box) result (bool)
+    class(box_t), intent(in) :: box
+    logical :: bool
+    bool = (box%addr == nil_address)
+  end function box_is_empty
+
+  function box_is_full (box) result (bool)
+    class(box_t), intent(in) :: box
+    logical :: bool
+    bool = (box%addr /= nil_address)
+  end function box_is_full
+
+  function put_in_box (obj) result (box)
+    class(*), intent(in) :: obj
+    type(box_t) :: box
+
+    type(box_contents_t) :: box_contents
+    integer :: addr
+
+    box_contents%contents = obj
+
+    call get_from_free (addr)
+
+    allocate (heap(addr)%p, source = box_contents)
+    box%addr = addr
+
+    roots_count(addr) = 1
+  end function put_in_box
+
+  function take_from_box (box) result (obj)
+    class(*), intent(in) :: box
+    class(*), allocatable :: obj
+
+    class(box_contents_t), allocatable :: box_contents
+
+    select type (box)
+    class is (box_t)
+       if (box_is_empty (box)) then
+          call error_abort ("take_from_box of empty box")
+       end if
+       box_contents = box_contents_t_cast (heap(box%addr)%p)
+       obj = box_contents%contents
+    class default
+       call error_abort ("take_from_box of a non-box")
+    end select
+  end function take_from_box
+
+  function box_t_cast (obj) result (box)
+    !
+    ! Cast to box_t, if possible.
+    !
+    class(*), intent(in) :: obj
+    type(box_t) :: box
+    select type (obj)
+    class is (box_t)
+       box = obj
+    class default
+       call error_abort ("box_t_cast of an incompatible object")
+    end select
+  end function box_t_cast
 
   function cons_t_cast (obj) result (lst)
     !
@@ -355,15 +441,54 @@ contains
     end select
   end function cons_t_cast
 
+  function box_t_eq (box1, box2) result (eq)
+    class(box_t), intent(in) :: box1, box2
+    logical :: eq
+    eq = (box1%addr == box2%addr)
+  end function box_t_eq
+
   function cons_t_eq (lst1, lst2) result (eq)
     class(cons_t), intent(in) :: lst1, lst2
     logical :: eq
     eq = (lst1%addr == lst2%addr)
   end function cons_t_eq
 
+  function is_box (obj) result (bool)
+    class(*), intent(in) :: obj
+    logical :: bool
+    select type (obj)
+    class is (box_t)
+       bool = .true.
+    class default
+       bool = .false.
+    end select
+  end function is_box
+
+  function is_empty_box (obj) result (bool)
+    class(*), intent(in) :: obj
+    logical :: bool
+    select type (obj)
+    class is (box_t)
+       bool = box_is_empty (obj)
+    class default
+       bool = .false.
+    end select
+  end function is_empty_box
+
+  function is_full_box (obj) result (bool)
+    class(*), intent(in) :: obj
+    logical :: bool
+    select type (obj)
+    class is (box_t)
+       bool = box_is_full (obj)
+    class default
+       bool = .false.
+    end select
+  end function is_full_box
+
   function is_nil_or_pair (obj) result (is_cons)
     class(*), intent(in) :: obj
-    logical is_cons
+    logical :: is_cons
     select type (obj)
     class is (cons_t)
        is_cons = .true.
