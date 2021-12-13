@@ -4742,7 +4742,16 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        lst_t = nil_list
     else
        lst1 = copy_first_pair (lst)
-       new_last_pair = cons_t_cast (list_drop (lst1, n - 1))
+       block
+         class(*), allocatable :: tmp
+         tmp = list_drop (lst1, n - 1)
+         select type (tmp)
+         class is (cons_t)
+            new_last_pair = tmp
+         class default
+            call error_abort ("list_destructive_take of a list that is too short")
+         end select
+       end block
        old_tail = cdr (new_last_pair)
        call set_cdr (new_last_pair, nil_list)
        do while (is_cons_pair (old_tail))
