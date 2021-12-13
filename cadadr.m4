@@ -33,6 +33,11 @@ dnl  one is `cdr'.
 m4_define([m4_least_bit_to_car_or_cdr],
     [[c]m4_least_bit_to_a_or_d($1)r])
 
+dnl  Generate `left' or `right' from an integer's bit. Zero is `left',
+dnl  one is `right'.
+m4_define([m4_least_bit_to_left_or_right],
+    [m4_if(m4_eval([(($1) & 1) == 1]),[0],[left],[right])])
+
 dnl  Generate sequence like `aadaddda'.
 m4_define([m4_bits_to_ad_sequence],
     [m4_forloop([_m4_index],0,m4_eval([($1) - 1]),
@@ -59,40 +64,37 @@ dnl     x = car (x)
 dnl     x = cdr (x)
 dnl     x = car (x)
 dnl
-dnl  FIXME:
-dnl  FIXME:
-dnl  FIXME:
-dnl  FIXME: USE next_left and next_right.
-dnl  FIXME:
-dnl  FIXME:
-dnl  FIXME:
-dnl
 m4_define([m4_bits_to_car_cdr_assignments],
     [m4_forloop([_m4_index],0,m4_eval([($1) - 1]),[dnl
     $3 = m4_least_bit_to_car_or_cdr(m4_eval([($2) >> ]m4_eval(($1) - 1 - _m4_index))) ($3)
 ])])
 
-dnl  Generate a sequence of function calls such as
+dnl  Generate a sequence of subroutine calls such as
 dnl
-dnl     x = cdr (x)
-dnl     x = cdr (x)
-dnl     x = cdr (x)
-dnl     x = cdr (x)
-dnl     x = cdr (x)
-dnl     x = car (x)
+dnl     call next_right (x)
+dnl     call next_left (x)
+dnl     call next_right (x)
+dnl     call next_right (x)
+dnl     call next_left (x)
+dnl
+m4_define([m4_bits_to_next_lefts_and_next_rights],
+    [m4_forloop([_m4_index],0,m4_eval([($1) - 1]),[dnl
+    call next_[]m4_least_bit_to_left_or_right(m4_eval([($2) >> ]m4_eval(($1) - 1 - _m4_index))) ($3)
+])])
+
+dnl  Generate a sequence of subroutine calls such as
+dnl
+dnl     call next_right (x)
+dnl     call next_right (x)
+dnl     call next_right (x)
+dnl     call next_right (x)
+dnl     call next_right (x)
+dnl     call next_left (x)
 dnl
 dnl  for extracting the nth (the $1-th) element of a list.
 dnl
-dnl  FIXME:
-dnl  FIXME:
-dnl  FIXME:
-dnl  FIXME: USE next_left and next_right.
-dnl  FIXME:
-dnl  FIXME:
-dnl  FIXME:
-dnl
 m4_define([m4_bits_to_get_nth_element],
-    [m4_bits_to_car_cdr_assignments([$1],m4_eval((1 << ($1)) - 2),[$2])])
+    [m4_bits_to_next_lefts_and_next_rights([$1],m4_eval((1 << ($1)) - 2),[$2])])
 
 dnl  Generate the `public ::' declarations for all the things like
 dnl  `cadadr', of a given length.
@@ -107,7 +109,7 @@ m4_define([m4_cadadr_definition],[dnl
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-m4_bits_to_car_cdr_assignments([$1],[$2],[element])dnl
+m4_bits_to_next_lefts_and_next_rights([$1],[$2],[element])dnl
   end function c[]m4_bits_to_ad_sequence([$1],[$2])r
 ])
 

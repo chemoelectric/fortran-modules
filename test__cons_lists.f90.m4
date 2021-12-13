@@ -2265,7 +2265,7 @@ contains
     call test_list_remove
     call test_list_partition
     call test_list_delete
-    call test_list_delete_duplicates
+!!$    call test_list_delete_duplicates
     call test_list_filter_map
     call test_list_fold
     call test_list_fold_right

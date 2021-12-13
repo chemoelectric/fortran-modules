@@ -1631,7 +1631,8 @@ dnl
   function first (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (lst)
+    element = lst
+m4_bits_to_get_nth_element([1],[element])dnl
   end function first
 
   function second (lst) result (element)
