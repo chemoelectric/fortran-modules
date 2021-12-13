@@ -87,6 +87,7 @@ module cons_types
   ! FIXME: These may be nice, but I should really prefer a better
   !        solution to the finalization problem.
   public :: list_next           ! Like `lst = cdr (lst)' but removes a garbage collection root.
+  public :: cons_t_next         ! Like `lst = cons_t_cast (cdr (lst))' but removes a garbage collection root.
   public :: list_pop            ! Like `call uncons (lst, head, lst)' but removes a garbage collection root.
 
   public :: collect_garbage_now
@@ -659,6 +660,27 @@ contains
     end select
   end subroutine list_next
 
+  subroutine cons_t_next (lst)
+    !
+    ! Perform `lst = cons_t_cast (cdr (lst))', but without leaving a dangling
+    ! garbage collection root.
+    !
+    type(cons_t), intent(inout) :: lst
+    if (list_is_nil (lst)) then
+       call error_abort ("cons_t_next of nil list")
+    endif
+    block
+      class(cons_contents_t), allocatable :: pair
+      pair = cons_contents_t_cast (heap(lst%addr)%p)
+      select type (tail => pair%cdr)
+      class is (cons_t)
+         lst = tail
+      class default
+         call error_abort ("cons_t_next of dotted list")
+      end select
+    end block
+  end subroutine cons_t_next
+
   subroutine list_pop (obj, head)
     !
     ! Perform `call uncons (obj, head, obj)', but without leaving a
@@ -1022,6 +1044,7 @@ module cons_lists
   ! FIXME: These may be nice, but I should really prefer a better
   !        solution to the finalization problem.
   public :: list_next           ! Like `lst = cdr (lst)' but removes a garbage collection root.
+  public :: cons_t_next         ! Like `lst = cons_t_cast (cdr (lst))' but removes a garbage collection root.
   public :: list_pop            ! Like `call uncons (lst, head, lst)' but removes a garbage collection root.
 
   public :: cons_t_cast         ! Assume an object is a cons_t.
@@ -4474,7 +4497,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), allocatable :: tail
     type(cons_t) :: cursor
     type(cons_t) :: new_pair
-    
+
     select type (lst)
     class is (cons_t)
        if (list_is_nil (lst)) then
@@ -4851,13 +4874,13 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), allocatable :: lst_concat
     lst_concat = list_concatenate (lists)
   end function list_destructive_concatenate
-
+    
   function list_zip1 (lst1) result (lst_z)
-    class(*), intent(in) :: lst1
-    type(cons_t) :: lst_z
+        class(*), intent(in) :: lst1
+        type(cons_t) :: lst_z
 
-    class(*), allocatable :: head1, tail1
-    type(cons_t) :: row
+        class(*), allocatable :: head1, tail1
+        type(cons_t) :: row
     type(cons_t) :: new_pair
     type(cons_t) :: cursor
     logical :: done
@@ -4865,40 +4888,40 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! Using is_cons_pair rather than is_nil_list lets us handle
     ! degenerate dotted lists at the same time as nil lists.
     if (.not. is_cons_pair (lst1)) then
-       lst_z = nil_list
-    else
-       call uncons (lst1, head1, tail1)
-       row = nil_list
-       row = head1 ** row
-       lst_z = row ** nil_list
+              lst_z = nil_list
+           else
+                                   call uncons (lst1, head1, tail1)
+              row = nil_list
+              row = head1 ** row
+              lst_z = row ** nil_list
        cursor = lst_z
        if (.not. is_cons_pair (tail1)) then
-          continue
-       else
-          done = .false.
+                    continue
+                 else
+                              done = .false.
           do while (.not. done)
-             call list_pop (tail1, head1)
-             row = nil_list
-             row = head1 ** row
-             new_pair = row ** nil_list
+                          call list_pop (tail1, head1)
+                          row = nil_list
+                          row = head1 ** row
+                          new_pair = row ** nil_list
              call set_cdr (cursor, new_pair)
              cursor = new_pair
              if (.not. is_cons_pair (tail1)) then
-                done = .true.
-             end if
-          end do
+                                done = .true.
+                             end if
+                                    end do
        end if
     end if
   end function list_zip1
-
+  
   function list_zip2 (lst1, lst2) result (lst_z)
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    type(cons_t) :: lst_z
+        class(*), intent(in) :: lst1
+        class(*), intent(in) :: lst2
+        type(cons_t) :: lst_z
 
-    class(*), allocatable :: head1, tail1
-    class(*), allocatable :: head2, tail2
-    type(cons_t) :: row
+        class(*), allocatable :: head1, tail1
+        class(*), allocatable :: head2, tail2
+        type(cons_t) :: row
     type(cons_t) :: new_pair
     type(cons_t) :: cursor
     logical :: done
@@ -4906,52 +4929,52 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! Using is_cons_pair rather than is_nil_list lets us handle
     ! degenerate dotted lists at the same time as nil lists.
     if (.not. is_cons_pair (lst1)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst2)) then
-       lst_z = nil_list
-    else
-       call uncons (lst1, head1, tail1)
-       call uncons (lst2, head2, tail2)
-       row = nil_list
-       row = head2 ** row
-       row = head1 ** row
-       lst_z = row ** nil_list
+              lst_z = nil_list
+           else if (.not. is_cons_pair (lst2)) then
+                     lst_z = nil_list
+           else
+                                   call uncons (lst1, head1, tail1)
+              call uncons (lst2, head2, tail2)
+              row = nil_list
+              row = head2 ** row
+              row = head1 ** row
+              lst_z = row ** nil_list
        cursor = lst_z
        if (.not. is_cons_pair (tail1)) then
-          continue
-       else if (.not. is_cons_pair (tail2)) then
-          continue
-       else
-          done = .false.
+                    continue
+                 else if (.not. is_cons_pair (tail2)) then
+                              continue
+                 else
+                              done = .false.
           do while (.not. done)
-             call list_pop (tail1, head1)
-             call list_pop (tail2, head2)
-             row = nil_list
-             row = head2 ** row
-             row = head1 ** row
-             new_pair = row ** nil_list
+                          call list_pop (tail1, head1)
+                          call list_pop (tail2, head2)
+                          row = nil_list
+                          row = head2 ** row
+                          row = head1 ** row
+                          new_pair = row ** nil_list
              call set_cdr (cursor, new_pair)
              cursor = new_pair
              if (.not. is_cons_pair (tail1)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail2)) then
-                done = .true.
-             end if
-          end do
+                                done = .true.
+                          else if (.not. is_cons_pair (tail2)) then
+                                          done = .true.
+                             end if
+                                    end do
        end if
     end if
   end function list_zip2
-
+  
   function list_zip3 (lst1, lst2, lst3) result (lst_z)
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    type(cons_t) :: lst_z
+        class(*), intent(in) :: lst1
+        class(*), intent(in) :: lst2
+        class(*), intent(in) :: lst3
+        type(cons_t) :: lst_z
 
-    class(*), allocatable :: head1, tail1
-    class(*), allocatable :: head2, tail2
-    class(*), allocatable :: head3, tail3
-    type(cons_t) :: row
+        class(*), allocatable :: head1, tail1
+        class(*), allocatable :: head2, tail2
+        class(*), allocatable :: head3, tail3
+        type(cons_t) :: row
     type(cons_t) :: new_pair
     type(cons_t) :: cursor
     logical :: done
@@ -4959,64 +4982,64 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! Using is_cons_pair rather than is_nil_list lets us handle
     ! degenerate dotted lists at the same time as nil lists.
     if (.not. is_cons_pair (lst1)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst2)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst3)) then
-       lst_z = nil_list
-    else
-       call uncons (lst1, head1, tail1)
-       call uncons (lst2, head2, tail2)
-       call uncons (lst3, head3, tail3)
-       row = nil_list
-       row = head3 ** row
-       row = head2 ** row
-       row = head1 ** row
-       lst_z = row ** nil_list
+              lst_z = nil_list
+           else if (.not. is_cons_pair (lst2)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst3)) then
+                     lst_z = nil_list
+           else
+                                   call uncons (lst1, head1, tail1)
+              call uncons (lst2, head2, tail2)
+              call uncons (lst3, head3, tail3)
+              row = nil_list
+              row = head3 ** row
+              row = head2 ** row
+              row = head1 ** row
+              lst_z = row ** nil_list
        cursor = lst_z
        if (.not. is_cons_pair (tail1)) then
-          continue
-       else if (.not. is_cons_pair (tail2)) then
-          continue
-       else if (.not. is_cons_pair (tail3)) then
-          continue
-       else
-          done = .false.
+                    continue
+                 else if (.not. is_cons_pair (tail2)) then
+                              continue
+                 else if (.not. is_cons_pair (tail3)) then
+                              continue
+                 else
+                              done = .false.
           do while (.not. done)
-             call list_pop (tail1, head1)
-             call list_pop (tail2, head2)
-             call list_pop (tail3, head3)
-             row = nil_list
-             row = head3 ** row
-             row = head2 ** row
-             row = head1 ** row
-             new_pair = row ** nil_list
+                          call list_pop (tail1, head1)
+                          call list_pop (tail2, head2)
+                          call list_pop (tail3, head3)
+                          row = nil_list
+                          row = head3 ** row
+                          row = head2 ** row
+                          row = head1 ** row
+                          new_pair = row ** nil_list
              call set_cdr (cursor, new_pair)
              cursor = new_pair
              if (.not. is_cons_pair (tail1)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail2)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail3)) then
-                done = .true.
-             end if
-          end do
+                                done = .true.
+                          else if (.not. is_cons_pair (tail2)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail3)) then
+                                          done = .true.
+                             end if
+                                    end do
        end if
     end if
   end function list_zip3
-
+  
   function list_zip4 (lst1, lst2, lst3, lst4) result (lst_z)
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    type(cons_t) :: lst_z
+        class(*), intent(in) :: lst1
+        class(*), intent(in) :: lst2
+        class(*), intent(in) :: lst3
+        class(*), intent(in) :: lst4
+        type(cons_t) :: lst_z
 
-    class(*), allocatable :: head1, tail1
-    class(*), allocatable :: head2, tail2
-    class(*), allocatable :: head3, tail3
-    class(*), allocatable :: head4, tail4
-    type(cons_t) :: row
+        class(*), allocatable :: head1, tail1
+        class(*), allocatable :: head2, tail2
+        class(*), allocatable :: head3, tail3
+        class(*), allocatable :: head4, tail4
+        type(cons_t) :: row
     type(cons_t) :: new_pair
     type(cons_t) :: cursor
     logical :: done
@@ -5024,76 +5047,76 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! Using is_cons_pair rather than is_nil_list lets us handle
     ! degenerate dotted lists at the same time as nil lists.
     if (.not. is_cons_pair (lst1)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst2)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst3)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst4)) then
-       lst_z = nil_list
-    else
-       call uncons (lst1, head1, tail1)
-       call uncons (lst2, head2, tail2)
-       call uncons (lst3, head3, tail3)
-       call uncons (lst4, head4, tail4)
-       row = nil_list
-       row = head4 ** row
-       row = head3 ** row
-       row = head2 ** row
-       row = head1 ** row
-       lst_z = row ** nil_list
+              lst_z = nil_list
+           else if (.not. is_cons_pair (lst2)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst3)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst4)) then
+                     lst_z = nil_list
+           else
+                                   call uncons (lst1, head1, tail1)
+              call uncons (lst2, head2, tail2)
+              call uncons (lst3, head3, tail3)
+              call uncons (lst4, head4, tail4)
+              row = nil_list
+              row = head4 ** row
+              row = head3 ** row
+              row = head2 ** row
+              row = head1 ** row
+              lst_z = row ** nil_list
        cursor = lst_z
        if (.not. is_cons_pair (tail1)) then
-          continue
-       else if (.not. is_cons_pair (tail2)) then
-          continue
-       else if (.not. is_cons_pair (tail3)) then
-          continue
-       else if (.not. is_cons_pair (tail4)) then
-          continue
-       else
-          done = .false.
+                    continue
+                 else if (.not. is_cons_pair (tail2)) then
+                              continue
+                 else if (.not. is_cons_pair (tail3)) then
+                              continue
+                 else if (.not. is_cons_pair (tail4)) then
+                              continue
+                 else
+                              done = .false.
           do while (.not. done)
-             call list_pop (tail1, head1)
-             call list_pop (tail2, head2)
-             call list_pop (tail3, head3)
-             call list_pop (tail4, head4)
-             row = nil_list
-             row = head4 ** row
-             row = head3 ** row
-             row = head2 ** row
-             row = head1 ** row
-             new_pair = row ** nil_list
+                          call list_pop (tail1, head1)
+                          call list_pop (tail2, head2)
+                          call list_pop (tail3, head3)
+                          call list_pop (tail4, head4)
+                          row = nil_list
+                          row = head4 ** row
+                          row = head3 ** row
+                          row = head2 ** row
+                          row = head1 ** row
+                          new_pair = row ** nil_list
              call set_cdr (cursor, new_pair)
              cursor = new_pair
              if (.not. is_cons_pair (tail1)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail2)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail3)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail4)) then
-                done = .true.
-             end if
-          end do
+                                done = .true.
+                          else if (.not. is_cons_pair (tail2)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail3)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail4)) then
+                                          done = .true.
+                             end if
+                                    end do
        end if
     end if
   end function list_zip4
-
+  
   function list_zip5 (lst1, lst2, lst3, lst4, lst5) result (lst_z)
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    type(cons_t) :: lst_z
+        class(*), intent(in) :: lst1
+        class(*), intent(in) :: lst2
+        class(*), intent(in) :: lst3
+        class(*), intent(in) :: lst4
+        class(*), intent(in) :: lst5
+        type(cons_t) :: lst_z
 
-    class(*), allocatable :: head1, tail1
-    class(*), allocatable :: head2, tail2
-    class(*), allocatable :: head3, tail3
-    class(*), allocatable :: head4, tail4
-    class(*), allocatable :: head5, tail5
-    type(cons_t) :: row
+        class(*), allocatable :: head1, tail1
+        class(*), allocatable :: head2, tail2
+        class(*), allocatable :: head3, tail3
+        class(*), allocatable :: head4, tail4
+        class(*), allocatable :: head5, tail5
+        type(cons_t) :: row
     type(cons_t) :: new_pair
     type(cons_t) :: cursor
     logical :: done
@@ -5101,88 +5124,88 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! Using is_cons_pair rather than is_nil_list lets us handle
     ! degenerate dotted lists at the same time as nil lists.
     if (.not. is_cons_pair (lst1)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst2)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst3)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst4)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst5)) then
-       lst_z = nil_list
-    else
-       call uncons (lst1, head1, tail1)
-       call uncons (lst2, head2, tail2)
-       call uncons (lst3, head3, tail3)
-       call uncons (lst4, head4, tail4)
-       call uncons (lst5, head5, tail5)
-       row = nil_list
-       row = head5 ** row
-       row = head4 ** row
-       row = head3 ** row
-       row = head2 ** row
-       row = head1 ** row
-       lst_z = row ** nil_list
+              lst_z = nil_list
+           else if (.not. is_cons_pair (lst2)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst3)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst4)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst5)) then
+                     lst_z = nil_list
+           else
+                                   call uncons (lst1, head1, tail1)
+              call uncons (lst2, head2, tail2)
+              call uncons (lst3, head3, tail3)
+              call uncons (lst4, head4, tail4)
+              call uncons (lst5, head5, tail5)
+              row = nil_list
+              row = head5 ** row
+              row = head4 ** row
+              row = head3 ** row
+              row = head2 ** row
+              row = head1 ** row
+              lst_z = row ** nil_list
        cursor = lst_z
        if (.not. is_cons_pair (tail1)) then
-          continue
-       else if (.not. is_cons_pair (tail2)) then
-          continue
-       else if (.not. is_cons_pair (tail3)) then
-          continue
-       else if (.not. is_cons_pair (tail4)) then
-          continue
-       else if (.not. is_cons_pair (tail5)) then
-          continue
-       else
-          done = .false.
+                    continue
+                 else if (.not. is_cons_pair (tail2)) then
+                              continue
+                 else if (.not. is_cons_pair (tail3)) then
+                              continue
+                 else if (.not. is_cons_pair (tail4)) then
+                              continue
+                 else if (.not. is_cons_pair (tail5)) then
+                              continue
+                 else
+                              done = .false.
           do while (.not. done)
-             call list_pop (tail1, head1)
-             call list_pop (tail2, head2)
-             call list_pop (tail3, head3)
-             call list_pop (tail4, head4)
-             call list_pop (tail5, head5)
-             row = nil_list
-             row = head5 ** row
-             row = head4 ** row
-             row = head3 ** row
-             row = head2 ** row
-             row = head1 ** row
-             new_pair = row ** nil_list
+                          call list_pop (tail1, head1)
+                          call list_pop (tail2, head2)
+                          call list_pop (tail3, head3)
+                          call list_pop (tail4, head4)
+                          call list_pop (tail5, head5)
+                          row = nil_list
+                          row = head5 ** row
+                          row = head4 ** row
+                          row = head3 ** row
+                          row = head2 ** row
+                          row = head1 ** row
+                          new_pair = row ** nil_list
              call set_cdr (cursor, new_pair)
              cursor = new_pair
              if (.not. is_cons_pair (tail1)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail2)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail3)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail4)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail5)) then
-                done = .true.
-             end if
-          end do
+                                done = .true.
+                          else if (.not. is_cons_pair (tail2)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail3)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail4)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail5)) then
+                                          done = .true.
+                             end if
+                                    end do
        end if
     end if
   end function list_zip5
-
+  
   function list_zip6 (lst1, lst2, lst3, lst4, lst5, lst6) result (lst_z)
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    type(cons_t) :: lst_z
+        class(*), intent(in) :: lst1
+        class(*), intent(in) :: lst2
+        class(*), intent(in) :: lst3
+        class(*), intent(in) :: lst4
+        class(*), intent(in) :: lst5
+        class(*), intent(in) :: lst6
+        type(cons_t) :: lst_z
 
-    class(*), allocatable :: head1, tail1
-    class(*), allocatable :: head2, tail2
-    class(*), allocatable :: head3, tail3
-    class(*), allocatable :: head4, tail4
-    class(*), allocatable :: head5, tail5
-    class(*), allocatable :: head6, tail6
-    type(cons_t) :: row
+        class(*), allocatable :: head1, tail1
+        class(*), allocatable :: head2, tail2
+        class(*), allocatable :: head3, tail3
+        class(*), allocatable :: head4, tail4
+        class(*), allocatable :: head5, tail5
+        class(*), allocatable :: head6, tail6
+        type(cons_t) :: row
     type(cons_t) :: new_pair
     type(cons_t) :: cursor
     logical :: done
@@ -5190,100 +5213,100 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! Using is_cons_pair rather than is_nil_list lets us handle
     ! degenerate dotted lists at the same time as nil lists.
     if (.not. is_cons_pair (lst1)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst2)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst3)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst4)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst5)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst6)) then
-       lst_z = nil_list
-    else
-       call uncons (lst1, head1, tail1)
-       call uncons (lst2, head2, tail2)
-       call uncons (lst3, head3, tail3)
-       call uncons (lst4, head4, tail4)
-       call uncons (lst5, head5, tail5)
-       call uncons (lst6, head6, tail6)
-       row = nil_list
-       row = head6 ** row
-       row = head5 ** row
-       row = head4 ** row
-       row = head3 ** row
-       row = head2 ** row
-       row = head1 ** row
-       lst_z = row ** nil_list
+              lst_z = nil_list
+           else if (.not. is_cons_pair (lst2)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst3)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst4)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst5)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst6)) then
+                     lst_z = nil_list
+           else
+                                   call uncons (lst1, head1, tail1)
+              call uncons (lst2, head2, tail2)
+              call uncons (lst3, head3, tail3)
+              call uncons (lst4, head4, tail4)
+              call uncons (lst5, head5, tail5)
+              call uncons (lst6, head6, tail6)
+              row = nil_list
+              row = head6 ** row
+              row = head5 ** row
+              row = head4 ** row
+              row = head3 ** row
+              row = head2 ** row
+              row = head1 ** row
+              lst_z = row ** nil_list
        cursor = lst_z
        if (.not. is_cons_pair (tail1)) then
-          continue
-       else if (.not. is_cons_pair (tail2)) then
-          continue
-       else if (.not. is_cons_pair (tail3)) then
-          continue
-       else if (.not. is_cons_pair (tail4)) then
-          continue
-       else if (.not. is_cons_pair (tail5)) then
-          continue
-       else if (.not. is_cons_pair (tail6)) then
-          continue
-       else
-          done = .false.
+                    continue
+                 else if (.not. is_cons_pair (tail2)) then
+                              continue
+                 else if (.not. is_cons_pair (tail3)) then
+                              continue
+                 else if (.not. is_cons_pair (tail4)) then
+                              continue
+                 else if (.not. is_cons_pair (tail5)) then
+                              continue
+                 else if (.not. is_cons_pair (tail6)) then
+                              continue
+                 else
+                              done = .false.
           do while (.not. done)
-             call list_pop (tail1, head1)
-             call list_pop (tail2, head2)
-             call list_pop (tail3, head3)
-             call list_pop (tail4, head4)
-             call list_pop (tail5, head5)
-             call list_pop (tail6, head6)
-             row = nil_list
-             row = head6 ** row
-             row = head5 ** row
-             row = head4 ** row
-             row = head3 ** row
-             row = head2 ** row
-             row = head1 ** row
-             new_pair = row ** nil_list
+                          call list_pop (tail1, head1)
+                          call list_pop (tail2, head2)
+                          call list_pop (tail3, head3)
+                          call list_pop (tail4, head4)
+                          call list_pop (tail5, head5)
+                          call list_pop (tail6, head6)
+                          row = nil_list
+                          row = head6 ** row
+                          row = head5 ** row
+                          row = head4 ** row
+                          row = head3 ** row
+                          row = head2 ** row
+                          row = head1 ** row
+                          new_pair = row ** nil_list
              call set_cdr (cursor, new_pair)
              cursor = new_pair
              if (.not. is_cons_pair (tail1)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail2)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail3)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail4)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail5)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail6)) then
-                done = .true.
-             end if
-          end do
+                                done = .true.
+                          else if (.not. is_cons_pair (tail2)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail3)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail4)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail5)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail6)) then
+                                          done = .true.
+                             end if
+                                    end do
        end if
     end if
   end function list_zip6
-
+  
   function list_zip7 (lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_z)
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    type(cons_t) :: lst_z
+        class(*), intent(in) :: lst1
+        class(*), intent(in) :: lst2
+        class(*), intent(in) :: lst3
+        class(*), intent(in) :: lst4
+        class(*), intent(in) :: lst5
+        class(*), intent(in) :: lst6
+        class(*), intent(in) :: lst7
+        type(cons_t) :: lst_z
 
-    class(*), allocatable :: head1, tail1
-    class(*), allocatable :: head2, tail2
-    class(*), allocatable :: head3, tail3
-    class(*), allocatable :: head4, tail4
-    class(*), allocatable :: head5, tail5
-    class(*), allocatable :: head6, tail6
-    class(*), allocatable :: head7, tail7
-    type(cons_t) :: row
+        class(*), allocatable :: head1, tail1
+        class(*), allocatable :: head2, tail2
+        class(*), allocatable :: head3, tail3
+        class(*), allocatable :: head4, tail4
+        class(*), allocatable :: head5, tail5
+        class(*), allocatable :: head6, tail6
+        class(*), allocatable :: head7, tail7
+        type(cons_t) :: row
     type(cons_t) :: new_pair
     type(cons_t) :: cursor
     logical :: done
@@ -5291,112 +5314,112 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! Using is_cons_pair rather than is_nil_list lets us handle
     ! degenerate dotted lists at the same time as nil lists.
     if (.not. is_cons_pair (lst1)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst2)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst3)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst4)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst5)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst6)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst7)) then
-       lst_z = nil_list
-    else
-       call uncons (lst1, head1, tail1)
-       call uncons (lst2, head2, tail2)
-       call uncons (lst3, head3, tail3)
-       call uncons (lst4, head4, tail4)
-       call uncons (lst5, head5, tail5)
-       call uncons (lst6, head6, tail6)
-       call uncons (lst7, head7, tail7)
-       row = nil_list
-       row = head7 ** row
-       row = head6 ** row
-       row = head5 ** row
-       row = head4 ** row
-       row = head3 ** row
-       row = head2 ** row
-       row = head1 ** row
-       lst_z = row ** nil_list
+              lst_z = nil_list
+           else if (.not. is_cons_pair (lst2)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst3)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst4)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst5)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst6)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst7)) then
+                     lst_z = nil_list
+           else
+                                   call uncons (lst1, head1, tail1)
+              call uncons (lst2, head2, tail2)
+              call uncons (lst3, head3, tail3)
+              call uncons (lst4, head4, tail4)
+              call uncons (lst5, head5, tail5)
+              call uncons (lst6, head6, tail6)
+              call uncons (lst7, head7, tail7)
+              row = nil_list
+              row = head7 ** row
+              row = head6 ** row
+              row = head5 ** row
+              row = head4 ** row
+              row = head3 ** row
+              row = head2 ** row
+              row = head1 ** row
+              lst_z = row ** nil_list
        cursor = lst_z
        if (.not. is_cons_pair (tail1)) then
-          continue
-       else if (.not. is_cons_pair (tail2)) then
-          continue
-       else if (.not. is_cons_pair (tail3)) then
-          continue
-       else if (.not. is_cons_pair (tail4)) then
-          continue
-       else if (.not. is_cons_pair (tail5)) then
-          continue
-       else if (.not. is_cons_pair (tail6)) then
-          continue
-       else if (.not. is_cons_pair (tail7)) then
-          continue
-       else
-          done = .false.
+                    continue
+                 else if (.not. is_cons_pair (tail2)) then
+                              continue
+                 else if (.not. is_cons_pair (tail3)) then
+                              continue
+                 else if (.not. is_cons_pair (tail4)) then
+                              continue
+                 else if (.not. is_cons_pair (tail5)) then
+                              continue
+                 else if (.not. is_cons_pair (tail6)) then
+                              continue
+                 else if (.not. is_cons_pair (tail7)) then
+                              continue
+                 else
+                              done = .false.
           do while (.not. done)
-             call list_pop (tail1, head1)
-             call list_pop (tail2, head2)
-             call list_pop (tail3, head3)
-             call list_pop (tail4, head4)
-             call list_pop (tail5, head5)
-             call list_pop (tail6, head6)
-             call list_pop (tail7, head7)
-             row = nil_list
-             row = head7 ** row
-             row = head6 ** row
-             row = head5 ** row
-             row = head4 ** row
-             row = head3 ** row
-             row = head2 ** row
-             row = head1 ** row
-             new_pair = row ** nil_list
+                          call list_pop (tail1, head1)
+                          call list_pop (tail2, head2)
+                          call list_pop (tail3, head3)
+                          call list_pop (tail4, head4)
+                          call list_pop (tail5, head5)
+                          call list_pop (tail6, head6)
+                          call list_pop (tail7, head7)
+                          row = nil_list
+                          row = head7 ** row
+                          row = head6 ** row
+                          row = head5 ** row
+                          row = head4 ** row
+                          row = head3 ** row
+                          row = head2 ** row
+                          row = head1 ** row
+                          new_pair = row ** nil_list
              call set_cdr (cursor, new_pair)
              cursor = new_pair
              if (.not. is_cons_pair (tail1)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail2)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail3)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail4)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail5)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail6)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail7)) then
-                done = .true.
-             end if
-          end do
+                                done = .true.
+                          else if (.not. is_cons_pair (tail2)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail3)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail4)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail5)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail6)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail7)) then
+                                          done = .true.
+                             end if
+                                    end do
        end if
     end if
   end function list_zip7
-
+  
   function list_zip8 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_z)
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    type(cons_t) :: lst_z
+        class(*), intent(in) :: lst1
+        class(*), intent(in) :: lst2
+        class(*), intent(in) :: lst3
+        class(*), intent(in) :: lst4
+        class(*), intent(in) :: lst5
+        class(*), intent(in) :: lst6
+        class(*), intent(in) :: lst7
+        class(*), intent(in) :: lst8
+        type(cons_t) :: lst_z
 
-    class(*), allocatable :: head1, tail1
-    class(*), allocatable :: head2, tail2
-    class(*), allocatable :: head3, tail3
-    class(*), allocatable :: head4, tail4
-    class(*), allocatable :: head5, tail5
-    class(*), allocatable :: head6, tail6
-    class(*), allocatable :: head7, tail7
-    class(*), allocatable :: head8, tail8
-    type(cons_t) :: row
+        class(*), allocatable :: head1, tail1
+        class(*), allocatable :: head2, tail2
+        class(*), allocatable :: head3, tail3
+        class(*), allocatable :: head4, tail4
+        class(*), allocatable :: head5, tail5
+        class(*), allocatable :: head6, tail6
+        class(*), allocatable :: head7, tail7
+        class(*), allocatable :: head8, tail8
+        type(cons_t) :: row
     type(cons_t) :: new_pair
     type(cons_t) :: cursor
     logical :: done
@@ -5404,124 +5427,124 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! Using is_cons_pair rather than is_nil_list lets us handle
     ! degenerate dotted lists at the same time as nil lists.
     if (.not. is_cons_pair (lst1)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst2)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst3)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst4)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst5)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst6)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst7)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst8)) then
-       lst_z = nil_list
-    else
-       call uncons (lst1, head1, tail1)
-       call uncons (lst2, head2, tail2)
-       call uncons (lst3, head3, tail3)
-       call uncons (lst4, head4, tail4)
-       call uncons (lst5, head5, tail5)
-       call uncons (lst6, head6, tail6)
-       call uncons (lst7, head7, tail7)
-       call uncons (lst8, head8, tail8)
-       row = nil_list
-       row = head8 ** row
-       row = head7 ** row
-       row = head6 ** row
-       row = head5 ** row
-       row = head4 ** row
-       row = head3 ** row
-       row = head2 ** row
-       row = head1 ** row
-       lst_z = row ** nil_list
+              lst_z = nil_list
+           else if (.not. is_cons_pair (lst2)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst3)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst4)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst5)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst6)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst7)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst8)) then
+                     lst_z = nil_list
+           else
+                                   call uncons (lst1, head1, tail1)
+              call uncons (lst2, head2, tail2)
+              call uncons (lst3, head3, tail3)
+              call uncons (lst4, head4, tail4)
+              call uncons (lst5, head5, tail5)
+              call uncons (lst6, head6, tail6)
+              call uncons (lst7, head7, tail7)
+              call uncons (lst8, head8, tail8)
+              row = nil_list
+              row = head8 ** row
+              row = head7 ** row
+              row = head6 ** row
+              row = head5 ** row
+              row = head4 ** row
+              row = head3 ** row
+              row = head2 ** row
+              row = head1 ** row
+              lst_z = row ** nil_list
        cursor = lst_z
        if (.not. is_cons_pair (tail1)) then
-          continue
-       else if (.not. is_cons_pair (tail2)) then
-          continue
-       else if (.not. is_cons_pair (tail3)) then
-          continue
-       else if (.not. is_cons_pair (tail4)) then
-          continue
-       else if (.not. is_cons_pair (tail5)) then
-          continue
-       else if (.not. is_cons_pair (tail6)) then
-          continue
-       else if (.not. is_cons_pair (tail7)) then
-          continue
-       else if (.not. is_cons_pair (tail8)) then
-          continue
-       else
-          done = .false.
+                    continue
+                 else if (.not. is_cons_pair (tail2)) then
+                              continue
+                 else if (.not. is_cons_pair (tail3)) then
+                              continue
+                 else if (.not. is_cons_pair (tail4)) then
+                              continue
+                 else if (.not. is_cons_pair (tail5)) then
+                              continue
+                 else if (.not. is_cons_pair (tail6)) then
+                              continue
+                 else if (.not. is_cons_pair (tail7)) then
+                              continue
+                 else if (.not. is_cons_pair (tail8)) then
+                              continue
+                 else
+                              done = .false.
           do while (.not. done)
-             call list_pop (tail1, head1)
-             call list_pop (tail2, head2)
-             call list_pop (tail3, head3)
-             call list_pop (tail4, head4)
-             call list_pop (tail5, head5)
-             call list_pop (tail6, head6)
-             call list_pop (tail7, head7)
-             call list_pop (tail8, head8)
-             row = nil_list
-             row = head8 ** row
-             row = head7 ** row
-             row = head6 ** row
-             row = head5 ** row
-             row = head4 ** row
-             row = head3 ** row
-             row = head2 ** row
-             row = head1 ** row
-             new_pair = row ** nil_list
+                          call list_pop (tail1, head1)
+                          call list_pop (tail2, head2)
+                          call list_pop (tail3, head3)
+                          call list_pop (tail4, head4)
+                          call list_pop (tail5, head5)
+                          call list_pop (tail6, head6)
+                          call list_pop (tail7, head7)
+                          call list_pop (tail8, head8)
+                          row = nil_list
+                          row = head8 ** row
+                          row = head7 ** row
+                          row = head6 ** row
+                          row = head5 ** row
+                          row = head4 ** row
+                          row = head3 ** row
+                          row = head2 ** row
+                          row = head1 ** row
+                          new_pair = row ** nil_list
              call set_cdr (cursor, new_pair)
              cursor = new_pair
              if (.not. is_cons_pair (tail1)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail2)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail3)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail4)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail5)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail6)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail7)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail8)) then
-                done = .true.
-             end if
-          end do
+                                done = .true.
+                          else if (.not. is_cons_pair (tail2)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail3)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail4)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail5)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail6)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail7)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail8)) then
+                                          done = .true.
+                             end if
+                                    end do
        end if
     end if
   end function list_zip8
-
+  
   function list_zip9 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_z)
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    class(*), intent(in) :: lst9
-    type(cons_t) :: lst_z
+        class(*), intent(in) :: lst1
+        class(*), intent(in) :: lst2
+        class(*), intent(in) :: lst3
+        class(*), intent(in) :: lst4
+        class(*), intent(in) :: lst5
+        class(*), intent(in) :: lst6
+        class(*), intent(in) :: lst7
+        class(*), intent(in) :: lst8
+        class(*), intent(in) :: lst9
+        type(cons_t) :: lst_z
 
-    class(*), allocatable :: head1, tail1
-    class(*), allocatable :: head2, tail2
-    class(*), allocatable :: head3, tail3
-    class(*), allocatable :: head4, tail4
-    class(*), allocatable :: head5, tail5
-    class(*), allocatable :: head6, tail6
-    class(*), allocatable :: head7, tail7
-    class(*), allocatable :: head8, tail8
-    class(*), allocatable :: head9, tail9
-    type(cons_t) :: row
+        class(*), allocatable :: head1, tail1
+        class(*), allocatable :: head2, tail2
+        class(*), allocatable :: head3, tail3
+        class(*), allocatable :: head4, tail4
+        class(*), allocatable :: head5, tail5
+        class(*), allocatable :: head6, tail6
+        class(*), allocatable :: head7, tail7
+        class(*), allocatable :: head8, tail8
+        class(*), allocatable :: head9, tail9
+        type(cons_t) :: row
     type(cons_t) :: new_pair
     type(cons_t) :: cursor
     logical :: done
@@ -5529,136 +5552,136 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! Using is_cons_pair rather than is_nil_list lets us handle
     ! degenerate dotted lists at the same time as nil lists.
     if (.not. is_cons_pair (lst1)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst2)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst3)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst4)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst5)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst6)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst7)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst8)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst9)) then
-       lst_z = nil_list
-    else
-       call uncons (lst1, head1, tail1)
-       call uncons (lst2, head2, tail2)
-       call uncons (lst3, head3, tail3)
-       call uncons (lst4, head4, tail4)
-       call uncons (lst5, head5, tail5)
-       call uncons (lst6, head6, tail6)
-       call uncons (lst7, head7, tail7)
-       call uncons (lst8, head8, tail8)
-       call uncons (lst9, head9, tail9)
-       row = nil_list
-       row = head9 ** row
-       row = head8 ** row
-       row = head7 ** row
-       row = head6 ** row
-       row = head5 ** row
-       row = head4 ** row
-       row = head3 ** row
-       row = head2 ** row
-       row = head1 ** row
-       lst_z = row ** nil_list
+              lst_z = nil_list
+           else if (.not. is_cons_pair (lst2)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst3)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst4)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst5)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst6)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst7)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst8)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst9)) then
+                     lst_z = nil_list
+           else
+                                   call uncons (lst1, head1, tail1)
+              call uncons (lst2, head2, tail2)
+              call uncons (lst3, head3, tail3)
+              call uncons (lst4, head4, tail4)
+              call uncons (lst5, head5, tail5)
+              call uncons (lst6, head6, tail6)
+              call uncons (lst7, head7, tail7)
+              call uncons (lst8, head8, tail8)
+              call uncons (lst9, head9, tail9)
+              row = nil_list
+              row = head9 ** row
+              row = head8 ** row
+              row = head7 ** row
+              row = head6 ** row
+              row = head5 ** row
+              row = head4 ** row
+              row = head3 ** row
+              row = head2 ** row
+              row = head1 ** row
+              lst_z = row ** nil_list
        cursor = lst_z
        if (.not. is_cons_pair (tail1)) then
-          continue
-       else if (.not. is_cons_pair (tail2)) then
-          continue
-       else if (.not. is_cons_pair (tail3)) then
-          continue
-       else if (.not. is_cons_pair (tail4)) then
-          continue
-       else if (.not. is_cons_pair (tail5)) then
-          continue
-       else if (.not. is_cons_pair (tail6)) then
-          continue
-       else if (.not. is_cons_pair (tail7)) then
-          continue
-       else if (.not. is_cons_pair (tail8)) then
-          continue
-       else if (.not. is_cons_pair (tail9)) then
-          continue
-       else
-          done = .false.
+                    continue
+                 else if (.not. is_cons_pair (tail2)) then
+                              continue
+                 else if (.not. is_cons_pair (tail3)) then
+                              continue
+                 else if (.not. is_cons_pair (tail4)) then
+                              continue
+                 else if (.not. is_cons_pair (tail5)) then
+                              continue
+                 else if (.not. is_cons_pair (tail6)) then
+                              continue
+                 else if (.not. is_cons_pair (tail7)) then
+                              continue
+                 else if (.not. is_cons_pair (tail8)) then
+                              continue
+                 else if (.not. is_cons_pair (tail9)) then
+                              continue
+                 else
+                              done = .false.
           do while (.not. done)
-             call list_pop (tail1, head1)
-             call list_pop (tail2, head2)
-             call list_pop (tail3, head3)
-             call list_pop (tail4, head4)
-             call list_pop (tail5, head5)
-             call list_pop (tail6, head6)
-             call list_pop (tail7, head7)
-             call list_pop (tail8, head8)
-             call list_pop (tail9, head9)
-             row = nil_list
-             row = head9 ** row
-             row = head8 ** row
-             row = head7 ** row
-             row = head6 ** row
-             row = head5 ** row
-             row = head4 ** row
-             row = head3 ** row
-             row = head2 ** row
-             row = head1 ** row
-             new_pair = row ** nil_list
+                          call list_pop (tail1, head1)
+                          call list_pop (tail2, head2)
+                          call list_pop (tail3, head3)
+                          call list_pop (tail4, head4)
+                          call list_pop (tail5, head5)
+                          call list_pop (tail6, head6)
+                          call list_pop (tail7, head7)
+                          call list_pop (tail8, head8)
+                          call list_pop (tail9, head9)
+                          row = nil_list
+                          row = head9 ** row
+                          row = head8 ** row
+                          row = head7 ** row
+                          row = head6 ** row
+                          row = head5 ** row
+                          row = head4 ** row
+                          row = head3 ** row
+                          row = head2 ** row
+                          row = head1 ** row
+                          new_pair = row ** nil_list
              call set_cdr (cursor, new_pair)
              cursor = new_pair
              if (.not. is_cons_pair (tail1)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail2)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail3)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail4)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail5)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail6)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail7)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail8)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail9)) then
-                done = .true.
-             end if
-          end do
+                                done = .true.
+                          else if (.not. is_cons_pair (tail2)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail3)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail4)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail5)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail6)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail7)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail8)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail9)) then
+                                          done = .true.
+                             end if
+                                    end do
        end if
     end if
   end function list_zip9
-
+  
   function list_zip10 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (lst_z)
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    class(*), intent(in) :: lst9
-    class(*), intent(in) :: lst10
-    type(cons_t) :: lst_z
+        class(*), intent(in) :: lst1
+        class(*), intent(in) :: lst2
+        class(*), intent(in) :: lst3
+        class(*), intent(in) :: lst4
+        class(*), intent(in) :: lst5
+        class(*), intent(in) :: lst6
+        class(*), intent(in) :: lst7
+        class(*), intent(in) :: lst8
+        class(*), intent(in) :: lst9
+        class(*), intent(in) :: lst10
+        type(cons_t) :: lst_z
 
-    class(*), allocatable :: head1, tail1
-    class(*), allocatable :: head2, tail2
-    class(*), allocatable :: head3, tail3
-    class(*), allocatable :: head4, tail4
-    class(*), allocatable :: head5, tail5
-    class(*), allocatable :: head6, tail6
-    class(*), allocatable :: head7, tail7
-    class(*), allocatable :: head8, tail8
-    class(*), allocatable :: head9, tail9
-    class(*), allocatable :: head10, tail10
-    type(cons_t) :: row
+        class(*), allocatable :: head1, tail1
+        class(*), allocatable :: head2, tail2
+        class(*), allocatable :: head3, tail3
+        class(*), allocatable :: head4, tail4
+        class(*), allocatable :: head5, tail5
+        class(*), allocatable :: head6, tail6
+        class(*), allocatable :: head7, tail7
+        class(*), allocatable :: head8, tail8
+        class(*), allocatable :: head9, tail9
+        class(*), allocatable :: head10, tail10
+        type(cons_t) :: row
     type(cons_t) :: new_pair
     type(cons_t) :: cursor
     logical :: done
@@ -5666,128 +5689,128 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! Using is_cons_pair rather than is_nil_list lets us handle
     ! degenerate dotted lists at the same time as nil lists.
     if (.not. is_cons_pair (lst1)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst2)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst3)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst4)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst5)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst6)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst7)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst8)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst9)) then
-       lst_z = nil_list
-    else if (.not. is_cons_pair (lst10)) then
-       lst_z = nil_list
-    else
-       call uncons (lst1, head1, tail1)
-       call uncons (lst2, head2, tail2)
-       call uncons (lst3, head3, tail3)
-       call uncons (lst4, head4, tail4)
-       call uncons (lst5, head5, tail5)
-       call uncons (lst6, head6, tail6)
-       call uncons (lst7, head7, tail7)
-       call uncons (lst8, head8, tail8)
-       call uncons (lst9, head9, tail9)
-       call uncons (lst10, head10, tail10)
-       row = nil_list
-       row = head10 ** row
-       row = head9 ** row
-       row = head8 ** row
-       row = head7 ** row
-       row = head6 ** row
-       row = head5 ** row
-       row = head4 ** row
-       row = head3 ** row
-       row = head2 ** row
-       row = head1 ** row
-       lst_z = row ** nil_list
+              lst_z = nil_list
+           else if (.not. is_cons_pair (lst2)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst3)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst4)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst5)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst6)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst7)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst8)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst9)) then
+                     lst_z = nil_list
+           else if (.not. is_cons_pair (lst10)) then
+                     lst_z = nil_list
+           else
+                                   call uncons (lst1, head1, tail1)
+              call uncons (lst2, head2, tail2)
+              call uncons (lst3, head3, tail3)
+              call uncons (lst4, head4, tail4)
+              call uncons (lst5, head5, tail5)
+              call uncons (lst6, head6, tail6)
+              call uncons (lst7, head7, tail7)
+              call uncons (lst8, head8, tail8)
+              call uncons (lst9, head9, tail9)
+              call uncons (lst10, head10, tail10)
+              row = nil_list
+              row = head10 ** row
+              row = head9 ** row
+              row = head8 ** row
+              row = head7 ** row
+              row = head6 ** row
+              row = head5 ** row
+              row = head4 ** row
+              row = head3 ** row
+              row = head2 ** row
+              row = head1 ** row
+              lst_z = row ** nil_list
        cursor = lst_z
        if (.not. is_cons_pair (tail1)) then
-          continue
-       else if (.not. is_cons_pair (tail2)) then
-          continue
-       else if (.not. is_cons_pair (tail3)) then
-          continue
-       else if (.not. is_cons_pair (tail4)) then
-          continue
-       else if (.not. is_cons_pair (tail5)) then
-          continue
-       else if (.not. is_cons_pair (tail6)) then
-          continue
-       else if (.not. is_cons_pair (tail7)) then
-          continue
-       else if (.not. is_cons_pair (tail8)) then
-          continue
-       else if (.not. is_cons_pair (tail9)) then
-          continue
-       else if (.not. is_cons_pair (tail10)) then
-          continue
-       else
-          done = .false.
+                    continue
+                 else if (.not. is_cons_pair (tail2)) then
+                              continue
+                 else if (.not. is_cons_pair (tail3)) then
+                              continue
+                 else if (.not. is_cons_pair (tail4)) then
+                              continue
+                 else if (.not. is_cons_pair (tail5)) then
+                              continue
+                 else if (.not. is_cons_pair (tail6)) then
+                              continue
+                 else if (.not. is_cons_pair (tail7)) then
+                              continue
+                 else if (.not. is_cons_pair (tail8)) then
+                              continue
+                 else if (.not. is_cons_pair (tail9)) then
+                              continue
+                 else if (.not. is_cons_pair (tail10)) then
+                              continue
+                 else
+                              done = .false.
           do while (.not. done)
-             call list_pop (tail1, head1)
-             call list_pop (tail2, head2)
-             call list_pop (tail3, head3)
-             call list_pop (tail4, head4)
-             call list_pop (tail5, head5)
-             call list_pop (tail6, head6)
-             call list_pop (tail7, head7)
-             call list_pop (tail8, head8)
-             call list_pop (tail9, head9)
-             call list_pop (tail10, head10)
-             row = nil_list
-             row = head10 ** row
-             row = head9 ** row
-             row = head8 ** row
-             row = head7 ** row
-             row = head6 ** row
-             row = head5 ** row
-             row = head4 ** row
-             row = head3 ** row
-             row = head2 ** row
-             row = head1 ** row
-             new_pair = row ** nil_list
+                          call list_pop (tail1, head1)
+                          call list_pop (tail2, head2)
+                          call list_pop (tail3, head3)
+                          call list_pop (tail4, head4)
+                          call list_pop (tail5, head5)
+                          call list_pop (tail6, head6)
+                          call list_pop (tail7, head7)
+                          call list_pop (tail8, head8)
+                          call list_pop (tail9, head9)
+                          call list_pop (tail10, head10)
+                          row = nil_list
+                          row = head10 ** row
+                          row = head9 ** row
+                          row = head8 ** row
+                          row = head7 ** row
+                          row = head6 ** row
+                          row = head5 ** row
+                          row = head4 ** row
+                          row = head3 ** row
+                          row = head2 ** row
+                          row = head1 ** row
+                          new_pair = row ** nil_list
              call set_cdr (cursor, new_pair)
              cursor = new_pair
              if (.not. is_cons_pair (tail1)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail2)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail3)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail4)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail5)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail6)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail7)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail8)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail9)) then
-                done = .true.
-             else if (.not. is_cons_pair (tail10)) then
-                done = .true.
-             end if
-          end do
+                                done = .true.
+                          else if (.not. is_cons_pair (tail2)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail3)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail4)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail5)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail6)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail7)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail8)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail9)) then
+                                          done = .true.
+                          else if (.not. is_cons_pair (tail10)) then
+                                          done = .true.
+                             end if
+                                    end do
        end if
     end if
   end function list_zip10
-
+      
   subroutine list_unzip1 (lst_zipped, lst1)
     class(*), intent(in) :: lst_zipped
-    type(cons_t), intent(inout) :: lst1
-
-    type(cons_t) :: cursor1
-
+        type(cons_t), intent(inout) :: lst1
+    
+        type(cons_t) :: cursor1
+    
     class(*), allocatable :: head
     class(*), allocatable :: tail
     class(*), allocatable :: tl
@@ -5797,36 +5820,36 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     select type (lst_zipped)
     class is (cons_t)
        if (list_is_nil (lst_zipped)) then
-          lst1 = nil_list
-       else
+                    lst1 = nil_list
+                 else
           call uncons (lst_zipped, head, tail)
           head_zipped = cons_t_cast (head)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst1 = head ** nil_list
           cursor1 = lst1
           head_zipped = cons_t_cast (tl)
-          do while (is_cons_pair (tail))
+                    do while (is_cons_pair (tail))
              call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
-             head = car (head_zipped)
-             new_pair = head ** nil_list
+                                       head = car (head_zipped)
+                          new_pair = head ** nil_list
              call set_cdr (cursor1, new_pair)
              cursor1 = new_pair
-          end do
+                                    end do
        end if
     class default
-       lst1 = nil_list
-    end select
+              lst1 = nil_list
+           end select
   end subroutine list_unzip1
-
+  
   subroutine list_unzip2 (lst_zipped, lst1, lst2)
     class(*), intent(in) :: lst_zipped
-    type(cons_t), intent(inout) :: lst1
-    type(cons_t), intent(inout) :: lst2
-
-    type(cons_t) :: cursor1
-    type(cons_t) :: cursor2
-
+        type(cons_t), intent(inout) :: lst1
+        type(cons_t), intent(inout) :: lst2
+    
+        type(cons_t) :: cursor1
+        type(cons_t) :: cursor2
+    
     class(*), allocatable :: head
     class(*), allocatable :: tail
     class(*), allocatable :: tl
@@ -5836,49 +5859,49 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     select type (lst_zipped)
     class is (cons_t)
        if (list_is_nil (lst_zipped)) then
-          lst1 = nil_list
-          lst2 = nil_list
-       else
+                    lst1 = nil_list
+                    lst2 = nil_list
+                 else
           call uncons (lst_zipped, head, tail)
           head_zipped = cons_t_cast (head)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst1 = head ** nil_list
           cursor1 = lst1
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst2 = head ** nil_list
           cursor2 = lst2
           head_zipped = cons_t_cast (tl)
-          do while (is_cons_pair (tail))
+                    do while (is_cons_pair (tail))
              call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                                       call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor1, new_pair)
              cursor1 = new_pair
-             head_zipped = cons_t_cast (tl)
-             head = car (head_zipped)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    head = car (head_zipped)
+                          new_pair = head ** nil_list
              call set_cdr (cursor2, new_pair)
              cursor2 = new_pair
-          end do
+                                    end do
        end if
     class default
-       lst1 = nil_list
-       lst2 = nil_list
-    end select
+              lst1 = nil_list
+              lst2 = nil_list
+           end select
   end subroutine list_unzip2
-
+  
   subroutine list_unzip3 (lst_zipped, lst1, lst2, lst3)
     class(*), intent(in) :: lst_zipped
-    type(cons_t), intent(inout) :: lst1
-    type(cons_t), intent(inout) :: lst2
-    type(cons_t), intent(inout) :: lst3
-
-    type(cons_t) :: cursor1
-    type(cons_t) :: cursor2
-    type(cons_t) :: cursor3
-
+        type(cons_t), intent(inout) :: lst1
+        type(cons_t), intent(inout) :: lst2
+        type(cons_t), intent(inout) :: lst3
+    
+        type(cons_t) :: cursor1
+        type(cons_t) :: cursor2
+        type(cons_t) :: cursor3
+    
     class(*), allocatable :: head
     class(*), allocatable :: tail
     class(*), allocatable :: tl
@@ -5888,62 +5911,62 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     select type (lst_zipped)
     class is (cons_t)
        if (list_is_nil (lst_zipped)) then
-          lst1 = nil_list
-          lst2 = nil_list
-          lst3 = nil_list
-       else
+                    lst1 = nil_list
+                    lst2 = nil_list
+                    lst3 = nil_list
+                 else
           call uncons (lst_zipped, head, tail)
           head_zipped = cons_t_cast (head)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst1 = head ** nil_list
           cursor1 = lst1
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst2 = head ** nil_list
           cursor2 = lst2
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst3 = head ** nil_list
           cursor3 = lst3
           head_zipped = cons_t_cast (tl)
-          do while (is_cons_pair (tail))
+                    do while (is_cons_pair (tail))
              call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                                       call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor1, new_pair)
              cursor1 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor2, new_pair)
              cursor2 = new_pair
-             head_zipped = cons_t_cast (tl)
-             head = car (head_zipped)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    head = car (head_zipped)
+                          new_pair = head ** nil_list
              call set_cdr (cursor3, new_pair)
              cursor3 = new_pair
-          end do
+                                    end do
        end if
     class default
-       lst1 = nil_list
-       lst2 = nil_list
-       lst3 = nil_list
-    end select
+              lst1 = nil_list
+              lst2 = nil_list
+              lst3 = nil_list
+           end select
   end subroutine list_unzip3
-
+  
   subroutine list_unzip4 (lst_zipped, lst1, lst2, lst3, lst4)
     class(*), intent(in) :: lst_zipped
-    type(cons_t), intent(inout) :: lst1
-    type(cons_t), intent(inout) :: lst2
-    type(cons_t), intent(inout) :: lst3
-    type(cons_t), intent(inout) :: lst4
-
-    type(cons_t) :: cursor1
-    type(cons_t) :: cursor2
-    type(cons_t) :: cursor3
-    type(cons_t) :: cursor4
-
+        type(cons_t), intent(inout) :: lst1
+        type(cons_t), intent(inout) :: lst2
+        type(cons_t), intent(inout) :: lst3
+        type(cons_t), intent(inout) :: lst4
+    
+        type(cons_t) :: cursor1
+        type(cons_t) :: cursor2
+        type(cons_t) :: cursor3
+        type(cons_t) :: cursor4
+    
     class(*), allocatable :: head
     class(*), allocatable :: tail
     class(*), allocatable :: tl
@@ -5953,75 +5976,75 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     select type (lst_zipped)
     class is (cons_t)
        if (list_is_nil (lst_zipped)) then
-          lst1 = nil_list
-          lst2 = nil_list
-          lst3 = nil_list
-          lst4 = nil_list
-       else
+                    lst1 = nil_list
+                    lst2 = nil_list
+                    lst3 = nil_list
+                    lst4 = nil_list
+                 else
           call uncons (lst_zipped, head, tail)
           head_zipped = cons_t_cast (head)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst1 = head ** nil_list
           cursor1 = lst1
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst2 = head ** nil_list
           cursor2 = lst2
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst3 = head ** nil_list
           cursor3 = lst3
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst4 = head ** nil_list
           cursor4 = lst4
           head_zipped = cons_t_cast (tl)
-          do while (is_cons_pair (tail))
+                    do while (is_cons_pair (tail))
              call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                                       call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor1, new_pair)
              cursor1 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor2, new_pair)
              cursor2 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor3, new_pair)
              cursor3 = new_pair
-             head_zipped = cons_t_cast (tl)
-             head = car (head_zipped)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    head = car (head_zipped)
+                          new_pair = head ** nil_list
              call set_cdr (cursor4, new_pair)
              cursor4 = new_pair
-          end do
+                                    end do
        end if
     class default
-       lst1 = nil_list
-       lst2 = nil_list
-       lst3 = nil_list
-       lst4 = nil_list
-    end select
+              lst1 = nil_list
+              lst2 = nil_list
+              lst3 = nil_list
+              lst4 = nil_list
+           end select
   end subroutine list_unzip4
-
+  
   subroutine list_unzip5 (lst_zipped, lst1, lst2, lst3, lst4, lst5)
     class(*), intent(in) :: lst_zipped
-    type(cons_t), intent(inout) :: lst1
-    type(cons_t), intent(inout) :: lst2
-    type(cons_t), intent(inout) :: lst3
-    type(cons_t), intent(inout) :: lst4
-    type(cons_t), intent(inout) :: lst5
-
-    type(cons_t) :: cursor1
-    type(cons_t) :: cursor2
-    type(cons_t) :: cursor3
-    type(cons_t) :: cursor4
-    type(cons_t) :: cursor5
-
+        type(cons_t), intent(inout) :: lst1
+        type(cons_t), intent(inout) :: lst2
+        type(cons_t), intent(inout) :: lst3
+        type(cons_t), intent(inout) :: lst4
+        type(cons_t), intent(inout) :: lst5
+    
+        type(cons_t) :: cursor1
+        type(cons_t) :: cursor2
+        type(cons_t) :: cursor3
+        type(cons_t) :: cursor4
+        type(cons_t) :: cursor5
+    
     class(*), allocatable :: head
     class(*), allocatable :: tail
     class(*), allocatable :: tl
@@ -6031,88 +6054,88 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     select type (lst_zipped)
     class is (cons_t)
        if (list_is_nil (lst_zipped)) then
-          lst1 = nil_list
-          lst2 = nil_list
-          lst3 = nil_list
-          lst4 = nil_list
-          lst5 = nil_list
-       else
+                    lst1 = nil_list
+                    lst2 = nil_list
+                    lst3 = nil_list
+                    lst4 = nil_list
+                    lst5 = nil_list
+                 else
           call uncons (lst_zipped, head, tail)
           head_zipped = cons_t_cast (head)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst1 = head ** nil_list
           cursor1 = lst1
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst2 = head ** nil_list
           cursor2 = lst2
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst3 = head ** nil_list
           cursor3 = lst3
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst4 = head ** nil_list
           cursor4 = lst4
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst5 = head ** nil_list
           cursor5 = lst5
           head_zipped = cons_t_cast (tl)
-          do while (is_cons_pair (tail))
+                    do while (is_cons_pair (tail))
              call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                                       call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor1, new_pair)
              cursor1 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor2, new_pair)
              cursor2 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor3, new_pair)
              cursor3 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor4, new_pair)
              cursor4 = new_pair
-             head_zipped = cons_t_cast (tl)
-             head = car (head_zipped)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    head = car (head_zipped)
+                          new_pair = head ** nil_list
              call set_cdr (cursor5, new_pair)
              cursor5 = new_pair
-          end do
+                                    end do
        end if
     class default
-       lst1 = nil_list
-       lst2 = nil_list
-       lst3 = nil_list
-       lst4 = nil_list
-       lst5 = nil_list
-    end select
+              lst1 = nil_list
+              lst2 = nil_list
+              lst3 = nil_list
+              lst4 = nil_list
+              lst5 = nil_list
+           end select
   end subroutine list_unzip5
-
+  
   subroutine list_unzip6 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6)
     class(*), intent(in) :: lst_zipped
-    type(cons_t), intent(inout) :: lst1
-    type(cons_t), intent(inout) :: lst2
-    type(cons_t), intent(inout) :: lst3
-    type(cons_t), intent(inout) :: lst4
-    type(cons_t), intent(inout) :: lst5
-    type(cons_t), intent(inout) :: lst6
-
-    type(cons_t) :: cursor1
-    type(cons_t) :: cursor2
-    type(cons_t) :: cursor3
-    type(cons_t) :: cursor4
-    type(cons_t) :: cursor5
-    type(cons_t) :: cursor6
-
+        type(cons_t), intent(inout) :: lst1
+        type(cons_t), intent(inout) :: lst2
+        type(cons_t), intent(inout) :: lst3
+        type(cons_t), intent(inout) :: lst4
+        type(cons_t), intent(inout) :: lst5
+        type(cons_t), intent(inout) :: lst6
+    
+        type(cons_t) :: cursor1
+        type(cons_t) :: cursor2
+        type(cons_t) :: cursor3
+        type(cons_t) :: cursor4
+        type(cons_t) :: cursor5
+        type(cons_t) :: cursor6
+    
     class(*), allocatable :: head
     class(*), allocatable :: tail
     class(*), allocatable :: tl
@@ -6122,101 +6145,101 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     select type (lst_zipped)
     class is (cons_t)
        if (list_is_nil (lst_zipped)) then
-          lst1 = nil_list
-          lst2 = nil_list
-          lst3 = nil_list
-          lst4 = nil_list
-          lst5 = nil_list
-          lst6 = nil_list
-       else
+                    lst1 = nil_list
+                    lst2 = nil_list
+                    lst3 = nil_list
+                    lst4 = nil_list
+                    lst5 = nil_list
+                    lst6 = nil_list
+                 else
           call uncons (lst_zipped, head, tail)
           head_zipped = cons_t_cast (head)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst1 = head ** nil_list
           cursor1 = lst1
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst2 = head ** nil_list
           cursor2 = lst2
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst3 = head ** nil_list
           cursor3 = lst3
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst4 = head ** nil_list
           cursor4 = lst4
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst5 = head ** nil_list
           cursor5 = lst5
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst6 = head ** nil_list
           cursor6 = lst6
           head_zipped = cons_t_cast (tl)
-          do while (is_cons_pair (tail))
+                    do while (is_cons_pair (tail))
              call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                                       call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor1, new_pair)
              cursor1 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor2, new_pair)
              cursor2 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor3, new_pair)
              cursor3 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor4, new_pair)
              cursor4 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor5, new_pair)
              cursor5 = new_pair
-             head_zipped = cons_t_cast (tl)
-             head = car (head_zipped)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    head = car (head_zipped)
+                          new_pair = head ** nil_list
              call set_cdr (cursor6, new_pair)
              cursor6 = new_pair
-          end do
+                                    end do
        end if
     class default
-       lst1 = nil_list
-       lst2 = nil_list
-       lst3 = nil_list
-       lst4 = nil_list
-       lst5 = nil_list
-       lst6 = nil_list
-    end select
+              lst1 = nil_list
+              lst2 = nil_list
+              lst3 = nil_list
+              lst4 = nil_list
+              lst5 = nil_list
+              lst6 = nil_list
+           end select
   end subroutine list_unzip6
-
+  
   subroutine list_unzip7 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7)
     class(*), intent(in) :: lst_zipped
-    type(cons_t), intent(inout) :: lst1
-    type(cons_t), intent(inout) :: lst2
-    type(cons_t), intent(inout) :: lst3
-    type(cons_t), intent(inout) :: lst4
-    type(cons_t), intent(inout) :: lst5
-    type(cons_t), intent(inout) :: lst6
-    type(cons_t), intent(inout) :: lst7
-
-    type(cons_t) :: cursor1
-    type(cons_t) :: cursor2
-    type(cons_t) :: cursor3
-    type(cons_t) :: cursor4
-    type(cons_t) :: cursor5
-    type(cons_t) :: cursor6
-    type(cons_t) :: cursor7
-
+        type(cons_t), intent(inout) :: lst1
+        type(cons_t), intent(inout) :: lst2
+        type(cons_t), intent(inout) :: lst3
+        type(cons_t), intent(inout) :: lst4
+        type(cons_t), intent(inout) :: lst5
+        type(cons_t), intent(inout) :: lst6
+        type(cons_t), intent(inout) :: lst7
+    
+        type(cons_t) :: cursor1
+        type(cons_t) :: cursor2
+        type(cons_t) :: cursor3
+        type(cons_t) :: cursor4
+        type(cons_t) :: cursor5
+        type(cons_t) :: cursor6
+        type(cons_t) :: cursor7
+    
     class(*), allocatable :: head
     class(*), allocatable :: tail
     class(*), allocatable :: tl
@@ -6226,114 +6249,114 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     select type (lst_zipped)
     class is (cons_t)
        if (list_is_nil (lst_zipped)) then
-          lst1 = nil_list
-          lst2 = nil_list
-          lst3 = nil_list
-          lst4 = nil_list
-          lst5 = nil_list
-          lst6 = nil_list
-          lst7 = nil_list
-       else
+                    lst1 = nil_list
+                    lst2 = nil_list
+                    lst3 = nil_list
+                    lst4 = nil_list
+                    lst5 = nil_list
+                    lst6 = nil_list
+                    lst7 = nil_list
+                 else
           call uncons (lst_zipped, head, tail)
           head_zipped = cons_t_cast (head)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst1 = head ** nil_list
           cursor1 = lst1
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst2 = head ** nil_list
           cursor2 = lst2
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst3 = head ** nil_list
           cursor3 = lst3
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst4 = head ** nil_list
           cursor4 = lst4
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst5 = head ** nil_list
           cursor5 = lst5
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst6 = head ** nil_list
           cursor6 = lst6
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst7 = head ** nil_list
           cursor7 = lst7
           head_zipped = cons_t_cast (tl)
-          do while (is_cons_pair (tail))
+                    do while (is_cons_pair (tail))
              call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                                       call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor1, new_pair)
              cursor1 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor2, new_pair)
              cursor2 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor3, new_pair)
              cursor3 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor4, new_pair)
              cursor4 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor5, new_pair)
              cursor5 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor6, new_pair)
              cursor6 = new_pair
-             head_zipped = cons_t_cast (tl)
-             head = car (head_zipped)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    head = car (head_zipped)
+                          new_pair = head ** nil_list
              call set_cdr (cursor7, new_pair)
              cursor7 = new_pair
-          end do
+                                    end do
        end if
     class default
-       lst1 = nil_list
-       lst2 = nil_list
-       lst3 = nil_list
-       lst4 = nil_list
-       lst5 = nil_list
-       lst6 = nil_list
-       lst7 = nil_list
-    end select
+              lst1 = nil_list
+              lst2 = nil_list
+              lst3 = nil_list
+              lst4 = nil_list
+              lst5 = nil_list
+              lst6 = nil_list
+              lst7 = nil_list
+           end select
   end subroutine list_unzip7
-
+  
   subroutine list_unzip8 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8)
     class(*), intent(in) :: lst_zipped
-    type(cons_t), intent(inout) :: lst1
-    type(cons_t), intent(inout) :: lst2
-    type(cons_t), intent(inout) :: lst3
-    type(cons_t), intent(inout) :: lst4
-    type(cons_t), intent(inout) :: lst5
-    type(cons_t), intent(inout) :: lst6
-    type(cons_t), intent(inout) :: lst7
-    type(cons_t), intent(inout) :: lst8
-
-    type(cons_t) :: cursor1
-    type(cons_t) :: cursor2
-    type(cons_t) :: cursor3
-    type(cons_t) :: cursor4
-    type(cons_t) :: cursor5
-    type(cons_t) :: cursor6
-    type(cons_t) :: cursor7
-    type(cons_t) :: cursor8
-
+        type(cons_t), intent(inout) :: lst1
+        type(cons_t), intent(inout) :: lst2
+        type(cons_t), intent(inout) :: lst3
+        type(cons_t), intent(inout) :: lst4
+        type(cons_t), intent(inout) :: lst5
+        type(cons_t), intent(inout) :: lst6
+        type(cons_t), intent(inout) :: lst7
+        type(cons_t), intent(inout) :: lst8
+    
+        type(cons_t) :: cursor1
+        type(cons_t) :: cursor2
+        type(cons_t) :: cursor3
+        type(cons_t) :: cursor4
+        type(cons_t) :: cursor5
+        type(cons_t) :: cursor6
+        type(cons_t) :: cursor7
+        type(cons_t) :: cursor8
+    
     class(*), allocatable :: head
     class(*), allocatable :: tail
     class(*), allocatable :: tl
@@ -6343,127 +6366,127 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     select type (lst_zipped)
     class is (cons_t)
        if (list_is_nil (lst_zipped)) then
-          lst1 = nil_list
-          lst2 = nil_list
-          lst3 = nil_list
-          lst4 = nil_list
-          lst5 = nil_list
-          lst6 = nil_list
-          lst7 = nil_list
-          lst8 = nil_list
-       else
+                    lst1 = nil_list
+                    lst2 = nil_list
+                    lst3 = nil_list
+                    lst4 = nil_list
+                    lst5 = nil_list
+                    lst6 = nil_list
+                    lst7 = nil_list
+                    lst8 = nil_list
+                 else
           call uncons (lst_zipped, head, tail)
           head_zipped = cons_t_cast (head)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst1 = head ** nil_list
           cursor1 = lst1
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst2 = head ** nil_list
           cursor2 = lst2
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst3 = head ** nil_list
           cursor3 = lst3
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst4 = head ** nil_list
           cursor4 = lst4
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst5 = head ** nil_list
           cursor5 = lst5
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst6 = head ** nil_list
           cursor6 = lst6
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst7 = head ** nil_list
           cursor7 = lst7
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst8 = head ** nil_list
           cursor8 = lst8
           head_zipped = cons_t_cast (tl)
-          do while (is_cons_pair (tail))
+                    do while (is_cons_pair (tail))
              call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                                       call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor1, new_pair)
              cursor1 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor2, new_pair)
              cursor2 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor3, new_pair)
              cursor3 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor4, new_pair)
              cursor4 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor5, new_pair)
              cursor5 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor6, new_pair)
              cursor6 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor7, new_pair)
              cursor7 = new_pair
-             head_zipped = cons_t_cast (tl)
-             head = car (head_zipped)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    head = car (head_zipped)
+                          new_pair = head ** nil_list
              call set_cdr (cursor8, new_pair)
              cursor8 = new_pair
-          end do
+                                    end do
        end if
     class default
-       lst1 = nil_list
-       lst2 = nil_list
-       lst3 = nil_list
-       lst4 = nil_list
-       lst5 = nil_list
-       lst6 = nil_list
-       lst7 = nil_list
-       lst8 = nil_list
-    end select
+              lst1 = nil_list
+              lst2 = nil_list
+              lst3 = nil_list
+              lst4 = nil_list
+              lst5 = nil_list
+              lst6 = nil_list
+              lst7 = nil_list
+              lst8 = nil_list
+           end select
   end subroutine list_unzip8
-
+  
   subroutine list_unzip9 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9)
     class(*), intent(in) :: lst_zipped
-    type(cons_t), intent(inout) :: lst1
-    type(cons_t), intent(inout) :: lst2
-    type(cons_t), intent(inout) :: lst3
-    type(cons_t), intent(inout) :: lst4
-    type(cons_t), intent(inout) :: lst5
-    type(cons_t), intent(inout) :: lst6
-    type(cons_t), intent(inout) :: lst7
-    type(cons_t), intent(inout) :: lst8
-    type(cons_t), intent(inout) :: lst9
-
-    type(cons_t) :: cursor1
-    type(cons_t) :: cursor2
-    type(cons_t) :: cursor3
-    type(cons_t) :: cursor4
-    type(cons_t) :: cursor5
-    type(cons_t) :: cursor6
-    type(cons_t) :: cursor7
-    type(cons_t) :: cursor8
-    type(cons_t) :: cursor9
-
+        type(cons_t), intent(inout) :: lst1
+        type(cons_t), intent(inout) :: lst2
+        type(cons_t), intent(inout) :: lst3
+        type(cons_t), intent(inout) :: lst4
+        type(cons_t), intent(inout) :: lst5
+        type(cons_t), intent(inout) :: lst6
+        type(cons_t), intent(inout) :: lst7
+        type(cons_t), intent(inout) :: lst8
+        type(cons_t), intent(inout) :: lst9
+    
+        type(cons_t) :: cursor1
+        type(cons_t) :: cursor2
+        type(cons_t) :: cursor3
+        type(cons_t) :: cursor4
+        type(cons_t) :: cursor5
+        type(cons_t) :: cursor6
+        type(cons_t) :: cursor7
+        type(cons_t) :: cursor8
+        type(cons_t) :: cursor9
+    
     class(*), allocatable :: head
     class(*), allocatable :: tail
     class(*), allocatable :: tl
@@ -6473,140 +6496,140 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     select type (lst_zipped)
     class is (cons_t)
        if (list_is_nil (lst_zipped)) then
-          lst1 = nil_list
-          lst2 = nil_list
-          lst3 = nil_list
-          lst4 = nil_list
-          lst5 = nil_list
-          lst6 = nil_list
-          lst7 = nil_list
-          lst8 = nil_list
-          lst9 = nil_list
-       else
+                    lst1 = nil_list
+                    lst2 = nil_list
+                    lst3 = nil_list
+                    lst4 = nil_list
+                    lst5 = nil_list
+                    lst6 = nil_list
+                    lst7 = nil_list
+                    lst8 = nil_list
+                    lst9 = nil_list
+                 else
           call uncons (lst_zipped, head, tail)
           head_zipped = cons_t_cast (head)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst1 = head ** nil_list
           cursor1 = lst1
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst2 = head ** nil_list
           cursor2 = lst2
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst3 = head ** nil_list
           cursor3 = lst3
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst4 = head ** nil_list
           cursor4 = lst4
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst5 = head ** nil_list
           cursor5 = lst5
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst6 = head ** nil_list
           cursor6 = lst6
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst7 = head ** nil_list
           cursor7 = lst7
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst8 = head ** nil_list
           cursor8 = lst8
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst9 = head ** nil_list
           cursor9 = lst9
           head_zipped = cons_t_cast (tl)
-          do while (is_cons_pair (tail))
+                    do while (is_cons_pair (tail))
              call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                                       call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor1, new_pair)
              cursor1 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor2, new_pair)
              cursor2 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor3, new_pair)
              cursor3 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor4, new_pair)
              cursor4 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor5, new_pair)
              cursor5 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor6, new_pair)
              cursor6 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor7, new_pair)
              cursor7 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor8, new_pair)
              cursor8 = new_pair
-             head_zipped = cons_t_cast (tl)
-             head = car (head_zipped)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    head = car (head_zipped)
+                          new_pair = head ** nil_list
              call set_cdr (cursor9, new_pair)
              cursor9 = new_pair
-          end do
+                                    end do
        end if
     class default
-       lst1 = nil_list
-       lst2 = nil_list
-       lst3 = nil_list
-       lst4 = nil_list
-       lst5 = nil_list
-       lst6 = nil_list
-       lst7 = nil_list
-       lst8 = nil_list
-       lst9 = nil_list
-    end select
+              lst1 = nil_list
+              lst2 = nil_list
+              lst3 = nil_list
+              lst4 = nil_list
+              lst5 = nil_list
+              lst6 = nil_list
+              lst7 = nil_list
+              lst8 = nil_list
+              lst9 = nil_list
+           end select
   end subroutine list_unzip9
-
+  
   subroutine list_unzip10 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10)
     class(*), intent(in) :: lst_zipped
-    type(cons_t), intent(inout) :: lst1
-    type(cons_t), intent(inout) :: lst2
-    type(cons_t), intent(inout) :: lst3
-    type(cons_t), intent(inout) :: lst4
-    type(cons_t), intent(inout) :: lst5
-    type(cons_t), intent(inout) :: lst6
-    type(cons_t), intent(inout) :: lst7
-    type(cons_t), intent(inout) :: lst8
-    type(cons_t), intent(inout) :: lst9
-    type(cons_t), intent(inout) :: lst10
-
-    type(cons_t) :: cursor1
-    type(cons_t) :: cursor2
-    type(cons_t) :: cursor3
-    type(cons_t) :: cursor4
-    type(cons_t) :: cursor5
-    type(cons_t) :: cursor6
-    type(cons_t) :: cursor7
-    type(cons_t) :: cursor8
-    type(cons_t) :: cursor9
-    type(cons_t) :: cursor10
-
+        type(cons_t), intent(inout) :: lst1
+        type(cons_t), intent(inout) :: lst2
+        type(cons_t), intent(inout) :: lst3
+        type(cons_t), intent(inout) :: lst4
+        type(cons_t), intent(inout) :: lst5
+        type(cons_t), intent(inout) :: lst6
+        type(cons_t), intent(inout) :: lst7
+        type(cons_t), intent(inout) :: lst8
+        type(cons_t), intent(inout) :: lst9
+        type(cons_t), intent(inout) :: lst10
+    
+        type(cons_t) :: cursor1
+        type(cons_t) :: cursor2
+        type(cons_t) :: cursor3
+        type(cons_t) :: cursor4
+        type(cons_t) :: cursor5
+        type(cons_t) :: cursor6
+        type(cons_t) :: cursor7
+        type(cons_t) :: cursor8
+        type(cons_t) :: cursor9
+        type(cons_t) :: cursor10
+    
     class(*), allocatable :: head
     class(*), allocatable :: tail
     class(*), allocatable :: tl
@@ -6616,127 +6639,127 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     select type (lst_zipped)
     class is (cons_t)
        if (list_is_nil (lst_zipped)) then
-          lst1 = nil_list
-          lst2 = nil_list
-          lst3 = nil_list
-          lst4 = nil_list
-          lst5 = nil_list
-          lst6 = nil_list
-          lst7 = nil_list
-          lst8 = nil_list
-          lst9 = nil_list
-          lst10 = nil_list
-       else
+                    lst1 = nil_list
+                    lst2 = nil_list
+                    lst3 = nil_list
+                    lst4 = nil_list
+                    lst5 = nil_list
+                    lst6 = nil_list
+                    lst7 = nil_list
+                    lst8 = nil_list
+                    lst9 = nil_list
+                    lst10 = nil_list
+                 else
           call uncons (lst_zipped, head, tail)
           head_zipped = cons_t_cast (head)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst1 = head ** nil_list
           cursor1 = lst1
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst2 = head ** nil_list
           cursor2 = lst2
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst3 = head ** nil_list
           cursor3 = lst3
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst4 = head ** nil_list
           cursor4 = lst4
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst5 = head ** nil_list
           cursor5 = lst5
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst6 = head ** nil_list
           cursor6 = lst6
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst7 = head ** nil_list
           cursor7 = lst7
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst8 = head ** nil_list
           cursor8 = lst8
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst9 = head ** nil_list
           cursor9 = lst9
           head_zipped = cons_t_cast (tl)
-          call uncons (head_zipped, head, tl)
+                    call uncons (head_zipped, head, tl)
           lst10 = head ** nil_list
           cursor10 = lst10
           head_zipped = cons_t_cast (tl)
-          do while (is_cons_pair (tail))
+                    do while (is_cons_pair (tail))
              call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                                       call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor1, new_pair)
              cursor1 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor2, new_pair)
              cursor2 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor3, new_pair)
              cursor3 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor4, new_pair)
              cursor4 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor5, new_pair)
              cursor5 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor6, new_pair)
              cursor6 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor7, new_pair)
              cursor7 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor8, new_pair)
              cursor8 = new_pair
-             head_zipped = cons_t_cast (tl)
-             call uncons (head_zipped, head, tl)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    call uncons (head_zipped, head, tl)
+                          new_pair = head ** nil_list
              call set_cdr (cursor9, new_pair)
              cursor9 = new_pair
-             head_zipped = cons_t_cast (tl)
-             head = car (head_zipped)
-             new_pair = head ** nil_list
+                          head_zipped = cons_t_cast (tl)
+                                                    head = car (head_zipped)
+                          new_pair = head ** nil_list
              call set_cdr (cursor10, new_pair)
              cursor10 = new_pair
-          end do
+                                    end do
        end if
     class default
-       lst1 = nil_list
-       lst2 = nil_list
-       lst3 = nil_list
-       lst4 = nil_list
-       lst5 = nil_list
-       lst6 = nil_list
-       lst7 = nil_list
-       lst8 = nil_list
-       lst9 = nil_list
-       lst10 = nil_list
-    end select
+              lst1 = nil_list
+              lst2 = nil_list
+              lst3 = nil_list
+              lst4 = nil_list
+              lst5 = nil_list
+              lst6 = nil_list
+              lst7 = nil_list
+              lst8 = nil_list
+              lst9 = nil_list
+              lst10 = nil_list
+           end select
   end subroutine list_unzip10
-
+  
   function list_unzip1f (lst_zipped) result (lst)
     class(*), intent(in) :: lst_zipped
     type(cons_t) :: lst
@@ -6850,7 +6873,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), allocatable :: head
     class(*), allocatable :: tail
     type(cons_t) :: lst1
-    
+
     tail = lst
     do while (is_cons_pair (tail))
        lst1 = cons_t_cast (tail)
@@ -8286,7 +8309,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), allocatable :: head, tail, k, v
     type(cons_t) :: cursor
     type(cons_t) :: new_pair
-    
+
     select type (alst)
     class is (cons_t)
        if (list_is_nil (alst)) then
@@ -8635,7 +8658,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
          q = p
          do i = 1, n
             array(i) = q
-            q = cons_t_cast (cdr (q))
+            call cons_t_next (q)
          end do
 
          ! Do an insertion sort on the array.

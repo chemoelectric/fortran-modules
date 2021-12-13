@@ -97,6 +97,7 @@ module cons_types
   ! FIXME: These may be nice, but I should really prefer a better
   !        solution to the finalization problem.
   public :: list_next           ! Like `lst = cdr (lst)' but removes a garbage collection root.
+  public :: cons_t_next         ! Like `lst = cons_t_cast (cdr (lst))' but removes a garbage collection root.
   public :: list_pop            ! Like `call uncons (lst, head, lst)' but removes a garbage collection root.
 
   public :: collect_garbage_now
@@ -693,6 +694,27 @@ dnl
     end select
   end subroutine list_next
 
+  subroutine cons_t_next (lst)
+    !
+    ! Perform `lst = cons_t_cast (cdr (lst))', but without leaving a dangling
+    ! garbage collection root.
+    !
+    type(cons_t), intent(inout) :: lst
+    if (list_is_nil (lst)) then
+       call error_abort ("cons_t_next of nil list")
+    endif
+    block
+      class(cons_contents_t), allocatable :: pair
+      pair = cons_contents_t_cast (heap(lst%addr)%p)
+      select type (tail => pair%cdr)
+      class is (cons_t)
+         lst = tail
+      class default
+         call error_abort ("cons_t_next of dotted list")
+      end select
+    end block
+  end subroutine cons_t_next
+
   subroutine list_pop (obj, head)
     !
     ! Perform `call uncons (obj, head, obj)', but without leaving a
@@ -1056,6 +1078,7 @@ module cons_lists
   ! FIXME: These may be nice, but I should really prefer a better
   !        solution to the finalization problem.
   public :: list_next           ! Like `lst = cdr (lst)' but removes a garbage collection root.
+  public :: cons_t_next         ! Like `lst = cons_t_cast (cdr (lst))' but removes a garbage collection root.
   public :: list_pop            ! Like `call uncons (lst, head, lst)' but removes a garbage collection root.
 
   public :: cons_t_cast         ! Assume an object is a cons_t.
@@ -1915,7 +1938,7 @@ m4_forloop([k],[2],n,[    call list_pop (tl, hd)
     class(*), allocatable :: tail
     type(cons_t) :: cursor
     type(cons_t) :: new_pair
-    
+
     select type (lst)
     class is (cons_t)
        if (list_is_nil (lst)) then
@@ -2292,18 +2315,18 @@ m4_forloop([k],[2],n,[    call list_pop (tl, hd)
     class(*), allocatable :: lst_concat
     lst_concat = list_concatenate (lists)
   end function list_destructive_concatenate
-dnl
-m4_forloop([n],[1],ZIP_MAX,[
+  dnl
+  m4_forloop([n],[1],ZIP_MAX,[
   function list_zip[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
-])lst[]k])) result (lst_z)
-m4_forloop([k],[1],n,[dnl
+       ])lst[]k])) result (lst_z)
+    m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: lst[]k
-])dnl
+    ])dnl
     type(cons_t) :: lst_z
 
-m4_forloop([k],[1],n,[dnl
+    m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: head[]k, tail[]k
-])dnl
+    ])dnl
     type(cons_t) :: row
     type(cons_t) :: new_pair
     type(cons_t) :: cursor
@@ -2312,71 +2335,71 @@ m4_forloop([k],[1],n,[dnl
     ! Using is_cons_pair rather than is_nil_list lets us handle
     ! degenerate dotted lists at the same time as nil lists.
     if (.not. is_cons_pair (lst1)) then
-m4_forloop([k],[1],n,[dnl
+       m4_forloop([k],[1],n,[dnl
        lst_z = nil_list
-m4_if(k,n,[dnl
+       m4_if(k,n,[dnl
     else
-],[dnl
+       ],[dnl
     else if (.not. is_cons_pair (lst[]m4_eval(k + 1))) then
-])dnl
-])dnl
-dnl
-m4_forloop([k],[1],n,[dnl
+       ])dnl
+       ])dnl
+       dnl
+       m4_forloop([k],[1],n,[dnl
        call uncons (lst[]k, head[]k, tail[]k)
-])dnl
+       ])dnl
        row = nil_list
-m4_forloop([k],[1],n,[dnl
+       m4_forloop([k],[1],n,[dnl
        row = head[]m4_eval(n - k + 1) ** row
-])dnl
+       ])dnl
        lst_z = row ** nil_list
        cursor = lst_z
        if (.not. is_cons_pair (tail1)) then
-m4_forloop([k],[1],n,[dnl
+          m4_forloop([k],[1],n,[dnl
           continue
-m4_if(k,n,[dnl
+          m4_if(k,n,[dnl
        else
-],[dnl
+          ],[dnl
        else if (.not. is_cons_pair (tail[]m4_eval(k + 1))) then
-])dnl
-])dnl
+          ])dnl
+          ])dnl
           done = .false.
           do while (.not. done)
-m4_forloop([k],[1],n,[dnl
+             m4_forloop([k],[1],n,[dnl
              call list_pop (tail[]k, head[]k)
-])dnl
+             ])dnl
              row = nil_list
-m4_forloop([k],[1],n,[dnl
+             m4_forloop([k],[1],n,[dnl
              row = head[]m4_eval(n - k + 1) ** row
-])dnl
+             ])dnl
              new_pair = row ** nil_list
              call set_cdr (cursor, new_pair)
              cursor = new_pair
              if (.not. is_cons_pair (tail1)) then
-m4_forloop([k],[1],n,[dnl
+                m4_forloop([k],[1],n,[dnl
                 done = .true.
-m4_if(k,n,[dnl
+                m4_if(k,n,[dnl
              end if
-],[dnl
-             else if (.not. is_cons_pair (tail[]m4_eval(k + 1))) then
-])dnl
-])dnl
+             ],[dnl
+          else if (.not. is_cons_pair (tail[]m4_eval(k + 1))) then
+             ])dnl
+             ])dnl
           end do
        end if
     end if
   end function list_zip[]n
-])dnl
-dnl
-m4_forloop([n],[1],ZIP_MAX,[
+  ])dnl
+  dnl
+  m4_forloop([n],[1],ZIP_MAX,[
   subroutine list_unzip[]n (lst_zipped, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
-])lst[]k]))
+       ])lst[]k]))
     class(*), intent(in) :: lst_zipped
-m4_forloop([k],[1],n,[dnl
+    m4_forloop([k],[1],n,[dnl
     type(cons_t), intent(inout) :: lst[]k
-])dnl
+    ])dnl
 
-m4_forloop([k],[1],n,[dnl
+    m4_forloop([k],[1],n,[dnl
     type(cons_t) :: cursor[]k
-])dnl
+    ])dnl
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
@@ -2387,43 +2410,43 @@ m4_forloop([k],[1],n,[dnl
     select type (lst_zipped)
     class is (cons_t)
        if (list_is_nil (lst_zipped)) then
-m4_forloop([k],[1],n,[dnl
+          m4_forloop([k],[1],n,[dnl
           lst[]k = nil_list
-])dnl
+          ])dnl
        else
           call uncons (lst_zipped, head, tail)
           head_zipped = cons_t_cast (head)
-m4_forloop([k],[1],n,[dnl
+          m4_forloop([k],[1],n,[dnl
           call uncons (head_zipped, head, tl)
           lst[]k = head ** nil_list
           cursor[]k = lst[]k
           head_zipped = cons_t_cast (tl)
-])dnl
+          ])dnl
           do while (is_cons_pair (tail))
              call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
-m4_forloop([k],[1],n,[dnl
-m4_if(k,n,[dnl
+             m4_forloop([k],[1],n,[dnl
+             m4_if(k,n,[dnl
              head = car (head_zipped)
-],[dnl
+             ],[dnl
              call uncons (head_zipped, head, tl)
-])dnl
+             ])dnl
              new_pair = head ** nil_list
              call set_cdr (cursor[]k, new_pair)
              cursor[]k = new_pair
-m4_if(k,n,[],[dnl
+             m4_if(k,n,[],[dnl
              head_zipped = cons_t_cast (tl)
-])dnl
-])dnl
+             ])dnl
+             ])dnl
           end do
        end if
     class default
-m4_forloop([k],[1],n,[dnl
+       m4_forloop([k],[1],n,[dnl
        lst[]k = nil_list
-])dnl
+       ])dnl
     end select
   end subroutine list_unzip[]n
-])dnl
+  ])dnl
 
   function list_unzip1f (lst_zipped) result (lst)
     class(*), intent(in) :: lst_zipped
@@ -2538,7 +2561,7 @@ m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: head
     class(*), allocatable :: tail
     type(cons_t) :: lst1
-    
+
     tail = lst
     do while (is_cons_pair (tail))
        lst1 = cons_t_cast (tail)
@@ -3974,7 +3997,7 @@ m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: head, tail, k, v
     type(cons_t) :: cursor
     type(cons_t) :: new_pair
-    
+
     select type (alst)
     class is (cons_t)
        if (list_is_nil (alst)) then
@@ -4323,7 +4346,7 @@ m4_forloop([k],[1],n,[dnl
          q = p
          do i = 1, n
             array(i) = q
-            q = cons_t_cast (cdr (q))
+            call cons_t_next (q)
          end do
 
          ! Do an insertion sort on the array.
