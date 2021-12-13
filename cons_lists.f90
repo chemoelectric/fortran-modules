@@ -21,67 +21,6 @@
 ! ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 ! CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
-!!$
-module cons_types_helpers
-
-  implicit none
-  private
-
-  public :: integer_link_t
-  public :: integer_list_cons
-  public :: integer_list_uncons
-
-  type :: integer_link_t
-     integer :: ival
-     type(integer_link_t), pointer :: next
-  end type integer_link_t
-
-  interface error_abort
-     module procedure error_abort_1
-  end interface error_abort
-
-contains
-
-  subroutine error_abort_1 (msg)
-    use iso_fortran_env, only : error_unit
-    character(*), intent(in) :: msg
-    write (error_unit, '()')
-    write (error_unit, '("cons_types_helpers error: ", a)') msg
-    error stop
-  end subroutine error_abort_1
-
-  subroutine integer_list_cons (ival, ilst, ilst1)
-    integer, intent(in) :: ival
-    type(integer_link_t), pointer, intent(inout) :: ilst
-    type(integer_link_t), pointer, intent(inout) :: ilst1
-
-    type(integer_link_t), pointer :: tmp
-
-    allocate (tmp)
-    tmp%ival = ival
-    tmp%next => ilst
-    ilst1 => tmp
-  end subroutine integer_list_cons
-
-  subroutine integer_list_uncons (ilst1, ival, ilst)
-    type(integer_link_t), pointer, intent(inout) :: ilst1
-    integer, intent(out) :: ival
-    type(integer_link_t), pointer, intent(inout) :: ilst
-
-    type(integer_link_t), pointer :: tmp
-
-    if (associated (ilst1)) then
-       ival = ilst1%ival
-       tmp => ilst1%next
-       ilst1%next => null ()
-       deallocate (ilst1)
-       ilst => tmp
-    else
-       call error_abort ("integer_list_uncons of a null pointer")
-    end if
-  end subroutine integer_list_uncons
-
-end module cons_types_helpers
 
 module cons_types
   !
@@ -104,7 +43,6 @@ module cons_types
 
   use, intrinsic :: iso_fortran_env, only: int8
   use unused_variables
-  use cons_types_helpers
 
   implicit none
   private
@@ -242,6 +180,11 @@ module cons_types
      module procedure error_abort_2
   end interface error_abort
 
+  type :: integer_link_t
+     integer :: ival
+     type(integer_link_t), pointer :: next
+  end type integer_link_t
+
 contains
   
   subroutine error_abort_1 (msg)
@@ -260,6 +203,37 @@ contains
     write (error_unit, '("cons_types_helpers error: ", a, ", with status code ", i3)') msg, status_code
     error stop
   end subroutine error_abort_2
+
+  subroutine integer_list_cons (ival, ilst, ilst1)
+    integer, intent(in) :: ival
+    type(integer_link_t), pointer, intent(inout) :: ilst
+    type(integer_link_t), pointer, intent(inout) :: ilst1
+
+    type(integer_link_t), pointer :: tmp
+
+    allocate (tmp)
+    tmp%ival = ival
+    tmp%next => ilst
+    ilst1 => tmp
+  end subroutine integer_list_cons
+
+  subroutine integer_list_uncons (ilst1, ival, ilst)
+    type(integer_link_t), pointer, intent(inout) :: ilst1
+    integer, intent(out) :: ival
+    type(integer_link_t), pointer, intent(inout) :: ilst
+
+    type(integer_link_t), pointer :: tmp
+
+    if (associated (ilst1)) then
+       ival = ilst1%ival
+       tmp => ilst1%next
+       ilst1%next => null ()
+       deallocate (ilst1)
+       ilst => tmp
+    else
+       call error_abort ("integer_list_uncons of a null pointer")
+    end if
+  end subroutine integer_list_uncons
 
   subroutine set_unfree (addr)
     integer, intent(in) :: addr
@@ -937,82 +911,6 @@ contains
 
 end module cons_types
 
-module cons_procedure_types
-  !
-  ! Procedured types used by module cons_lists.
-  !
-  ! Please use module cons_lists, rather than this module directly.
-  !
-
-  abstract interface
-
-     recursive subroutine list_foreach_procedure_t (x)
-       !
-       ! The type of a subroutine passed to list_foreach.
-       !
-       use :: cons_types
-       class(*), intent(in) :: x
-     end subroutine list_foreach_procedure_t
-
-     recursive subroutine list_modify_elements_procedure_t (x)
-       !
-       ! The type of a subroutine passed to list_modify_elements.
-       !
-       use :: cons_types
-       class(*), intent(inout), allocatable :: x
-     end subroutine list_modify_elements_procedure_t
-
-     recursive subroutine list_filter_map_procedure_t (x, keep)
-       !
-       ! The type of a subroutine passed to list_filter_map. If the
-       ! value of `x' is to be mapped and kept, set `x' to the mapped
-       ! value and `keep' .true.; otherwise set `keep' .false.
-       !
-       use :: cons_types
-       class(*), intent(inout), allocatable :: x
-       logical, intent(out) :: keep
-     end subroutine list_filter_map_procedure_t
-
-     recursive subroutine list_kons_procedure_t (kar, kdr, kons_result)
-       !
-       ! The type of the `kons' argument to a fold procedure.
-       !
-       use :: cons_types
-       class(*), intent(in) :: kar, kdr
-       class(*), allocatable, intent(out) :: kons_result
-     end subroutine list_kons_procedure_t
-
-     recursive function list_predicate1_t (x) result (bool)
-       !
-       ! For passing one-argument predicates to procedures.
-       !
-       use :: cons_types
-       class(*), intent(in) :: x
-       logical :: bool
-     end function list_predicate1_t
-
-     recursive function list_predicate2_t (x, y) result (bool)
-       !
-       ! For passing two-argument predicates to procedures.
-       !
-       use :: cons_types
-       class(*), intent(in) :: x, y
-       logical :: bool
-     end function list_predicate2_t
-
-     recursive function list_comparison2_t (x, y) result (i)
-       !
-       ! Return i < 0 if x < y; 0 if x == y; i > 0 if x > y.
-       !
-       use :: cons_types
-       class(*), intent(in) :: x, y
-       integer :: i
-     end function list_comparison2_t
-
-  end interface
-
-end module cons_procedure_types
-
 module cons_lists
   !
   ! Lisp-style CONS-pairs for Fortran, and a suite of list routines.
@@ -1039,7 +937,6 @@ module cons_lists
   !
 
   use :: cons_types
-  use :: cons_procedure_types
 
   implicit none
   private
@@ -1393,6 +1290,73 @@ module cons_lists
      module procedure list_unfold_right_with_tail
      module procedure list_unfold_right_with_nil_tail
   end interface list_unfold_right
+
+  abstract interface
+
+     recursive subroutine list_foreach_procedure_t (x)
+       !
+       ! The type of a subroutine passed to list_foreach.
+       !
+       use :: cons_types
+       class(*), intent(in) :: x
+     end subroutine list_foreach_procedure_t
+
+     recursive subroutine list_modify_elements_procedure_t (x)
+       !
+       ! The type of a subroutine passed to list_modify_elements.
+       !
+       use :: cons_types
+       class(*), intent(inout), allocatable :: x
+     end subroutine list_modify_elements_procedure_t
+
+     recursive subroutine list_filter_map_procedure_t (x, keep)
+       !
+       ! The type of a subroutine passed to list_filter_map. If the
+       ! value of `x' is to be mapped and kept, set `x' to the mapped
+       ! value and `keep' .true.; otherwise set `keep' .false.
+       !
+       use :: cons_types
+       class(*), intent(inout), allocatable :: x
+       logical, intent(out) :: keep
+     end subroutine list_filter_map_procedure_t
+
+     recursive subroutine list_kons_procedure_t (kar, kdr, kons_result)
+       !
+       ! The type of the `kons' argument to a fold procedure.
+       !
+       use :: cons_types
+       class(*), intent(in) :: kar, kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine list_kons_procedure_t
+
+     recursive function list_predicate1_t (x) result (bool)
+       !
+       ! For passing one-argument predicates to procedures.
+       !
+       use :: cons_types
+       class(*), intent(in) :: x
+       logical :: bool
+     end function list_predicate1_t
+
+     recursive function list_predicate2_t (x, y) result (bool)
+       !
+       ! For passing two-argument predicates to procedures.
+       !
+       use :: cons_types
+       class(*), intent(in) :: x, y
+       logical :: bool
+     end function list_predicate2_t
+
+     recursive function list_comparison2_t (x, y) result (i)
+       !
+       ! Return i < 0 if x < y; 0 if x == y; i > 0 if x > y.
+       !
+       use :: cons_types
+       class(*), intent(in) :: x, y
+       integer :: i
+     end function list_comparison2_t
+
+  end interface
 
   interface error_abort
      module procedure error_abort_1

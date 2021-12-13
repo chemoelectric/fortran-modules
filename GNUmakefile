@@ -110,15 +110,9 @@ unused_variables.anchor: unused_variables.mod
 unused_variables.mod:
 
 cons_lists.anchor: unused_variables.anchor
-
-cons_lists.anchor: cons_types_helpers.mod
 cons_lists.anchor: cons_types.mod
-cons_lists.anchor: cons_procedure_types.mod
-cons_types_helpers.mod:
-cons_types.mod:
-cons_procedure_types.mod:
-
 cons_lists.anchor: cons_lists.mod
+cons_types.mod:
 cons_lists.mod:
 
 test__cons_lists.anchor: cons_lists.anchor
