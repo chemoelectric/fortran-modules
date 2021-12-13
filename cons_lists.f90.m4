@@ -94,8 +94,10 @@ module cons_types
   public :: set_car             ! Change the CAR.
   public :: set_cdr             ! Change the CDR.
 
-  public :: discard_collectible
-  public :: discard
+  ! FIXME: These may be nice, but I should really prefer a better
+  !        solution to the finalization problem.
+  public :: list_next           ! Like `lst = cdr (lst)' but removes a garbage collection root.
+  public :: list_pop            ! Like `call uncons (lst, head, lst)' but removes a garbage collection root.
 
   public :: collect_garbage_now
   public :: garbage_collection_debugging_level
@@ -669,6 +671,52 @@ dnl
     allocate (heap(lst%addr)%p, source = pair)
   end subroutine set_cdr
 
+  subroutine list_next (obj)
+    !
+    ! Perform `obj = cdr (obj)', but without leaving a dangling
+    ! garbage collection root.
+    !
+    class(*), intent(inout), allocatable :: obj
+    select type (lst => obj)
+    class is (cons_t)
+       if (list_is_nil (lst)) then
+          call error_abort ("list_next of nil list")
+       endif
+       block
+         class(cons_contents_t), allocatable :: pair
+         pair = cons_contents_t_cast (heap(lst%addr)%p)
+         call lst%discard
+         obj = pair%cdr
+       end block
+    class default
+       call error_abort ("list_next of an object with no pairs")
+    end select
+  end subroutine list_next
+
+  subroutine list_pop (obj, head)
+    !
+    ! Perform `call uncons (obj, head, obj)', but without leaving a
+    ! dangling garbage collection root.
+    !
+    class(*), intent(inout), allocatable :: obj
+    class(*), intent(inout), allocatable :: head
+    select type (lst => obj)
+    class is (cons_t)
+       if (list_is_nil (lst)) then
+          call error_abort ("list_pop of nil list")
+       endif
+       block
+         class(cons_contents_t), allocatable :: pair
+         pair = cons_contents_t_cast (heap(lst%addr)%p)
+         call lst%discard
+         obj = pair%cdr
+         head = pair%car
+       end block
+    class default
+       call error_abort ("list_pop of an object with no pairs")
+    end select
+  end subroutine list_pop
+
   subroutine collectible_t_copy (dst, src)
     class(collectible_t), intent(inout) :: dst
     class(collectible_t), intent(in) :: src
@@ -946,31 +994,6 @@ dnl
     end do
   end subroutine sweep
 
-  subroutine discard_collectible (obj)
-    class(*), intent(in) :: obj
-    select type (obj)
-    class is (collectible_t)
-       call obj%discard
-    end select
-  end subroutine discard_collectible
-
-  function discard (input) result (output)
-    !
-    ! Fortran will not automatically finalize the INPUT to a function,
-    ! but it WILL finalize the OUTPUT of a function.
-    !
-    ! Therefore wrapping the argument to a function in `discard' will
-    ! cause it to be discarded, if it is collectible.
-    !
-    class(*), intent(in) :: input
-    class(*), allocatable :: output
-    output = input
-    select type (input)
-    class is (collectible_t)
-       call input%discard
-    end select
-  end function discard
-
 end module cons_types
 
 module cons_lists
@@ -1029,6 +1052,11 @@ module cons_lists
 
   public :: set_car             ! Change the CAR of a CONS-pair.
   public :: set_cdr             ! Change the CDR of a CONS-pair.
+
+  ! FIXME: These may be nice, but I should really prefer a better
+  !        solution to the finalization problem.
+  public :: list_next           ! Like `lst = cdr (lst)' but removes a garbage collection root.
+  public :: list_pop            ! Like `call uncons (lst, head, lst)' but removes a garbage collection root.
 
   public :: cons_t_cast         ! Assume an object is a cons_t.
 
@@ -1393,7 +1421,7 @@ dnl
     tail = lst
     do while (is_cons_pair (tail))
        length = length + 1
-       tail = cdr (discard (tail))
+       call list_next (tail)
     end do
   end function list_length
 
@@ -1418,11 +1446,11 @@ dnl
     lag = lst
     done = .false.
     do while (.not. done .and. is_cons_pair (lead))
-       lead = cdr (discard (lead))
+       call list_next (lead)
        length = length + 1
        if (is_cons_pair (lead)) then
-          lead = cdr (discard (lead))
-          lag = cdr (discard (lag))
+          call list_next (lead)
+          call list_next (lag)
           length = length + 1
           select type (lead)
           class is (cons_t)
@@ -1519,13 +1547,13 @@ dnl
           is_dot = .not. is_nil_list (lead)
           done = .true.
        else
-          lead = cdr (discard (lead))
+          call list_next (lead)
           if (.not. is_cons_pair (lead)) then
              is_dot = .not. is_nil_list (lead)
              done = .true.
           else
-             lead = cdr (discard (lead))
-             lag = cdr (discard (lag))
+             call list_next (lead)
+             call list_next (lag)
              select type (lead)
              class is (cons_t)
                 select type (lag)
@@ -1640,7 +1668,7 @@ dnl
     tail = lst
     j = n
     do while (j < i)
-       tail = cdr (discard (tail))
+       call list_next (tail)
        j = j + 1
     end do
     element = car (tail)
@@ -1781,11 +1809,11 @@ m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
 dnl
 m4_forloop([k],[2],n,[dnl
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj[]k = head
 ])dnl
     if (is_cons_pair (tail)) then
@@ -1811,10 +1839,10 @@ m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
 dnl
-m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
+m4_forloop([k],[2],n,[    call list_pop (tl, hd)
     obj[]k = hd
 ])dnl
     tail = tl
@@ -1835,7 +1863,7 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
     tail = lst
     do while (is_cons_pair (tail))
        lst_r = cons (car (tail), lst_r)
-       tail = cdr (tail)
+       call list_next (tail)
     end do
   end function list_reverse
 
@@ -1897,7 +1925,7 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
           cursor = cons (head, tail)
           lst_c = cursor
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              new_pair = cons (head, tail)
              call set_cdr (cursor, new_pair)
              cursor = new_pair
@@ -1939,7 +1967,7 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
              cursor = lst_t
              i = n - 1
              do while (0 < i .and. is_cons_pair (tail))
-                call uncons (tail, head, tail)
+                call list_pop (tail, head)
                 new_pair = cons (head, tail)
                 call set_cdr (cursor, new_pair)
                 cursor = new_pair
@@ -2083,7 +2111,7 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
              cursor = lst_t
              i = n - 1
              do while (0 < i .and. is_cons_pair (tail))
-                call uncons (tail, head, tail)
+                call list_pop (tail, head)
                 new_pair = cons (head, tail)
                 call set_cdr (cursor, new_pair)
                 cursor = new_pair
@@ -2154,7 +2182,7 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
           new_lst = cons (head, tail)
           cursor = new_lst
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              new_pair = cons (head, tail)
              call set_cdr (cursor, new_pair)
              cursor = new_pair
@@ -2206,7 +2234,7 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
        lst_ar = lst2
        tail = lst1
        do while (is_cons_pair (tail))
-          call uncons (tail, head, tail)
+          call list_pop (tail, head)
           lst_ar = cons (head, lst_ar)
        end do
     end select
@@ -2251,7 +2279,7 @@ m4_forloop([k],[2],n,[    call uncons (tl, hd, tl)
        tail = cdr (lists_r)
        do while (is_cons_pair (tail))
           lst_concat = list_append (car (tail), lst_concat)
-          tail = cdr (tail)
+          call list_next (tail)
        end do
     end if
   end function list_concatenate
@@ -2314,7 +2342,7 @@ m4_if(k,n,[dnl
           done = .false.
           do while (.not. done)
 m4_forloop([k],[1],n,[dnl
-             call uncons (tail[]k, head[]k, tail[]k)
+             call list_pop (tail[]k, head[]k)
 ])dnl
              row = nil_list
 m4_forloop([k],[1],n,[dnl
@@ -2372,7 +2400,7 @@ m4_forloop([k],[1],n,[dnl
           head_zipped = cons_t_cast (tl)
 ])dnl
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
 m4_forloop([k],[1],n,[dnl
 m4_if(k,n,[dnl
@@ -2417,7 +2445,7 @@ m4_forloop([k],[1],n,[dnl
 
     tail = lst
     do while (is_cons_pair (tail))
-       call uncons (tail, head, tail)
+       call list_pop (tail, head)
        call subr (head)
     end do
   end subroutine list_foreach
@@ -2469,7 +2497,7 @@ m4_forloop([k],[1],n,[dnl
        cursor = cons (head, tail)
        lst_m = cursor
        do while (is_cons_pair (tail))
-          call uncons (tail, head, tail)
+          call list_pop (tail, head)
           call subr (head)
           new_pair = cons (head, tail)
           call set_cdr (cursor, new_pair)
@@ -2619,7 +2647,7 @@ m4_forloop([k],[1],n,[dnl
           match_found = .true.
           match = element
        else
-          tail = cdr (tail)
+          call list_next (tail)
        end if
     end do
   end subroutine list_find
@@ -2642,7 +2670,7 @@ m4_forloop([k],[1],n,[dnl
           match_found = .true.
           match = tail
        else
-          tail = cdr (tail)
+          call list_next (tail)
        end if
     end do
   end subroutine list_find_tail
@@ -2666,7 +2694,7 @@ m4_forloop([k],[1],n,[dnl
           match = cursor
           match_found = .false.
           do while (.not. match_found .and. is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              if (pred (head)) then
                 new_pair = head ** nil_list
                 call set_cdr (cursor, new_pair)
@@ -2701,7 +2729,7 @@ m4_forloop([k],[1],n,[dnl
     tail = lst
     do while (.not. match_found .and. is_cons_pair (tail))
        if (pred (car (tail))) then
-          tail = cdr (tail)
+          call list_next (tail)
        else
           match_found = .true.
        end if
@@ -2733,7 +2761,7 @@ m4_forloop([k],[1],n,[dnl
           initial = cursor
           match_found = .false.
           do while (.not. match_found .and. is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              if (pred (head)) then
                 new_pair = head ** nil_list
                 call set_cdr (cursor, new_pair)
@@ -2784,7 +2812,7 @@ m4_forloop([k],[1],n,[dnl
           initial = cursor
           match_found = .false.
           do while (.not. match_found .and. is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              if (.not. pred (head)) then
                 new_pair = head ** nil_list
                 call set_cdr (cursor, new_pair)
@@ -2825,7 +2853,7 @@ m4_forloop([k],[1],n,[dnl
        if (pred (car (tail))) then
           found = .true.
        else
-          tail = cdr (tail)
+          call list_next (tail)
        end if
     end do
     match_found = found
@@ -2843,7 +2871,7 @@ m4_forloop([k],[1],n,[dnl
     tail = lst
     do while (.not. bool .and. is_cons_pair (tail))
        if (pred (car (tail))) then
-          tail = cdr (tail)
+          call list_next (tail)
        else
           bool = .true.
        end if
@@ -2892,7 +2920,7 @@ m4_forloop([k],[1],n,[dnl
           found = .true.
        else
           i = i + 1
-          tail = cdr (tail)
+          call list_next (tail)
        end if
     end do
     if (found) then
@@ -2979,7 +3007,7 @@ m4_forloop([k],[1],n,[dnl
     n = 0
     tail = lst
     do while (is_cons_pair (tail))
-       call uncons (tail, head, tail)
+       call list_pop (tail, head)
        if (pred (head)) then
           n = n + 1
        end if
@@ -3003,7 +3031,7 @@ m4_forloop([k],[1],n,[dnl
        else if (.not. pred (car (p))) then
           found_end_or_unsatisfying_element = .true.
        else
-          p = cdr (p)
+          call list_next (p)
        end if
     end do
     next = p
@@ -3025,7 +3053,7 @@ m4_forloop([k],[1],n,[dnl
        else if (pred (car (p))) then
           found_end_or_satisfying_element = .true.
        else
-          p = cdr (p)
+          call list_next (p)
        end if
     end do
     next = p
@@ -3046,7 +3074,7 @@ m4_forloop([k],[1],n,[dnl
     cursor = cons (head, nil_list)
     segment = cursor
     do while (.not. cons_t_eq (cons_t_cast (tail), cons_t_cast (to)))
-       call uncons (tail, head, tail)
+       call list_pop (tail, head)
        new_pair = cons (head, nil_list)
        call set_cdr (cursor, new_pair)
        cursor = new_pair
@@ -3392,7 +3420,7 @@ m4_forloop([k],[1],n,[dnl
        else if (.not. pred (x, car (p))) then
           found_end_or_unsatisfying_element = .true.
        else
-          p = cdr (p)
+          call list_next (p)
        end if
     end do
     next = p
@@ -3415,7 +3443,7 @@ m4_forloop([k],[1],n,[dnl
        else if (pred (x, car (p))) then
           found_end_or_satisfying_element = .true.
        else
-          p = cdr (p)
+          call list_next (p)
        end if
     end do
     next = p
@@ -3511,7 +3539,7 @@ m4_forloop([k],[1],n,[dnl
     match_found = .false.
     tail = lst
     do while (.not. match_found .and. is_cons_pair (tail))
-       call uncons (tail, head, tail)
+       call list_pop (tail, head)
        match_found = pred (head, x)
     end do
   end function contains_match
@@ -3533,7 +3561,7 @@ m4_forloop([k],[1],n,[dnl
        else if (.not. contains_match (kept_elements, pred, car (p))) then
           done = .true.
        else
-          p = cdr (p)
+          call list_next (p)
        end if
     end do
     next = p
@@ -3562,7 +3590,7 @@ m4_forloop([k],[1],n,[dnl
              done = .true.
           else
              kept = element ** kept
-             p = cdr (discard (p))
+             call list_next (p)
           end if
        end if
     end do
@@ -3701,7 +3729,7 @@ m4_forloop([k],[1],n,[dnl
     retval = knil
     tail = lst
     do while (is_cons_pair (tail))
-       call uncons (tail, head, tail)
+       call list_pop (tail, head)
        call kons (head, retval, new_retval)
        retval = new_retval
     end do
@@ -3957,7 +3985,7 @@ m4_forloop([k],[1],n,[dnl
           cursor = cons (cons (k, v), tail)
           alst_c = cursor
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              call uncons (head, k, v)
              new_pair = cons (cons (k, v), tail)
              call set_cdr (cursor, new_pair)
@@ -3986,7 +4014,7 @@ m4_forloop([k],[1],n,[dnl
        else if (.not. pred (x, caar (p))) then
           found_end_or_unsatisfying_element = .true.
        else
-          p = cdr (p)
+          call list_next (p)
        end if
     end do
     next = p
@@ -4009,7 +4037,7 @@ m4_forloop([k],[1],n,[dnl
        else if (pred (x, caar (p))) then
           found_end_or_satisfying_element = .true.
        else
-          p = cdr (p)
+          call list_next (p)
        end if
     end do
     next = p

@@ -288,7 +288,7 @@ contains
   subroutine test_list_is_nil
     call check (list_is_nil (nil_list), "list_is_nil (nil_list) failed")
     call check (.not. list_is_nil (iota (15)), ".not. list_is_nil (iota (15)) failed")
-    call check (.not. list_is_nil (cons('a', 'b')), ".not. list_is_nil (cons('a', 'b')) failed")
+    call check (.not. list_is_nil (cons ('a', 'b')), ".not. list_is_nil (cons('a', 'b')) failed")
   end subroutine test_list_is_nil
 
   subroutine test_is_not_cons_pair
@@ -2296,7 +2296,7 @@ program main
   implicit none
 
   garbage_collection_debugging_level = 1
-  minimum_free_heap = 64
+  minimum_free_heap = 1
   initial_heap_size = 1
   call run_tests
   call collect_garbage_now

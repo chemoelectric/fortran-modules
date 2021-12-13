@@ -84,8 +84,10 @@ module cons_types
   public :: set_car             ! Change the CAR.
   public :: set_cdr             ! Change the CDR.
 
-  public :: discard_collectible
-  public :: discard
+  ! FIXME: These may be nice, but I should really prefer a better
+  !        solution to the finalization problem.
+  public :: list_next           ! Like `lst = cdr (lst)' but removes a garbage collection root.
+  public :: list_pop            ! Like `call uncons (lst, head, lst)' but removes a garbage collection root.
 
   public :: collect_garbage_now
   public :: garbage_collection_debugging_level
@@ -635,6 +637,52 @@ contains
     allocate (heap(lst%addr)%p, source = pair)
   end subroutine set_cdr
 
+  subroutine list_next (obj)
+    !
+    ! Perform `obj = cdr (obj)', but without leaving a dangling
+    ! garbage collection root.
+    !
+    class(*), intent(inout), allocatable :: obj
+    select type (lst => obj)
+    class is (cons_t)
+       if (list_is_nil (lst)) then
+          call error_abort ("list_next of nil list")
+       endif
+       block
+         class(cons_contents_t), allocatable :: pair
+         pair = cons_contents_t_cast (heap(lst%addr)%p)
+         call lst%discard
+         obj = pair%cdr
+       end block
+    class default
+       call error_abort ("list_next of an object with no pairs")
+    end select
+  end subroutine list_next
+
+  subroutine list_pop (obj, head)
+    !
+    ! Perform `call uncons (obj, head, obj)', but without leaving a
+    ! dangling garbage collection root.
+    !
+    class(*), intent(inout), allocatable :: obj
+    class(*), intent(inout), allocatable :: head
+    select type (lst => obj)
+    class is (cons_t)
+       if (list_is_nil (lst)) then
+          call error_abort ("list_pop of nil list")
+       endif
+       block
+         class(cons_contents_t), allocatable :: pair
+         pair = cons_contents_t_cast (heap(lst%addr)%p)
+         call lst%discard
+         obj = pair%cdr
+         head = pair%car
+       end block
+    class default
+       call error_abort ("list_pop of an object with no pairs")
+    end select
+  end subroutine list_pop
+
   subroutine collectible_t_copy (dst, src)
     class(collectible_t), intent(inout) :: dst
     class(collectible_t), intent(in) :: src
@@ -912,31 +960,6 @@ contains
     end do
   end subroutine sweep
 
-  subroutine discard_collectible (obj)
-    class(*), intent(in) :: obj
-    select type (obj)
-    class is (collectible_t)
-       call obj%discard
-    end select
-  end subroutine discard_collectible
-
-  function discard (input) result (output)
-    !
-    ! Fortran will not automatically finalize the INPUT to a function,
-    ! but it WILL finalize the OUTPUT of a function.
-    !
-    ! Therefore wrapping the argument to a function in `discard' will
-    ! cause it to be discarded, if it is collectible.
-    !
-    class(*), intent(in) :: input
-    class(*), allocatable :: output
-    output = input
-    select type (input)
-    class is (collectible_t)
-       call input%discard
-    end select
-  end function discard
-
 end module cons_types
 
 module cons_lists
@@ -995,6 +1018,11 @@ module cons_lists
 
   public :: set_car             ! Change the CAR of a CONS-pair.
   public :: set_cdr             ! Change the CDR of a CONS-pair.
+
+  ! FIXME: These may be nice, but I should really prefer a better
+  !        solution to the finalization problem.
+  public :: list_next           ! Like `lst = cdr (lst)' but removes a garbage collection root.
+  public :: list_pop            ! Like `call uncons (lst, head, lst)' but removes a garbage collection root.
 
   public :: cons_t_cast         ! Assume an object is a cons_t.
 
@@ -1427,7 +1455,7 @@ contains
     tail = lst
     do while (is_cons_pair (tail))
        length = length + 1
-       tail = cdr (discard (tail))
+       call list_next (tail)
     end do
   end function list_length
 
@@ -1452,11 +1480,11 @@ contains
     lag = lst
     done = .false.
     do while (.not. done .and. is_cons_pair (lead))
-       lead = cdr (discard (lead))
+       call list_next (lead)
        length = length + 1
        if (is_cons_pair (lead)) then
-          lead = cdr (discard (lead))
-          lag = cdr (discard (lag))
+          call list_next (lead)
+          call list_next (lag)
           length = length + 1
           select type (lead)
           class is (cons_t)
@@ -1553,13 +1581,13 @@ contains
           is_dot = .not. is_nil_list (lead)
           done = .true.
        else
-          lead = cdr (discard (lead))
+          call list_next (lead)
           if (.not. is_cons_pair (lead)) then
              is_dot = .not. is_nil_list (lead)
              done = .true.
           else
-             lead = cdr (discard (lead))
-             lag = cdr (discard (lag))
+             call list_next (lead)
+             call list_next (lag)
              select type (lead)
              class is (cons_t)
                 select type (lag)
@@ -1840,7 +1868,7 @@ contains
     tail = lst
     j = n
     do while (j < i)
-       tail = cdr (discard (tail))
+       call list_next (tail)
        j = j + 1
     end do
     element = car (tail)
@@ -2492,7 +2520,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist1 of a list that is too long")
@@ -2512,9 +2540,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist2 of a list that is too long")
@@ -2535,11 +2563,11 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist3 of a list that is too long")
@@ -2561,13 +2589,13 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist4 of a list that is too long")
@@ -2590,15 +2618,15 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist5 of a list that is too long")
@@ -2622,17 +2650,17 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist6 of a list that is too long")
@@ -2657,19 +2685,19 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj7 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist7 of a list that is too long")
@@ -2695,21 +2723,21 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj7 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj8 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist8 of a list that is too long")
@@ -2736,23 +2764,23 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj7 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj8 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj9 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist9 of a list that is too long")
@@ -2780,25 +2808,25 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj7 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj8 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj9 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj10 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist10 of a list that is too long")
@@ -2828,27 +2856,27 @@ obj11)
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj7 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj8 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj9 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj10 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj11 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist11 of a list that is too long")
@@ -2879,29 +2907,29 @@ obj11, obj12)
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj7 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj8 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj9 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj10 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj11 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj12 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist12 of a list that is too long")
@@ -2933,31 +2961,31 @@ obj11, obj12, obj13)
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj7 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj8 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj9 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj10 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj11 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj12 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj13 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist13 of a list that is too long")
@@ -2990,33 +3018,33 @@ obj11, obj12, obj13, obj14)
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj7 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj8 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj9 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj10 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj11 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj12 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj13 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj14 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist14 of a list that is too long")
@@ -3050,35 +3078,35 @@ obj11, obj12, obj13, obj14, obj15)
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj7 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj8 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj9 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj10 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj11 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj12 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj13 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj14 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj15 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist15 of a list that is too long")
@@ -3113,37 +3141,37 @@ obj11, obj12, obj13, obj14, obj15, obj16)
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj7 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj8 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj9 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj10 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj11 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj12 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj13 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj14 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj15 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj16 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist16 of a list that is too long")
@@ -3179,39 +3207,39 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17)
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj7 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj8 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj9 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj10 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj11 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj12 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj13 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj14 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj15 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj16 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj17 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist17 of a list that is too long")
@@ -3248,41 +3276,41 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18)
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj7 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj8 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj9 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj10 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj11 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj12 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj13 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj14 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj15 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj16 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj17 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj18 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist18 of a list that is too long")
@@ -3320,43 +3348,43 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19)
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj7 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj8 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj9 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj10 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj11 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj12 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj13 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj14 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj15 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj16 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj17 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj18 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj19 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist19 of a list that is too long")
@@ -3395,45 +3423,45 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     class(*), allocatable :: tail
 
     tail = lst
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj1 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj2 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj3 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj4 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj5 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj6 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj7 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj8 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj9 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj10 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj11 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj12 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj13 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj14 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj15 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj16 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj17 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj18 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj19 = head
-    call uncons (tail, head, tail)
+    call list_pop (tail, head)
     obj20 = head
     if (is_cons_pair (tail)) then
        call error_abort ("unlist20 of a list that is too long")
@@ -3453,7 +3481,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
     tail = tl
   end subroutine unlist1_with_tail
@@ -3472,9 +3500,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
     tail = tl
   end subroutine unlist2_with_tail
@@ -3494,11 +3522,11 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
     tail = tl
   end subroutine unlist3_with_tail
@@ -3519,13 +3547,13 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
     tail = tl
   end subroutine unlist4_with_tail
@@ -3547,15 +3575,15 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
     tail = tl
   end subroutine unlist5_with_tail
@@ -3578,17 +3606,17 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
     tail = tl
   end subroutine unlist6_with_tail
@@ -3612,19 +3640,19 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj7 = hd
     tail = tl
   end subroutine unlist7_with_tail
@@ -3649,21 +3677,21 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj7 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj8 = hd
     tail = tl
   end subroutine unlist8_with_tail
@@ -3689,23 +3717,23 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj7 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj8 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj9 = hd
     tail = tl
   end subroutine unlist9_with_tail
@@ -3732,25 +3760,25 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj7 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj8 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj9 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj10 = hd
     tail = tl
   end subroutine unlist10_with_tail
@@ -3779,27 +3807,27 @@ obj11, tail)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj7 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj8 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj9 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj10 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj11 = hd
     tail = tl
   end subroutine unlist11_with_tail
@@ -3829,29 +3857,29 @@ obj11, obj12, tail)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj7 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj8 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj9 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj10 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj11 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj12 = hd
     tail = tl
   end subroutine unlist12_with_tail
@@ -3882,31 +3910,31 @@ obj11, obj12, obj13, tail)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj7 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj8 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj9 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj10 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj11 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj12 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj13 = hd
     tail = tl
   end subroutine unlist13_with_tail
@@ -3938,33 +3966,33 @@ obj11, obj12, obj13, obj14, tail)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj7 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj8 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj9 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj10 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj11 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj12 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj13 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj14 = hd
     tail = tl
   end subroutine unlist14_with_tail
@@ -3997,35 +4025,35 @@ obj11, obj12, obj13, obj14, obj15, tail)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj7 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj8 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj9 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj10 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj11 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj12 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj13 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj14 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj15 = hd
     tail = tl
   end subroutine unlist15_with_tail
@@ -4059,37 +4087,37 @@ obj11, obj12, obj13, obj14, obj15, obj16, tail)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj7 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj8 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj9 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj10 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj11 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj12 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj13 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj14 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj15 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj16 = hd
     tail = tl
   end subroutine unlist16_with_tail
@@ -4124,39 +4152,39 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, tail)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj7 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj8 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj9 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj10 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj11 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj12 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj13 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj14 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj15 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj16 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj17 = hd
     tail = tl
   end subroutine unlist17_with_tail
@@ -4192,41 +4220,41 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, tail)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj7 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj8 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj9 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj10 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj11 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj12 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj13 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj14 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj15 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj16 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj17 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj18 = hd
     tail = tl
   end subroutine unlist18_with_tail
@@ -4263,43 +4291,43 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, tail)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj7 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj8 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj9 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj10 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj11 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj12 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj13 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj14 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj15 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj16 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj17 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj18 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj19 = hd
     tail = tl
   end subroutine unlist19_with_tail
@@ -4337,45 +4365,45 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), allocatable :: tl
 
     tl = lst
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj1 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj2 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj3 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj4 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj5 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj6 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj7 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj8 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj9 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj10 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj11 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj12 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj13 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj14 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj15 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj16 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj17 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj18 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj19 = hd
-    call uncons (tl, hd, tl)
+    call list_pop (tl, hd)
     obj20 = hd
     tail = tl
   end subroutine unlist20_with_tail
@@ -4394,7 +4422,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     tail = lst
     do while (is_cons_pair (tail))
        lst_r = cons (car (tail), lst_r)
-       tail = cdr (tail)
+       call list_next (tail)
     end do
   end function list_reverse
 
@@ -4456,7 +4484,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           cursor = cons (head, tail)
           lst_c = cursor
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              new_pair = cons (head, tail)
              call set_cdr (cursor, new_pair)
              cursor = new_pair
@@ -4498,7 +4526,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
              cursor = lst_t
              i = n - 1
              do while (0 < i .and. is_cons_pair (tail))
-                call uncons (tail, head, tail)
+                call list_pop (tail, head)
                 new_pair = cons (head, tail)
                 call set_cdr (cursor, new_pair)
                 cursor = new_pair
@@ -4642,7 +4670,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
              cursor = lst_t
              i = n - 1
              do while (0 < i .and. is_cons_pair (tail))
-                call uncons (tail, head, tail)
+                call list_pop (tail, head)
                 new_pair = cons (head, tail)
                 call set_cdr (cursor, new_pair)
                 cursor = new_pair
@@ -4713,7 +4741,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           new_lst = cons (head, tail)
           cursor = new_lst
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              new_pair = cons (head, tail)
              call set_cdr (cursor, new_pair)
              cursor = new_pair
@@ -4765,7 +4793,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        lst_ar = lst2
        tail = lst1
        do while (is_cons_pair (tail))
-          call uncons (tail, head, tail)
+          call list_pop (tail, head)
           lst_ar = cons (head, lst_ar)
        end do
     end select
@@ -4810,7 +4838,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        tail = cdr (lists_r)
        do while (is_cons_pair (tail))
           lst_concat = list_append (car (tail), lst_concat)
-          tail = cdr (tail)
+          call list_next (tail)
        end do
     end if
   end function list_concatenate
@@ -4849,7 +4877,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else
           done = .false.
           do while (.not. done)
-             call uncons (tail1, head1, tail1)
+             call list_pop (tail1, head1)
              row = nil_list
              row = head1 ** row
              new_pair = row ** nil_list
@@ -4896,8 +4924,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else
           done = .false.
           do while (.not. done)
-             call uncons (tail1, head1, tail1)
-             call uncons (tail2, head2, tail2)
+             call list_pop (tail1, head1)
+             call list_pop (tail2, head2)
              row = nil_list
              row = head2 ** row
              row = head1 ** row
@@ -4955,9 +4983,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else
           done = .false.
           do while (.not. done)
-             call uncons (tail1, head1, tail1)
-             call uncons (tail2, head2, tail2)
-             call uncons (tail3, head3, tail3)
+             call list_pop (tail1, head1)
+             call list_pop (tail2, head2)
+             call list_pop (tail3, head3)
              row = nil_list
              row = head3 ** row
              row = head2 ** row
@@ -5026,10 +5054,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else
           done = .false.
           do while (.not. done)
-             call uncons (tail1, head1, tail1)
-             call uncons (tail2, head2, tail2)
-             call uncons (tail3, head3, tail3)
-             call uncons (tail4, head4, tail4)
+             call list_pop (tail1, head1)
+             call list_pop (tail2, head2)
+             call list_pop (tail3, head3)
+             call list_pop (tail4, head4)
              row = nil_list
              row = head4 ** row
              row = head3 ** row
@@ -5109,11 +5137,11 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else
           done = .false.
           do while (.not. done)
-             call uncons (tail1, head1, tail1)
-             call uncons (tail2, head2, tail2)
-             call uncons (tail3, head3, tail3)
-             call uncons (tail4, head4, tail4)
-             call uncons (tail5, head5, tail5)
+             call list_pop (tail1, head1)
+             call list_pop (tail2, head2)
+             call list_pop (tail3, head3)
+             call list_pop (tail4, head4)
+             call list_pop (tail5, head5)
              row = nil_list
              row = head5 ** row
              row = head4 ** row
@@ -5204,12 +5232,12 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else
           done = .false.
           do while (.not. done)
-             call uncons (tail1, head1, tail1)
-             call uncons (tail2, head2, tail2)
-             call uncons (tail3, head3, tail3)
-             call uncons (tail4, head4, tail4)
-             call uncons (tail5, head5, tail5)
-             call uncons (tail6, head6, tail6)
+             call list_pop (tail1, head1)
+             call list_pop (tail2, head2)
+             call list_pop (tail3, head3)
+             call list_pop (tail4, head4)
+             call list_pop (tail5, head5)
+             call list_pop (tail6, head6)
              row = nil_list
              row = head6 ** row
              row = head5 ** row
@@ -5311,13 +5339,13 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else
           done = .false.
           do while (.not. done)
-             call uncons (tail1, head1, tail1)
-             call uncons (tail2, head2, tail2)
-             call uncons (tail3, head3, tail3)
-             call uncons (tail4, head4, tail4)
-             call uncons (tail5, head5, tail5)
-             call uncons (tail6, head6, tail6)
-             call uncons (tail7, head7, tail7)
+             call list_pop (tail1, head1)
+             call list_pop (tail2, head2)
+             call list_pop (tail3, head3)
+             call list_pop (tail4, head4)
+             call list_pop (tail5, head5)
+             call list_pop (tail6, head6)
+             call list_pop (tail7, head7)
              row = nil_list
              row = head7 ** row
              row = head6 ** row
@@ -5430,14 +5458,14 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else
           done = .false.
           do while (.not. done)
-             call uncons (tail1, head1, tail1)
-             call uncons (tail2, head2, tail2)
-             call uncons (tail3, head3, tail3)
-             call uncons (tail4, head4, tail4)
-             call uncons (tail5, head5, tail5)
-             call uncons (tail6, head6, tail6)
-             call uncons (tail7, head7, tail7)
-             call uncons (tail8, head8, tail8)
+             call list_pop (tail1, head1)
+             call list_pop (tail2, head2)
+             call list_pop (tail3, head3)
+             call list_pop (tail4, head4)
+             call list_pop (tail5, head5)
+             call list_pop (tail6, head6)
+             call list_pop (tail7, head7)
+             call list_pop (tail8, head8)
              row = nil_list
              row = head8 ** row
              row = head7 ** row
@@ -5561,15 +5589,15 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else
           done = .false.
           do while (.not. done)
-             call uncons (tail1, head1, tail1)
-             call uncons (tail2, head2, tail2)
-             call uncons (tail3, head3, tail3)
-             call uncons (tail4, head4, tail4)
-             call uncons (tail5, head5, tail5)
-             call uncons (tail6, head6, tail6)
-             call uncons (tail7, head7, tail7)
-             call uncons (tail8, head8, tail8)
-             call uncons (tail9, head9, tail9)
+             call list_pop (tail1, head1)
+             call list_pop (tail2, head2)
+             call list_pop (tail3, head3)
+             call list_pop (tail4, head4)
+             call list_pop (tail5, head5)
+             call list_pop (tail6, head6)
+             call list_pop (tail7, head7)
+             call list_pop (tail8, head8)
+             call list_pop (tail9, head9)
              row = nil_list
              row = head9 ** row
              row = head8 ** row
@@ -5704,16 +5732,16 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else
           done = .false.
           do while (.not. done)
-             call uncons (tail1, head1, tail1)
-             call uncons (tail2, head2, tail2)
-             call uncons (tail3, head3, tail3)
-             call uncons (tail4, head4, tail4)
-             call uncons (tail5, head5, tail5)
-             call uncons (tail6, head6, tail6)
-             call uncons (tail7, head7, tail7)
-             call uncons (tail8, head8, tail8)
-             call uncons (tail9, head9, tail9)
-             call uncons (tail10, head10, tail10)
+             call list_pop (tail1, head1)
+             call list_pop (tail2, head2)
+             call list_pop (tail3, head3)
+             call list_pop (tail4, head4)
+             call list_pop (tail5, head5)
+             call list_pop (tail6, head6)
+             call list_pop (tail7, head7)
+             call list_pop (tail8, head8)
+             call list_pop (tail9, head9)
+             call list_pop (tail10, head10)
              row = nil_list
              row = head10 ** row
              row = head9 ** row
@@ -5778,7 +5806,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           cursor1 = lst1
           head_zipped = cons_t_cast (tl)
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
              head = car (head_zipped)
              new_pair = head ** nil_list
@@ -5822,7 +5850,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           cursor2 = lst2
           head_zipped = cons_t_cast (tl)
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
              call uncons (head_zipped, head, tl)
              new_pair = head ** nil_list
@@ -5879,7 +5907,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           cursor3 = lst3
           head_zipped = cons_t_cast (tl)
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
              call uncons (head_zipped, head, tl)
              new_pair = head ** nil_list
@@ -5949,7 +5977,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           cursor4 = lst4
           head_zipped = cons_t_cast (tl)
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
              call uncons (head_zipped, head, tl)
              new_pair = head ** nil_list
@@ -6032,7 +6060,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           cursor5 = lst5
           head_zipped = cons_t_cast (tl)
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
              call uncons (head_zipped, head, tl)
              new_pair = head ** nil_list
@@ -6128,7 +6156,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           cursor6 = lst6
           head_zipped = cons_t_cast (tl)
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
              call uncons (head_zipped, head, tl)
              new_pair = head ** nil_list
@@ -6237,7 +6265,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           cursor7 = lst7
           head_zipped = cons_t_cast (tl)
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
              call uncons (head_zipped, head, tl)
              new_pair = head ** nil_list
@@ -6359,7 +6387,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           cursor8 = lst8
           head_zipped = cons_t_cast (tl)
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
              call uncons (head_zipped, head, tl)
              new_pair = head ** nil_list
@@ -6494,7 +6522,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           cursor9 = lst9
           head_zipped = cons_t_cast (tl)
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
              call uncons (head_zipped, head, tl)
              new_pair = head ** nil_list
@@ -6642,7 +6670,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           cursor10 = lst10
           head_zipped = cons_t_cast (tl)
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              head_zipped = cons_t_cast (head)
              call uncons (head_zipped, head, tl)
              new_pair = head ** nil_list
@@ -6729,7 +6757,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
     tail = lst
     do while (is_cons_pair (tail))
-       call uncons (tail, head, tail)
+       call list_pop (tail, head)
        call subr (head)
     end do
   end subroutine list_foreach
@@ -6781,7 +6809,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        cursor = cons (head, tail)
        lst_m = cursor
        do while (is_cons_pair (tail))
-          call uncons (tail, head, tail)
+          call list_pop (tail, head)
           call subr (head)
           new_pair = cons (head, tail)
           call set_cdr (cursor, new_pair)
@@ -6931,7 +6959,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           match_found = .true.
           match = element
        else
-          tail = cdr (tail)
+          call list_next (tail)
        end if
     end do
   end subroutine list_find
@@ -6954,7 +6982,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           match_found = .true.
           match = tail
        else
-          tail = cdr (tail)
+          call list_next (tail)
        end if
     end do
   end subroutine list_find_tail
@@ -6978,7 +7006,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           match = cursor
           match_found = .false.
           do while (.not. match_found .and. is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              if (pred (head)) then
                 new_pair = head ** nil_list
                 call set_cdr (cursor, new_pair)
@@ -7013,7 +7041,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     tail = lst
     do while (.not. match_found .and. is_cons_pair (tail))
        if (pred (car (tail))) then
-          tail = cdr (tail)
+          call list_next (tail)
        else
           match_found = .true.
        end if
@@ -7045,7 +7073,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           initial = cursor
           match_found = .false.
           do while (.not. match_found .and. is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              if (pred (head)) then
                 new_pair = head ** nil_list
                 call set_cdr (cursor, new_pair)
@@ -7096,7 +7124,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           initial = cursor
           match_found = .false.
           do while (.not. match_found .and. is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              if (.not. pred (head)) then
                 new_pair = head ** nil_list
                 call set_cdr (cursor, new_pair)
@@ -7137,7 +7165,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        if (pred (car (tail))) then
           found = .true.
        else
-          tail = cdr (tail)
+          call list_next (tail)
        end if
     end do
     match_found = found
@@ -7155,7 +7183,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     tail = lst
     do while (.not. bool .and. is_cons_pair (tail))
        if (pred (car (tail))) then
-          tail = cdr (tail)
+          call list_next (tail)
        else
           bool = .true.
        end if
@@ -7204,7 +7232,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           found = .true.
        else
           i = i + 1
-          tail = cdr (tail)
+          call list_next (tail)
        end if
     end do
     if (found) then
@@ -7291,7 +7319,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     n = 0
     tail = lst
     do while (is_cons_pair (tail))
-       call uncons (tail, head, tail)
+       call list_pop (tail, head)
        if (pred (head)) then
           n = n + 1
        end if
@@ -7315,7 +7343,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else if (.not. pred (car (p))) then
           found_end_or_unsatisfying_element = .true.
        else
-          p = cdr (p)
+          call list_next (p)
        end if
     end do
     next = p
@@ -7337,7 +7365,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else if (pred (car (p))) then
           found_end_or_satisfying_element = .true.
        else
-          p = cdr (p)
+          call list_next (p)
        end if
     end do
     next = p
@@ -7358,7 +7386,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     cursor = cons (head, nil_list)
     segment = cursor
     do while (.not. cons_t_eq (cons_t_cast (tail), cons_t_cast (to)))
-       call uncons (tail, head, tail)
+       call list_pop (tail, head)
        new_pair = cons (head, nil_list)
        call set_cdr (cursor, new_pair)
        cursor = new_pair
@@ -7704,7 +7732,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else if (.not. pred (x, car (p))) then
           found_end_or_unsatisfying_element = .true.
        else
-          p = cdr (p)
+          call list_next (p)
        end if
     end do
     next = p
@@ -7727,7 +7755,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else if (pred (x, car (p))) then
           found_end_or_satisfying_element = .true.
        else
-          p = cdr (p)
+          call list_next (p)
        end if
     end do
     next = p
@@ -7823,7 +7851,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     match_found = .false.
     tail = lst
     do while (.not. match_found .and. is_cons_pair (tail))
-       call uncons (tail, head, tail)
+       call list_pop (tail, head)
        match_found = pred (head, x)
     end do
   end function contains_match
@@ -7845,7 +7873,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else if (.not. contains_match (kept_elements, pred, car (p))) then
           done = .true.
        else
-          p = cdr (p)
+          call list_next (p)
        end if
     end do
     next = p
@@ -7874,7 +7902,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
              done = .true.
           else
              kept = element ** kept
-             p = cdr (discard (p))
+             call list_next (p)
           end if
        end if
     end do
@@ -8013,7 +8041,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     retval = knil
     tail = lst
     do while (is_cons_pair (tail))
-       call uncons (tail, head, tail)
+       call list_pop (tail, head)
        call kons (head, retval, new_retval)
        retval = new_retval
     end do
@@ -8269,7 +8297,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           cursor = cons (cons (k, v), tail)
           alst_c = cursor
           do while (is_cons_pair (tail))
-             call uncons (tail, head, tail)
+             call list_pop (tail, head)
              call uncons (head, k, v)
              new_pair = cons (cons (k, v), tail)
              call set_cdr (cursor, new_pair)
@@ -8298,7 +8326,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else if (.not. pred (x, caar (p))) then
           found_end_or_unsatisfying_element = .true.
        else
-          p = cdr (p)
+          call list_next (p)
        end if
     end do
     next = p
@@ -8321,7 +8349,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        else if (pred (x, caar (p))) then
           found_end_or_satisfying_element = .true.
        else
-          p = cdr (p)
+          call list_next (p)
        end if
     end do
     next = p
