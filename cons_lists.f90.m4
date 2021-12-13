@@ -194,7 +194,7 @@ module cons_types
 
   ! This affects the behavior of the garbage collector only if it is
   ! called before anything is put into the heap.
-  integer :: initial_heap_size = 2 ** 12 ! 4096
+  integer :: initial_heap_size = 2 ** 14 ! 16384
 
   ! A nil heap address.
   integer, parameter :: nil_address = 0
