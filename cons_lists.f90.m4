@@ -94,6 +94,9 @@ module cons_types
   public :: set_car             ! Change the CAR.
   public :: set_cdr             ! Change the CDR.
 
+  public :: discard_collectible
+  public :: discard
+
   public :: collect_garbage_now
   public :: garbage_collection_debugging_level
   public :: minimum_free_heap
@@ -943,6 +946,31 @@ dnl
     end do
   end subroutine sweep
 
+  subroutine discard_collectible (obj)
+    class(*), intent(in) :: obj
+    select type (obj)
+    class is (collectible_t)
+       call obj%discard
+    end select
+  end subroutine discard_collectible
+
+  function discard (input) result (output)
+    !
+    ! Fortran will not automatically finalize the INPUT to a function,
+    ! but it WILL finalize the OUTPUT of a function.
+    !
+    ! Therefore wrapping the argument to a function in `discard' will
+    ! cause it to be discarded, if it is collectible.
+    !
+    class(*), intent(in) :: input
+    class(*), allocatable :: output
+    output = input
+    select type (input)
+    class is (collectible_t)
+       call input%discard
+    end select
+  end function discard
+
 end module cons_types
 
 module cons_lists
@@ -1354,26 +1382,6 @@ dnl
     type(cons_t) :: pair
     pair = cons (car_value, cdr_value)
   end function list_cons
-
-  ! FIXME: DO WE WANT A PUBLIC FUNCTION OF THIS SORT?
-  function discard (input) result (output)
-    !
-    ! Fortran will not automatically finalize the INPUT to a function,
-    ! but it WILL finalize the OUTPUT of a function.
-    !
-    ! Therefore wrapping the argument to a function in `discard' will
-    ! cause it to be discarded, if it is collectible.
-    !
-    class(*), intent(in) :: input
-    class(*), allocatable :: output
-    select type (input)
-    class is (collectible_t)
-       output = input
-       call input%discard
-    class default
-       output = input
-    end select
-  end function discard
 
   function list_length (lst) result (length)
     class(*), intent(in) :: lst
@@ -3554,7 +3562,7 @@ m4_forloop([k],[1],n,[dnl
              done = .true.
           else
              kept = element ** kept
-             p = cdr (p)
+             p = cdr (discard (p))
           end if
        end if
     end do
@@ -3563,9 +3571,6 @@ m4_forloop([k],[1],n,[dnl
   end subroutine skip_unduplicated_elements
 
   recursive function list_delete_duplicates (pred, lst) result (lst_dd)
-    !
-    ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME: Needs to deallocate, optionally.
-    !
     !
     ! NOTE: The argument order is different from that of SRFI-1's
     !       `delete-duplicates' procedure.
@@ -3633,8 +3638,6 @@ m4_forloop([k],[1],n,[dnl
   end function list_delete_duplicates
 
   recursive function list_destructive_delete_duplicates (pred, lst) result (lst_dd)
-    !
-    ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME: Needs to deallocate, optionally.
     !
     ! FIXME: Write a real destructive version.
     !

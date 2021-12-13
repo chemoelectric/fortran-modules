@@ -28,7 +28,9 @@
 !!!
 
 module test__cons_lists
+
   use cons_lists
+
   implicit none
   private
 
@@ -458,7 +460,6 @@ contains
     do i = 0, 14
        call check (list_ref0 (lst, i) .eqi. (i + 1), "list_ref0 (lst, i) .eqi. (i + 1) failed")
     end do
-
   end subroutine test_list_ref0
 
   subroutine test_list_ref1
@@ -468,7 +469,6 @@ contains
     do i = 1, 15
        call check (list_ref1 (lst, i) .eqi. i, "list_ref1 (lst, i) .eqi. i failed")
     end do
-
   end subroutine test_list_ref1
 
   subroutine test_list_refn
@@ -481,14 +481,12 @@ contains
     do i = -1, 13
        call check (list_refn (lst, i, -1) .eqi. (i + 2), "list_refn (lst, i, -1) .eqi. (i + 2) failed")
     end do
-
   end subroutine test_list_refn
 
   subroutine test_list_last
     type(cons_t) :: lst
     lst = iota (15, 1)
     call check (list_last (lst) .eqi. 15, "list_last (lst) .eqi. 15 failed")
-
   end subroutine test_list_last
 
   subroutine test_list_last_pair
@@ -496,7 +494,6 @@ contains
     lst = iota (15, 1)
     call check (car (list_last_pair (lst)) .eqi. 15, "car (list_last_pair (lst)) .eqi. 15 failed")
     call check (is_nil_list (cdr (list_last_pair (lst))), "is_nil_list (cdr (list_last_pair (lst))) failed")
-
   end subroutine test_list_last_pair
 
   subroutine test_make_list
@@ -508,7 +505,6 @@ contains
     do i = 1, 30
        call check (list_ref1 (lst, i) .eqr. 5.0, "list_ref1 (lst, i) .eqr. 5.0 failed (for make_list)")
     end do
-
   end subroutine test_make_list
 
   subroutine test_iota
