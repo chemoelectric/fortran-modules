@@ -8199,6 +8199,12 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call uncons (from, head, tail)
     cursor = cons (head, nil_list)
     segment = cursor
+    !
+    ! FIXME: Why do attempts to avoid these cons_t_cast cause problems?
+    !
+    ! FIXME: Write this to avoid the cons_t_eq. We could, for
+    !        instance, count how many links to copy.
+    !
     do while (.not. cons_t_eq (cons_t_cast (tail), cons_t_cast (to)))
        call list_pop (tail, head)
        new_pair = cons (head, nil_list)
@@ -9258,7 +9264,16 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
     sublist = skip_key_mismatches (key, pred, alst)
     if (is_cons_pair (sublist)) then
-       alst_a = cons_t_cast (car (sublist))
+       block
+         class(*), allocatable :: tmp
+         tmp = car (sublist)
+         select type (tmp)
+         class is (cons_t)
+            alst_a = tmp
+         class default
+            call error_abort ("in alist_assoc, expected a cons_t")
+         end select
+       end block
     else
        alst_a = nil_list
     end if
@@ -9536,7 +9551,12 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
          n_half = n / 2
          call list_destructive_split (p, n_half, p_left, p_tail)
          p_left = merge_sort (p_left, n_half)
-         p_right = merge_sort (cons_t_cast (p_tail), n - n_half)
+         select type (p_tail)
+         class is (cons_t)
+            p_right = merge_sort (p_tail, n - n_half)
+         class default
+            call error_abort ("in list_destructive_stable_sort, expected a cons_t")
+         end select
          lst_ss = list_destructive_merge (compare, p_left, p_right)
       end if
     end function merge_sort
