@@ -120,7 +120,6 @@ module cons_types
   public :: collectible_t       ! FIXME: Document this.
   public :: box_t               ! FIXME: Document this.
   public :: cons_t              ! Either a nil list or a reference to a CONS-pair.
-  public :: discard_collectible ! Remove an object as a root for garbage collection, if it is one.
   public :: nil_collectible     ! The canonical nil collectible_t.
   public :: nil_box             ! The canonical nil box_t.
   public :: nil_list            ! The canonical nil list.
@@ -326,7 +325,6 @@ dnl
     free_count = free_count + 1
     free_stack(free_count) = addr
 
-!!$    heap(addr) = cons_contents_t ()
     if (associated (heap(addr)%p)) deallocate (heap(addr)%p)
     heap(addr)%p => null ()
     roots_count(addr) = 0
@@ -362,14 +360,6 @@ dnl
     end if
     call collect_garbage
   end subroutine collect_garbage_now
-
-  subroutine discard_collectible (obj)
-    class(*), intent(in) :: obj
-    select type (obj)
-    class is (collectible_t)
-       call obj%discard
-    end select
-  end subroutine discard_collectible
 
   function cons_contents_t_cast (obj) result (pair)
     !
@@ -961,8 +951,6 @@ module cons_lists
   public :: cons_t              ! The type of a NIL-list or CONS-pair.
   public :: nil_list            ! The canonical NIL-list.
 
-  public :: discard_collectible ! Remove an object as a root for garbage collection, if it is one.
-
   public :: is_nil_or_pair      ! Is an object either a NIL-list or CONS-pair?
   public :: is_nil_list         ! Is an object a NIL-list?
   public :: is_cons_pair        ! Is an object a CONS-pair?
@@ -1273,33 +1261,17 @@ dnl
     pair = cons (car_value, cdr_value)
   end function list_cons
 
-!!$  function list_length (lst) result (length)
-!!$    class(*), intent(in) :: lst
-!!$    integer :: length
-!!$
-!!$    class(*), allocatable :: tail
-!!$
-!!$    length = 0
-!!$    tail = lst
-!!$    do while (is_cons_pair (tail))
-!!$       length = length + 1
-!!$       tail = cdr (tail)
-!!$    end do
-!!$  end function list_length
-
   function list_length (lst) result (length)
     class(*), intent(in) :: lst
     integer :: length
 
-    class(*), allocatable :: tail, tl
+    class(*), allocatable :: tail
 
     length = 0
     tail = lst
     do while (is_cons_pair (tail))
        length = length + 1
-       tl = cdr (tail)
-       call discard_collectible (tail)
-       tail = tl
+       tail = cdr (tail)
     end do
   end function list_length
 
