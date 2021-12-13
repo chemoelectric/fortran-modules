@@ -1753,7 +1753,7 @@ contains
     call check (list_equals (integer_eq, obj_b, lst2b), "list_equals (integer_eq, obj_b, lst2b) failed (for list_partition)")
     call check (list_equals (integer_eq, obj_c, lst2c), "list_equals (integer_eq, obj_c, lst2c) failed (for list_partition)")
     !
-    ! The following is an explicitly `unspecified result', but let s
+    ! The following is an explicitly `unspecified result', but let’s
     ! test it anyway.
     !
     call list_partition (is_positive_integer, 1234.0, obj99_b, obj99_c)

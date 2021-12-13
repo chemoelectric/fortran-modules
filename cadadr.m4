@@ -64,6 +64,19 @@ m4_define([m4_bits_to_car_cdr_assignments],
     $3 = m4_least_bit_to_car_or_cdr(m4_eval([($2) >> ]m4_eval(($1) - 1 - _m4_index))) ($3)
 ])])
 
+dnl  Generate a sequence of function calls such as
+dnl
+dnl     x = cdr (x)
+dnl     x = cdr (x)
+dnl     x = cdr (x)
+dnl     x = cdr (x)
+dnl     x = cdr (x)
+dnl     x = car (x)
+dnl
+dnl  for extracting the nth element of a list.
+m4_define([m4_bits_to_get_nth_element],
+    [m4_bits_to_car_cdr_assignments([$1],m4_eval((1 << ($1)) - 2),[$2])])
+
 m4_define([m4_length_n_cadadr_public_declarations],
     [m4_forloop([_m4_bits],0,m4_eval([(1 << ($1)) - 1]),
        [  public :: c[]m4_bits_to_ad_sequence([$1],_m4_bits)]r[

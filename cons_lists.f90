@@ -1902,55 +1902,109 @@ contains
   function second (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (lst))
+    element = lst
+    element = cdr (element)
+    element = car (element)
   end function second
 
   function third (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (lst)))
+    element = lst
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function third
 
   function fourth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (lst))))
+    element = lst
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function fourth
 
   function fifth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (cdr (lst)))))
+    element = lst
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function fifth
 
   function sixth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (cdr (cdr (lst))))))
+    element = lst
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function sixth
 
   function seventh (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (cdr (cdr (cdr (lst)))))))
+    element = lst
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function seventh
 
   function eighth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (cdr (cdr (cdr (cdr (lst))))))))
+    element = lst
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function eighth
 
   function ninth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (cdr (cdr (cdr (cdr (cdr (lst)))))))))
+    element = lst
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function ninth
 
   function tenth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (cdr (cdr (cdr (cdr (cdr (cdr (lst))))))))))
+    element = lst
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function tenth
 
   function list_ref0 (lst, i) result (element)

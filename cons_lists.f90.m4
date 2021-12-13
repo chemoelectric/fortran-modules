@@ -1606,55 +1606,64 @@ dnl
   function second (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (lst))
+    element = lst
+m4_bits_to_get_nth_element([2],[element])dnl
   end function second
 
   function third (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (lst)))
+    element = lst
+m4_bits_to_get_nth_element([3],[element])dnl
   end function third
 
   function fourth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (lst))))
+    element = lst
+m4_bits_to_get_nth_element([4],[element])dnl
   end function fourth
 
   function fifth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (cdr (lst)))))
+    element = lst
+m4_bits_to_get_nth_element([5],[element])dnl
   end function fifth
 
   function sixth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (cdr (cdr (lst))))))
+    element = lst
+m4_bits_to_get_nth_element([6],[element])dnl
   end function sixth
 
   function seventh (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (cdr (cdr (cdr (lst)))))))
+    element = lst
+m4_bits_to_get_nth_element([7],[element])dnl
   end function seventh
 
   function eighth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (cdr (cdr (cdr (cdr (lst))))))))
+    element = lst
+m4_bits_to_get_nth_element([8],[element])dnl
   end function eighth
 
   function ninth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (cdr (cdr (cdr (cdr (cdr (lst)))))))))
+    element = lst
+m4_bits_to_get_nth_element([9],[element])dnl
   end function ninth
 
   function tenth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
-    element = car (cdr (cdr (cdr (cdr (cdr (cdr (cdr (cdr (cdr (lst))))))))))
+    element = lst
+m4_bits_to_get_nth_element([10],[element])dnl
   end function tenth
 
   function list_ref0 (lst, i) result (element)
