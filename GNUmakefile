@@ -109,6 +109,10 @@ cons_lists.f90: cadadr.m4
 unused_variables.anchor: unused_variables.mod
 unused_variables.mod:
 
+garbage_collector.anchor: unused_variables.anchor
+garbage_collector.anchor: garbage_collector.mod
+garbage_collector.mod:
+
 cons_lists.anchor: unused_variables.anchor
 cons_lists.anchor: cons_types.mod
 cons_lists.anchor: cons_lists.mod
