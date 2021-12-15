@@ -66,9 +66,10 @@ module garbage_collector
   end type collectible_t
 
   ! Use this type to store the collectible_t items you have
-  ! constructed into trees, graphs, etc.
+  ! constructed into trees, graphs, etc. It may also store
+  ! non-collectible values.
   type :: root_t
-     class(collectible_t), pointer :: collectible => null ()
+     class(*), pointer :: val => null ()
      class(root_t), pointer :: prev => null () ! The previous root in the roots list.
      class(root_t), pointer :: next => null () ! The next root in the roots list.
    contains
@@ -81,7 +82,7 @@ module garbage_collector
   integer(size_kind) :: roots_count = 0 ! The current number of entries, NOT counting the head-tail.
 
   type :: nil_branch_t
-     ! Contains nothing.
+     ! Contains nothing. This type is used as a sentinel.
   end type nil_branch_t
 
 contains
@@ -185,15 +186,15 @@ contains
     bool = associated (p, roots)
   end function is_roots_head
 
-  subroutine roots_insert (after_this, collectible, new_root)
+  subroutine roots_insert (after_this, val, new_root)
     class(root_t), pointer, intent(in) :: after_this
-    class(collectible_t), intent(in) :: collectible
+    class(*), intent(in) :: val
     class(root_t), pointer, intent(out) :: new_root
 
     call initialize_roots
 
     allocate (new_root)
-    allocate (new_root%collectible, source = collectible)
+    allocate (new_root%val, source = val)
     new_root%next => after_this%next
     new_root%prev => after_this
     after_this%next => new_root
@@ -206,7 +207,7 @@ contains
 
     this_one%prev%next => this_one%next
     this_one%next%prev => this_one%prev
-    deallocate (this_one%collectible)
+    if (associated (this_one%val)) deallocate (this_one%val)
     deallocate (this_one)
 
     roots_count = roots_count - 1
@@ -273,21 +274,21 @@ contains
 
     root => roots
     do while (.not. is_roots_head (root))
-       ! Mark the root object for keeping.
-       call set_marked (root%collectible%heap_element)
-
-       ! Push the root object to the stack for reachability analysis.
-       block
-         type(work_stack_element_t), pointer :: tmp
-         allocate (tmp)
-         tmp%collectible => root%collectible
-         tmp%next => work_stack
-         work_stack => tmp
-       end block
-
-       ! Find things that can be reached from the root object.
-       call mark_reachables
-
+       select type (collectible => root%val)
+       class is (collectible_t)
+          ! Mark the root object for keeping.
+          call set_marked (collectible%heap_element)
+          ! Push the root object to the stack for reachability analysis.
+          block
+            type(work_stack_element_t), pointer :: tmp
+            allocate (tmp)
+            tmp%collectible => collectible
+            tmp%next => work_stack
+            work_stack => tmp
+          end block
+          ! Find things that can be reached from the root object.
+          call mark_reachables
+       end select
        root => root%next
     end do
 
@@ -327,7 +328,7 @@ contains
                   block
                     type(work_stack_element_t), pointer :: tmp
                     allocate (tmp)
-                    tmp%collectible => root%collectible
+                    tmp%collectible => collectible
                     tmp%next => work_stack
                     work_stack => tmp
                   end block
