@@ -24,6 +24,7 @@
 
 module garbage_collector
 
+  use, intrinsic :: iso_c_binding ! In case someone chooses a C type for size_kind.
   use, intrinsic :: iso_fortran_env
   use unused_variables
 
