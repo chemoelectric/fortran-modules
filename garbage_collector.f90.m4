@@ -315,21 +315,24 @@ contains
          do while (.not. branch_is_nil (branch))
             select type (branch)
             class is (collectible_t)
-               ! The branch is a reachable object; mark it for keeping.
-               call set_marked (branch%heap_element)
+               ! The branch is a reachable object, possibly already
+               ! marked for keeping.
+               if (.not. is_marked (branch%heap_element)) then
 
-               ! Push the object to the stack, to see if anything can
-               ! be reached through it.
-               block
-                 type(work_stack_element_t), pointer :: tmp
-                 allocate (tmp)
-                 tmp%collectible => root%collectible
-                 tmp%next => work_stack
-                 work_stack => tmp
-               end block
-            class default
-               ! Ignore anything that is not `class(collectible_t)'.
-               continue
+                  ! Mark the reachable object for keeping.
+                  call set_marked (branch%heap_element)
+
+                  ! Push the object to the stack, to see if anything
+                  ! else can be reached through it.
+                  block
+                    type(work_stack_element_t), pointer :: tmp
+                    allocate (tmp)
+                    tmp%collectible => root%collectible
+                    tmp%next => work_stack
+                    work_stack => tmp
+                  end block
+
+               end if
             end select
             branch_number = branch_number + 1
             branch = collectible%get_branch (branch_number)
