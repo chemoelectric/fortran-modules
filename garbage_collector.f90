@@ -1,4 +1,4 @@
-! -*- F90 -*- include(`common-macros.m4')m4_include([cadadr.m4])
+! -*- F90 -*- 
 !
 ! Copyright 2021 Barry Schwartz
 !
@@ -21,16 +21,6 @@
 ! ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 ! CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
-dnl
-dnl
-dnl I have tried to keep this file compatible with "heirloom" m4
-dnl implementations (for example, by using ASCII), and also compatible
-dnl with the POSIX specification for m4.
-dnl
-dnl However, with an "heirloom" m4 you might have to increase buffer
-dnl size with the -B option.
-dnl
-dnl
 
 module garbage_collector
 
