@@ -55,7 +55,7 @@ module garbage_collector
 
   ! The head and tail of a doubly-linked circular list, representing
   ! the current contents of the heap.
-  class(heap_element_t), pointer :: heap
+  class(heap_element_t), pointer :: heap => null ()
   integer(size_kind) :: heap_count = 0 ! The current number of entries, NOT counting the head-tail.
 
   ! Extend this type to represent different kinds of heap entries.
@@ -80,7 +80,7 @@ module garbage_collector
 
   ! The head and tail of a doubly-linked circular list, representing
   ! the current roots.
-  class(root_t), pointer :: roots
+  class(root_t), pointer :: roots => null ()
   integer(size_kind) :: roots_count = 0 ! The current number of entries, NOT counting the head-tail.
 
 contains
@@ -127,10 +127,12 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   subroutine initialize_heap
-    allocate (heap)
-    heap%prev => heap
-    heap%next => heap
-    heap_count = 0
+    if (.not. associated (heap)) then
+       allocate (heap)
+       heap%prev => heap
+       heap%next => heap
+       heap_count = 0
+    end if
   end subroutine initialize_heap
 
   function is_heap_head (p) result (bool)
@@ -143,6 +145,8 @@ contains
     class(heap_element_t), pointer, intent(in) :: after_this
     class(*), intent(in) :: data
     class(heap_element_t), pointer, intent(out) :: new_element
+
+    call initialize_heap
 
     allocate (new_element)
     allocate (new_element%data, source = data)
@@ -167,9 +171,11 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   subroutine initialize_roots
-    allocate (roots)
-    roots%prev => roots
-    roots%next => roots
+    if (.not. associated (roots)) then
+       allocate (roots)
+       roots%prev => roots
+       roots%next => roots
+    end if
   end subroutine initialize_roots
 
   function is_roots_head (p) result (bool)
@@ -182,6 +188,8 @@ contains
     class(root_t), pointer, intent(in) :: after_this
     class(collectible_t), intent(in) :: collectible
     class(root_t), pointer, intent(out) :: new_root
+
+    call initialize_roots
 
     allocate (new_root)
     allocate (new_root%collectible, source = collectible)
@@ -248,25 +256,37 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
+!! THE MARK PHASE.
+!!
+
+  subroutine mark_from_roots
+    type :: stack_element
+       class(collectible_t), pointer :: collectible
+       type(stack_element), pointer :: next
+    end type stack_element
+
+    type(stack_element), pointer :: stack => null ()
+
+    
+  end subroutine mark_from_roots
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
 !! THE SWEEP PHASE.
 !!
 
   subroutine sweep
-    class(root_t), pointer :: root
-    class(collectible_t), pointer :: collectible
     class(heap_element_t), pointer :: heap_element
 
-    root => roots%next
-    do while (.not. is_roots_head (root))
-       collectible => root%collectible
-       heap_element => collectible%heap_element
+    heap_element => heap
+    do while (.not. is_heap_head (heap_element))
        if (is_marked (heap_element)) then
           ! Keep this heap element.
           call set_unmarked (heap_element)
        else
           call heap_remove (heap_element)
        end if
-       root => root%next
+       heap_element => heap_element%next
     end do
   end subroutine sweep
 
