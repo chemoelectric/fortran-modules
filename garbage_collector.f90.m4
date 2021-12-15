@@ -34,8 +34,7 @@ dnl
 
 module garbage_collector
 
-  use, intrinsic :: iso_fortran_env, only: int8
-  use, intrinsic :: iso_fortran_env, only: int64
+  use, intrinsic :: iso_fortran_env
   use unused_variables
 
   implicit none
@@ -52,7 +51,7 @@ module garbage_collector
 
   public :: collect_garbage_now
 
-  integer, parameter :: size_kind = int64
+  integer, parameter :: size_kind = int64 ! FIXME: MAKE THIS SETTABLE BY M4 CODE !!!!!!!!!!!!!!!!!!!!!!!
   integer, parameter :: heap_size_kind = size_kind
   integer, parameter :: roots_count_kind = size_kind
 
@@ -346,6 +345,11 @@ contains
        ! Copy the non-collectible data.
        allocate (dst%val, source = src)
     end select
+
+    !
+    ! FIXME: PUT AN OPTIONAL AUTOMATIC GARBAGE COLLECTOR RUN HERE
+    !
+
   end subroutine collected_t_assign
 
   subroutine collected_t_finalize (this)
@@ -364,7 +368,7 @@ contains
     !! Call `collect_garbage_now' to do what its name says. You may
     !! call it explicitly or you may automate calls to it. However,
     !! you must not have it called while a collectible_t is being
-    !! constructed but not yet assigned to a root_t.
+    !! constructed but not yet assigned to a collected_t.
     !!
     call mark_from_roots
     call sweep
