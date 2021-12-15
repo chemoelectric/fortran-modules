@@ -83,6 +83,10 @@ module garbage_collector
   class(root_t), pointer :: roots => null ()
   integer(size_kind) :: roots_count = 0 ! The current number of entries, NOT counting the head-tail.
 
+  type :: nil_branch_t
+     ! Contains nothing.
+  end type nil_branch_t
+
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -222,16 +226,16 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function collectible_t_is_nil (x) result (bool)
-    class(collectible_t), intent(in) :: x
+  function branch_is_nil (x) result (bool)
+    class(*), intent(in) :: x
     logical :: bool
     select type (x)
-    type is (collectible_t)
-       bool = .not. associated (x%heap_element)
+    type is (nil_branch_t)
+       bool = .true.
     class default
        bool = .false.
     end select
-  end function collectible_t_is_nil
+  end function branch_is_nil
 
   function collectible_t_get_branch (this, branch_number) result (branch)
     !
@@ -245,13 +249,13 @@ contains
     ! branches.
     !
     class(collectible_t), intent(in) :: this
-    integer, intent(in) :: branch_number
-    class(collectible_t), allocatable :: branch
+    integer(size_kind), intent(in) :: branch_number
+    class(*), allocatable :: branch
 
     call unused_variable (this)
     call unused_variable (branch_number)
 
-    branch = collectible_t_nil
+    branch = nil_branch_t ()
   end function collectible_t_get_branch
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -260,14 +264,82 @@ contains
 !!
 
   subroutine mark_from_roots
-    type :: stack_element
+
+    type :: work_stack_element_t
        class(collectible_t), pointer :: collectible
-       type(stack_element), pointer :: next
-    end type stack_element
+       type(work_stack_element_t), pointer :: next
+    end type work_stack_element_t
 
-    type(stack_element), pointer :: stack => null ()
+    type(work_stack_element_t), pointer :: work_stack => null ()
 
-    
+    class(root_t), pointer :: root
+
+    root => roots
+    do while (.not. is_roots_head (root))
+       ! Mark the root object for keeping.
+       call set_marked (root%collectible%heap_element)
+
+       ! Push the root object to the stack for reachability analysis.
+       block
+         type(work_stack_element_t), pointer :: tmp
+         allocate (tmp)
+         tmp%collectible => root%collectible
+         tmp%next => work_stack
+         work_stack => tmp
+       end block
+
+       ! Find things that can be reached from the root object.
+       call mark_reachables
+
+       root => root%next
+    end do
+
+  contains
+
+    subroutine mark_reachables
+
+      class(collectible_t), pointer :: collectible
+
+      integer(size_kind) :: branch_number
+      class(*), allocatable :: branch
+
+      do while (associated (work_stack))
+         ! Pop the top of the stack.
+         collectible => work_stack%collectible
+         block
+           type(work_stack_element_t), pointer :: tmp
+           tmp => work_stack
+           deallocate (work_stack)
+           work_stack => tmp
+         end block
+
+         branch_number = 1
+         branch = collectible%get_branch (branch_number)
+         do while (.not. branch_is_nil (branch))
+            select type (branch)
+            class is (collectible_t)
+               ! The branch is a reachable object; mark it for keeping.
+               call set_marked (branch%heap_element)
+
+               ! Push the object to the stack, to see if anything can
+               ! be reached through it.
+               block
+                 type(work_stack_element_t), pointer :: tmp
+                 allocate (tmp)
+                 tmp%collectible => root%collectible
+                 tmp%next => work_stack
+                 work_stack => tmp
+               end block
+            class default
+               ! Ignore anything that is not `class(collectible_t)'.
+               continue
+            end select
+            branch_number = branch_number + 1
+            branch = collectible%get_branch (branch_number)
+         end do
+      end do
+    end subroutine mark_reachables
+
   end subroutine mark_from_roots
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
