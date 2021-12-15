@@ -7,8 +7,9 @@ garbage_collector.f90  -- Garbage collection for Fortran
 
 cons_lists.f90         -- Lisp-style CONS-pairs for Fortran
                           (Expat license)
-                          (Under development, in the sense that
-                           the garbage collection is not ready)
+                          (Under development, mostly in the sense that
+                           I want garbage collection, and that is not
+                           ready)
 
 Regarding my use of m4
 ----------------------
