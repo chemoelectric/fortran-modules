@@ -178,11 +178,11 @@ contains
 
   subroutine roots_insert (after_this, collectible, new_root)
     class(root_t), pointer, intent(in) :: after_this
-    class(collectible_t), pointer, intent(in) :: collectible
+    class(collectible_t), intent(in) :: collectible
     class(root_t), pointer, intent(out) :: new_root
 
     allocate (new_root)
-    new_root%collectible => collectible
+    allocate (new_root%collectible, source = collectible)
     new_root%next => after_this%next
     new_root%prev => after_this
     after_this%next => new_root
@@ -195,6 +195,7 @@ contains
 
     this_one%prev%next => this_one%next
     this_one%next%prev => this_one%prev
+    deallocate (this_one%collectible)
     deallocate (this_one)
 
     roots_count = roots_count - 1
@@ -253,8 +254,6 @@ contains
           call set_unmarked (heap_element)
        else
           call heap_remove (heap_element)
-          deallocate (collectible)
-          call roots_remove (root)
        end if
        root => root%next
     end do
