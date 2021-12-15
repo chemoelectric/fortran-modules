@@ -1,8 +1,14 @@
 Fortran modules for general programming
 ---------------------------------------
 
-cons_lists.f90     -- Lisp-style CONS-pairs for Fortran
-                      (Expat license)
+garbage_collector.f90  -- Garbage collection for Fortran
+                          (Expat license)
+                          (Under development)
+
+cons_lists.f90         -- Lisp-style CONS-pairs for Fortran
+                          (Expat license)
+                          (Under development, in the sense that
+                           the garbage collection is not ready)
 
 Regarding my use of m4
 ----------------------
