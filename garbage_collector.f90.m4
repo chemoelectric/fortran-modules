@@ -56,7 +56,7 @@ module garbage_collector
   ! The head and tail of a doubly-linked circular list, representing
   ! the current contents of the heap.
   class(heap_element_t), pointer :: heap
-  integer(size_kind) :: heap_size = 0 ! The current number of entries, NOT counting the head-tail.
+  integer(size_kind) :: heap_count = 0 ! The current number of entries, NOT counting the head-tail.
 
   ! Extend this type to represent different kinds of heap entries.
   type :: collectible_t
@@ -71,7 +71,7 @@ module garbage_collector
   ! Use this type to store the collectible_t items you have
   ! constructed into trees, graphs, etc.
   type :: root_t
-     class(collectible_t), pointer :: structure => null ()
+     class(collectible_t), pointer :: collectible => null ()
      class(root_t), pointer :: prev => null () ! The previous root in the roots list.
      class(root_t), pointer :: next => null () ! The next root in the roots list.
   end type root_t
@@ -128,7 +128,7 @@ contains
     allocate (heap)
     heap%prev => heap
     heap%next => heap
-    heap_size = 0
+    heap_count = 0
   end subroutine initialize_heap
 
   function is_heap_head (p) result (bool)
@@ -139,16 +139,16 @@ contains
 
   subroutine heap_insert (after_this, data, new_element)
     class(heap_element_t), pointer, intent(in) :: after_this
-    class(*), pointer, intent(in) :: data ! Already allocated, if necessary.
+    class(*), intent(in) :: data
     class(heap_element_t), pointer, intent(out) :: new_element
 
     allocate (new_element)
-    new_element%data => data
+    allocate (new_element%data, source = data)
     new_element%next => after_this%next
     new_element%prev => after_this
     after_this%next => new_element
 
-    heap_size = heap_size + 1
+    heap_count = heap_count + 1
   end subroutine heap_insert
 
   subroutine heap_remove (this_one)
@@ -156,9 +156,10 @@ contains
 
     this_one%prev%next => this_one%next
     this_one%next%prev => this_one%prev
+    deallocate (this_one%data)
     deallocate (this_one)
 
-    heap_size = heap_size - 1
+    heap_count = heap_count - 1
   end subroutine heap_remove
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -174,6 +175,30 @@ contains
     logical :: bool
     bool = associated (p, roots)
   end function is_roots_head
+
+  subroutine roots_insert (after_this, collectible, new_root)
+    class(root_t), pointer, intent(in) :: after_this
+    class(collectible_t), pointer, intent(in) :: collectible
+    class(root_t), pointer, intent(out) :: new_root
+
+    allocate (new_root)
+    new_root%collectible => collectible
+    new_root%next => after_this%next
+    new_root%prev => after_this
+    after_this%next => new_root
+
+    roots_count = roots_count + 1
+  end subroutine roots_insert
+
+  subroutine roots_remove (this_one)
+    class(root_t), pointer, intent(inout) :: this_one
+
+    this_one%prev%next => this_one%next
+    this_one%next%prev => this_one%prev
+    deallocate (this_one)
+
+    roots_count = roots_count - 1
+  end subroutine roots_remove
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -215,19 +240,24 @@ contains
 !!
 
   subroutine sweep
-!!$    integer :: addr
-!!$
-!!$    do addr = lbound (heap, 1), ubound (heap, 1)
-!!$       if (is_unfree (addr)) then
-!!$          if (is_marked (addr)) then
-!!$             ! Keep this heap entry.
-!!$             call set_unmarked (addr)
-!!$          else
-!!$             ! Return this heap entry to the free list.
-!!$             call return_to_free (addr)
-!!$          end if
-!!$       end if
-!!$    end do
+    class(root_t), pointer :: root
+    class(collectible_t), pointer :: collectible
+    class(heap_element_t), pointer :: heap_element
+
+    root => roots%next
+    do while (.not. is_roots_head (root))
+       collectible => root%collectible
+       heap_element => collectible%heap_element
+       if (is_marked (heap_element)) then
+          ! Keep this heap element.
+          call set_unmarked (heap_element)
+       else
+          call heap_remove (heap_element)
+          deallocate (collectible)
+          call roots_remove (root)
+       end if
+       root => root%next
+    end do
   end subroutine sweep
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
