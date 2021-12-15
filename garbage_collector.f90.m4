@@ -74,6 +74,8 @@ module garbage_collector
      class(collectible_t), pointer :: collectible => null ()
      class(root_t), pointer :: prev => null () ! The previous root in the roots list.
      class(root_t), pointer :: next => null () ! The next root in the roots list.
+   contains
+     final :: root_t_finalize
   end type root_t
 
   ! The head and tail of a doubly-linked circular list, representing
@@ -200,6 +202,15 @@ contains
 
     roots_count = roots_count - 1
   end subroutine roots_remove
+
+  subroutine root_t_finalize (this)
+    type(root_t), target, intent(inout) :: this
+
+    class(root_t), pointer :: this_one
+
+    this_one => this
+    call roots_remove (this_one)
+  end subroutine root_t_finalize
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
