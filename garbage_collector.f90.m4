@@ -65,9 +65,6 @@ module garbage_collector
      procedure, pass :: get_branch => collectible_t_get_branch ! Called to find `reachable' nodes.
   end type collectible_t
 
-  ! The canonical nil collectible_t.
-  type(collectible_t), parameter :: collectible_t_nil = collectible_t ()
-
   ! Use this type to store the collectible_t items you have
   ! constructed into trees, graphs, etc.
   type :: root_t
@@ -243,7 +240,7 @@ contains
     ! `this', for use in the mark phase to find reachable heap
     ! entries. Numbering starts at 1 and proceeds consecutively; an
     ! out of range positive number shall cause the return value to be
-    ! `collectible_t_nil'.
+    ! a `type(nil_branch_t)' object.
     !
     ! The base type of the class contains no data and so can return no
     ! branches.
