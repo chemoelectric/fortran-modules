@@ -164,7 +164,7 @@ contains
 
     this_one%prev%next => this_one%next
     this_one%next%prev => this_one%prev
-    deallocate (this_one%data)
+    if (associated (this_one%data)) deallocate (this_one%data)
     deallocate (this_one)
 
     heap_count = heap_count - 1
