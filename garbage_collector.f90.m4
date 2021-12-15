@@ -41,7 +41,13 @@ module garbage_collector
   implicit none
   private
 
+  public :: collectible_t
+  public :: root_t
+  public :: heap_size_kind
+  public :: heap_size
+
   integer, parameter :: size_kind = int64
+  integer, parameter :: heap_size_kind = size_kind
 
   integer, parameter :: bits_kind = int8
   integer(bits_kind), parameter :: mark_bit = int (b'00000001')
@@ -86,6 +92,13 @@ module garbage_collector
   end type nil_branch_t
 
 contains
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  pure function heap_size () result (size)
+    integer(heap_size_kind) :: size
+    size = heap_count
+  end function heap_size
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
