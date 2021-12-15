@@ -26,18 +26,25 @@ module garbage_collector
 
   use, intrinsic :: iso_fortran_env, only: int8
   use, intrinsic :: iso_fortran_env, only: int64
-  use :: unused_variables
+  use unused_variables
 
   implicit none
   private
 
   public :: collectible_t
-  public :: root_t
+  public :: collected_t
+
   public :: heap_size_kind
-  public :: heap_size
+  public :: roots_count_kind
+
+  public :: current_heap_size
+  public :: current_roots_count
+
+  public :: collect_garbage_now
 
   integer, parameter :: size_kind = int64
   integer, parameter :: heap_size_kind = size_kind
+  integer, parameter :: roots_count_kind = size_kind
 
   integer, parameter :: bits_kind = int8
   integer(bits_kind), parameter :: mark_bit = int (b'00000001')
@@ -56,21 +63,35 @@ module garbage_collector
      procedure, pass :: get_branch => collectible_t_get_branch ! Called to find `reachable' nodes.
   end type collectible_t
 
-  ! Use this type to store the collectible_t items you have
-  ! constructed into trees, graphs, etc. It may also store
-  ! non-collectible values.
+  ! Override the constructor for collectible_t, to have it insert data
+  ! in the heap.
+  interface collectible_t
+     module procedure collectible_t_make
+  end interface collectible_t
+
   type :: root_t
-     class(*), pointer :: val => null ()
+     class(collectible_t), pointer :: collectible => null ()
      class(root_t), pointer :: prev => null () ! The previous root in the roots list.
      class(root_t), pointer :: next => null () ! The next root in the roots list.
    contains
      final :: root_t_finalize
   end type root_t
 
+  ! Use this type to store the collectible_t items you have
+  ! constructed into trees, graphs, etc. It may also store
+  ! non-collectible values.
+  type :: collected_t
+     class(*), pointer :: val => null ()
+   contains
+     procedure, pass :: assign => collected_t_assign
+     generic :: assignment(=) => assign
+     final :: collected_t_finalize
+  end type collected_t
+
   type :: nil_branch_t
      ! Contains nothing. This type is used as a sentinel.
   end type nil_branch_t
-
+  
   ! The head and tail of a doubly-linked circular list,
   ! representing the current contents of the heap.
   class(heap_element_t), pointer :: heap => null ()
@@ -90,10 +111,15 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  pure function heap_size () result (size)
+  pure function current_heap_size () result (size)
     integer(heap_size_kind) :: size
     size = heap_count
-  end function heap_size
+  end function current_heap_size
+
+  pure function current_roots_count () result (count)
+    integer(roots_count_kind) :: count
+    count = roots_count
+  end function current_roots_count
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -172,7 +198,9 @@ contains
 
     this_one%prev%next => this_one%next
     this_one%next%prev => this_one%prev
-    if (associated (this_one%data)) deallocate (this_one%data)
+    if (associated (this_one%data)) then
+       deallocate (this_one%data)
+    end if
     deallocate (this_one)
 
     heap_count = heap_count - 1
@@ -180,57 +208,16 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine initialize_roots
-    if (.not. associated (roots)) then
-       allocate (roots)
-       roots%prev => roots
-       roots%next => roots
-    end if
-  end subroutine initialize_roots
+  function collectible_t_make (data) result (collectible)
+    class(*), intent(in) :: data
+    class(collectible_t), allocatable :: collectible
 
-  function is_roots_head (p) result (bool)
-    class(root_t), pointer, intent(in) :: p
-    logical :: bool
-    bool = associated (p, roots)
-  end function is_roots_head
+    class(heap_element_t), pointer :: new_element
 
-  subroutine roots_insert (after_this, val, new_root)
-    class(root_t), pointer, intent(in) :: after_this
-    class(*), intent(in) :: val
-    class(root_t), pointer, intent(out) :: new_root
+    call heap_insert (heap, data, new_element)
+    collectible%heap_element => new_element
+  end function collectible_t_make
 
-    call initialize_roots
-
-    allocate (new_root)
-    allocate (new_root%val, source = val)
-    new_root%next => after_this%next
-    new_root%prev => after_this
-    after_this%next => new_root
-
-    roots_count = roots_count + 1
-  end subroutine roots_insert
-
-  subroutine roots_remove (this_one)
-    class(root_t), pointer, intent(inout) :: this_one
-
-    this_one%prev%next => this_one%next
-    this_one%next%prev => this_one%prev
-    if (associated (this_one%val)) deallocate (this_one%val)
-    deallocate (this_one)
-
-    roots_count = roots_count - 1
-  end subroutine roots_remove
-
-  subroutine root_t_finalize (this)
-    type(root_t), target, intent(inout) :: this
-
-    class(root_t), pointer :: this_one
-
-    this_one => this
-    call roots_remove (this_one)
-  end subroutine root_t_finalize
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   function branch_is_nil (x) result (bool)
     class(*), intent(in) :: x
@@ -265,6 +252,115 @@ contains
   end function collectible_t_get_branch
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine initialize_roots
+    if (.not. associated (roots)) then
+       allocate (roots)
+       roots%prev => roots
+       roots%next => roots
+    end if
+  end subroutine initialize_roots
+
+  function is_roots_head (p) result (bool)
+    class(root_t), pointer, intent(in) :: p
+    logical :: bool
+    bool = associated (p, roots)
+  end function is_roots_head
+
+  subroutine roots_insert (after_this, collectible, new_root)
+    class(root_t), pointer, intent(in) :: after_this
+    class(collectible_t), intent(in) :: collectible
+    class(root_t), pointer, intent(out) :: new_root
+
+    call initialize_roots
+
+    allocate (new_root)
+    allocate (new_root%collectible, source = collectible)
+    new_root%next => after_this%next
+    new_root%prev => after_this
+    after_this%next => new_root
+
+    roots_count = roots_count + 1
+  end subroutine roots_insert
+
+  subroutine roots_remove (this_one)
+    class(root_t), pointer, intent(inout) :: this_one
+
+    this_one%prev%next => this_one%next
+    this_one%next%prev => this_one%prev
+    if (associated (this_one%collectible)) then
+       deallocate (this_one%collectible)
+    end if
+    deallocate (this_one)
+
+    roots_count = roots_count - 1
+  end subroutine roots_remove
+
+  subroutine root_t_finalize (this)
+    type(root_t), target, intent(inout) :: this
+
+    class(root_t), pointer :: this_one
+
+    this_one => this
+    call roots_remove (this_one)
+  end subroutine root_t_finalize
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine collected_t_assign (dst, src)
+    class(collected_t), intent(inout) :: dst
+    class(*), intent(in) :: src
+
+    select type (src)
+    class is (collectible_t)
+       ! Create a new root.
+       block
+         class(root_t), pointer :: new_root
+         call roots_insert (roots, src, new_root)
+         dst%val => new_root
+       end block
+    class is (collected_t)
+       select type (val => src%val)
+       class is (root_t)
+          ! Copy the root.
+          block
+            class(root_t), pointer :: new_root
+            call roots_insert (roots, val%collectible, new_root)
+            dst%val => new_root
+          end block
+       class default
+          ! Copy the non-collectible data.
+          allocate (dst%val, source = val)
+       end select
+    class default
+       ! Copy the non-collectible data.
+       allocate (dst%val, source = src)
+    end select
+  end subroutine collected_t_assign
+
+  subroutine collected_t_finalize (this)
+    type(collected_t), intent(inout) :: this
+    if (associated (this%val)) then
+       deallocate (this%val)
+    end if
+  end subroutine collected_t_finalize
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! THE GARBAGE COLLECTOR.
+
+  subroutine collect_garbage_now
+    !!
+    !! Call `collect_garbage_now' to do what its name says. You may
+    !! call it explicitly or you may automate calls to it. However,
+    !! you must not have it called while a collectible_t is being
+    !! constructed but not yet assigned to a root_t.
+    !!
+    call mark_from_roots
+    call sweep
+  end subroutine collect_garbage_now
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! THE MARK PHASE.
 !!
@@ -282,21 +378,18 @@ contains
 
     root => roots
     do while (.not. is_roots_head (root))
-       select type (collectible => root%val)
-       class is (collectible_t)
-          ! Mark the root object for keeping.
-          call set_marked (collectible%heap_element)
-          ! Push the root object to the stack for reachability analysis.
-          block
-            type(work_stack_element_t), pointer :: tmp
-            allocate (tmp)
-            tmp%collectible => collectible
-            tmp%next => work_stack
-            work_stack => tmp
-          end block
-          ! Find things that can be reached from the root object.
-          call mark_reachables
-       end select
+       ! Mark the root object for keeping.
+       call set_marked (root%collectible%heap_element)
+       ! Push the root object to the stack for reachability analysis.
+       block
+         type(work_stack_element_t), pointer :: tmp
+         allocate (tmp)
+         tmp%collectible => root%collectible
+         tmp%next => work_stack
+         work_stack => tmp
+       end block
+       ! Find things that can be reached from the root object.
+       call mark_reachables
        root => root%next
     end do
 
