@@ -40,6 +40,10 @@ COMPILE.m4 = $(M4) $(M4FLAGS) $(XM4FLAGS)
 
 #M4FLAGS += -DDEBUGGING=true
 
+# What INTEGER kind should be used to represent sizes? (Names from
+# ISO_Fortran_Env and ISO_C_Binding are available.)
+M4FLAGS += -DSIZE_KIND=int64
+
 # How many lists can be discarded with one call?
 M4FLAGS += -DLIST_DISCARDN_MAX=10
 
@@ -112,6 +116,10 @@ unused_variables.mod:
 garbage_collector.anchor: unused_variables.anchor
 garbage_collector.anchor: garbage_collector.mod
 garbage_collector.mod:
+
+collectible_boxes.anchor: garbage_collector.anchor
+collectible_boxes.anchor: collectible_boxes.mod
+collectible_boxes.mod:
 
 cons_lists.anchor: unused_variables.anchor
 cons_lists.anchor: cons_types.mod

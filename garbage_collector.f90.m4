@@ -36,25 +36,23 @@ module garbage_collector
 
   use, intrinsic :: iso_c_binding ! In case someone chooses a C type for size_kind.
   use, intrinsic :: iso_fortran_env
-  use unused_variables
+  use, non_intrinsic :: unused_variables
 
   implicit none
   private
 
+  public :: size_kind
+  public :: heap_element_t ! FIXME: Is there a good way, or a need, to make this private?
   public :: collectible_t
   public :: collected_t
-
-  public :: heap_size_kind
-  public :: roots_count_kind
-
+  public :: nil_branch_t
   public :: current_heap_size
   public :: current_roots_count
-
+  public :: heap_insert
+  public :: initialize_garbage_collector
   public :: collect_garbage_now
 
-  integer, parameter :: size_kind = int64 ! FIXME: MAKE THIS SETTABLE BY M4 CODE !!!!!!!!!!!!!!!!!!!!!!!
-  integer, parameter :: heap_size_kind = size_kind
-  integer, parameter :: roots_count_kind = size_kind
+  integer, parameter :: size_kind = SIZE_KIND
 
   integer, parameter :: bits_kind = int8
   integer(bits_kind), parameter :: mark_bit = int (b'00000001')
@@ -64,6 +62,9 @@ module garbage_collector
      class(heap_element_t), pointer :: prev => null () ! The previous object in the heap.
      class(heap_element_t), pointer :: next => null () ! The next object in the heap.
      integer(bits_kind) :: bits = 0                    ! The mark bit and any other such bits.
+   contains
+     procedure, pass :: insert => heap_element_t_insert
+     procedure, pass :: remove => heap_element_t_remove
   end type heap_element_t
 
   ! Extend this type to represent different kinds of heap entries.
@@ -71,13 +72,15 @@ module garbage_collector
      class(heap_element_t), pointer :: heap_element => null () ! A pointer a node in the heap.
    contains
      procedure, pass :: get_branch => collectible_t_get_branch ! Called to find `reachable' nodes.
+!!$     procedure, pass :: transfer_to => collectible_t_transfer_to
+!!$     procedure, pass :: data => collectible_t_data
   end type collectible_t
 
-  ! Override the constructor for collectible_t, to have it insert data
-  ! in the heap.
-  interface collectible_t
-     module procedure collectible_t_make
-  end interface collectible_t
+!!$  ! Override the constructor for collectible_t, to have it insert data
+!!$  ! in the heap.
+!!$  interface collectible_t
+!!$     module procedure collectible_t_make
+!!$  end interface collectible_t
 
   type :: root_t
      class(collectible_t), pointer :: collectible => null ()
@@ -122,12 +125,12 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   pure function current_heap_size () result (size)
-    integer(heap_size_kind) :: size
+    integer(size_kind) :: size
     size = heap_count
   end function current_heap_size
 
   pure function current_roots_count () result (count)
-    integer(roots_count_kind) :: count
+    integer(size_kind) :: count
     count = roots_count
   end function current_roots_count
 
@@ -187,47 +190,66 @@ contains
     bool = associated (p, heap)
   end function is_heap_head
 
-  subroutine heap_insert (after_this, data, new_element)
-    class(heap_element_t), pointer, intent(in) :: after_this
-    class(*), intent(in) :: data
-    class(heap_element_t), pointer, intent(out) :: new_element
+!!$  subroutine heap_insert (after_this, new_element)
+!!$    class(heap_element_t), pointer, intent(in) :: after_this
+!!$    class(heap_element_t), pointer, intent(out) :: new_element
+!!$
+!!$    call initialize_heap
+!!$
+!!$    allocate (new_element)
+!!$    new_element%next => after_this%next
+!!$    new_element%prev => after_this
+!!$    after_this%next => new_element
+!!$
+!!$    heap_count = heap_count + 1
+!!$  end subroutine heap_insert
 
-    call initialize_heap
+  subroutine heap_insert (new_element)
+    class(heap_element_t), pointer, intent(in) :: new_element
+    call initialize_garbage_collector
+    call heap%insert (new_element)
+  end subroutine heap_insert
 
-    allocate (new_element)
-    allocate (new_element%data, source = data)
+  subroutine heap_element_t_insert (after_this, new_element)
+    class(heap_element_t), target, intent(inout) :: after_this
+    class(heap_element_t), pointer, intent(in) :: new_element
+
     new_element%next => after_this%next
     new_element%prev => after_this
     after_this%next => new_element
 
     heap_count = heap_count + 1
-  end subroutine heap_insert
+  end subroutine heap_element_t_insert
 
-  subroutine heap_remove (this_one)
-    class(heap_element_t), pointer, intent(inout) :: this_one
+  subroutine heap_element_t_remove (this_one)
+
+    !
+    ! NOTE: Deallocating the heap_element_t itself is the
+    !       responsibility of the caller.
+    !
+
+    class(heap_element_t), intent(inout) :: this_one
 
     this_one%prev%next => this_one%next
     this_one%next%prev => this_one%prev
     if (associated (this_one%data)) then
        deallocate (this_one%data)
     end if
-    deallocate (this_one)
 
     heap_count = heap_count - 1
-  end subroutine heap_remove
+  end subroutine heap_element_t_remove
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function collectible_t_make (data) result (collectible)
-    class(*), intent(in) :: data
-    class(collectible_t), allocatable :: collectible
-
-    class(heap_element_t), pointer :: new_element
-
-    call heap_insert (heap, data, new_element)
-    collectible%heap_element => new_element
-  end function collectible_t_make
-
+!!$  function collectible_t_make (data) result (collectible)
+!!$    class(*), pointer, intent(in) :: data
+!!$    class(collectible_t), allocatable :: collectible
+!!$
+!!$    class(heap_element_t), pointer :: new_element
+!!$
+!!$    call heap_insert (heap, data, new_element)
+!!$    collectible%heap_element => new_element
+!!$  end function collectible_t_make
 
   function branch_is_nil (x) result (bool)
     class(*), intent(in) :: x
@@ -260,6 +282,21 @@ contains
 
     branch = nil_branch_t ()
   end function collectible_t_get_branch
+
+!!$  subroutine collectible_t_transfer_to (this, other)
+!!$    class(collectible_t), intent(in) :: this
+!!$    class(collectible_t), intent(out) :: other
+!!$    other%heap_element => this%heap_element
+!!$  end subroutine collectible_t_transfer_to
+
+!!$  function collectible_t_data (this) result (data)
+!!$    !
+!!$    ! Return a pointer to the stored data.
+!!$    !
+!!$    class(collectible_t), intent(in) :: this
+!!$    class(*), pointer :: data
+!!$    data => this%heap_element%data
+!!$  end function collectible_t_data
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -364,6 +401,15 @@ contains
 !!
 !! THE GARBAGE COLLECTOR.
 
+  subroutine initialize_garbage_collector
+    call initialize_heap
+  end subroutine initialize_garbage_collector
+
+  subroutine collect_garbage
+    call mark_from_roots
+    call sweep
+  end subroutine collect_garbage
+
   subroutine collect_garbage_now
     !!
     !! Call `collect_garbage_now' to do what its name says. You may
@@ -371,8 +417,7 @@ contains
     !! you must not have it called while a collectible_t is being
     !! constructed but not yet assigned to a collected_t.
     !!
-    call mark_from_roots
-    call sweep
+    call collect_garbage
   end subroutine collect_garbage_now
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -473,7 +518,8 @@ contains
           ! Keep this heap element.
           call set_unmarked (heap_element)
        else
-          call heap_remove (heap_element)
+          call heap_element%remove ()
+          deallocate (heap_element)
        end if
        heap_element => heap_element%next
     end do
