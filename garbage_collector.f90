@@ -62,15 +62,7 @@ module garbage_collector
      class(heap_element_t), pointer :: heap_element => null () ! A pointer a node in the heap.
    contains
      procedure, pass :: get_branch => collectible_t_get_branch ! Called to find `reachable' nodes.
-!!$     procedure, pass :: transfer_to => collectible_t_transfer_to
-!!$     procedure, pass :: data => collectible_t_data
   end type collectible_t
-
-!!$  ! Override the constructor for collectible_t, to have it insert data
-!!$  ! in the heap.
-!!$  interface collectible_t
-!!$     module procedure collectible_t_make
-!!$  end interface collectible_t
 
   type :: root_t
      class(collectible_t), pointer :: collectible => null ()
@@ -180,20 +172,6 @@ contains
     bool = associated (p, heap)
   end function is_heap_head
 
-!!$  subroutine heap_insert (after_this, new_element)
-!!$    class(heap_element_t), pointer, intent(in) :: after_this
-!!$    class(heap_element_t), pointer, intent(out) :: new_element
-!!$
-!!$    call initialize_heap
-!!$
-!!$    allocate (new_element)
-!!$    new_element%next => after_this%next
-!!$    new_element%prev => after_this
-!!$    after_this%next => new_element
-!!$
-!!$    heap_count = heap_count + 1
-!!$  end subroutine heap_insert
-
   subroutine heap_insert (new_element)
     class(heap_element_t), pointer, intent(in) :: new_element
     call initialize_garbage_collector
@@ -231,16 +209,6 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-!!$  function collectible_t_make (data) result (collectible)
-!!$    class(*), pointer, intent(in) :: data
-!!$    class(collectible_t), allocatable :: collectible
-!!$
-!!$    class(heap_element_t), pointer :: new_element
-!!$
-!!$    call heap_insert (heap, data, new_element)
-!!$    collectible%heap_element => new_element
-!!$  end function collectible_t_make
-
   function branch_is_nil (x) result (bool)
     class(*), intent(in) :: x
     logical :: bool
@@ -272,21 +240,6 @@ contains
 
     branch = nil_branch_t ()
   end function collectible_t_get_branch
-
-!!$  subroutine collectible_t_transfer_to (this, other)
-!!$    class(collectible_t), intent(in) :: this
-!!$    class(collectible_t), intent(out) :: other
-!!$    other%heap_element => this%heap_element
-!!$  end subroutine collectible_t_transfer_to
-
-!!$  function collectible_t_data (this) result (data)
-!!$    !
-!!$    ! Return a pointer to the stored data.
-!!$    !
-!!$    class(collectible_t), intent(in) :: this
-!!$    class(*), pointer :: data
-!!$    data => this%heap_element%data
-!!$  end function collectible_t_data
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

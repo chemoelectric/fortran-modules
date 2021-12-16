@@ -22,17 +22,17 @@
 ! CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
 
-module collectible_boxes
+module collectible_boxes ! FIXME: Consider calling this "collected_boxes" or just "boxes".
 
   use, non_intrinsic :: garbage_collector
 
   implicit none
   private
 
-  public :: box_t
+  public :: box_t ! FIXME: Consider giving this a different name, and making "box_t" the garbage collection root kind.
   public :: box
-  public :: unbox
-  public :: set_box
+  public :: unbox ! FIXME: This should be generic that takes either type of box, or should be a module procedure.
+  public :: set_box ! FIXME: This should be generic that takes either type of box, or should be a module procedure.
 
   type :: box_data_t
      class(*), allocatable :: contents
