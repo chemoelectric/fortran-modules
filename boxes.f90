@@ -147,6 +147,7 @@ contains
        allocate (new_element)
        new_element%data => data
        call heap_insert (new_element)
+       allocate (the_box)
        the_box%heap_element => new_element
     end select
   end function box
@@ -162,7 +163,7 @@ contains
        data => the_box%heap_element%data
        select type (data)
        class is (box_data_t)
-          contents = data
+          contents = data%contents
        class default
           call error_abort ("internal error")
        end select

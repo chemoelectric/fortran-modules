@@ -30,7 +30,78 @@ module test__boxes
   implicit none
   private
 
-  !public :: run_tests
+  public :: run_tests
+
+  interface operator(.eqi.)
+     module procedure integer_eq
+  end interface operator(.eqi.)
+
+  interface operator(.eqr.)
+     module procedure real_eq
+  end interface operator(.eqr.)
+
+contains
+
+  subroutine error_abort (msg)
+    use iso_fortran_env, only : error_unit
+    character(*), intent(in) :: msg
+    write (error_unit, '()')
+    write (error_unit, '("test__boxes error: ", a)') msg
+    error stop
+  end subroutine error_abort
+
+  subroutine check (boolean, msg)
+    logical, intent(in) :: boolean
+    character(*), intent(in) :: msg
+    if (.not. boolean) call error_abort (msg)
+  end subroutine check
+
+  function integer_cast (obj) result (int)
+    class(*), intent(in) :: obj
+    integer :: int
+    select type (obj)
+    type is (integer)
+       int = obj
+    class default
+       call error_abort ("integer_cast of an incompatible object")
+    end select
+  end function integer_cast
+
+  function real_cast (obj) result (r)
+    class(*), intent(in) :: obj
+    real :: r
+    select type (obj)
+    type is (real)
+       r = obj
+    class default
+       call error_abort ("real_cast of an incompatible object")
+    end select
+  end function real_cast
+
+  function integer_eq (obj1, obj2) result (bool)
+    class(*), intent(in) :: obj1, obj2
+    logical :: bool
+    bool = integer_cast (obj1) == integer_cast (obj2)
+  end function integer_eq
+
+  function real_eq (obj1, obj2) result (bool)
+    class(*), intent(in) :: obj1, obj2
+    logical :: bool
+    bool = real_cast (obj1) == real_cast (obj2)
+  end function real_eq
+
+  subroutine test1
+    type(gcroot_t) :: box1
+
+    call check (unbox (box (1234)) .eqi. 1234, "unbox (box (1234)) .eqi. 1234 failed")
+
+!    box1 = box (1234)
+!    call check (unbox (box1) .eqi. 1234, "unbox (box1) .eqi. 1234 failed")
+  end subroutine test1
+
+  subroutine run_tests
+    call test1
+  end subroutine run_tests
 
 end module test__boxes
 
@@ -40,5 +111,7 @@ program main
   use, non_intrinsic :: test__boxes
 
   implicit none
+
+  call run_tests
 
 end program main
