@@ -90,6 +90,9 @@ module garbage_collector
   ! representing the current roots.
   class(root_t), pointer :: roots => null ()
 
+  ! The current roots count, not counting the head element.
+  integer(size_kind) :: roots_count = 0
+
   interface error_abort
      module procedure error_abort_1
   end interface error_abort
@@ -131,20 +134,25 @@ contains
   end function current_heap_size
 
   function current_roots_count () result (count)
-    !
-    ! This is a linear-time operation.
-    !
-
     integer(size_kind) :: count
 
-    class(root_t), pointer :: this_root
+    count = roots_count
 
-    count = 0
-    this_root => roots%next
-    do while (.not. is_roots_head (this_root))
-       count = count + 1
-       this_root => this_root%next
-    end do
+    block
+      class(root_t), pointer :: this_root
+      integer(size_kind) :: count1
+
+      count1 = 0
+      this_root => roots%next
+      do while (.not. is_roots_head (this_root))
+         count1 = count1 + 1
+         this_root => this_root%next
+      end do
+
+      if (count1 /= count) then
+         call error_abort ("internal error: roots_count is wrong")
+      end if
+    end block
   end function current_roots_count
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -295,6 +303,8 @@ contains
     new_root%prev => after_this
     after_this%next => new_root
     new_root%next%prev => new_root
+
+    roots_count = roots_count + 1
   end subroutine roots_insert
 
   subroutine roots_remove (this_one)
@@ -311,6 +321,8 @@ contains
     if (associated (this_one%collectible)) then
        deallocate (this_one%collectible)
     end if
+
+    roots_count = roots_count - 1
   end subroutine roots_remove
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
