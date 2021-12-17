@@ -120,12 +120,20 @@ program main
   implicit none
 
   call run_tests
+
   write (*,*) "roots count = ", current_roots_count ()
   write (*,*) "heap size   = ", current_heap_size ()
   write (*,*) "collecting garbage"
+
   call collect_garbage_now
+
   write (*,*) "roots count = ", current_roots_count ()
   write (*,*) "heap size   = ", current_heap_size ()
   write (*,*) "----------------------------"
+
+  if (current_heap_size () /= 0) then
+     write (*,*) "current_heap_size () == 0 failed at end of program"
+     error stop
+  end if
 
 end program main

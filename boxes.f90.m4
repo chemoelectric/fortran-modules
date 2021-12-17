@@ -48,12 +48,17 @@ module boxes
   implicit none
   private
 
-  public :: box_t
-  public :: is_box
-  public :: box_t_cast
-  public :: box
-  public :: unbox
-  public :: set_box
+  public :: box_t            ! The type for garbage-collectible boxes.
+
+  public :: is_box           ! Is the object either a box or a gcroot_t containing a box?
+  public :: box_t_cast       ! Convert an object to a box, if possible.
+
+  public :: box              ! Put an object in a box.
+  public :: unbox            ! Copy an object from a box.
+  public :: set_box          ! Change the contents of a box.
+
+  public :: autobox          ! Put an object in a box, if it is not already boxed.
+  public :: autounbox        ! Copy an object from a box, if it is boxed.
 
   type :: box_data_t
      class(*), allocatable :: contents
@@ -106,6 +111,7 @@ contains
   function is_box (obj) result (bool)
     class(*), intent(in) :: obj
     logical :: bool
+    bool = .false.
     select type (obj)
     class is (box_t)
        bool = .true.
@@ -113,11 +119,7 @@ contains
        select type (val => obj%get_value ())
        class is (box_t)
           bool = .true.
-       class default
-          bool = .false.
        end select
-    class default
-       bool = .false.
     end select
   end function is_box
 
@@ -138,6 +140,8 @@ contains
       call error_abort ("box_t_cast of an incompatible object")
     end select
   end function box_t_cast
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function box (contents) result (the_box)
     class(*), intent(in) :: contents
@@ -206,6 +210,28 @@ contains
        call error_abort ("set_box of a non-box")
     end select
   end subroutine set_box
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function autobox (contents) result (the_box)
+    class(*), intent(in) :: contents
+    class(box_t), allocatable :: the_box
+    if (is_box (contents)) then
+       the_box = box_t_cast (contents)
+    else
+       the_box = box (contents)
+    end if
+  end function autobox
+
+  recursive function autounbox (the_box) result (contents)
+    class(*), intent(in) :: the_box
+    class(*), allocatable :: contents
+    if (is_box (the_box)) then
+       contents = unbox (the_box)
+    else
+       contents = the_box
+    end if
+  end function autounbox
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
