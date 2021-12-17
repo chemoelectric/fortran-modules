@@ -82,26 +82,24 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function box_t_get_branch (this, branch_number) result (branch)
+  subroutine box_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
     class(box_t), intent(in) :: this
     integer(size_kind), intent(in) :: branch_number
     class(*), allocatable :: branch
 
     class(*), pointer :: data
-    logical :: branch_is_set = .false.
+    logical :: branch_number_out_of_range
     
+    branch_number_out_of_range = .true.
     if (branch_number == 1) then
        data => this%heap_element%data
        select type (data)
        class is (box_data_t)
           branch = data%contents
-          branch_is_set = .true.
+          branch_number_out_of_range = .false.
        end select
     end if
-    if (.not. branch_is_set) then
-       branch = nil_branch_t ()
-    end if
-  end function box_t_get_branch
+  end subroutine box_t_get_branch
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

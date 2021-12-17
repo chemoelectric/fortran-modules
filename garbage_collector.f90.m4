@@ -45,7 +45,6 @@ module garbage_collector
   public :: heap_element_t ! FIXME: Is there a good way, or a need, to make this private?
   public :: collectible_t
   public :: gcroot_t
-  public :: nil_branch_t
   public :: current_heap_size
   public :: current_roots_count
   public :: heap_insert
@@ -93,17 +92,9 @@ module garbage_collector
      final :: gcroot_t_finalize
   end type gcroot_t
 
-  type :: nil_branch_t
-     ! Contains nothing. This type is used as a sentinel.
-  end type nil_branch_t
-  
   ! The head and tail of a doubly-linked circular list,
   ! representing the current contents of the heap.
   class(heap_element_t), pointer :: heap => null ()
-
-  ! The current number of heap elements, NOT counting the
-  ! `heap' node.
-  integer(size_kind) :: heap_count = 0
 
   ! The head and tail of a doubly-linked circular list,
   ! representing the current roots.
@@ -130,14 +121,38 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  pure function current_heap_size () result (size)
+  function current_heap_size () result (size)
+    !
+    ! This is a linear-time operation.
+    !
+
     integer(size_kind) :: size
-    size = heap_count
+
+    class(heap_element_t), pointer :: heap_element
+
+    size = 0
+    heap_element => heap%next
+    do while (.not. is_heap_head (heap_element))
+       size = size + 1
+       heap_element => heap_element%next
+    end do
   end function current_heap_size
 
-  pure function current_roots_count () result (count)
+  function current_roots_count () result (count)
+    !
+    ! This is a linear-time operation.
+    !
+
     integer(size_kind) :: count
-    count = roots_count
+
+    class(root_t), pointer :: this_root
+
+    count = 0
+    this_root => roots%next
+    do while (.not. is_roots_head (this_root))
+       count = count + 1
+       this_root => this_root%next
+    end do
   end function current_roots_count
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -186,7 +201,6 @@ contains
        allocate (heap)
        heap%prev => heap
        heap%next => heap
-       heap_count = 0
     end if
   end subroutine initialize_heap
 
@@ -209,8 +223,6 @@ contains
     new_element%next => after_this%next
     new_element%prev => after_this
     after_this%next => new_element
-
-    heap_count = heap_count + 1
   end subroutine heap_element_t_insert
 
   subroutine heap_element_t_remove (this_one)
@@ -227,43 +239,35 @@ contains
     if (associated (this_one%data)) then
        deallocate (this_one%data)
     end if
-
-    heap_count = heap_count - 1
   end subroutine heap_element_t_remove
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function branch_is_nil (x) result (bool)
-    class(*), intent(in) :: x
-    logical :: bool
-    select type (x)
-    type is (nil_branch_t)
-       bool = .true.
-    class default
-       bool = .false.
-    end select
-  end function branch_is_nil
-
-  function collectible_t_get_branch (this, branch_number) result (branch)
+  subroutine collectible_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
     !
     ! `get_branch' returns the `branch_numberth' branch element of
     ! `this', for use in the mark phase to find reachable heap
-    ! entries. Numbering starts at 1 and proceeds consecutively; an
-    ! out of range positive number shall cause the return value to be
-    ! a `type(nil_branch_t)' object.
+    ! entries. Numbering starts at 1 and proceeds consecutively.
+    !
+    ! The behavior for `branch_number' less than 1 is not specified.
+    !
+    ! The value of `branch' is unspecified, if
+    ! `branch_number_out_of_range' is .false.
     !
     ! The base type of the class contains no data and so can return no
     ! branches.
     !
     class(collectible_t), intent(in) :: this
     integer(size_kind), intent(in) :: branch_number
+    logical :: branch_number_out_of_range
     class(*), allocatable :: branch
 
     call unused_variable (this)
     call unused_variable (branch_number)
+    call unused_variable (branch)
 
-    branch = nil_branch_t ()
-  end function collectible_t_get_branch
+    branch_number_out_of_range = .true.
+  end subroutine collectible_t_get_branch
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -296,8 +300,6 @@ contains
     new_root%next => after_this%next
     new_root%prev => after_this
     after_this%next => new_root
-
-    roots_count = roots_count + 1
   end subroutine roots_insert
 
   subroutine roots_remove (this_one)
@@ -308,8 +310,6 @@ contains
     if (associated (this_one%collectible)) then
        deallocate (this_one%collectible)
     end if
-    roots_count = roots_count - 1
-    m4_if(DEBUGGING,[true],[write (*,*) "   new roots_count = ", roots_count])
   end subroutine roots_remove
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -340,7 +340,7 @@ contains
     class(gcroot_t), intent(inout) :: dst
     class(*), intent(in) :: src
 
-    m4_if(DEBUGGING,[true],[write (*,*) "roots_count before = ", roots_count])
+!!$    m4_if(DEBUGGING,[true],[write (*,*) "roots_count before = ", current_roots_count ()])
 
     select type (src)
     class is (collectible_t)
@@ -373,7 +373,7 @@ contains
        allocate (dst%root, source = src)
     end select
 
-    m4_if(DEBUGGING,[true],[write (*,*) "roots_count after  = ", roots_count])
+!!$    m4_if(DEBUGGING,[true],[write (*,*) "roots_count after  = ", current_roots_count ()])
 
     !
     ! FIXME: PUT AN OPTIONAL AUTOMATIC GARBAGE COLLECTOR RUN HERE
@@ -431,23 +431,34 @@ contains
 
     type(work_stack_element_t), pointer :: work_stack => null ()
 
-    class(root_t), pointer :: root
+    class(root_t), pointer :: this_root
+    class(root_t), pointer :: next_root
 
-    root => roots
-    do while (.not. is_roots_head (root))
+    m4_if(DEBUGGING,[true],[write (*,*) "MARK PHASE"])
+
+    this_root => roots%next
+    do while (.not. is_roots_head (this_root))
+       next_root => this_root%next
+
        ! Mark the root object for keeping.
-       call set_marked (root%collectible%heap_element)
+       m4_if(DEBUGGING,[true],[write (*,*) "marking a heap element"])
+       call set_marked (this_root%collectible%heap_element)
+
        ! Push the root object to the stack for reachability analysis.
+       m4_if(DEBUGGING,[true],[write (*,*) "pushing the heap element"])
        block
          type(work_stack_element_t), pointer :: tmp
          allocate (tmp)
-         tmp%collectible => root%collectible
+         tmp%collectible => this_root%collectible
          tmp%next => work_stack
          work_stack => tmp
        end block
+
        ! Find things that can be reached from the root object.
+       m4_if(DEBUGGING,[true],[write (*,*) "examining reachables"])
        call mark_reachables
-       root => root%next
+
+       this_root => next_root
     end do
 
   contains
@@ -457,21 +468,23 @@ contains
       class(collectible_t), pointer :: collectible
 
       integer(size_kind) :: branch_number
+      logical :: branch_number_out_of_range
       class(*), allocatable :: branch
 
       do while (associated (work_stack))
          ! Pop the top of the stack.
-         collectible => work_stack%collectible
+         m4_if(DEBUGGING,[true],[write (*,*) "  popping a heap element"])
          block
            type(work_stack_element_t), pointer :: tmp
            tmp => work_stack
-           deallocate (work_stack)
-           work_stack => tmp
+           work_stack => tmp%next
+           collectible => tmp%collectible
+           deallocate (tmp)
          end block
 
          branch_number = 1
-         branch = collectible%get_branch (branch_number)
-         do while (.not. branch_is_nil (branch))
+         call collectible%get_branch (branch_number, branch_number_out_of_range, branch)
+         do while (.not. branch_number_out_of_range)
             select type (branch)
             class is (collectible_t)
                ! The branch is a reachable object, possibly already
@@ -479,10 +492,12 @@ contains
                if (.not. is_marked (branch%heap_element)) then
 
                   ! Mark the reachable object for keeping.
+                  m4_if(DEBUGGING,[true],[write (*,*) "  marking a reachable, branch number ", branch_number])
                   call set_marked (branch%heap_element)
 
                   ! Push the object to the stack, to see if anything
                   ! else can be reached through it.
+                  m4_if(DEBUGGING,[true],[write (*,*) "  pushing the reachable"])
                   block
                     type(work_stack_element_t), pointer :: tmp
                     allocate (tmp)
@@ -490,11 +505,10 @@ contains
                     tmp%next => work_stack
                     work_stack => tmp
                   end block
-
                end if
             end select
             branch_number = branch_number + 1
-            branch = collectible%get_branch (branch_number)
+            call collectible%get_branch (branch_number, branch_number_out_of_range, branch)
          end do
       end do
     end subroutine mark_reachables
@@ -508,17 +522,24 @@ contains
 
   subroutine sweep
     class(heap_element_t), pointer :: heap_element
+    class(heap_element_t), pointer :: next_heap_element
 
-    heap_element => heap
+    m4_if(DEBUGGING,[true],[write (*,*) "SWEEP PHASE"])
+
+    heap_element => heap%next
     do while (.not. is_heap_head (heap_element))
+       next_heap_element => heap_element%next
+       m4_if(DEBUGGING,[true],[write (*,*) "examining a heap element"])
        if (is_marked (heap_element)) then
           ! Keep this heap element.
+          m4_if(DEBUGGING,[true],[write (*,*) "keeping a heap element"])
           call set_unmarked (heap_element)
        else
+          m4_if(DEBUGGING,[true],[write (*,*) "removing a heap element"])
           call heap_element%remove ()
           deallocate (heap_element)
        end if
-       heap_element => heap_element%next
+       heap_element => next_heap_element
     end do
   end subroutine sweep
 

@@ -96,6 +96,8 @@ contains
     call check (unbox (box (1234)) .eqi. 1234, "unbox (box (1234)) .eqi. 1234 failed")
 
     box1 = box (1234)
+    write (*,*) "roots count = ", current_roots_count ()
+    call collect_garbage_now
     call check (unbox (box1) .eqi. 1234, "unbox (box1) .eqi. 1234 failed")
   end subroutine test1
 
@@ -113,5 +115,11 @@ program main
   implicit none
 
   call run_tests
+  write (*,*) "roots count = ", current_roots_count ()
+  write (*,*) "heap size   = ", current_heap_size ()
+  write (*,*) "collecting garbage"
+  call collect_garbage_now
+  write (*,*) "roots count = ", current_roots_count ()
+  write (*,*) "heap size   = ", current_heap_size ()
 
 end program main
