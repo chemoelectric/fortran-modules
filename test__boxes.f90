@@ -95,8 +95,8 @@ contains
 
     call check (unbox (box (1234)) .eqi. 1234, "unbox (box (1234)) .eqi. 1234 failed")
 
-!    box1 = box (1234)
-!    call check (unbox (box1) .eqi. 1234, "unbox (box1) .eqi. 1234 failed")
+    box1 = box (1234)
+    call check (unbox (box1) .eqi. 1234, "unbox (box1) .eqi. 1234 failed")
   end subroutine test1
 
   subroutine run_tests

@@ -78,6 +78,8 @@ module garbage_collector
   type :: gcroot_t
      class(*), pointer :: val => null ()
    contains
+     procedure, pass :: get_value => gcroot_t_get_value
+     procedure, pass :: get_pointer => gcroot_t_get_pointer
      procedure, pass :: assign => gcroot_t_assign
      generic :: assignment(=) => assign
      final :: gcroot_t_finalize
@@ -102,7 +104,21 @@ module garbage_collector
   ! The current number of roots, NOT counting the `roots' node.
   integer(size_kind) :: roots_count = 0
 
+  interface error_abort
+     module procedure error_abort_1
+  end interface error_abort
+
 contains
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine error_abort_1 (msg)
+    use iso_fortran_env, only : error_unit
+    character(*), intent(in) :: msg
+    write (error_unit, '()')
+    write (error_unit, '("module garbage_collector error: ", a)') msg
+    error stop
+  end subroutine error_abort_1
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -292,27 +308,56 @@ contains
     class(root_t), pointer :: this_one
 
     this_one => this
-    call roots_remove (this_one)
+!    call roots_remove (this_one)
   end subroutine root_t_finalize
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function gcroot_t_get_value (this) result (retval)
+    class(gcroot_t), intent(in) :: this
+    class(*), allocatable :: retval
+    select type (val => this%val)
+    class is (root_t)
+       retval = val%collectible
+    class default
+       retval = val
+    end select
+  end function gcroot_t_get_value
+
+  function gcroot_t_get_pointer (this) result (ptr)
+    class(gcroot_t), intent(in) :: this
+    class(collectible_t), pointer :: ptr
+    select type (val => this%val)
+    class is (root_t)
+       ptr => val%collectible
+    class default
+       call error_abort ("gcroot_t_get_pointer of a non-collectible object")
+    end select
+  end function gcroot_t_get_pointer
 
   subroutine gcroot_t_assign (dst, src)
     class(gcroot_t), intent(inout) :: dst
     class(*), intent(in) :: src
 
+    !write (*,*) "roots_count before = ", roots_count
+
     select type (src)
     class is (collectible_t)
        ! Create a new root.
+       !
+       !write (*,*) "gcroot_t_assign of a collectible_t"
        block
          class(root_t), pointer :: new_root
          call roots_insert (roots, src, new_root)
          dst%val => new_root
        end block
     class is (gcroot_t)
+       !write (*,*) "gcroot_t_assign of a gcroot_t"
        select type (val => src%val)
        class is (root_t)
           ! Copy the root.
+          !
+          !write (*,*) "    which is a root"
           block
             class(root_t), pointer :: new_root
             call roots_insert (roots, val%collectible, new_root)
@@ -320,12 +365,18 @@ contains
           end block
        class default
           ! Copy the non-collectible data.
+          !
+          !write (*,*) "    which is not a root"
           allocate (dst%val, source = val)
        end select
     class default
        ! Copy the non-collectible data.
+       !
+       !write (*,*) "gcroot_t_assign of non-collectible data"
        allocate (dst%val, source = src)
     end select
+
+    !write (*,*) "roots_count after  = ", roots_count
 
     !
     ! FIXME: PUT AN OPTIONAL AUTOMATIC GARBAGE COLLECTOR RUN HERE

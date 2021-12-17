@@ -66,7 +66,7 @@ contains
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
     write (error_unit, '()')
-    write (error_unit, '("collectible_boxes error: ", a)') msg
+    write (error_unit, '("module boxes error: ", a)') msg
     error stop
   end subroutine error_abort_1
 
@@ -102,7 +102,7 @@ contains
     class is (box_t)
        bool = .true.
     class is (gcroot_t)
-       select type (val => obj%val)
+       select type (val => obj%get_value ())
        class is (box_t)
           bool = .true.
        class default
@@ -120,7 +120,7 @@ contains
     class is (box_t)
        the_box = obj
     class is (gcroot_t)
-       select type (val => obj%val)
+       select type (val => obj%get_value ())
        class is (box_t)
           the_box = val
        class default
@@ -140,7 +140,7 @@ contains
 
     select type (contents)
     class is (gcroot_t)
-       the_box = box (contents%val)
+       the_box = box (contents%get_value ())
     class default
        allocate (data)
        data%contents = contents
@@ -168,7 +168,8 @@ contains
           call error_abort ("internal error")
        end select
     class is (gcroot_t)
-       contents = unbox (the_box%val)
+       !write (*,*) "unbox of a gcroot_t"
+       contents = unbox (the_box%get_value ())
     class default
        call error_abort ("unbox of a non-box")
     end select
@@ -187,7 +188,11 @@ contains
        data%contents = contents
        the_box%heap_element%data => data
     class is (gcroot_t)
-       call set_box (the_box%val, contents)
+       block
+         class(collectible_t), pointer :: ptr
+         ptr => the_box%get_pointer ()
+         call set_box (ptr, contents)
+       end block
     class default
        call error_abort ("set_box of a non-box")
     end select
