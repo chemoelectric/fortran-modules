@@ -89,11 +89,14 @@ module garbage_collector
      final :: gcroot_t_finalize
   end type gcroot_t
 
-  ! The head and tail of a doubly-linked circular list,
+  ! The head (and tail) of a doubly-linked circular list,
   ! representing the current contents of the heap.
   class(heap_element_t), pointer :: heap => null ()
 
-  ! The head and tail of a doubly-linked circular list,
+  ! The current heap size, not counting the head element.
+  integer(size_kind) :: heap_count = 0
+
+  ! The head (and tail) of a doubly-linked circular list,
   ! representing the current roots.
   class(root_t), pointer :: roots => null ()
 
@@ -116,20 +119,27 @@ contains
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   function current_heap_size () result (size)
-    !
-    ! This is a linear-time operation.
-    !
-
     integer(size_kind) :: size
 
-    class(heap_element_t), pointer :: heap_element
+    size = heap_count
 
-    size = 0
-    heap_element => heap%next
-    do while (.not. is_heap_head (heap_element))
-       size = size + 1
-       heap_element => heap_element%next
-    end do
+m4_if(DEBUGGING,[true],[dnl
+    block
+      class(heap_element_t), pointer :: heap_element
+      integer(size_kind) :: size1
+
+      size1 = 0
+      heap_element => heap%next
+      do while (.not. is_heap_head (heap_element))
+         size1 = size1 + 1
+         heap_element => heap_element%next
+      end do
+
+      if (size1 /= size) then
+         call error_abort ("internal error: heap_count is wrong")
+      end if
+    end block
+])dnl
   end function current_heap_size
 
   function current_roots_count () result (count)
@@ -213,6 +223,8 @@ contains
     new_element%prev => heap
     heap%next => new_element
     new_element%next%prev => new_element
+
+    heap_count = heap_count + 1
   end subroutine heap_insert
 
   subroutine heap_remove (this_one)
@@ -232,6 +244,8 @@ contains
     if (associated (this_one%data)) then
        deallocate (this_one%data)
     end if
+
+    heap_count = heap_count - 1
   end subroutine heap_remove
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
