@@ -123,15 +123,11 @@ contains
        class is (box_t)
           the_box = val
        class default
-          call incompatible_object
+          call error_abort ("box_t_cast of an incompatible object")
        end select
     class default
-       call incompatible_object
-    end select
-  contains
-    subroutine incompatible_object
       call error_abort ("box_t_cast of an incompatible object")
-    end subroutine incompatible_object
+    end select
   end function box_t_cast
 
   recursive function box (contents) result (the_box)
