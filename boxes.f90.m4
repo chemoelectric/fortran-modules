@@ -112,17 +112,26 @@ contains
     end select
   end function is_box
 
-  recursive function box_t_cast (obj) result (the_box)
+  function box_t_cast (obj) result (the_box)
     class(*), intent(in) :: obj
     class(box_t), allocatable :: the_box
     select type (obj)
-    class is (box_t)
-       the_box = obj
     class is (gcroot_t)
-       the_box = box_t_cast (obj%val)
+       the_box = cast (obj%val)
     class default
-       call error_abort ("box_t_cast of an incompatible object")
+       the_box = cast (obj)
     end select
+  contains
+    function cast (obj) result (the_box)
+      class(*), intent(in) :: obj
+      class(box_t), allocatable :: the_box
+      select type (obj)
+      class is (box_t)
+         the_box = obj
+      class default
+         call error_abort ("box_t_cast of an incompatible object")
+      end select
+    end function cast
   end function box_t_cast
 
   recursive function box (contents) result (the_box)
