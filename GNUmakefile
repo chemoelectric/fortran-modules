@@ -57,10 +57,9 @@ M4FLAGS += -DLISTN_MAX=20
 M4FLAGS += -DZIP_MAX=10
 
 FC = gfortran
-FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all -Wall $(FCFLAG_WNO_TRAMPOLINES)
+FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all -Wall
 COMPILE.f90 = $(FC) $(FCFLAGS) $(XFCFLAGS)
 FCFLAG_WNO_TRAMPOLINES = -Wno-trampolines
-FCFLAG_WTRAMPOLINES = -Wtrampolines
 FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT = -Wno-unused-dummy-argument
 
 %.anchor: %.f90
@@ -73,49 +72,52 @@ FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT = -Wno-unused-dummy-argument
 %.f90: %.f90.m4 common-macros.m4
 	$(COMPILE.m4) $(<) > $(@)
 
-unused_variables.anchor: unused_variables.f90
-	$(COMPILE.f90) $(FCFLAG_WTRAMPOLINES) $(FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT) -c -fsyntax-only $(<) && touch $(@)
-unused_variables.$(OBJEXT): unused_variables.anchor
-	$(COMPILE.f90) $(FCFLAG_WTRAMPOLINES) $(FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT) -c $(<:.anchor=.f90) -o $(@)
+MODULE_BASENAMES =
+MODULE_BASENAMES += unused_variables
+MODULE_BASENAMES += garbage_collector
+MODULE_BASENAMES += boxes
+MODULE_BASENAMES += cons_lists
 
-#
-# The core modules are to be kept free of trampolines, which gfortran
-# generates on AMD64 and other platforms.
-#
-# Avoidance of trampolines results in less code re-use, but probably
-# faster code. Mainly, however, it is not for code speed but to let
-# the core modules work with hardened, non-executable stacks.
-#
-cons_lists.anchor: cons_lists.f90
-	$(COMPILE.f90) $(FCFLAG_WTRAMPOLINES) -c -fsyntax-only $(<) && touch $(@)
-cons_lists.$(OBJEXT): cons_lists.anchor
-	$(COMPILE.f90) $(FCFLAG_WTRAMPOLINES) -c $(<:.anchor=.f90) -o $(@)
+TEST_PROGRAM_BASENAMES =
+TEST_PROGRAM_BASENAMES += test__boxes
+TEST_PROGRAM_BASENAMES += test__cons_lists
 
 .PHONY: all default
 default: all
 all: modules tests
 
 .PHONY: modules
-modules: cons_lists.$(OBJEXT)
+modules: $(addsuffix .$(OBJEXT), $(MODULE_BASENAMES))
 
 .PHONY: tests
-tests: test__cons_lists
+tests: $(TEST_PROGRAM_BASENAMES)
 
 .PHONY: check
-check: tests
+check: check-boxes check-cons_lists
+
+.PHONY: check-boxes
+check-boxes: test__boxes
+	./test__boxes
+
+.PHONY: check-cons_lists
+check-cons_lists: test__cons_lists
 	./test__cons_lists
 
-test__cons_lists: test__cons_lists.$(OBJEXT) cons_lists.$(OBJEXT) unused_variables.$(OBJEXT)
+test__boxes: $(addsuffix .$(OBJEXT), test__boxes boxes garbage_collector unused_variables)
 	$(COMPILE.f90) $(^) -o $(@)
 
-SOURCE_FILE_BASENAMES =
-SOURCE_FILE_BASENAMES += unused_variables
-SOURCE_FILE_BASENAMES += garbage_collector
-SOURCE_FILE_BASENAMES += boxes
-SOURCE_FILE_BASENAMES += cons_lists
-SOURCE_FILE_BASENAMES += test__cons_lists
+test__cons_lists: $(addsuffix .$(OBJEXT), test__cons_lists cons_lists unused_variables)
+	$(COMPILE.f90) $(^) -o $(@)
 
-suffixed-basenames = $(addsuffix $(shell printf "%s" $(1)),$(SOURCE_FILE_BASENAMES))
+unused_variables.anchor: unused_variables.f90
+	$(COMPILE.f90) $(FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT) -c -fsyntax-only $(<) && touch $(@)
+unused_variables.$(OBJEXT): unused_variables.anchor
+	$(COMPILE.f90) $(FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT) -c $(<:.anchor=.f90) -o $(@)
+
+test__cons_lists.anchor: test__cons_lists.f90
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c -fsyntax-only $(<) && touch $(@)
+test__cons_lists.$(OBJEXT): test__cons_lists.anchor
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c $(<:.anchor=.f90) -o $(@)
 
 cons_lists.f90: cadadr.m4
 
@@ -136,15 +138,21 @@ cons_lists.anchor: cons_lists.mod
 cons_types.mod:
 cons_lists.mod:
 
+test__boxes.anchor: boxes.anchor
+test__boxes.anchor: test__boxes.mod
+test__boxes.mod:
+
 test__cons_lists.anchor: cons_lists.anchor
 test__cons_lists.anchor: test__cons_lists.mod
 test__cons_lists.mod:
 
+suffixed-all-basenames = $(addsuffix $(shell printf "%s" $(1)),$(MODULE_BASENAMES) $(TEST_PROGRAM_BASENAMES))
+
 .PHONY: clean maintainer-clean
 clean:
-	-rm -f test__cons_lists
+	-rm -f $(TEST_PROGRAM_BASENAMES)
 	-rm -f *.mod
-	-rm -f $(call suffixed-basenames, .$(OBJEXT))
-	-rm -f $(call suffixed-basenames, .anchor)
+	-rm -f $(call suffixed-all-basenames, .$(OBJEXT))
+	-rm -f $(call suffixed-all-basenames, .anchor)
 maintainer-clean: clean
-	-rm -f $(call suffixed-basenames, .f90)
+	-rm -f $(call suffixed-all-basenames, .f90)

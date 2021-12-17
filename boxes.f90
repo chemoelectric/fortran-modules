@@ -23,6 +23,15 @@
 ! SOFTWARE.
 
 module boxes
+  !
+  ! Boxes in the fashion of SRFI-111.
+  ! https://srfi.schemers.org/srfi-111/srfi-111.html
+  !
+  ! NOTE: Unless you know what you are doing, you should use
+  !       `type(gcroot_t)' from module `garbage_collector' to hold
+  !       values of type `box_t'. Otherwise the garbage collector
+  !       might collect your work unexpectedly.
+  !
 
   use, non_intrinsic :: garbage_collector
 
@@ -50,6 +59,8 @@ module boxes
   end interface error_abort
 
 contains
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   subroutine error_abort_1 (msg)
     use iso_fortran_env, only : error_unit
@@ -180,7 +191,6 @@ contains
        call error_abort ("set_box of a non-box")
     end select
   end subroutine set_box
-
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
