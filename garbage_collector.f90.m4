@@ -84,7 +84,7 @@ module garbage_collector
   ! constructed into trees, graphs, etc. It may also store
   ! non-collectible values.
   type :: gcroot_t
-     class(*), pointer :: val => null ()
+     class(*), pointer :: root => null ()
    contains
      procedure, pass :: get_value => gcroot_t_get_value
      procedure, pass :: get_pointer => gcroot_t_get_pointer
@@ -289,7 +289,7 @@ contains
     call initialize_roots
 
     m4_if(DEBUGGING,[true],[write (*,*) "inserting a root into the roots list"])
-    m4_if(DEBUGGING,[true],[write (*,*) "    inserting at head of roots list? ", is_roots_head (after_this)])
+    m4_if(DEBUGGING,[true],[write (*,*) "   inserting at head of roots list?     ", is_roots_head (after_this)])
 
     allocate (new_root)
     allocate (new_root%collectible, source = collectible)
@@ -302,15 +302,14 @@ contains
 
   subroutine roots_remove (this_one)
     class(root_t), pointer, intent(inout) :: this_one
-
     m4_if(DEBUGGING,[true],[write (*,*) "removing a root from the roots list"])
     this_one%prev%next => this_one%next
     this_one%next%prev => this_one%prev
     if (associated (this_one%collectible)) then
        deallocate (this_one%collectible)
     end if
-
     roots_count = roots_count - 1
+    m4_if(DEBUGGING,[true],[write (*,*) "   new roots_count = ", roots_count])
   end subroutine roots_remove
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -318,20 +317,20 @@ contains
   function gcroot_t_get_value (this) result (retval)
     class(gcroot_t), intent(in) :: this
     class(*), allocatable :: retval
-    select type (val => this%val)
+    select type (root => this%root)
     class is (root_t)
-       retval = val%collectible
+       retval = root%collectible
     class default
-       retval = val
+       retval = root
     end select
   end function gcroot_t_get_value
 
   function gcroot_t_get_pointer (this) result (ptr)
     class(gcroot_t), intent(in) :: this
     class(collectible_t), pointer :: ptr
-    select type (val => this%val)
+    select type (root => this%root)
     class is (root_t)
-       ptr => val%collectible
+       ptr => root%collectible
     class default
        call error_abort ("gcroot_t_get_pointer of a non-collectible object")
     end select
@@ -350,28 +349,28 @@ contains
        block
          class(root_t), pointer :: new_root
          call roots_insert (roots, src, new_root)
-         dst%val => new_root
+         dst%root => new_root
        end block
     class is (gcroot_t)
        m4_if(DEBUGGING,[true],[write (*,*) "gcroot_t_assign of a gcroot_t"])
-       select type (val => src%val)
+       select type (root => src%root)
        class is (root_t)
           ! Copy the root.
           m4_if(DEBUGGING,[true],[write (*,*) "    which is a root"])
           block
             class(root_t), pointer :: new_root
-            call roots_insert (roots, val%collectible, new_root)
-            dst%val => new_root
+            call roots_insert (roots, root%collectible, new_root)
+            dst%root => new_root
           end block
        class default
           ! Copy the non-collectible data.
           m4_if(DEBUGGING,[true],[write (*,*) "    which is not a root"])
-          allocate (dst%val, source = val)
+          allocate (dst%root, source = root)
        end select
     class default
        ! Copy the non-collectible data.
        m4_if(DEBUGGING,[true],[write (*,*) "gcroot_t_assign of non-collectible data"])
-       allocate (dst%val, source = src)
+       allocate (dst%root, source = src)
     end select
 
     m4_if(DEBUGGING,[true],[write (*,*) "roots_count after  = ", roots_count])
@@ -384,14 +383,13 @@ contains
 
   subroutine gcroot_t_finalize (this)
     type(gcroot_t), intent(inout) :: this
-    if (associated (this%val)) then
-       select type (val => this%val)
+    if (associated (this%root)) then
+       select type (root => this%root)
        class is (root_t)
-          call roots_remove (val)
-          deallocate (val)
-          ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME
+          call roots_remove (root)
+          deallocate (root)
        class default
-          deallocate (this%val)
+          deallocate (this%root)
        end select
     end if
   end subroutine gcroot_t_finalize
