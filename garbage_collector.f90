@@ -90,9 +90,6 @@ module garbage_collector
   ! representing the current roots.
   class(root_t), pointer :: roots => null ()
 
-  ! The current number of roots, NOT counting the `roots' node.
-  integer(size_kind) :: roots_count = 0
-
   interface error_abort
      module procedure error_abort_1
   end interface error_abort
@@ -330,8 +327,6 @@ contains
     class(gcroot_t), intent(inout) :: dst
     class(*), intent(in) :: src
 
-!!$    write (*,*) "roots_count before = ", current_roots_count ()
-
     select type (src)
     class is (collectible_t)
        ! Create a new root.
@@ -362,8 +357,6 @@ contains
        write (*,*) "gcroot_t_assign of non-collectible data"
        allocate (dst%root, source = src)
     end select
-
-!!$    write (*,*) "roots_count after  = ", current_roots_count ()
 
     !
     ! FIXME: PUT AN OPTIONAL AUTOMATIC GARBAGE COLLECTOR RUN HERE
