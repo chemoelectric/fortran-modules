@@ -97,7 +97,12 @@ contains
 
     box1 = box (1234)
     write (*,*) "roots count = ", current_roots_count ()
+    write (*,*) "heap size   = ", current_heap_size ()
+    write (*,*) "collecting garbage"
     call collect_garbage_now
+    write (*,*) "roots count = ", current_roots_count ()
+    write (*,*) "heap size   = ", current_heap_size ()
+    write (*,*) "----------------------------"
     call check (unbox (box1) .eqi. 1234, "unbox (box1) .eqi. 1234 failed")
   end subroutine test1
 
@@ -121,5 +126,6 @@ program main
   call collect_garbage_now
   write (*,*) "roots count = ", current_roots_count ()
   write (*,*) "heap size   = ", current_heap_size ()
+  write (*,*) "----------------------------"
 
 end program main

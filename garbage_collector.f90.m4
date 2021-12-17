@@ -61,9 +61,6 @@ module garbage_collector
      class(heap_element_t), pointer :: prev => null () ! The previous object in the heap.
      class(heap_element_t), pointer :: next => null () ! The next object in the heap.
      integer(bits_kind) :: bits = 0                    ! The mark bit and any other such bits.
-   contains
-     procedure, pass :: insert => heap_element_t_insert
-     procedure, pass :: remove => heap_element_t_remove
   end type heap_element_t
 
   ! Extend this type to represent different kinds of heap entries.
@@ -209,34 +206,33 @@ contains
 
   subroutine heap_insert (new_element)
     class(heap_element_t), pointer, intent(in) :: new_element
+
     call initialize_garbage_collector
-    call heap%insert (new_element)
+
+    new_element%next => heap%next
+    new_element%prev => heap
+    heap%next => new_element
+    new_element%next%prev => new_element
   end subroutine heap_insert
 
-  subroutine heap_element_t_insert (after_this, new_element)
-    class(heap_element_t), target, intent(inout) :: after_this
-    class(heap_element_t), pointer, intent(in) :: new_element
-
-    new_element%next => after_this%next
-    new_element%prev => after_this
-    after_this%next => new_element
-  end subroutine heap_element_t_insert
-
-  subroutine heap_element_t_remove (this_one)
-
+  subroutine heap_remove (this_one)
     !
     ! NOTE: Deallocating the heap_element_t itself is the
     !       responsibility of the caller.
     !
 
-    class(heap_element_t), intent(inout) :: this_one
+    class(heap_element_t), pointer, intent(in) :: this_one
 
-    this_one%prev%next => this_one%next
-    this_one%next%prev => this_one%prev
+    class(heap_element_t), pointer :: prev, next
+
+    next => this_one%next
+    prev => this_one%prev
+    prev%next => next
+    next%prev => prev
     if (associated (this_one%data)) then
        deallocate (this_one%data)
     end if
-  end subroutine heap_element_t_remove
+  end subroutine heap_remove
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -297,13 +293,20 @@ contains
     new_root%next => after_this%next
     new_root%prev => after_this
     after_this%next => new_root
+    new_root%next%prev => new_root
   end subroutine roots_insert
 
   subroutine roots_remove (this_one)
-    class(root_t), pointer, intent(inout) :: this_one
+    class(root_t), pointer, intent(in) :: this_one
+
+    class(root_t), pointer :: next, prev
+
     m4_if(DEBUGGING,[true],[write (*,*) "removing a root from the roots list"])
-    this_one%prev%next => this_one%next
-    this_one%next%prev => this_one%prev
+
+    next => this_one%next
+    prev => this_one%prev
+    prev%next => next
+    next%prev => prev
     if (associated (this_one%collectible)) then
        deallocate (this_one%collectible)
     end if
@@ -529,7 +532,7 @@ contains
           call set_unmarked (heap_element)
        else
           m4_if(DEBUGGING,[true],[write (*,*) "removing a heap element"])
-          call heap_element%remove ()
+          call heap_remove (heap_element)
           deallocate (heap_element)
        end if
        heap_element => next_heap_element
