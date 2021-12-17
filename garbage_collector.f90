@@ -32,14 +32,22 @@ module garbage_collector
   private
 
   public :: size_kind
-  public :: heap_element_t ! FIXME: Is there a good way, or a need, to make this private?
+
+  public :: heap_element_t
   public :: collectible_t
   public :: gcroot_t
+
   public :: current_heap_size
   public :: current_roots_count
+
   public :: heap_insert
+
   public :: initialize_garbage_collector
   public :: collect_garbage_now
+
+  public :: automatic_garbage_collection
+  public :: heap_size_limit
+  public :: heap_size_buffer
 
   integer, parameter :: size_kind = int64
 
@@ -92,6 +100,14 @@ module garbage_collector
 
   ! The current roots count, not counting the head element.
   integer(size_kind) :: roots_count = 0
+
+  ! Automatically run garbage collection after assignment to a
+  ! gcroot_t, if the heap size exceeds heap_size_limit. Increases
+  ! heap_size_limit if necessary.
+  logical :: automatic_garbage_collection = .true.
+
+  integer(size_kind) :: heap_size_limit = 2 ** 13
+  integer(size_kind) :: heap_size_buffer = 64
 
   interface error_abort
      module procedure error_abort_1
@@ -362,6 +378,7 @@ contains
          call roots_insert (roots, src, new_root)
          dst%root => new_root
        end block
+       call possibly_collect_garbage
     class is (gcroot_t)
        write (*,*) "gcroot_t_assign of a gcroot_t"
        select type (root => src%root)
@@ -373,6 +390,7 @@ contains
             call roots_insert (roots, root%collectible, new_root)
             dst%root => new_root
           end block
+          call possibly_collect_garbage
        class default
           ! Copy the non-collectible data.
           write (*,*) "    which is not a root"
@@ -384,9 +402,28 @@ contains
        allocate (dst%root, source = src)
     end select
 
-    !
-    ! FIXME: PUT AN OPTIONAL AUTOMATIC GARBAGE COLLECTOR RUN HERE
-    !
+  contains
+
+    subroutine possibly_collect_garbage
+      integer(size_kind), parameter :: doubling_limit = 2 ** (bit_size (1_size_kind) - 2) - 1
+      integer(size_kind), parameter :: max_size = (2 * doubling_limit) + 1
+
+      if (heap_size_limit < heap_count) then
+         call collect_garbage
+         ! Possibly increase heap_size_limit until it is greater than
+         ! heap_count plus a bit of buffer space.
+         do while (heap_size_limit /= max_size .and. heap_size_limit - heap_size_buffer < heap_count)
+            if (doubling_limit < heap_size_limit) then
+               heap_size_limit = max_size
+            else if (heap_size_limit < 1) then
+               heap_size_limit = 1
+            else
+               heap_size_limit = 2 * heap_size_limit
+            end if
+            write (*,*) "new heap_size_limit = ", heap_size_limit
+         end do
+      end if
+    end subroutine possibly_collect_garbage
 
   end subroutine gcroot_t_assign
 
