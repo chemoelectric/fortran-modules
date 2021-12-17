@@ -40,6 +40,8 @@ module boxes
   private
 
   public :: box_t
+  public :: is_box
+  public :: box_t_cast
   public :: box
   public :: unbox
   public :: set_box
@@ -92,9 +94,35 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  recursive function is_box (obj) result (bool)
+    class(*), intent(in) :: obj
+    logical :: bool
+    select type (obj)
+    class is (box_t)
+       bool = .true.
+    class is (gcroot_t)
+       bool = is_box (obj%val)
+    class default
+       bool = .false.
+    end select
+  end function is_box
+
+  recursive function box_t_cast (obj) result (the_box)
+    class(*), intent(in) :: obj
+    class(box_t), allocatable :: the_box
+    select type (obj)
+    class is (box_t)
+       the_box = obj
+    class is (gcroot_t)
+       the_box = box_t_cast (obj%val)
+    class default
+       call error_abort ("box_t_cast of an incompatible object")
+    end select
+  end function box_t_cast
+
   recursive function box (contents) result (the_box)
     class(*), intent(in) :: contents
-    class(box_t), allocatable :: the_box
+    type(box_t), allocatable :: the_box
 
     type(heap_element_t), pointer :: new_element
     type(box_data_t), pointer :: data
