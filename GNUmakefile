@@ -38,7 +38,7 @@ M4 = m4
 M4FLAGS =
 COMPILE.m4 = $(M4) $(M4FLAGS) $(XM4FLAGS)
 
-#M4FLAGS += -DDEBUGGING=true
+M4FLAGS += -DDEBUGGING=true
 
 # What INTEGER kind should be used to represent sizes? (Names from
 # ISO_Fortran_Env and ISO_C_Binding are available.)

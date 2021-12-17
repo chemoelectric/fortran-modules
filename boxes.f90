@@ -160,6 +160,7 @@ contains
 
     select type (the_box)
     class is (box_t)
+       write (*,*) "unbox of a box_t"
        data => the_box%heap_element%data
        select type (data)
        class is (box_data_t)
@@ -168,7 +169,7 @@ contains
           call error_abort ("internal error")
        end select
     class is (gcroot_t)
-       !write (*,*) "unbox of a gcroot_t"
+       write (*,*) "unbox of a gcroot_t"
        contents = unbox (the_box%get_value ())
     class default
        call error_abort ("unbox of a non-box")

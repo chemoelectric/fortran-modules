@@ -68,8 +68,6 @@ module garbage_collector
      class(collectible_t), pointer :: collectible => null ()
      class(root_t), pointer :: prev => null () ! The previous root in the roots list.
      class(root_t), pointer :: next => null () ! The next root in the roots list.
-   contains
-     final :: root_t_finalize
   end type root_t
 
   ! Use this type to store the collectible_t items you have
@@ -280,6 +278,9 @@ contains
 
     call initialize_roots
 
+    write (*,*) "inserting a root into the roots list"
+    write (*,*) "    inserting at head of roots list? ", is_roots_head (after_this)
+
     allocate (new_root)
     allocate (new_root%collectible, source = collectible)
     new_root%next => after_this%next
@@ -292,24 +293,15 @@ contains
   subroutine roots_remove (this_one)
     class(root_t), pointer, intent(inout) :: this_one
 
+    write (*,*) "removing a root from the roots list"
     this_one%prev%next => this_one%next
     this_one%next%prev => this_one%prev
     if (associated (this_one%collectible)) then
        deallocate (this_one%collectible)
     end if
-    deallocate (this_one)
 
     roots_count = roots_count - 1
   end subroutine roots_remove
-
-  subroutine root_t_finalize (this)
-    type(root_t), target, intent(inout) :: this
-
-    class(root_t), pointer :: this_one
-
-    this_one => this
-!    call roots_remove (this_one)
-  end subroutine root_t_finalize
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -339,25 +331,23 @@ contains
     class(gcroot_t), intent(inout) :: dst
     class(*), intent(in) :: src
 
-    !write (*,*) "roots_count before = ", roots_count
+    write (*,*) "roots_count before = ", roots_count
 
     select type (src)
     class is (collectible_t)
        ! Create a new root.
-       !
-       !write (*,*) "gcroot_t_assign of a collectible_t"
+       write (*,*) "gcroot_t_assign of a collectible_t"
        block
          class(root_t), pointer :: new_root
          call roots_insert (roots, src, new_root)
          dst%val => new_root
        end block
     class is (gcroot_t)
-       !write (*,*) "gcroot_t_assign of a gcroot_t"
+       write (*,*) "gcroot_t_assign of a gcroot_t"
        select type (val => src%val)
        class is (root_t)
           ! Copy the root.
-          !
-          !write (*,*) "    which is a root"
+          write (*,*) "    which is a root"
           block
             class(root_t), pointer :: new_root
             call roots_insert (roots, val%collectible, new_root)
@@ -365,18 +355,16 @@ contains
           end block
        class default
           ! Copy the non-collectible data.
-          !
-          !write (*,*) "    which is not a root"
+          write (*,*) "    which is not a root"
           allocate (dst%val, source = val)
        end select
     class default
        ! Copy the non-collectible data.
-       !
-       !write (*,*) "gcroot_t_assign of non-collectible data"
+       write (*,*) "gcroot_t_assign of non-collectible data"
        allocate (dst%val, source = src)
     end select
 
-    !write (*,*) "roots_count after  = ", roots_count
+    write (*,*) "roots_count after  = ", roots_count
 
     !
     ! FIXME: PUT AN OPTIONAL AUTOMATIC GARBAGE COLLECTOR RUN HERE
@@ -387,7 +375,14 @@ contains
   subroutine gcroot_t_finalize (this)
     type(gcroot_t), intent(inout) :: this
     if (associated (this%val)) then
-       deallocate (this%val)
+       select type (val => this%val)
+       class is (root_t)
+          call roots_remove (val)
+          deallocate (val)
+          ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME
+       class default
+          deallocate (this%val)
+       end select
     end if
   end subroutine gcroot_t_finalize
 
