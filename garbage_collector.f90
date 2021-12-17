@@ -34,7 +34,7 @@ module garbage_collector
   public :: size_kind
   public :: heap_element_t ! FIXME: Is there a good way, or a need, to make this private?
   public :: collectible_t
-  public :: collected_t
+  public :: gcroot_t
   public :: nil_branch_t
   public :: current_heap_size
   public :: current_roots_count
@@ -75,13 +75,13 @@ module garbage_collector
   ! Use this type to store the collectible_t items you have
   ! constructed into trees, graphs, etc. It may also store
   ! non-collectible values.
-  type :: collected_t
+  type :: gcroot_t
      class(*), pointer :: val => null ()
    contains
-     procedure, pass :: assign => collected_t_assign
+     procedure, pass :: assign => gcroot_t_assign
      generic :: assignment(=) => assign
-     final :: collected_t_finalize
-  end type collected_t
+     final :: gcroot_t_finalize
+  end type gcroot_t
 
   type :: nil_branch_t
      ! Contains nothing. This type is used as a sentinel.
@@ -297,8 +297,8 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine collected_t_assign (dst, src)
-    class(collected_t), intent(inout) :: dst
+  subroutine gcroot_t_assign (dst, src)
+    class(gcroot_t), intent(inout) :: dst
     class(*), intent(in) :: src
 
     select type (src)
@@ -309,7 +309,7 @@ contains
          call roots_insert (roots, src, new_root)
          dst%val => new_root
        end block
-    class is (collected_t)
+    class is (gcroot_t)
        select type (val => src%val)
        class is (root_t)
           ! Copy the root.
@@ -331,14 +331,14 @@ contains
     ! FIXME: PUT AN OPTIONAL AUTOMATIC GARBAGE COLLECTOR RUN HERE
     !
 
-  end subroutine collected_t_assign
+  end subroutine gcroot_t_assign
 
-  subroutine collected_t_finalize (this)
-    type(collected_t), intent(inout) :: this
+  subroutine gcroot_t_finalize (this)
+    type(gcroot_t), intent(inout) :: this
     if (associated (this%val)) then
        deallocate (this%val)
     end if
-  end subroutine collected_t_finalize
+  end subroutine gcroot_t_finalize
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
@@ -358,7 +358,7 @@ contains
     !! Call `collect_garbage_now' to do what its name says. You may
     !! call it explicitly or you may automate calls to it. However,
     !! you must not have it called while a collectible_t is being
-    !! constructed but not yet assigned to a collected_t.
+    !! constructed but not yet assigned to a gcroot_t.
     !!
     call collect_garbage
   end subroutine collect_garbage_now
