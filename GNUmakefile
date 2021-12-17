@@ -108,6 +108,15 @@ check: tests
 test__cons_lists: test__cons_lists.$(OBJEXT) cons_lists.$(OBJEXT) unused_variables.$(OBJEXT)
 	$(COMPILE.f90) $(^) -o $(@)
 
+SOURCE_FILE_BASENAMES =
+SOURCE_FILE_BASENAMES += unused_variables
+SOURCE_FILE_BASENAMES += garbage_collector
+SOURCE_FILE_BASENAMES += boxes
+SOURCE_FILE_BASENAMES += cons_lists
+SOURCE_FILE_BASENAMES += test__cons_lists
+
+suffixed-basenames = $(addsuffix $(shell printf "%s" $(1)),$(SOURCE_FILE_BASENAMES))
+
 cons_lists.f90: cadadr.m4
 
 unused_variables.anchor: unused_variables.mod
@@ -117,9 +126,9 @@ garbage_collector.anchor: unused_variables.anchor
 garbage_collector.anchor: garbage_collector.mod
 garbage_collector.mod:
 
-collectible_boxes.anchor: garbage_collector.anchor
-collectible_boxes.anchor: collectible_boxes.mod
-collectible_boxes.mod:
+boxes.anchor: garbage_collector.anchor
+boxes.anchor: boxes.mod
+boxes.mod:
 
 cons_lists.anchor: unused_variables.anchor
 cons_lists.anchor: cons_types.mod
@@ -135,7 +144,7 @@ test__cons_lists.mod:
 clean:
 	-rm -f test__cons_lists
 	-rm -f *.mod
-	-rm -f *.$(OBJEXT)
-	-rm -f *.anchor
+	-rm -f $(call suffixed-basenames, .$(OBJEXT))
+	-rm -f $(call suffixed-basenames, .anchor)
 maintainer-clean: clean
-	-rm -f cons_lists.f90 test__cons_lists.f90
+	-rm -f $(call suffixed-basenames, .f90)

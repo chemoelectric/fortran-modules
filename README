@@ -1,7 +1,13 @@
 Fortran modules for general programming
 ---------------------------------------
 
-garbage_collector.f90  -- Garbage collection for Fortran
+garbage_collector.f90  -- Garbage collection for Fortran.
+                          (Expat license)
+                          (Under development)
+
+boxes.f90              -- Boxes for Fortran, in the manner of
+                          Scheme Request for Implementation 111
+                          (SRFI-111).
                           (Expat license)
                           (Under development)
 
@@ -10,6 +16,8 @@ cons_lists.f90         -- Lisp-style CONS-pairs for Fortran
                           (Under development, mostly in the sense that
                            I want garbage collection, and that is not
                            ready)
+                          NOTE: THIS IS GOING TO BE REIMPLEMENTED
+                                UNDER A DIFFERENT NAME.
 
 Regarding my use of m4
 ----------------------
