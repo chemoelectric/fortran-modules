@@ -84,14 +84,19 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function is_box (obj) result (bool)
+  function is_box (obj) result (bool)
     class(*), intent(in) :: obj
     logical :: bool
     select type (obj)
     class is (box_t)
        bool = .true.
     class is (gcroot_t)
-       bool = is_box (obj%val)
+       select type (val => obj%val)
+       class is (box_t)
+          bool = .true.
+       class default
+          bool = .false.
+       end select
     class default
        bool = .false.
     end select
