@@ -288,7 +288,6 @@ contains
     call initialize_roots
 
     write (*,*) "inserting a root into the roots list"
-    write (*,*) "   inserting at head of roots list?     ", is_roots_head (after_this)
 
     allocate (new_root)
     allocate (new_root%collectible, source = collectible)

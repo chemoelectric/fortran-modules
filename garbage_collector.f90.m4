@@ -300,7 +300,6 @@ m4_if(DEBUGGING,[true],[dnl
     call initialize_roots
 
     m4_if(DEBUGGING,[true],[write (*,*) "inserting a root into the roots list"])
-    m4_if(DEBUGGING,[true],[write (*,*) "   inserting at head of roots list?     ", is_roots_head (after_this)])
 
     allocate (new_root)
     allocate (new_root%collectible, source = collectible)
