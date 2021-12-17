@@ -92,46 +92,65 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function box (contents)
+  recursive function box (contents) result (the_box)
     class(*), intent(in) :: contents
-    class(box_t), allocatable :: box
+    class(box_t), allocatable :: the_box
 
     type(heap_element_t), pointer :: new_element
     type(box_data_t), pointer :: data
 
-    allocate (data)
-    data%contents = contents
-    allocate (new_element)
-    new_element%data => data
-    call heap_insert (new_element)
-    box%heap_element => new_element
+    select type (contents)
+    class is (gcroot_t)
+       the_box = box (contents%val)
+    class default
+       allocate (data)
+       data%contents = contents
+       allocate (new_element)
+       new_element%data => data
+       call heap_insert (new_element)
+       the_box%heap_element => new_element
+    end select
   end function box
 
-  function unbox (box) result (contents)
-    class(box_t), intent(in) :: box
+  recursive function unbox (the_box) result (contents)
+    class(*), intent(in) :: the_box
     class(*), allocatable :: contents
 
     class(*), pointer :: data
 
-    data => box%heap_element%data
-    select type (data)
-    class is (box_data_t)
-       contents = data
+    select type (the_box)
+    class is (box_t)
+       data => the_box%heap_element%data
+       select type (data)
+       class is (box_data_t)
+          contents = data
+       class default
+          call error_abort ("internal error")
+       end select
+    class is (gcroot_t)
+       contents = unbox (the_box%val)
     class default
-       call error_abort ("internal error")
+       call error_abort ("unbox of a non-box")
     end select
   end function unbox
 
-  subroutine set_box (box, contents)
-    class(box_t), intent(inout) :: box
+  recursive subroutine set_box (the_box, contents)
+    class(*), intent(inout) :: the_box
     class(*), intent(in) :: contents
 
     type(box_data_t), pointer :: data
 
-    deallocate (box%heap_element%data)
-    allocate (data)
-    data%contents = contents
-    box%heap_element%data => data
+    select type (the_box)
+    class is (box_t)
+       deallocate (the_box%heap_element%data)
+       allocate (data)
+       data%contents = contents
+       the_box%heap_element%data => data
+    class is (gcroot_t)
+       call set_box (the_box%val, contents)
+    class default
+       call error_abort ("set_box of a non-box")
+    end select
   end subroutine set_box
 
 
