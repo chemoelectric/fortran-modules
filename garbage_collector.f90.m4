@@ -429,10 +429,8 @@ m4_if(DEBUGGING,[true],[dnl
          do while (heap_size_limit /= max_size .and. heap_size_limit - heap_size_buffer < heap_count)
             if (doubling_limit < heap_size_limit) then
                heap_size_limit = max_size
-            else if (heap_size_limit < 1) then
-               heap_size_limit = 1
             else
-               heap_size_limit = 2 * heap_size_limit
+               heap_size_limit = 2 * max (heap_size_limit, 1_size_kind)
             end if
             m4_if(DEBUGGING,[true],[write (*,*) "new heap_size_limit = ", heap_size_limit])
          end do
