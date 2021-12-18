@@ -563,6 +563,7 @@ m4_if(DEBUGGING,[true],[dnl
          branch_number = 1
          call collectible%get_branch (branch_number, branch_number_out_of_range, branch)
          do while (.not. branch_number_out_of_range)
+            m4_if(DEBUGGING,[true],[write (*,*) "  examining branch number ", branch_number])
             select type (branch)
             class is (collectible_t)
                ! The branch is a reachable object, possibly already
@@ -570,7 +571,7 @@ m4_if(DEBUGGING,[true],[dnl
                if (.not. is_marked (branch%heap_element)) then
 
                   ! Mark the reachable object for keeping.
-                  m4_if(DEBUGGING,[true],[write (*,*) "  marking a reachable, branch number ", branch_number])
+                  m4_if(DEBUGGING,[true],[write (*,*) "  marking it as reachable and collectible"])
                   call set_marked (branch%heap_element)
 
                   ! Push the object to the stack, to see if anything

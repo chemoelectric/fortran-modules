@@ -549,6 +549,7 @@ contains
          branch_number = 1
          call collectible%get_branch (branch_number, branch_number_out_of_range, branch)
          do while (.not. branch_number_out_of_range)
+            write (*,*) "  examining branch number ", branch_number
             select type (branch)
             class is (collectible_t)
                ! The branch is a reachable object, possibly already
@@ -556,7 +557,7 @@ contains
                if (.not. is_marked (branch%heap_element)) then
 
                   ! Mark the reachable object for keeping.
-                  write (*,*) "  marking a reachable, branch number ", branch_number
+                  write (*,*) "  marking it as reachable and collectible"
                   call set_marked (branch%heap_element)
 
                   ! Push the object to the stack, to see if anything

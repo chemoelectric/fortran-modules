@@ -93,7 +93,7 @@ contains
   subroutine test1
     type(gcroot_t) :: box1
 
-    call check (unbox (box (1234)) .eqi. 1234, "unbox (box (1234)) .eqi. 1234 failed")
+    call check (unbox (box (1234)) .eqi. 1234, "test1-0005 failed")
     call check (current_heap_size () == 1, "test1-0010 failed")
     call check (current_roots_count () == 0, "test1-0020 failed")
 
@@ -108,8 +108,50 @@ contains
     call check (unbox (box1) .eqi. 1234, "test1-0070 failed")
   end subroutine test1
 
+  subroutine test2
+    type(gcroot_t) :: box1, box2
+
+    call check (current_roots_count () == 0, "test2-0010 failed")
+
+    call collect_garbage_now
+    call check (current_heap_size () == 0, "test2-0020 failed")
+    call check (current_roots_count () == 0, "test2-0025 failed")
+
+    box1 = box (1234.0)
+    call check (current_heap_size () == 1, "test2-0030 failed")
+    call check (current_roots_count () == 1, "test2-0040 failed")
+    call check (unbox (box1) .eqr. 1234.0, "test2-0050 failed")
+
+    box2 = box1
+    call check (current_heap_size () == 1, "test2-0060 failed")
+    call check (current_roots_count () == 2, "test2-0070 failed")
+    call check (unbox (box2) .eqr. 1234.0, "test2-0050 failed")
+  end subroutine test2
+
+  subroutine test3
+    type(gcroot_t) :: box1, box2
+
+    call check (current_roots_count () == 0, "test3-0010 failed")
+
+    call collect_garbage_now
+    call check (current_heap_size () == 0, "test3-0020 failed")
+    call check (current_roots_count () == 0, "test3-0030 failed")
+
+    box1 = box (1234.0)
+    call check (current_heap_size () == 1, "test3-0040 failed")
+    call check (current_roots_count () == 1, "test3-0050 failed")
+    call check (unbox (box1) .eqr. 1234.0, "test3-0060 failed")
+
+    box2 = box (box1)
+    call collect_garbage_now
+  end subroutine test3
+
   subroutine run_tests
     call test1
+    call test2
+goto 100
+100 continue
+    call test3
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")
