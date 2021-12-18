@@ -109,6 +109,8 @@ module garbage_collector
   integer(size_kind) :: heap_size_limit = 2 ** 13
   integer(size_kind) :: heap_size_buffer = 64
 
+  logical :: garbage_collector_is_initialized = .false.
+
   interface error_abort
      module procedure error_abort_1
   end interface error_abort
@@ -136,7 +138,9 @@ contains
       class(heap_element_t), pointer :: heap_element
       integer(size_kind) :: size1
 
-      call initialize_heap ()
+      if (.not. garbage_collector_is_initialized) then
+         call initialize_garbage_collector
+      end if
 
       size1 = 0
       heap_element => heap%next
@@ -160,7 +164,9 @@ contains
       class(root_t), pointer :: this_root
       integer(size_kind) :: count1
 
-      call initialize_roots ()
+      if (.not. garbage_collector_is_initialized) then
+         call initialize_garbage_collector
+      end if
 
       count1 = 0
       this_root => roots%next
@@ -233,7 +239,9 @@ contains
   subroutine heap_insert (new_element)
     class(heap_element_t), pointer, intent(in) :: new_element
 
-    call initialize_garbage_collector
+    if (.not. garbage_collector_is_initialized) then
+       call initialize_garbage_collector
+    end if
 
     new_element%next => heap%next
     new_element%prev => heap
@@ -313,7 +321,9 @@ contains
     class(collectible_t), intent(in) :: collectible
     class(root_t), pointer, intent(out) :: new_root
 
-    call initialize_roots
+    if (.not. garbage_collector_is_initialized) then
+       call initialize_garbage_collector
+    end if
 
     write (*,*) "inserting a root into the roots list"
 
@@ -447,8 +457,14 @@ contains
 !! THE GARBAGE COLLECTOR.
 
   subroutine initialize_garbage_collector
-    call initialize_heap
+    call really_initialize_garbage_collector
+    garbage_collector_is_initialized = .true.
   end subroutine initialize_garbage_collector
+
+  subroutine really_initialize_garbage_collector
+    call initialize_heap
+    call initialize_roots
+  end subroutine really_initialize_garbage_collector
 
   subroutine collect_garbage
     call mark_from_roots
