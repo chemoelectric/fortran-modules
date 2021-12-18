@@ -519,11 +519,11 @@ m4_if(DEBUGGING,[true],[dnl
        next_root => this_root%next
 
        ! Mark the root object for keeping.
-       m4_if(DEBUGGING,[true],[write (*,*) "marking a heap element"])
+       m4_if(DEBUGGING,[true],[write (*,*) "    marking a heap element"])
        call set_marked (this_root%collectible%heap_element)
 
        ! Push the root object to the stack for reachability analysis.
-       m4_if(DEBUGGING,[true],[write (*,*) "pushing the heap element"])
+       m4_if(DEBUGGING,[true],[write (*,*) "    pushing the heap element"])
        block
          type(work_stack_element_t), pointer :: tmp
          allocate (tmp)
@@ -533,7 +533,7 @@ m4_if(DEBUGGING,[true],[dnl
        end block
 
        ! Find things that can be reached from the root object.
-       m4_if(DEBUGGING,[true],[write (*,*) "examining reachables"])
+       m4_if(DEBUGGING,[true],[write (*,*) "         examining reachables"])
        call mark_reachables
 
        this_root => next_root
@@ -551,7 +551,7 @@ m4_if(DEBUGGING,[true],[dnl
 
       do while (associated (work_stack))
          ! Pop the top of the stack.
-         m4_if(DEBUGGING,[true],[write (*,*) "  popping a heap element"])
+         m4_if(DEBUGGING,[true],[write (*,*) "         popping a heap element"])
          block
            type(work_stack_element_t), pointer :: tmp
            tmp => work_stack
@@ -563,7 +563,7 @@ m4_if(DEBUGGING,[true],[dnl
          branch_number = 1
          call collectible%get_branch (branch_number, branch_number_out_of_range, branch)
          do while (.not. branch_number_out_of_range)
-            m4_if(DEBUGGING,[true],[write (*,*) "  examining branch number ", branch_number])
+            m4_if(DEBUGGING,[true],[write (*,*) "             examining branch number ", branch_number])
             select type (branch)
             class is (collectible_t)
                ! The branch is a reachable object, possibly already
@@ -571,12 +571,12 @@ m4_if(DEBUGGING,[true],[dnl
                if (.not. is_marked (branch%heap_element)) then
 
                   ! Mark the reachable object for keeping.
-                  m4_if(DEBUGGING,[true],[write (*,*) "  marking it as reachable and collectible"])
+                  m4_if(DEBUGGING,[true],[write (*,*) "             marking it as reachable and collectible"])
                   call set_marked (branch%heap_element)
 
                   ! Push the object to the stack, to see if anything
                   ! else can be reached through it.
-                  m4_if(DEBUGGING,[true],[write (*,*) "  pushing the reachable"])
+                  m4_if(DEBUGGING,[true],[write (*,*) "             pushing the reachable"])
                   block
                     type(work_stack_element_t), pointer :: tmp
                     allocate (tmp)
@@ -608,13 +608,13 @@ m4_if(DEBUGGING,[true],[dnl
     heap_element => heap%next
     do while (.not. is_heap_head (heap_element))
        next_heap_element => heap_element%next
-       m4_if(DEBUGGING,[true],[write (*,*) "examining a heap element"])
+       m4_if(DEBUGGING,[true],[write (*,*) "    examining a heap element"])
        if (is_marked (heap_element)) then
           ! Keep this heap element.
-          m4_if(DEBUGGING,[true],[write (*,*) "keeping a heap element"])
+          m4_if(DEBUGGING,[true],[write (*,*) "        it is marked; keeping it"])
           call set_unmarked (heap_element)
        else
-          m4_if(DEBUGGING,[true],[write (*,*) "removing a heap element"])
+          m4_if(DEBUGGING,[true],[write (*,*) "        it is unmarked; removing it"])
           call heap_remove (heap_element)
           deallocate (heap_element)
        end if

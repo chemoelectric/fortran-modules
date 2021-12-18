@@ -505,11 +505,11 @@ contains
        next_root => this_root%next
 
        ! Mark the root object for keeping.
-       write (*,*) "marking a heap element"
+       write (*,*) "    marking a heap element"
        call set_marked (this_root%collectible%heap_element)
 
        ! Push the root object to the stack for reachability analysis.
-       write (*,*) "pushing the heap element"
+       write (*,*) "    pushing the heap element"
        block
          type(work_stack_element_t), pointer :: tmp
          allocate (tmp)
@@ -519,7 +519,7 @@ contains
        end block
 
        ! Find things that can be reached from the root object.
-       write (*,*) "examining reachables"
+       write (*,*) "         examining reachables"
        call mark_reachables
 
        this_root => next_root
@@ -537,7 +537,7 @@ contains
 
       do while (associated (work_stack))
          ! Pop the top of the stack.
-         write (*,*) "  popping a heap element"
+         write (*,*) "         popping a heap element"
          block
            type(work_stack_element_t), pointer :: tmp
            tmp => work_stack
@@ -549,7 +549,7 @@ contains
          branch_number = 1
          call collectible%get_branch (branch_number, branch_number_out_of_range, branch)
          do while (.not. branch_number_out_of_range)
-            write (*,*) "  examining branch number ", branch_number
+            write (*,*) "             examining branch number ", branch_number
             select type (branch)
             class is (collectible_t)
                ! The branch is a reachable object, possibly already
@@ -557,12 +557,12 @@ contains
                if (.not. is_marked (branch%heap_element)) then
 
                   ! Mark the reachable object for keeping.
-                  write (*,*) "  marking it as reachable and collectible"
+                  write (*,*) "             marking it as reachable and collectible"
                   call set_marked (branch%heap_element)
 
                   ! Push the object to the stack, to see if anything
                   ! else can be reached through it.
-                  write (*,*) "  pushing the reachable"
+                  write (*,*) "             pushing the reachable"
                   block
                     type(work_stack_element_t), pointer :: tmp
                     allocate (tmp)
@@ -594,13 +594,13 @@ contains
     heap_element => heap%next
     do while (.not. is_heap_head (heap_element))
        next_heap_element => heap_element%next
-       write (*,*) "examining a heap element"
+       write (*,*) "    examining a heap element"
        if (is_marked (heap_element)) then
           ! Keep this heap element.
-          write (*,*) "keeping a heap element"
+          write (*,*) "        it is marked; keeping it"
           call set_unmarked (heap_element)
        else
-          write (*,*) "removing a heap element"
+          write (*,*) "        it is unmarked; removing it"
           call heap_remove (heap_element)
           deallocate (heap_element)
        end if
