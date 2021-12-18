@@ -129,7 +129,7 @@ contains
   end subroutine test2
 
   subroutine test3
-    type(gcroot_t) :: box1, box2
+    type(gcroot_t) :: box1, box2, box3, box4
 
     call check (current_roots_count () == 0, "test3-0010 failed")
 
@@ -144,14 +144,40 @@ contains
 
     box2 = box (box1)
     call collect_garbage_now
+
+    box3 = box (box2)
+    call collect_garbage_now
+    call check (current_heap_size () == 3, "test3-0100 failed")
+    call check (current_roots_count () == 3, "test3-0110 failed")
+    call check (unbox (box1) .eqr. 1234.0, "test3-0200 failed")
+    call check (unbox (unbox (box2)) .eqr. 1234.0, "test3-0210 failed")
+    call check (unbox (unbox (unbox (box3))) .eqr. 1234.0, "test3-0220 failed")
+
+    box4 = box (box (box (1234)))
+    call check (current_heap_size () == 6, "test3-0300 failed")
+    call check (current_roots_count () == 4, "test3-0310 failed")
+    call check (unbox (unbox (unbox (box4))) .eqi. 1234, "test3-0320 failed")
   end subroutine test3
+
+  subroutine test4
+    type(gcroot_t) :: box1
+
+    box1 = box (1234)
+    call check (unbox (box1) .eqi. 1234, "test4-0010 failed")
+    call set_box (box1, 1234.0)
+    call check (unbox (box1) .eqr. 1234.0, "test4-0020 failed")
+
+    box1 = box (box (1234))
+    call check (unbox (unbox (box1)) .eqi. 1234, "test4-0030 failed")
+    call set_box (box1, box (5678))
+    call check (unbox (unbox (box1)) .eqi. 5678, "test4-0040 failed")
+  end subroutine test4
 
   subroutine run_tests
     call test1
     call test2
-goto 100
-100 continue
     call test3
+    call test4
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")

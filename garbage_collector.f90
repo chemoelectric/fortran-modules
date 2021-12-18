@@ -50,6 +50,8 @@ module garbage_collector
   public :: heap_size_buffer
 
   integer, parameter :: size_kind = int64
+  integer, parameter :: size_kind_bits = bit_size (1_size_kind)
+  integer, public :: doubling_limit_bits = size_kind_bits ! Settable, but for testing only.
 
   integer, parameter :: bits_kind = int8
   integer(bits_kind), parameter :: mark_bit = int (b'00000001')
@@ -390,6 +392,7 @@ contains
        block
          class(root_t), pointer :: new_root
          call roots_insert (roots, src, new_root)
+         call gcroot_t_finalize (dst)
          dst%root => new_root
        end block
        call possibly_collect_garbage
@@ -402,38 +405,44 @@ contains
           block
             class(root_t), pointer :: new_root
             call roots_insert (roots, root%collectible, new_root)
+            call gcroot_t_finalize (dst)
             dst%root => new_root
           end block
           call possibly_collect_garbage
        class default
           ! Copy the non-collectible data.
           write (*,'("    which is not a root")')
+          call gcroot_t_finalize (dst)
           allocate (dst%root, source = root)
        end select
     class default
        ! Copy the non-collectible data.
        write (*,'("gcroot_t_assign of non-collectible data")')
+       call gcroot_t_finalize (dst)
        allocate (dst%root, source = src)
     end select
 
   contains
 
     subroutine possibly_collect_garbage
-      integer(size_kind), parameter :: doubling_limit = 2 ** (bit_size (1_size_kind) - 2) - 1
-      integer(size_kind), parameter :: max_size = (2 * doubling_limit) + 1
-
       if (heap_size_limit < heap_count) then
          call collect_garbage
          ! Possibly increase heap_size_limit until it is greater than
          ! heap_count plus a bit of buffer space.
-         do while (heap_size_limit /= max_size .and. heap_size_limit - heap_size_buffer < heap_count)
-            if (doubling_limit < heap_size_limit) then
-               heap_size_limit = max_size
-            else
-               heap_size_limit = 2 * max (heap_size_limit, 1_size_kind)
-            end if
-            write (*,'("new heap_size_limit = ", i12)') heap_size_limit
-         end do
+         block
+           integer(size_kind) :: doubling_limit
+           integer(size_kind) :: max_size
+           doubling_limit = 2 ** (doubling_limit_bits - 2) - 1
+           max_size = (2 * doubling_limit) + 1
+           do while (heap_size_limit /= max_size .and. heap_size_limit - heap_size_buffer < heap_count)
+              if (doubling_limit < heap_size_limit) then
+                 heap_size_limit = max_size
+              else
+                 heap_size_limit = 2 * max (heap_size_limit, 1_size_kind)
+              end if
+              write (*,'("new heap_size_limit = ", i12)') heap_size_limit
+           end do
+         end block
       end if
     end subroutine possibly_collect_garbage
 
