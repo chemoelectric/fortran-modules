@@ -176,7 +176,7 @@ contains
     call check (unbox (unbox (box1)) .eqi. 5678, "test4-0050 failed")
 
     box1 = 5678.0               ! Not really a box.
-    call check (box1%get_value () .eqr. 5678.0, "test4-0060 failed")
+    call check (box1%get_value () .eqr. 5678.0, "test4-0060 failed") ! FIXME: Get rid of the need for the %get_value().
 
     notbox2 = 4321
     call check (notbox2%get_value () .eqi. 4321, "test4-0070 failed")
@@ -208,12 +208,25 @@ contains
     automatic_garbage_collection = .true.
   end subroutine test5
 
+  subroutine test6
+    type(gcroot_t) :: box1
+
+    box1 = autobox (1234)
+    call check (autounbox (box1) .eqi. 1234, "test6-0010 failed")
+
+    call check (autounbox (1234) .eqi. 1234, "test6-0020 failed")
+
+    box1 = autobox (box (1234))
+    call check (unbox (box1) .eqi. 1234, "test6-0030 failed")
+  end subroutine test6
+
   subroutine run_tests
     call test1
     call test2
     call test3
     call test4
     call test5
+    call test6
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")
