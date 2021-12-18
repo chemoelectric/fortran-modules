@@ -160,7 +160,7 @@ contains
   end subroutine test3
 
   subroutine test4
-    type(gcroot_t) :: box1, box2
+    type(gcroot_t) :: box1, notbox2
 
     box1 = box (1234)
     call check (unbox (box1) .eqi. 1234, "test4-0010 failed")
@@ -175,13 +175,18 @@ contains
     box1 = box1
     call check (unbox (unbox (box1)) .eqi. 5678, "test4-0050 failed")
 
-    box1 = 5678.0
+    box1 = 5678.0               ! Not really a box.
     call check (box1%get_value () .eqr. 5678.0, "test4-0060 failed")
 
-    box2 = 4321
-    call check (box2%get_value () .eqi. 4321, "test4-0070 failed")
-    box1 = box2
+    notbox2 = 4321
+    call check (notbox2%get_value () .eqi. 4321, "test4-0070 failed")
+    box1 = notbox2              ! Not really a box.
     call check (box1%get_value () .eqi. 4321, "test4-0080 failed")
+
+    box1 = box (box1)
+    call check (unbox (box1) .eqi. 4321, "test4-0090 failed")
+    box1 = box (box1)
+    call check (unbox (unbox (box1)) .eqi. 4321, "test4-0100 failed")
   end subroutine test4
 
   subroutine run_tests
