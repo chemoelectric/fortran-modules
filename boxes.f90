@@ -170,7 +170,7 @@ contains
        class is (box_data_t)
           contents = data%contents
        class default
-          call error_abort ("internal error")
+          call error_abort ("a strange error, possibly use of a collected object")
        end select
     class is (gcroot_t)
        write (*,*) "unbox of a gcroot_t"

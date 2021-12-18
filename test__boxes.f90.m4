@@ -189,11 +189,31 @@ contains
     call check (unbox (unbox (box1)) .eqi. 4321, "test4-0100 failed")
   end subroutine test4
 
+  subroutine test5
+    type(box_t) :: box1
+
+    automatic_garbage_collection = .false.
+
+    call collect_garbage_now
+
+    box1 = box (1234)           ! This will not create a root.
+    call check (current_heap_size () == 1, "test5-0010 failed")
+    call check (current_roots_count () == 0, "test5-0020 failed")
+    call check (unbox (box1) .eqi. 1234, "test5-0030 failed")
+
+    call collect_garbage_now    ! box1 should be collected, because it is unreachable.
+    call check (current_heap_size () == 0, "test5-0040 failed")
+    call check (current_roots_count () == 0, "test5-0050 failed")
+
+    automatic_garbage_collection = .true.
+  end subroutine test5
+
   subroutine run_tests
     call test1
     call test2
     call test3
     call test4
+    call test5
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")
