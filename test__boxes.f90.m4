@@ -94,25 +94,25 @@ contains
     type(gcroot_t) :: box1
 
     call check (unbox (box (1234)) .eqi. 1234, "unbox (box (1234)) .eqi. 1234 failed")
+    call check (current_heap_size () == 1, "test1-0010 failed")
+    call check (current_roots_count () == 0, "test1-0020 failed")
 
     box1 = box (1234)
-
-    write (*,*) "-----------------------------------"
-    write (*,*) "roots count = ", current_roots_count ()
-    write (*,*) "heap size   = ", current_heap_size ()
-    write (*,*) "collecting garbage"
+    call check (unbox (box1) .eqi. 1234, "test1-0025 failed")
+    call check (current_heap_size () == 2, "test1-0030 failed")
+    call check (current_roots_count () == 1, "test1-0040 failed")
 
     call collect_garbage_now
-
-    write (*,*) "roots count = ", current_roots_count ()
-    write (*,*) "heap size   = ", current_heap_size ()
-    write (*,*) "-----------------------------------"
-
-    call check (unbox (box1) .eqi. 1234, "unbox (box1) .eqi. 1234 failed")
+    call check (current_heap_size () == 1, "test1-0050 failed")
+    call check (current_roots_count () == 1, "test1-0060 failed")
+    call check (unbox (box1) .eqi. 1234, "test1-0070 failed")
   end subroutine test1
 
   subroutine run_tests
     call test1
+    call collect_garbage_now
+    call check (current_heap_size () == 0, "run_tests-0100 failed")
+    call check (current_roots_count () == 0, "run_tests-0110 failed")
   end subroutine run_tests
 
 end module test__boxes
@@ -125,21 +125,5 @@ program main
   implicit none
 
   call run_tests
-
-  write (*,*) "-----------------------------------"
-  write (*,*) "roots count = ", current_roots_count ()
-  write (*,*) "heap size   = ", current_heap_size ()
-  write (*,*) "collecting garbage"
-
-  call collect_garbage_now
-
-  write (*,*) "roots count = ", current_roots_count ()
-  write (*,*) "heap size   = ", current_heap_size ()
-  write (*,*) "-----------------------------------"
-
-  if (current_heap_size () /= 0) then
-     write (*,*) "current_heap_size () == 0 failed at end of program"
-     error stop
-  end if
 
 end program main

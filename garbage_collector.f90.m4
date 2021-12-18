@@ -147,6 +147,8 @@ m4_if(DEBUGGING,[true],[dnl
       class(heap_element_t), pointer :: heap_element
       integer(size_kind) :: size1
 
+      call initialize_heap ()
+
       size1 = 0
       heap_element => heap%next
       do while (.not. is_heap_head (heap_element))
@@ -170,6 +172,8 @@ m4_if(DEBUGGING,[true],[dnl
     block
       class(root_t), pointer :: this_root
       integer(size_kind) :: count1
+
+      call initialize_roots ()
 
       count1 = 0
       this_root => roots%next
