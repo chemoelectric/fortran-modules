@@ -92,7 +92,7 @@ module garbage_collector
   type :: gcroot_t
      class(*), pointer :: root => null ()
    contains
-     procedure, pass :: get_value => gcroot_t_get_value
+     procedure, pass :: val => gcroot_t_val
      procedure, pass :: get_pointer => gcroot_t_get_pointer
      procedure, pass :: assign => gcroot_t_assign
      generic :: assignment(=) => assign
@@ -373,7 +373,7 @@ m4_if(DEBUGGING,[true],[dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function gcroot_t_get_value (this) result (retval)
+  function gcroot_t_val (this) result (retval)
     class(gcroot_t), intent(in) :: this
     class(*), allocatable :: retval
     select type (root => this%root)
@@ -382,7 +382,7 @@ m4_if(DEBUGGING,[true],[dnl
     class default
        retval = root
     end select
-  end function gcroot_t_get_value
+  end function gcroot_t_val
 
   function gcroot_t_get_pointer (this) result (ptr)
     class(gcroot_t), intent(in) :: this

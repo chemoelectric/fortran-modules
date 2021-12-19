@@ -176,12 +176,12 @@ contains
     call check (unbox (unbox (box1)) .eqi. 5678, "test4-0050 failed")
 
     box1 = 5678.0               ! Not really a box.
-    call check (box1%get_value () .eqr. 5678.0, "test4-0060 failed")
+    call check (box1%val () .eqr. 5678.0, "test4-0060 failed")
 
     notbox2 = 4321
-    call check (notbox2%get_value () .eqi. 4321, "test4-0070 failed")
+    call check (notbox2%val () .eqi. 4321, "test4-0070 failed")
     box1 = notbox2              ! Not really a box.
-    call check (box1%get_value () .eqi. 4321, "test4-0080 failed")
+    call check (box1%val () .eqi. 4321, "test4-0080 failed")
 
     box1 = box (box1)
     call check (unbox (box1) .eqi. 4321, "test4-0090 failed")
@@ -213,7 +213,7 @@ contains
 
     box1 = autobox (1234)
     call check (autounbox (box1) .eqi. 1234, "test6-0010 failed")
-    call check (unbox (box1%get_value ()) .eqi. 1234, "test6-0015 failed")
+    call check (unbox (box1%val ()) .eqi. 1234, "test6-0015 failed")
 
     call check (autounbox (1234) .eqi. 1234, "test6-0020 failed")
 

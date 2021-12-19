@@ -108,7 +108,7 @@ contains
     class is (box_t)
        bool = .true.
     class is (gcroot_t)
-       select type (val => obj%get_value ())
+       select type (val => obj%val ())
        class is (box_t)
           bool = .true.
        end select
@@ -122,7 +122,7 @@ contains
     class is (box_t)
        the_box = obj
     class is (gcroot_t)
-       select type (val => obj%get_value ())
+       select type (val => obj%val ())
        class is (box_t)
           the_box = val
        class default
@@ -144,7 +144,7 @@ contains
 
     select type (contents)
     class is (gcroot_t)
-       the_box = box (contents%get_value ())
+       the_box = box (contents%val ())
     class default
        allocate (data)
        data%contents = contents
@@ -174,7 +174,7 @@ contains
        end select
     class is (gcroot_t)
        write (*,*) "unbox of a gcroot_t"
-       contents = unbox (the_box%get_value ())
+       contents = unbox (the_box%val ())
     class default
        call error_abort ("unbox of a non-box")
     end select

@@ -15,13 +15,12 @@ boxes.f90              -- Boxes for Fortran, in the manner of
                           (Expat license)
                           (Under development)
 
-cons_lists.f90         -- Lisp-style CONS-pairs for Fortran
+cons_pairs.f90         -- CONS-pairs for Fortran, in the manner of
+                          Scheme Request for Implementation 1
+                          (SRFI-1).
                           (Expat license)
-                          (Under development, mostly in the sense that
-                           I want garbage collection, and that is not
-                           ready)
-                          NOTE: THIS IS GOING TO BE REIMPLEMENTED
-                                UNDER A DIFFERENT NAME.
+                          (Under development)
+
 
 Regarding my use of m4
 ----------------------
@@ -34,6 +33,7 @@ Using m4 not only makes some tasks much easier, but reduces the
 opportunity for coding errors. And it is much more powerful than the C
 preprocessor (cpp or fpp); it is a true macroprocessor, and is
 standard on POSIX systems.
+
 
 References
 ----------
