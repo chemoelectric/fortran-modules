@@ -91,8 +91,40 @@ contains
   end function real_eq
 
   subroutine test001
+    type(gcroot_t) :: cons1
+    class(*), allocatable :: car1, cdr1
+
     call check (car (cons (123, 456)) .eqi. 123, "test001-0010 failed")
     call check (cdr (cons (123, 456)) .eqi. 456, "test001-0020 failed")
+
+    cons1 = cons (123.0, 456.0)
+    call check (car (cons1) .eqr. 123.0, "test001-0030 failed")
+    call check (cdr (cons1) .eqr. 456.0, "test001-0040 failed")
+    call uncons (cons1, car1, cdr1)
+    call check (car1 .eqr. 123.0, "test001-0050 failed")
+    call check (cdr1 .eqr. 456.0, "test001-0060 failed")
+
+    call check (is_pair (cons (123, 456)), "test001-0070 failed")
+    call check (is_pair (cons1), "test001-0080 failed")
+
+    call check (.not. is_not_pair (cons (123, 456)), "test001-0090 failed")
+    call check (.not. is_not_pair (cons1), "test001-0100 failed")
+
+    call check (.not. pair_t_eq (cons (123, 456), cons (123, 456)), "test001-0110 failed")
+    call check (pair_t_eq (cons1, cons1), "test001-0120 failed")
+
+    call check (.not. is_nil (cons (123, 456)), "test001-0130 failed")
+    call check (.not. is_nil (cons1), "test001-0140 failed")
+
+    call check (is_not_nil (cons (123, 456)), "test001-0150 failed")
+    call check (is_not_nil (cons1), "test001-0160 failed")
+
+    call check (.not. is_nil_list (cons (123, 456)), "test001-0170 failed")
+    call check (.not. is_nil_list (cons1), "test001-0180 failed")
+
+    call check (is_nil (nil), "test001-0190 failed")
+    call check (.not. is_not_nil (nil), "test001-0200 failed")
+    call check (is_nil_list (nil), "test001-0210 failed")
   end subroutine test001
 
   subroutine run_tests
