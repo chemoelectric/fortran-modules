@@ -476,6 +476,9 @@ contains
   end subroutine really_initialize_garbage_collector
 
   subroutine collect_garbage
+    if (.not. garbage_collector_is_initialized) then
+       call initialize_garbage_collector
+    end if
     call mark_from_roots
     call sweep
   end subroutine collect_garbage
