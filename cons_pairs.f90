@@ -86,6 +86,8 @@ module cons_pairs
   public :: is_dotted_list   ! A list that terminates in a non-NIL.
   public :: is_circular_list ! A list that does not terminate.
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   type :: pair_data_t
      class(*), allocatable :: car
      class(*), allocatable :: cdr
@@ -100,6 +102,8 @@ module cons_pairs
   end type nil_t
 
   type(nil_t), parameter :: nil = nil_t ()
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   interface error_abort
      module procedure error_abort_1

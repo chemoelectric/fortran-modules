@@ -77,11 +77,10 @@ MODULE_BASENAMES += unused_variables
 MODULE_BASENAMES += garbage_collector
 MODULE_BASENAMES += boxes
 MODULE_BASENAMES += cons_pairs
-#MODULE_BASENAMES += cons_lists
 
 TEST_PROGRAM_BASENAMES =
 TEST_PROGRAM_BASENAMES += test__boxes
-#TEST_PROGRAM_BASENAMES += test__cons_lists
+TEST_PROGRAM_BASENAMES += test__cons_pairs
 
 .PHONY: all default
 default: all
@@ -95,31 +94,26 @@ tests: $(TEST_PROGRAM_BASENAMES)
 
 .PHONY: check
 check: check-boxes
-#check: check-cons_lists
+check: check-cons_pairs
 
 .PHONY: check-boxes
 check-boxes: test__boxes
 	./test__boxes
 
-#.PHONY: check-cons_lists
-#check-cons_lists: test__cons_lists
-#	./test__cons_lists
+.PHONY: check-cons_pairs
+check-cons_pairs: test__cons_pairs
+	./test__cons_pairs
 
 test__boxes: $(addsuffix .$(OBJEXT), test__boxes boxes garbage_collector unused_variables)
 	$(COMPILE.f90) $(^) -o $(@)
 
-#test__cons_lists: $(addsuffix .$(OBJEXT), test__cons_lists cons_lists unused_variables)
-#	$(COMPILE.f90) $(^) -o $(@)
+test__cons_pairs: $(addsuffix .$(OBJEXT), test__cons_pairs cons_pairs garbage_collector unused_variables)
+	$(COMPILE.f90) $(^) -o $(@)
 
 unused_variables.anchor: unused_variables.f90
 	$(COMPILE.f90) $(FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT) -c -fsyntax-only $(<) && touch $(@)
 unused_variables.$(OBJEXT): unused_variables.anchor
 	$(COMPILE.f90) $(FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT) -c $(<:.anchor=.f90) -o $(@)
-
-#test__cons_lists.anchor: test__cons_lists.f90
-#	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c -fsyntax-only $(<) && touch $(@)
-#test__cons_lists.$(OBJEXT): test__cons_lists.anchor
-#	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c $(<:.anchor=.f90) -o $(@)
 
 cons_lists.f90: cadadr.m4
 
@@ -138,19 +132,13 @@ cons_pairs.anchor: garbage_collector.anchor
 cons_pairs.anchor: cons_pairs.mod
 cons_pairs.mod:
 
-#cons_lists.anchor: unused_variables.anchor
-#cons_lists.anchor: cons_types.mod
-#cons_lists.anchor: cons_lists.mod
-#cons_types.mod:
-#cons_lists.mod:
-
 test__boxes.anchor: boxes.anchor
 test__boxes.anchor: test__boxes.mod
 test__boxes.mod:
 
-#test__cons_lists.anchor: cons_lists.anchor
-#test__cons_lists.anchor: test__cons_lists.mod
-#test__cons_lists.mod:
+test__cons_pairs.anchor: cons_pairs.anchor
+test__cons_pairs.anchor: test__cons_pairs.mod
+test__cons_pairs.mod:
 
 suffixed-all-basenames = $(addsuffix $(shell printf "%s" $(1)),$(MODULE_BASENAMES) $(TEST_PROGRAM_BASENAMES))
 
