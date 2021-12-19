@@ -93,7 +93,7 @@ module garbage_collector
      class(*), pointer :: root => null ()
    contains
      procedure, pass :: val => gcroot_t_val
-     procedure, pass :: get_pointer => gcroot_t_get_pointer
+     procedure, pass :: ptr => gcroot_t_ptr
      procedure, pass :: assign => gcroot_t_assign
      generic :: assignment(=) => assign
      final :: gcroot_t_finalize
@@ -384,16 +384,16 @@ m4_if(DEBUGGING,[true],[dnl
     end select
   end function gcroot_t_val
 
-  function gcroot_t_get_pointer (this) result (ptr)
+  function gcroot_t_ptr (this) result (ptr)
     class(gcroot_t), intent(in) :: this
     class(collectible_t), pointer :: ptr
     select type (root => this%root)
     class is (root_t)
        ptr => root%collectible
     class default
-       call error_abort ("gcroot_t_get_pointer of a non-collectible object")
+       call error_abort ("gcroot_t_ptr of a non-collectible object")
     end select
-  end function gcroot_t_get_pointer
+  end function gcroot_t_ptr
 
   subroutine gcroot_t_assign (dst, src)
     class(gcroot_t), intent(inout) :: dst

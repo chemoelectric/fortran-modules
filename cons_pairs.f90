@@ -1,4 +1,4 @@
-! -*- F90 -*- include(`common-macros.m4')m4_include([cadadr.m4])
+! -*- F90 -*- 
 !
 ! Copyright 2021 Barry Schwartz
 !
@@ -21,16 +21,6 @@
 ! ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 ! CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
-dnl
-dnl
-dnl I have tried to keep this file compatible with "heirloom" m4
-dnl implementations (for example, by using ASCII), and also compatible
-dnl with the POSIX specification for m4.
-dnl
-dnl However, with an "heirloom" m4 you might have to increase buffer
-dnl size with the -B option.
-dnl
-dnl
 
 module cons_pairs
   !
@@ -324,7 +314,7 @@ contains
 
     select type (the_pair)
     class is (pair_t)
-       m4_if(DEBUGGING,[true],[write (*,*) "uncons of a pair_t"])
+       write (*,*) "uncons of a pair_t"
        data => the_pair%heap_element%data
        select type (data)
        class is (pair_data_t)
@@ -336,7 +326,7 @@ contains
        car_value = car_val
        cdr_value = cdr_val
     class is (gcroot_t)
-       m4_if(DEBUGGING,[true],[write (*,*) "uncons of a gcroot_t"])
+       write (*,*) "uncons of a gcroot_t"
        call uncons (the_pair%val (), car_value, cdr_value)
     class default
        call error_abort ("uncons of a non-pair")
@@ -351,7 +341,7 @@ contains
 
     select type (the_pair)
     class is (pair_t)
-       m4_if(DEBUGGING,[true],[write (*,*) "car of a pair_t"])
+       write (*,*) "car of a pair_t"
        data => the_pair%heap_element%data
        select type (data)
        class is (pair_data_t)
@@ -360,7 +350,7 @@ contains
           call error_abort ("a strange error, possibly use of an object already garbage-collected")
        end select
     class is (gcroot_t)
-       m4_if(DEBUGGING,[true],[write (*,*) "car of a gcroot_t"])
+       write (*,*) "car of a gcroot_t"
        car_value = car (the_pair%val ())
     class default
        call error_abort ("car of a non-pair")
@@ -375,7 +365,7 @@ contains
 
     select type (the_pair)
     class is (pair_t)
-       m4_if(DEBUGGING,[true],[write (*,*) "cdr of a pair_t"])
+       write (*,*) "cdr of a pair_t"
        data => the_pair%heap_element%data
        select type (data)
        class is (pair_data_t)
@@ -384,7 +374,7 @@ contains
           call error_abort ("a strange error, possibly use of an object already garbage-collected")
        end select
     class is (gcroot_t)
-       m4_if(DEBUGGING,[true],[write (*,*) "cdr of a gcroot_t"])
+       write (*,*) "cdr of a gcroot_t"
        cdr_value = cdr (the_pair%val ())
     class default
        call error_abort ("cdr of a non-pair")

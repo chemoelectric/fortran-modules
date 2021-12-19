@@ -170,7 +170,7 @@ contains
        class is (box_data_t)
           contents = data%contents
        class default
-          call error_abort ("a strange error, possibly use of a collected object")
+          call error_abort ("a strange error, possibly use of an object already garbage-collected")
        end select
     class is (gcroot_t)
        write (*,*) "unbox of a gcroot_t"
@@ -195,7 +195,7 @@ contains
     class is (gcroot_t)
        block
          class(collectible_t), pointer :: ptr
-         ptr => the_box%get_pointer ()
+         ptr => the_box%ptr ()
          call set_box (ptr, contents)
        end block
     class default
