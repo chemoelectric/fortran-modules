@@ -118,7 +118,7 @@ module garbage_collector
   ! heap_size_limit if necessary.
   logical :: automatic_garbage_collection = .true.
 
-  integer(size_kind) :: heap_size_limit = 2 ** 13
+  integer(size_kind) :: heap_size_limit = 2 ** 8
   integer(size_kind) :: heap_size_buffer = 64
 
   logical :: garbage_collector_is_initialized = .false.
@@ -446,8 +446,8 @@ m4_if(DEBUGGING,[true],[dnl
          block
            integer(size_kind) :: doubling_limit
            integer(size_kind) :: max_size
-           doubling_limit = 2 ** (doubling_limit_bits - 2) - 1
-           max_size = (2 * doubling_limit) + 1
+           doubling_limit = (2_size_kind ** (doubling_limit_bits - 2)) - 1_size_kind
+           max_size = (2_size_kind * doubling_limit) + 1_size_kind
            do while (heap_size_limit /= max_size .and. heap_size_limit - heap_size_buffer < heap_count)
               if (doubling_limit < heap_size_limit) then
                  heap_size_limit = max_size
@@ -539,7 +539,7 @@ m4_if(DEBUGGING,[true],[dnl
        block
          type(work_stack_element_t), pointer :: tmp
          allocate (tmp)
-         tmp%collectible => this_root%collectible
+         allocate (tmp%collectible, source = this_root%collectible)
          tmp%next => work_stack
          work_stack => tmp
        end block
@@ -580,10 +580,11 @@ m4_if(DEBUGGING,[true],[dnl
             class is (collectible_t)
                ! The branch is a reachable object, possibly already
                ! marked for keeping.
+               m4_if(DEBUGGING,[true],[write (*,'("             it is collectible")')])
                if (.not. is_marked (branch%heap_element)) then
 
                   ! Mark the reachable object for keeping.
-                  m4_if(DEBUGGING,[true],[write (*,'("             marking it as reachable and collectible")')])
+                  m4_if(DEBUGGING,[true],[write (*,'("             it is unmarked; marking it as reachable")')])
                   call set_marked (branch%heap_element)
 
                   ! Push the object to the stack, to see if anything
@@ -592,7 +593,7 @@ m4_if(DEBUGGING,[true],[dnl
                   block
                     type(work_stack_element_t), pointer :: tmp
                     allocate (tmp)
-                    tmp%collectible => collectible
+                    allocate (tmp%collectible, source = branch)
                     tmp%next => work_stack
                     work_stack => tmp
                   end block
@@ -601,6 +602,8 @@ m4_if(DEBUGGING,[true],[dnl
             branch_number = branch_number + 1
             call collectible%get_branch (branch_number, branch_number_out_of_range, branch)
          end do
+
+         deallocate (collectible)
       end do
     end subroutine mark_reachables
 
