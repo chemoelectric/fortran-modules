@@ -192,6 +192,34 @@ module cons_pairs
   public :: is_dotted_list   ! A list that terminates in a non-NIL.
   public :: is_circular_list ! A list that does not terminate.
 
+  public :: lists_are_equal  ! Test whether two lists are `equal'. (Equivalent to SRFI-1's `list='.)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  ! Types for predicates.
+  public :: list_predicate1_t ! A predicate taking one argument.
+  public :: list_predicate2_t ! A predicate taking two arguments.
+
+  abstract interface
+     recursive function list_predicate1_t (x) result (bool)
+       !
+       ! For passing one-argument predicates to procedures.
+       !
+       class(*), intent(in) :: x
+       logical :: bool
+     end function list_predicate1_t
+  end interface
+
+  abstract interface
+     recursive function list_predicate2_t (x, y) result (bool)
+       !
+       ! For passing two-argument predicates to procedures.
+       !
+       class(*), intent(in) :: x, y
+       logical :: bool
+     end function list_predicate2_t
+  end interface
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   type :: pair_data_t
@@ -475,7 +503,7 @@ contains
 
     select type (the_pair)
     class is (pair_t)
-       write (*,*) "uncons of a pair_t"
+       write (*,'("uncons of a pair_t")')
        data => the_pair%heap_element%data
        select type (data)
        class is (pair_data_t)
@@ -487,7 +515,7 @@ contains
        car_value = car_val
        cdr_value = cdr_val
     class is (gcroot_t)
-       write (*,*) "uncons of a gcroot_t"
+       write (*,'("uncons of a gcroot_t")')
        call uncons (the_pair%val (), car_value, cdr_value)
     class default
        call error_abort ("uncons of a non-pair")
@@ -502,7 +530,7 @@ contains
 
     select type (the_pair)
     class is (pair_t)
-       write (*,*) "car of a pair_t"
+       write (*,'("car of a pair_t")')
        data => the_pair%heap_element%data
        select type (data)
        class is (pair_data_t)
@@ -511,7 +539,7 @@ contains
           call error_abort ("a strange error, possibly use of an object already garbage-collected")
        end select
     class is (gcroot_t)
-       write (*,*) "car of a gcroot_t"
+       write (*,'("car of a gcroot_t")')
        car_value = car (the_pair%val ())
     class default
        call error_abort ("car of a non-pair")
@@ -526,7 +554,7 @@ contains
 
     select type (the_pair)
     class is (pair_t)
-       write (*,*) "cdr of a pair_t"
+       write (*,'("cdr of a pair_t")')
        data => the_pair%heap_element%data
        select type (data)
        class is (pair_data_t)
@@ -535,7 +563,7 @@ contains
           call error_abort ("a strange error, possibly use of an object already garbage-collected")
        end select
     class is (gcroot_t)
-       write (*,*) "cdr of a gcroot_t"
+       write (*,'("cdr of a gcroot_t")')
        cdr_value = cdr (the_pair%val ())
     class default
        call error_abort ("cdr of a non-pair")
@@ -3056,6 +3084,79 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call classify_list (obj, is_dot, is_circ)
     is_circular = is_circ
   end function is_circular_list
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lists_are_equal (pred, lst1, lst2) result (bool)
+    !
+    ! An equivalent to SRFI-1 `(list= pred lst1 lst2)'.
+    !
+    ! In the call
+    !
+    !    lists_are_equal (pred, lst1, lst2)
+    !
+    ! pred is applied with an element of lst1 as its first argument
+    ! and an element of lst2 as its second argument.
+    !
+    ! The pred function must be some kind of `equality' test, and not
+    ! just any predicate (such as a `less than' test); in particular,
+    !
+    !    pred (x, y)
+    !
+    ! must return .true. if x and y are the same object. (Therefore
+    ! shared tails always are `equal'.)
+    !
+    ! The current implementation does not handle circular lists.
+    !
+    ! WARNING: It is an error to call this procedure if either lst1 or
+    !          lst2 is a dotted list.
+    !
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1, lst2
+    logical :: bool
+
+    type(gcroot_t) :: p, q
+    type(gcroot_t) :: p_head, q_head
+
+    class(*), allocatable :: p_hd, q_hd
+    class(*), allocatable :: p_tl, q_tl
+    logical :: done
+
+    p = lst1
+    q = lst2
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (p)) then
+          ! lst1 comes to an end.
+          bool = is_not_pair (q) ! Does lst2 also come to an end?
+          done = .true.
+       else if (is_not_pair (q)) then
+          ! lst2 comes to an end (even though lst1 does not).
+          bool = .false.
+          done = .true.
+       else if (pair_t_eq (p, q)) then
+          ! The two lists share a tail.
+          bool = .true.
+          done = .true.
+       else
+          call uncons (p, p_hd, p_tl)
+          call uncons (q, q_hd, q_tl)
+
+          ! Before calling the predicate, get objects rooted.
+          p_head = p_hd
+          q_head = q_hd
+          p = p_tl
+          q = q_tl
+
+          if (.not. pred (p_head%val (), q_head%val ())) then
+             ! The predicate failed for some elements of lst1 and
+             ! lst2 respectively.
+             bool = .false.
+             done = .true.
+          end if
+       end if
+    end do
+  end function lists_are_equal
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

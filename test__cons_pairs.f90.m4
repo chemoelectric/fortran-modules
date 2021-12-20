@@ -252,11 +252,33 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (is_nil (cdr (tail)), "test004-0460 failed")
   end subroutine test004
 
+  subroutine test005
+    type(gcroot_t) :: tail
+
+    call check (lists_are_equal (integer_eq, nil, nil), "test005-0010 failed")
+    call check (lists_are_equal (integer_eq, list1 (1), list1 (1)), "test005-0020 failed")
+    call check (lists_are_equal (integer_eq, list2 (1, 2), list2 (1, 2)), "test005-0030 failed")
+    call check (lists_are_equal (integer_eq, list5 (1, 2, 3, 4, 5), list5 (1, 2, 3, 4, 5)), "test005-0040 failed")
+
+    call check (.not. lists_are_equal (integer_eq, nil, list1 (1)), "test005-0110 failed")
+    call check (.not. lists_are_equal (integer_eq, list1 (1), nil), "test005-0120 failed")
+    call check (.not. lists_are_equal (integer_eq, list4 (1, 2, 3, 4), list5 (1, 2, 3, 4, 5)), "test005-0130 failed")
+    call check (.not. lists_are_equal (integer_eq, list5 (1, 2, 3, 4, 5), list4 (1, 2, 3, 4)), "test005-0140 failed")
+    call check (.not. lists_are_equal (integer_eq, list5 (1, 2, 3, 4, 5), list5 (1, 2, 3, 4, 6)), "test005-0150 failed")
+
+    ! Check some lists with shared tails.
+    tail = list3 (3, 2, 1)
+    call check (lists_are_equal (integer_eq, tail, tail), "test005-0200 failed")
+    call check (lists_are_equal (integer_eq, 5 ** cons (4, tail), 5 ** cons (4, tail)), "test005-0210 failed")
+    call check (.not. lists_are_equal (integer_eq, 5 ** cons (4, tail), 5 ** cons (40, tail)), "test005-0220 failed")
+  end subroutine test005
+
   subroutine run_tests
     call test001
     call test002
     call test003
     call test004
+    call test005
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")
