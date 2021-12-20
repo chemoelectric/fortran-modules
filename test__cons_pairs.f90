@@ -267,10 +267,53 @@ contains
 
   end subroutine test003
 
+  subroutine test004
+    type(gcroot_t) :: lst
+    class(*), allocatable :: obj1, obj2, obj3, obj4, obj5, tail
+
+    lst = list1 (123)
+    call check (car (lst) .eqi. 123, "test004-0010 failed")
+    call check (is_nil (cdr (lst)), "test004-0020 failed")
+    call unlist1 (lst, obj1)
+    call check (obj1 .eqi. 123, "test004-0030 failed")
+    call unlist1_with_tail (lst, obj1, tail)
+    call check (obj1 .eqi. 123, "test004-0040 failed")
+    call check (is_nil (tail), "test004-0050 failed")
+
+    lst = list5 (1, 2, 3, 4, 5)
+    call check (first (lst) .eqi. 1, "test004-0110 failed")
+    call check (second (lst) .eqi. 2, "test004-0120 failed")
+    call check (third (lst) .eqi. 3, "test004-0130 failed")
+    call check (fourth (lst) .eqi. 4, "test004-0140 failed")
+    call check (fifth (lst) .eqi. 5, "test004-0150 failed")
+    call check (is_nil (cddr (cdddr (lst))), "test004-0160 failed")
+    call unlist5 (lst, obj1, obj2, obj3, obj4, obj5)
+    call check (obj1 .eqi. 1, "test004-0210 failed")
+    call check (obj2 .eqi. 2, "test004-0220 failed")
+    call check (obj3 .eqi. 3, "test004-0230 failed")
+    call check (obj4 .eqi. 4, "test004-0240 failed")
+    call check (obj5 .eqi. 5, "test004-0250 failed")
+    call unlist5_with_tail (lst, obj1, obj2, obj3, obj4, obj5, tail)
+    call check (obj1 .eqi. 1, "test004-0310 failed")
+    call check (obj2 .eqi. 2, "test004-0320 failed")
+    call check (obj3 .eqi. 3, "test004-0330 failed")
+    call check (obj4 .eqi. 4, "test004-0340 failed")
+    call check (obj5 .eqi. 5, "test004-0350 failed")
+    call check (is_nil (tail), "test004-0360 failed")
+    call unlist4_with_tail (lst, obj1, obj2, obj3, obj4, tail)
+    call check (obj1 .eqi. 1, "test004-0410 failed")
+    call check (obj2 .eqi. 2, "test004-0420 failed")
+    call check (obj3 .eqi. 3, "test004-0430 failed")
+    call check (obj4 .eqi. 4, "test004-0440 failed")
+    call check (car (tail) .eqi. 5, "test004-0450 failed")
+    call check (is_nil (cdr (tail)), "test004-0460 failed")
+  end subroutine test004
+
   subroutine run_tests
     call test001
     call test002
     call test003
+    call test004
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")
