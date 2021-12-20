@@ -127,8 +127,50 @@ contains
     call check (is_nil_list (nil), "test001-0210 failed")
   end subroutine test001
 
+  subroutine test002
+    type(gcroot_t) :: lst1
+    logical :: agc_save
+
+    agc_save = automatic_garbage_collection
+    automatic_garbage_collection = .true.
+
+    heap_size_limit = 1
+
+    lst1 = 1 ** 2 ** 3 ** 4 ** 5 ** 6 ** 7 ** 8 ** 9 ** 10 ** nil
+    call check (first (lst1) .eqi. 1, "test002-0010 failed")
+    call check (second (lst1) .eqi. 2, "test002-0020 failed")
+    call check (third (lst1) .eqi. 3, "test002-0030 failed")
+    call check (fourth (lst1) .eqi. 4, "test002-0040 failed")
+    call check (fifth (lst1) .eqi. 5, "test002-0050 failed")
+    call check (sixth (lst1) .eqi. 6, "test002-0060 failed")
+    call check (seventh (lst1) .eqi. 7, "test002-0070 failed")
+    call check (eighth (lst1) .eqi. 8, "test002-0080 failed")
+    call check (ninth (lst1) .eqi. 9, "test002-0090 failed")
+    call check (tenth (lst1) .eqi. 10, "test002-0100 failed")
+    call check (car (lst1) .eqi. 1, "test002-0110 failed")
+    call check (cadr (lst1) .eqi. 2, "test002-0120 failed")
+    call check (caddr (lst1) .eqi. 3, "test002-0130 failed")
+    call check (cadddr (lst1) .eqi. 4, "test002-0140 failed")
+    call check (is_proper_list (lst1), "test002-0200 failed")
+    call check (.not. is_dotted_list (lst1), "test002-0210 failed")
+    call check (.not. is_circular_list (lst1), "test002-0220 failed")
+
+    call check (is_dotted_list (1), "test002-0300 failed")
+    call check (is_dotted_list (cons (1, 2)), "test002-0310 failed")
+    call check (is_dotted_list (1 ** 2 ** 3 ** cons (4, 5)), "test002-0320 failed")
+    call check (.not. is_proper_list (1), "test002-0330 failed")
+    call check (.not. is_proper_list (cons (1, 2)), "test002-0340 failed")
+    call check (.not. is_proper_list (1 ** 2 ** 3 ** cons (4, 5)), "test002-0350 failed")
+    call check (.not. is_circular_list (1), "test002-0360 failed")
+    call check (.not. is_circular_list (cons (1, 2)), "test002-0370 failed")
+    call check (.not. is_circular_list (1 ** 2 ** 3 ** cons (4, 5)), "test002-0380 failed")
+
+    automatic_garbage_collection = agc_save
+  end subroutine test002
+
   subroutine run_tests
     call test001
+    call test002
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")
