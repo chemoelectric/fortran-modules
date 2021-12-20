@@ -1,4 +1,4 @@
-! -*- F90 -*- include(`common-macros.m4')
+! -*- F90 -*- include(`common-macros.m4')m4_include([cadadr.m4])
 !
 ! Copyright 2021 Barry Schwartz
 !
@@ -55,6 +55,13 @@ contains
     character(*), intent(in) :: msg
     if (.not. boolean) call error_abort (msg)
   end subroutine check
+
+!!$  pure function bincoef (n, k) result (coef)
+!!$    integer, intent(in) :: n
+!!$    integer, intent(in) :: k
+!!$    integer :: coef
+!!$    coef = nint (exp (log_gamma (n + 1.0D0) - log_gamma (n - k + 1.0D0) - log_gamma (k + 1.0D0)))
+!!$  end function bincoef
 
   function integer_cast (obj) result (int)
     class(*), intent(in) :: obj
@@ -168,9 +175,47 @@ contains
     automatic_garbage_collection = agc_save
   end subroutine test002
 
+  subroutine test003
+    type(gcroot_t) :: tree
+    logical :: agc_save
+    integer :: leaf
+
+    agc_save = automatic_garbage_collection
+    automatic_garbage_collection = .true.
+
+    heap_size_limit = 1
+
+m4_forloop([_i],1,CADADR_MAX,[dnl
+    tree = build_tree (1, _i)
+m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
+    leaf = integer_cast ([c]m4_bits_to_ad_sequence(_i,_k)[r] (tree))
+    call check (leaf == 123, "test003-_i-_k failed")
+])dnl
+])dnl
+
+    automatic_garbage_collection = agc_save
+
+  contains
+
+    recursive function build_tree (m, n) result (tree)
+      integer, intent(in) :: m, n
+      class(pair_t), allocatable :: tree
+
+      if (m == n) then
+         ! FIXME: It would be better to have some unique value for
+         !        each leaf respectively.
+         tree = cons (123, 123)
+      else
+         tree = cons (build_tree (m + 1, n), build_tree (m + 1, n))
+      end if
+    end function build_tree
+
+  end subroutine test003
+
   subroutine run_tests
     call test001
     call test002
+    call test003
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")

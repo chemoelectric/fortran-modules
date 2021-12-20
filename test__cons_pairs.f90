@@ -56,6 +56,13 @@ contains
     if (.not. boolean) call error_abort (msg)
   end subroutine check
 
+!!$  pure function bincoef (n, k) result (coef)
+!!$    integer, intent(in) :: n
+!!$    integer, intent(in) :: k
+!!$    integer :: coef
+!!$    coef = nint (exp (log_gamma (n + 1.0D0) - log_gamma (n - k + 1.0D0) - log_gamma (k + 1.0D0)))
+!!$  end function bincoef
+
   function integer_cast (obj) result (int)
     class(*), intent(in) :: obj
     integer :: int
@@ -168,9 +175,104 @@ contains
     automatic_garbage_collection = agc_save
   end subroutine test002
 
+  subroutine test003
+    type(gcroot_t) :: tree
+    logical :: agc_save
+    integer :: leaf
+
+    agc_save = automatic_garbage_collection
+    automatic_garbage_collection = .true.
+
+    heap_size_limit = 1
+
+    tree = build_tree (1, 1)
+    leaf = integer_cast (car (tree))
+    call check (leaf == 123, "test003-1-0 failed")
+    leaf = integer_cast (cdr (tree))
+    call check (leaf == 123, "test003-1-1 failed")
+    tree = build_tree (1, 2)
+    leaf = integer_cast (caar (tree))
+    call check (leaf == 123, "test003-2-0 failed")
+    leaf = integer_cast (cdar (tree))
+    call check (leaf == 123, "test003-2-1 failed")
+    leaf = integer_cast (cadr (tree))
+    call check (leaf == 123, "test003-2-2 failed")
+    leaf = integer_cast (cddr (tree))
+    call check (leaf == 123, "test003-2-3 failed")
+    tree = build_tree (1, 3)
+    leaf = integer_cast (caaar (tree))
+    call check (leaf == 123, "test003-3-0 failed")
+    leaf = integer_cast (cdaar (tree))
+    call check (leaf == 123, "test003-3-1 failed")
+    leaf = integer_cast (cadar (tree))
+    call check (leaf == 123, "test003-3-2 failed")
+    leaf = integer_cast (cddar (tree))
+    call check (leaf == 123, "test003-3-3 failed")
+    leaf = integer_cast (caadr (tree))
+    call check (leaf == 123, "test003-3-4 failed")
+    leaf = integer_cast (cdadr (tree))
+    call check (leaf == 123, "test003-3-5 failed")
+    leaf = integer_cast (caddr (tree))
+    call check (leaf == 123, "test003-3-6 failed")
+    leaf = integer_cast (cdddr (tree))
+    call check (leaf == 123, "test003-3-7 failed")
+    tree = build_tree (1, 4)
+    leaf = integer_cast (caaaar (tree))
+    call check (leaf == 123, "test003-4-0 failed")
+    leaf = integer_cast (cdaaar (tree))
+    call check (leaf == 123, "test003-4-1 failed")
+    leaf = integer_cast (cadaar (tree))
+    call check (leaf == 123, "test003-4-2 failed")
+    leaf = integer_cast (cddaar (tree))
+    call check (leaf == 123, "test003-4-3 failed")
+    leaf = integer_cast (caadar (tree))
+    call check (leaf == 123, "test003-4-4 failed")
+    leaf = integer_cast (cdadar (tree))
+    call check (leaf == 123, "test003-4-5 failed")
+    leaf = integer_cast (caddar (tree))
+    call check (leaf == 123, "test003-4-6 failed")
+    leaf = integer_cast (cdddar (tree))
+    call check (leaf == 123, "test003-4-7 failed")
+    leaf = integer_cast (caaadr (tree))
+    call check (leaf == 123, "test003-4-8 failed")
+    leaf = integer_cast (cdaadr (tree))
+    call check (leaf == 123, "test003-4-9 failed")
+    leaf = integer_cast (cadadr (tree))
+    call check (leaf == 123, "test003-4-10 failed")
+    leaf = integer_cast (cddadr (tree))
+    call check (leaf == 123, "test003-4-11 failed")
+    leaf = integer_cast (caaddr (tree))
+    call check (leaf == 123, "test003-4-12 failed")
+    leaf = integer_cast (cdaddr (tree))
+    call check (leaf == 123, "test003-4-13 failed")
+    leaf = integer_cast (cadddr (tree))
+    call check (leaf == 123, "test003-4-14 failed")
+    leaf = integer_cast (cddddr (tree))
+    call check (leaf == 123, "test003-4-15 failed")
+
+    automatic_garbage_collection = agc_save
+
+  contains
+
+    recursive function build_tree (m, n) result (tree)
+      integer, intent(in) :: m, n
+      class(pair_t), allocatable :: tree
+
+      if (m == n) then
+         ! FIXME: It would be better to have some unique value for
+         !        each leaf respectively.
+         tree = cons (123, 123)
+      else
+         tree = cons (build_tree (m + 1, n), build_tree (m + 1, n))
+      end if
+    end function build_tree
+
+  end subroutine test003
+
   subroutine run_tests
     call test001
     call test002
+    call test003
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")
