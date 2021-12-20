@@ -105,6 +105,17 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: next_left        ! Replace a variable's value with its CAR (x = car (x)).
   public :: next_right       ! Replace a variable's value with its CDR (x = cdr (x)).
 
+  ! Make and unmake lists of particular lengths.
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  public :: list[]n
+])dnl
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  public :: unlist[]n
+])dnl
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  public :: unlist[]n[]_with_tail
+])dnl
+
   ! SRFI-1 does not have `classify_list', although it does have
   ! procedures this module derives from it (`proper-list?',
   ! `dotted-list?', and `circular-list?).
@@ -596,6 +607,75 @@ m4_bits_to_get_nth_element([10],[element])dnl
     class(*), allocatable, intent(inout) :: obj
     obj = cdr (obj)
   end subroutine next_right
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+dnl
+m4_forloop([n],[1],LISTN_MAX,[
+  function list[]n (obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+])obj[]k])) result (lst)
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: obj[]k
+])dnl
+    type(pair_t) :: lst
+
+    lst = obj[]n ** nil
+dnl
+m4_forloop([k],[2],n,[dnl
+    lst = obj[]m4_eval(n - k + 1) ** lst
+])dnl
+  end function list[]n
+])dnl
+dnl
+m4_forloop([n],[1],LISTN_MAX,[
+  subroutine unlist[]n (lst, obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+])obj[]k]))
+    !
+    ! This subroutine `unlists' the n elements of lst (which is
+    ! allowed to be dotted, in which case the extra value is ignored).
+    !
+    class(*), intent(in) :: lst
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable, intent(inout) :: obj[]k
+])dnl
+
+    class(*), allocatable :: tail
+
+    tail = pair_t_cast (lst)
+    call uncons (tail, obj1, tail)
+dnl
+m4_forloop([k],[2],n,[dnl
+    call uncons (tail, obj[]k, tail)
+])dnl
+    if (is_pair (tail)) then
+       call error_abort ("unlist[]n[] of a list that is too long")
+    end if
+  end subroutine unlist[]n
+])dnl
+dnl
+m4_forloop([n],[1],LISTN_MAX,[
+  subroutine unlist[]n[]_with_tail (lst, obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+])obj[]k]), tail)
+    !
+    ! This subroutine `unlists' the leading n elements of lst, and
+    ! also returns the tail.
+    !
+    class(*), intent(in) :: lst
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable, intent(inout) :: obj[]k
+])dnl
+    class(*), allocatable, intent(inout) :: tail
+
+    class(*), allocatable :: tl
+
+    tl = pair_t_cast (lst)
+    call uncons (tl, obj1, tl)
+dnl
+m4_forloop([k],[2],n,[dnl
+    call uncons (tl, obj[]k, tl)
+])dnl
+    tail = tl
+  end subroutine unlist[]n[]_with_tail
+])dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
