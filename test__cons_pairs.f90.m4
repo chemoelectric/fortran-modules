@@ -186,10 +186,10 @@ contains
     heap_size_limit = 1
 
 m4_forloop([_i],1,CADADR_MAX,[dnl
-    tree = build_tree (1, _i)
+    tree = build_tree (1, _i, 0)
 m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     leaf = integer_cast ([c]m4_bits_to_ad_sequence(_i,_k)[r] (tree))
-    call check (leaf == 123, "test003-_i-_k failed")
+    call check (leaf == _k, "test003-_i-_k failed")
 ])dnl
 ])dnl
 
@@ -197,16 +197,14 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   contains
 
-    recursive function build_tree (m, n) result (tree)
-      integer, intent(in) :: m, n
+    recursive function build_tree (m, n, k) result (tree)
+      integer, intent(in) :: m, n, k
       class(pair_t), allocatable :: tree
 
       if (m == n) then
-         ! FIXME: It would be better to have some unique value for
-         !        each leaf respectively.
-         tree = cons (123, 123)
+         tree = cons (k, k + 1)
       else
-         tree = cons (build_tree (m + 1, n), build_tree (m + 1, n))
+         tree = cons (build_tree (m + 1, n, k), build_tree (m + 1, n, k + 2 ** (n - m)))
       end if
     end function build_tree
 
