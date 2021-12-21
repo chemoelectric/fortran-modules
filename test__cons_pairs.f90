@@ -32,9 +32,15 @@ module test__cons_pairs
 
   public :: run_tests
 
+  integer, parameter :: sz = size_kind
+
   interface operator(.eqi.)
      module procedure integer_eq
   end interface operator(.eqi.)
+
+  interface operator(.eqsz.)
+     module procedure size_kind_eq
+  end interface operator(.eqsz.)
 
   interface operator(.eqr.)
      module procedure real_eq
@@ -74,6 +80,17 @@ contains
     end select
   end function integer_cast
 
+  function size_kind_cast (obj) result (int)
+    class(*), intent(in) :: obj
+    integer(size_kind) :: int
+    select type (obj)
+    type is (integer(size_kind))
+       int = obj
+    class default
+       call error_abort ("size_kind_cast of an incompatible object")
+    end select
+  end function size_kind_cast
+
   function real_cast (obj) result (r)
     class(*), intent(in) :: obj
     real :: r
@@ -90,6 +107,12 @@ contains
     logical :: bool
     bool = integer_cast (obj1) == integer_cast (obj2)
   end function integer_eq
+
+  function size_kind_eq (obj1, obj2) result (bool)
+    class(*), intent(in) :: obj1, obj2
+    logical :: bool
+    bool = size_kind_cast (obj1) == size_kind_cast (obj2)
+  end function size_kind_eq
 
   function real_eq (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1, obj2
@@ -330,12 +353,45 @@ contains
     call check (.not. lists_are_equal (integer_eq, 5 ** cons (4, tail), 5 ** cons (40, tail)), "test005-0220 failed")
   end subroutine test005
 
+  subroutine test006
+    type(gcroot_t) :: lst
+    integer(sz) :: n
+    integer(sz) :: i
+
+    do n = 0_sz, 1000_sz, 100_sz
+
+       lst = iota (n)
+       do i = 0_sz, n - 1_sz, 100_sz
+          call check (list_ref0 (lst, i) .eqsz. i, "test006-0010 failed")
+          call check (list_ref1 (lst, i + 1) .eqsz. i, "test006-0020 failed")
+          call check (list_refn (lst, -50_sz, i - 50) .eqsz. i, "test006-0030 failed")
+       end do
+
+       lst = iota (n, 1_sz)
+       do i = 0_sz, n - 1_sz, 100_sz
+          call check (list_ref0 (lst, i) .eqsz. i + 1, "test006-0040 failed")
+          call check (list_ref1 (lst, i + 1) .eqsz. i + 1, "test006-0050 failed")
+          call check (list_refn (lst, -50_sz, i - 50) .eqsz. i + 1, "test006-0060 failed")
+       end do
+
+
+       lst = iota (n, 100_sz, -10_sz)
+       do i = 0_sz, n - 1_sz, 100_sz
+          call check (list_ref0 (lst, i) .eqsz. 100 - (10 * i), "test006-0070 failed")
+          call check (list_ref1 (lst, i + 1) .eqsz. 100 - (10 * i), "test006-0080 failed")
+          call check (list_refn (lst, -50_sz, i - 50) .eqsz. 100 - (10 * i), "test006-0090 failed")
+       end do
+
+    end do
+  end subroutine test006
+
   subroutine run_tests
     call test001
     call test002
     call test003
     call test004
     call test005
+    call test006
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")

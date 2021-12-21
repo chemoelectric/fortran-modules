@@ -118,6 +118,10 @@ module cons_pairs
   public :: ninth
   public :: tenth
 
+  public :: list_ref0        ! Return any one of the 0th, 1st, 2nd, etc., elements.
+  public :: list_ref1        ! Return any one of the 1st, 2nd, 3rd, etc., elements.
+  public :: list_refn        ! Return any one of the nth, (n+1)th, (n+2)th, etc., elements.
+
   ! SRFI-1 does not have these `next' procedures.
   public :: next_left        ! Replace a variable's value with its CAR (x = car (x)).
   public :: next_right       ! Replace a variable's value with its CDR (x = cdr (x)).
@@ -192,6 +196,14 @@ module cons_pairs
   public :: is_dotted_list   ! A list that terminates in a non-NIL.
   public :: is_circular_list ! A list that does not terminate.
 
+  public :: drop             ! Return all but the first n elements of a list.
+
+  ! iota: return a list containing a sequence of equally spaced integers.
+  public :: iota             ! `iota' = the generic function.
+  public :: iota_of_length
+  public :: iota_of_length_start
+  public :: iota_of_length_start_step
+
   public :: lists_are_equal  ! Test whether two lists are `equal'. (Equivalent to SRFI-1's `list='.)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -242,6 +254,15 @@ module cons_pairs
      module procedure infix_right_cons_nil
   end interface operator(**)
 
+  interface iota
+     module procedure iota_of_length
+     module procedure iota_of_length_start
+     module procedure iota_of_length_start_step
+  end interface iota
+
+  ! A private synonym for `size_kind'.
+  integer, parameter :: sz = size_kind
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   interface error_abort
@@ -264,7 +285,7 @@ contains
 
   subroutine pair_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
     class(pair_t), intent(in) :: this
-    integer(size_kind), intent(in) :: branch_number
+    integer(sz), intent(in) :: branch_number
     class(*), allocatable :: branch
 
     class(*), pointer :: data
@@ -503,7 +524,7 @@ contains
 
     select type (the_pair)
     class is (pair_t)
-       write (*,'("uncons of a pair_t")')
+       
        data => the_pair%heap_element%data
        select type (data)
        class is (pair_data_t)
@@ -515,7 +536,7 @@ contains
        car_value = car_val
        cdr_value = cdr_val
     class is (gcroot_t)
-       write (*,'("uncons of a gcroot_t")')
+       
        call uncons (the_pair%val (), car_value, cdr_value)
     class default
        call error_abort ("uncons of a non-pair")
@@ -530,7 +551,7 @@ contains
 
     select type (the_pair)
     class is (pair_t)
-       write (*,'("car of a pair_t")')
+       
        data => the_pair%heap_element%data
        select type (data)
        class is (pair_data_t)
@@ -539,7 +560,7 @@ contains
           call error_abort ("a strange error, possibly use of an object already garbage-collected")
        end select
     class is (gcroot_t)
-       write (*,'("car of a gcroot_t")')
+       
        car_value = car (the_pair%val ())
     class default
        call error_abort ("car of a non-pair")
@@ -554,7 +575,7 @@ contains
 
     select type (the_pair)
     class is (pair_t)
-       write (*,'("cdr of a pair_t")')
+       
        data => the_pair%heap_element%data
        select type (data)
        class is (pair_data_t)
@@ -563,7 +584,7 @@ contains
           call error_abort ("a strange error, possibly use of an object already garbage-collected")
        end select
     class is (gcroot_t)
-       write (*,'("cdr of a gcroot_t")')
+       
        cdr_value = cdr (the_pair%val ())
     class default
        call error_abort ("cdr of a non-pair")
@@ -998,6 +1019,33 @@ contains
     call next_right (element)
     call next_left (element)
   end function tenth
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function list_ref0 (lst, i) result (element)
+    class(*), intent(in) :: lst
+    integer(sz), intent(in) :: i
+    class(*), allocatable :: element
+
+    element = car (drop (lst, i))
+  end function list_ref0
+
+  function list_ref1 (lst, i) result (element)
+    class(*), intent(in) :: lst
+    integer(sz), intent(in) :: i
+    class(*), allocatable :: element
+
+    element = list_ref0 (lst, i - 1_sz)
+  end function list_ref1
+
+  function list_refn (lst, n, i) result (element)
+    class(*), intent(in) :: lst
+    integer(sz), intent(in) :: n
+    integer(sz), intent(in) :: i
+    class(*), allocatable :: element
+
+    element = list_ref0 (lst, i - n)
+  end function list_refn
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -3084,6 +3132,59 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call classify_list (obj, is_dot, is_circ)
     is_circular = is_circ
   end function is_circular_list
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function drop (lst, n) result (lst_d)
+    class(*), intent(in) :: lst
+    integer(sz), intent(in) :: n
+    class(*), allocatable :: lst_d
+
+    integer(sz) :: i
+    
+    lst_d = lst
+    do i = 1_sz, n
+       call next_right (lst_d)
+    end do
+  end function drop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function iota_of_length (length) result (lst)
+    integer(sz), intent(in) :: length
+    class(*), allocatable :: lst
+
+    lst = iota_of_length_start_step (length, 0_sz, 1_sz)
+  end function iota_of_length
+
+  function iota_of_length_start (length, start) result (lst)
+    integer(sz), intent(in) :: length, start
+    class(*), allocatable :: lst
+
+    lst = iota_of_length_start_step (length, start, 1_sz)
+  end function iota_of_length_start
+
+  function iota_of_length_start_step (length, start, step) result (lst)
+    integer(sz), intent(in) :: length, start, step
+    class(*), allocatable :: lst
+
+    integer(sz) :: i, n
+
+    if (length < 0_sz) then
+       call error_abort ("iota with negative length")
+    else if (length == 0_sz) then
+       lst = nil
+    else
+       ! Go through the sequence backwards, so we will not have to
+       ! reverse the resulting list.
+       n = start + ((length - 1_sz) * step)
+       lst = nil
+       do i = 1_sz, length
+          lst = cons (n, lst)
+          n = n - step
+       end do
+    end if
+  end function iota_of_length_start_step
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
