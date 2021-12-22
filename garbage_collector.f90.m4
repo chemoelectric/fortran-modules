@@ -41,6 +41,9 @@ module garbage_collector
   implicit none
   private
 
+  public :: operator(.val.)
+  public :: operator(.ptr.)
+
   public :: size_kind
 
   public :: heap_element_t
@@ -96,6 +99,8 @@ module garbage_collector
      procedure, pass :: ptr => gcroot_t_ptr
      procedure, pass :: assign => gcroot_t_assign
      generic :: assignment(=) => assign
+     generic :: operator(.val.) => val
+     generic :: operator(.ptr.) => ptr
      final :: gcroot_t_finalize
   end type gcroot_t
 
@@ -261,7 +266,7 @@ m4_if(DEBUGGING,[true],[dnl
 
     new_element%next => heap%next
     new_element%prev => heap
-    heap%next => new_element
+    new_element%prev%next => new_element
     new_element%next%prev => new_element
 
     heap_count = heap_count + 1
@@ -347,10 +352,13 @@ m4_if(DEBUGGING,[true],[dnl
     allocate (new_root%collectible, source = collectible)
     new_root%next => after_this%next
     new_root%prev => after_this
-    after_this%next => new_root
+    new_root%prev%next => new_root
     new_root%next%prev => new_root
 
     roots_count = roots_count + 1
+
+    m4_if(DEBUGGING,[true],[write (*,'("    there are now ", i3)') roots_count])
+
   end subroutine roots_insert
 
   subroutine roots_remove (this_one)
@@ -368,7 +376,14 @@ m4_if(DEBUGGING,[true],[dnl
        deallocate (this_one%collectible)
     end if
 
+    nullify (this_one%next)        ! FIXME: IS THIS NEEDED?
+    nullify (this_one%prev)        ! FIXME: IS THIS NEEDED?
+    nullify (this_one%collectible) ! FIXME: IS THIS NEEDED?
+
     roots_count = roots_count - 1
+
+    m4_if(DEBUGGING,[true],[write (*,'("    there are now ", i3)') roots_count])
+
   end subroutine roots_remove
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -462,8 +477,26 @@ m4_if(DEBUGGING,[true],[dnl
 
   end subroutine gcroot_t_assign
 
+!!$  subroutine gcroot_t_discard (this) ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME
+!!$    class(gcroot_t), intent(inout) :: this
+!!$
+!!$goto 10000
+!!$    if (associated (this%root)) then
+!!$       select type (root => this%root)
+!!$       class is (root_t)
+!!$          call roots_remove (root)
+!!$          deallocate (root)
+!!$       class default
+!!$          deallocate (this%root)
+!!$       end select
+!!$    end if
+!!$    nullify (this%root)
+!!$10000 continue
+!!$  end subroutine gcroot_t_discard
+
   subroutine gcroot_t_finalize (this)
     type(gcroot_t), intent(inout) :: this
+
     if (associated (this%root)) then
        select type (root => this%root)
        class is (root_t)
@@ -473,6 +506,7 @@ m4_if(DEBUGGING,[true],[dnl
           deallocate (this%root)
        end select
     end if
+    nullify (this%root)         ! FIXME: IS THIS NEEDED?
   end subroutine gcroot_t_finalize
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

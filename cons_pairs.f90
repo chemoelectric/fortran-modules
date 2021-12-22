@@ -51,14 +51,11 @@ module cons_pairs
   implicit none
   private
 
-  public :: pair_t           ! The type for garbage-collectible CONS-pairs.
-  public :: nil_t            ! The type for a NIL-list.
+  public :: cons_t           ! The type for NIL-lists and garbage-collectible CONS-pairs.
   public :: nil              ! The canonical NIL-list (commonly written '() in Scheme).
 
   public :: is_pair          ! Is the object either a CONS-pair or a gcroot_t containing a CONS-pair?
   public :: is_not_pair      ! Is the object neither a CONS-pair nor a gcroot_t containing a CONS-pair?
-  public :: pair_t_cast      ! Convert an object to a CONS-pair, if possible.
-  public :: pair_t_eq        ! Are two pair_t the same pair_t? That is, do they share their storage?
 
   ! `is_nil' is equivalent to SRFI-1's `null?' procedure.
   public :: is_nil           ! Is the object either a NIL-list or a gcroot_t containing a NIL-list?
@@ -66,6 +63,9 @@ module cons_pairs
 
   ! `is_nil_list' is equivalent to SRFI-1's `null-list?' procedure.
   public :: is_nil_list
+
+  public :: cons_t_cast      ! Convert an object to a CONS-pair, if possible.
+  public :: cons_t_eq        ! Are two cons_t either both NIL or pairs that share their storage?
 
   public :: cons             ! The fundamental CONS-pair constructor.
   public :: uncons           ! The fundamental CONS-pair deconstructor (called `car+cdr' in SRFI-1).
@@ -196,7 +196,8 @@ module cons_pairs
   public :: is_dotted_list   ! A list that terminates in a non-NIL.
   public :: is_circular_list ! A list that does not terminate.
 
-  public :: drop             ! Return all but the first n elements of a list.
+  public :: take             ! Return a freshly allocated copy of the first n elements of a list.
+  public :: drop             ! Return a common tail containing all but the first n elements of a list.
 
   ! iota: return a list containing a sequence of equally spaced integers.
   public :: iota             ! `iota' = the generic function.
@@ -239,19 +240,16 @@ module cons_pairs
      class(*), allocatable :: cdr
   end type pair_data_t
 
-  type, extends (collectible_t) :: pair_t
+  ! A cons_t is NIL if its heap_element pointer is not associated.
+  type, extends (collectible_t) :: cons_t
    contains
-     procedure, pass :: get_branch => pair_t_get_branch
-  end type pair_t
+     procedure, pass :: get_branch => cons_t_get_branch
+  end type cons_t
 
-  type :: nil_t
-  end type nil_t
-
-  type(nil_t), parameter :: nil = nil_t ()
+  type(cons_t), parameter :: nil = cons_t ()
 
   interface operator(**)
-     module procedure infix_right_cons_pair
-     module procedure infix_right_cons_nil
+     module procedure infix_right_cons
   end interface operator(**)
 
   interface iota
@@ -281,33 +279,60 @@ contains
     error stop
   end subroutine error_abort_1
 
+  subroutine disallow_gcroot (obj)
+    class(*), intent(in) :: obj
+    select type (obj)
+    class is (gcroot_t)
+       call error_abort ("gcroot_t is not allowed in this context")
+    end select
+  end subroutine disallow_gcroot
+
+  subroutine strange_error
+    call error_abort ("a strange error, possibly use of an object already garbage-collected")
+  end subroutine strange_error
+
+!!$  function integer_cast (obj) result (int)
+!!$    class(*), intent(in) :: obj
+!!$    integer :: int
+!!$    select type (obj)
+!!$    type is (integer)
+!!$       int = obj
+!!$    class default
+!!$       call error_abort ("integer_cast of an incompatible object")
+!!$    end select
+!!$  end function integer_cast
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine pair_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
-    class(pair_t), intent(in) :: this
+  subroutine cons_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
+    class(cons_t), intent(in) :: this
     integer(sz), intent(in) :: branch_number
     class(*), allocatable :: branch
 
     class(*), pointer :: data
     logical :: branch_number_out_of_range
 
+    ! A NIL-list has zero branches. A pair has two branches.
+
     branch_number_out_of_range = .true.
-    if (branch_number == 1) then
-       data => this%heap_element%data
-       select type (data)
-       class is (pair_data_t)
-          branch = data%car
-          branch_number_out_of_range = .false.
-       end select
-    else if (branch_number == 2) then
-       data => this%heap_element%data
-       select type (data)
-       class is (pair_data_t)
-          branch = data%cdr
-          branch_number_out_of_range = .false.
-       end select
+    if (associated (this%heap_element)) then
+       if (branch_number == 1) then
+          data => this%heap_element%data
+          select type (data)
+          class is (pair_data_t)
+             branch = data%car
+             branch_number_out_of_range = .false.
+          end select
+       else if (branch_number == 2) then
+          data => this%heap_element%data
+          select type (data)
+          class is (pair_data_t)
+             branch = data%cdr
+             branch_number_out_of_range = .false.
+          end select
+       end if
     end if
-  end subroutine pair_t_get_branch
+  end subroutine cons_t_get_branch
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -315,15 +340,11 @@ contains
     class(*), intent(in) :: obj
     logical :: bool
 
-    bool = .false.
     select type (obj)
-    class is (pair_t)
-       bool = .true.
-    class is (gcroot_t)
-       select type (val => obj%val ())
-       class is (pair_t)
-          bool = .true.
-       end select
+    class is (cons_t)
+       bool = associated (obj%heap_element)
+    class default
+       bool = .false.
     end select
   end function is_pair
 
@@ -334,53 +355,48 @@ contains
     bool = .not. is_pair (obj)
   end function is_not_pair
 
-  function pair_t_cast (obj) result (the_pair)
+  function cons_t_cast (obj) result (lst)
     class(*), intent(in) :: obj
-    class(pair_t), allocatable :: the_pair
+    type(cons_t) :: lst
+
+    call disallow_gcroot (obj)
 
     select type (obj)
-    class is (pair_t)
-       the_pair = obj
-    class is (gcroot_t)
-       select type (val => obj%val ())
-       class is (pair_t)
-          the_pair = val
-       class default
-          call error_abort ("pair_t_cast of an incompatible object")
-       end select
+    class is (cons_t)
+       lst = obj
     class default
-      call error_abort ("pair_t_cast of an incompatible object")
+      call error_abort ("cons_t_cast of an incompatible object")
     end select
-  end function pair_t_cast
+  end function cons_t_cast
 
-  recursive function pair_t_eq (obj1, obj2) result (bool)
+  recursive function cons_t_eq (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     logical :: bool
 
+    call disallow_gcroot (obj1)
+    call disallow_gcroot (obj2)
+
     select type (obj1)
-    class is (pair_t)
+    class is (cons_t)
        select type (obj2)
-       class is (pair_t)
-          bool = associated (obj1%heap_element, obj2%heap_element)
-       class is (gcroot_t)
-          bool = pair_t_eq (obj1, obj2%val ())
+       class is (cons_t)
+          if (associated (obj1%heap_element)) then
+             if (associated (obj2%heap_element)) then
+                bool = associated (obj1%heap_element, obj2%heap_element)
+             else
+                bool = .false.
+             end if
+          else
+             bool = .not. associated (obj2%heap_element)
+          end if
        class default
-          call error_abort ("the second argument to pair_t_eq is illegal")
-       end select
-    class is (gcroot_t)
-       select type (obj2)
-       class is (pair_t)
-          bool = pair_t_eq (obj1%val (), obj2)
-       class is (gcroot_t)
-          bool = pair_t_eq (obj1%val (), obj2%val ())
-       class default
-          call error_abort ("the second argument to pair_t_eq is illegal")
+          call error_abort ("the second argument to cons_t_eq is not a cons_t")
        end select
     class default
-       call error_abort ("the first argument to pair_t_eq is illegal")
+       call error_abort ("the first argument to cons_t_eq is not a cons_t")
     end select
-  end function pair_t_eq
+  end function cons_t_eq
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -388,15 +404,13 @@ contains
     class(*), intent(in) :: obj
     logical :: bool
 
-    bool = .false.
+    call disallow_gcroot (obj)
+
     select type (obj)
-    class is (nil_t)
-       bool = .true.
-    class is (gcroot_t)
-       select type (val => obj%val ())
-       class is (nil_t)
-          bool = .true.
-       end select
+    class is (cons_t)
+       bool = .not. associated (obj%heap_element)
+    class default
+       bool = .false.
     end select
   end function is_nil
 
@@ -404,31 +418,20 @@ contains
     class(*), intent(in) :: obj
     logical :: bool
 
-    bool = .true.
-    select type (obj)
-    class is (nil_t)
-       bool = .false.
-    class is (gcroot_t)
-       select type (val => obj%val ())
-       class is (nil_t)
-          bool = .false.
-       end select
-    end select
+    bool = .not. is_nil (obj)
   end function is_not_nil
 
   recursive function is_nil_list (obj) result (bool)
     class(*), intent(in) :: obj
     logical :: bool
 
+    call disallow_gcroot (obj)
+
     select type (obj)
-    class is (nil_t)
-       bool = .true.
-    class is (pair_t)
-       bool = .false.
-    class is (gcroot_t)
-       bool = is_nil_list (obj%val ())
+    class is (cons_t)
+       bool = .not. associated (obj%heap_element)
     class default
-       call error_abort ("is_nil_list of an object that is neither pair nor nil")
+       call error_abort ("is_nil_list of an object that is not a cons_t")
     end select
   end function is_nil_list
 
@@ -437,81 +440,41 @@ contains
   recursive function cons (car_value, cdr_value) result (the_pair)
     class(*), intent(in) :: car_value
     class(*), intent(in) :: cdr_value
-    type(pair_t), allocatable :: the_pair
+    type(cons_t) :: the_pair
 
     type(heap_element_t), pointer :: new_element
     type(pair_data_t), pointer :: data
 
-    select type (car_value)
-    class is (gcroot_t)
-       select type (cdr_value)
-       class is (gcroot_t)
-          the_pair = cons (car_value%val (), cdr_value%val ())
-       class default
-          the_pair = cons (car_value%val (), cdr_value)
-       end select
-    class default
-       select type (cdr_value)
-       class is (gcroot_t)
-          the_pair = cons (car_value, cdr_value%val ())
-       class default
-          allocate (data)
-          data%car = car_value
-          data%cdr = cdr_value
-          allocate (new_element)
-          new_element%data => data
-          call heap_insert (new_element)
-          allocate (the_pair)
-          the_pair%heap_element => new_element
-       end select
-    end select
+    call disallow_gcroot (car_value)
+    call disallow_gcroot (cdr_value)
+
+    allocate (data)
+    data%car = car_value
+    data%cdr = cdr_value
+    allocate (new_element)
+    new_element%data => data
+    call heap_insert (new_element)
+    the_pair%heap_element => new_element
   end function cons
 
-  recursive function infix_right_cons_pair (car_value, cdr_value) result (the_pair)
+  recursive function infix_right_cons (car_value, cdr_value) result (the_pair)
     class(*), intent(in) :: car_value
-    class(pair_t), intent(in) :: cdr_value
-    type(pair_t), allocatable :: the_pair
+    class(cons_t), intent(in) :: cdr_value
+    type(cons_t) :: the_pair
 
     type(heap_element_t), pointer :: new_element
     type(pair_data_t), pointer :: data
 
-    select type (car_value)
-    class is (gcroot_t)
-       the_pair = infix_right_cons_pair (car_value%val (), cdr_value)
-    class default
-       allocate (data)
-       data%car = car_value
-       data%cdr = cdr_value
-       allocate (new_element)
-       new_element%data => data
-       call heap_insert (new_element)
-       allocate (the_pair)
-       the_pair%heap_element => new_element
-    end select
-  end function infix_right_cons_pair
+    call disallow_gcroot (car_value)
 
-  recursive function infix_right_cons_nil (car_value, cdr_value) result (the_pair)
-    class(*), intent(in) :: car_value
-    class(nil_t), intent(in) :: cdr_value
-    type(pair_t), allocatable :: the_pair
-
-    type(heap_element_t), pointer :: new_element
-    type(pair_data_t), pointer :: data
-
-    select type (car_value)
-    class is (gcroot_t)
-       the_pair = infix_right_cons_nil (car_value%val (), cdr_value)
-    class default
-       allocate (data)
-       data%car = car_value
-       data%cdr = cdr_value
-       allocate (new_element)
-       new_element%data => data
-       call heap_insert (new_element)
-       allocate (the_pair)
-       the_pair%heap_element => new_element
-    end select
-  end function infix_right_cons_nil
+    allocate (data)
+    data%car = car_value
+    data%cdr = cdr_value
+    allocate (new_element)
+    new_element%data => data
+    call heap_insert (new_element)
+    the_pair%heap_element => new_element
+  end function infix_right_cons
 
   recursive subroutine uncons (the_pair, car_value, cdr_value)
     class(*), intent(in) :: the_pair
@@ -522,24 +485,26 @@ contains
     class(*), allocatable :: car_val
     class(*), allocatable :: cdr_val
 
+    call disallow_gcroot (the_pair)
+
     select type (the_pair)
-    class is (pair_t)
-       
-       data => the_pair%heap_element%data
-       select type (data)
-       class is (pair_data_t)
-          car_val = data%car
-          cdr_val = data%cdr
-       class default
-          call error_abort ("a strange error, possibly use of an object already garbage-collected")
-       end select
-       car_value = car_val
-       cdr_value = cdr_val
-    class is (gcroot_t)
-       
-       call uncons (the_pair%val (), car_value, cdr_value)
+    class is (cons_t)
+       if (associated (the_pair%heap_element)) then
+          data => the_pair%heap_element%data
+          select type (data)
+          class is (pair_data_t)
+             car_val = data%car
+             cdr_val = data%cdr
+          class default
+             call strange_error
+          end select
+          car_value = car_val
+          cdr_value = cdr_val
+       else
+          call error_abort ("uncons of a nil list")
+       end if
     class default
-       call error_abort ("uncons of a non-pair")
+       call error_abort ("uncons of an object that is not a cons_t")
     end select
   end subroutine uncons
 
@@ -549,21 +514,23 @@ contains
 
     class(*), pointer :: data
 
+    call disallow_gcroot (the_pair)
+
     select type (the_pair)
-    class is (pair_t)
-       
-       data => the_pair%heap_element%data
-       select type (data)
-       class is (pair_data_t)
-          car_value = data%car
-       class default
-          call error_abort ("a strange error, possibly use of an object already garbage-collected")
-       end select
-    class is (gcroot_t)
-       
-       car_value = car (the_pair%val ())
+    class is (cons_t)
+       if (associated (the_pair%heap_element)) then
+          data => the_pair%heap_element%data
+          select type (data)
+          class is (pair_data_t)
+             car_value = data%car
+          class default
+             call strange_error
+          end select
+       else
+          call error_abort ("car of a nil list")
+       end if
     class default
-       call error_abort ("car of a non-pair")
+       call error_abort ("car of an object that is not a cons_t")
     end select
   end function car
 
@@ -573,68 +540,60 @@ contains
 
     class(*), pointer :: data
 
+    call disallow_gcroot (the_pair)
+
     select type (the_pair)
-    class is (pair_t)
-       
-       data => the_pair%heap_element%data
-       select type (data)
-       class is (pair_data_t)
-          cdr_value = data%cdr
-       class default
-          call error_abort ("a strange error, possibly use of an object already garbage-collected")
-       end select
-    class is (gcroot_t)
-       
-       cdr_value = cdr (the_pair%val ())
+    class is (cons_t)
+       if (associated (the_pair%heap_element)) then
+          data => the_pair%heap_element%data
+          select type (data)
+          class is (pair_data_t)
+             cdr_value = data%cdr
+          class default
+             call strange_error
+          end select
+       else
+          call error_abort ("cdr of a nil list")
+       end if
     class default
-       call error_abort ("cdr of a non-pair")
+       call error_abort ("cdr of an object that is not a cons_t")
     end select
   end function cdr
 
   recursive subroutine set_car (the_pair, car_value)
-    class(*), intent(inout) :: the_pair
+    class(cons_t), intent(inout) :: the_pair
     class(*), intent(in) :: car_value
 
     type(pair_data_t), pointer :: data
 
-    select type (the_pair)
-    class is (pair_t)
+    call disallow_gcroot (car_value)
+
+    if (associated (the_pair%heap_element)) then
        deallocate (the_pair%heap_element%data)
        allocate (data)
        data%car = car_value
        the_pair%heap_element%data => data
-    class is (gcroot_t)
-       block
-         class(collectible_t), pointer :: ptr
-         ptr => the_pair%ptr ()
-         call set_car (ptr, car_value)
-       end block
-    class default
-       call error_abort ("set_car of a non-pair")
-    end select
+    else
+       call error_abort ("set_car of a nil list")
+    end if
   end subroutine set_car
 
   recursive subroutine set_cdr (the_pair, cdr_value)
-    class(*), intent(inout) :: the_pair
+    class(cons_t), intent(inout) :: the_pair
     class(*), intent(in) :: cdr_value
 
     type(pair_data_t), pointer :: data
 
-    select type (the_pair)
-    class is (pair_t)
+    call disallow_gcroot (cdr_value)
+
+    if (associated (the_pair%heap_element)) then
        deallocate (the_pair%heap_element%data)
        allocate (data)
        data%cdr = cdr_value
        the_pair%heap_element%data => data
-    class is (gcroot_t)
-       block
-         class(collectible_t), pointer :: ptr
-         ptr => the_pair%ptr ()
-         call set_cdr (ptr, cdr_value)
-       end block
-    class default
-       call error_abort ("set_cdr of a non-pair")
-    end select
+    else
+       call error_abort ("set_cdr of a nil list")
+    end if
   end subroutine set_cdr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1063,7 +1022,7 @@ contains
 
   function list1 (obj1) result (lst)
     class(*), intent(in) :: obj1
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj1 ** nil
   end function list1
@@ -1071,7 +1030,7 @@ contains
   function list2 (obj1, obj2) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj2 ** nil
     lst = obj1 ** lst
@@ -1081,7 +1040,7 @@ contains
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj3 ** nil
     lst = obj2 ** lst
@@ -1093,7 +1052,7 @@ contains
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
     class(*), intent(in) :: obj4
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj4 ** nil
     lst = obj3 ** lst
@@ -1107,7 +1066,7 @@ contains
     class(*), intent(in) :: obj3
     class(*), intent(in) :: obj4
     class(*), intent(in) :: obj5
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj5 ** nil
     lst = obj4 ** lst
@@ -1123,7 +1082,7 @@ contains
     class(*), intent(in) :: obj4
     class(*), intent(in) :: obj5
     class(*), intent(in) :: obj6
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj6 ** nil
     lst = obj5 ** lst
@@ -1141,7 +1100,7 @@ contains
     class(*), intent(in) :: obj5
     class(*), intent(in) :: obj6
     class(*), intent(in) :: obj7
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj7 ** nil
     lst = obj6 ** lst
@@ -1161,7 +1120,7 @@ contains
     class(*), intent(in) :: obj6
     class(*), intent(in) :: obj7
     class(*), intent(in) :: obj8
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj8 ** nil
     lst = obj7 ** lst
@@ -1183,7 +1142,7 @@ contains
     class(*), intent(in) :: obj7
     class(*), intent(in) :: obj8
     class(*), intent(in) :: obj9
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj9 ** nil
     lst = obj8 ** lst
@@ -1207,7 +1166,7 @@ contains
     class(*), intent(in) :: obj8
     class(*), intent(in) :: obj9
     class(*), intent(in) :: obj10
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj10 ** nil
     lst = obj9 ** lst
@@ -1234,7 +1193,7 @@ obj11) result (lst)
     class(*), intent(in) :: obj9
     class(*), intent(in) :: obj10
     class(*), intent(in) :: obj11
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj11 ** nil
     lst = obj10 ** lst
@@ -1263,7 +1222,7 @@ obj11, obj12) result (lst)
     class(*), intent(in) :: obj10
     class(*), intent(in) :: obj11
     class(*), intent(in) :: obj12
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj12 ** nil
     lst = obj11 ** lst
@@ -1294,7 +1253,7 @@ obj11, obj12, obj13) result (lst)
     class(*), intent(in) :: obj11
     class(*), intent(in) :: obj12
     class(*), intent(in) :: obj13
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj13 ** nil
     lst = obj12 ** lst
@@ -1327,7 +1286,7 @@ obj11, obj12, obj13, obj14) result (lst)
     class(*), intent(in) :: obj12
     class(*), intent(in) :: obj13
     class(*), intent(in) :: obj14
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj14 ** nil
     lst = obj13 ** lst
@@ -1362,7 +1321,7 @@ obj11, obj12, obj13, obj14, obj15) result (lst)
     class(*), intent(in) :: obj13
     class(*), intent(in) :: obj14
     class(*), intent(in) :: obj15
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj15 ** nil
     lst = obj14 ** lst
@@ -1399,7 +1358,7 @@ obj11, obj12, obj13, obj14, obj15, obj16) result (lst)
     class(*), intent(in) :: obj14
     class(*), intent(in) :: obj15
     class(*), intent(in) :: obj16
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj16 ** nil
     lst = obj15 ** lst
@@ -1438,7 +1397,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17) result (lst)
     class(*), intent(in) :: obj15
     class(*), intent(in) :: obj16
     class(*), intent(in) :: obj17
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj17 ** nil
     lst = obj16 ** lst
@@ -1479,7 +1438,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18) result (lst)
     class(*), intent(in) :: obj16
     class(*), intent(in) :: obj17
     class(*), intent(in) :: obj18
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj18 ** nil
     lst = obj17 ** lst
@@ -1522,7 +1481,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19) result (lst)
     class(*), intent(in) :: obj17
     class(*), intent(in) :: obj18
     class(*), intent(in) :: obj19
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj19 ** nil
     lst = obj18 ** lst
@@ -1567,7 +1526,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     class(*), intent(in) :: obj18
     class(*), intent(in) :: obj19
     class(*), intent(in) :: obj20
-    type(pair_t) :: lst
+    type(cons_t) :: lst
 
     lst = obj20 ** nil
     lst = obj19 ** lst
@@ -1601,7 +1560,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     if (is_pair (tail)) then
        call error_abort ("unlist1 of a list that is too long")
@@ -1619,7 +1578,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     if (is_pair (tail)) then
@@ -1639,7 +1598,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -1661,7 +1620,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -1685,7 +1644,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -1711,7 +1670,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -1739,7 +1698,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -1769,7 +1728,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -1801,7 +1760,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -1835,7 +1794,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -1872,7 +1831,7 @@ obj11)
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -1911,7 +1870,7 @@ obj11, obj12)
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -1952,7 +1911,7 @@ obj11, obj12, obj13)
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -1995,7 +1954,7 @@ obj11, obj12, obj13, obj14)
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -2040,7 +1999,7 @@ obj11, obj12, obj13, obj14, obj15)
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -2087,7 +2046,7 @@ obj11, obj12, obj13, obj14, obj15, obj16)
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -2136,7 +2095,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17)
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -2187,7 +2146,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18)
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -2240,7 +2199,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19)
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -2295,7 +2254,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
 
     class(*), allocatable :: tail
 
-    tail = pair_t_cast (lst)
+    tail = lst
     call uncons (tail, obj1, tail)
     call uncons (tail, obj2, tail)
     call uncons (tail, obj3, tail)
@@ -2332,7 +2291,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     tail = tl
   end subroutine unlist1_with_tail
@@ -2349,7 +2308,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     tail = tl
@@ -2368,7 +2327,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2389,7 +2348,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2412,7 +2371,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2437,7 +2396,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2464,7 +2423,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2493,7 +2452,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2524,7 +2483,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2557,7 +2516,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2593,7 +2552,7 @@ obj11, tail)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2631,7 +2590,7 @@ obj11, obj12, tail)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2671,7 +2630,7 @@ obj11, obj12, obj13, tail)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2713,7 +2672,7 @@ obj11, obj12, obj13, obj14, tail)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2757,7 +2716,7 @@ obj11, obj12, obj13, obj14, obj15, tail)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2803,7 +2762,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, tail)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2851,7 +2810,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, tail)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2901,7 +2860,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, tail)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -2953,7 +2912,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, tail)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -3007,7 +2966,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
     class(*), allocatable :: tl
 
-    tl = pair_t_cast (lst)
+    tl = lst
     call uncons (tl, obj1, tl)
     call uncons (tl, obj2, tl)
     call uncons (tl, obj3, tl)
@@ -3035,7 +2994,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   subroutine classify_list (obj, is_dotted, is_circular)
     !
-    ! An object that is not a pair_t or a nil_t is considered dotted.
+    ! An object that is not a cons_t or a nil_t is considered dotted.
     !
     ! Dotted and circular are mutually exclusive.
     !
@@ -3075,7 +3034,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
              call next_right (lead)
              call next_right (lag)
              if (is_pair (lead)) then
-                if (pair_t_eq (lead, lag)) then
+                if (cons_t_eq (lead, lag)) then
                    is_circ = .true.
                    done = .true.
                 end if
@@ -3134,6 +3093,38 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end function is_circular_list
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function take (lst, n) result (lst_t)
+    class(*), intent(in) :: lst
+    integer(sz), intent(in) :: n
+    class(*), allocatable :: lst_t
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+    integer(sz) :: i
+
+    if (n <= 0) then
+       lst_t = nil
+    else
+       if (is_not_pair (lst)) then
+          call error_abort ("positive `take' of a nil list")
+       else
+          call uncons (lst, head, tail)
+          cursor = head ** nil
+          lst_t = cursor
+          i = n - 1
+          do while (0 < i .and. is_pair (tail))
+             call uncons (tail, head, tail)
+             new_pair = head ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             i = i - 1
+          end do
+       end if
+    end if
+  end function take
 
   function drop (lst, n) result (lst_d)
     class(*), intent(in) :: lst
@@ -3216,12 +3207,16 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst1, lst2
     logical :: bool
 
-    type(gcroot_t) :: p, q
-    type(gcroot_t) :: p_head, q_head
+    type(gcroot_t) :: lst1_root, lst2_root
 
+    class(*), allocatable :: p, q
     class(*), allocatable :: p_hd, q_hd
-    class(*), allocatable :: p_tl, q_tl
     logical :: done
+
+    ! Prevent garbage collection of the lists, despite the call to the
+    ! predicate.
+    lst1_root = lst1
+    lst2_root = lst2
 
     p = lst1
     q = lst2
@@ -3235,23 +3230,16 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           ! lst2 comes to an end (even though lst1 does not).
           bool = .false.
           done = .true.
-       else if (pair_t_eq (p, q)) then
+       else if (cons_t_eq (p, q)) then
           ! The two lists share a tail.
           bool = .true.
           done = .true.
        else
-          call uncons (p, p_hd, p_tl)
-          call uncons (q, q_hd, q_tl)
-
-          ! Before calling the predicate, get objects rooted.
-          p_head = p_hd
-          q_head = q_hd
-          p = p_tl
-          q = q_tl
-
-          if (.not. pred (p_head%val (), q_head%val ())) then
-             ! The predicate failed for some elements of lst1 and
-             ! lst2 respectively.
+          call uncons (p, p_hd, p)
+          call uncons (q, q_hd, q)
+          if (.not. pred (p_hd, q_hd)) then
+             ! The predicate failed for some elements of lst1 and lst2
+             ! respectively.
              bool = .false.
              done = .true.
           end if

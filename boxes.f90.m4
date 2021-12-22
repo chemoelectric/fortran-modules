@@ -87,6 +87,18 @@ contains
     error stop
   end subroutine error_abort_1
 
+  subroutine disallow_gcroot (obj)
+    class(*), intent(in) :: obj
+    select type (obj)
+    class is (gcroot_t)
+       call error_abort ("gcroot_t is not allowed in this context")
+    end select
+  end subroutine disallow_gcroot
+
+  subroutine strange_error
+    call error_abort ("a strange error, possibly use of an object already garbage-collected")
+  end subroutine strange_error
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   subroutine box_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
@@ -113,31 +125,23 @@ contains
   function is_box (obj) result (bool)
     class(*), intent(in) :: obj
     logical :: bool
-    bool = .false.
     select type (obj)
     class is (box_t)
        bool = .true.
-    class is (gcroot_t)
-       select type (val => obj%val ())
-       class is (box_t)
-          bool = .true.
-       end select
+    class default
+       bool = .false.
     end select
   end function is_box
 
   function box_t_cast (obj) result (the_box)
     class(*), intent(in) :: obj
     class(box_t), allocatable :: the_box
+
+    call disallow_gcroot (obj)
+
     select type (obj)
     class is (box_t)
        the_box = obj
-    class is (gcroot_t)
-       select type (val => obj%val ())
-       class is (box_t)
-          the_box = val
-       class default
-          call error_abort ("box_t_cast of an incompatible object")
-       end select
     class default
       call error_abort ("box_t_cast of an incompatible object")
     end select
@@ -152,18 +156,15 @@ contains
     type(heap_element_t), pointer :: new_element
     type(box_data_t), pointer :: data
 
-    select type (contents)
-    class is (gcroot_t)
-       the_box = box (contents%val ())
-    class default
-       allocate (data)
-       data%contents = contents
-       allocate (new_element)
-       new_element%data => data
-       call heap_insert (new_element)
-       allocate (the_box)
-       the_box%heap_element => new_element
-    end select
+    call disallow_gcroot (contents)
+
+    allocate (data)
+    data%contents = contents
+    allocate (new_element)
+    new_element%data => data
+    call heap_insert (new_element)
+    allocate (the_box)
+    the_box%heap_element => new_element
   end function box
 
   recursive function unbox (the_box) result (contents)
@@ -172,45 +173,34 @@ contains
 
     class(*), pointer :: data
 
+    call disallow_gcroot (the_box)
+
     select type (the_box)
     class is (box_t)
-       m4_if(DEBUGGING,[true],[write (*,*) "unbox of a box_t"])
        data => the_box%heap_element%data
        select type (data)
        class is (box_data_t)
           contents = data%contents
        class default
-          call error_abort ("a strange error, possibly use of an object already garbage-collected")
+          call strange_error
        end select
-    class is (gcroot_t)
-       m4_if(DEBUGGING,[true],[write (*,*) "unbox of a gcroot_t"])
-       contents = unbox (the_box%val ())
     class default
        call error_abort ("unbox of a non-box")
     end select
   end function unbox
 
   recursive subroutine set_box (the_box, contents)
-    class(*), intent(inout) :: the_box
+    class(box_t), intent(inout) :: the_box
     class(*), intent(in) :: contents
 
     type(box_data_t), pointer :: data
 
-    select type (the_box)
-    class is (box_t)
-       deallocate (the_box%heap_element%data)
-       allocate (data)
-       data%contents = contents
-       the_box%heap_element%data => data
-    class is (gcroot_t)
-       block
-         class(collectible_t), pointer :: ptr
-         ptr => the_box%ptr ()
-         call set_box (ptr, contents)
-       end block
-    class default
-       call error_abort ("set_box of a non-box")
-    end select
+    call disallow_gcroot (contents)
+
+    deallocate (the_box%heap_element%data)
+    allocate (data)
+    data%contents = contents
+    the_box%heap_element%data => data
   end subroutine set_box
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -218,21 +208,29 @@ contains
   recursive function autobox (contents) result (the_box)
     class(*), intent(in) :: contents
     class(box_t), allocatable :: the_box
-    if (is_box (contents)) then
-       the_box = box_t_cast (contents)
-    else
+
+    call disallow_gcroot (contents)
+
+    select type (contents)
+    class is (box_t)
+       the_box = contents
+    class default
        the_box = box (contents)
-    end if
+    end select
   end function autobox
 
   recursive function autounbox (the_box) result (contents)
     class(*), intent(in) :: the_box
     class(*), allocatable :: contents
-    if (is_box (the_box)) then
+
+    call disallow_gcroot (the_box)
+
+    select type (the_box)
+    class is (box_t)
        contents = unbox (the_box)
-    else
+    class default
        contents = the_box
-    end if
+    end select
   end function autounbox
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
