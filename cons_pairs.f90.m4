@@ -1003,8 +1003,9 @@ m4_forloop([k],[2],n,[dnl
 
   function list_copy (lst) result (lst_c)
     !
-    ! Dotted lists will be copied, unless they are degenerate (that
-    ! is, not a cons_t).
+    ! In the current implementation: dotted lists will be copied,
+    ! unless they are degenerate (that is, not a cons_t). But circular
+    ! lists are not handled.
     !
     class(*), intent(in) :: lst
     type(cons_t) :: lst_c

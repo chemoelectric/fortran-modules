@@ -543,10 +543,18 @@ contains
     lst1 = 123 ** nil
     lst2 = list_copy (lst1)
     call check (lists_are_equal (integer_eq, lst1, lst2), "test0130-0020 failed")
+    call check (is_nil (cdr (last_pair (lst2))), "test0130-0025 failed")
 
     lst1 = iota (100_sz, 1_sz)
     lst2 = list_copy (lst1)
-    call check (lists_are_equal (size_kind_eq, lst1, lst2), "test0130-0020 failed")
+    call check (lists_are_equal (size_kind_eq, lst1, lst2), "test0130-0030 failed")
+    call check (is_nil (cdr (last_pair (lst2))), "test0130-0035 failed")
+
+    ! Test a dotted list.
+    lst1 = iota (100_sz, 1_sz)
+    call set_cdr (last_pair (lst1), 123)
+    lst2 = list_copy (lst1)
+    call check (cdr (last_pair (lst2)) .eqi. 123, "test0130-0040 failed")
   end subroutine test0130
 
   subroutine run_tests
