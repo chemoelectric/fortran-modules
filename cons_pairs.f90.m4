@@ -516,11 +516,14 @@ contains
   end function cdr
 
   recursive subroutine set_car (the_pair, car_value)
-    class(cons_t), intent(inout) :: the_pair
+    class(*), intent(in) :: the_pair
     class(*), intent(in) :: car_value
 
-    if (associated (the_pair%heap_element)) then
-       select type (data => the_pair%heap_element%data)
+    type(cons_t) :: pair
+
+    pair = .tocons. the_pair
+    if (associated (pair%heap_element)) then
+       select type (data => pair%heap_element%data)
        class is (pair_data_t)
           data%car = .autoval. car_value
        end select
@@ -530,11 +533,14 @@ contains
   end subroutine set_car
 
   recursive subroutine set_cdr (the_pair, cdr_value)
-    class(cons_t), intent(inout) :: the_pair
+    class(*), intent(in) :: the_pair
     class(*), intent(in) :: cdr_value
 
-    if (associated (the_pair%heap_element)) then
-       select type (data => the_pair%heap_element%data)
+    type(cons_t) :: pair
+
+    pair = .tocons. the_pair
+    if (associated (pair%heap_element)) then
+       select type (data => pair%heap_element%data)
        class is (pair_data_t)
           data%cdr = .autoval. cdr_value
        end select
