@@ -106,10 +106,6 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: list_ref1        ! Return any one of the 1st, 2nd, 3rd, etc., elements.
   public :: list_refn        ! Return any one of the nth, (n+1)th, (n+2)th, etc., elements.
 
-  ! SRFI-1 does not have these `next' procedures.
-  public :: next_left        ! Replace a variable's value with its CAR (x = car (x)).
-  public :: next_right       ! Replace a variable's value with its CDR (x = cdr (x)).
-
   ! Make and unmake a list of particular length, or of a certain
   ! length and also a tail. (SRFI-1 has `list' and `cons*' have
   ! related functionality.)
@@ -653,18 +649,6 @@ m4_bits_to_get_nth_element([10],[element])dnl
   end function list_refn
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  subroutine next_left (obj)
-    class(*), allocatable, intent(inout) :: obj
-    obj = car (obj)
-  end subroutine next_left
-
-  subroutine next_right (obj)
-    class(*), allocatable, intent(inout) :: obj
-    obj = cdr (obj)
-  end subroutine next_right
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 dnl
 m4_forloop([n],[1],LISTN_MAX,[
   function list[]n (obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
@@ -768,8 +752,8 @@ m4_forloop([k],[2],n,[dnl
     ! Detect circularity by having a `lead' reference move through the
     ! list at a higher rate than a `lag' reference. In a circular
     ! list, eventually `lead' will catch up with `lag'.
-    class(*), allocatable :: lead
-    class(*), allocatable :: lag
+    type(gcroot_t) :: lead
+    type(gcroot_t) :: lag
 
     logical :: is_dot
     logical :: is_circ
@@ -786,13 +770,13 @@ m4_forloop([k],[2],n,[dnl
           is_dot = is_not_nil (lead)
           done = .true.
        else
-          call next_right (lead)
+          lead = cdr (lead)
           if (is_not_pair (lead)) then
              is_dot = is_not_nil (lead)
              done = .true.
           else
-             call next_right (lead)
-             call next_right (lag)
+             lead = cdr (lead)
+             lag = cdr (lag)
              if (is_pair (lead)) then
                 if (cons_t_eq (lead, lag)) then
                    is_circ = .true.
@@ -1051,13 +1035,13 @@ m4_forloop([k],[2],n,[dnl
     class(*), intent(in) :: lst
     type(cons_t) :: lst_r
 
-    class(*), allocatable :: tail
+    type(gcroot_t) :: tail
     
     lst_r = nil
     tail = lst
     do while (is_pair (tail))
        lst_r = car (tail) ** lst_r
-       call next_right (tail)
+       tail = cdr (tail)
     end do
   end function reverse
 

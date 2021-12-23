@@ -123,10 +123,6 @@ module cons_pairs
   public :: list_ref1        ! Return any one of the 1st, 2nd, 3rd, etc., elements.
   public :: list_refn        ! Return any one of the nth, (n+1)th, (n+2)th, etc., elements.
 
-  ! SRFI-1 does not have these `next' procedures.
-  public :: next_left        ! Replace a variable's value with its CAR (x = car (x)).
-  public :: next_right       ! Replace a variable's value with its CDR (x = cdr (x)).
-
   ! Make and unmake a list of particular length, or of a certain
   ! length and also a tail. (SRFI-1 has `list' and `cons*' have
   ! related functionality.)
@@ -640,264 +636,264 @@ contains
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_left (element)
-    call next_left (element)
+    element = car (element)
+    element = car (element)
   end function caar
 
   function cdar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_left (element)
-    call next_right (element)
+    element = car (element)
+    element = cdr (element)
   end function cdar
 
   function cadr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_right (element)
-    call next_left (element)
+    element = cdr (element)
+    element = car (element)
   end function cadr
 
   function cddr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_right (element)
-    call next_right (element)
+    element = cdr (element)
+    element = cdr (element)
   end function cddr
 
   function caaar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_left (element)
-    call next_left (element)
-    call next_left (element)
+    element = car (element)
+    element = car (element)
+    element = car (element)
   end function caaar
 
   function cdaar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_left (element)
-    call next_left (element)
-    call next_right (element)
+    element = car (element)
+    element = car (element)
+    element = cdr (element)
   end function cdaar
 
   function cadar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_left (element)
-    call next_right (element)
-    call next_left (element)
+    element = car (element)
+    element = cdr (element)
+    element = car (element)
   end function cadar
 
   function cddar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_left (element)
-    call next_right (element)
-    call next_right (element)
+    element = car (element)
+    element = cdr (element)
+    element = cdr (element)
   end function cddar
 
   function caadr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_right (element)
-    call next_left (element)
-    call next_left (element)
+    element = cdr (element)
+    element = car (element)
+    element = car (element)
   end function caadr
 
   function cdadr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_right (element)
-    call next_left (element)
-    call next_right (element)
+    element = cdr (element)
+    element = car (element)
+    element = cdr (element)
   end function cdadr
 
   function caddr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_right (element)
-    call next_right (element)
-    call next_left (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function caddr
 
   function cdddr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
   end function cdddr
 
   function caaaar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_left (element)
-    call next_left (element)
-    call next_left (element)
-    call next_left (element)
+    element = car (element)
+    element = car (element)
+    element = car (element)
+    element = car (element)
   end function caaaar
 
   function cdaaar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_left (element)
-    call next_left (element)
-    call next_left (element)
-    call next_right (element)
+    element = car (element)
+    element = car (element)
+    element = car (element)
+    element = cdr (element)
   end function cdaaar
 
   function cadaar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_left (element)
-    call next_left (element)
-    call next_right (element)
-    call next_left (element)
+    element = car (element)
+    element = car (element)
+    element = cdr (element)
+    element = car (element)
   end function cadaar
 
   function cddaar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_left (element)
-    call next_left (element)
-    call next_right (element)
-    call next_right (element)
+    element = car (element)
+    element = car (element)
+    element = cdr (element)
+    element = cdr (element)
   end function cddaar
 
   function caadar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_left (element)
-    call next_right (element)
-    call next_left (element)
-    call next_left (element)
+    element = car (element)
+    element = cdr (element)
+    element = car (element)
+    element = car (element)
   end function caadar
 
   function cdadar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_left (element)
-    call next_right (element)
-    call next_left (element)
-    call next_right (element)
+    element = car (element)
+    element = cdr (element)
+    element = car (element)
+    element = cdr (element)
   end function cdadar
 
   function caddar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_left (element)
-    call next_right (element)
-    call next_right (element)
-    call next_left (element)
+    element = car (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function caddar
 
   function cdddar (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_left (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
+    element = car (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
   end function cdddar
 
   function caaadr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_right (element)
-    call next_left (element)
-    call next_left (element)
-    call next_left (element)
+    element = cdr (element)
+    element = car (element)
+    element = car (element)
+    element = car (element)
   end function caaadr
 
   function cdaadr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_right (element)
-    call next_left (element)
-    call next_left (element)
-    call next_right (element)
+    element = cdr (element)
+    element = car (element)
+    element = car (element)
+    element = cdr (element)
   end function cdaadr
 
   function cadadr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_right (element)
-    call next_left (element)
-    call next_right (element)
-    call next_left (element)
+    element = cdr (element)
+    element = car (element)
+    element = cdr (element)
+    element = car (element)
   end function cadadr
 
   function cddadr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_right (element)
-    call next_left (element)
-    call next_right (element)
-    call next_right (element)
+    element = cdr (element)
+    element = car (element)
+    element = cdr (element)
+    element = cdr (element)
   end function cddadr
 
   function caaddr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_right (element)
-    call next_right (element)
-    call next_left (element)
-    call next_left (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
+    element = car (element)
   end function caaddr
 
   function cdaddr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_right (element)
-    call next_right (element)
-    call next_left (element)
-    call next_right (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
+    element = cdr (element)
   end function cdaddr
 
   function cadddr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_left (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function cadddr
 
   function cddddr (tree) result (element)
     class(*), intent(in) :: tree
     class(*), allocatable :: element
     element = tree
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
   end function cddddr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -906,115 +902,115 @@ contains
     class(*), intent(in) :: lst
     class(*), allocatable :: element
     element = lst
-    call next_left (element)
+    element = car (element)
   end function first
 
   function second (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
     element = lst
-    call next_right (element)
-    call next_left (element)
+    element = cdr (element)
+    element = car (element)
   end function second
 
   function third (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
     element = lst
-    call next_right (element)
-    call next_right (element)
-    call next_left (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function third
 
   function fourth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
     element = lst
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_left (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function fourth
 
   function fifth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
     element = lst
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_left (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function fifth
 
   function sixth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
     element = lst
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_left (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function sixth
 
   function seventh (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
     element = lst
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_left (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function seventh
 
   function eighth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
     element = lst
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_left (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function eighth
 
   function ninth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
     element = lst
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_left (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function ninth
 
   function tenth (lst) result (element)
     class(*), intent(in) :: lst
     class(*), allocatable :: element
     element = lst
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_right (element)
-    call next_left (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = cdr (element)
+    element = car (element)
   end function tenth
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1043,18 +1039,6 @@ contains
 
     element = list_ref0 (lst, i - n)
   end function list_refn
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  subroutine next_left (obj)
-    class(*), allocatable, intent(inout) :: obj
-    obj = car (obj)
-  end subroutine next_left
-
-  subroutine next_right (obj)
-    class(*), allocatable, intent(inout) :: obj
-    obj = cdr (obj)
-  end subroutine next_right
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -3596,8 +3580,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! Detect circularity by having a `lead' reference move through the
     ! list at a higher rate than a `lag' reference. In a circular
     ! list, eventually `lead' will catch up with `lag'.
-    class(*), allocatable :: lead
-    class(*), allocatable :: lag
+    type(gcroot_t) :: lead
+    type(gcroot_t) :: lag
 
     logical :: is_dot
     logical :: is_circ
@@ -3614,13 +3598,13 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           is_dot = is_not_nil (lead)
           done = .true.
        else
-          call next_right (lead)
+          lead = cdr (lead)
           if (is_not_pair (lead)) then
              is_dot = is_not_nil (lead)
              done = .true.
           else
-             call next_right (lead)
-             call next_right (lag)
+             lead = cdr (lead)
+             lag = cdr (lag)
              if (is_pair (lead)) then
                 if (cons_t_eq (lead, lag)) then
                    is_circ = .true.
@@ -3879,13 +3863,13 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst
     type(cons_t) :: lst_r
 
-    class(*), allocatable :: tail
+    type(gcroot_t) :: tail
     
     lst_r = nil
     tail = lst
     do while (is_pair (tail))
        lst_r = car (tail) ** lst_r
-       call next_right (tail)
+       tail = cdr (tail)
     end do
   end function reverse
 
