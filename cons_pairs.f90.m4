@@ -75,6 +75,7 @@ module cons_pairs
   public :: is_nil_list
 
   public :: cons_t_cast      ! Convert an object to a CONS-pair, if possible.
+  public :: operator(.tocons.) ! A synonym for cons_t_cast.
   public :: cons_t_eq        ! Are two cons_t either both NIL or pairs that share their storage?
 
   public :: cons             ! The fundamental CONS-pair constructor.
@@ -184,6 +185,10 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
      module procedure infix_right_cons
   end interface operator(**)
 
+  interface operator(.tocons.)
+     module procedure cons_t_cast
+  end interface operator(.tocons.)
+
   interface iota
      module procedure iota_of_length
      module procedure iota_of_length_start
@@ -210,14 +215,6 @@ contains
     write (error_unit, '("module cons_pairs error: ", a)') msg
     error stop
   end subroutine error_abort_1
-
-  subroutine disallow_gcroot (obj)
-    class(*), intent(in) :: obj
-    select type (obj)
-    class is (gcroot_t)
-       call error_abort ("gcroot_t is not allowed in this context")
-    end select
-  end subroutine disallow_gcroot
 
   subroutine strange_error
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
@@ -275,6 +272,13 @@ contains
     select type (obj)
     class is (cons_t)
        bool = associated (obj%heap_element)
+    class is (gcroot_t)
+       select type (val => .val. obj)
+       class is (cons_t)
+          bool = associated (val%heap_element)
+       class default
+          bool = .false.
+       end select
     class default
        bool = .false.
     end select
@@ -287,60 +291,22 @@ contains
     bool = .not. is_pair (obj)
   end function is_not_pair
 
-  function cons_t_cast (obj) result (lst)
-    class(*), intent(in) :: obj
-    type(cons_t) :: lst
-
-    call disallow_gcroot (obj)
-
-    select type (obj)
-    class is (cons_t)
-       lst = obj
-    class default
-      call error_abort ("cons_t_cast of an incompatible object")
-    end select
-  end function cons_t_cast
-
-  recursive function cons_t_eq (obj1, obj2) result (bool)
-    class(*), intent(in) :: obj1
-    class(*), intent(in) :: obj2
-    logical :: bool
-
-    call disallow_gcroot (obj1)
-    call disallow_gcroot (obj2)
-
-    select type (obj1)
-    class is (cons_t)
-       select type (obj2)
-       class is (cons_t)
-          if (associated (obj1%heap_element)) then
-             if (associated (obj2%heap_element)) then
-                bool = associated (obj1%heap_element, obj2%heap_element)
-             else
-                bool = .false.
-             end if
-          else
-             bool = .not. associated (obj2%heap_element)
-          end if
-       class default
-          call error_abort ("the second argument to cons_t_eq is not a cons_t")
-       end select
-    class default
-       call error_abort ("the first argument to cons_t_eq is not a cons_t")
-    end select
-  end function cons_t_eq
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   function is_nil (obj) result (bool)
     class(*), intent(in) :: obj
     logical :: bool
 
-    call disallow_gcroot (obj)
-
     select type (obj)
     class is (cons_t)
        bool = .not. associated (obj%heap_element)
+    class is (gcroot_t)
+       select type (val => .val. obj)
+       class is (cons_t)
+         bool = .not. associated (val%heap_element)
+      class default
+         bool = .false.
+      end select
     class default
        bool = .false.
     end select
@@ -357,15 +323,62 @@ contains
     class(*), intent(in) :: obj
     logical :: bool
 
-    call disallow_gcroot (obj)
-
     select type (obj)
     class is (cons_t)
        bool = .not. associated (obj%heap_element)
+    class is (gcroot_t)
+       select type (val => .val. obj)
+       class is (cons_t)
+         bool = .not. associated (val%heap_element)
+      class default
+         call error_abort ("is_nil_list of a gcroot_t whose value is not a cons_t")
+      end select
     class default
        call error_abort ("is_nil_list of an object that is not a cons_t")
     end select
   end function is_nil_list
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function cons_t_cast (obj) result (lst)
+    class(*), intent(in) :: obj
+    type(cons_t) :: lst
+
+    select type (obj)
+    class is (cons_t)
+       lst = obj
+    class is (gcroot_t)
+       select type (val => .val. obj)
+       class is (cons_t)
+          lst = val
+       class default
+          call error_abort ("cons_t_cast of an incompatible gcroot_t object")
+       end select
+    class default
+      call error_abort ("cons_t_cast of an incompatible object")
+    end select
+  end function cons_t_cast
+
+  recursive function cons_t_eq (obj1, obj2) result (bool)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    logical :: bool
+
+    type(cons_t) :: o1, o2
+
+    o1 = .tocons. obj1
+    o2 = .tocons. obj2
+
+    if (associated (o1%heap_element)) then
+       if (associated (o2%heap_element)) then
+          bool = associated (o1%heap_element, o2%heap_element)
+       else
+          bool = .false.
+       end if
+    else
+       bool = .not. associated (o2%heap_element)
+    end if
+  end function cons_t_eq
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -377,12 +390,9 @@ contains
     type(heap_element_t), pointer :: new_element
     type(pair_data_t), pointer :: data
 
-    call disallow_gcroot (car_value)
-    call disallow_gcroot (cdr_value)
-
     allocate (data)
-    data%car = car_value
-    data%cdr = cdr_value
+    data%car = .autoval. car_value
+    data%cdr = .autoval. cdr_value
     allocate (new_element)
     new_element%data => data
     call heap_insert (new_element)
@@ -397,10 +407,8 @@ contains
     type(heap_element_t), pointer :: new_element
     type(pair_data_t), pointer :: data
 
-    call disallow_gcroot (car_value)
-
     allocate (data)
-    data%car = car_value
+    data%car = .autoval. car_value
     data%cdr = cdr_value
     allocate (new_element)
     new_element%data => data
@@ -416,12 +424,10 @@ contains
     class(*), allocatable :: car_val
     class(*), allocatable :: cdr_val
 
-    call disallow_gcroot (the_pair)
-
-    select type (the_pair)
+    select type (pair => .autoval. the_pair)
     class is (cons_t)
-       if (associated (the_pair%heap_element)) then
-          select type (data => the_pair%heap_element%data)
+       if (associated (pair%heap_element)) then
+          select type (data => pair%heap_element%data)
           class is (pair_data_t)
              car_val = data%car
              cdr_val = data%cdr
@@ -442,12 +448,10 @@ contains
     class(*), intent(in) :: the_pair
     class(*), allocatable :: car_value
 
-    call disallow_gcroot (the_pair)
-
-    select type (the_pair)
+    select type (pair => .autoval. the_pair)
     class is (cons_t)
-       if (associated (the_pair%heap_element)) then
-          select type (data => the_pair%heap_element%data)
+       if (associated (pair%heap_element)) then
+          select type (data => pair%heap_element%data)
           class is (pair_data_t)
              car_value = data%car
           class default
@@ -465,12 +469,10 @@ contains
     class(*), intent(in) :: the_pair
     class(*), allocatable :: cdr_value
 
-    call disallow_gcroot (the_pair)
-
-    select type (the_pair)
+    select type (pair => .autoval. the_pair)
     class is (cons_t)
-       if (associated (the_pair%heap_element)) then
-          select type (data => the_pair%heap_element%data)
+       if (associated (pair%heap_element)) then
+          select type (data => pair%heap_element%data)
           class is (pair_data_t)
              cdr_value = data%cdr
           class default
@@ -488,12 +490,10 @@ contains
     class(cons_t), intent(inout) :: the_pair
     class(*), intent(in) :: car_value
 
-    call disallow_gcroot (car_value)
-
     if (associated (the_pair%heap_element)) then
        select type (data => the_pair%heap_element%data)
        class is (pair_data_t)
-          data%car = car_value
+          data%car = .autoval. car_value
        end select
     else
        call error_abort ("set_car of a nil list")
@@ -504,12 +504,10 @@ contains
     class(cons_t), intent(inout) :: the_pair
     class(*), intent(in) :: cdr_value
 
-    call disallow_gcroot (cdr_value)
-
     if (associated (the_pair%heap_element)) then
        select type (data => the_pair%heap_element%data)
        class is (pair_data_t)
-          data%cdr = cdr_value
+          data%cdr = .autoval. cdr_value
        end select
     else
        call error_abort ("set_cdr of a nil list")
@@ -725,9 +723,7 @@ m4_forloop([k],[2],n,[dnl
     logical :: is_circ
     logical :: done
 
-    call disallow_gcroot (obj)
-
-    lead = obj
+    lead = .autoval. obj
 
     lag = lead
     is_dot = .false.
@@ -817,17 +813,15 @@ m4_forloop([k],[2],n,[dnl
     type(cons_t) :: new_pair
     integer(sz) :: i
 
-    call disallow_gcroot (lst)
-
-    select type (lst)
+    select type (lst1 => .autoval. lst)
     class is (cons_t)
        if (n <= 0) then
           lst_t = nil
        else
-          if (is_not_pair (lst)) then
+          if (is_not_pair (lst1)) then
              call error_abort ("positive `take' of a nil list")
           else
-             call uncons (lst, head, tail)
+             call uncons (lst1, head, tail)
              cursor = head ** nil
              lst_t = cursor
              i = n - 1
@@ -933,15 +927,12 @@ m4_forloop([k],[2],n,[dnl
 
     type(gcroot_t) :: lst1_root, lst2_root
 
-    call disallow_gcroot (lst1)
-    call disallow_gcroot (lst2)
-
     ! Protect against garbage collections in the predicate.
     lst1_root = lst1
     lst2_root = lst2
 
-    p = cons_t_cast (lst1)
-    q = cons_t_cast (lst2)
+    p = .tocons. lst1
+    q = .tocons. lst2
     done = .false.
     do while (.not. done)
        if (is_not_pair (p)) then
@@ -970,6 +961,9 @@ m4_forloop([k],[2],n,[dnl
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
   end function lists_are_equal
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

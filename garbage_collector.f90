@@ -32,6 +32,7 @@ module garbage_collector
   private
 
   public :: operator(.val.)
+  public :: operator(.autoval.)
 
   public :: size_kind
 
@@ -85,11 +86,10 @@ module garbage_collector
      class(*), pointer :: root => null ()
    contains
      procedure, pass :: val => gcroot_t_val
-!!$     procedure, pass :: ptr => gcroot_t_ptr
      procedure, pass :: assign => gcroot_t_assign
+     procedure, pass :: discard => gcroot_t_discard
      generic :: assignment(=) => assign
      generic :: operator(.val.) => val
-!!$     generic :: operator(.ptr.) => ptr
      final :: gcroot_t_finalize
   end type gcroot_t
 
@@ -116,6 +116,10 @@ module garbage_collector
   integer(size_kind) :: heap_size_buffer = 64
 
   logical :: garbage_collector_is_initialized = .false.
+
+  interface operator(.autoval.)
+     module procedure gcroot_t_autoval
+  end interface operator(.autoval.)
 
 
 contains
@@ -334,16 +338,20 @@ contains
     end select
   end function gcroot_t_val
 
-!!$  function gcroot_t_ptr (this) result (ptr)
-!!$    class(gcroot_t), intent(in) :: this
-!!$    class(collectible_t), pointer :: ptr
-!!$    select type (root => this%root)
-!!$    class is (root_t)
-!!$       ptr => root%collectible
-!!$    class default
-!!$       call error_abort ("gcroot_t_ptr of a non-collectible object")
-!!$    end select
-!!$  end function gcroot_t_ptr
+  function gcroot_t_autoval (obj) result (retval)
+    !
+    ! Do (.val. obj) if obj is a gcroot. Otherwise just copy the
+    ! object, unaltered.
+    !
+    class(*), intent(in) :: obj
+    class(*), allocatable :: retval
+    select type (obj)
+    class is (gcroot_t)
+       retval = gcroot_t_val (obj)
+    class default
+       retval = obj
+    end select
+  end function gcroot_t_autoval
 
   subroutine gcroot_t_assign (dst, src)
     class(gcroot_t), intent(inout) :: dst
@@ -420,22 +428,16 @@ contains
 
   end subroutine gcroot_t_assign
 
-!!$  subroutine gcroot_t_discard (this) ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME ! FIXME
-!!$    class(gcroot_t), intent(inout) :: this
-!!$
-!!$goto 10000
-!!$    if (associated (this%root)) then
-!!$       select type (root => this%root)
-!!$       class is (root_t)
-!!$          call roots_remove (root)
-!!$          deallocate (root)
-!!$       class default
-!!$          deallocate (this%root)
-!!$       end select
-!!$    end if
-!!$    nullify (this%root)
-!!$10000 continue
-!!$  end subroutine gcroot_t_discard
+  subroutine gcroot_t_discard (this)
+    !
+    ! Explicitly finalize the contents of a gcroot_t.
+    !
+    ! After the discard, the value (if any) of the variable is not
+    ! specified.
+    !
+    class(gcroot_t), intent(inout) :: this
+    this = 0       ! Simply assign an arbitrary non-collectible value.
+  end subroutine gcroot_t_discard
 
   subroutine gcroot_t_finalize (this)
     type(gcroot_t), intent(inout) :: this

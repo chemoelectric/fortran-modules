@@ -44,6 +44,7 @@ module boxes
 
   public :: is_box           ! Is the object either a box or a gcroot_t containing a box?
   public :: box_t_cast       ! Convert an object to a box, if possible.
+  public :: operator(.tobox.) ! A synonym for box_t_cast.
 
   public :: box              ! Put an object in a box.
   public :: unbox            ! Copy an object from a box.
@@ -61,6 +62,10 @@ module boxes
      procedure, pass :: get_branch => box_t_get_branch
   end type box_t
 
+  interface operator(.tobox.)
+     module procedure box_t_cast
+  end interface operator(.tobox.)
+
   interface error_abort
      module procedure error_abort_1
   end interface error_abort
@@ -76,14 +81,6 @@ contains
     write (error_unit, '("module boxes error: ", a)') msg
     error stop
   end subroutine error_abort_1
-
-  subroutine disallow_gcroot (obj)
-    class(*), intent(in) :: obj
-    select type (obj)
-    class is (gcroot_t)
-       call error_abort ("gcroot_t is not allowed in this context")
-    end select
-  end subroutine disallow_gcroot
 
   subroutine strange_error
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
@@ -127,11 +124,16 @@ contains
     class(*), intent(in) :: obj
     class(box_t), allocatable :: the_box
 
-    call disallow_gcroot (obj)
-
     select type (obj)
     class is (box_t)
        the_box = obj
+    class is (gcroot_t)
+       select type (val => .val. obj)
+       class is (box_t)
+          the_box = val
+       class default
+          call error_abort ("box_t_cast of an incompatible gcroot_t object")
+       end select
     class default
       call error_abort ("box_t_cast of an incompatible object")
     end select
@@ -146,10 +148,8 @@ contains
     type(heap_element_t), pointer :: new_element
     type(box_data_t), pointer :: data
 
-    call disallow_gcroot (contents)
-
     allocate (data)
-    data%contents = contents
+    data%contents = .autoval. contents
     allocate (new_element)
     new_element%data => data
     call heap_insert (new_element)
@@ -163,11 +163,9 @@ contains
 
     class(*), pointer :: data
 
-    call disallow_gcroot (the_box)
-
-    select type (the_box)
+    select type (some_box => .autoval. the_box)
     class is (box_t)
-       data => the_box%heap_element%data
+       data => some_box%heap_element%data
        select type (data)
        class is (box_data_t)
           contents = data%contents
@@ -185,11 +183,9 @@ contains
 
     type(box_data_t), pointer :: data
 
-    call disallow_gcroot (contents)
-
     deallocate (the_box%heap_element%data)
     allocate (data)
-    data%contents = contents
+    data%contents = .autoval. contents
     the_box%heap_element%data => data
   end subroutine set_box
 
@@ -199,13 +195,11 @@ contains
     class(*), intent(in) :: contents
     class(box_t), allocatable :: the_box
 
-    call disallow_gcroot (contents)
-
-    select type (contents)
+    select type (stuff => .autoval. contents)
     class is (box_t)
-       the_box = contents
+       the_box = stuff
     class default
-       the_box = box (contents)
+       the_box = box (stuff)
     end select
   end function autobox
 
@@ -213,13 +207,11 @@ contains
     class(*), intent(in) :: the_box
     class(*), allocatable :: contents
 
-    call disallow_gcroot (the_box)
-
-    select type (the_box)
+    select type (some_box => .autoval. the_box)
     class is (box_t)
-       contents = unbox (the_box)
+       contents = unbox (some_box)
     class default
-       contents = the_box
+       contents = some_box
     end select
   end function autounbox
 
