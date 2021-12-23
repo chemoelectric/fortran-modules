@@ -42,7 +42,6 @@ module garbage_collector
   private
 
   public :: operator(.val.)
-  public :: operator(.ptr.)
 
   public :: size_kind
 
@@ -96,11 +95,11 @@ module garbage_collector
      class(*), pointer :: root => null ()
    contains
      procedure, pass :: val => gcroot_t_val
-     procedure, pass :: ptr => gcroot_t_ptr
+!!$     procedure, pass :: ptr => gcroot_t_ptr
      procedure, pass :: assign => gcroot_t_assign
      generic :: assignment(=) => assign
      generic :: operator(.val.) => val
-     generic :: operator(.ptr.) => ptr
+!!$     generic :: operator(.ptr.) => ptr
      final :: gcroot_t_finalize
   end type gcroot_t
 
@@ -128,14 +127,17 @@ module garbage_collector
 
   logical :: garbage_collector_is_initialized = .false.
 
+m4_if(DEBUGGING,[true],[dnl
   interface error_abort
      module procedure error_abort_1
   end interface error_abort
+])dnl
 
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+m4_if(DEBUGGING,[true],[dnl
   subroutine error_abort_1 (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
@@ -145,6 +147,7 @@ contains
   end subroutine error_abort_1
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+])dnl
 
   function current_heap_size () result (size)
     integer(size_kind) :: size
@@ -399,16 +402,16 @@ m4_if(DEBUGGING,[true],[dnl
     end select
   end function gcroot_t_val
 
-  function gcroot_t_ptr (this) result (ptr)
-    class(gcroot_t), intent(in) :: this
-    class(collectible_t), pointer :: ptr
-    select type (root => this%root)
-    class is (root_t)
-       ptr => root%collectible
-    class default
-       call error_abort ("gcroot_t_ptr of a non-collectible object")
-    end select
-  end function gcroot_t_ptr
+!!$  function gcroot_t_ptr (this) result (ptr)
+!!$    class(gcroot_t), intent(in) :: this
+!!$    class(collectible_t), pointer :: ptr
+!!$    select type (root => this%root)
+!!$    class is (root_t)
+!!$       ptr => root%collectible
+!!$    class default
+!!$       call error_abort ("gcroot_t_ptr of a non-collectible object")
+!!$    end select
+!!$  end function gcroot_t_ptr
 
   subroutine gcroot_t_assign (dst, src)
     class(gcroot_t), intent(inout) :: dst
@@ -416,14 +419,22 @@ m4_if(DEBUGGING,[true],[dnl
 
     select type (src)
     class is (collectible_t)
-       ! Create a new root.
-       m4_if(DEBUGGING,[true],[write (*,'("gcroot_t_assign of a collectible_t")')])
-       block
-         class(root_t), pointer :: new_root
-         call roots_insert (roots, src, new_root)
-         call gcroot_t_finalize (dst)
-         dst%root => new_root
-       end block
+       if (associated (src%heap_element)) then
+          ! Create a new root.
+          m4_if(DEBUGGING,[true],[write (*,'("gcroot_t_assign of a collectible_t")')])
+          block
+            class(root_t), pointer :: new_root
+            call roots_insert (roots, src, new_root)
+            call gcroot_t_finalize (dst)
+            dst%root => new_root
+          end block
+       else
+          ! A NIL-list or some such object that is technically a
+          ! collectible_t, but not treated as a heap object.
+          m4_if(DEBUGGING,[true],[write (*,'("    which is not actually collectible (for example, ""nil"")")')])
+          call gcroot_t_finalize (dst)
+          allocate (dst%root, source = src)
+       end if
        call possibly_collect_garbage
     class is (gcroot_t)
        m4_if(DEBUGGING,[true],[write (*,'("gcroot_t_assign of a gcroot_t")')])
@@ -454,7 +465,7 @@ m4_if(DEBUGGING,[true],[dnl
   contains
 
     subroutine possibly_collect_garbage
-      if (heap_size_limit < heap_count) then
+      if (automatic_garbage_collection .and. heap_size_limit < heap_count) then
          call collect_garbage
          ! Possibly increase heap_size_limit until it is greater than
          ! heap_count plus a bit of buffer space.
@@ -612,25 +623,27 @@ m4_if(DEBUGGING,[true],[dnl
             m4_if(DEBUGGING,[true],[write (*,'("             examining branch number ", i3)') branch_number])
             select type (branch)
             class is (collectible_t)
-               ! The branch is a reachable object, possibly already
-               ! marked for keeping.
-               m4_if(DEBUGGING,[true],[write (*,'("             it is collectible")')])
-               if (.not. is_marked (branch%heap_element)) then
+               if (associated (branch%heap_element)) then ! Exclude things such `nil' that are not actually collectible.
+                  ! The branch is a reachable object, possibly already
+                  ! marked for keeping.
+                  m4_if(DEBUGGING,[true],[write (*,'("             it is collectible")')])
+                  if (.not. is_marked (branch%heap_element)) then
 
-                  ! Mark the reachable object for keeping.
-                  m4_if(DEBUGGING,[true],[write (*,'("             it is unmarked; marking it as reachable")')])
-                  call set_marked (branch%heap_element)
+                     ! Mark the reachable object for keeping.
+                     m4_if(DEBUGGING,[true],[write (*,'("             it is unmarked; marking it as reachable")')])
+                     call set_marked (branch%heap_element)
 
-                  ! Push the object to the stack, to see if anything
-                  ! else can be reached through it.
-                  m4_if(DEBUGGING,[true],[write (*,'("             pushing the reachable")')])
-                  block
-                    type(work_stack_element_t), pointer :: tmp
-                    allocate (tmp)
-                    allocate (tmp%collectible, source = branch)
-                    tmp%next => work_stack
-                    work_stack => tmp
-                  end block
+                     ! Push the object to the stack, to see if anything
+                     ! else can be reached through it.
+                     m4_if(DEBUGGING,[true],[write (*,'("             pushing the reachable")')])
+                     block
+                       type(work_stack_element_t), pointer :: tmp
+                       allocate (tmp)
+                       allocate (tmp%collectible, source = branch)
+                       tmp%next => work_stack
+                       work_stack => tmp
+                     end block
+                  end if
                end if
             end select
             branch_number = branch_number + 1

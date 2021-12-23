@@ -413,7 +413,6 @@ contains
     class(*), allocatable, intent(inout) :: car_value
     class(*), allocatable, intent(inout) :: cdr_value
 
-    class(*), pointer :: data
     class(*), allocatable :: car_val
     class(*), allocatable :: cdr_val
 
@@ -422,8 +421,7 @@ contains
     select type (the_pair)
     class is (cons_t)
        if (associated (the_pair%heap_element)) then
-          data => the_pair%heap_element%data
-          select type (data)
+          select type (data => the_pair%heap_element%data)
           class is (pair_data_t)
              car_val = data%car
              cdr_val = data%cdr
@@ -444,15 +442,12 @@ contains
     class(*), intent(in) :: the_pair
     class(*), allocatable :: car_value
 
-    class(*), pointer :: data
-
     call disallow_gcroot (the_pair)
 
     select type (the_pair)
     class is (cons_t)
        if (associated (the_pair%heap_element)) then
-          data => the_pair%heap_element%data
-          select type (data)
+          select type (data => the_pair%heap_element%data)
           class is (pair_data_t)
              car_value = data%car
           class default
@@ -470,15 +465,12 @@ contains
     class(*), intent(in) :: the_pair
     class(*), allocatable :: cdr_value
 
-    class(*), pointer :: data
-
     call disallow_gcroot (the_pair)
 
     select type (the_pair)
     class is (cons_t)
        if (associated (the_pair%heap_element)) then
-          data => the_pair%heap_element%data
-          select type (data)
+          select type (data => the_pair%heap_element%data)
           class is (pair_data_t)
              cdr_value = data%cdr
           class default
@@ -496,15 +488,13 @@ contains
     class(cons_t), intent(inout) :: the_pair
     class(*), intent(in) :: car_value
 
-    type(pair_data_t), pointer :: data
-
     call disallow_gcroot (car_value)
 
     if (associated (the_pair%heap_element)) then
-       deallocate (the_pair%heap_element%data)
-       allocate (data)
-       data%car = car_value
-       the_pair%heap_element%data => data
+       select type (data => the_pair%heap_element%data)
+       class is (pair_data_t)
+          data%car = car_value
+       end select
     else
        call error_abort ("set_car of a nil list")
     end if
@@ -514,15 +504,13 @@ contains
     class(cons_t), intent(inout) :: the_pair
     class(*), intent(in) :: cdr_value
 
-    type(pair_data_t), pointer :: data
-
     call disallow_gcroot (cdr_value)
 
     if (associated (the_pair%heap_element)) then
-       deallocate (the_pair%heap_element%data)
-       allocate (data)
-       data%cdr = cdr_value
-       the_pair%heap_element%data => data
+       select type (data => the_pair%heap_element%data)
+       class is (pair_data_t)
+          data%cdr = cdr_value
+       end select
     else
        call error_abort ("set_cdr of a nil list")
     end if
@@ -737,6 +725,8 @@ m4_forloop([k],[2],n,[dnl
     logical :: is_circ
     logical :: done
 
+    call disallow_gcroot (obj)
+
     lead = obj
 
     lag = lead
@@ -827,25 +817,32 @@ m4_forloop([k],[2],n,[dnl
     type(cons_t) :: new_pair
     integer(sz) :: i
 
-    if (n <= 0) then
-       lst_t = nil
-    else
-       if (is_not_pair (lst)) then
-          call error_abort ("positive `take' of a nil list")
+    call disallow_gcroot (lst)
+
+    select type (lst)
+    class is (cons_t)
+       if (n <= 0) then
+          lst_t = nil
        else
-          call uncons (lst, head, tail)
-          cursor = head ** nil
-          lst_t = cursor
-          i = n - 1
-          do while (0 < i .and. is_pair (tail))
-             call uncons (tail, head, tail)
-             new_pair = head ** nil
-             call set_cdr (cursor, new_pair)
-             cursor = new_pair
-             i = i - 1
-          end do
+          if (is_not_pair (lst)) then
+             call error_abort ("positive `take' of a nil list")
+          else
+             call uncons (lst, head, tail)
+             cursor = head ** nil
+             lst_t = cursor
+             i = n - 1
+             do while (0 < i .and. is_pair (tail))
+                call uncons (tail, head, tail)
+                new_pair = head ** nil
+                call set_cdr (cursor, new_pair)
+                cursor = new_pair
+                i = i - 1
+             end do
+          end if
        end if
-    end if
+    class default
+       call error_abort ("`take' of an object that is not a cons_t")
+    end select
   end function take
 
   function drop (lst, n) result (lst_d)
@@ -854,7 +851,7 @@ m4_forloop([k],[2],n,[dnl
     class(*), allocatable :: lst_d
 
     integer(sz) :: i
-    
+
     lst_d = lst
     do i = 1_sz, n
        call next_right (lst_d)
@@ -929,19 +926,22 @@ m4_forloop([k],[2],n,[dnl
     class(*), intent(in) :: lst1, lst2
     logical :: bool
 
-    type(gcroot_t) :: lst1_root, lst2_root
-
-    class(*), allocatable :: p, q
+    type(cons_t) :: p, q
     class(*), allocatable :: p_hd, q_hd
+    class(*), allocatable :: p_tl, q_tl
     logical :: done
 
-    ! Prevent garbage collection of the lists, despite the call to the
-    ! predicate.
+    type(gcroot_t) :: lst1_root, lst2_root
+
+    call disallow_gcroot (lst1)
+    call disallow_gcroot (lst2)
+
+    ! Protect against garbage collections in the predicate.
     lst1_root = lst1
     lst2_root = lst2
 
-    p = lst1
-    q = lst2
+    p = cons_t_cast (lst1)
+    q = cons_t_cast (lst2)
     done = .false.
     do while (.not. done)
        if (is_not_pair (p)) then
@@ -957,13 +957,16 @@ m4_forloop([k],[2],n,[dnl
           bool = .true.
           done = .true.
        else
-          call uncons (p, p_hd, p)
-          call uncons (q, q_hd, q)
+          call uncons (p, p_hd, p_tl)
+          call uncons (q, q_hd, q_tl)
           if (.not. pred (p_hd, q_hd)) then
              ! The predicate failed for some elements of lst1 and lst2
              ! respectively.
              bool = .false.
              done = .true.
+          else
+             p = cons_t_cast (p_tl)
+             q = cons_t_cast (q_tl)
           end if
        end if
     end do
