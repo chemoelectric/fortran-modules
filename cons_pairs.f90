@@ -3720,16 +3720,22 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end function take
 
   function drop (lst, n) result (lst_d)
+    !
+    ! Dotted lists are handled correctly, unless they are degenerate
+    ! (that is, not a cons_t).
+    !
     class(*), intent(in) :: lst
     integer(sz), intent(in) :: n
-    class(*), allocatable :: lst_d
+    type(cons_t) :: lst_d
 
+    type(gcroot_t) :: lst1
     integer(sz) :: i
 
-    lst_d = lst
+    lst1 = lst
     do i = 1_sz, n
-       call next_right (lst_d)
+       lst1 = cdr (lst1)
     end do
+    lst_d = .tocons. lst1
   end function drop
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
