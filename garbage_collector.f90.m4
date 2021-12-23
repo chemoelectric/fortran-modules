@@ -504,7 +504,9 @@ m4_if(DEBUGGING,[true],[dnl
     ! specified.
     !
     class(gcroot_t), intent(inout) :: this
-    this = 0       ! Simply assign an arbitrary non-collectible value.
+
+    ! Simply assign an arbitrary non-collectible value.
+    this = 9.80665 ! The acceleration due to gravity at sea level, in SI units.
   end subroutine gcroot_t_discard
 
   subroutine gcroot_t_finalize (this)
