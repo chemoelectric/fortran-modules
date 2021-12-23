@@ -110,9 +110,14 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: next_left        ! Replace a variable's value with its CAR (x = car (x)).
   public :: next_right       ! Replace a variable's value with its CDR (x = cdr (x)).
 
-  ! Make and unmake lists of particular lengths.
+  ! Make and unmake a list of particular length, or of a certain
+  ! length and also a tail. (SRFI-1 has `list' and `cons*' have
+  ! related functionality.)
 m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: list[]n
+])dnl
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  public :: list[]n[]_with_tail
 ])dnl
 m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: unlist[]n
@@ -668,6 +673,23 @@ m4_forloop([k],[2],n,[dnl
     lst = obj[]m4_eval(n - k + 1) ** lst
 ])dnl
   end function list[]n
+])dnl
+dnl
+m4_forloop([n],[1],LISTN_MAX,[
+  function list[]n[]_with_tail (obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+])obj[]k]), tail) result (lst)
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: obj[]k
+])dnl
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj[]n, tail)
+dnl
+m4_forloop([k],[2],n,[dnl
+    lst = obj[]m4_eval(n - k + 1) ** lst
+])dnl
+  end function list[]n[]_with_tail
 ])dnl
 dnl
 m4_forloop([n],[1],LISTN_MAX,[

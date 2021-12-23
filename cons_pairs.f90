@@ -127,7 +127,9 @@ module cons_pairs
   public :: next_left        ! Replace a variable's value with its CAR (x = car (x)).
   public :: next_right       ! Replace a variable's value with its CDR (x = cdr (x)).
 
-  ! Make and unmake lists of particular lengths.
+  ! Make and unmake a list of particular length, or of a certain
+  ! length and also a tail. (SRFI-1 has `list' and `cons*' have
+  ! related functionality.)
   public :: list1
   public :: list2
   public :: list3
@@ -148,6 +150,26 @@ module cons_pairs
   public :: list18
   public :: list19
   public :: list20
+  public :: list1_with_tail
+  public :: list2_with_tail
+  public :: list3_with_tail
+  public :: list4_with_tail
+  public :: list5_with_tail
+  public :: list6_with_tail
+  public :: list7_with_tail
+  public :: list8_with_tail
+  public :: list9_with_tail
+  public :: list10_with_tail
+  public :: list11_with_tail
+  public :: list12_with_tail
+  public :: list13_with_tail
+  public :: list14_with_tail
+  public :: list15_with_tail
+  public :: list16_with_tail
+  public :: list17_with_tail
+  public :: list18_with_tail
+  public :: list19_with_tail
+  public :: list20_with_tail
   public :: unlist1
   public :: unlist2
   public :: unlist3
@@ -1558,6 +1580,556 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     lst = obj2 ** lst
     lst = obj1 ** lst
   end function list20
+
+  function list1_with_tail (obj1, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj1, tail)
+  end function list1_with_tail
+
+  function list2_with_tail (obj1, obj2, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj2, tail)
+    lst = obj1 ** lst
+  end function list2_with_tail
+
+  function list3_with_tail (obj1, obj2, obj3, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj3, tail)
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list3_with_tail
+
+  function list4_with_tail (obj1, obj2, obj3, obj4, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj4, tail)
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list4_with_tail
+
+  function list5_with_tail (obj1, obj2, obj3, obj4, obj5, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj5, tail)
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list5_with_tail
+
+  function list6_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj6, tail)
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list6_with_tail
+
+  function list7_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj7, tail)
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list7_with_tail
+
+  function list8_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj8, tail)
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list8_with_tail
+
+  function list9_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj9, tail)
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list9_with_tail
+
+  function list10_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj10, tail)
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list10_with_tail
+
+  function list11_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj11, tail)
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list11_with_tail
+
+  function list12_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj12, tail)
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list12_with_tail
+
+  function list13_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj13, tail)
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list13_with_tail
+
+  function list14_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj14, tail)
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list14_with_tail
+
+  function list15_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj15, tail)
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list15_with_tail
+
+  function list16_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj16, tail)
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list16_with_tail
+
+  function list17_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+    class(*), intent(in) :: obj17
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj17, tail)
+    lst = obj16 ** lst
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list17_with_tail
+
+  function list18_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+    class(*), intent(in) :: obj17
+    class(*), intent(in) :: obj18
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj18, tail)
+    lst = obj17 ** lst
+    lst = obj16 ** lst
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list18_with_tail
+
+  function list19_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+    class(*), intent(in) :: obj17
+    class(*), intent(in) :: obj18
+    class(*), intent(in) :: obj19
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj19, tail)
+    lst = obj18 ** lst
+    lst = obj17 ** lst
+    lst = obj16 ** lst
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list19_with_tail
+
+  function list20_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
+obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+    class(*), intent(in) :: obj17
+    class(*), intent(in) :: obj18
+    class(*), intent(in) :: obj19
+    class(*), intent(in) :: obj20
+    class(*), intent(in) :: tail
+    type(cons_t) :: lst
+
+    lst = cons (obj20, tail)
+    lst = obj19 ** lst
+    lst = obj18 ** lst
+    lst = obj17 ** lst
+    lst = obj16 ** lst
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+  end function list20_with_tail
 
   subroutine unlist1 (lst, obj1)
     !
