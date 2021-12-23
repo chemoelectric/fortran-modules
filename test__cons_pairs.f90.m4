@@ -410,10 +410,9 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (lists_are_equal (integer_eq, reverse (123 ** nil), 123 ** nil), "test0100-0020 failed")
     call check (lists_are_equal (integer_eq, reverse (list5 (1, 2, 3, 4, 5)), list5 (5, 4, 3, 2, 1)), "test0100-0030 failed")
 
-    call check (lists_are_equal (integer_eq, destructive_reverse (nil), nil), "test0100-0040 failed")
-    call check (lists_are_equal (integer_eq, destructive_reverse (123 ** nil), 123 ** nil), "test0100-0050 failed")
-    call check (lists_are_equal (integer_eq, destructive_reverse (list5 (1, 2, 3, 4, 5)), list5 (5, 4, 3, 2, 1)), &
-         "test0100-0060 failed")
+    call check (lists_are_equal (integer_eq, reversex (nil), nil), "test0100-0040 failed")
+    call check (lists_are_equal (integer_eq, reversex (123 ** nil), 123 ** nil), "test0100-0050 failed")
+    call check (lists_are_equal (integer_eq, reversex (list5 (1, 2, 3, 4, 5)), list5 (5, 4, 3, 2, 1)), "test0100-0060 failed")
   end subroutine test0100
 
   subroutine test0110
@@ -423,7 +422,19 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
          take (circular_list (1 ** 2 ** 3 ** nil), 10_sz), &
          1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** nil), &
          "test0110-0020 failed")
+
+    call check (lists_are_equal (integer_eq, take (circular_listx (1 ** nil), 5_sz), list5 (1, 1, 1, 1, 1)), &
+         "test0110-0030 failed")
+    call check (lists_are_equal (integer_eq, &
+         take (circular_listx (1 ** 2 ** 3 ** nil), 10_sz), &
+         1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** nil), &
+         "test0110-0040 failed")
   end subroutine test0110
+
+  subroutine test0120
+    call check (last (1 ** nil) .eqi. 1, "test0120-0010 failed")
+    call check (last (1 ** 2 ** 3 ** nil) .eqi. 3, "test0120-0020 failed")
+  end subroutine test0120
 
   subroutine run_tests
     call test0010
@@ -438,6 +449,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0090
     call test0100
     call test0110
+    call test0120
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")

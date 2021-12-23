@@ -132,6 +132,9 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: take             ! Return a freshly allocated copy of the first n elements of a list.
   public :: drop             ! Return a common tail containing all but the first n elements of a list.
 
+  public :: last_pair        ! Return the last pair of a list.
+  public :: last             ! Return the last CAR of a list.
+
   public :: make_list        ! Return a list of repeated values.
 
   ! Return a list of values determined by a procedure.
@@ -155,8 +158,9 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: iota_of_length_start_step
 
   public :: reverse          ! Make a copy of a list, but reversed.
-  public :: destructive_reverse ! Like reverse, but is allowed to destroy its inputs.
+  public :: reversex         ! Like reverse, but allowed to destroy its inputs.
   public :: circular_list    ! Make a copy of a list, but with the tail connected to the head.
+  public :: circular_listx   ! Like circular_list, but allowed to destroy its inputs.
 
   public :: lists_are_equal  ! Test whether two lists are `equal'. (Equivalent to SRFI-1's `list='.)
 
@@ -873,6 +877,41 @@ m4_forloop([k],[2],n,[dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  function last_pair (lst) result (the_last_pair)
+    class(*), intent(in) :: lst
+    type(cons_t) :: the_last_pair
+
+    class(*), allocatable :: tail
+
+    select type (lst1 => .autoval. lst)
+    class is (cons_t)
+       the_last_pair = lst1
+       if (is_pair (the_last_pair)) then
+          tail = cdr (the_last_pair)
+          do while (is_pair (tail))
+             select type (tail)
+             class is (cons_t)
+                the_last_pair = tail
+             end select
+             tail = cdr (the_last_pair)
+          end do
+       else
+          call error_abort ("last_pair of a nil list")
+       end if
+    class default
+       call error_abort ("last_pair of an object with no pairs")
+    end select
+  end function last_pair
+
+  function last (lst) result (element)
+    class(*), intent(in) :: lst
+    class(*), allocatable :: element
+
+    element = car (last_pair (lst))
+  end function last
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   function make_list (length, fill_value) result (lst)
     integer(sz), intent(in) :: length
     class(*), intent(in) :: fill_value
@@ -952,7 +991,7 @@ m4_forloop([k],[2],n,[dnl
     end do
   end function reverse
 
-  function destructive_reverse (lst) result (lst_r)
+  function reversex (lst) result (lst_r)
     class(*), intent(in) :: lst
     type(cons_t) :: lst_r
 
@@ -970,7 +1009,7 @@ m4_forloop([k],[2],n,[dnl
     class default
        lst_r = nil
     end select
-  end function destructive_reverse
+  end function reversex
 
   subroutine reverse_in_place (lst)
     type(cons_t), intent(inout) :: lst
@@ -1000,15 +1039,15 @@ m4_forloop([k],[2],n,[dnl
     class(*), intent(in) :: lst
     type(cons_t) :: clst
 
-    type(cons_t) :: last
+    type(cons_t) :: the_last_pair
 
     select type (lst1 => .autoval. lst)
     class is (cons_t)
        if (is_pair (lst1)) then
           clst = reverse (lst1)
-          last = clst
+          the_last_pair = clst
           call reverse_in_place (clst)
-          call set_cdr (last, clst)
+          call set_cdr (the_last_pair, clst)
        else
           call error_abort ("circular_list of a nil list")
        end if
@@ -1016,6 +1055,25 @@ m4_forloop([k],[2],n,[dnl
        call error_abort ("circular_list of an object with no pairs")
     end select
   end function circular_list
+
+  function circular_listx (lst) result (clst)
+    !
+    ! Connect the tail of lst to its head, destructively.
+    !
+    class(*), intent(in) :: lst
+    type(cons_t) :: clst
+
+    type(cons_t) :: the_last_pair
+
+    select type (lst1 => .autoval. lst)
+    class is (cons_t)
+       the_last_pair = last_pair (lst1)
+       call set_cdr (the_last_pair, lst1)
+       clst = lst1
+    class default
+       call error_abort ("destructive_circular_list of an object with no pairs")
+    end select
+  end function circular_listx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
