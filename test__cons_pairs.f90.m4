@@ -163,12 +163,6 @@ contains
 
   subroutine test0020
     type(gcroot_t) :: lst1
-    logical :: agc_save
-
-    agc_save = automatic_garbage_collection
-    automatic_garbage_collection = .true.
-
-    heap_size_limit = 1
 
     lst1 = 1 ** 2 ** 3 ** 4 ** 5 ** 6 ** 7 ** 8 ** 9 ** 10 ** nil
     call check (first (lst1) .eqi. 1, "test0020-0010 failed")
@@ -198,19 +192,11 @@ contains
     call check (.not. is_circular_list (1), "test0020-0360 failed")
     call check (.not. is_circular_list (cons (1, 2)), "test0020-0370 failed")
     call check (.not. is_circular_list (1 ** 2 ** 3 ** cons (4, 5)), "test0020-0380 failed")
-
-    automatic_garbage_collection = agc_save
   end subroutine test0020
 
   subroutine test0030
     type(gcroot_t) :: tree
-    logical :: agc_save
     integer :: leaf
-
-    agc_save = automatic_garbage_collection
-    automatic_garbage_collection = .true.
-
-    heap_size_limit = 1
 
 m4_forloop([_i],1,CADADR_MAX,[dnl
     tree = build_tree (1, _i, 0)
@@ -219,8 +205,6 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (leaf == _k, "test0030-_i-_k failed")
 ])dnl
 ])dnl
-
-    automatic_garbage_collection = agc_save
 
   contains
 

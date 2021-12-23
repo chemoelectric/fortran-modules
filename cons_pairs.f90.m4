@@ -900,7 +900,7 @@ m4_forloop([k],[2],n,[dnl
     class(*), intent(in) :: lst
     type(cons_t) :: the_last_pair
 
-    class(*), allocatable :: tail
+    type(gcroot_t) :: tail
 
     select type (lst1 => .autoval. lst)
     class is (cons_t)
@@ -908,10 +908,7 @@ m4_forloop([k],[2],n,[dnl
        if (is_pair (the_last_pair)) then
           tail = cdr (the_last_pair)
           do while (is_pair (tail))
-             select type (tail)
-             class is (cons_t)
-                the_last_pair = tail
-             end select
+             the_last_pair = .tocons. tail
              tail = cdr (the_last_pair)
           end do
        else

@@ -58,10 +58,6 @@ module garbage_collector
   public :: initialize_garbage_collector
   public :: collect_garbage_now
 
-  public :: automatic_garbage_collection
-  public :: heap_size_limit
-  public :: heap_size_buffer
-
   integer, parameter :: size_kind = SIZE_KIND
   integer, parameter :: size_kind_bits = bit_size (1_size_kind)
   integer, public :: doubling_limit_bits = size_kind_bits ! Settable, but for testing only.
@@ -116,14 +112,6 @@ module garbage_collector
 
   ! The current roots count, not counting the head element.
   integer(size_kind) :: roots_count = 0
-
-  ! Automatically run garbage collection after assignment to a
-  ! gcroot_t, if the heap size exceeds heap_size_limit. Increases
-  ! heap_size_limit if necessary.
-  logical :: automatic_garbage_collection = .true.
-
-  integer(size_kind) :: heap_size_limit = 2 ** 8
-  integer(size_kind) :: heap_size_buffer = 64
 
   logical :: garbage_collector_is_initialized = .false.
 
@@ -443,7 +431,6 @@ m4_if(DEBUGGING,[true],[dnl
           call gcroot_t_finalize (dst)
           allocate (dst%root, source = src)
        end if
-       call possibly_collect_garbage
     class is (gcroot_t)
        m4_if(DEBUGGING,[true],[write (*,'("gcroot_t_assign of a gcroot_t")')])
        select type (root => src%root)
@@ -456,7 +443,6 @@ m4_if(DEBUGGING,[true],[dnl
             call gcroot_t_finalize (dst)
             dst%root => new_root
           end block
-          call possibly_collect_garbage
        class default
           ! Copy the non-collectible data.
           m4_if(DEBUGGING,[true],[write (*,'("    which is not a root")')])
@@ -469,31 +455,6 @@ m4_if(DEBUGGING,[true],[dnl
        call gcroot_t_finalize (dst)
        allocate (dst%root, source = src)
     end select
-
-  contains
-
-    subroutine possibly_collect_garbage
-      if (automatic_garbage_collection .and. heap_size_limit < heap_count) then
-         call collect_garbage
-         ! Possibly increase heap_size_limit until it is greater than
-         ! heap_count plus a bit of buffer space.
-         block
-           integer(size_kind) :: doubling_limit
-           integer(size_kind) :: max_size
-           doubling_limit = (2_size_kind ** (doubling_limit_bits - 2)) - 1_size_kind
-           max_size = (2_size_kind * doubling_limit) + 1_size_kind
-           do while (heap_size_limit /= max_size .and. heap_size_limit - heap_size_buffer < heap_count)
-              if (doubling_limit < heap_size_limit) then
-                 heap_size_limit = max_size
-              else
-                 heap_size_limit = 2 * max (heap_size_limit, 1_size_kind)
-              end if
-              m4_if(DEBUGGING,[true],[write (*,'("new heap_size_limit = ", i12)') heap_size_limit])
-           end do
-         end block
-      end if
-    end subroutine possibly_collect_garbage
-
   end subroutine gcroot_t_assign
 
   subroutine gcroot_t_discard (this)

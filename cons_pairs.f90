@@ -3728,7 +3728,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst
     type(cons_t) :: the_last_pair
 
-    class(*), allocatable :: tail
+    type(gcroot_t) :: tail
 
     select type (lst1 => .autoval. lst)
     class is (cons_t)
@@ -3736,10 +3736,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        if (is_pair (the_last_pair)) then
           tail = cdr (the_last_pair)
           do while (is_pair (tail))
-             select type (tail)
-             class is (cons_t)
-                the_last_pair = tail
-             end select
+             the_last_pair = .tocons. tail
              tail = cdr (the_last_pair)
           end do
        else

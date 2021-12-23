@@ -179,8 +179,6 @@ contains
   subroutine test5
     type(box_t) :: box1
 
-    automatic_garbage_collection = .false.
-
     call collect_garbage_now
 
     box1 = box (1234)           ! This will not create a root.
@@ -191,8 +189,6 @@ contains
     call collect_garbage_now    ! box1 should be collected, because it is unreachable.
     call check (current_heap_size () == 0, "test5-0040 failed")
     call check (current_roots_count () == 0, "test5-0050 failed")
-
-    automatic_garbage_collection = .true.
   end subroutine test5
 
   subroutine test6
