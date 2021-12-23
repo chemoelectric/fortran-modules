@@ -132,6 +132,22 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: take             ! Return a freshly allocated copy of the first n elements of a list.
   public :: drop             ! Return a common tail containing all but the first n elements of a list.
 
+  public :: make_list        ! Return a list of repeated values.
+
+  ! Return a list of values determined by a procedure.
+  public :: list_tabulate_init_proc_t ! The type for the initialization procedure.
+  public :: list_tabulate0   ! Indices start at 0.
+  public :: list_tabulate1   ! Indices start at 1.
+  public :: list_tabulaten   ! Indices start at n.
+
+  abstract interface
+     recursive subroutine list_tabulate_init_proc_t (i, x)
+       import size_kind
+       integer(size_kind), intent(in) :: i
+       class(*), allocatable, intent(out) :: x
+     end subroutine list_tabulate_init_proc_t
+  end interface
+
   ! iota: return a list containing a sequence of equally spaced integers.
   public :: iota             ! `iota' = the generic function.
   public :: iota_of_length
@@ -851,6 +867,66 @@ m4_forloop([k],[2],n,[dnl
        call next_right (lst_d)
     end do
   end function drop
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function make_list (length, fill_value) result (lst)
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: fill_value
+    type(cons_t) :: lst
+
+    integer(sz) :: i
+
+    lst = nil
+    do i = 1_sz, length
+       lst = fill_value ** lst
+    end do
+  end function make_list
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function list_tabulate0 (length, init_subr) result (lst)
+    integer(sz), intent(in) :: length
+    procedure(list_tabulate_init_proc_t) :: init_subr
+    type(cons_t) :: lst
+
+    lst = list_tabulaten (length, 0_sz, init_subr)
+  end function list_tabulate0
+
+  function list_tabulate1 (length, init_subr) result (lst)
+    integer(sz), intent(in) :: length
+    procedure(list_tabulate_init_proc_t) :: init_subr
+    type(cons_t) :: lst
+
+    lst = list_tabulaten (length, 1_sz, init_subr)
+  end function list_tabulate1
+
+  function list_tabulaten (length, n, init_subr) result (lst)
+    !
+    ! NOTE: The order in which calls to init_subr are made is to be
+    !       considered unspecified.
+    !
+    integer(sz), intent(in) :: length
+    integer(sz), intent(in) :: n
+    procedure(list_tabulate_init_proc_t) :: init_subr
+    type(cons_t) :: lst
+
+    integer(sz) :: i
+    class(*), allocatable :: x
+
+    ! Use a gcroot_t, to protect against any garbage collections done
+    ! by init_subr.
+    type(gcroot_t) :: lst1
+
+    ! In this implementation: work backwards, from greater indices to
+    ! lesser ones, so there will be no need to reverse the list.
+    lst1 = nil
+    do i = length - 1_sz, 0_sz, -1_sz
+       call init_subr (n + i, x)
+       lst1 = cons (x, lst1)
+    end do
+    lst = .tocons. lst1
+  end function list_tabulaten
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

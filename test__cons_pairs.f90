@@ -431,6 +431,38 @@ contains
     end do
   end subroutine test0070
 
+  subroutine test0080
+    call check (lists_are_equal (integer_eq, make_list (0_sz, 5), nil), "test0080-0010 failed")
+    call check (lists_are_equal (integer_eq, make_list (1_sz, 5), 5 ** nil), "test0080-0020 failed")
+    call check (lists_are_equal (integer_eq, make_list (5_sz, 5), list5 (5, 5, 5, 5, 5)), "test0080-0030 failed")
+  end subroutine test0080
+
+  subroutine test0090
+    call check (lists_are_equal (real_eq, list_tabulate0 (0_sz, make_real), nil), "test0090-0010 failed")
+    call check (lists_are_equal (real_eq, list_tabulate1 (0_sz, make_real), nil), "test0090-0020 failed")
+    call check (lists_are_equal (real_eq, list_tabulaten (0_sz, -1_sz, make_real), nil), "test0090-0030 failed")
+
+    call check (lists_are_equal (real_eq, list_tabulate0 (1_sz, make_real), 0.0 ** nil), "test0090-0040 failed")
+    call check (lists_are_equal (real_eq, list_tabulate1 (1_sz, make_real), 1.0 ** nil), "test0090-0050 failed")
+    call check (lists_are_equal (real_eq, list_tabulaten (1_sz, -1_sz, make_real), (-1.0) ** nil), "test0090-0060 failed")
+
+    call check (lists_are_equal (real_eq, list_tabulate0 (5_sz, make_real), list5 (0.0, 1.0, 2.0, 3.0, 4.0)), &
+         "test0090-0070 failed")
+    call check (lists_are_equal (real_eq, list_tabulate1 (5_sz, make_real), list5 (1.0, 2.0, 3.0, 4.0, 5.0)), &
+         "test0090-0080 failed")
+    call check (lists_are_equal (real_eq, list_tabulaten (5_sz, -1_sz, make_real), list5 (-1.0, 0.0, 1.0, 2.0, 3.0)), &
+         "test0090-0090 failed")
+
+  contains
+
+    subroutine make_real (i, x)
+      integer(sz), intent(in) :: i
+      class(*), allocatable, intent(out) :: x
+      x = real (i)
+    end subroutine make_real
+
+  end subroutine test0090
+
   subroutine run_tests
     call test0010
     call test0020
@@ -440,6 +472,8 @@ contains
     call test0060
     call test0065
     call test0070
+    call test0080
+    call test0090
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")

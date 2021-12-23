@@ -115,6 +115,11 @@ unused_variables.anchor: unused_variables.f90
 unused_variables.$(OBJEXT): unused_variables.anchor
 	$(COMPILE.f90) $(FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT) -c $(<:.anchor=.f90) -o $(@)
 
+test__cons_pairs.anchor: test__cons_pairs.f90
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c -fsyntax-only $(<) && touch $(@)
+test__cons_pairs.$(OBJEXT): test__cons_pairs.anchor
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c $(<:.anchor=.f90) -o $(@)
+
 cons_lists.f90: cadadr.m4
 
 unused_variables.anchor: unused_variables.mod
