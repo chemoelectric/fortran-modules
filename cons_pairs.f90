@@ -42,7 +42,7 @@ module cons_pairs
   !
   ! NOTE: Unless you know what you are doing, you should use
   !       `type(gcroot_t)' from module `garbage_collector' to hold
-  !       values of type `box_t'. Otherwise the garbage collector
+  !       values of type `cons_t'. Otherwise the garbage collector
   !       might collect your work unexpectedly.
   !
 
@@ -3580,8 +3580,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     ! Detect circularity by having a `lead' reference move through the
     ! list at a higher rate than a `lag' reference. In a circular
     ! list, eventually `lead' will catch up with `lag'.
-    type(gcroot_t) :: lead
-    type(gcroot_t) :: lag
+    class(*), allocatable :: lead
+    class(*), allocatable :: lag
 
     logical :: is_dot
     logical :: is_circ
@@ -3705,21 +3705,19 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   function drop (lst, n) result (lst_d)
     !
-    ! Dotted lists are handled correctly, unless they are degenerate
-    ! (that is, not a cons_t).
+    ! Dotted lists are handled correctly, unless the result would be
+    ! degenerate (that is, not a cons_t).
     !
     class(*), intent(in) :: lst
     integer(sz), intent(in) :: n
     type(cons_t) :: lst_d
 
-    type(gcroot_t) :: lst1
     integer(sz) :: i
 
-    lst1 = lst
+    lst_d = .tocons. lst
     do i = 1_sz, n
-       lst1 = cdr (lst1)
+       lst_d = .tocons. (cdr (lst_d))
     end do
-    lst_d = .tocons. lst1
   end function drop
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -3728,7 +3726,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst
     type(cons_t) :: the_last_pair
 
-    type(gcroot_t) :: tail
+    class(*), allocatable :: tail
 
     select type (lst1 => .autoval. lst)
     class is (cons_t)
@@ -3860,7 +3858,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst
     type(cons_t) :: lst_r
 
-    type(gcroot_t) :: tail
+    class(*), allocatable :: tail
     
     lst_r = nil
     tail = lst
