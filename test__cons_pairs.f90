@@ -514,6 +514,10 @@ contains
          take (circular_listx (1 ** 2 ** 3 ** nil), 10_sz), &
          1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** nil), &
          "test0110-0040 failed")
+
+    call check (is_circular_list (circular_list (1 ** nil)), "test0110-0050 failed")
+    call check (is_circular_list (circular_list (1 ** 2 ** 3 ** nil)), "test0110-0060 failed")
+    call check (is_circular_list (4 ** 5 ** circular_list (1 ** 2 ** 3 ** nil)), "test0110-0070 failed")
   end subroutine test0110
 
   subroutine test0120
