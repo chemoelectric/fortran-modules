@@ -3669,7 +3669,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   function take (lst, n) result (lst_t)
     class(*), intent(in) :: lst
     integer(sz), intent(in) :: n
-    class(*), allocatable :: lst_t
+    type(cons_t) :: lst_t
 
     class(*), allocatable :: head
     class(*), allocatable :: tail

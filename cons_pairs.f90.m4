@@ -841,7 +841,7 @@ m4_forloop([k],[2],n,[dnl
   function take (lst, n) result (lst_t)
     class(*), intent(in) :: lst
     integer(sz), intent(in) :: n
-    class(*), allocatable :: lst_t
+    type(cons_t) :: lst_t
 
     class(*), allocatable :: head
     class(*), allocatable :: tail
