@@ -154,6 +154,10 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: iota_of_length_start
   public :: iota_of_length_start_step
 
+  public :: reverse          ! Make a copy of a list, but reversed.
+  public :: destructive_reverse ! Like reverse, but is allowed to destroy its inputs.
+  public :: circular_list    ! Make a copy of a list, but with the tail connected to the head.
+
   public :: lists_are_equal  ! Test whether two lists are `equal'. (Equivalent to SRFI-1's `list='.)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -236,16 +240,15 @@ contains
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
   end subroutine strange_error
 
-!!$  function integer_cast (obj) result (int)
-!!$    class(*), intent(in) :: obj
-!!$    integer :: int
-!!$    select type (obj)
-!!$    type is (integer)
-!!$       int = obj
-!!$    class default
-!!$       call error_abort ("integer_cast of an incompatible object")
-!!$    end select
-!!$  end function integer_cast
+  function copy_first_pair (lst) result (lst_copy)
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_copy
+
+    class(*), allocatable :: head, tail
+
+    call uncons (lst, head, tail)
+    lst_copy = cons (head, tail)
+  end function copy_first_pair
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -927,6 +930,92 @@ m4_forloop([k],[2],n,[dnl
     end do
     lst = .tocons. lst1
   end function list_tabulaten
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function reverse (lst) result (lst_r)
+    !
+    ! In this implementation, the final CDR of any dotted list
+    ! (including any non-cons_t object) is dropped, but the operation
+    ! proceeds otherwise. I would not rely on that behavior, however.
+    !
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_r
+
+    class(*), allocatable :: tail
+    
+    lst_r = nil
+    tail = lst
+    do while (is_pair (tail))
+       lst_r = car (tail) ** lst_r
+       call next_right (tail)
+    end do
+  end function reverse
+
+  function destructive_reverse (lst) result (lst_r)
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_r
+
+    type(cons_t) :: lst2
+
+    select type (lst1 => .autoval. lst)
+    class is (cons_t)
+       if (is_pair (lst1)) then
+          lst2 = copy_first_pair (lst1)
+          call reverse_in_place (lst2)
+          lst_r = lst2
+       else
+          lst_r = nil
+       end if
+    class default
+       lst_r = nil
+    end select
+  end function destructive_reverse
+
+  subroutine reverse_in_place (lst)
+    type(cons_t), intent(inout) :: lst
+
+    type(cons_t) :: lst_r
+    type(cons_t) :: tail
+
+    lst_r = nil
+    do while (is_pair (lst))
+       select type (tmp => cdr (lst))
+       class is (cons_t)
+          tail = tmp
+       class default
+          call error_abort ("list reversal of an object that is not a pair")
+       end select
+       call set_cdr (lst, lst_r)
+       lst_r = lst
+       lst = tail
+    end do
+    lst = lst_r
+  end subroutine reverse_in_place
+
+  function circular_list (lst) result (clst)
+    !
+    ! Make a fully circular list with the same CARs as lst.
+    !
+    class(*), intent(in) :: lst
+    type(cons_t) :: clst
+
+    type(cons_t) :: last
+
+    select type (lst1 => .autoval. lst)
+    class is (cons_t)
+       if (is_pair (lst1)) then
+          clst = reverse (lst1)
+          last = clst
+          call reverse_in_place (clst)
+          call set_cdr (last, clst)
+       else
+          call error_abort ("circular_list of a nil list")
+       end if
+    class default
+       call error_abort ("circular_list of an object with no pairs")
+    end select
+  end function circular_list
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

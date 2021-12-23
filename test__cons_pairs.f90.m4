@@ -395,7 +395,6 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
          "test0090-0080 failed")
     call check (lists_are_equal (real_eq, list_tabulaten (5_sz, -1_sz, make_real), list5 (-1.0, 0.0, 1.0, 2.0, 3.0)), &
          "test0090-0090 failed")
-
   contains
 
     subroutine make_real (i, x)
@@ -405,6 +404,26 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     end subroutine make_real
 
   end subroutine test0090
+
+  subroutine test0100
+    call check (lists_are_equal (integer_eq, reverse (nil), nil), "test0100-0010 failed")
+    call check (lists_are_equal (integer_eq, reverse (123 ** nil), 123 ** nil), "test0100-0020 failed")
+    call check (lists_are_equal (integer_eq, reverse (list5 (1, 2, 3, 4, 5)), list5 (5, 4, 3, 2, 1)), "test0100-0030 failed")
+
+    call check (lists_are_equal (integer_eq, destructive_reverse (nil), nil), "test0100-0040 failed")
+    call check (lists_are_equal (integer_eq, destructive_reverse (123 ** nil), 123 ** nil), "test0100-0050 failed")
+    call check (lists_are_equal (integer_eq, destructive_reverse (list5 (1, 2, 3, 4, 5)), list5 (5, 4, 3, 2, 1)), &
+         "test0100-0060 failed")
+  end subroutine test0100
+
+  subroutine test0110
+    call check (lists_are_equal (integer_eq, take (circular_list (1 ** nil), 5_sz), list5 (1, 1, 1, 1, 1)), &
+         "test0110-0010 failed")
+    call check (lists_are_equal (integer_eq, &
+         take (circular_list (1 ** 2 ** 3 ** nil), 10_sz), &
+         1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** nil), &
+         "test0110-0020 failed")
+  end subroutine test0110
 
   subroutine run_tests
     call test0010
@@ -417,6 +436,8 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0070
     call test0080
     call test0090
+    call test0100
+    call test0110
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")
