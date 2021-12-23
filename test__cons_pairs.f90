@@ -518,6 +518,14 @@ contains
     call check (is_circular_list (circular_list (1 ** nil)), "test0110-0050 failed")
     call check (is_circular_list (circular_list (1 ** 2 ** 3 ** nil)), "test0110-0060 failed")
     call check (is_circular_list (4 ** 5 ** circular_list (1 ** 2 ** 3 ** nil)), "test0110-0070 failed")
+
+    call check (.not. is_proper_list (circular_list (1 ** nil)), "test0110-0080 failed")
+    call check (.not. is_proper_list (circular_list (1 ** 2 ** 3 ** nil)), "test0110-0090 failed")
+    call check (.not. is_proper_list (4 ** 5 ** circular_list (1 ** 2 ** 3 ** nil)), "test0110-0100 failed")
+
+    call check (.not. is_dotted_list (circular_list (1 ** nil)), "test0110-0110 failed")
+    call check (.not. is_dotted_list (circular_list (1 ** 2 ** 3 ** nil)), "test0110-0120 failed")
+    call check (.not. is_dotted_list (4 ** 5 ** circular_list (1 ** 2 ** 3 ** nil)), "test0110-0130 failed")
   end subroutine test0110
 
   subroutine test0120
