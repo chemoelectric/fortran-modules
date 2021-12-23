@@ -3956,21 +3956,21 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   function iota_of_length (length) result (lst)
     integer(sz), intent(in) :: length
-    class(*), allocatable :: lst
+    type(cons_t) :: lst
 
     lst = iota_of_length_start_step (length, 0_sz, 1_sz)
   end function iota_of_length
 
   function iota_of_length_start (length, start) result (lst)
     integer(sz), intent(in) :: length, start
-    class(*), allocatable :: lst
+    type(cons_t) :: lst
 
     lst = iota_of_length_start_step (length, start, 1_sz)
   end function iota_of_length_start
 
   function iota_of_length_start_step (length, start, step) result (lst)
     integer(sz), intent(in) :: length, start, step
-    class(*), allocatable :: lst
+    type(cons_t) :: lst
 
     integer(sz) :: i, n
 

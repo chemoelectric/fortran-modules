@@ -1128,21 +1128,21 @@ m4_forloop([k],[2],n,[dnl
 
   function iota_of_length (length) result (lst)
     integer(sz), intent(in) :: length
-    class(*), allocatable :: lst
+    type(cons_t) :: lst
 
     lst = iota_of_length_start_step (length, 0_sz, 1_sz)
   end function iota_of_length
 
   function iota_of_length_start (length, start) result (lst)
     integer(sz), intent(in) :: length, start
-    class(*), allocatable :: lst
+    type(cons_t) :: lst
 
     lst = iota_of_length_start_step (length, start, 1_sz)
   end function iota_of_length_start
 
   function iota_of_length_start_step (length, start, step) result (lst)
     integer(sz), intent(in) :: length, start, step
-    class(*), allocatable :: lst
+    type(cons_t) :: lst
 
     integer(sz) :: i, n
 
