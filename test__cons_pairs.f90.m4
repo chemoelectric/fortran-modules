@@ -476,6 +476,22 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (last (1 ** 2 ** 3 ** nil) .eqi. 3, "test0120-0020 failed")
   end subroutine test0120
 
+  subroutine test0130
+    type(gcroot_t) :: lst1, lst2
+
+    lst1 = nil
+    lst2 = list_copy (lst1)
+    call check (lists_are_equal (integer_eq, lst1, lst2), "test0130-0010 failed")
+
+    lst1 = 123 ** nil
+    lst2 = list_copy (lst1)
+    call check (lists_are_equal (integer_eq, lst1, lst2), "test0130-0020 failed")
+
+    lst1 = iota (100_sz, 1_sz)
+    lst2 = list_copy (lst1)
+    call check (lists_are_equal (size_kind_eq, lst1, lst2), "test0130-0020 failed")
+  end subroutine test0130
+
   subroutine run_tests
     call test0010
     call test0020
@@ -490,6 +506,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0100
     call test0110
     call test0120
+    call test0130
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")

@@ -247,6 +247,7 @@ module cons_pairs
   public :: iota_of_length_start
   public :: iota_of_length_start_step
 
+  public :: list_copy        ! Make a copy of a list.
   public :: reverse          ! Make a copy of a list, but reversed.
   public :: reversex         ! Like reverse, but allowed to destroy its inputs.
   public :: circular_list    ! Make a copy of a list, but with the tail connected to the head.
@@ -3821,6 +3822,40 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end function list_tabulaten
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function list_copy (lst) result (lst_c)
+    !
+    ! Dotted lists will be copied, unless they are degenerate (that
+    ! is, not a cons_t).
+    !
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_c
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+
+    select type (lst1 => .autoval. lst)
+    class is (cons_t)
+       if (is_nil (lst1)) then
+          lst_c = nil
+       else
+          call uncons (lst1, head, tail)
+          cursor = head ** nil
+          lst_c = cursor
+          do while (is_pair (tail))
+             call uncons (tail, head, tail)
+             new_pair = head ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+          end do
+          call set_cdr (cursor, tail)
+       end if
+    class default
+       call error_abort ("list_copy of an object that is not a cons_t")
+    end select
+  end function list_copy
 
   function reverse (lst) result (lst_r)
     !
