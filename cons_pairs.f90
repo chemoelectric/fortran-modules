@@ -257,6 +257,8 @@ module cons_pairs
   public :: reversex         ! Like reverse, but allowed to destroy its inputs.
   public :: append           ! Concatenate two lists.
   public :: appendx          ! Like append, but allowed to destroy its *first* argument (but not the latter argument).
+  public :: concatenate      ! Concatenate the lists in a list of lists.
+  public :: concatenatex     ! Like concatenate, but allowed to destroy its inputs.
 
   ! Although `circular_list' and `circular_listx' gets their names
   ! from the SRFI-1 `circular-list', as input they take a regular
@@ -4170,6 +4172,62 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call set_cdr (last_pair (lst_a), .autoval. lst2)
     end if
   end function appendx
+
+  function concatenate (lists) result (lst_concat)
+    !
+    ! If `lists' is empty, then the result is a nil list.
+    !
+    class(*), intent(in) :: lists
+    class(*), allocatable :: lst_concat
+
+    class(*), allocatable :: lists1
+    type(cons_t) :: lists_r
+    class(*), allocatable :: head, tail
+
+    lists1 = .autoval. lists
+    if (is_not_pair (lists1)) then
+       lst_concat = nil
+    else
+       lists_r = reverse (lists1)
+       lst_concat = car (lists_r)
+       tail = cdr (lists_r)
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          lst_concat = append (head, lst_concat)
+       end do
+    end if
+  end function concatenate
+
+  function concatenatex (lists) result (lst_concat)
+    !
+    ! If `lists' is empty, then the result is a nil list.
+    !
+    ! This implementation calls reversex (thus, perhaps contrarily to
+    ! the programmer's expectations, destroying `lists'), and it uses
+    ! appendx to do the concatenations.
+    !
+    class(*), intent(in) :: lists
+    class(*), allocatable :: lst_concat
+
+    class(*), allocatable :: lists1
+    type(cons_t) :: lists_r
+    class(*), allocatable :: head, tail
+
+    lists1 = .autoval. lists
+    if (is_not_pair (lists1)) then
+       lst_concat = nil
+    else
+       lists_r = reversex (lists1)
+       lst_concat = car (lists_r)
+       tail = cdr (lists_r)
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          lst_concat = appendx (head, lst_concat)
+       end do
+    end if
+  end function concatenatex
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   function circular_list (lst) result (clst)
     !

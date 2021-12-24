@@ -730,6 +730,32 @@ contains
          "test0190-1070 failed")
   end subroutine test0190
 
+  subroutine test0200
+    call check (is_nil (concatenate (nil)), "test0200-0010 failed")
+    call check (is_nil (concatenate (123)), "test0200-0020 failed")
+
+    call check (lists_are_equal (integer_eq, concatenate (list1 (123 ** nil)), 123 ** nil), "test0200-0030 failed")
+    call check (lists_are_equal (integer_eq, concatenate (list2 (123 ** nil, nil)), 123 ** nil), "test0200-0040 failed")
+    call check (lists_are_equal (integer_eq, concatenate (list2 (nil, 123 ** nil)), 123 ** nil), "test0200-0050 failed")
+
+    call check (lists_are_equal (size_kind_eq, &
+         concatenate (list5 (iota (25_sz, 1_sz), nil, iota (50_sz, 26_sz), iota (25_sz, 76_sz), nil)), &
+         iota (100_sz, 1_sz)), &
+         "test0200-0060 failed")
+
+    call check (is_nil (concatenatex (nil)), "test0200-1010 failed")
+    call check (is_nil (concatenatex (123)), "test0200-1020 failed")
+
+    call check (lists_are_equal (integer_eq, concatenatex (list1 (123 ** nil)), 123 ** nil), "test0200-1030 failed")
+    call check (lists_are_equal (integer_eq, concatenatex (list2 (123 ** nil, nil)), 123 ** nil), "test0200-1040 failed")
+    call check (lists_are_equal (integer_eq, concatenatex (list2 (nil, 123 ** nil)), 123 ** nil), "test0200-1050 failed")
+
+    call check (lists_are_equal (size_kind_eq, &
+         concatenatex (list5 (iota (25_sz, 1_sz), nil, iota (50_sz, 26_sz), iota (25_sz, 76_sz), nil)), &
+         iota (100_sz, 1_sz)), &
+         "test0200-1060 failed")
+  end subroutine test0200
+
   subroutine run_tests
     heap_size_limit = 0
     call test0010
@@ -753,6 +779,7 @@ contains
     call test0170
     call test0180
     call test0190
+    call test0200
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")
