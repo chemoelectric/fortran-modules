@@ -256,6 +256,7 @@ module cons_pairs
   public :: reverse          ! Make a copy of a list, but reversed.
   public :: reversex         ! Like reverse, but allowed to destroy its inputs.
   public :: append           ! Concatenate two lists.
+  public :: appendx          ! Like append, but allowed to destroy its *first* argument (but not the latter argument).
 
   ! Although `circular_list' and `circular_listx' gets their names
   ! from the SRFI-1 `circular-list', as input they take a regular
@@ -4163,6 +4164,27 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        lst_a = new_lst
     end if
   end function append
+
+  function appendx (lst1, lst2) result (lst_a)
+    !
+    ! appendx is *not* allowed to destroy lst2, and in fact includes
+    ! it in the result as a shared tail.
+    !
+    class(*) :: lst1, lst2
+    class(*), allocatable :: lst_a
+
+    class(*), allocatable :: lst1a
+    type(cons_t) :: p
+
+    lst1a = .autoval. lst1
+    if (is_not_pair (lst1a)) then
+       lst_a = .autoval. lst2
+    else
+       p = copy_first_pair (lst1a)
+       call set_cdr (last_pair (p), .autoval. lst2)
+       lst_a = p
+    end if
+  end function appendx
 
   function circular_list (lst) result (clst)
     !

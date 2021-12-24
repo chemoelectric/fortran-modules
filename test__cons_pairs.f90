@@ -717,6 +717,17 @@ contains
          append (iota (75_sz, 1_sz), iota (25_sz, 76_sz)), &
          iota (100_sz, 1_sz)), &
          "test0190-0070 failed")
+
+    call check (lists_are_equal (integer_eq, appendx (nil, nil), nil), "test0190-1010 failed")
+    call check (appendx (nil, 123) .eqi. 123, "test0190-1020 failed")
+    call check (lists_are_equal (integer_eq, appendx (nil, list1 (123)), list1 (123)), "test0190-1030 failed")
+    call check (lists_are_equal (integer_eq, appendx (list1 (123), nil), list1 (123)), "test0190-1040 failed")
+    call check (car (appendx (list1 (123), 45)) .eqi. 123, "test0190-1050 failed")
+    call check (cdr (appendx (list1 (123), 45)) .eqi. 45, "test0190-1060 failed")
+    call check (lists_are_equal (size_kind_eq, &
+         appendx (iota (75_sz, 1_sz), iota (25_sz, 76_sz)), &
+         iota (100_sz, 1_sz)), &
+         "test0190-1070 failed")
   end subroutine test0190
 
   subroutine run_tests
