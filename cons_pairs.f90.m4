@@ -1168,9 +1168,8 @@ m4_forloop([k],[2],n,[dnl
 
   function reverse (lst) result (lst_r)
     !
-    ! In this implementation, the final CDR of any dotted list
-    ! (including any non-cons_t object) is dropped, but the operation
-    ! proceeds otherwise. I would not rely on that behavior, however.
+    ! The final CDR of any dotted list (including any non-cons_t
+    ! object) is dropped.
     !
     class(*), intent(in) :: lst
     type(cons_t) :: lst_r
@@ -1178,7 +1177,7 @@ m4_forloop([k],[2],n,[dnl
     class(*), allocatable :: tail
     
     lst_r = nil
-    tail = lst
+    tail = .autoval. lst
     do while (is_pair (tail))
        lst_r = car (tail) ** lst_r
        tail = cdr (tail)

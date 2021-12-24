@@ -3996,9 +3996,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   function reverse (lst) result (lst_r)
     !
-    ! In this implementation, the final CDR of any dotted list
-    ! (including any non-cons_t object) is dropped, but the operation
-    ! proceeds otherwise. I would not rely on that behavior, however.
+    ! The final CDR of any dotted list (including any non-cons_t
+    ! object) is dropped.
     !
     class(*), intent(in) :: lst
     type(cons_t) :: lst_r
@@ -4006,7 +4005,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), allocatable :: tail
     
     lst_r = nil
-    tail = lst
+    tail = .autoval. lst
     do while (is_pair (tail))
        lst_r = car (tail) ** lst_r
        tail = cdr (tail)
