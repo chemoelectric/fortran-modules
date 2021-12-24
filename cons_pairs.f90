@@ -255,8 +255,12 @@ module cons_pairs
   public :: list_copy        ! Make a copy of a list.
   public :: reverse          ! Make a copy of a list, but reversed.
   public :: reversex         ! Like reverse, but allowed to destroy its inputs.
+
+  ! Although `circular_list' and `circular_listx' gets their names
+  ! from the SRFI-1 `circular-list', as input they take a regular
+  ! list, rather than multiple arguments for individual list elements.
   public :: circular_list    ! Make a copy of a list, but with the tail connected to the head.
-  public :: circular_listx   ! Like circular_list, but allowed to destroy its inputs. (SRFI-1 has no close equivalent.)
+  public :: circular_listx   ! Like circular_list, but allowed to destroy its inputs.
 
   public :: lists_are_equal  ! Test whether two lists are `equal'. (Equivalent to SRFI-1's `list='.)
 
