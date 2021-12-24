@@ -57,6 +57,9 @@ module garbage_collector
 
   public :: initialize_garbage_collector
   public :: collect_garbage_now
+  public :: check_heap_size
+  public :: heap_size_limit
+  public :: heap_size_padding
 
   integer, parameter :: size_kind = SIZE_KIND
   integer, parameter :: size_kind_bits = bit_size (1_size_kind)
@@ -112,6 +115,10 @@ module garbage_collector
 
   ! The current roots count, not counting the head element.
   integer(size_kind) :: roots_count = 0
+
+  ! Parameters for `check_heap_size'.
+  integer(size_kind) :: heap_size_limit = 2 ** 8
+  integer(size_kind) :: heap_size_padding = 64
 
   logical :: garbage_collector_is_initialized = .false.
 
@@ -516,6 +523,40 @@ m4_if(DEBUGGING,[true],[dnl
     !!
     call collect_garbage
   end subroutine collect_garbage_now
+
+  subroutine check_heap_size
+    !!
+    !! Call `check_heap_size' if you want to collect garbage only
+    !! `sometimes'.
+    !!
+    !! The heap_size_limit will be increased automatically if garbage
+    !! collection does not clear up `enough' space.
+    !!
+    m4_if(DEBUGGING,[true],[write (*,'("checking heap size")')])
+    m4_if(DEBUGGING,[true],[write (*,'("    heap size is       ", i6)') heap_count])
+    m4_if(DEBUGGING,[true],[write (*,'("    heap size limit is ", i6)') heap_size_limit])
+    if (heap_size_limit < heap_count) then
+       m4_if(DEBUGGING,[true],[write (*,'("collecting garbage")')])
+       call collect_garbage
+       m4_if(DEBUGGING,[true],[write (*,'("after garbage collection, heap size is ", i6)') heap_count])
+       ! Possibly increase heap_size_limit until it is greater than
+       ! heap_count plus a bit of padding space.
+       block
+         integer(size_kind) :: doubling_limit
+         integer(size_kind) :: max_size
+         doubling_limit = (2_size_kind ** (doubling_limit_bits - 2)) - 1_size_kind
+         max_size = (2_size_kind * doubling_limit) + 1_size_kind
+         do while (heap_size_limit /= max_size .and. heap_size_limit - heap_size_padding < heap_count)
+            if (doubling_limit < heap_size_limit) then
+               heap_size_limit = max_size
+            else
+               heap_size_limit = 2 * max (heap_size_limit, 1_size_kind)
+            end if
+            m4_if(DEBUGGING,[true],[write (*,'("heap size limit increased to ", i6)') heap_size_limit])
+         end do
+       end block
+    end if
+  end subroutine check_heap_size
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!

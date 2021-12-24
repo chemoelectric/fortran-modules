@@ -587,48 +587,42 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (lst_right .eqi. 3, "test0170-0150 failed")
   end subroutine test0170
 
+  subroutine test0180
+    type(gcroot_t) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8
+
+    lst1 = iota (10000_sz)
+    lst2 = iota (10000_sz)
+    lst3 = iota (10000_sz)
+    lst4 = iota (10000_sz)
+    lst5 = iota (10000_sz)
+    lst6 = iota (10000_sz)
+    lst7 = iota (10000_sz)
+    lst8 = iota (10000_sz)
+    call check_heap_size
+  end subroutine test0180
+
   subroutine run_tests
-    !
-    ! FIXME: Add a conditional garbage collection call: collect
-    !        garbage if too many heap entries, double the size if
-    !        necessary, etc.
-    !
-    call collect_garbage_now
+    heap_size_limit = 0
     call test0010
-    call collect_garbage_now
     call test0020
-    call collect_garbage_now
     call test0030
-    call collect_garbage_now
     call test0040
-    call collect_garbage_now
     call test0050
-    call collect_garbage_now
     call test0060
-    call collect_garbage_now
     call test0065
-    call collect_garbage_now
     call test0070
-    call collect_garbage_now
     call test0080
-    call collect_garbage_now
     call test0090
-    call collect_garbage_now
+    call check_heap_size
     call test0100
-    call collect_garbage_now
     call test0110
-    call collect_garbage_now
     call test0120
-    call collect_garbage_now
     call test0130
-    call collect_garbage_now
     call test0140
-    call collect_garbage_now
     call test0150
-    call collect_garbage_now
     call test0160
-    call collect_garbage_now
     call test0170
+    call test0180
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")
