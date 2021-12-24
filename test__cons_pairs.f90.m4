@@ -313,9 +313,6 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   end subroutine test0050
 
   subroutine test0060
-
-    ! take and drop
-
     type(gcroot_t) :: lst1, lst2, lst3
 
     lst1 = list1 (1)
@@ -333,9 +330,6 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   end subroutine test0060
 
   subroutine test0065
-
-    ! take and drop
-
     type(cons_t) :: lst1, lst2, lst3
 
     lst1 = list1 (1)
@@ -499,6 +493,8 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   end subroutine test0140
 
   subroutine test0150
+    type(gcroot_t) :: lst
+
     call check (lists_are_equal (integer_eq, take_right (nil, 0_sz), nil), "test0150-0010 failed")
     call check (lists_are_equal (integer_eq, take_right (list1 (1), 0_sz), nil), "test0150-0020 failed")
     call check (lists_are_equal (size_kind_eq, take_right (iota (100_sz), 0_sz), nil), "test0150-0030 failed")
@@ -507,6 +503,37 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (lists_are_equal (size_kind_eq, take_right (iota (100_sz), 1_sz), list1 (99_sz)), "test0150-0050 failed")
 
     call check (lists_are_equal (size_kind_eq, take_right (iota (100_sz), 5_sz), iota (5_sz, 95_sz)), "test0150-0060 failed")
+
+    call check (take_right (5, 0_sz) .eqi. 5, "test0150-0070 failed")
+    call check (take_right (cons (4, 5), 0_sz) .eqi. 5, "test0150-0080 failed")
+    call check (car (take_right (3 ** cons (4, 5), 1_sz)) .eqi. 4, "test0150-0090 failed")
+    call check (cdr (take_right (3 ** cons (4, 5), 1_sz)) .eqi. 5, "test0150-0100 failed")
+
+    call check (lists_are_equal (integer_eq, drop (nil, 0_sz), nil), "test0150-1010 failed")
+    call check (lists_are_equal (integer_eq, drop (list1 (1), 1_sz), nil), "test0150-1020 failed")
+    call check (lists_are_equal (size_kind_eq, drop (iota (100_sz), 100_sz), nil), "test0150-1030 failed")
+
+    call check (is_nil (drop (list1 (1), 1_sz)), "test0150-1040 failed")
+    call check (lists_are_equal (size_kind_eq, drop (iota (100_sz), 99_sz), list1 (99_sz)), "test0150-1050 failed")
+
+    call check (lists_are_equal (size_kind_eq, drop (iota (100_sz), 95_sz), iota (5_sz, 95_sz)), "test0150-1060 failed")
+
+    call check (drop (5, 0_sz) .eqi. 5, "test0150-1070 failed")
+    call check (drop (cons (4, 5), 1_sz) .eqi. 5, "test0150-1080 failed")
+    call check (car (drop (3 ** cons (4, 5), 1_sz)) .eqi. 4, "test0150-1090 failed")
+    call check (cdr (drop (3 ** cons (4, 5), 1_sz)) .eqi. 5, "test0150-1100 failed")
+
+    lst = list3 (1, 2, 3)
+
+    call check (lists_are_equal (integer_eq, take_right (lst, 0_sz), nil), "test0150-2010 failed")
+    call check (lists_are_equal (integer_eq, take_right (lst, 1_sz), list1 (3)), "test0150-2020 failed")
+    call check (lists_are_equal (integer_eq, take_right (lst, 2_sz), list2 (2, 3)), "test0150-2030 failed")
+    call check (lists_are_equal (integer_eq, take_right (lst, 3_sz), lst), "test0150-2040 failed")
+
+    call check (lists_are_equal (integer_eq, drop (lst, 0_sz), lst), "test0150-3010 failed")
+    call check (lists_are_equal (integer_eq, drop (lst, 1_sz), list2 (2, 3)), "test0150-3020 failed")
+    call check (lists_are_equal (integer_eq, drop (lst, 2_sz), list1 (3)), "test0150-3030 failed")
+    call check (lists_are_equal (integer_eq, drop (lst, 3_sz), nil), "test0150-3040 failed")
   end subroutine test0150
 
   subroutine test0160

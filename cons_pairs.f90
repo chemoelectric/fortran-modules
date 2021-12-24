@@ -3769,40 +3769,37 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   function drop (lst, n) result (lst_d)
     !
-    ! Dotted lists are handled correctly, unless the result would be
-    ! degenerate (that is, not a cons_t).
+    ! If lst is dotted, then the result will be dotted.
     !
     class(*), intent(in) :: lst
     integer(sz), intent(in) :: n
-    type(cons_t) :: lst_d
+    class(*), allocatable :: lst_d
 
     integer(sz) :: i
 
-    lst_d = .tocons. lst
+    lst_d = .autoval. lst
     do i = 1_sz, n
-       lst_d = .tocons. (cdr (lst_d))
+       lst_d = cdr (lst_d)
     end do
   end function drop
 
   function take_right (lst, n) result (lst_tr)
     !
-    ! lst may be dotted, as long as the result is a cons_t (that is,
-    ! not degenerate). lst must not be circular.
+    ! lst may be dotted, in which case the result will be dotted. lst
+    ! must not be circular.
     !
     class(*), intent(in) :: lst
     integer(sz), intent(in) :: n
-    type(cons_t) :: lst_tr
+    class(*), allocatable :: lst_tr
 
-    type(cons_t) :: lead
-    type(cons_t) :: lag
+    class(*), allocatable :: p
 
-    lag = .tocons. lst
-    lead = drop (lst, n)
-    do while (is_pair (lead))
-       lag = .tocons. (cdr (lag))
-       lead = .tocons. (cdr (lead))
+    lst_tr = .autoval. lst
+    p = drop (lst_tr, n)
+    do while (is_pair (p))
+       lst_tr = cdr (lst_tr)
+       p = cdr (p)
     end do
-    lst_tr = lag
   end function take_right
 
   function drop_right (lst, n) result (lst_dr)
