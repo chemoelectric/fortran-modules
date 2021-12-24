@@ -1215,7 +1215,7 @@ m4_forloop([k],[2],n,[dnl
        call set_cdr (the_last_pair, lst1)
        clst = lst1
     class default
-       call error_abort ("destructive_circular_list of an object with no pairs")
+       call error_abort ("circular_listx of an object with no pairs")
     end select
   end function circular_listx
 
