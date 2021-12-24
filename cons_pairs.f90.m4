@@ -139,6 +139,7 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: length           ! The length of a proper or dotted list.
   public :: lengthc          ! The length of a proper or dotted list, or -1 for a circular list. (SRFI-1 has `length+'.)
 
+  ! The generics:
   public :: take             ! Return a freshly allocated copy of the first n elements of a list.
   public :: takex            ! Like take, but allowed to destroy its inputs. (Currently, it cannot handle circular lists.)
   public :: drop             ! Return a common tail containing all but the first n elements of a list.
@@ -147,6 +148,24 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: drop_rightx      ! Like drop_right, but allowed to destroy its inputs.
   public :: split_at         ! Do both take and drop, at the same time.
   public :: split_atx        ! Like split_at, but allowed to destroy its inputs.
+  ! Versions for INTEGER(SIZE_KIND).
+  public :: take_size_kind
+  public :: takex_size_kind
+  public :: drop_size_kind
+  public :: take_right_size_kind
+  public :: drop_right_size_kind
+  public :: drop_rightx_size_kind
+  public :: split_at_size_kind
+  public :: split_atx_size_kind
+  ! Versions for INTEGER of the default kind.
+  public :: take_int
+  public :: takex_int
+  public :: drop_int
+  public :: take_right_int
+  public :: drop_right_int
+  public :: drop_rightx_int
+  public :: split_at_int
+  public :: split_atx_int
 
   public :: last_pair        ! Return the last pair of a list.
   public :: last             ! Return the last CAR of a list.
@@ -262,6 +281,46 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
      module procedure list_refn_size_kind
      module procedure list_refn_int
   end interface list_refn
+
+  interface take
+     module procedure take_size_kind
+     module procedure take_int
+  end interface take
+
+  interface takex
+     module procedure takex_size_kind
+     module procedure takex_int
+  end interface takex
+
+  interface drop
+     module procedure drop_size_kind
+     module procedure drop_int
+  end interface drop
+
+  interface take_right
+     module procedure take_right_size_kind
+     module procedure take_right_int
+  end interface take_right
+
+  interface drop_right
+     module procedure drop_right_size_kind
+     module procedure drop_right_int
+  end interface drop_right
+
+  interface drop_rightx
+     module procedure drop_rightx_size_kind
+     module procedure drop_rightx_int
+  end interface drop_rightx
+
+  interface split_at
+     module procedure split_at_size_kind
+     module procedure split_at_int
+  end interface split_at
+
+  interface split_atx
+     module procedure split_atx_size_kind
+     module procedure split_atx_int
+  end interface split_atx
 
   interface make_list
      module procedure make_list_size_kind
@@ -993,7 +1052,7 @@ m4_forloop([k],[2],n,[dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function take (lst, n) result (lst_t)
+  function take_size_kind (lst, n) result (lst_t)
     class(*), intent(in) :: lst
     integer(sz), intent(in) :: n
     type(cons_t) :: lst_t
@@ -1028,9 +1087,20 @@ m4_forloop([k],[2],n,[dnl
     class default
        call error_abort ("`take' of an object that is not a cons_t")
     end select
-  end function take
+  end function take_size_kind
 
-  function takex (lst, n) result (lst_t)
+  function take_int (lst, n) result (lst_t)
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t) :: lst_t
+
+    integer(sz) :: nn
+
+    nn = n
+    lst_t = take_size_kind (lst, nn)
+  end function take_int
+
+  function takex_size_kind (lst, n) result (lst_t)
     !
     ! NOTE: This implementation cannot handle circular lists. If lst
     !       may be circular, either check first and call `take'
@@ -1056,9 +1126,20 @@ m4_forloop([k],[2],n,[dnl
           call set_cdr (new_last_pair, nil)
        end if
     end if
-  end function takex
+  end function takex_size_kind
 
-  function drop (lst, n) result (lst_d)
+  function takex_int (lst, n) result (lst_t)
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t) :: lst_t
+
+    integer(sz) :: nn
+
+    nn = n
+    lst_t = takex_size_kind (lst, nn)
+  end function takex_int
+
+  function drop_size_kind (lst, n) result (lst_d)
     !
     ! If lst is dotted, then the result will be dotted.
     !
@@ -1072,9 +1153,23 @@ m4_forloop([k],[2],n,[dnl
     do i = 1_sz, n
        lst_d = cdr (lst_d)
     end do
-  end function drop
+  end function drop_size_kind
 
-  function take_right (lst, n) result (lst_tr)
+  function drop_int (lst, n) result (lst_d)
+    !
+    ! If lst is dotted, then the result will be dotted.
+    !
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    class(*), allocatable :: lst_d
+
+    integer(sz) :: nn
+
+    nn = n
+    lst_d = drop_size_kind (lst, nn)
+  end function drop_int
+
+  function take_right_size_kind (lst, n) result (lst_tr)
     !
     ! lst may be dotted, in which case the result will be dotted. lst
     ! must not be circular.
@@ -1091,9 +1186,20 @@ m4_forloop([k],[2],n,[dnl
        lst_tr = cdr (lst_tr)
        p = cdr (p)
     end do
-  end function take_right
+  end function take_right_size_kind
 
-  function drop_right (lst, n) result (lst_dr)
+  function take_right_int (lst, n) result (lst_t)
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    class(*), allocatable :: lst_t
+
+    integer(sz) :: nn
+
+    nn = n
+    lst_t = take_right_size_kind (lst, nn)
+  end function take_right_int
+
+  function drop_right_size_kind (lst, n) result (lst_dr)
     !
     ! lst may be dotted, but must not be circular.
     !
@@ -1102,9 +1208,23 @@ m4_forloop([k],[2],n,[dnl
     type(cons_t) :: lst_dr
 
     lst_dr = take (lst, length (lst) - n)
-  end function drop_right
+  end function drop_right_size_kind
 
-  function drop_rightx (lst, n) result (lst_dr)
+  function drop_right_int (lst, n) result (lst_dr)
+    !
+    ! lst may be dotted, but must not be circular.
+    !
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t) :: lst_dr
+
+    integer(sz) :: nn
+
+    nn = n
+    lst_dr = drop_right_size_kind (lst, nn)
+  end function drop_right_int
+
+  function drop_rightx_size_kind (lst, n) result (lst_dr)
     !
     ! lst may be dotted, but must not be circular.
     !
@@ -1113,9 +1233,23 @@ m4_forloop([k],[2],n,[dnl
     type(cons_t) :: lst_dr
 
     lst_dr = takex (lst, length (lst) - n)
-  end function drop_rightx
+  end function drop_rightx_size_kind
 
-  subroutine split_at (lst, n, lst_left, lst_right)
+  function drop_rightx_int (lst, n) result (lst_dr)
+    !
+    ! lst may be dotted, but must not be circular.
+    !
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t) :: lst_dr
+
+    integer(sz) :: nn
+
+    nn = n
+    lst_dr = drop_rightx_size_kind (lst, nn)
+  end function drop_rightx_int
+
+  subroutine split_at_size_kind (lst, n, lst_left, lst_right)
     !
     ! If n is positive, then lst must be a CONS-pair.
     !
@@ -1165,9 +1299,26 @@ m4_forloop([k],[2],n,[dnl
           call error_abort ("positive split_at of an object with no pairs")
        end select
     end if
-  end subroutine split_at
+  end subroutine split_at_size_kind
 
-  subroutine split_atx (lst, n, lst_left, lst_right)
+  subroutine split_at_int (lst, n, lst_left, lst_right)
+    !
+    ! If n is positive, then lst must be a CONS-pair.
+    !
+    ! If lst is dotted, then lst_right will be dotted.
+    !
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t), intent(inout) :: lst_left
+    class(*), allocatable, intent(inout) :: lst_right
+
+    integer(sz) :: nn
+
+    nn = n
+    call split_at_size_kind (lst, nn, lst_left, lst_right)
+  end subroutine split_at_int
+
+  subroutine split_atx_size_kind (lst, n, lst_left, lst_right)
     !
     ! If n is positive, then lst must be a CONS-pair.
     !
@@ -1194,7 +1345,24 @@ m4_forloop([k],[2],n,[dnl
           call set_cdr (lst1, nil)
        end if
     end if
-  end subroutine split_atx
+  end subroutine split_atx_size_kind
+
+  subroutine split_atx_int (lst, n, lst_left, lst_right)
+    !
+    ! If n is positive, then lst must be a CONS-pair.
+    !
+    ! If lst is dotted, then lst_right will be dotted.
+    !
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t), intent(inout) :: lst_left
+    class(*), allocatable, intent(inout) :: lst_right
+
+    integer(sz) :: nn
+
+    nn = n
+    call split_atx_size_kind (lst, nn, lst_left, lst_right)
+  end subroutine split_atx_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
