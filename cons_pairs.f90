@@ -216,7 +216,7 @@ module cons_pairs
   public :: is_circular_list ! A list that does not terminate.
 
   public :: length           ! The length of a proper or dotted list.
-  public :: lengthx          ! The length of a proper or dotted list, or -1 for a circular list. (SRFI-1 has `length+'.)
+  public :: lengthc          ! The length of a proper or dotted list, or -1 for a circular list. (SRFI-1 has `length+'.)
 
   public :: take             ! Return a freshly allocated copy of the first n elements of a list.
   public :: drop             ! Return a common tail containing all but the first n elements of a list.
@@ -384,6 +384,7 @@ contains
     class(*), intent(in) :: obj
     logical :: bool
 
+    bool = .false.
     select type (obj)
     class is (cons_t)
        bool = associated (obj%heap_element)
@@ -391,11 +392,7 @@ contains
        select type (val => .val. obj)
        class is (cons_t)
           bool = associated (val%heap_element)
-       class default
-          bool = .false.
        end select
-    class default
-       bool = .false.
     end select
   end function is_pair
 
@@ -412,18 +409,15 @@ contains
     class(*), intent(in) :: obj
     logical :: bool
 
+    bool = .false.
     select type (obj)
     class is (cons_t)
        bool = .not. associated (obj%heap_element)
     class is (gcroot_t)
        select type (val => .val. obj)
        class is (cons_t)
-         bool = .not. associated (val%heap_element)
-      class default
-         bool = .false.
-      end select
-    class default
-       bool = .false.
+          bool = .not. associated (val%heap_element)
+       end select
     end select
   end function is_nil
 
@@ -3691,7 +3685,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end select
   end function length
 
-  function lengthx (lst) result (len)
+  function lengthc (lst) result (len)
     !
     ! A variant of length that returns -1 if the list is circular.
     !
@@ -3731,7 +3725,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           done = .true.
        end if
     end do
-  end function lengthx
+  end function lengthc
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

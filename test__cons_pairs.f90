@@ -547,12 +547,12 @@ contains
     call check (length (cons (1, 2)) == 1_sz, "test0140-0025 failed")
     call check (length (iota (100_sz)) == 100_sz, "test0140-0030 failed")
 
-    call check (lengthx (nil) == 0_sz, "test0140-0110 failed")
-    call check (lengthx (1 ** nil) == 1_sz, "test0140-0120 failed")
-    call check (lengthx (cons (1, 2)) == 1_sz, "test0140-0125 failed")
-    call check (lengthx (iota (100_sz)) == 100_sz, "test0140-0130 failed")
-    call check (lengthx (circular_list (iota (100_sz))) == -1_sz, "test0140-0140 failed")
-    call check (lengthx (123 ** 456 ** circular_list (iota (100_sz))) == -1_sz, "test0140-0150 failed")
+    call check (lengthc (nil) == 0_sz, "test0140-0110 failed")
+    call check (lengthc (1 ** nil) == 1_sz, "test0140-0120 failed")
+    call check (lengthc (cons (1, 2)) == 1_sz, "test0140-0125 failed")
+    call check (lengthc (iota (100_sz)) == 100_sz, "test0140-0130 failed")
+    call check (lengthc (circular_list (iota (100_sz))) == -1_sz, "test0140-0140 failed")
+    call check (lengthc (123 ** 456 ** circular_list (iota (100_sz))) == -1_sz, "test0140-0150 failed")
   end subroutine test0140
 
   subroutine test0150
