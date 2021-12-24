@@ -170,6 +170,7 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: list_copy        ! Make a copy of a list.
   public :: reverse          ! Make a copy of a list, but reversed.
   public :: reversex         ! Like reverse, but allowed to destroy its inputs.
+  public :: append           ! Concatenate two lists.
 
   ! Although `circular_list' and `circular_listx' gets their names
   ! from the SRFI-1 `circular-list', as input they take a regular
@@ -1232,7 +1233,9 @@ m4_forloop([k],[2],n,[dnl
           call set_cdr (cursor, new_pair)
           cursor = new_pair
        end do
-       call set_cdr (cursor, tail)
+       if (is_not_nil (tail)) then
+          call set_cdr (cursor, tail)
+       end if
     end if
   end function list_copy
 
@@ -1294,6 +1297,44 @@ m4_forloop([k],[2],n,[dnl
     end do
     lst = lst_r
   end subroutine reverse_in_place
+
+  function append (lst1, lst2) result (lst_a)
+    !
+    ! The tail of the result is shared with lst2. The CAR elements of
+    ! lst1 are copied; the last CDR of lst1 is dropped.
+    !
+    ! The result need not be a cons_t.
+    !
+    class(*), intent(in) :: lst1, lst2
+    class(*), allocatable :: lst_a
+
+    class(*), allocatable :: lst1a
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+    type(cons_t) :: new_lst
+
+    lst1a = .autoval. lst1
+    if (is_not_pair (lst1a)) then
+       lst_a = .autoval. lst2
+    else
+       call uncons (lst1a, head, tail)
+       new_lst = head ** nil
+       cursor = new_lst
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          new_pair = head ** nil
+          call set_cdr (cursor, new_pair)
+          cursor = new_pair
+       end do
+       if (is_not_nil (tail)) then
+          call set_cdr (cursor, tail)
+       end if
+       call set_cdr (cursor, .autoval. lst2)
+       lst_a = new_lst
+    end if
+  end function append
 
   function circular_list (lst) result (clst)
     !

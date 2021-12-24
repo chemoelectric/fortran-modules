@@ -706,6 +706,19 @@ contains
     call check_heap_size
   end subroutine test0180
 
+  subroutine test0190
+    call check (lists_are_equal (integer_eq, append (nil, nil), nil), "test0190-0010 failed")
+    call check (append (nil, 123) .eqi. 123, "test0190-0020 failed")
+    call check (lists_are_equal (integer_eq, append (nil, list1 (123)), list1 (123)), "test0190-0030 failed")
+    call check (lists_are_equal (integer_eq, append (list1 (123), nil), list1 (123)), "test0190-0040 failed")
+    call check (car (append (list1 (123), 45)) .eqi. 123, "test0190-0050 failed")
+    call check (cdr (append (list1 (123), 45)) .eqi. 45, "test0190-0060 failed")
+    call check (lists_are_equal (size_kind_eq, &
+         append (iota (75_sz, 1_sz), iota (25_sz, 76_sz)), &
+         iota (100_sz, 1_sz)), &
+         "test0190-0070 failed")
+  end subroutine test0190
+
   subroutine run_tests
     heap_size_limit = 0
     call test0010
@@ -728,6 +741,7 @@ contains
     call test0160
     call test0170
     call test0180
+    call test0190
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")
