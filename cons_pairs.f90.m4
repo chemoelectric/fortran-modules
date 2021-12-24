@@ -172,6 +172,8 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: reversex         ! Like reverse, but allowed to destroy its inputs.
   public :: append           ! Concatenate two lists.
   public :: appendx          ! Like append, but allowed to destroy its *first* argument (but not the latter argument).
+  public :: append_reverse   ! Concatenate the reverse of the first list to the (unreversed) second list.
+  public :: append_reversex  ! Like append_reverse, but allowed to destroy its *first* argument (but not the latter argument).
   public :: concatenate      ! Concatenate the lists in a list of lists.
   public :: concatenatex     ! Like concatenate, but allowed to destroy its inputs.
 
@@ -1344,6 +1346,32 @@ m4_forloop([k],[2],n,[dnl
        call set_cdr (last_pair (lst_a), .autoval. lst2)
     end if
   end function appendx
+
+  function append_reverse (lst1, lst2) result (lst_ar)
+    !
+    ! The tail of the result is shared with lst2. The CAR elements of
+    ! lst1 are copied; the last CDR of the reverse of lst1 is dropped.
+    !
+    class(*) :: lst1, lst2
+    class(*), allocatable :: lst_ar
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    lst_ar = .autoval. lst2
+    tail = .autoval. lst1
+    do while (is_pair (tail))
+       call uncons (tail, head, tail)
+       lst_ar = cons (head, lst_ar)
+    end do
+  end function append_reverse
+
+  function append_reversex (lst1, lst2) result (lst_ar)
+    class(*) :: lst1, lst2
+    class(*), allocatable :: lst_ar
+
+    lst_ar = appendx (reversex (lst1), lst2)
+  end function append_reversex
 
   function concatenate (lists) result (lst_concat)
     !

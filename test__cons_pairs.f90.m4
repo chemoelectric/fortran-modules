@@ -673,6 +673,30 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
          "test0190-1070 failed")
   end subroutine test0190
 
+  subroutine test0195
+    call check (lists_are_equal (integer_eq, append_reverse (nil, nil), nil), "test0195-0010 failed")
+    call check (append_reverse (nil, 123) .eqi. 123, "test0195-0020 failed")
+    call check (lists_are_equal (integer_eq, append_reverse (nil, list1 (123)), list1 (123)), "test0195-0030 failed")
+    call check (lists_are_equal (integer_eq, append_reverse (list1 (123), nil), list1 (123)), "test0195-0040 failed")
+    call check (car (append_reverse (list1 (123), 45)) .eqi. 123, "test0195-0050 failed")
+    call check (cdr (append_reverse (list1 (123), 45)) .eqi. 45, "test0195-0060 failed")
+    call check (lists_are_equal (size_kind_eq, &
+         append_reverse (iota (75_sz, 75_sz, -1_sz), iota (25_sz, 76_sz)), &
+         iota (100_sz, 1_sz)), &
+         "test0195-0070 failed")
+
+    call check (lists_are_equal (integer_eq, append_reversex (nil, nil), nil), "test0195-1010 failed")
+    call check (append_reversex (nil, 123) .eqi. 123, "test0195-1020 failed")
+    call check (lists_are_equal (integer_eq, append_reversex (nil, list1 (123)), list1 (123)), "test0195-1030 failed")
+    call check (lists_are_equal (integer_eq, append_reversex (list1 (123), nil), list1 (123)), "test0195-1040 failed")
+    call check (car (append_reversex (list1 (123), 45)) .eqi. 123, "test0195-1050 failed")
+    call check (cdr (append_reversex (list1 (123), 45)) .eqi. 45, "test0195-1060 failed")
+    call check (lists_are_equal (size_kind_eq, &
+         append_reversex (iota (75_sz, 75_sz, -1_sz), iota (25_sz, 76_sz)), &
+         iota (100_sz, 1_sz)), &
+         "test0195-1070 failed")
+  end subroutine test0195
+
   subroutine test0200
     call check (is_nil (concatenate (nil)), "test0200-0010 failed")
     call check (is_nil (concatenate (123)), "test0200-0020 failed")
@@ -722,6 +746,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0170
     call test0180
     call test0190
+    call test0195
     call test0200
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
