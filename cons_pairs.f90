@@ -346,16 +346,6 @@ contains
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
   end subroutine strange_error
 
-  function copy_first_pair (lst) result (lst_copy) ! FIXME: DO WE NEED THIS?  FIXME  FIXME  FIXME  FIXME  FIXME  FIXME
-    class(*), intent(in) :: lst
-    type(cons_t) :: lst_copy
-
-    class(*), allocatable :: head, tail
-
-    call uncons (lst, head, tail)
-    lst_copy = cons (head, tail)
-  end function copy_first_pair
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   subroutine cons_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
@@ -3797,7 +3787,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        if (is_not_pair (lst1)) then
           lst_t = nil
        else
-          lst_t = copy_first_pair (lst1)
+          lst_t = lst1
           new_last_pair = .tocons. (drop (lst_t, n - 1))
           call set_cdr (new_last_pair, nil)
        end if
@@ -3934,7 +3924,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        if (is_not_pair (lst1)) then
           call error_abort ("positive split_atx of an object with no pairs")
        else
-          lst_left = copy_first_pair (lst1)
+          lst_left = .tocons. lst1
           lst1 = drop (lst_left, n - 1)
           lst_right = cdr (lst1)
           call set_cdr (lst1, nil)
@@ -4090,14 +4080,11 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst
     type(cons_t) :: lst_r
 
-    type(cons_t) :: lst2
-
     select type (lst1 => .autoval. lst)
     class is (cons_t)
        if (is_pair (lst1)) then
-          lst2 = copy_first_pair (lst1)
-          call reverse_in_place (lst2)
-          lst_r = lst2
+          lst_r = lst1
+          call reverse_in_place (lst_r)
        else
           lst_r = nil
        end if
@@ -4174,15 +4161,13 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), allocatable :: lst_a
 
     class(*), allocatable :: lst1a
-    type(cons_t) :: p
 
     lst1a = .autoval. lst1
     if (is_not_pair (lst1a)) then
        lst_a = .autoval. lst2
     else
-       p = copy_first_pair (lst1a)
-       call set_cdr (last_pair (p), .autoval. lst2)
-       lst_a = p
+       lst_a = .tocons. lst1a
+       call set_cdr (last_pair (lst_a), .autoval. lst2)
     end if
   end function appendx
 
