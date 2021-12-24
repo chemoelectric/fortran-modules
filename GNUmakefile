@@ -57,7 +57,7 @@ M4FLAGS += -DLISTN_MAX=20
 M4FLAGS += -DZIP_MAX=10
 
 FC = gfortran
-FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all -Wall
+FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all -Wall -Wextra -Wno-compare-reals
 COMPILE.f90 = $(FC) $(FCFLAGS) $(XFCFLAGS)
 FCFLAG_WNO_TRAMPOLINES = -Wno-trampolines
 FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT = -Wno-unused-dummy-argument
