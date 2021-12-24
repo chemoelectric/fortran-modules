@@ -577,6 +577,36 @@ contains
     call check (lists_are_equal (size_kind_eq, drop_right (iota (100_sz), 75_sz), iota (25_sz)), "test0160-0080 failed")
   end subroutine test0160
 
+  subroutine test0170
+    type(cons_t) :: lst_left, lst_right
+
+    call split_at (nil, 0_sz, lst_left, lst_right)
+    call check (is_nil (lst_left), "test0170-0010 failed")
+    call check (is_nil (lst_right), "test0170-0020 failed")
+
+    call split_at (list3 (1, 2, 3), 0_sz, lst_left, lst_right)
+    call check (is_nil (lst_left), "test0170-0030 failed")
+    call check (lists_are_equal (integer_eq, lst_right, list3 (1, 2, 3)), "test0170-0040 failed")
+
+    call split_at (list3 (1, 2, 3), 1_sz, lst_left, lst_right)
+    call check (lists_are_equal (integer_eq, lst_left, list1 (1)), "test0170-0050 failed")
+    call check (lists_are_equal (integer_eq, lst_right, list2 (2, 3)), "test0170-0060 failed")
+
+    call split_at (list3 (1, 2, 3), 2_sz, lst_left, lst_right)
+    call check (lists_are_equal (integer_eq, lst_left, list2 (1, 2)), "test0170-0070 failed")
+    call check (lists_are_equal (integer_eq, lst_right, list1 (3)), "test0170-0080 failed")
+
+
+    call split_at (list3 (1, 2, 3), 3_sz, lst_left, lst_right)
+    call check (lists_are_equal (integer_eq, lst_left, list3 (1, 2, 3)), "test0170-0090 failed")
+    call check (is_nil (lst_right), "test0170-0100 failed")
+
+    call split_at (1 ** cons (2, 3), 1_sz, lst_left, lst_right)
+    call check (lists_are_equal (integer_eq, lst_left, list1 (1)), "test0170-0110 failed")
+    call check (car (lst_right) .eqi. 2, "test0170-0120 failed")
+    call check (cdr (lst_right) .eqi. 3, "test0170-0130 failed")
+  end subroutine test0170
+
   subroutine run_tests
     !
     ! FIXME: Add a conditional garbage collection call: collect
@@ -617,6 +647,8 @@ contains
     call test0150
     call collect_garbage_now
     call test0160
+    call collect_garbage_now
+    call test0170
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")

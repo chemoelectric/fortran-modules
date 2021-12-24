@@ -222,6 +222,7 @@ module cons_pairs
   public :: drop             ! Return a common tail containing all but the first n elements of a list.
   public :: take_right       ! Return a common tail containing the last n elements of a list.
   public :: drop_right       ! Return a freshly allocated copy of all but the last n elements of a list.
+  public :: split_at         ! Do both take and drop, at the same time.
 
   public :: last_pair        ! Return the last pair of a list.
   public :: last             ! Return the last CAR of a list.
@@ -3814,6 +3815,70 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
     lst_dr = take (lst, length (lst) - n)
   end function drop_right
+
+  subroutine split_at (lst, n, lst_left, lst_right)
+    !
+    ! If n is positive, then lst must be a CONS-pair.
+    !
+    ! If lst is dotted and lst_right would not be degenerate (that is,
+    ! not a cons_t), then, lst_right will be dotted. A degenerate
+    ! lst_right is an error.
+    !
+    class(*), intent(in) :: lst
+    integer(sz), intent(in) :: n
+    type(cons_t), intent(inout) :: lst_left
+    type(cons_t), intent(inout) :: lst_right
+
+    type(cons_t) :: lst_t
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+    integer(sz) :: i
+
+    if (n <= 0) then
+       lst_left = nil
+       select type (lst1 => .autoval. lst)
+       class is (cons_t)
+          lst_right = lst1
+       class default
+          call error_abort ("the result of split_at is not a cons_t")
+       end select
+    else
+       select type (lst1 => .autoval. lst)
+       class is (cons_t)
+          if (is_nil (lst1)) then
+             call error_abort ("positive split_at of a nil list")
+          else
+             call uncons (lst1, head, tail)
+             lst_t = cons (head, tail)
+             cursor = lst_t
+             i = n - 1
+             do while (0 < i .and. is_pair (tail))
+                call uncons (tail, head, tail)
+                new_pair = cons (head, tail)
+                call set_cdr (cursor, new_pair)
+                cursor = new_pair
+                i = i - 1
+             end do
+             if (i == 0) then
+                call set_cdr (cursor, nil)
+             else
+                call error_abort ("split_at of a list that is too short")
+             end if
+             lst_left = lst_t
+             select type (tail)
+             class is (cons_t)
+                lst_right = tail
+             class default
+                call error_abort ("the result of split_at is not a cons_t")
+             end select
+          end if
+       class default
+          call error_abort ("positive split_at of an object with no pairs")
+       end select
+    end if
+  end subroutine split_at
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
