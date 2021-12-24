@@ -3820,14 +3820,12 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     !
     ! If n is positive, then lst must be a CONS-pair.
     !
-    ! If lst is dotted and lst_right would not be degenerate (that is,
-    ! not a cons_t), then, lst_right will be dotted. A degenerate
-    ! lst_right is an error.
+    ! If lst is dotted, then lst_right will be dotted.
     !
     class(*), intent(in) :: lst
     integer(sz), intent(in) :: n
     type(cons_t), intent(inout) :: lst_left
-    type(cons_t), intent(inout) :: lst_right
+    class(*), allocatable, intent(inout) :: lst_right
 
     type(cons_t) :: lst_t
     class(*), allocatable :: head
@@ -3838,12 +3836,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
     if (n <= 0) then
        lst_left = nil
-       select type (lst1 => .autoval. lst)
-       class is (cons_t)
-          lst_right = lst1
-       class default
-          call error_abort ("the result of split_at is not a cons_t")
-       end select
+       lst_right = .autoval. lst
     else
        select type (lst1 => .autoval. lst)
        class is (cons_t)
@@ -3867,12 +3860,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
                 call error_abort ("split_at of a list that is too short")
              end if
              lst_left = lst_t
-             select type (tail)
-             class is (cons_t)
-                lst_right = tail
-             class default
-                call error_abort ("the result of split_at is not a cons_t")
-             end select
+             lst_right = tail
           end if
        class default
           call error_abort ("positive split_at of an object with no pairs")
