@@ -660,6 +660,36 @@ contains
     call split_at (1 ** cons (2, 3), 2_sz, lst_left, lst_right)
     call check (lists_are_equal (integer_eq, lst_left, list2 (1, 2)), "test0170-0140 failed")
     call check (lst_right .eqi. 3, "test0170-0150 failed")
+
+    call split_atx (nil, 0_sz, lst_left, lst_right)
+    call check (is_nil (lst_left), "test0170-1010 failed")
+    call check (is_nil (lst_right), "test0170-1020 failed")
+
+    call split_atx (list3 (1, 2, 3), 0_sz, lst_left, lst_right)
+    call check (is_nil (lst_left), "test0170-1030 failed")
+    call check (lists_are_equal (integer_eq, lst_right, list3 (1, 2, 3)), "test0170-1040 failed")
+
+    call split_atx (list3 (1, 2, 3), 1_sz, lst_left, lst_right)
+    call check (lists_are_equal (integer_eq, lst_left, list1 (1)), "test0170-1050 failed")
+    call check (lists_are_equal (integer_eq, lst_right, list2 (2, 3)), "test0170-1060 failed")
+
+    call split_atx (list3 (1, 2, 3), 2_sz, lst_left, lst_right)
+    call check (lists_are_equal (integer_eq, lst_left, list2 (1, 2)), "test0170-1070 failed")
+    call check (lists_are_equal (integer_eq, lst_right, list1 (3)), "test0170-1080 failed")
+
+
+    call split_atx (list3 (1, 2, 3), 3_sz, lst_left, lst_right)
+    call check (lists_are_equal (integer_eq, lst_left, list3 (1, 2, 3)), "test0170-1090 failed")
+    call check (is_nil (lst_right), "test0170-1100 failed")
+
+    call split_atx (1 ** cons (2, 3), 1_sz, lst_left, lst_right)
+    call check (lists_are_equal (integer_eq, lst_left, list1 (1)), "test0170-1110 failed")
+    call check (car (lst_right) .eqi. 2, "test0170-1120 failed")
+    call check (cdr (lst_right) .eqi. 3, "test0170-1130 failed")
+
+    call split_atx (1 ** cons (2, 3), 2_sz, lst_left, lst_right)
+    call check (lists_are_equal (integer_eq, lst_left, list2 (1, 2)), "test0170-1140 failed")
+    call check (lst_right .eqi. 3, "test0170-1150 failed")
   end subroutine test0170
 
   subroutine test0180

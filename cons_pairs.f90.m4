@@ -140,6 +140,7 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: drop_right       ! Return a freshly allocated copy of all but the last n elements of a list.
   public :: drop_rightx      ! Like drop_right, but allowed to destroy its inputs.
   public :: split_at         ! Do both take and drop, at the same time.
+  public :: split_atx        ! Like split_at, but allowed to destroy its inputs.
 
   public :: last_pair        ! Return the last pair of a list.
   public :: last             ! Return the last CAR of a list.
@@ -254,7 +255,7 @@ contains
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
   end subroutine strange_error
 
-  function copy_first_pair (lst) result (lst_copy)
+  function copy_first_pair (lst) result (lst_copy) ! FIXME: DO WE NEED THIS?  FIXME  FIXME  FIXME  FIXME  FIXME  FIXME
     class(*), intent(in) :: lst
     type(cons_t) :: lst_copy
 
@@ -1077,6 +1078,35 @@ m4_forloop([k],[2],n,[dnl
        end select
     end if
   end subroutine split_at
+
+  subroutine split_atx (lst, n, lst_left, lst_right)
+    !
+    ! If n is positive, then lst must be a CONS-pair.
+    !
+    ! lst_left will be a cons_t, but lst_right need not be.
+    !
+    class(*), intent(in) :: lst
+    integer(sz), intent(in) :: n
+    type(cons_t), intent(inout) :: lst_left
+    class(*), allocatable, intent(inout) :: lst_right
+
+    class(*), allocatable :: lst1
+
+    if (n <= 0) then
+       lst_left = nil
+       lst_right = .autoval. lst
+    else
+       lst1 = .autoval. lst
+       if (is_not_pair (lst1)) then
+          call error_abort ("positive split_atx of an object with no pairs")
+       else
+          lst_left = copy_first_pair (lst1)
+          lst1 = drop (lst_left, n - 1)
+          lst_right = cdr (lst1)
+          call set_cdr (lst1, nil)
+       end if
+    end if
+  end subroutine split_atx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
