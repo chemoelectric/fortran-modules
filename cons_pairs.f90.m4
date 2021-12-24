@@ -130,8 +130,13 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: is_dotted_list   ! A list that terminates in a non-NIL.
   public :: is_circular_list ! A list that does not terminate.
 
+  public :: length           ! The length of a proper or dotted list.
+  public :: lengthx          ! The length of a proper or dotted list, or -1 for a circular list. (SRFI-1 has `length+'.)
+
   public :: take             ! Return a freshly allocated copy of the first n elements of a list.
   public :: drop             ! Return a common tail containing all but the first n elements of a list.
+  public :: take_right       ! Return a common tail containing the last n elements of a list.
+  public :: drop_right       ! Return a freshly allocated copy of all but the last n elements of a list.
 
   public :: last_pair        ! Return the last pair of a list.
   public :: last             ! Return the last CAR of a list.
@@ -838,6 +843,70 @@ m4_forloop([k],[2],n,[dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  function length (lst) result (len)
+    !
+    ! Returns zero as the length of a degenerate dotted list.
+    !
+    class(*), intent(in) :: lst
+    integer(sz) :: len
+
+    class(*), allocatable :: tail
+
+    len = 0
+    select type (lst1 => .autoval. lst)
+    class is (cons_t)
+       tail = lst1
+       do while (is_pair (tail))
+          len = len + 1
+          tail = cdr (tail)
+       end do
+    end select
+  end function length
+
+  function lengthx (lst) result (len)
+    !
+    ! A variant of length that returns -1 if the list is circular.
+    !
+    class(*), intent(in) :: lst
+    integer(sz) :: len
+
+    ! Detect circularity by having a `lead' reference move through the
+    ! list at a higher rate than a `lag' reference. In a circular
+    ! list, eventually `lead' will catch up with `lag'.
+    class(*), allocatable :: lead
+    class(*), allocatable :: lag
+
+    logical :: done
+
+    len = 0
+    lead = .autoval. lst
+    lag = lead
+    done = .false.
+    do while (.not. done .and. is_pair (lead))
+       lead = cdr (lead)
+       len = len + 1
+       if (is_pair (lead)) then
+          lead = cdr (lead)
+          lag = cdr (lag)
+          len = len + 1
+          select type (lead)
+          class is (cons_t)
+             select type (lag)
+             class is (cons_t)
+                if (cons_t_eq (lead, lag)) then
+                   len = -1
+                   done = .true.
+                end if
+             end select
+          end select
+       else
+          done = .true.
+       end if
+    end do
+  end function lengthx
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   function take (lst, n) result (lst_t)
     class(*), intent(in) :: lst
     integer(sz), intent(in) :: n
@@ -891,6 +960,38 @@ m4_forloop([k],[2],n,[dnl
        lst_d = .tocons. (cdr (lst_d))
     end do
   end function drop
+
+  function take_right (lst, n) result (lst_tr)
+    !
+    ! lst may be dotted, as long as the result is a cons_t (that is,
+    ! not degenerate). lst must not be circular.
+    !
+    class(*), intent(in) :: lst
+    integer(sz), intent(in) :: n
+    type(cons_t) :: lst_tr
+
+    type(cons_t) :: lead
+    type(cons_t) :: lag
+
+    lag = .tocons. lst
+    lead = drop (lst, n)
+    do while (is_pair (lead))
+       lag = .tocons. (cdr (lag))
+       lead = .tocons. (cdr (lead))
+    end do
+    lst_tr = lag
+  end function take_right
+
+  function drop_right (lst, n) result (lst_dr)
+    !
+    ! lst may be dotted, but must not be circular.
+    !
+    class(*), intent(in) :: lst
+    integer(sz), intent(in) :: n
+    type(cons_t) :: lst_dr
+
+    lst_dr = take (lst, length (lst) - n)
+  end function drop_right
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

@@ -484,21 +484,82 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (cdr (last_pair (lst2)) .eqi. 123, "test0130-0040 failed")
   end subroutine test0130
 
+  subroutine test0140
+    call check (length (nil) == 0_sz, "test0140-0010 failed")
+    call check (length (1 ** nil) == 1_sz, "test0140-0020 failed")
+    call check (length (cons (1, 2)) == 1_sz, "test0140-0025 failed")
+    call check (length (iota (100_sz)) == 100_sz, "test0140-0030 failed")
+
+    call check (lengthx (nil) == 0_sz, "test0140-0110 failed")
+    call check (lengthx (1 ** nil) == 1_sz, "test0140-0120 failed")
+    call check (lengthx (cons (1, 2)) == 1_sz, "test0140-0125 failed")
+    call check (lengthx (iota (100_sz)) == 100_sz, "test0140-0130 failed")
+    call check (lengthx (circular_list (iota (100_sz))) == -1_sz, "test0140-0140 failed")
+    call check (lengthx (123 ** 456 ** circular_list (iota (100_sz))) == -1_sz, "test0140-0150 failed")
+  end subroutine test0140
+
+  subroutine test0150
+    call check (lists_are_equal (integer_eq, take_right (nil, 0_sz), nil), "test0150-0010 failed")
+    call check (lists_are_equal (integer_eq, take_right (list1 (1), 0_sz), nil), "test0150-0020 failed")
+    call check (lists_are_equal (size_kind_eq, take_right (iota (100_sz), 0_sz), nil), "test0150-0030 failed")
+
+    call check (lists_are_equal (integer_eq, take_right (list1 (1), 1_sz), list1 (1)), "test0150-0040 failed")
+    call check (lists_are_equal (size_kind_eq, take_right (iota (100_sz), 1_sz), list1 (99_sz)), "test0150-0050 failed")
+
+    call check (lists_are_equal (size_kind_eq, take_right (iota (100_sz), 5_sz), iota (5_sz, 95_sz)), "test0150-0060 failed")
+  end subroutine test0150
+
+  subroutine test0160
+    call check (lists_are_equal (integer_eq, drop_right (nil, 0_sz), nil), "test0160-0010 failed")
+    call check (lists_are_equal (integer_eq, drop_right (list1 (1), 0_sz), list1 (1)), "test0160-0020 failed")
+    call check (lists_are_equal (integer_eq, drop_right (list1 (1), 1_sz), nil), "test0160-0030 failed")
+    call check (lists_are_equal (size_kind_eq, drop_right (iota (100_sz), 0_sz), iota (100_sz)), "test0160-0040 failed")
+    call check (lists_are_equal (size_kind_eq, drop_right (iota (100_sz), 100_sz), nil), "test0160-0050 failed")
+    call check (lists_are_equal (size_kind_eq, drop_right (iota (100_sz), 50_sz), iota (50_sz)), "test0160-0060 failed")
+    call check (lists_are_equal (size_kind_eq, drop_right (iota (100_sz), 25_sz), iota (75_sz)), "test0160-0070 failed")
+    call check (lists_are_equal (size_kind_eq, drop_right (iota (100_sz), 75_sz), iota (25_sz)), "test0160-0080 failed")
+  end subroutine test0160
+
   subroutine run_tests
+    !
+    ! FIXME: Add a conditional garbage collection call: collect
+    !        garbage if too many heap entries, double the size if
+    !        necessary, etc.
+    !
+    call collect_garbage_now
     call test0010
+    call collect_garbage_now
     call test0020
+    call collect_garbage_now
     call test0030
+    call collect_garbage_now
     call test0040
+    call collect_garbage_now
     call test0050
+    call collect_garbage_now
     call test0060
+    call collect_garbage_now
     call test0065
+    call collect_garbage_now
     call test0070
+    call collect_garbage_now
     call test0080
+    call collect_garbage_now
     call test0090
+    call collect_garbage_now
     call test0100
+    call collect_garbage_now
     call test0110
+    call collect_garbage_now
     call test0120
+    call collect_garbage_now
     call test0130
+    call collect_garbage_now
+    call test0140
+    call collect_garbage_now
+    call test0150
+    call collect_garbage_now
+    call test0160
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")
