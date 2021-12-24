@@ -476,6 +476,11 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call set_cdr (last_pair (lst1), 123)
     lst2 = list_copy (lst1)
     call check (cdr (last_pair (lst2)) .eqi. 123, "test0130-0040 failed")
+
+    ! Test a degenerate dotted list.
+    lst1 = 123
+    lst2 = list_copy (lst1)
+    call check ((.val. lst2) .eqi. 123, "test0130-0050 failed")
   end subroutine test0130
 
   subroutine test0140
