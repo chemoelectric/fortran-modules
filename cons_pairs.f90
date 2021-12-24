@@ -236,12 +236,14 @@ module cons_pairs
   public :: last_pair        ! Return the last pair of a list.
   public :: last             ! Return the last CAR of a list.
 
-  public :: make_list        ! Return a list of repeated values.
+  public :: make_list        ! Generic: return a list of repeated values.
+  public :: make_list_size_kind ! Version for INTEGER(int64).
+  public :: make_list_int       ! Version for INTEGER of the default kind.
 
   ! Return a list of values determined by a procedure.
   public :: list_tabulate_init_proc_t ! The type for the initialization procedure.
-  public :: list_tabulate0   ! Indices start at 0.
-  public :: list_tabulate1   ! Indices start at 1.
+  public :: list_tabulate0   ! Indices start at 0_size_kind.
+  public :: list_tabulate1   ! Indices start at 1_size_kind.
   public :: list_tabulaten   ! Indices start at n.
 
   abstract interface
@@ -345,6 +347,11 @@ module cons_pairs
      module procedure list_refn_size_kind
      module procedure list_refn_int
   end interface list_refn
+
+  interface make_list
+     module procedure make_list_size_kind
+     module procedure make_list_int
+  end interface make_list
 
   interface iota
      module procedure iota_of_length_size_kind
@@ -4051,7 +4058,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function make_list (length, fill_value) result (lst)
+  function make_list_size_kind (length, fill_value) result (lst)
     integer(sz), intent(in) :: length
     class(*), intent(in) :: fill_value
     type(cons_t) :: lst
@@ -4062,7 +4069,18 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     do i = 1_sz, length
        lst = fill_value ** lst
     end do
-  end function make_list
+  end function make_list_size_kind
+
+  function make_list_int (length, fill_value) result (lst)
+    integer, intent(in) :: length
+    class(*), intent(in) :: fill_value
+    type(cons_t) :: lst
+
+    integer(sz) :: len
+
+    len = length
+    lst = make_list_size_kind (len, fill_value)
+  end function make_list_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

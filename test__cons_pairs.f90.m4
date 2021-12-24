@@ -427,6 +427,10 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (lists_are_equal (integer_eq, make_list (0_sz, 5), nil), "test0080-0010 failed")
     call check (lists_are_equal (integer_eq, make_list (1_sz, 5), 5 ** nil), "test0080-0020 failed")
     call check (lists_are_equal (integer_eq, make_list (5_sz, 5), list5 (5, 5, 5, 5, 5)), "test0080-0030 failed")
+
+    call check (lists_are_equal (integer_eq, make_list (0, 5), nil), "test0080-0040 failed")
+    call check (lists_are_equal (integer_eq, make_list (1, 5), 5 ** nil), "test0080-0050 failed")
+    call check (lists_are_equal (integer_eq, make_list (5, 5), list5 (5, 5, 5, 5, 5)), "test0080-0060 failed")
   end subroutine test0080
 
   subroutine test0090
