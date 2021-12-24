@@ -401,6 +401,15 @@ contains
     call check (lists_are_equal (integer_eq, take (lst3, 1_sz), lst1), "test0065-0050 failed")
     call check (lists_are_equal (integer_eq, take (lst3, 2_sz), lst2), "test0065-0060 failed")
     call check (lists_are_equal (integer_eq, take (lst3, 3_sz), lst3), "test0065-0070 failed")
+
+    call check (lists_are_equal (integer_eq, takex (nil, 0_sz), nil), "test0065-1010 failed")
+    call check (lists_are_equal (integer_eq, takex (list1 (1), 0_sz), nil), "test0065-1020 failed")
+    call check (lists_are_equal (integer_eq, takex (list3 (1, 2, 3), 0_sz), nil), "test0065-1030 failed")
+
+    call check (lists_are_equal (integer_eq, takex (list1 (1), 1_sz), lst1), "test0065-1040 failed")
+    call check (lists_are_equal (integer_eq, takex (list3 (1, 2, 3), 1_sz), lst1), "test0065-1050 failed")
+    call check (lists_are_equal (integer_eq, takex (list3 (1, 2, 3), 2_sz), lst2), "test0065-1060 failed")
+    call check (lists_are_equal (integer_eq, takex (list3 (1, 2, 3), 3_sz), lst3), "test0065-1070 failed")
   end subroutine test0065
 
   subroutine test0070
@@ -607,6 +616,15 @@ contains
     call check (lists_are_equal (size_kind_eq, drop_right (iota (100_sz), 50_sz), iota (50_sz)), "test0160-0060 failed")
     call check (lists_are_equal (size_kind_eq, drop_right (iota (100_sz), 25_sz), iota (75_sz)), "test0160-0070 failed")
     call check (lists_are_equal (size_kind_eq, drop_right (iota (100_sz), 75_sz), iota (25_sz)), "test0160-0080 failed")
+
+    call check (lists_are_equal (integer_eq, drop_rightx (nil, 0_sz), nil), "test0160-1010 failed")
+    call check (lists_are_equal (integer_eq, drop_rightx (list1 (1), 0_sz), list1 (1)), "test0160-1020 failed")
+    call check (lists_are_equal (integer_eq, drop_rightx (list1 (1), 1_sz), nil), "test0160-1030 failed")
+    call check (lists_are_equal (size_kind_eq, drop_rightx (iota (100_sz), 0_sz), iota (100_sz)), "test0160-1040 failed")
+    call check (lists_are_equal (size_kind_eq, drop_rightx (iota (100_sz), 100_sz), nil), "test0160-1050 failed")
+    call check (lists_are_equal (size_kind_eq, drop_rightx (iota (100_sz), 50_sz), iota (50_sz)), "test0160-1060 failed")
+    call check (lists_are_equal (size_kind_eq, drop_rightx (iota (100_sz), 25_sz), iota (75_sz)), "test0160-1070 failed")
+    call check (lists_are_equal (size_kind_eq, drop_rightx (iota (100_sz), 75_sz), iota (25_sz)), "test0160-1080 failed")
   end subroutine test0160
 
   subroutine test0170

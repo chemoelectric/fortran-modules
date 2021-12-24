@@ -134,9 +134,11 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: lengthc          ! The length of a proper or dotted list, or -1 for a circular list. (SRFI-1 has `length+'.)
 
   public :: take             ! Return a freshly allocated copy of the first n elements of a list.
+  public :: takex            ! Like take, but allowed to destroy its inputs. (Currently, it cannot handle circular lists.)
   public :: drop             ! Return a common tail containing all but the first n elements of a list.
   public :: take_right       ! Return a common tail containing the last n elements of a list.
   public :: drop_right       ! Return a freshly allocated copy of all but the last n elements of a list.
+  public :: drop_rightx      ! Like drop_right, but allowed to destroy its inputs.
   public :: split_at         ! Do both take and drop, at the same time.
 
   public :: last_pair        ! Return the last pair of a list.
@@ -939,6 +941,34 @@ m4_forloop([k],[2],n,[dnl
     end select
   end function take
 
+  function takex (lst, n) result (lst_t)
+    !
+    ! NOTE: This implementation cannot handle circular lists. If lst
+    !       may be circular, either check first and call `take'
+    !       instead of `takex', if lst is circular; or else simply use
+    !       `take' instead.
+    !
+    class(*), intent(in) :: lst
+    integer(sz), intent(in) :: n
+    type(cons_t) :: lst_t
+
+    type(cons_t) :: lst1
+    type(cons_t) :: new_last_pair
+
+    if (n <= 0) then
+       lst_t = nil
+    else
+       lst1 = .tocons. lst
+       if (is_not_pair (lst1)) then
+          lst_t = nil
+       else
+          lst_t = copy_first_pair (lst1)
+          new_last_pair = .tocons. (drop (lst_t, n - 1))
+          call set_cdr (new_last_pair, nil)
+       end if
+    end if
+  end function takex
+
   function drop (lst, n) result (lst_d)
     !
     ! If lst is dotted, then the result will be dotted.
@@ -984,6 +1014,17 @@ m4_forloop([k],[2],n,[dnl
 
     lst_dr = take (lst, length (lst) - n)
   end function drop_right
+
+  function drop_rightx (lst, n) result (lst_dr)
+    !
+    ! lst may be dotted, but must not be circular.
+    !
+    class(*), intent(in) :: lst
+    integer(sz), intent(in) :: n
+    type(cons_t) :: lst_dr
+
+    lst_dr = takex (lst, length (lst) - n)
+  end function drop_rightx
 
   subroutine split_at (lst, n, lst_left, lst_right)
     !

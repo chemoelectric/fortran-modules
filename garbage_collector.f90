@@ -116,48 +116,17 @@ module garbage_collector
      module procedure gcroot_t_autoval
   end interface operator(.autoval.)
 
-  interface error_abort
-     module procedure error_abort_1
-  end interface error_abort
 
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine error_abort_1 (msg)
-    use iso_fortran_env, only : error_unit
-    character(*), intent(in) :: msg
-    write (error_unit, '()')
-    write (error_unit, '("module garbage_collector error: ", a)') msg
-    error stop
-  end subroutine error_abort_1
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   function current_heap_size () result (size)
     integer(size_kind) :: size
 
     size = heap_count
 
-    block
-      class(heap_element_t), pointer :: heap_element
-      integer(size_kind) :: size1
-
-      if (.not. garbage_collector_is_initialized) then
-         call initialize_garbage_collector
-      end if
-
-      size1 = 0
-      heap_element => heap%next
-      do while (.not. is_heap_head (heap_element))
-         size1 = size1 + 1
-         heap_element => heap_element%next
-      end do
-
-      if (size1 /= size) then
-         call error_abort ("internal error: heap_count is wrong")
-      end if
-    end block
   end function current_heap_size
 
   function current_roots_count () result (count)
@@ -165,25 +134,6 @@ contains
 
     count = roots_count
 
-    block
-      class(root_t), pointer :: this_root
-      integer(size_kind) :: count1
-
-      if (.not. garbage_collector_is_initialized) then
-         call initialize_garbage_collector
-      end if
-
-      count1 = 0
-      this_root => roots%next
-      do while (.not. is_roots_head (this_root))
-         count1 = count1 + 1
-         this_root => this_root%next
-      end do
-
-      if (count1 /= count) then
-         call error_abort ("internal error: roots_count is wrong")
-      end if
-    end block
   end function current_roots_count
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -330,7 +280,7 @@ contains
        call initialize_garbage_collector
     end if
 
-    write (*,'("inserting a root into the roots list")')
+    
 
     allocate (new_root)
     allocate (new_root%collectible, source = collectible)
@@ -341,7 +291,7 @@ contains
 
     roots_count = roots_count + 1
 
-    write (*,'("    there are now ", i3)') roots_count
+    
 
   end subroutine roots_insert
 
@@ -350,7 +300,7 @@ contains
 
     class(root_t), pointer :: next, prev
 
-    write (*,'("removing a root from the roots list")')
+    
 
     next => this_one%next
     prev => this_one%prev
@@ -366,7 +316,7 @@ contains
 
     roots_count = roots_count - 1
 
-    write (*,'("    there are now ", i3)') roots_count
+    
 
   end subroutine roots_remove
 
@@ -406,7 +356,7 @@ contains
     class is (collectible_t)
        if (associated (src%heap_element)) then
           ! Create a new root.
-          write (*,'("gcroot_t_assign of a collectible_t")')
+          
           block
             class(root_t), pointer :: new_root
             call roots_insert (roots, src, new_root)
@@ -416,16 +366,16 @@ contains
        else
           ! A NIL-list or some such object that is technically a
           ! collectible_t, but not treated as a heap object.
-          write (*,'("    which is not actually collectible (for example, ""nil"")")')
+          
           call gcroot_t_finalize (dst)
           allocate (dst%root, source = src)
        end if
     class is (gcroot_t)
-       write (*,'("gcroot_t_assign of a gcroot_t")')
+       
        select type (root => src%root)
        class is (root_t)
           ! Copy the root.
-          write (*,'("    which is a root")')
+          
           block
             class(root_t), pointer :: new_root
             call roots_insert (roots, root%collectible, new_root)
@@ -434,13 +384,13 @@ contains
           end block
        class default
           ! Copy the non-collectible data.
-          write (*,'("    which is not a root")')
+          
           call gcroot_t_finalize (dst)
           allocate (dst%root, source = root)
        end select
     class default
        ! Copy the non-collectible data.
-       write (*,'("gcroot_t_assign of non-collectible data")')
+       
        call gcroot_t_finalize (dst)
        allocate (dst%root, source = src)
     end select
@@ -514,13 +464,13 @@ contains
     !! The heap_size_limit will be increased automatically if garbage
     !! collection does not clear up `enough' space.
     !!
-    write (*,'("checking heap size")')
-    write (*,'("    heap size is       ", i6)') heap_count
-    write (*,'("    heap size limit is ", i6)') heap_size_limit
+    
+    
+    
     if (heap_size_limit < heap_count) then
-       write (*,'("collecting garbage")')
+       
        call collect_garbage
-       write (*,'("after garbage collection, heap size is ", i6)') heap_count
+       
        ! Possibly increase heap_size_limit until it is greater than
        ! heap_count plus a bit of padding space.
        block
@@ -534,7 +484,7 @@ contains
             else
                heap_size_limit = 2 * max (heap_size_limit, 1_size_kind)
             end if
-            write (*,'("heap size limit increased to ", i6)') heap_size_limit
+            
          end do
        end block
     end if
@@ -557,18 +507,18 @@ contains
     class(root_t), pointer :: this_root
     class(root_t), pointer :: next_root
 
-    write (*,'("MARK PHASE")')
+    
 
     this_root => roots%next
     do while (.not. is_roots_head (this_root))
        next_root => this_root%next
 
        ! Mark the root object for keeping.
-       write (*,'("    marking a heap element")')
+       
        call set_marked (this_root%collectible%heap_element)
 
        ! Push the root object to the stack for reachability analysis.
-       write (*,'("    pushing the heap element")')
+       
        block
          type(work_stack_element_t), pointer :: tmp
          allocate (tmp)
@@ -578,7 +528,7 @@ contains
        end block
 
        ! Find things that can be reached from the root object.
-       write (*,'("         examining reachables")')
+       
        call mark_reachables
 
        this_root => next_root
@@ -596,7 +546,7 @@ contains
 
       do while (associated (work_stack))
          ! Pop the top of the stack.
-         write (*,'("         popping a heap element")')
+         
          block
            type(work_stack_element_t), pointer :: tmp
            tmp => work_stack
@@ -608,22 +558,22 @@ contains
          branch_number = 1
          call collectible%get_branch (branch_number, branch_number_out_of_range, branch)
          do while (.not. branch_number_out_of_range)
-            write (*,'("             examining branch number ", i3)') branch_number
+            
             select type (branch)
             class is (collectible_t)
                if (associated (branch%heap_element)) then ! Exclude things such `nil' that are not actually collectible.
                   ! The branch is a reachable object, possibly already
                   ! marked for keeping.
-                  write (*,'("             it is collectible")')
+                  
                   if (.not. is_marked (branch%heap_element)) then
 
                      ! Mark the reachable object for keeping.
-                     write (*,'("             it is unmarked; marking it as reachable")')
+                     
                      call set_marked (branch%heap_element)
 
                      ! Push the object to the stack, to see if anything
                      ! else can be reached through it.
-                     write (*,'("             pushing the reachable")')
+                     
                      block
                        type(work_stack_element_t), pointer :: tmp
                        allocate (tmp)
@@ -653,18 +603,18 @@ contains
     class(heap_element_t), pointer :: heap_element
     class(heap_element_t), pointer :: next_heap_element
 
-    write (*,'("SWEEP PHASE")')
+    
 
     heap_element => heap%next
     do while (.not. is_heap_head (heap_element))
        next_heap_element => heap_element%next
-       write (*,'("    examining a heap element")')
+       
        if (is_marked (heap_element)) then
           ! Keep this heap element.
-          write (*,'("        it is marked; keeping it")')
+          
           call set_unmarked (heap_element)
        else
-          write (*,'("        it is unmarked; removing it")')
+          
           call heap_remove (heap_element)
           deallocate (heap_element)
        end if
