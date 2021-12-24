@@ -102,9 +102,15 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: ninth
   public :: tenth
 
-  public :: list_ref0        ! Return any one of the 0th, 1st, 2nd, etc., elements.
-  public :: list_ref1        ! Return any one of the 1st, 2nd, 3rd, etc., elements.
-  public :: list_refn        ! Return any one of the nth, (n+1)th, (n+2)th, etc., elements.
+  public :: list_ref0        ! Generic function: return any one of the 0th, 1st, 2nd, etc., elements.
+  public :: list_ref1        ! Generic function: Return any one of the 1st, 2nd, 3rd, etc., elements.
+  public :: list_refn        ! Generic function: Return any one of the nth, (n+1)th, (n+2)th, etc., elements.
+  public :: list_ref0_size_kind ! Versions for INTEGER(SIZE_KIND).
+  public :: list_ref1_size_kind
+  public :: list_refn_size_kind
+  public :: list_ref0_int    ! Versions for INTEGER of the default kind.
+  public :: list_ref1_int
+  public :: list_refn_int
 
   ! Make and unmake a list of particular length, or of a certain
   ! length and also a tail. (SRFI-1 has `list' and `cons*' have
@@ -162,10 +168,16 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   end interface
 
   ! iota: return a list containing a sequence of equally spaced integers.
-  public :: iota             ! `iota' = the generic function.
-  public :: iota_of_length
+  public :: iota             ! `iota' = the most generic function.
+  public :: iota_of_length   ! Other generics.
   public :: iota_of_length_start
   public :: iota_of_length_start_step
+  public :: iota_of_length_size_kind ! Versions for INTEGER(SIZE_KIND).
+  public :: iota_of_length_start_size_kind
+  public :: iota_of_length_start_step_size_kind
+  public :: iota_of_length_int ! Versions for INTEGER of the default kind.
+  public :: iota_of_length_start_int
+  public :: iota_of_length_start_step_int
 
   public :: list_copy        ! Make a copy of a list.
   public :: reverse          ! Make a copy of a list, but reversed.
@@ -234,11 +246,44 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
      module procedure cons_t_cast
   end interface operator(.tocons.)
 
+  interface list_ref0
+     module procedure list_ref0_size_kind
+     module procedure list_ref0_int
+  end interface list_ref0
+
+  interface list_ref1
+     module procedure list_ref1_size_kind
+     module procedure list_ref1_int
+  end interface list_ref1
+
+  interface list_refn
+     module procedure list_refn_size_kind
+     module procedure list_refn_int
+  end interface list_refn
+
   interface iota
-     module procedure iota_of_length
-     module procedure iota_of_length_start
-     module procedure iota_of_length_start_step
+     module procedure iota_of_length_size_kind
+     module procedure iota_of_length_start_size_kind
+     module procedure iota_of_length_start_step_size_kind
+     module procedure iota_of_length_int
+     module procedure iota_of_length_start_int
+     module procedure iota_of_length_start_step_int
   end interface iota
+
+  interface iota_of_length
+     module procedure iota_of_length_size_kind
+     module procedure iota_of_length_int
+  end interface iota_of_length
+
+  interface iota_of_length_start
+     module procedure iota_of_length_start_size_kind
+     module procedure iota_of_length_start_int
+  end interface iota_of_length_start
+
+  interface iota_of_length_start_step
+     module procedure iota_of_length_start_step_size_kind
+     module procedure iota_of_length_start_step_int
+  end interface iota_of_length_start_step
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
@@ -626,30 +671,66 @@ m4_bits_to_get_nth_element([10],[element])dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function list_ref0 (lst, i) result (element)
+  function list_ref0_size_kind (lst, i) result (element)
     class(*), intent(in) :: lst
     integer(sz), intent(in) :: i
     class(*), allocatable :: element
 
     element = car (drop (lst, i))
-  end function list_ref0
+  end function list_ref0_size_kind
 
-  function list_ref1 (lst, i) result (element)
+  function list_ref1_size_kind (lst, i) result (element)
     class(*), intent(in) :: lst
     integer(sz), intent(in) :: i
     class(*), allocatable :: element
 
-    element = list_ref0 (lst, i - 1_sz)
-  end function list_ref1
+    element = list_ref0_size_kind (lst, i - 1_sz)
+  end function list_ref1_size_kind
 
-  function list_refn (lst, n, i) result (element)
+  function list_refn_size_kind (lst, n, i) result (element)
     class(*), intent(in) :: lst
     integer(sz), intent(in) :: n
     integer(sz), intent(in) :: i
     class(*), allocatable :: element
 
-    element = list_ref0 (lst, i - n)
-  end function list_refn
+    element = list_ref0_size_kind (lst, i - n)
+  end function list_refn_size_kind
+
+  function list_ref0_int (lst, i) result (element)
+    class(*), intent(in) :: lst
+    integer, intent(in) :: i
+    class(*), allocatable :: element
+
+    integer(sz) :: ii
+
+    ii = i
+    element = list_ref0_size_kind (lst, ii)
+  end function list_ref0_int
+
+  function list_ref1_int (lst, i) result (element)
+    class(*), intent(in) :: lst
+    integer, intent(in) :: i
+    class(*), allocatable :: element
+
+    integer(sz) :: ii
+
+    ii = i
+    element = list_ref1_size_kind (lst, ii)
+  end function list_ref1_int
+
+  function list_refn_int (lst, n, i) result (element)
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    integer, intent(in) :: i
+    class(*), allocatable :: element
+
+    integer(sz) :: nn
+    integer(sz) :: ii
+
+    nn = n
+    ii = i
+    element = list_refn_size_kind (lst, nn, ii)
+  end function list_refn_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 dnl
@@ -1474,21 +1555,21 @@ m4_forloop([k],[2],n,[dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function iota_of_length (length) result (lst)
+  function iota_of_length_size_kind (length) result (lst)
     integer(sz), intent(in) :: length
     type(cons_t) :: lst
 
-    lst = iota_of_length_start_step (length, 0_sz, 1_sz)
-  end function iota_of_length
+    lst = iota_of_length_start_step_size_kind (length, 0_sz, 1_sz)
+  end function iota_of_length_size_kind
 
-  function iota_of_length_start (length, start) result (lst)
+  function iota_of_length_start_size_kind (length, start) result (lst)
     integer(sz), intent(in) :: length, start
     type(cons_t) :: lst
 
-    lst = iota_of_length_start_step (length, start, 1_sz)
-  end function iota_of_length_start
+    lst = iota_of_length_start_step_size_kind (length, start, 1_sz)
+  end function iota_of_length_start_size_kind
 
-  function iota_of_length_start_step (length, start, step) result (lst)
+  function iota_of_length_start_step_size_kind (length, start, step) result (lst)
     integer(sz), intent(in) :: length, start, step
     type(cons_t) :: lst
 
@@ -1508,7 +1589,43 @@ m4_forloop([k],[2],n,[dnl
           n = n - step
        end do
     end if
-  end function iota_of_length_start_step
+  end function iota_of_length_start_step_size_kind
+
+  function iota_of_length_int (length) result (lst)
+    integer, intent(in) :: length
+    type(cons_t) :: lst
+
+    lst = iota_of_length_start_step (length, 0, 1)
+  end function iota_of_length_int
+
+  function iota_of_length_start_int (length, start) result (lst)
+    integer, intent(in) :: length, start
+    type(cons_t) :: lst
+
+    lst = iota_of_length_start_step (length, start, 1)
+  end function iota_of_length_start_int
+
+  function iota_of_length_start_step_int (length, start, step) result (lst)
+    integer, intent(in) :: length, start, step
+    type(cons_t) :: lst
+
+    integer :: i, n
+
+    if (length < 0) then
+       call error_abort ("iota with negative length")
+    else if (length == 0) then
+       lst = nil
+    else
+       ! Go through the sequence backwards, so we will not have to
+       ! reverse the resulting list.
+       n = start + ((length - 1) * step)
+       lst = nil
+       do i = 1, length
+          lst = cons (n, lst)
+          n = n - step
+       end do
+    end if
+  end function iota_of_length_start_step_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

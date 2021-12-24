@@ -389,6 +389,40 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     end do
   end subroutine test0070
 
+  subroutine test0075
+
+    ! iota and list_ref
+
+    type(gcroot_t) :: lst
+    integer :: n
+    integer :: i
+
+    do n = 0, 1000, 100
+
+       lst = iota (n)
+       do i = 0, n - 1, 100
+          call check (list_ref0 (lst, i) .eqi. i, "test0075-0010 failed")
+          call check (list_ref1 (lst, i + 1) .eqi. i, "test0075-0020 failed")
+          call check (list_refn (lst, -50, i - 50) .eqi. i, "test0075-0030 failed")
+       end do
+
+       lst = iota (n, 1)
+       do i = 0, n - 1, 100
+          call check (list_ref0 (lst, i) .eqi. i + 1, "test0075-0040 failed")
+          call check (list_ref1 (lst, i + 1) .eqi. i + 1, "test0075-0050 failed")
+          call check (list_refn (lst, -50, i - 50) .eqi. i + 1, "test0075-0060 failed")
+       end do
+
+       lst = iota (n, 100, -10)
+       do i = 0, n - 1, 100
+          call check (list_ref0 (lst, i) .eqi. 100 - (10 * i), "test0075-0075 failed")
+          call check (list_ref1 (lst, i + 1) .eqi. 100 - (10 * i), "test0075-0080 failed")
+          call check (list_refn (lst, -50, i - 50) .eqi. 100 - (10 * i), "test0075-0090 failed")
+       end do
+
+    end do
+  end subroutine test0075
+
   subroutine test0080
     call check (lists_are_equal (integer_eq, make_list (0_sz, 5), nil), "test0080-0010 failed")
     call check (lists_are_equal (integer_eq, make_list (1_sz, 5), 5 ** nil), "test0080-0020 failed")
@@ -733,6 +767,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0060
     call test0065
     call test0070
+    call test0075
     call test0080
     call test0090
     call check_heap_size
