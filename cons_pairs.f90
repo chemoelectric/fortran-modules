@@ -44,8 +44,8 @@ module cons_pairs
   ! Scheme. The fundamental `list' object types are actually the
   ! `null' -- in this module called `nil' -- and the CAR-CDR
   ! pair. Given the nil and pairs, one can construct practically any
-  ! kind of tree or graph; also, the pairs can be used as efficient
-  ! 2-tuples.
+  ! kind of binary tree or graph; also, the pairs can be used as
+  ! efficient 2-tuples.
   !
   ! Furthermore, objects other than the nil and pairs (such as 123,
   ! "abc", 4.0, .true., etc.) can be -- and in this module will be --
