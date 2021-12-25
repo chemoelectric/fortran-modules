@@ -832,6 +832,71 @@ contains
          "test0200-1060 failed")
   end subroutine test0200
 
+  subroutine test0210
+    type(gcroot_t) :: lst1, lst2, lst3, lst4, lst5
+    type(gcroot_t) :: zipped1, zipped2, zipped3, zipped4, zipped5
+    type(gcroot_t) :: p
+    integer :: i
+
+    lst1 = iota (300, 1)
+    lst2 = iota (200, 2)
+    lst3 = iota (100, 3)
+    lst4 = iota (200, 4)
+    lst5 = iota (300, 5)
+
+    zipped1 = zip1 (lst1)
+    zipped2 = zip2 (lst2, lst3)
+    zipped3 = zip3 (lst2, lst3, lst5)
+    zipped4 = zip4 (lst1, lst2, lst4, lst5)
+    zipped5 = zip5 (lst1, lst2, lst3, lst4, lst5)
+
+    call check (length (zipped1) == 300, "test0210-0010 failed")
+    call check (length (zipped2) == 100, "test0210-0020 failed")
+    call check (length (zipped3) == 100, "test0210-0030 failed")
+    call check (length (zipped4) == 200, "test0210-0040 failed")
+    call check (length (zipped5) == 100, "test0210-0050 failed")
+
+    i = 1
+    p = zipped1
+    do while (is_pair (p))
+       call check (lists_are_equal (integer_eq, car (p), list1 (i)), "test0210-0110 failed")
+       i = i + 1
+       p = cdr (p)
+    end do
+
+    i = 1
+    p = zipped2
+    do while (is_pair (p))
+       call check (lists_are_equal (integer_eq, car (p), list2 (i + 1, i + 2)), "test0210-0120 failed")
+       i = i + 1
+       p = cdr (p)
+    end do
+
+    i = 1
+    p = zipped3
+    do while (is_pair (p))
+       call check (lists_are_equal (integer_eq, car (p), list3 (i + 1, i + 2, i + 4)), "test0210-0130 failed")
+       i = i + 1
+       p = cdr (p)
+    end do
+
+    i = 1
+    p = zipped4
+    do while (is_pair (p))
+       call check (lists_are_equal (integer_eq, car (p), list4 (i, i + 1, i + 3, i + 4)), "test0210-0140 failed")
+       i = i + 1
+       p = cdr (p)
+    end do
+
+    i = 1
+    p = zipped5
+    do while (is_pair (p))
+       call check (lists_are_equal (integer_eq, car (p), list5 (i, i + 1, i + 2, i + 3, i + 4)), "test0210-0150 failed")
+       i = i + 1
+       p = cdr (p)
+    end do
+  end subroutine test0210
+
   subroutine run_tests
     heap_size_limit = 0
     call test0010
@@ -858,6 +923,7 @@ contains
     call test0190
     call test0195
     call test0200
+    call test0210
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")

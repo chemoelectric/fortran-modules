@@ -150,6 +150,13 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: unlist[]n[]_with_tail
 ])dnl
 
+  ! Zipping: joining the elements of separate lists into a list of
+  ! lists.
+  public :: zip1
+m4_forloop([n],[2],ZIP_MAX,[dnl
+  public :: zip[]n
+])dnl
+
   ! SRFI-1 does not have `classify_list', although it does have
   ! procedures this module derives from it (`proper-list?',
   ! `dotted-list?', and `circular-list?).
@@ -904,6 +911,83 @@ m4_forloop([k],[2],n,[dnl
 ])dnl
     tail = tl
   end subroutine unlist[]n[]_with_tail
+])dnl
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+dnl
+m4_forloop([n],[1],ZIP_MAX,[
+  function zip[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+       ])lst[]k])) result (lst_z)
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_z
+
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable :: head[]k, tail[]k
+])dnl
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+m4_forloop([k],[1],n,[dnl
+    tail[]k = .autoval. lst[]k
+])dnl
+
+    if (is_not_pair (tail1)) then
+m4_forloop([k],[1],n,[dnl
+       lst_z = nil
+m4_if(k,n,[dnl
+    else
+],[dnl
+    else if (is_not_pair (tail[]m4_eval(k + 1))) then
+])dnl
+])dnl
+dnl
+m4_forloop([k],[1],n,[dnl
+       call uncons (tail[]k, head[]k, tail[]k)
+])dnl
+       row = nil
+m4_forloop([k],[1],n,[dnl
+       row = head[]m4_eval(n - k + 1) ** row
+])dnl
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+m4_forloop([k],[1],n,[dnl
+          continue
+m4_if(k,n,[dnl
+       else
+],[dnl
+       else if (is_not_pair (tail[]m4_eval(k + 1))) then
+])dnl
+])dnl
+          done = .false.
+          do while (.not. done)
+m4_forloop([k],[1],n,[dnl
+             call uncons (tail[]k, head[]k, tail[]k)
+])dnl
+             row = nil
+m4_forloop([k],[1],n,[dnl
+             row = head[]m4_eval(n - k + 1) ** row
+])dnl
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+m4_forloop([k],[1],n,[dnl
+                done = .true.
+m4_if(k,n,[dnl
+             end if
+],[dnl
+             else if (is_not_pair (tail[]m4_eval(k + 1))) then
+])dnl
+])dnl
+          end do
+       end if
+    end if
+  end function zip[]n
 ])dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

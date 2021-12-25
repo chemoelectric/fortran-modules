@@ -235,6 +235,19 @@ module cons_pairs
   public :: unlist19_with_tail
   public :: unlist20_with_tail
 
+  ! Zipping: joining the elements of separate lists into a list of
+  ! lists.
+  public :: zip1
+  public :: zip2
+  public :: zip3
+  public :: zip4
+  public :: zip5
+  public :: zip6
+  public :: zip7
+  public :: zip8
+  public :: zip9
+  public :: zip10
+
   ! SRFI-1 does not have `classify_list', although it does have
   ! procedures this module derives from it (`proper-list?',
   ! `dotted-list?', and `circular-list?).
@@ -3733,6 +3746,983 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call uncons (tl, obj20, tl)
     tail = tl
   end subroutine unlist20_with_tail
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function zip1 (lst1) result (lst_z)
+    class(*), intent(in) :: lst1
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       row = nil
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             row = nil
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip1
+
+  function zip2 (lst1, lst2) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else if (is_not_pair (tail2)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       row = nil
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             row = nil
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip2
+
+  function zip3 (lst1, lst2, lst3) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else if (is_not_pair (tail2)) then
+       lst_z = nil
+    else if (is_not_pair (tail3)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       row = nil
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             row = nil
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip3
+
+  function zip4 (lst1, lst2, lst3, lst4) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else if (is_not_pair (tail2)) then
+       lst_z = nil
+    else if (is_not_pair (tail3)) then
+       lst_z = nil
+    else if (is_not_pair (tail4)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       row = nil
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             row = nil
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip4
+
+  function zip5 (lst1, lst2, lst3, lst4, lst5) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else if (is_not_pair (tail2)) then
+       lst_z = nil
+    else if (is_not_pair (tail3)) then
+       lst_z = nil
+    else if (is_not_pair (tail4)) then
+       lst_z = nil
+    else if (is_not_pair (tail5)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       row = nil
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             row = nil
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip5
+
+  function zip6 (lst1, lst2, lst3, lst4, lst5, lst6) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else if (is_not_pair (tail2)) then
+       lst_z = nil
+    else if (is_not_pair (tail3)) then
+       lst_z = nil
+    else if (is_not_pair (tail4)) then
+       lst_z = nil
+    else if (is_not_pair (tail5)) then
+       lst_z = nil
+    else if (is_not_pair (tail6)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       row = nil
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             row = nil
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip6
+
+  function zip7 (lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else if (is_not_pair (tail2)) then
+       lst_z = nil
+    else if (is_not_pair (tail3)) then
+       lst_z = nil
+    else if (is_not_pair (tail4)) then
+       lst_z = nil
+    else if (is_not_pair (tail5)) then
+       lst_z = nil
+    else if (is_not_pair (tail6)) then
+       lst_z = nil
+    else if (is_not_pair (tail7)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       row = nil
+       row = head7 ** row
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else if (is_not_pair (tail7)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             row = nil
+             row = head7 ** row
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip7
+
+  function zip8 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else if (is_not_pair (tail2)) then
+       lst_z = nil
+    else if (is_not_pair (tail3)) then
+       lst_z = nil
+    else if (is_not_pair (tail4)) then
+       lst_z = nil
+    else if (is_not_pair (tail5)) then
+       lst_z = nil
+    else if (is_not_pair (tail6)) then
+       lst_z = nil
+    else if (is_not_pair (tail7)) then
+       lst_z = nil
+    else if (is_not_pair (tail8)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       row = nil
+       row = head8 ** row
+       row = head7 ** row
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else if (is_not_pair (tail7)) then
+          continue
+       else if (is_not_pair (tail8)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             row = nil
+             row = head8 ** row
+             row = head7 ** row
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip8
+
+  function zip9 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else if (is_not_pair (tail2)) then
+       lst_z = nil
+    else if (is_not_pair (tail3)) then
+       lst_z = nil
+    else if (is_not_pair (tail4)) then
+       lst_z = nil
+    else if (is_not_pair (tail5)) then
+       lst_z = nil
+    else if (is_not_pair (tail6)) then
+       lst_z = nil
+    else if (is_not_pair (tail7)) then
+       lst_z = nil
+    else if (is_not_pair (tail8)) then
+       lst_z = nil
+    else if (is_not_pair (tail9)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call uncons (tail9, head9, tail9)
+       row = nil
+       row = head9 ** row
+       row = head8 ** row
+       row = head7 ** row
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else if (is_not_pair (tail7)) then
+          continue
+       else if (is_not_pair (tail8)) then
+          continue
+       else if (is_not_pair (tail9)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             row = nil
+             row = head9 ** row
+             row = head8 ** row
+             row = head7 ** row
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             else if (is_not_pair (tail9)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip9
+
+  function zip10 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else if (is_not_pair (tail2)) then
+       lst_z = nil
+    else if (is_not_pair (tail3)) then
+       lst_z = nil
+    else if (is_not_pair (tail4)) then
+       lst_z = nil
+    else if (is_not_pair (tail5)) then
+       lst_z = nil
+    else if (is_not_pair (tail6)) then
+       lst_z = nil
+    else if (is_not_pair (tail7)) then
+       lst_z = nil
+    else if (is_not_pair (tail8)) then
+       lst_z = nil
+    else if (is_not_pair (tail9)) then
+       lst_z = nil
+    else if (is_not_pair (tail10)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call uncons (tail9, head9, tail9)
+       call uncons (tail10, head10, tail10)
+       row = nil
+       row = head10 ** row
+       row = head9 ** row
+       row = head8 ** row
+       row = head7 ** row
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else if (is_not_pair (tail7)) then
+          continue
+       else if (is_not_pair (tail8)) then
+          continue
+       else if (is_not_pair (tail9)) then
+          continue
+       else if (is_not_pair (tail10)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             call uncons (tail10, head10, tail10)
+             row = nil
+             row = head10 ** row
+             row = head9 ** row
+             row = head8 ** row
+             row = head7 ** row
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             else if (is_not_pair (tail9)) then
+                done = .true.
+             else if (is_not_pair (tail10)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip10
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
