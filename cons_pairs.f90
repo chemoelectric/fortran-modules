@@ -47,12 +47,13 @@ module cons_pairs
   ! kind of tree or graph; also, the pairs can be used as efficient
   ! 2-tuples.
   !
-  ! Furthermore, objects other than the nil and pairs can be -- and in
-  ! this module will be -- regarded as degenerate `dotted lists'. (The
-  ! term `dotted list' is Scheme-talk for a linked list that ends in
-  ! something other than a nil or back-reference. A list that ends in
-  ! a nil is called  proper  and a list that ends in a back-reference
-  ! is called  circular .)
+  ! Furthermore, objects other than the nil and pairs (such as 123,
+  ! "abc", 4.0, .true., etc.) can be -- and in this module will be --
+  ! regarded as degenerate `dotted lists' -- as a sort of generalized
+  ! nil. \footnote{The term `dotted list' is Scheme-talk for a linked
+  ! list that ends in something other than a nil or back-reference. A
+  ! list that ends in a nil is called  proper  and a list that ends in
+  ! a back-reference is called  circular .}
   !
   ! NOTE: Fortran procedures do not take multiple arguments, the way
   ! Scheme procedures do. However, the zip2, zip3, etc., functions can
