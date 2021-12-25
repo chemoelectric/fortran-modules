@@ -152,10 +152,19 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
 
   ! Zipping: joining the elements of separate lists into a list of
   ! lists.
-  public :: zip1
-m4_forloop([n],[2],ZIP_MAX,[dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: zip[]n
 ])dnl
+
+  ! Unzipping: separating the elements of a list of lists into
+  ! separate lists.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: unzip[]n
+])dnl
+
+  ! unzip1f is the same as unzip1, except as a function instead of a
+  ! subroutine.
+  public :: unzip1f
 
   ! SRFI-1 does not have `classify_list', although it does have
   ! procedures this module derives from it (`proper-list?',
@@ -989,6 +998,89 @@ m4_if(k,n,[dnl
     end if
   end function zip[]n
 ])dnl
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+dnl
+m4_forloop([n],[1],ZIP_MAX,[
+  subroutine unzip[]n (lst_zipped, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+       ])lst[]k]))
+    class(*), intent(in) :: lst_zipped
+m4_forloop([k],[1],n,[dnl
+    type(cons_t), intent(inout) :: lst[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    type(cons_t) :: cursor[]k
+])dnl
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+m4_forloop([k],[1],n,[dnl
+       lst[]k = nil
+])dnl
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip[]n, expected a cons_t")
+       end select
+m4_forloop([k],[1],n,[dnl
+       call uncons (head_zipped, head, tl)
+       lst[]k = head ** nil
+       cursor[]k = lst[]k
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip[]n, expected a cons_t")
+       end select
+])dnl
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip[]n, expected a cons_t")
+          end select
+m4_forloop([k],[1],n,[dnl
+m4_if(k,n,[dnl
+          head = car (head_zipped)
+],[dnl
+          call uncons (head_zipped, head, tl)
+])dnl
+          new_pair = head ** nil
+          call set_cdr (cursor[]k, new_pair)
+          cursor[]k = new_pair
+m4_if(k,n,[],[dnl
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip[]n, expected a cons_t")
+          end select
+])dnl
+])dnl
+       end do
+    end if
+  end subroutine unzip[]n
+])dnl
+
+  function unzip1f (lst_zipped) result (lst)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t) :: lst
+
+    call unzip1 (lst_zipped, lst)
+  end function unzip1f
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

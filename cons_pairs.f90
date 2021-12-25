@@ -248,6 +248,23 @@ module cons_pairs
   public :: zip9
   public :: zip10
 
+  ! Unzipping: separating the elements of a list of lists into
+  ! separate lists.
+  public :: unzip1
+  public :: unzip2
+  public :: unzip3
+  public :: unzip4
+  public :: unzip5
+  public :: unzip6
+  public :: unzip7
+  public :: unzip8
+  public :: unzip9
+  public :: unzip10
+
+  ! unzip1f is the same as unzip1, except as a function instead of a
+  ! subroutine.
+  public :: unzip1f
+
   ! SRFI-1 does not have `classify_list', although it does have
   ! procedures this module derives from it (`proper-list?',
   ! `dotted-list?', and `circular-list?).
@@ -4723,6 +4740,1495 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        end if
     end if
   end function zip10
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine unzip1 (lst_zipped, lst1)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+
+    type(cons_t) :: cursor1
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip1, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip1, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip1, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+       end do
+    end if
+  end subroutine unzip1
+
+  subroutine unzip2 (lst_zipped, lst1, lst2)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+       lst2 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip2, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip2, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst2 = head ** nil
+       cursor2 = lst2
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip2, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip2, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip2, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor2, new_pair)
+          cursor2 = new_pair
+       end do
+    end if
+  end subroutine unzip2
+
+  subroutine unzip3 (lst_zipped, lst1, lst2, lst3)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+    type(cons_t) :: cursor3
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+       lst2 = nil
+       lst3 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip3, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip3, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst2 = head ** nil
+       cursor2 = lst2
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip3, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst3 = head ** nil
+       cursor3 = lst3
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip3, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip3, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip3, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor2, new_pair)
+          cursor2 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip3, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor3, new_pair)
+          cursor3 = new_pair
+       end do
+    end if
+  end subroutine unzip3
+
+  subroutine unzip4 (lst_zipped, lst1, lst2, lst3, lst4)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+    type(cons_t) :: cursor3
+    type(cons_t) :: cursor4
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+       lst2 = nil
+       lst3 = nil
+       lst4 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip4, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip4, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst2 = head ** nil
+       cursor2 = lst2
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip4, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst3 = head ** nil
+       cursor3 = lst3
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip4, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst4 = head ** nil
+       cursor4 = lst4
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip4, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip4, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip4, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor2, new_pair)
+          cursor2 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip4, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor3, new_pair)
+          cursor3 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip4, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor4, new_pair)
+          cursor4 = new_pair
+       end do
+    end if
+  end subroutine unzip4
+
+  subroutine unzip5 (lst_zipped, lst1, lst2, lst3, lst4, lst5)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+    type(cons_t) :: cursor3
+    type(cons_t) :: cursor4
+    type(cons_t) :: cursor5
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+       lst2 = nil
+       lst3 = nil
+       lst4 = nil
+       lst5 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip5, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip5, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst2 = head ** nil
+       cursor2 = lst2
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip5, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst3 = head ** nil
+       cursor3 = lst3
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip5, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst4 = head ** nil
+       cursor4 = lst4
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip5, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst5 = head ** nil
+       cursor5 = lst5
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip5, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip5, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip5, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor2, new_pair)
+          cursor2 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip5, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor3, new_pair)
+          cursor3 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip5, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor4, new_pair)
+          cursor4 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip5, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor5, new_pair)
+          cursor5 = new_pair
+       end do
+    end if
+  end subroutine unzip5
+
+  subroutine unzip6 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+    type(cons_t) :: cursor3
+    type(cons_t) :: cursor4
+    type(cons_t) :: cursor5
+    type(cons_t) :: cursor6
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+       lst2 = nil
+       lst3 = nil
+       lst4 = nil
+       lst5 = nil
+       lst6 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip6, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip6, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst2 = head ** nil
+       cursor2 = lst2
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip6, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst3 = head ** nil
+       cursor3 = lst3
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip6, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst4 = head ** nil
+       cursor4 = lst4
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip6, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst5 = head ** nil
+       cursor5 = lst5
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip6, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst6 = head ** nil
+       cursor6 = lst6
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip6, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip6, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip6, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor2, new_pair)
+          cursor2 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip6, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor3, new_pair)
+          cursor3 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip6, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor4, new_pair)
+          cursor4 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip6, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor5, new_pair)
+          cursor5 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip6, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor6, new_pair)
+          cursor6 = new_pair
+       end do
+    end if
+  end subroutine unzip6
+
+  subroutine unzip7 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
+    type(cons_t), intent(inout) :: lst7
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+    type(cons_t) :: cursor3
+    type(cons_t) :: cursor4
+    type(cons_t) :: cursor5
+    type(cons_t) :: cursor6
+    type(cons_t) :: cursor7
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+       lst2 = nil
+       lst3 = nil
+       lst4 = nil
+       lst5 = nil
+       lst6 = nil
+       lst7 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip7, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip7, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst2 = head ** nil
+       cursor2 = lst2
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip7, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst3 = head ** nil
+       cursor3 = lst3
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip7, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst4 = head ** nil
+       cursor4 = lst4
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip7, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst5 = head ** nil
+       cursor5 = lst5
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip7, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst6 = head ** nil
+       cursor6 = lst6
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip7, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst7 = head ** nil
+       cursor7 = lst7
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip7, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip7, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip7, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor2, new_pair)
+          cursor2 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip7, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor3, new_pair)
+          cursor3 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip7, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor4, new_pair)
+          cursor4 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip7, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor5, new_pair)
+          cursor5 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip7, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor6, new_pair)
+          cursor6 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip7, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor7, new_pair)
+          cursor7 = new_pair
+       end do
+    end if
+  end subroutine unzip7
+
+  subroutine unzip8 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
+    type(cons_t), intent(inout) :: lst7
+    type(cons_t), intent(inout) :: lst8
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+    type(cons_t) :: cursor3
+    type(cons_t) :: cursor4
+    type(cons_t) :: cursor5
+    type(cons_t) :: cursor6
+    type(cons_t) :: cursor7
+    type(cons_t) :: cursor8
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+       lst2 = nil
+       lst3 = nil
+       lst4 = nil
+       lst5 = nil
+       lst6 = nil
+       lst7 = nil
+       lst8 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip8, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip8, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst2 = head ** nil
+       cursor2 = lst2
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip8, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst3 = head ** nil
+       cursor3 = lst3
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip8, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst4 = head ** nil
+       cursor4 = lst4
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip8, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst5 = head ** nil
+       cursor5 = lst5
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip8, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst6 = head ** nil
+       cursor6 = lst6
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip8, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst7 = head ** nil
+       cursor7 = lst7
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip8, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst8 = head ** nil
+       cursor8 = lst8
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip8, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip8, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip8, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor2, new_pair)
+          cursor2 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip8, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor3, new_pair)
+          cursor3 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip8, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor4, new_pair)
+          cursor4 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip8, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor5, new_pair)
+          cursor5 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip8, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor6, new_pair)
+          cursor6 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip8, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor7, new_pair)
+          cursor7 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip8, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor8, new_pair)
+          cursor8 = new_pair
+       end do
+    end if
+  end subroutine unzip8
+
+  subroutine unzip9 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
+    type(cons_t), intent(inout) :: lst7
+    type(cons_t), intent(inout) :: lst8
+    type(cons_t), intent(inout) :: lst9
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+    type(cons_t) :: cursor3
+    type(cons_t) :: cursor4
+    type(cons_t) :: cursor5
+    type(cons_t) :: cursor6
+    type(cons_t) :: cursor7
+    type(cons_t) :: cursor8
+    type(cons_t) :: cursor9
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+       lst2 = nil
+       lst3 = nil
+       lst4 = nil
+       lst5 = nil
+       lst6 = nil
+       lst7 = nil
+       lst8 = nil
+       lst9 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip9, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip9, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst2 = head ** nil
+       cursor2 = lst2
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip9, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst3 = head ** nil
+       cursor3 = lst3
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip9, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst4 = head ** nil
+       cursor4 = lst4
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip9, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst5 = head ** nil
+       cursor5 = lst5
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip9, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst6 = head ** nil
+       cursor6 = lst6
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip9, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst7 = head ** nil
+       cursor7 = lst7
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip9, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst8 = head ** nil
+       cursor8 = lst8
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip9, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst9 = head ** nil
+       cursor9 = lst9
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip9, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip9, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip9, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor2, new_pair)
+          cursor2 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip9, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor3, new_pair)
+          cursor3 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip9, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor4, new_pair)
+          cursor4 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip9, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor5, new_pair)
+          cursor5 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip9, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor6, new_pair)
+          cursor6 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip9, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor7, new_pair)
+          cursor7 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip9, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor8, new_pair)
+          cursor8 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip9, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor9, new_pair)
+          cursor9 = new_pair
+       end do
+    end if
+  end subroutine unzip9
+
+  subroutine unzip10 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
+    type(cons_t), intent(inout) :: lst7
+    type(cons_t), intent(inout) :: lst8
+    type(cons_t), intent(inout) :: lst9
+    type(cons_t), intent(inout) :: lst10
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+    type(cons_t) :: cursor3
+    type(cons_t) :: cursor4
+    type(cons_t) :: cursor5
+    type(cons_t) :: cursor6
+    type(cons_t) :: cursor7
+    type(cons_t) :: cursor8
+    type(cons_t) :: cursor9
+    type(cons_t) :: cursor10
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+       lst2 = nil
+       lst3 = nil
+       lst4 = nil
+       lst5 = nil
+       lst6 = nil
+       lst7 = nil
+       lst8 = nil
+       lst9 = nil
+       lst10 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip10, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip10, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst2 = head ** nil
+       cursor2 = lst2
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip10, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst3 = head ** nil
+       cursor3 = lst3
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip10, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst4 = head ** nil
+       cursor4 = lst4
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip10, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst5 = head ** nil
+       cursor5 = lst5
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip10, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst6 = head ** nil
+       cursor6 = lst6
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip10, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst7 = head ** nil
+       cursor7 = lst7
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip10, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst8 = head ** nil
+       cursor8 = lst8
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip10, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst9 = head ** nil
+       cursor9 = lst9
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip10, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst10 = head ** nil
+       cursor10 = lst10
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip10, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip10, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip10, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor2, new_pair)
+          cursor2 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip10, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor3, new_pair)
+          cursor3 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip10, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor4, new_pair)
+          cursor4 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip10, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor5, new_pair)
+          cursor5 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip10, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor6, new_pair)
+          cursor6 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip10, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor7, new_pair)
+          cursor7 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip10, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor8, new_pair)
+          cursor8 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip10, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor9, new_pair)
+          cursor9 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip10, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor10, new_pair)
+          cursor10 = new_pair
+       end do
+    end if
+  end subroutine unzip10
+
+  function unzip1f (lst_zipped) result (lst)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t) :: lst
+
+    call unzip1 (lst_zipped, lst)
+  end function unzip1f
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

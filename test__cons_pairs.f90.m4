@@ -778,6 +778,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   subroutine test0210
     type(gcroot_t) :: lst1, lst2, lst3, lst4, lst5
     type(gcroot_t) :: zipped1, zipped2, zipped3, zipped4, zipped5
+    type(cons_t) :: unzipped1, unzipped2, unzipped3, unzipped4, unzipped5
     type(gcroot_t) :: p
     integer :: i
 
@@ -838,6 +839,33 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
        i = i + 1
        p = cdr (p)
     end do
+
+    call check (lists_are_equal (integer_eq, unzip1f (zipped1), lst1), "test0210-0200 failed")
+
+    call unzip1 (zipped1, unzipped1)
+    call check (lists_are_equal (integer_eq, unzipped1, lst1), "test0210-0210 failed")
+
+    call unzip2 (zipped2, unzipped2, unzipped3)
+    call check (lists_are_equal (integer_eq, unzipped2, take (lst2, 100)), "test0210-0220 failed")
+    call check (lists_are_equal (integer_eq, unzipped3, lst3), "test0210-0230 failed")
+
+    call unzip3 (zipped3, unzipped2, unzipped3, unzipped5)
+    call check (lists_are_equal (integer_eq, unzipped2, take (lst2, 100)), "test0210-0240 failed")
+    call check (lists_are_equal (integer_eq, unzipped3, lst3), "test0210-0250 failed")
+    call check (lists_are_equal (integer_eq, unzipped5, take (lst5, 100)), "test0210-0260 failed")
+
+    call unzip4 (zipped4, unzipped1, unzipped2, unzipped4, unzipped5)
+    call check (lists_are_equal (integer_eq, unzipped1, take (lst1, 200)), "test0210-0270 failed")
+    call check (lists_are_equal (integer_eq, unzipped2, lst2), "test0210-0280 failed")
+    call check (lists_are_equal (integer_eq, unzipped4, lst4), "test0210-0290 failed")
+    call check (lists_are_equal (integer_eq, unzipped5, take (lst5, 200)), "test0210-0300 failed")
+
+    call unzip5 (zipped5, unzipped1, unzipped2, unzipped3, unzipped4, unzipped5)
+    call check (lists_are_equal (integer_eq, unzipped1, take (lst1, 100)), "test0210-0310 failed")
+    call check (lists_are_equal (integer_eq, unzipped2, take (lst2, 100)), "test0210-0320 failed")
+    call check (lists_are_equal (integer_eq, unzipped3, lst3), "test0210-0320 failed")
+    call check (lists_are_equal (integer_eq, unzipped4, take (lst4, 100)), "test0210-0340 failed")
+    call check (lists_are_equal (integer_eq, unzipped5, take (lst5, 100)), "test0210-0350 failed")
   end subroutine test0210
 
   subroutine run_tests
@@ -867,6 +895,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0195
     call test0200
     call test0210
+    call check_heap_size
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")
