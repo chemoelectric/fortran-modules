@@ -354,6 +354,7 @@ module cons_pairs
   public :: circular_listx   ! Like circular_list, but allowed to destroy its inputs.
 
   public :: lists_are_equal  ! Test whether two lists are `equal'. (Equivalent to SRFI-1's `list='.)
+  public :: list_count       ! Count elements that satisfy a predicate. (Counting proceeds in left-to-right order.)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -7234,6 +7235,36 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst1_root%discard
     call lst2_root%discard
   end function lists_are_equal
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function list_count (pred, lst) result (n)
+    !
+    ! This is called `list_count' instead of `count' because Fortran
+    ! already has an intrinsic `count' function.
+    !
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    integer(sz) :: n
+
+    type(gcroot_t) :: lst_root
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+
+    ! Protect lst against garbage collections performed by `pred'.
+    lst_root = lst
+
+    n = 0
+    tail = .autoval. lst
+    do while (is_pair (tail))
+       call uncons (tail, head, tail)
+       if (pred (head)) then
+          n = n + 1
+       end if
+    end do
+
+    call lst_root%discard
+  end function list_count
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

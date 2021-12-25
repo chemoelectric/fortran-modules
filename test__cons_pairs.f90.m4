@@ -901,6 +901,33 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (is_nil (unzipped5), "test0210-0650 failed")
   end subroutine test0210
 
+  subroutine test0220
+
+    call check (list_count (pred, nil) == 0, "test0220-0010 failed")
+    call check (list_count (pred, iota (100)) == 2, "test0220-0020 failed")
+    call check (list_count (pred, iota (100, 1)) == 1, "test0220-0030 failed")
+    call check (list_count (pred, iota (100, -50)) == 3, "test0220-0040 failed")
+    call check (list_count (pred, iota (100, 2)) == 0, "test0220-0050 failed")
+    call check (list_count (pred, take (circular_list (list3 (-1, 0, 1)), 100)) == 100, "test0220-0060 failed")
+    call check (list_count (pred, take (circular_list (list5 (-2, -1, 0, 1, 2)), 100)) == 60, "test0220-0070 failed")
+
+  contains
+
+    function pred (i) result (bool)
+      class(*), intent(in) :: i
+      logical :: bool
+
+      integer :: ii
+
+      ii = integer_cast (i)
+      bool = (-1 <= ii .and. ii <= 1)
+
+      call collect_garbage_now  ! Test whether this messes things up.
+
+    end function pred
+
+  end subroutine test0220
+
   subroutine run_tests
     heap_size_limit = 0
     call test0010
@@ -929,6 +956,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0200
     call test0210
     call check_heap_size
+    call test0220
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
     call check (current_roots_count () == 0, "run_tests-0110 failed")
