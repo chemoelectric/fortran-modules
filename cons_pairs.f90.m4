@@ -50,6 +50,27 @@ module cons_pairs
   !
 
   !
+  ! Please keep in mind that the term `list' is used only loosely in
+  ! Scheme. The fundamental `list' object types are actually the
+  ! `null' -- in this module called `nil' -- and the CAR-CDR
+  ! pair. Given the nil and pairs, one can construct practically any
+  ! kind of tree or graph; also, the pairs can be used as efficient
+  ! 2-tuples.
+  !
+  ! Furthermore, objects other than the nil and pairs can be -- and in
+  ! this module will be -- regarded as degenerate `dotted lists'. (The
+  ! term `dotted list' is Scheme-talk for a linked list that ends in
+  ! something other than a nil or back-reference. A list that ends in
+  ! a nil is called ‘proper’ and a list that ends in a back-reference
+  ! is called ‘circular’.)
+  !
+  ! NOTE: Fortran procedures do not take multiple arguments, the way
+  ! Scheme procedures do. However, the zip2, zip3, etc., functions can
+  ! be used to turn multiple-argument problems into single-argument
+  ! problems.
+  !
+
+  !
   ! NOTE: Unless you know what you are doing, you should use
   !       `type(gcroot_t)' from module `garbage_collector' to hold
   !       values of type `cons_t'. Otherwise the garbage collector
