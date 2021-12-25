@@ -258,6 +258,36 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: list_count       ! Count elements that satisfy a predicate. (Counting proceeds in left-to-right order.)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! FOLDS AND UNFOLDS
+!!
+
+  abstract interface
+     recursive subroutine list_kons_proc_t (kar, kdr, kons_result)
+       !
+       ! The type of the `kons' argument to a fold procedure.
+       !
+       class(*), intent(in) :: kar, kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine list_kons_proc_t
+  end interface
+
+  public :: fold             ! `The fundamental list iterator.'
+  public :: fold_right       ! `The fundamental list recursion operator.'
+  !public :: pair_fold        ! Like fold, but applied to sublists instead of elements.
+  !public :: pair_fold_right  ! Like fold_right, but applied to sublists instead of elements.
+  !public :: reduce           ! A variant of fold. See SRFI-1.
+  !public :: reduce_right     ! A variant of fold_right. See SRFI-1.
+
+  !public :: unfold           ! Generic: `The fundamental recursive list constructor.' See SRFI-1.
+  !public :: unfold_with_tail_gen ! One of the implementations of `unfold'.
+  !public :: unfold_with_nil_tail ! One of the implementations of `unfold'.
+
+  !public :: unfold_right     ! Generic: `The fundamental iterative list constructor.' See SRFI-1.
+  !public :: unfold_right_with_tail     ! One of the implementations of `unfold_right'.
+  !public :: unfold_right_with_nil_tail ! One of the implementations of `unfold_right'.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   ! Types for predicates.
   public :: list_predicate1_t ! A predicate taking one argument.
@@ -2090,7 +2120,7 @@ m4_if(k,n,[],[dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function list_count (pred, lst) result (n)
+  recursive function list_count (pred, lst) result (n)
     !
     ! This is called `list_count' instead of `count' because Fortran
     ! already has an intrinsic `count' function.
@@ -2119,5 +2149,79 @@ m4_if(k,n,[],[dnl
   end function list_count
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function fold (kons, knil, lst) result (retval)
+    procedure(list_kons_proc_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst_root
+    class(*), allocatable :: new_retval
+    class(*), allocatable :: head, tail
+
+    ! Protect against garbage collections performed by kons.
+    lst_root = lst
+
+    retval = knil
+    tail = .autoval. lst
+    do while (is_pair (tail))
+       call uncons (tail, head, tail)
+       call kons (head, retval, new_retval)
+       retval = new_retval
+    end do
+
+    call lst_root%discard
+  end function fold
+
+  recursive function fold_right (kons, knil, lst) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(n) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons_proc_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst_root
+
+    ! Protect against garbage collections performed by kons.
+    lst_root = lst
+
+    retval = recursion (.autoval. lst)
+
+    call lst_root%discard
+  contains
+
+    recursive function recursion (lst) result (retval)
+      class(*), intent(in) :: lst
+      class(*), allocatable :: retval
+
+      class(*), allocatable :: head, tail
+
+      if (is_not_pair (lst)) then
+         retval = knil
+      else
+         call uncons (lst, head, tail)
+         call kons (head, recursion (tail), retval)
+      end if
+    end function recursion
+
+  end function fold_right
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module cons_pairs
