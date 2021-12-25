@@ -2210,13 +2210,10 @@ m4_if(k,n,[],[dnl
       class(*), intent(in) :: lst
       class(*), allocatable :: retval
 
-      class(*), allocatable :: head, tail
-
       if (is_not_pair (lst)) then
          retval = knil
       else
-         call uncons (lst, head, tail)
-         call kons (head, recursion (tail), retval)
+         call kons (car (lst), recursion (cdr (lst)), retval)
       end if
     end function recursion
 
