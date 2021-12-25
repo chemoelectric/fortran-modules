@@ -866,6 +866,39 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (lists_are_equal (integer_eq, unzipped3, lst3), "test0210-0320 failed")
     call check (lists_are_equal (integer_eq, unzipped4, take (lst4, 100)), "test0210-0340 failed")
     call check (lists_are_equal (integer_eq, unzipped5, take (lst5, 100)), "test0210-0350 failed")
+
+    call check (is_nil (zip1 (nil)), "test0210-0410 failed")
+    call check (is_nil (zip2 (nil, iota (10))), "test0210-0420 failed")
+    call check (is_nil (zip3 (iota (10), nil, nil)), "test0210-0430 failed")
+    call check (is_nil (zip4 (iota (10), nil, iota (10), nil)), "test0210-0440 failed")
+    call check (is_nil (zip5 (nil, nil, nil, iota (100), nil)), "test0210-0450 failed")
+
+    call check (is_nil (unzip1f (nil)), "test0210-0500 failed")
+
+    call unzip1 (nil, unzipped1)
+    call check (is_nil (unzipped1), "test0210-0510 failed")
+
+    call unzip2 (nil, unzipped1, unzipped2)
+    call check (is_nil (unzipped1), "test0210-0520 failed")
+    call check (is_nil (unzipped2), "test0210-0530 failed")
+
+    call unzip3 (nil, unzipped1, unzipped2, unzipped3)
+    call check (is_nil (unzipped1), "test0210-0540 failed")
+    call check (is_nil (unzipped2), "test0210-0550 failed")
+    call check (is_nil (unzipped3), "test0210-0560 failed")
+
+    call unzip4 (nil, unzipped1, unzipped2, unzipped3, unzipped4)
+    call check (is_nil (unzipped1), "test0210-0570 failed")
+    call check (is_nil (unzipped2), "test0210-0580 failed")
+    call check (is_nil (unzipped3), "test0210-0590 failed")
+    call check (is_nil (unzipped4), "test0210-0600 failed")
+
+    call unzip5 (nil, unzipped1, unzipped2, unzipped3, unzipped4, unzipped5)
+    call check (is_nil (unzipped1), "test0210-0610 failed")
+    call check (is_nil (unzipped2), "test0210-0620 failed")
+    call check (is_nil (unzipped3), "test0210-0630 failed")
+    call check (is_nil (unzipped4), "test0210-0640 failed")
+    call check (is_nil (unzipped5), "test0210-0650 failed")
   end subroutine test0210
 
   subroutine run_tests
