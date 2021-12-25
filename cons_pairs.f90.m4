@@ -2204,6 +2204,7 @@ m4_if(k,n,[],[dnl
     retval = recursion (.autoval. lst)
 
     call lst_root%discard
+
   contains
 
     recursive function recursion (lst) result (retval)

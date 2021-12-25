@@ -7352,6 +7352,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     retval = recursion (.autoval. lst)
 
     call lst_root%discard
+
   contains
 
     recursive function recursion (lst) result (retval)
