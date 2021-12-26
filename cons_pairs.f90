@@ -370,11 +370,11 @@ module cons_pairs
 
   public :: unfold           ! Generic: `The fundamental recursive list constructor.' See SRFI-1.
   public :: unfold_with_tail_gen ! One of the implementations of `unfold'.
-  !public :: unfold_with_nil_tail ! One of the implementations of `unfold'.
+  public :: unfold_with_nil_tail ! One of the implementations of `unfold'.
 
-  !public :: unfold_right     ! Generic: `The fundamental iterative list constructor.' See SRFI-1.
-  !public :: unfold_right_with_tail     ! One of the implementations of `unfold_right'.
-  !public :: unfold_right_with_nil_tail ! One of the implementations of `unfold_right'.
+  public :: unfold_right     ! Generic: `The fundamental iterative list constructor.' See SRFI-1.
+  public :: unfold_right_with_tail     ! One of the implementations of `unfold_right'.
+  public :: unfold_right_with_nil_tail ! One of the implementations of `unfold_right'.
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -536,6 +536,11 @@ module cons_pairs
      module procedure unfold_with_tail_gen
      module procedure unfold_with_nil_tail
   end interface unfold
+
+  interface unfold_right
+     module procedure unfold_right_with_tail
+     module procedure unfold_right_with_nil_tail
+  end interface unfold_right
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
@@ -7578,6 +7583,39 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end subroutine recursion
 
   end function unfold_with_nil_tail
+
+  recursive function unfold_right_with_tail (pred, f, g, seed, tail) result (lst)
+    procedure(list_predicate1_t) :: pred
+    procedure(list_map_proc_t) :: f
+    procedure(list_map_proc_t) :: g
+    class(*), intent(in) :: seed
+    class(*), intent(in) :: tail
+    class(*), allocatable :: lst
+
+    class(*), allocatable :: new_element, new_seed
+    type(gcroot_t) :: current_seed
+    type(gcroot_t) :: retval
+
+    retval = tail
+    current_seed = seed
+    do while (.not. pred (.val. current_seed))
+       call f (.val. current_seed, new_element)
+       retval = cons (new_element, retval)
+       call g (.val. current_seed, new_seed)
+       current_seed = new_seed
+    end do
+    lst = .val. retval
+  end function unfold_right_with_tail
+
+  recursive function unfold_right_with_nil_tail (pred, f, g, seed) result (lst)
+    procedure(list_predicate1_t) :: pred
+    procedure(list_map_proc_t) :: f
+    procedure(list_map_proc_t) :: g
+    class(*), intent(in) :: seed
+    class(*), allocatable :: lst
+
+    lst = unfold_right_with_tail (pred, f, g, seed, nil)
+  end function unfold_right_with_nil_tail
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
