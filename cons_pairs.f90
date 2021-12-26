@@ -373,10 +373,10 @@ module cons_pairs
 
   public :: fold             ! `The fundamental list iterator.'
   public :: fold_right       ! `The fundamental list recursion operator.'
-  !public :: pair_fold        ! Like fold, but applied to sublists instead of elements.
-  !public :: pair_fold_right  ! Like fold_right, but applied to sublists instead of elements.
-  !public :: reduce           ! A variant of fold. See SRFI-1.
-  !public :: reduce_right     ! A variant of fold_right. See SRFI-1.
+  public :: pair_fold        ! Like fold, but applied to sublists instead of elements.
+  public :: pair_fold_right  ! Like fold_right, but applied to sublists instead of elements.
+  public :: reduce           ! A variant of fold. See SRFI-1.
+  public :: reduce_right     ! A variant of fold_right. See SRFI-1.
 
   !public :: unfold           ! Generic: `The fundamental recursive list constructor.' See SRFI-1.
   !public :: unfold_with_tail_gen ! One of the implementations of `unfold'.
@@ -7367,6 +7367,120 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end function recursion
 
   end function fold_right
+
+  recursive function pair_fold (kons, knil, lst) result (retval)
+    procedure(list_kons_proc_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst
+    class(*), allocatable :: retval
+
+    class(*), allocatable :: new_retval
+    class(*), allocatable :: tail, new_tail
+
+    type(gcroot_t) :: lst_root
+
+    ! Protect against garbage collections performed by kons.
+    lst_root = lst
+
+    retval = knil
+    tail = .autoval. lst
+    do while (is_pair (tail))
+       new_tail = cdr (tail)
+       call kons (tail, retval, new_retval)
+       retval = new_retval
+       tail = new_tail
+    end do
+
+    call lst_root%discard
+  end function pair_fold
+
+  recursive function pair_fold_right (kons, knil, lst) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(n) stack
+    !          space.
+    !
+    procedure(list_kons_proc_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst_root
+
+    ! Protect against garbage collections performed by kons.
+    lst_root = lst
+
+    retval = recursion (lst)
+
+    call lst_root%discard
+
+  contains
+
+    recursive function recursion (lst) result (retval)
+      class(*), intent(in) :: lst
+      class(*), allocatable :: retval
+
+      if (is_not_pair (lst)) then
+         retval = knil
+      else
+         call kons (lst, recursion (cdr (lst)), retval)
+      end if
+    end function recursion
+
+  end function pair_fold_right
+
+  recursive function reduce (kons, right_identity, lst) result (retval)
+    procedure(list_kons_proc_t) :: kons
+    class(*), intent(in) :: right_identity
+    class(*), intent(in) :: lst
+    class(*), allocatable :: retval
+
+    class(*), allocatable :: head, tail
+
+    if (is_pair (lst)) then
+       call uncons (lst, head, tail)
+       retval = fold (kons, head, tail)
+    else
+       retval = right_identity
+    end if
+  end function reduce
+
+  recursive function reduce_right (kons, right_identity, lst) result (retval)
+    procedure(list_kons_proc_t) :: kons
+    class(*), intent(in) :: right_identity
+    class(*), intent(in) :: lst
+    class(*), allocatable :: retval
+
+    class(*), allocatable :: head, tail
+
+    if (is_pair (lst)) then
+       call uncons (lst, head, tail)
+       block
+         type(gcroot_t) :: lst_root
+         lst_root = lst ! Protect against garbage collections performed by kons.
+         retval = recursion (head, tail)
+         call lst_root%discard
+       end block
+    else
+       retval = right_identity
+    end if
+
+  contains
+
+    recursive function recursion (head, lst1) result (retval)
+      class(*), intent(in) :: head, lst1
+      class(*), allocatable :: retval
+
+      class(*), allocatable :: hd, tl
+
+      if (is_pair (lst1)) then
+         call uncons (lst1, hd, tl)
+         call kons (head, recursion (hd, tl), retval)
+      else
+         retval = head
+      end if
+    end function recursion
+
+  end function reduce_right
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
