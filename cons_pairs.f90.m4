@@ -262,16 +262,6 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 !! FOLDS AND UNFOLDS
 !!
 
-  abstract interface
-     recursive subroutine list_kons_proc_t (kar, kdr, kons_result)
-       !
-       ! The type of the `kons' argument to a fold procedure.
-       !
-       class(*), intent(in) :: kar, kdr
-       class(*), allocatable, intent(out) :: kons_result
-     end subroutine list_kons_proc_t
-  end interface
-
   public :: fold             ! `The fundamental list iterator.'
   public :: fold_right       ! `The fundamental list recursion operator.'
   public :: pair_fold        ! Like fold, but applied to sublists instead of elements.
@@ -279,8 +269,8 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: reduce           ! A variant of fold. See SRFI-1.
   public :: reduce_right     ! A variant of fold_right. See SRFI-1.
 
-  !public :: unfold           ! Generic: `The fundamental recursive list constructor.' See SRFI-1.
-  !public :: unfold_with_tail_gen ! One of the implementations of `unfold'.
+  public :: unfold           ! Generic: `The fundamental recursive list constructor.' See SRFI-1.
+  public :: unfold_with_tail_gen ! One of the implementations of `unfold'.
   !public :: unfold_with_nil_tail ! One of the implementations of `unfold'.
 
   !public :: unfold_right     ! Generic: `The fundamental iterative list constructor.' See SRFI-1.
@@ -311,6 +301,29 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
        class(*), intent(in) :: x, y
        logical :: bool
      end function list_predicate2_t
+  end interface
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  ! Types for folds, unfolds, and maps.
+  public :: list_kons_proc_t
+  public :: list_map_proc_t
+
+  abstract interface
+     recursive subroutine list_kons_proc_t (kar, kdr, kons_result)
+       !
+       ! The type of the `kons' argument to a fold procedure.
+       !
+       class(*), intent(in) :: kar, kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine list_kons_proc_t
+  end interface
+
+  abstract interface
+     recursive subroutine list_map_proc_t (input, output)
+       class(*), intent(in) :: input
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map_proc_t
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -419,6 +432,11 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure iota_of_length_start_step_size_kind
      module procedure iota_of_length_start_step_int
   end interface iota_of_length_start_step
+
+  interface unfold
+     module procedure unfold_with_tail_gen
+     module procedure unfold_with_nil_tail
+  end interface unfold
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
@@ -2261,7 +2279,7 @@ m4_if(k,n,[],[dnl
     ! Protect against garbage collections performed by kons.
     lst_root = lst
 
-    retval = recursion (lst)
+    retval = recursion (.autoval. lst)
 
     call lst_root%discard
 
@@ -2288,11 +2306,12 @@ m4_if(k,n,[],[dnl
 
     class(*), allocatable :: head, tail
 
-    if (is_pair (lst)) then
-       call uncons (lst, head, tail)
+    tail = .autoval. lst
+    if (is_pair (tail)) then
+       call uncons (tail, head, tail)
        retval = fold (kons, head, tail)
     else
-       retval = right_identity
+       retval = .autoval. right_identity
     end if
   end function reduce
 
@@ -2304,8 +2323,9 @@ m4_if(k,n,[],[dnl
 
     class(*), allocatable :: head, tail
 
-    if (is_pair (lst)) then
-       call uncons (lst, head, tail)
+    tail = .autoval. lst
+    if (is_pair (tail)) then
+       call uncons (tail, head, tail)
        block
          type(gcroot_t) :: lst_root
          lst_root = lst ! Protect against garbage collections performed by kons.
@@ -2313,7 +2333,7 @@ m4_if(k,n,[],[dnl
          call lst_root%discard
        end block
     else
-       retval = right_identity
+       retval = .autoval. right_identity
     end if
 
   contains
@@ -2333,6 +2353,83 @@ m4_if(k,n,[],[dnl
     end function recursion
 
   end function reduce_right
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function unfold_with_tail_gen (pred, f, g, seed, tail_gen) result (lst)
+    procedure(list_predicate1_t) :: pred
+    procedure(list_map_proc_t) :: f
+    procedure(list_map_proc_t) :: g
+    class(*), intent(in) :: seed
+    procedure(list_map_proc_t) :: tail_gen
+    class(*), allocatable :: lst
+
+    type(gcroot_t) :: retval
+
+    call recursion (.autoval. seed, retval)
+    lst = .val. retval
+
+  contains
+
+    recursive subroutine recursion (seed, retval)
+      class(*), intent(in) :: seed
+      type(gcroot_t), intent(inout) :: retval
+
+      class(*), allocatable :: new_element, new_seed
+      type(gcroot_t) :: seed_root, new_element_root
+
+      seed_root = seed          ! Protect the seed.
+      if (pred (seed)) then
+         call tail_gen (seed, lst)
+      else
+         call f (seed, new_element)
+         new_element_root = new_element ! Protect the new element.
+         call g (seed, new_seed)
+         call recursion (new_seed, retval)
+         retval = cons (new_element, retval)
+         call new_element_root%discard
+      end if
+      call seed_root%discard
+    end subroutine recursion
+
+  end function unfold_with_tail_gen
+
+  recursive function unfold_with_nil_tail (pred, f, g, seed) result (lst)
+    procedure(list_predicate1_t) :: pred
+    procedure(list_map_proc_t) :: f
+    procedure(list_map_proc_t) :: g
+    class(*), intent(in) :: seed
+    class(*), allocatable :: lst
+
+    type(gcroot_t) :: retval
+
+    call recursion (.autoval. seed, retval)
+    lst = .val. retval
+
+  contains
+
+    recursive subroutine recursion (seed, retval)
+      class(*), intent(in) :: seed
+      type(gcroot_t), intent(inout) :: retval
+
+      class(*), allocatable :: new_element, new_seed
+      type(gcroot_t) :: seed_root, new_element_root
+
+      seed_root = seed          ! Protect the seed.
+      if (pred (seed)) then
+         lst = nil
+      else
+         call f (seed, new_element)
+         new_element_root = new_element ! Protect the new element.
+         call g (seed, new_seed)
+         call recursion (new_seed, retval)
+         retval = cons (new_element, retval)
+         call new_element_root%discard
+      end if
+      call seed_root%discard
+    end subroutine recursion
+
+  end function unfold_with_nil_tail
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
