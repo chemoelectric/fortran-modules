@@ -34,6 +34,17 @@ module test__cons_pairs
 
   integer, parameter :: sz = size_kind
 
+  type :: str_t
+     character(:), allocatable :: val
+   contains
+     procedure, pass :: length => str_t_length
+     procedure, pass :: equal => str_t_equal
+     procedure, pass :: assign => str_t_assign
+     generic :: operator(==) => equal
+     generic :: assignment(=) => assign
+     final :: str_t_finalize
+  end type str_t
+
   interface operator(.eqi.)
      module procedure int_eq
   end interface operator(.eqi.)
@@ -69,6 +80,36 @@ contains
 !!$    coef = nint (exp (log_gamma (n + 1.0D0) - log_gamma (n - k + 1.0D0) - log_gamma (k + 1.0D0)))
 !!$  end function bincoef
 
+  function str_t_length (this) result (length)
+    class(str_t), intent(in) :: this
+    integer :: length
+    length = 0
+    if (allocated (this%val)) then
+       length = len (this%val)
+    end if
+  end function str_t_length
+
+  function str_t_equal (this, other) result (bool)
+    class(str_t), intent(in) :: this
+    class(str_t), intent(in) :: other
+    logical :: bool
+    bool = (this%val == other%val)
+  end function str_t_equal
+
+  subroutine str_t_assign (dst, src)
+    class(str_t), intent(inout) :: dst
+    class(str_t), intent(in) :: src
+    allocate (character(len (src%val)) :: dst%val)
+    dst%val = src%val
+  end subroutine str_t_assign
+
+  subroutine str_t_finalize (this)
+    type(str_t) :: this
+    if (allocated (this%val)) then
+       deallocate (this%val)
+    end if
+  end subroutine str_t_finalize
+
   function int_cast (obj) result (int)
     class(*), intent(in) :: obj
     integer :: int
@@ -101,6 +142,17 @@ contains
        call error_abort ("real_cast of an incompatible object")
     end select
   end function real_cast
+
+  function str_t_cast (obj) result (s)
+    class(*), intent(in) :: obj
+    type(str_t) :: s
+    select type (obj)
+    class is (str_t)
+       s = obj
+    class default
+       call error_abort ("str_t_cast of an incompatible object")
+    end select
+  end function str_t_cast
 
   function int_eq (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1, obj2
@@ -929,7 +981,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   end subroutine test0220
 
   subroutine test0230
-    type(cons_t) :: lst1, lst2
+    type(cons_t) :: lst1, lst2, lst3
 
     ! Use fold to add the numbers in a list. (An example from SRFI-1.)
     call check (fold (kons_iadd, 0, iota (10, 1)) .eqi. 55, "test0230-0010 failed")
@@ -938,13 +990,36 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     lst1 = iota (10, 1)
     lst2 = .tocons. fold (kcons, nil, lst1)
     call check (lists_are_equal (int_eq, lst1, iota (10, 1)), "test0230-0020 failed")
-!!$block
-!!$integer :: i
-!!$do i = 1,10
-!!$print*,int_cast (list_ref1 (lst2, i))
-!!$end do
-!!$end block
     call check (lists_are_equal (int_eq, lst2, iota (10, 10, -1)), "test0230-0030 failed")
+
+    ! Use fold to do an append-reverse. (An example from SRFI-1.)
+    lst1 = iota (10, 11)
+    lst2 = iota (10, 10, -1)
+    lst3 = .tocons. fold (kcons, lst1, lst2)
+    call check (lists_are_equal (int_eq, lst1, iota (10, 11)), "test0230-0040 failed")
+    call check (lists_are_equal (int_eq, lst2, iota (10, 10, -1)), "test0230-0050 failed")
+    call check (lists_are_equal (int_eq, lst3, iota (20, 1)), "test0230-0060 failed")
+
+    ! Count how many strings are in a list. (Adapted from an example
+    ! in SRFI-1.)
+    lst1 = 1 ** 2.0 ** str_t ('3.0') ** str_t ('x') ** 4.0 ** 5_sz ** str_t ('y') ** str_t ('z') &
+         ** list3 (str_t ('a'), str_t ('b'), str_t ('c')) ** nil
+    call check (fold (kons_count_str, 0, lst1) .eqi. 4, "test0230-0070 failed")
+
+    ! Find the length of the longest string in a list. (An example
+    ! from SRFI-1.)
+    lst1 = str_t ('string1') ** str_t ('str2') ** str_t ('This is the longest string.') &
+         ** str_t ('a') ** str_t ('b') ** str_t ('c') ** nil
+    call check (fold (kons_longer_len, 0, lst1) .eqi. len ('This is the longest string.'), "test0230-0080 failed")
+
+    ! Return the first longest string in a list.
+    lst1 = str_t ('string1') ** str_t ('str2') ** str_t ('This is the longest string.') &
+         ** str_t ('a') ** str_t ('b') ** str_t ('c') ** nil
+    call check (str_t_cast (fold (kons_longer_str, str_t (''), lst1)) == str_t ('This is the longest string.'), &
+         "test0230-0090 failed")
+
+    ! Try it again with a nil list.
+    call check (str_t_cast (fold (kons_longer_str, str_t (''), nil)) == str_t (''), "test0230-0100 failed")
 
   contains
 
@@ -964,6 +1039,51 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
       call collect_garbage_now
       kons = cons (kar, kdr)
     end subroutine kcons
+
+    recursive subroutine kons_count_str (kar, kdr, kons)
+      class(*), intent(in) :: kar, kdr
+      class(*), allocatable, intent(out) :: kons
+
+      call collect_garbage_now
+      select type (kar)
+      class is (str_t)
+         kons = int_cast (kdr) + 1
+      class default
+         kons = int_cast (kdr)
+      end select
+      call collect_garbage_now
+    end subroutine kons_count_str
+
+    recursive subroutine kons_longer_len (kar, kdr, kons)
+      class(*), intent(in) :: kar, kdr
+      class(*), allocatable, intent(out) :: kons
+
+      call collect_garbage_now
+      select type (kar)
+      class is (str_t)
+         kons = max (kar%length (), int_cast (kdr))
+      class default
+         kons = int_cast (kdr)
+      end select
+      call collect_garbage_now
+    end subroutine kons_longer_len
+
+    recursive subroutine kons_longer_str (kar, kdr, kons)
+      class(*), intent(in) :: kar, kdr
+      class(*), allocatable, intent(out) :: kons
+
+      type(str_t) :: s1, s2
+
+      call collect_garbage_now
+      s1 = str_t_cast (kar)
+      s2 = str_t_cast (kdr)
+      if (s1%length () <= s2%length ()) then
+         kons = s2
+      else
+         kons = s1
+      end if
+      call collect_garbage_now
+    end subroutine kons_longer_str
 
   end subroutine test0230
 
