@@ -409,12 +409,12 @@ module cons_pairs
   public :: list_map_proc_t
 
   abstract interface
-     recursive subroutine list_kons_proc_t (kar, kdr, kons_result)
+     recursive subroutine list_kons_proc_t (kar, kdr, kons)
        !
        ! The type of the `kons' argument to a fold procedure.
        !
        class(*), intent(in) :: kar, kdr
-       class(*), allocatable, intent(out) :: kons_result
+       class(*), allocatable, intent(out) :: kons
      end subroutine list_kons_proc_t
   end interface
 
@@ -7328,6 +7328,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), allocatable :: retval
 
     type(gcroot_t) :: lst_root
+    type(gcroot_t) :: retval_root
     class(*), allocatable :: new_retval
     class(*), allocatable :: head, tail
 
@@ -7338,7 +7339,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     tail = .autoval. lst
     do while (is_pair (tail))
        call uncons (tail, head, tail)
+       retval_root = retval
        call kons (head, retval, new_retval)
+       call retval_root%discard
        retval = new_retval
     end do
 
