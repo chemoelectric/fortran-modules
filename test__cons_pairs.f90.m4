@@ -1137,13 +1137,27 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   end subroutine test0240
 
   subroutine test0250
-    type(cons_t) :: lst1, lst2
+    type(cons_t) :: lst1, lst2, p
+    integer :: i
 
     ! Destructively reverse a list. (An example from SRFI-1.)
     lst1 = iota (100, 1)
     lst2 = .tocons. pair_fold (ksetcdr, nil, lst1)
     call check (lists_are_equal (int_eq, lst1, 1 ** nil), "test0250-0010 failed")
     call check (lists_are_equal (int_eq, lst2, iota (100, 100, -1)), "test0250-0020 failed")
+
+    ! Enumerate tails.
+    lst1 = iota (100, 1)
+    lst2 = .tocons. pair_fold (kcopy, nil, lst1)
+    call check (lists_are_equal (int_eq, lst1, iota (100, 1)), "test0250-0030 failed")
+    i = 1
+    p = lst2
+    do while (is_pair (p))
+       call check (lists_are_equal (int_eq, car (p), iota (i, 101 - i)), "test0250-0040 failed")
+       i = i + 1
+       p = .tocons. cdr (p)
+    end do
+    call check (is_nil (p), "test0250-0050 failed")
 
   contains
 
@@ -1155,6 +1169,14 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
       call set_cdr (kar, kdr)
       kons = kar
     end subroutine ksetcdr
+
+    recursive subroutine kcopy (kar, kdr, kons)
+      class(*), intent(in) :: kar, kdr
+      class(*), allocatable, intent(out) :: kons
+
+      call collect_garbage_now
+      kons = cons (list_copy (kar), kdr)
+    end subroutine kcopy
 
   end subroutine test0250
 
