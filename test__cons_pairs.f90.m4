@@ -1096,6 +1096,22 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (lists_are_equal (int_eq, lst1, iota (100, 1)), "test0240-0010 failed")
     call check (lists_are_equal (int_eq, lst2, iota (100, 1)), "test0240-0020 failed")
 
+    ! Keep only the even elements of a list. (An example from SRFI-1.)
+    lst1 = iota (100, 1)
+    lst2 = .tocons. fold_right (kcons_if_even, nil, lst1)
+    call check (lists_are_equal (int_eq, lst1, iota (100, 1)), "test0240-0030 failed")
+    call check (lists_are_equal (int_eq, lst2, iota (50, 2, 2)), "test0240-0040 failed")
+
+    ! Try it again with a nil list.
+    lst2 = .tocons. fold_right (kcons_if_even, nil, nil)
+    call check (lists_are_equal (int_eq, lst2, nil), "test0240-0050 failed")
+
+    ! Try it again, but with a non-nil tail.
+    lst1 = iota (95, 1)
+    lst2 = .tocons. fold_right (kcons_if_even, 96 ** 98 ** 100 ** nil, lst1)
+    call check (lists_are_equal (int_eq, lst1, iota (95, 1)), "test0240-0060 failed")
+    call check (lists_are_equal (int_eq, lst2, iota (50, 2, 2)), "test0240-0070 failed")
+
   contains
 
     recursive subroutine kcons (kar, kdr, kons)
@@ -1105,6 +1121,18 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
       call collect_garbage_now
       kons = cons (kar, kdr)
     end subroutine kcons
+
+    recursive subroutine kcons_if_even (kar, kdr, kons)
+      class(*), intent(in) :: kar, kdr
+      class(*), allocatable, intent(out) :: kons
+
+      call collect_garbage_now
+      if (mod (int_cast (kar), 2) == 0) then
+         kons = cons (kar, kdr)
+      else
+         kons = kdr
+      end if
+    end subroutine kcons_if_even
 
   end subroutine test0240
 
