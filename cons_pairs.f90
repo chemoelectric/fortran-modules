@@ -7434,11 +7434,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
     type(gcroot_t) :: lst_root
 
-    ! Protect against garbage collections performed by kons.
     lst_root = lst
-
     retval = recursion (.autoval. lst)
-
     call lst_root%discard
 
   contains
@@ -7447,10 +7444,13 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
       class(*), intent(in) :: lst
       class(*), allocatable :: retval
 
+      type(gcroot_t) :: recursion_result
+
       if (is_not_pair (lst)) then
          retval = knil
       else
-         call kons (lst, recursion (cdr (lst)), retval)
+         recursion_result = recursion (cdr (lst))
+         call kons (lst, .val. recursion_result, retval)
       end if
     end function recursion
 

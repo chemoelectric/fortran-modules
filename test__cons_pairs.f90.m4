@@ -1146,7 +1146,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (lists_are_equal (int_eq, lst1, 1 ** nil), "test0250-0010 failed")
     call check (lists_are_equal (int_eq, lst2, iota (100, 100, -1)), "test0250-0020 failed")
 
-    ! Enumerate tails.
+    ! Enumerate tails in order of ascending length.
     lst1 = iota (100, 1)
     lst2 = .tocons. pair_fold (kcopy, nil, lst1)
     call check (lists_are_equal (int_eq, lst1, iota (100, 1)), "test0250-0030 failed")
@@ -1179,6 +1179,54 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     end subroutine kcopy
 
   end subroutine test0250
+
+  subroutine test0260
+    type(cons_t) :: lst1, lst2, lst3, p
+    integer :: i
+
+    ! A wasteful destructive append. (It does many more set_cdr than
+    ! are necessary.)
+    lst1 = iota (100, 1)
+    lst2 = iota (100, 101)
+    lst3 = .tocons. pair_fold_right (ksetcdr, lst2, lst1)
+    call check (lists_are_equal (int_eq, lst1, iota (200, 1)), "test0260-0010 failed")
+    call check (lists_are_equal (int_eq, lst2, iota (100, 101)), "test0260-0015 failed")
+    call check (lists_are_equal (int_eq, lst3, iota (200, 1)), "test0260-0020 failed")
+
+    ! Enumerate tails in order of descending length. (An example from
+    ! SRFI-1.)
+    lst1 = iota (100, 1)
+    lst2 = .tocons. pair_fold_right (kcopy, nil, lst1)
+    call check (lists_are_equal (int_eq, lst1, iota (100, 1)), "test0260-0030 failed")
+    i = 1
+    p = lst2
+    do while (is_pair (p))
+       call check (lists_are_equal (int_eq, car (p), iota (101 - i, i)), "test0260-0040 failed")
+       i = i + 1
+       p = .tocons. cdr (p)
+    end do
+    call check (is_nil (p), "test0260-0050 failed")
+
+  contains
+
+    recursive subroutine ksetcdr (kar, kdr, kons)
+      class(*), intent(in) :: kar, kdr
+      class(*), allocatable, intent(out) :: kons
+
+      call collect_garbage_now
+      call set_cdr (kar, kdr)
+      kons = kar
+    end subroutine ksetcdr
+
+    recursive subroutine kcopy (kar, kdr, kons)
+      class(*), intent(in) :: kar, kdr
+      class(*), allocatable, intent(out) :: kons
+
+      call collect_garbage_now
+      kons = cons (list_copy (kar), kdr)
+    end subroutine kcopy
+
+  end subroutine test0260
 
   subroutine run_tests
     heap_size_limit = 0
@@ -1213,6 +1261,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0230
     call test0240
     call test0250
+    call test0260
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
