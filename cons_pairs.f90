@@ -7341,10 +7341,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail, head, tail)
        retval_root = retval
        call kons (head, retval, new_retval)
-       call retval_root%discard
        retval = new_retval
     end do
 
+    call retval_root%discard
     call lst_root%discard
   end function fold
 
@@ -7385,10 +7385,13 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
       class(*), intent(in) :: lst
       class(*), allocatable :: retval
 
+      type(gcroot_t) :: recursion_result
+
       if (is_not_pair (lst)) then
          retval = knil
       else
-         call kons (car (lst), recursion (cdr (lst)), retval)
+         recursion_result = recursion (cdr (lst))
+         call kons (car (lst), .val. recursion_result, retval)
       end if
     end function recursion
 

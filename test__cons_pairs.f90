@@ -1144,6 +1144,27 @@ contains
 
   end subroutine test0230
 
+  subroutine test0240
+    type(cons_t) :: lst1, lst2
+
+    ! Use fold_right to copy a list. (An example from SRFI-1.)
+    lst1 = iota (100, 1)
+    lst2 = .tocons. fold_right (kcons, nil, lst1)
+    call check (lists_are_equal (int_eq, lst1, iota (100, 1)), "test0240-0010 failed")
+    call check (lists_are_equal (int_eq, lst2, iota (100, 1)), "test0240-0020 failed")
+
+  contains
+
+    recursive subroutine kcons (kar, kdr, kons)
+      class(*), intent(in) :: kar, kdr
+      class(*), allocatable, intent(out) :: kons
+
+      call collect_garbage_now
+      kons = cons (kar, kdr)
+    end subroutine kcons
+
+  end subroutine test0240
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1175,6 +1196,7 @@ contains
     call check_heap_size
     call test0220
     call test0230
+    call test0240
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
