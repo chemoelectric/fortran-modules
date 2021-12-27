@@ -1193,6 +1193,28 @@ contains
 
   end subroutine test0240
 
+  subroutine test0250
+    type(cons_t) :: lst1, lst2
+
+    ! Destructively reverse a list. (An example from SRFI-1.)
+    lst1 = iota (100, 1)
+    lst2 = .tocons. pair_fold (ksetcdr, nil, lst1)
+    call check (lists_are_equal (int_eq, lst1, 1 ** nil), "test0250-0010 failed")
+    call check (lists_are_equal (int_eq, lst2, iota (100, 100, -1)), "test0250-0020 failed")
+
+  contains
+
+    recursive subroutine ksetcdr (kar, kdr, kons)
+      class(*), intent(in) :: kar, kdr
+      class(*), allocatable, intent(out) :: kons
+
+      call collect_garbage_now
+      call set_cdr (kar, kdr)
+      kons = kar
+    end subroutine ksetcdr
+
+  end subroutine test0250
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1225,6 +1247,7 @@ contains
     call test0220
     call test0230
     call test0240
+    call test0250
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

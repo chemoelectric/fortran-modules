@@ -2224,11 +2224,8 @@ m4_if(k,n,[],[dnl
 
     type(gcroot_t) :: lst_root
 
-    ! Protect against garbage collections performed by kons.
     lst_root = lst
-
     retval = recursion (.autoval. lst)
-
     call lst_root%discard
 
   contains
@@ -2256,18 +2253,20 @@ m4_if(k,n,[],[dnl
     class(*), allocatable :: retval
 
     class(*), allocatable :: new_retval
-    class(*), allocatable :: tail, new_tail
+    type(gcroot_t) :: tail, new_tail
 
     type(gcroot_t) :: lst_root
+    type(gcroot_t) :: retval_root
 
     ! Protect against garbage collections performed by kons.
     lst_root = lst
 
     retval = knil
-    tail = .autoval. lst
+    tail = lst_root
     do while (is_pair (tail))
        new_tail = cdr (tail)
-       call kons (tail, retval, new_retval)
+       retval_root = retval
+       call kons (.val. tail, retval, new_retval)
        retval = new_retval
        tail = new_tail
     end do
