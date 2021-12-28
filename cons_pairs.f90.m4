@@ -2413,33 +2413,33 @@ m4_if(k,n,[],[dnl
     class(*), intent(in) :: seed
     class(*), allocatable :: lst
 
-    type(gcroot_t) :: retval
-
-    call recursion (.autoval. seed, retval)
-    lst = .val. retval
+    lst = recursion (.autoval. seed)
 
   contains
 
-    recursive subroutine recursion (seed, retval)
+    recursive function recursion (seed) result (retval)
       class(*), intent(in) :: seed
-      type(gcroot_t), intent(inout) :: retval
+      class(*), allocatable :: retval
 
-      class(*), allocatable :: new_element, new_seed
-      type(gcroot_t) :: seed_root, new_element_root
+      class(*), allocatable :: elem
+      class(*), allocatable :: sd
+      type(gcroot_t) :: new_element
+      type(gcroot_t) :: old_seed
+      type(gcroot_t) :: new_seed
+      type(gcroot_t) :: recursion_result
 
-      seed_root = seed          ! Protect the seed.
-      if (pred (seed)) then
-         lst = nil
+      old_seed = seed
+      if (pred (.val. old_seed)) then
+         retval = nil
       else
-         call f (seed, new_element)
-         new_element_root = new_element ! Protect the new element.
-         call g (seed, new_seed)
-         call recursion (new_seed, retval)
-         retval = cons (new_element, retval)
-         call new_element_root%discard
+         call f (.val. old_seed, elem)
+         new_element = elem
+         call g (.val. old_seed, sd)
+         new_seed = sd
+         recursion_result = recursion (.val. new_seed)
+         retval = cons (.val. new_element, recursion_result)
       end if
-      call seed_root%discard
-    end subroutine recursion
+    end function recursion
 
   end function unfold_with_nil_tail
 

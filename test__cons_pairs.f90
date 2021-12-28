@@ -1337,6 +1337,36 @@ contains
 
   end subroutine test0280
 
+  subroutine test0290
+
+    ! List of squares 1**2,2**2,...,10**2. (An example from SRFI-1.)
+    call check (lists_are_equal (int_eq, &
+         unfold (k_gt_10, square_k, increment_k, 1), &
+         list10 (1**2, 2**2, 3**2, 4**2, 5**2, 6**2, 7**2, 8**2, 9**2, 10**2)), &
+         "test0290-0010 failed")
+
+  contains
+
+    recursive function k_gt_10 (k) result (bool)
+      class(*), intent(in) :: k
+      logical :: bool
+      bool = (int_cast (k) > 10)
+    end function k_gt_10
+
+    recursive subroutine square_k (k, k_sq)
+      class(*), intent(in) :: k
+      class(*), allocatable, intent(out) :: k_sq
+      k_sq = (int_cast (k)) ** 2
+    end subroutine square_k
+
+    recursive subroutine increment_k (k, k_incr)
+      class(*), intent(in) :: k
+      class(*), allocatable, intent(out) :: k_incr
+      k_incr = (int_cast (k)) + 1
+    end subroutine increment_k
+
+  end subroutine test0290
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1373,6 +1403,7 @@ contains
     call test0260
     call test0270
     call test0280
+    call test0290
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
