@@ -24,6 +24,7 @@
 
 module test__cons_pairs
 
+  use, non_intrinsic :: unused_variables
   use, non_intrinsic :: garbage_collector
   use, non_intrinsic :: cons_pairs
 
@@ -1338,6 +1339,9 @@ contains
   end subroutine test0280
 
   subroutine test0290
+    type(cons_t) :: lst1, lst2
+    type(gcroot_t) :: head, tail
+    class(*), allocatable :: p, q
 
     ! List of squares 1**2,2**2,...,10**2. (An example from SRFI-1.)
     call check (lists_are_equal (int_eq, &
@@ -1345,25 +1349,91 @@ contains
          list10 (1**2, 2**2, 3**2, 4**2, 5**2, 6**2, 7**2, 8**2, 9**2, 10**2)), &
          "test0290-0010 failed")
 
+    ! Copy a proper list. (An example from SRFI-1.)
+    call check (lists_are_equal (int_eq, unfold (is_nil, kcar, kcdr, iota (100, 1)), iota (100, 1)), "test0290-0020 failed")
+
+    ! Copy a possibly dotted list. (An example from SRFI-1.)
+    lst1 = iota (100, 1)
+    call set_cdr (last_pair (lst1), 101)
+    lst2 = .tocons. unfold (is_not_pair, kcar, kcdr, lst1, kpassthru)
+    p = lst1
+    q = lst2
+    do while (is_pair (p))
+       call check (car (p) .eqi. car (q), "test0290-0030 failed")
+       if (is_not_pair (cdr (p))) then
+          call check (is_not_pair (cdr (q)), "test0290-0040 failed")
+          call check (cdr (p) .eqi. cdr (q), "test0290-0050 failed")
+       end if
+       p = cdr (p)
+       q = cdr (q)
+    end do
+
+    ! Append head onto tail. (An example from SRFI-1.)
+    head = iota (100, 1)
+    tail = iota (100, 10, 10)
+    lst1 = .tocons. unfold (is_nil, kcar, kcdr, head, ktail)
+    lst2 = .tocons. append (head, tail)
+    call check (lists_are_equal (int_eq, lst1, lst2), "test0290-0060 failed")
+
+    ! The following can be done because we made head and tail gcroot_t
+    ! instead of cons_t.
+    call collect_garbage_now
+    call check (lists_are_equal (int_eq, &
+         unfold (is_nil, kcar, kcdr, head, ktail), &
+         append(head, tail)), &
+         "test0290-0070 failed")
+
   contains
 
     recursive function k_gt_10 (k) result (bool)
       class(*), intent(in) :: k
       logical :: bool
+      call collect_garbage_now
       bool = (int_cast (k) > 10)
     end function k_gt_10
 
     recursive subroutine square_k (k, k_sq)
       class(*), intent(in) :: k
       class(*), allocatable, intent(out) :: k_sq
+      call collect_garbage_now
       k_sq = (int_cast (k)) ** 2
     end subroutine square_k
 
     recursive subroutine increment_k (k, k_incr)
       class(*), intent(in) :: k
       class(*), allocatable, intent(out) :: k_incr
+      call collect_garbage_now
       k_incr = (int_cast (k)) + 1
     end subroutine increment_k
+
+    recursive subroutine kcar (kons, kar)
+      class(*), intent(in) :: kons
+      class(*), allocatable, intent(out) :: kar
+      call collect_garbage_now
+      kar = car (kons)
+    end subroutine kcar
+
+    recursive subroutine kcdr (kons, kdr)
+      class(*), intent(in) :: kons
+      class(*), allocatable, intent(out) :: kdr
+      call collect_garbage_now
+      kdr = cdr (kons)
+    end subroutine kcdr
+
+    recursive subroutine kpassthru (x, y)
+      class(*), intent(in) :: x
+      class(*), allocatable, intent(out) :: y
+      call collect_garbage_now
+      y = x
+    end subroutine kpassthru
+
+    recursive subroutine ktail (x, tl)
+      class(*), intent(in) :: x
+      class(*), allocatable, intent(out) :: tl
+      call collect_garbage_now
+      call unused_variable (x)
+      tl = tail
+    end subroutine ktail
 
   end subroutine test0290
 
