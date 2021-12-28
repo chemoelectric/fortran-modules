@@ -1477,6 +1477,8 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (lists_are_equal (int_eq, lst2, lst3), "test0310-0010 failed")
     ! Try it with a nil list.
     call check (lists_are_equal (int_eq, map (kcadr, nil), nil), "test0310-0015 failed")
+    ! Try it with a length-1 list.
+    call check (lists_are_equal (int_eq, map (kcadr, list (list (1, 2))), list (2)), "test0310-0017 failed")
     !
     ! Because we did not use gcroot_t, we need to reassign all the
     ! lists. (But this way is a better test.)
@@ -1487,6 +1489,8 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (lists_are_equal (int_eq, lst2, lst3), "test0310-0020 failed")
     ! Try it with a nil list.
     call check (lists_are_equal (int_eq, map_in_order (kcadr, nil), nil), "test0310-0025 failed")
+    ! Try it with a length-1 list.
+    call check (lists_are_equal (int_eq, map_in_order (kcadr, list (list (1, 2))), list (2)), "test0310-0027 failed")
 
     ! Raise the elements of a list to their own power. (An example from SRFI-1.)
     call check (lists_are_equal (int_eq, &
