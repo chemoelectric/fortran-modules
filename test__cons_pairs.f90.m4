@@ -982,6 +982,9 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   end subroutine test0220
 
   subroutine test0230
+
+    ! Tests of fold.
+
     type(cons_t) :: lst1, lst2, lst3
 
     ! Use fold to add the numbers in a list. (An example from SRFI-1.)
@@ -1091,6 +1094,8 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   subroutine test0240
     type(cons_t) :: lst1, lst2
 
+    ! Tests of fold_right.
+
     ! Use fold_right to copy a list. (An example from SRFI-1.)
     lst1 = iota (100, 1)
     lst2 = .tocons. fold_right (kcons, nil, lst1)
@@ -1138,6 +1143,9 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   end subroutine test0240
 
   subroutine test0250
+
+    ! Tests of pair_fold.
+
     type(cons_t) :: lst1, lst2, p
     integer :: i
 
@@ -1182,6 +1190,9 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   end subroutine test0250
 
   subroutine test0260
+
+    ! Tests of pair_fold_right.
+
     type(cons_t) :: lst1, lst2, lst3, p
     integer :: i
 
@@ -1230,6 +1241,9 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   end subroutine test0260
 
   subroutine test0270
+
+    ! Tests of reduce.
+
     type(cons_t) :: lst1
 
     ! Find the maximum in a list of non-negative integers. (An example
@@ -1255,6 +1269,9 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   end subroutine test0270
 
   subroutine test0280
+
+    ! Tests of reduce_right.
+
     type(cons_t) :: lst1, lst2, lst3
 
     ! An implementation of `concatenate'. (An example from SRFI-1.)
@@ -1282,6 +1299,9 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   end subroutine test0280
 
   subroutine test0290
+
+    ! Tests of unfold.
+
     type(cons_t) :: lst1, lst2
     type(gcroot_t) :: head, tail
     class(*), allocatable :: p, q
@@ -1380,6 +1400,67 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   end subroutine test0290
 
+  subroutine test0300
+
+    ! Tests of unfold_right.
+
+    ! List of squares 1**2,2**2,...,10**2. (An example from SRFI-1.)
+    call check (lists_are_equal (int_eq, &
+         unfold_right (k_eq_0, square_k, decrement_k, 10), &
+         list10 (1**2, 2**2, 3**2, 4**2, 5**2, 6**2, 7**2, 8**2, 9**2, 10**2)), &
+         "test0290-0010 failed")
+
+    ! Reverse a proper list. (An example from SRFI-1.)
+    call check (lists_are_equal (int_eq, &
+         unfold_right (is_nil, kcar, kcdr, iota (100, 1)), &
+         iota (100, 100, -1)), &
+         "test0290-0020 failed")
+
+    ! Append-reverse a proper list. (An example from SRFI-1.)
+    call check (lists_are_equal (int_eq, &
+         unfold_right (is_nil, kcar, kcdr, iota (50, 51), iota (50, 50, -1)), &
+         iota (100, 100, -1)), &
+         "test0290-0030 failed")
+
+  contains
+
+    recursive function k_eq_0 (k) result (bool)
+      class(*), intent(in) :: k
+      logical :: bool
+      call collect_garbage_now
+      bool = (int_cast (k) == 0)
+    end function k_eq_0
+
+    recursive subroutine square_k (k, k_sq)
+      class(*), intent(in) :: k
+      class(*), allocatable, intent(out) :: k_sq
+      call collect_garbage_now
+      k_sq = (int_cast (k)) ** 2
+    end subroutine square_k
+
+    recursive subroutine decrement_k (k, k_decr)
+      class(*), intent(in) :: k
+      class(*), allocatable, intent(out) :: k_decr
+      call collect_garbage_now
+      k_decr = (int_cast (k)) - 1
+    end subroutine decrement_k
+
+    recursive subroutine kcar (kons, kar)
+      class(*), intent(in) :: kons
+      class(*), allocatable, intent(out) :: kar
+      call collect_garbage_now
+      kar = car (kons)
+    end subroutine kcar
+
+    recursive subroutine kcdr (kons, kdr)
+      class(*), intent(in) :: kons
+      class(*), allocatable, intent(out) :: kdr
+      call collect_garbage_now
+      kdr = cdr (kons)
+    end subroutine kcdr
+
+  end subroutine test0300
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1417,6 +1498,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0270
     call test0280
     call test0290
+    call test0300
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

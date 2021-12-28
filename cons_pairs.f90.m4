@@ -2451,17 +2451,20 @@ m4_if(k,n,[],[dnl
     class(*), intent(in) :: tail
     class(*), allocatable :: lst
 
-    class(*), allocatable :: new_element, new_seed
+    class(*), allocatable :: elem
+    class(*), allocatable :: sd
+    type(gcroot_t) :: new_element
     type(gcroot_t) :: current_seed
     type(gcroot_t) :: retval
 
     retval = tail
     current_seed = seed
     do while (.not. pred (.val. current_seed))
-       call f (.val. current_seed, new_element)
-       retval = cons (new_element, retval)
-       call g (.val. current_seed, new_seed)
-       current_seed = new_seed
+       call f (.val. current_seed, elem)
+       new_element = elem
+       retval = cons (.val. new_element, .val. retval)
+       call g (.val. current_seed, sd)
+       current_seed = sd
     end do
     lst = .val. retval
   end function unfold_right_with_tail
