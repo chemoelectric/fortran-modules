@@ -379,7 +379,21 @@ module cons_pairs
   public :: circular_listx   ! Like circular_list, but allowed to destroy its inputs.
 
   public :: lists_are_equal  ! Test whether two lists are `equal'. (Equivalent to SRFI-1's `list='.)
-  public :: list_count       ! Count elements that satisfy a predicate. (Counting proceeds in left-to-right order.)
+
+  ! Count elements that satisfy a predicate. Counting proceeds in
+  ! left-to-right order. (This is called `list_count' instead of
+  ! `count' because Fortran has an intrinsic `count' function.)
+  public :: list_count       ! Generic function.
+  public :: list_count1
+  public :: list_count2
+  public :: list_count3
+  public :: list_count4
+  public :: list_count5
+  public :: list_count6
+  public :: list_count7
+  public :: list_count8
+  public :: list_count9
+  public :: list_count10
 
   public :: map              ! Generic function: map list elements in an unspecified order.
   public :: map_in_order     ! Generic function: map list elements left-to-right. (A kind of combination of map and for_each.)
@@ -429,27 +443,103 @@ module cons_pairs
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   ! Types for predicates.
-  public :: list_predicate1_t ! A predicate taking one argument.
-  public :: list_predicate2_t ! A predicate taking two arguments.
+  public :: list_predicate1_t ! A predicate taking 1 argument.
+  public :: list_predicate2_t ! A predicate taking 2 arguments.
+  public :: list_predicate3_t ! A predicate taking 3 arguments.
+  public :: list_predicate4_t ! A predicate taking 4 arguments.
+  public :: list_predicate5_t ! A predicate taking 5 arguments.
+  public :: list_predicate6_t ! A predicate taking 6 arguments.
+  public :: list_predicate7_t ! A predicate taking 7 arguments.
+  public :: list_predicate8_t ! A predicate taking 8 arguments.
+  public :: list_predicate9_t ! A predicate taking 9 arguments.
+  public :: list_predicate10_t ! A predicate taking 10 arguments.
 
   abstract interface
-     recursive function list_predicate1_t (x) result (bool)
-       !
-       ! For passing one-argument predicates to procedures.
-       !
-       class(*), intent(in) :: x
+     recursive function list_predicate1_t (x1) result (bool)
+       class(*), intent(in) :: x1
        logical :: bool
      end function list_predicate1_t
-  end interface
-
-  abstract interface
-     recursive function list_predicate2_t (x, y) result (bool)
-       !
-       ! For passing two-argument predicates to procedures.
-       !
-       class(*), intent(in) :: x, y
+     recursive function list_predicate2_t (x1, x2) result (bool)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
        logical :: bool
      end function list_predicate2_t
+     recursive function list_predicate3_t (x1, x2, x3) result (bool)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       class(*), intent(in) :: x3
+       logical :: bool
+     end function list_predicate3_t
+     recursive function list_predicate4_t (x1, x2, x3, x4) result (bool)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       class(*), intent(in) :: x3
+       class(*), intent(in) :: x4
+       logical :: bool
+     end function list_predicate4_t
+     recursive function list_predicate5_t (x1, x2, x3, x4, x5) result (bool)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       class(*), intent(in) :: x3
+       class(*), intent(in) :: x4
+       class(*), intent(in) :: x5
+       logical :: bool
+     end function list_predicate5_t
+     recursive function list_predicate6_t (x1, x2, x3, x4, x5, x6) result (bool)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       class(*), intent(in) :: x3
+       class(*), intent(in) :: x4
+       class(*), intent(in) :: x5
+       class(*), intent(in) :: x6
+       logical :: bool
+     end function list_predicate6_t
+     recursive function list_predicate7_t (x1, x2, x3, x4, x5, x6, x7) result (bool)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       class(*), intent(in) :: x3
+       class(*), intent(in) :: x4
+       class(*), intent(in) :: x5
+       class(*), intent(in) :: x6
+       class(*), intent(in) :: x7
+       logical :: bool
+     end function list_predicate7_t
+     recursive function list_predicate8_t (x1, x2, x3, x4, x5, x6, x7, x8) result (bool)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       class(*), intent(in) :: x3
+       class(*), intent(in) :: x4
+       class(*), intent(in) :: x5
+       class(*), intent(in) :: x6
+       class(*), intent(in) :: x7
+       class(*), intent(in) :: x8
+       logical :: bool
+     end function list_predicate8_t
+     recursive function list_predicate9_t (x1, x2, x3, x4, x5, x6, x7, x8, x9) result (bool)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       class(*), intent(in) :: x3
+       class(*), intent(in) :: x4
+       class(*), intent(in) :: x5
+       class(*), intent(in) :: x6
+       class(*), intent(in) :: x7
+       class(*), intent(in) :: x8
+       class(*), intent(in) :: x9
+       logical :: bool
+     end function list_predicate9_t
+     recursive function list_predicate10_t (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) result (bool)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       class(*), intent(in) :: x3
+       class(*), intent(in) :: x4
+       class(*), intent(in) :: x5
+       class(*), intent(in) :: x6
+       class(*), intent(in) :: x7
+       class(*), intent(in) :: x8
+       class(*), intent(in) :: x9
+       class(*), intent(in) :: x10
+       logical :: bool
+     end function list_predicate10_t
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -510,7 +600,7 @@ module cons_pairs
        class(*), allocatable, intent(out) :: output
      end subroutine list_map5_subr_t
      recursive subroutine list_map6_subr_t (input1, input2, input3, input4, input5, &
-input6, output)
+          input6, output)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
        class(*), intent(in) :: input3
@@ -520,7 +610,7 @@ input6, output)
        class(*), allocatable, intent(out) :: output
      end subroutine list_map6_subr_t
      recursive subroutine list_map7_subr_t (input1, input2, input3, input4, input5, &
-input6, input7, output)
+          input6, input7, output)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
        class(*), intent(in) :: input3
@@ -531,7 +621,7 @@ input6, input7, output)
        class(*), allocatable, intent(out) :: output
      end subroutine list_map7_subr_t
      recursive subroutine list_map8_subr_t (input1, input2, input3, input4, input5, &
-input6, input7, input8, output)
+          input6, input7, input8, output)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
        class(*), intent(in) :: input3
@@ -543,7 +633,7 @@ input6, input7, input8, output)
        class(*), allocatable, intent(out) :: output
      end subroutine list_map8_subr_t
      recursive subroutine list_map9_subr_t (input1, input2, input3, input4, input5, &
-input6, input7, input8, input9, output)
+          input6, input7, input8, input9, output)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
        class(*), intent(in) :: input3
@@ -556,7 +646,7 @@ input6, input7, input8, input9, output)
        class(*), allocatable, intent(out) :: output
      end subroutine list_map9_subr_t
      recursive subroutine list_map10_subr_t (input1, input2, input3, input4, input5, &
-input6, input7, input8, input9, input10, output)
+          input6, input7, input8, input9, input10, output)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
        class(*), intent(in) :: input3
@@ -811,6 +901,19 @@ input6, input7, input8, input9, input10, output)
      module procedure unzip9
      module procedure unzip10
   end interface unzip
+
+  interface list_count
+     module procedure list_count1
+     module procedure list_count2
+     module procedure list_count3
+     module procedure list_count4
+     module procedure list_count5
+     module procedure list_count6
+     module procedure list_count7
+     module procedure list_count8
+     module procedure list_count9
+     module procedure list_count10
+  end interface list_count
 
   interface map
      module procedure map1_subr
@@ -7587,33 +7690,724 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function list_count (pred, lst) result (n)
-    !
-    ! This is called `list_count' instead of `count' because Fortran
-    ! already has an intrinsic `count' function.
-    !
+!!$  recursive function list_count1 (pred, lst) result (n)
+!!$    procedure(list_predicate1_t) :: pred
+!!$    class(*), intent(in) :: lst
+!!$    integer(sz) :: n
+!!$
+!!$    type(gcroot_t) :: lst_root
+!!$    class(*), allocatable :: head
+!!$    class(*), allocatable :: tail
+!!$
+!!$    ! Protect lst against garbage collections performed by `pred'.
+!!$    lst_root = lst
+!!$
+!!$    n = 0
+!!$    tail = .autoval. lst
+!!$    do while (is_pair (tail))
+!!$       call uncons (tail, head, tail)
+!!$       if (pred (head)) then
+!!$          n = n + 1
+!!$       end if
+!!$    end do
+!!$
+!!$    call lst_root%discard
+!!$  end function list_count
+
+  recursive function list_count1 (pred, lst1) result (total)
     procedure(list_predicate1_t) :: pred
-    class(*), intent(in) :: lst
-    integer(sz) :: n
+    class(*), intent(in) :: lst1
+    integer(sz) :: total
 
-    type(gcroot_t) :: lst_root
-    class(*), allocatable :: head
-    class(*), allocatable :: tail
+    type(gcroot_t) :: lst1_root
+    class(*), allocatable :: head1, tail1
+    logical :: done
 
-    ! Protect lst against garbage collections performed by `pred'.
-    lst_root = lst
+    lst1_root = lst1
 
-    n = 0
-    tail = .autoval. lst
-    do while (is_pair (tail))
-       call uncons (tail, head, tail)
-       if (pred (head)) then
-          n = n + 1
+    tail1 = .autoval. lst1
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          if (pred (head1)) then
+             total = total + 1
+          end if
        end if
     end do
 
-    call lst_root%discard
-  end function list_count
+    call lst1_root%discard
+  end function list_count1
+
+  recursive function list_count2 (pred, lst1, lst2) result (total)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    integer(sz) :: total
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    logical :: done
+
+    lst1_root = lst1
+    lst2_root = lst2
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          if (pred (head1, head2)) then
+             total = total + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+  end function list_count2
+
+  recursive function list_count3 (pred, lst1, lst2, lst3) result (total)
+    procedure(list_predicate3_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    integer(sz) :: total
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    logical :: done
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          if (pred (head1, head2, head3)) then
+             total = total + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+  end function list_count3
+
+  recursive function list_count4 (pred, lst1, lst2, lst3, lst4) result (total)
+    procedure(list_predicate4_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    integer(sz) :: total
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    logical :: done
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          if (pred (head1, head2, head3, head4)) then
+             total = total + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+  end function list_count4
+
+  recursive function list_count5 (pred, lst1, lst2, lst3, lst4, lst5) result (total)
+    procedure(list_predicate5_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    integer(sz) :: total
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    logical :: done
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          if (pred (head1, head2, head3, head4, head5)) then
+             total = total + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+  end function list_count5
+
+  recursive function list_count6 (pred, lst1, lst2, lst3, lst4, lst5, lst6) result (total)
+    procedure(list_predicate6_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    integer(sz) :: total
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    logical :: done
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          if (pred (head1, head2, head3, head4, head5, head6)) then
+             total = total + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+  end function list_count6
+
+  recursive function list_count7 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (total)
+    procedure(list_predicate7_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    integer(sz) :: total
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    logical :: done
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          if (pred (head1, head2, head3, head4, head5, head6, head7)) then
+             total = total + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+  end function list_count7
+
+  recursive function list_count8 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (total)
+    procedure(list_predicate8_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    integer(sz) :: total
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    logical :: done
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          if (pred (head1, head2, head3, head4, head5, head6, head7, head8)) then
+             total = total + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+  end function list_count8
+
+  recursive function list_count9 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (total)
+    procedure(list_predicate9_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    integer(sz) :: total
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    logical :: done
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          if (pred (head1, head2, head3, head4, head5, head6, head7, head8, head9)) then
+             total = total + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+  end function list_count9
+
+  recursive function list_count10 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (total)
+    procedure(list_predicate10_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    integer(sz) :: total
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    logical :: done
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          if (pred (head1, head2, head3, head4, head5, head6, head7, head8, head9, head10)) then
+             total = total + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+  end function list_count10
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!

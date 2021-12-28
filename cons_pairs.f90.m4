@@ -280,7 +280,14 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: circular_listx   ! Like circular_list, but allowed to destroy its inputs.
 
   public :: lists_are_equal  ! Test whether two lists are `equal'. (Equivalent to SRFI-1's `list='.)
-  public :: list_count       ! Count elements that satisfy a predicate. (Counting proceeds in left-to-right order.)
+
+  ! Count elements that satisfy a predicate. Counting proceeds in
+  ! left-to-right order. (This is called `list_count' instead of
+  ! `count' because Fortran has an intrinsic `count' function.)
+  public :: list_count       ! Generic function.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: list_count[]n
+])dnl
 
   public :: map              ! Generic function: map list elements in an unspecified order.
   public :: map_in_order     ! Generic function: map list elements left-to-right. (A kind of combination of map and for_each.)
@@ -316,27 +323,21 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   ! Types for predicates.
-  public :: list_predicate1_t ! A predicate taking one argument.
-  public :: list_predicate2_t ! A predicate taking two arguments.
+  public :: list_predicate1_t ! A predicate taking 1 argument.
+m4_forloop([n],[2],ZIP_MAX,[dnl
+  public :: list_predicate[]n[]_t ! A predicate taking n arguments.
+])dnl
 
   abstract interface
-     recursive function list_predicate1_t (x) result (bool)
-       !
-       ! For passing one-argument predicates to procedures.
-       !
-       class(*), intent(in) :: x
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     recursive function list_predicate[]n[]_t (x1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+          ])x[]k])) result (bool)
+m4_forloop([k],[1],n,[dnl
+       class(*), intent(in) :: [x]k
+])dnl
        logical :: bool
-     end function list_predicate1_t
-  end interface
-
-  abstract interface
-     recursive function list_predicate2_t (x, y) result (bool)
-       !
-       ! For passing two-argument predicates to procedures.
-       !
-       class(*), intent(in) :: x, y
-       logical :: bool
-     end function list_predicate2_t
+     end function list_predicate[]n[]_t
+])dnl
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -361,7 +362,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   abstract interface
 m4_forloop([n],[1],ZIP_MAX,[dnl
      recursive subroutine list_map[]n[]_subr_t (input1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
-])input[]k]), output)
+          ])input[]k]), output)
 m4_forloop([k],[1],n,[dnl
        class(*), intent(in) :: input[]k
 ])dnl
@@ -528,6 +529,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure unzip[]n
 ])dnl
   end interface unzip
+
+  interface list_count
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure list_count[]n
+])dnl
+  end interface list_count
 
   interface map
 m4_forloop([n],[1],ZIP_MAX,[dnl
@@ -2241,34 +2248,84 @@ m4_if(k,n,[],[dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function list_count (pred, lst) result (n)
-    !
-    ! This is called `list_count' instead of `count' because Fortran
-    ! already has an intrinsic `count' function.
-    !
-    procedure(list_predicate1_t) :: pred
-    class(*), intent(in) :: lst
-    integer(sz) :: n
+!!$  recursive function list_count1 (pred, lst) result (n)
+!!$    procedure(list_predicate1_t) :: pred
+!!$    class(*), intent(in) :: lst
+!!$    integer(sz) :: n
+!!$
+!!$    type(gcroot_t) :: lst_root
+!!$    class(*), allocatable :: head
+!!$    class(*), allocatable :: tail
+!!$
+!!$    ! Protect lst against garbage collections performed by `pred'.
+!!$    lst_root = lst
+!!$
+!!$    n = 0
+!!$    tail = .autoval. lst
+!!$    do while (is_pair (tail))
+!!$       call uncons (tail, head, tail)
+!!$       if (pred (head)) then
+!!$          n = n + 1
+!!$       end if
+!!$    end do
+!!$
+!!$    call lst_root%discard
+!!$  end function list_count
 
-    type(gcroot_t) :: lst_root
-    class(*), allocatable :: head
-    class(*), allocatable :: tail
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function list_count[]n (pred, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+       ])lst[]k])) result (total)
+    procedure(list_predicate[]n[]_t) :: pred
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    integer(sz) :: total
 
-    ! Protect lst against garbage collections performed by `pred'.
-    lst_root = lst
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: lst[]k[]_root
+])dnl
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable :: head[]k, tail[]k
+])dnl
+    logical :: done
 
-    n = 0
-    tail = .autoval. lst
-    do while (is_pair (tail))
-       call uncons (tail, head, tail)
-       if (pred (head)) then
-          n = n + 1
+m4_forloop([k],[1],n,[dnl
+    lst[]k[]_root = lst[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    tail[]k = .autoval. lst[]k
+])dnl
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+m4_forloop([k],[1],n,[dnl
+          done = .true.
+m4_if(k,n,[dnl
+       else
+],[dnl
+       else if (is_not_pair (tail[]m4_eval(k + 1))) then
+])dnl
+])dnl
+m4_forloop([k],[1],n,[dnl
+          call uncons (tail[]k, head[]k, tail[]k)
+])dnl
+          if (pred (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+               ])head[]k]))) then
+             total = total + 1
+          end if
        end if
     end do
 
-    call lst_root%discard
-  end function list_count
+m4_forloop([k],[1],n,[dnl
+    call lst[]k[]_root%discard
+])dnl
+  end function list_count[]n
 
+])dnl
+dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! map
