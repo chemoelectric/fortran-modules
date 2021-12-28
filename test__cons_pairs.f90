@@ -1021,20 +1021,33 @@ contains
     call check (list_count (pred, take (circular_list (list (-1, 0, 1)), 100)) == 100, "test0220-0060 failed")
     call check (list_count (pred, take (circular_list (list (-2, -1, 0, 1, 2)), 100)) == 60, "test0220-0070 failed")
 
+    call check (list_count (pred3, iota (100), nil, iota (1000)) == 0, "test0220-1010 failed")
+    call check (list_count (pred3, iota (100), iota (1000), iota (50)) == 2, "test0220-1020 failed")
+    call check (list_count (pred3, list (-1, 0, 1), list (1, 1, 1), list (0, -2, -1)) == 2, "test0220-1030 failed")
+
   contains
 
     function pred (i) result (bool)
       class(*), intent(in) :: i
       logical :: bool
-
       integer :: ii
-
       ii = int_cast (i)
       bool = (-1 <= ii .and. ii <= 1)
-
       call collect_garbage_now  ! Test whether this messes things up.
-
     end function pred
+
+    function pred3 (i, j, k) result (bool)
+      class(*), intent(in) :: i, j, k
+      logical :: bool
+      integer :: ii, jj, kk
+      ii = int_cast (i)
+      jj = int_cast (j)
+      kk = int_cast (k)
+      bool = (-1 <= ii .and. ii <= 1)
+      bool = bool .and. (-1 <= jj .and. jj <= 1)
+      bool = bool .and. (-1 <= kk .and. kk <= 1)
+      call collect_garbage_now  ! Test whether this messes things up.
+    end function pred3
 
   end subroutine test0220
 
