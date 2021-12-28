@@ -62,13 +62,12 @@ module cons_pairs
   ! functions can be used to turn multiple-argument problems into
   ! single-argument problems.
   !
-  ! FIXME: Extend procedures such as `map' to take more arguments, by
-  !        making them generic procedures. One can use m4 to generate
-  !        much of the code. Also we can use generics to reserve the
-  !        possibility of map taking a function as its proc, instead
-  !        of a procedure. (At the time of this writing, gfortran did
-  !        not seem to work sensibly if you tried to use a function as
-  !        the proc in such cases.)
+  ! FIXME: Generalize more procedures to take multiple arguments, by
+  !        making them generic procedures. Also we can use generics to
+  !        reserve the possibility of, say, `map' taking a function as
+  !        its proc, instead of a procedure. (At the time of this
+  !        writing, gfortran did not seem to work sensibly if you
+  !        tried to use a function as the proc in such cases.)
   !
 
   !
