@@ -151,9 +151,12 @@ module cons_pairs
   public :: list_ref1_int
   public :: list_refn_int
 
-  ! Make and unmake a list of particular length, or of a certain
-  ! length and also a tail. (SRFI-1 has `list' and `cons*' have
-  ! related functionality.)
+  ! Make or unmake a list. (SRFI-1 has `list', and its `cons*'
+  ! procedure is similar to our `list_with_tail'.)
+  public :: list             ! Generic function.
+  public :: list_with_tail   ! Generic function.
+  public :: unlist           ! Generic function.
+  public :: unlist_with_tail ! Generic function.
   public :: list1
   public :: list2
   public :: list3
@@ -551,6 +554,98 @@ module cons_pairs
      module procedure unfold_right_with_tail
      module procedure unfold_right_with_nil_tail
   end interface unfold_right
+
+  interface list
+     module procedure list1
+     module procedure list2
+     module procedure list3
+     module procedure list4
+     module procedure list5
+     module procedure list6
+     module procedure list7
+     module procedure list8
+     module procedure list9
+     module procedure list10
+     module procedure list11
+     module procedure list12
+     module procedure list13
+     module procedure list14
+     module procedure list15
+     module procedure list16
+     module procedure list17
+     module procedure list18
+     module procedure list19
+     module procedure list20
+  end interface list
+
+  interface list_with_tail
+     module procedure list1_with_tail
+     module procedure list2_with_tail
+     module procedure list3_with_tail
+     module procedure list4_with_tail
+     module procedure list5_with_tail
+     module procedure list6_with_tail
+     module procedure list7_with_tail
+     module procedure list8_with_tail
+     module procedure list9_with_tail
+     module procedure list10_with_tail
+     module procedure list11_with_tail
+     module procedure list12_with_tail
+     module procedure list13_with_tail
+     module procedure list14_with_tail
+     module procedure list15_with_tail
+     module procedure list16_with_tail
+     module procedure list17_with_tail
+     module procedure list18_with_tail
+     module procedure list19_with_tail
+     module procedure list20_with_tail
+  end interface list_with_tail
+
+  interface unlist
+     module procedure unlist1
+     module procedure unlist2
+     module procedure unlist3
+     module procedure unlist4
+     module procedure unlist5
+     module procedure unlist6
+     module procedure unlist7
+     module procedure unlist8
+     module procedure unlist9
+     module procedure unlist10
+     module procedure unlist11
+     module procedure unlist12
+     module procedure unlist13
+     module procedure unlist14
+     module procedure unlist15
+     module procedure unlist16
+     module procedure unlist17
+     module procedure unlist18
+     module procedure unlist19
+     module procedure unlist20
+  end interface unlist
+
+  interface unlist_with_tail
+     module procedure unlist1_with_tail
+     module procedure unlist2_with_tail
+     module procedure unlist3_with_tail
+     module procedure unlist4_with_tail
+     module procedure unlist5_with_tail
+     module procedure unlist6_with_tail
+     module procedure unlist7_with_tail
+     module procedure unlist8_with_tail
+     module procedure unlist9_with_tail
+     module procedure unlist10_with_tail
+     module procedure unlist11_with_tail
+     module procedure unlist12_with_tail
+     module procedure unlist13_with_tail
+     module procedure unlist14_with_tail
+     module procedure unlist15_with_tail
+     module procedure unlist16_with_tail
+     module procedure unlist17_with_tail
+     module procedure unlist18_with_tail
+     module procedure unlist19_with_tail
+     module procedure unlist20_with_tail
+  end interface unlist_with_tail
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind

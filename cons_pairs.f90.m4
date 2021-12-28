@@ -134,9 +134,12 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: list_ref1_int
   public :: list_refn_int
 
-  ! Make and unmake a list of particular length, or of a certain
-  ! length and also a tail. (SRFI-1 has `list' and `cons*' have
-  ! related functionality.)
+  ! Make or unmake a list. (SRFI-1 has `list', and its `cons*'
+  ! procedure is similar to our `list_with_tail'.)
+  public :: list             ! Generic function.
+  public :: list_with_tail   ! Generic function.
+  public :: unlist           ! Generic function.
+  public :: unlist_with_tail ! Generic function.
 m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: list[]n
 ])dnl
@@ -452,6 +455,30 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure unfold_right_with_tail
      module procedure unfold_right_with_nil_tail
   end interface unfold_right
+
+  interface list
+m4_forloop([n],[1],LISTN_MAX,[dnl
+     module procedure list[]n
+])dnl
+  end interface list
+
+  interface list_with_tail
+m4_forloop([n],[1],LISTN_MAX,[dnl
+     module procedure list[]n[]_with_tail
+])dnl
+  end interface list_with_tail
+
+  interface unlist
+m4_forloop([n],[1],LISTN_MAX,[dnl
+     module procedure unlist[]n
+])dnl
+  end interface unlist
+
+  interface unlist_with_tail
+m4_forloop([n],[1],LISTN_MAX,[dnl
+     module procedure unlist[]n[]_with_tail
+])dnl
+  end interface unlist_with_tail
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
