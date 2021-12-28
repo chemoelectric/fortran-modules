@@ -364,12 +364,28 @@ module cons_pairs
   public :: list_copy        ! Make a copy of a list.
   public :: reverse          ! Make a copy of a list, but reversed.
   public :: reversex         ! Like reverse, but allowed to destroy its inputs.
-  public :: append           ! Concatenate two lists.
-  public :: appendx          ! Like append, but allowed to destroy its *first* argument (but not the latter argument).
+  public :: append           ! Generic function: concatenate two lists.
+  public :: appendx          ! Generic function: like append, but
+                             !    allowed to destroy all its argument
+                             !    lists but the last (which becomes a
+                             !    shared tail).
   public :: append_reverse   ! Concatenate the reverse of the first list to the (unreversed) second list.
   public :: append_reversex  ! Like append_reverse, but allowed to destroy its *first* argument (but not the latter argument).
   public :: concatenate      ! Concatenate the lists in a list of lists.
   public :: concatenatex     ! Like concatenate, but allowed to destroy its inputs.
+
+  ! Implementations of append and appendx.
+  public :: append0, appendx0
+  public :: append1, appendx1
+  public :: append2, appendx2
+  public :: append3, appendx3
+  public :: append4, appendx4
+  public :: append5, appendx5
+  public :: append6, appendx6
+  public :: append7, appendx7
+  public :: append8, appendx8
+  public :: append9, appendx9
+  public :: append10, appendx10
 
   ! Although `circular_list' and `circular_listx' gets their names
   ! from the SRFI-1 `circular-list', as input they take a regular
@@ -913,6 +929,34 @@ module cons_pairs
      module procedure list_count9
      module procedure list_count10
   end interface list_count
+
+  interface append
+     module procedure append0
+     module procedure append1
+     module procedure append2
+     module procedure append3
+     module procedure append4
+     module procedure append5
+     module procedure append6
+     module procedure append7
+     module procedure append8
+     module procedure append9
+     module procedure append10
+  end interface append
+
+  interface appendx
+     module procedure appendx0
+     module procedure appendx1
+     module procedure appendx2
+     module procedure appendx3
+     module procedure appendx4
+     module procedure appendx5
+     module procedure appendx6
+     module procedure appendx7
+     module procedure appendx8
+     module procedure appendx9
+     module procedure appendx10
+  end interface appendx
 
   interface map
      module procedure map1_subr
@@ -7355,14 +7399,28 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     lst = lst_r
   end subroutine reverse_in_place
 
-  function append (lst1, lst2) result (lst_a)
+  function append0 () result (lst_a)
+    class(*), allocatable :: lst_a
+
+    lst_a = nil
+  end function append0
+
+  function append1 (lst1) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), allocatable :: lst_a
+
+    lst_a = lst1
+  end function append1
+
+  function append2 (lst1, lst2) result (lst_a)
     !
     ! The tail of the result is shared with lst2. The CAR elements of
     ! lst1 are copied; the last CDR of lst1 is dropped.
     !
     ! The result need not be a cons_t.
     !
-    class(*), intent(in) :: lst1, lst2
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
     class(*), allocatable :: lst_a
 
     class(*), allocatable :: lst1a
@@ -7391,11 +7449,160 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call set_cdr (cursor, .autoval. lst2)
        lst_a = new_lst
     end if
-  end function append
+  end function append2
 
-  function appendx (lst1, lst2) result (lst_a)
+  function append3 (lst1, lst2, lst3) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), allocatable :: lst_a
+
+    lst_a = append2 (lst2, lst3)
+    lst_a = append2 (lst1, lst_a)
+  end function append3
+
+  function append4 (lst1, lst2, lst3, lst4) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), allocatable :: lst_a
+
+    lst_a = append2 (lst3, lst4)
+    lst_a = append2 (lst2, lst_a)
+    lst_a = append2 (lst1, lst_a)
+  end function append4
+
+  function append5 (lst1, lst2, lst3, lst4, lst5) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), allocatable :: lst_a
+
+    lst_a = append2 (lst4, lst5)
+    lst_a = append2 (lst3, lst_a)
+    lst_a = append2 (lst2, lst_a)
+    lst_a = append2 (lst1, lst_a)
+  end function append5
+
+  function append6 (lst1, lst2, lst3, lst4, lst5, lst6) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), allocatable :: lst_a
+
+    lst_a = append2 (lst5, lst6)
+    lst_a = append2 (lst4, lst_a)
+    lst_a = append2 (lst3, lst_a)
+    lst_a = append2 (lst2, lst_a)
+    lst_a = append2 (lst1, lst_a)
+  end function append6
+
+  function append7 (lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), allocatable :: lst_a
+
+    lst_a = append2 (lst6, lst7)
+    lst_a = append2 (lst5, lst_a)
+    lst_a = append2 (lst4, lst_a)
+    lst_a = append2 (lst3, lst_a)
+    lst_a = append2 (lst2, lst_a)
+    lst_a = append2 (lst1, lst_a)
+  end function append7
+
+  function append8 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), allocatable :: lst_a
+
+    lst_a = append2 (lst7, lst8)
+    lst_a = append2 (lst6, lst_a)
+    lst_a = append2 (lst5, lst_a)
+    lst_a = append2 (lst4, lst_a)
+    lst_a = append2 (lst3, lst_a)
+    lst_a = append2 (lst2, lst_a)
+    lst_a = append2 (lst1, lst_a)
+  end function append8
+
+  function append9 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), allocatable :: lst_a
+
+    lst_a = append2 (lst8, lst9)
+    lst_a = append2 (lst7, lst_a)
+    lst_a = append2 (lst6, lst_a)
+    lst_a = append2 (lst5, lst_a)
+    lst_a = append2 (lst4, lst_a)
+    lst_a = append2 (lst3, lst_a)
+    lst_a = append2 (lst2, lst_a)
+    lst_a = append2 (lst1, lst_a)
+  end function append9
+
+  function append10 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), allocatable :: lst_a
+
+    lst_a = append2 (lst9, lst10)
+    lst_a = append2 (lst8, lst_a)
+    lst_a = append2 (lst7, lst_a)
+    lst_a = append2 (lst6, lst_a)
+    lst_a = append2 (lst5, lst_a)
+    lst_a = append2 (lst4, lst_a)
+    lst_a = append2 (lst3, lst_a)
+    lst_a = append2 (lst2, lst_a)
+    lst_a = append2 (lst1, lst_a)
+  end function append10
+
+  function appendx0 () result (lst_a)
+    class(*), allocatable :: lst_a
+
+    lst_a = nil
+  end function appendx0
+
+  function appendx1 (lst1) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), allocatable :: lst_a
+
+    lst_a = lst1
+  end function appendx1
+
+  function appendx2 (lst1, lst2) result (lst_a)
     !
-    ! appendx is *not* allowed to destroy lst2, and in fact includes
+    ! appendx2 is *not* allowed to destroy lst2, and in fact includes
     ! it in the result as a shared tail.
     !
     class(*) :: lst1, lst2
@@ -7410,7 +7617,143 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        lst_a = .tocons. lst1a
        call set_cdr (last_pair (lst_a), .autoval. lst2)
     end if
-  end function appendx
+  end function appendx2
+
+  function appendx3 (lst1, lst2, lst3) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), allocatable :: lst_a
+
+    lst_a = appendx2 (lst2, lst3)
+    lst_a = appendx2 (lst1, lst_a)
+  end function appendx3
+
+  function appendx4 (lst1, lst2, lst3, lst4) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), allocatable :: lst_a
+
+    lst_a = appendx2 (lst3, lst4)
+    lst_a = appendx2 (lst2, lst_a)
+    lst_a = appendx2 (lst1, lst_a)
+  end function appendx4
+
+  function appendx5 (lst1, lst2, lst3, lst4, lst5) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), allocatable :: lst_a
+
+    lst_a = appendx2 (lst4, lst5)
+    lst_a = appendx2 (lst3, lst_a)
+    lst_a = appendx2 (lst2, lst_a)
+    lst_a = appendx2 (lst1, lst_a)
+  end function appendx5
+
+  function appendx6 (lst1, lst2, lst3, lst4, lst5, lst6) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), allocatable :: lst_a
+
+    lst_a = appendx2 (lst5, lst6)
+    lst_a = appendx2 (lst4, lst_a)
+    lst_a = appendx2 (lst3, lst_a)
+    lst_a = appendx2 (lst2, lst_a)
+    lst_a = appendx2 (lst1, lst_a)
+  end function appendx6
+
+  function appendx7 (lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), allocatable :: lst_a
+
+    lst_a = appendx2 (lst6, lst7)
+    lst_a = appendx2 (lst5, lst_a)
+    lst_a = appendx2 (lst4, lst_a)
+    lst_a = appendx2 (lst3, lst_a)
+    lst_a = appendx2 (lst2, lst_a)
+    lst_a = appendx2 (lst1, lst_a)
+  end function appendx7
+
+  function appendx8 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), allocatable :: lst_a
+
+    lst_a = appendx2 (lst7, lst8)
+    lst_a = appendx2 (lst6, lst_a)
+    lst_a = appendx2 (lst5, lst_a)
+    lst_a = appendx2 (lst4, lst_a)
+    lst_a = appendx2 (lst3, lst_a)
+    lst_a = appendx2 (lst2, lst_a)
+    lst_a = appendx2 (lst1, lst_a)
+  end function appendx8
+
+  function appendx9 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), allocatable :: lst_a
+
+    lst_a = appendx2 (lst8, lst9)
+    lst_a = appendx2 (lst7, lst_a)
+    lst_a = appendx2 (lst6, lst_a)
+    lst_a = appendx2 (lst5, lst_a)
+    lst_a = appendx2 (lst4, lst_a)
+    lst_a = appendx2 (lst3, lst_a)
+    lst_a = appendx2 (lst2, lst_a)
+    lst_a = appendx2 (lst1, lst_a)
+  end function appendx9
+
+  function appendx10 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), allocatable :: lst_a
+
+    lst_a = appendx2 (lst9, lst10)
+    lst_a = appendx2 (lst8, lst_a)
+    lst_a = appendx2 (lst7, lst_a)
+    lst_a = appendx2 (lst6, lst_a)
+    lst_a = appendx2 (lst5, lst_a)
+    lst_a = appendx2 (lst4, lst_a)
+    lst_a = appendx2 (lst3, lst_a)
+    lst_a = appendx2 (lst2, lst_a)
+    lst_a = appendx2 (lst1, lst_a)
+  end function appendx10
 
   function append_reverse (lst1, lst2) result (lst_ar)
     !

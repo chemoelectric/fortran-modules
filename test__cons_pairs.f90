@@ -859,6 +859,29 @@ contains
          "test0195-1070 failed")
   end subroutine test0195
 
+  subroutine test0197
+
+    ! Tests of append and appendx for different numbers of arguments.
+
+    ! Zero arguments. Always returns a nil list.
+    call check (is_nil (append ()), "test0197-0010 failed")
+    call check (is_nil (appendx ()), "test0197-0020 failed")
+
+    ! One arguments. Always simply returns the given list.
+    call check (lists_are_equal (int_eq, append (list (1, 2, 3)), list (1, 2, 3)), "test0197-0030 failed")
+    call check (lists_are_equal (int_eq, appendx (list (1, 2, 3)), list (1, 2, 3)), "test0197-0040 failed")
+
+    ! Five arguments.
+    call check (lists_are_equal (int_eq, &
+         append (iota (20, 1), iota (20, 21), iota (20, 41), iota (20, 61), iota (20, 81)), &
+         iota (100, 1)), &
+         "test0197-0050 failed")
+    call check (lists_are_equal (int_eq, &
+         appendx (iota (20, 1), iota (20, 21), iota (20, 41), iota (20, 61), iota (20, 81)), &
+         iota (100, 1)), &
+         "test0197-0050 failed")
+  end subroutine test0197
+
   subroutine test0200
     call check (is_nil (concatenate (nil)), "test0200-0010 failed")
     call check (is_nil (concatenate (123)), "test0200-0020 failed")
@@ -1698,6 +1721,7 @@ contains
     call test0180
     call test0190
     call test0195
+    call test0197
     call test0200
     call test0210
     call check_heap_size

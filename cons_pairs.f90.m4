@@ -265,12 +265,20 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: list_copy        ! Make a copy of a list.
   public :: reverse          ! Make a copy of a list, but reversed.
   public :: reversex         ! Like reverse, but allowed to destroy its inputs.
-  public :: append           ! Concatenate two lists.
-  public :: appendx          ! Like append, but allowed to destroy its *first* argument (but not the latter argument).
+  public :: append           ! Generic function: concatenate two lists.
+  public :: appendx          ! Generic function: like append, but
+                             !    allowed to destroy all its argument
+                             !    lists but the last (which becomes a
+                             !    shared tail).
   public :: append_reverse   ! Concatenate the reverse of the first list to the (unreversed) second list.
   public :: append_reversex  ! Like append_reverse, but allowed to destroy its *first* argument (but not the latter argument).
   public :: concatenate      ! Concatenate the lists in a list of lists.
   public :: concatenatex     ! Like concatenate, but allowed to destroy its inputs.
+
+  ! Implementations of append and appendx.
+m4_forloop([n],[0],ZIP_MAX,[dnl
+  public :: append[]n, appendx[]n
+])dnl
 
   ! Although `circular_list' and `circular_listx' gets their names
   ! from the SRFI-1 `circular-list', as input they take a regular
@@ -534,6 +542,18 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure list_count[]n
 ])dnl
   end interface list_count
+
+  interface append
+m4_forloop([n],[0],ZIP_MAX,[dnl
+     module procedure append[]n
+])dnl
+  end interface append
+
+  interface appendx
+m4_forloop([n],[0],ZIP_MAX,[dnl
+     module procedure appendx[]n
+])dnl
+  end interface appendx
 
   interface map
 m4_forloop([n],[1],ZIP_MAX,[dnl
@@ -1913,14 +1933,28 @@ m4_if(k,n,[],[dnl
     lst = lst_r
   end subroutine reverse_in_place
 
-  function append (lst1, lst2) result (lst_a)
+  function append0 () result (lst_a)
+    class(*), allocatable :: lst_a
+
+    lst_a = nil
+  end function append0
+
+  function append1 (lst1) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), allocatable :: lst_a
+
+    lst_a = lst1
+  end function append1
+
+  function append2 (lst1, lst2) result (lst_a)
     !
     ! The tail of the result is shared with lst2. The CAR elements of
     ! lst1 are copied; the last CDR of lst1 is dropped.
     !
     ! The result need not be a cons_t.
     !
-    class(*), intent(in) :: lst1, lst2
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
     class(*), allocatable :: lst_a
 
     class(*), allocatable :: lst1a
@@ -1949,11 +1983,40 @@ m4_if(k,n,[],[dnl
        call set_cdr (cursor, .autoval. lst2)
        lst_a = new_lst
     end if
-  end function append
+  end function append2
 
-  function appendx (lst1, lst2) result (lst_a)
+m4_forloop([n],[3],ZIP_MAX,[dnl
+  function append[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+       ])lst[]k])) result (lst_a)
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    class(*), allocatable :: lst_a
+
+    lst_a = append2 (lst[]m4_eval(n - 1), lst[]n)
+m4_forloop([k],[1],m4_eval(n - 2),[dnl
+    lst_a = append2 (lst[]m4_eval(n - k - 1), lst_a)
+])dnl
+  end function append[]n
+
+])dnl
+dnl
+  function appendx0 () result (lst_a)
+    class(*), allocatable :: lst_a
+
+    lst_a = nil
+  end function appendx0
+
+  function appendx1 (lst1) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), allocatable :: lst_a
+
+    lst_a = lst1
+  end function appendx1
+
+  function appendx2 (lst1, lst2) result (lst_a)
     !
-    ! appendx is *not* allowed to destroy lst2, and in fact includes
+    ! appendx2 is *not* allowed to destroy lst2, and in fact includes
     ! it in the result as a shared tail.
     !
     class(*) :: lst1, lst2
@@ -1968,8 +2031,24 @@ m4_if(k,n,[],[dnl
        lst_a = .tocons. lst1a
        call set_cdr (last_pair (lst_a), .autoval. lst2)
     end if
-  end function appendx
+  end function appendx2
 
+m4_forloop([n],[3],ZIP_MAX,[dnl
+  function appendx[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+       ])lst[]k])) result (lst_a)
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    class(*), allocatable :: lst_a
+
+    lst_a = appendx2 (lst[]m4_eval(n - 1), lst[]n)
+m4_forloop([k],[1],m4_eval(n - 2),[dnl
+    lst_a = appendx2 (lst[]m4_eval(n - k - 1), lst_a)
+])dnl
+  end function appendx[]n
+
+])dnl
+dnl
   function append_reverse (lst1, lst2) result (lst_ar)
     !
     ! The tail of the result is shared with lst2. The CAR elements of
