@@ -7616,13 +7616,16 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
   end function list_count
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! map
+!!
 
-  recursive function map1_subr (proc, lst) result (lst_m)
+  recursive function map1_subr (proc, lst1) result (lst_m)
     procedure(list_map1_subr_t) :: proc
-    class(*), intent(in) :: lst
+    class(*), intent(in) :: lst1
     type(cons_t) :: lst_m
 
-    lst_m = map_in_order (proc, lst)
+    lst_m = map1_in_order_subr (proc, lst1)
   end function map1_subr
 
   recursive function map2_subr (proc, lst1, lst2) result (lst_m)
@@ -7742,37 +7745,53 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     lst_m = map10_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10)
   end function map10_subr
 
-  recursive function map1_in_order_subr (proc, lst) result (lst_m)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! map_in_order
+!!
+
+  recursive function map1_in_order_subr (proc, lst1) result (lst_m)
     procedure(list_map1_subr_t) :: proc
-    class(*), intent(in) :: lst
+    class(*), intent(in) :: lst1
     type(cons_t) :: lst_m
 
-    class(*), allocatable :: head, tail
+    type(gcroot_t) :: lst1_root
+    class(*), allocatable :: head1, tail1
     class(*), allocatable :: proc_result
-    type(gcroot_t) :: lst_root
+    logical :: done
     type(gcroot_t) :: retval
-    type(cons_t) :: cursor
     type(cons_t) :: new_pair
+    type(cons_t) :: cursor
 
-    if (is_not_pair (lst)) then
+    if (is_not_pair (lst1)) then
        lst_m = nil
     else
-       lst_root = lst ! Protect the input list against garbage
-                      ! collections by proc.
-       call uncons (lst, head, tail)
-       call proc (head, proc_result)
+       lst1_root = lst1
+
+       tail1 = .autoval. lst1
+
+       call uncons (tail1, head1, tail1)
+       call proc (head1, proc_result)
        cursor = proc_result ** nil
-       retval = cursor ! retval is gcroot_t, to protect the return
-                       ! value against garbage collections by proc.
-       do while (is_pair (tail))
-          call uncons (tail, head, tail)
-          call proc (head, proc_result)
-          new_pair = proc_result ** nil
-          call set_cdr (cursor, new_pair)
-          cursor = new_pair
-       end do
+       retval = cursor
+       if (is_not_pair (tail1)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call proc (head1, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             end if
+          end do
+       end if
        lst_m = .tocons. retval
-       call lst_root%discard
+
+       call lst1_root%discard
     end if
   end function map1_in_order_subr
 

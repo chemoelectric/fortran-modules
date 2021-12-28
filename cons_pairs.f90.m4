@@ -2270,16 +2270,11 @@ m4_if(k,n,[],[dnl
   end function list_count
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! map
+!!
 
-  recursive function map1_subr (proc, lst) result (lst_m)
-    procedure(list_map1_subr_t) :: proc
-    class(*), intent(in) :: lst
-    type(cons_t) :: lst_m
-
-    lst_m = map_in_order (proc, lst)
-  end function map1_subr
-
-m4_forloop([n],[2],ZIP_MAX,[dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
   recursive function map[]n[]_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
        ])lst[]k])) result (lst_m)
     procedure(list_map[]n[]_subr_t) :: proc
@@ -2293,41 +2288,13 @@ m4_forloop([k],[1],n,[dnl
   end function map[]n[]_subr
 
 ])dnl
-  recursive function map1_in_order_subr (proc, lst) result (lst_m)
-    procedure(list_map1_subr_t) :: proc
-    class(*), intent(in) :: lst
-    type(cons_t) :: lst_m
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! map_in_order
+!!
 
-    class(*), allocatable :: head, tail
-    class(*), allocatable :: proc_result
-    type(gcroot_t) :: lst_root
-    type(gcroot_t) :: retval
-    type(cons_t) :: cursor
-    type(cons_t) :: new_pair
-
-    if (is_not_pair (lst)) then
-       lst_m = nil
-    else
-       lst_root = lst ! Protect the input list against garbage
-                      ! collections by proc.
-       call uncons (lst, head, tail)
-       call proc (head, proc_result)
-       cursor = proc_result ** nil
-       retval = cursor ! retval is gcroot_t, to protect the return
-                       ! value against garbage collections by proc.
-       do while (is_pair (tail))
-          call uncons (tail, head, tail)
-          call proc (head, proc_result)
-          new_pair = proc_result ** nil
-          call set_cdr (cursor, new_pair)
-          cursor = new_pair
-       end do
-       lst_m = .tocons. retval
-       call lst_root%discard
-    end if
-  end function map1_in_order_subr
-
-m4_forloop([n],[2],ZIP_MAX,[dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
   recursive function map[]n[]_in_order_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
        ])lst[]k])) result (lst_m)
     procedure(list_map[]n[]_subr_t) :: proc
