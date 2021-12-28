@@ -2353,10 +2353,12 @@ m4_if(k,n,[],[dnl
       class(*), allocatable :: retval
 
       class(*), allocatable :: hd, tl
+      type(gcroot_t) :: recursion_result
 
       if (is_pair (lst1)) then
          call uncons (lst1, hd, tl)
-         call kons (head, recursion (hd, tl), retval)
+         recursion_result = recursion (hd, tl)
+         call kons (head, .val. recursion_result, retval)
       else
          retval = head
       end if

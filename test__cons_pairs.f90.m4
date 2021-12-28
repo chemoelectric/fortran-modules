@@ -1228,6 +1228,58 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   end subroutine test0260
 
+  subroutine test0270
+    type(cons_t) :: lst1
+
+    ! Find the maximum in a list of non-negative integers. (An example
+    ! from SRFI-1.)
+    lst1 = .tocons. concatenate (list5 (iota (10), iota (100), iota (1000), iota (100), iota (10)))
+    call check (reduce (kmax, 0, lst1) .eqi. 999, "test0270-0010 failed")
+
+    ! Try it on a nil list.
+    lst1 = nil
+    call check (reduce (kmax, 0, lst1) .eqi. 0, "test0270-0020 failed")
+
+  contains
+
+    recursive subroutine kmax (kar, kdr, kons)
+      class(*), intent(in) :: kar, kdr
+      class(*), allocatable, intent(out) :: kons
+
+      call collect_garbage_now
+      kons = max (int_cast (kar), int_cast (kdr))
+      call collect_garbage_now
+    end subroutine kmax
+
+  end subroutine test0270
+
+  subroutine test0280
+    type(cons_t) :: lst1, lst2, lst3
+
+    ! An implementation of `concatenate'. (An example from SRFI-1.)
+    lst1 = list5 (1 ** 2 ** 3 ** nil, 4 ** 5 ** nil, nil, 6 ** 7 ** 8 ** 9 ** 10 ** nil, nil)
+    lst2 = .tocons. reduce_right (kappend, nil, lst1)
+    lst3 = iota (10, 1)
+    call check (lists_are_equal (int_eq, lst2, lst3), "test0280-0010 failed")
+
+    ! Try it on a nil list
+    lst1 = nil
+    lst2 = .tocons. reduce_right (kappend, nil, lst1)
+    lst3 = nil
+    call check (lists_are_equal (int_eq, lst2, lst3), "test0280-0020 failed")
+
+  contains
+
+    recursive subroutine kappend (kar, kdr, kons)
+      class(*), intent(in) :: kar, kdr
+      class(*), allocatable, intent(out) :: kons
+
+      call collect_garbage_now
+      kons = append (kar, kdr)
+    end subroutine kappend
+
+  end subroutine test0280
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1262,6 +1314,8 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0240
     call test0250
     call test0260
+    call test0270
+    call test0280
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
