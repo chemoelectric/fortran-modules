@@ -257,6 +257,10 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: lists_are_equal  ! Test whether two lists are `equal'. (Equivalent to SRFI-1's `list='.)
   public :: list_count       ! Count elements that satisfy a predicate. (Counting proceeds in left-to-right order.)
 
+  public :: map              ! Map list elements in an unspecified order.
+  public :: map_in_order     ! Map list elements left-to-right. (A kind of combination of map and for_each.)
+  !public :: for_each         ! Perform side effects on list elements, in order from left to right.
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! FOLDS AND UNFOLDS
@@ -305,7 +309,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  ! Types for folds, unfolds, and maps.
+  ! Types for folds, unfolds, maps, and side effects.
   public :: list_kons_proc_t
   public :: list_map_proc_t
 
@@ -324,6 +328,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
        class(*), intent(in) :: input
        class(*), allocatable, intent(out) :: output
      end subroutine list_map_proc_t
+  end interface
+
+  abstract interface
+     recursive subroutine list_side_effect_proc_t (input)
+       class(*), intent(in) :: input
+     end subroutine list_side_effect_proc_t
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2170,6 +2180,49 @@ m4_if(k,n,[],[dnl
 
     call lst_root%discard
   end function list_count
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function map (proc, lst) result (lst_m)
+    procedure(list_map_proc_t) :: proc
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_m
+
+    lst_m = map_in_order (proc, lst)
+  end function map
+
+  recursive function map_in_order (proc, lst) result (lst_m)
+    procedure(list_map_proc_t) :: proc
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_m
+
+    class(*), allocatable :: head, head_mapped, tail
+    type(gcroot_t) :: lst_root
+    type(gcroot_t) :: retval
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+
+    if (is_not_pair (lst)) then
+       lst_m = nil
+    else
+       lst_root = lst ! Protect the input list against garbage
+                      ! collections by proc.
+       call uncons (lst, head, tail)
+       call proc (head, head_mapped)
+       cursor = head_mapped ** nil
+       retval = cursor ! retval is gcroot_t, to protect the return
+                       ! value against garbage collections by proc.
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          call proc (head, head_mapped)
+          new_pair = head_mapped ** nil
+          call set_cdr (cursor, new_pair)
+          cursor = new_pair
+       end do
+       lst_m = .tocons. retval
+       call lst_root%discard
+    end if
+  end function map_in_order
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

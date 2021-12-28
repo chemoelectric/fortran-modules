@@ -1461,6 +1461,93 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   end subroutine test0300
 
+  subroutine test0310
+
+    ! Tests of map/map_in_order.
+
+    type(cons_t) :: lst1, lst2, lst3
+    integer :: count
+
+    ! Select the second element of each list in a list-of-lists. (An example from SRFI-1.)
+    lst1 = list3 (list2 (1, 2), list2 (4, 5), list2 (7, 8))
+    lst2 = map (kcadr, lst1)
+    lst3 = list3 (2, 5, 8)
+    call check (lists_are_equal (int_eq, lst2, lst3), "test0310-0010 failed")
+    !
+    ! Because we did not use gcroot_t, we need to reassign all the
+    ! lists. (But this way is a better test.)
+    !
+    lst1 = list3 (list2 (1, 2), list2 (4, 5), list2 (7, 8))
+    lst2 = map_in_order (kcadr, lst1)
+    lst3 = list3 (2, 5, 8)
+    call check (lists_are_equal (int_eq, lst2, lst3), "test0310-0020 failed")
+
+    ! Raise the elements of a list to their own power. (An example from SRFI-1.)
+    call check (lists_are_equal (int_eq, &
+         map (kselfpower, iota (5, 1)), &
+         list5 (1, 4, 27, 256, 3125)), &
+         "test0310-0030 failed")
+    call check (lists_are_equal (int_eq, &
+         map_in_order (kselfpower, iota (5, 1)), &
+         list5 (1, 4, 27, 256, 3125)), &
+         "test0310-0040 failed")
+
+    ! Add the elements of two lists. (Adapted from an example in
+    ! SRFI-1.)
+    lst1 = list3 (1, 2, 3)
+    lst2 = list3 (4, 5, 6)
+    lst3 = map (kadd, zip2 (lst1, lst2))
+    call check (lists_are_equal (int_eq, lst3, list3 (5, 7, 9)), "test0310-0050 failed")
+    lst1 = list3 (1, 2, 3)
+    lst2 = list3 (4, 5, 6)
+    lst3 = map_in_order (kadd, zip2 (lst1, lst2))
+    call check (lists_are_equal (int_eq, lst3, list3 (5, 7, 9)), "test0310-0060 failed")
+
+    ! With side effects. (An example from SRFI-1.)
+    count = 0
+    lst1 = str_t ('a') ** str_t ('b') ** nil
+    lst2 = map (kincrcount, lst1)
+    call check (lists_are_equal (int_eq, lst2, list2 (1, 2)) .or. lists_are_equal (int_eq, lst2, list2 (2, 1)), &
+         "test0310-0070 failed")
+    count = 0
+    lst1 = str_t ('a') ** str_t ('b') ** nil
+    lst2 = map_in_order (kincrcount, lst1)
+    call check (lists_are_equal (int_eq, lst2, list2 (1, 2)), "test0310-0080 failed")
+
+  contains
+
+    recursive subroutine kcadr (lst, elem)
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: elem
+      call collect_garbage_now
+      elem = cadr (lst)
+    end subroutine kcadr
+
+    recursive subroutine kselfpower (x, y)
+      class(*), intent(in) :: x
+      class(*), allocatable, intent(out) :: y
+      call collect_garbage_now
+      y = int_cast (x) ** int_cast (x)
+    end subroutine kselfpower
+
+    recursive subroutine kadd (lst, sum)
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: sum
+      call collect_garbage_now
+      sum = int_cast (first (lst)) + int_cast (second (lst))
+    end subroutine kadd
+
+    recursive subroutine kincrcount (ignored, count_val)
+      class(*), intent(in) :: ignored
+      class(*), allocatable, intent(out) :: count_val
+      call collect_garbage_now
+      call unused_variable (ignored)
+      count = count + 1
+      count_val = count
+    end subroutine kincrcount
+
+  end subroutine test0310
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1499,6 +1586,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0280
     call test0290
     call test0300
+    call test0310
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
