@@ -7773,10 +7773,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail1, head1, tail1)
        call proc (head1, proc_result)
        cursor = proc_result ** nil
-       retval = cursor
        if (is_not_pair (tail1)) then
-          continue
+          lst_m = cursor
        else
+          retval = cursor
           done = .false.
           do while (.not. done)
              call uncons (tail1, head1, tail1)
@@ -7788,8 +7788,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
                 done = .true.
              end if
           end do
+          lst_m = .tocons. retval
        end if
-       lst_m = .tocons. retval
 
        call lst1_root%discard
     end if
@@ -7826,12 +7826,12 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail2, head2, tail2)
        call proc (head1, head2, proc_result)
        cursor = proc_result ** nil
-       retval = cursor
        if (is_not_pair (tail1)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail2)) then
-          continue
+          lst_m = cursor
        else
+          retval = cursor
           done = .false.
           do while (.not. done)
              call uncons (tail1, head1, tail1)
@@ -7846,8 +7846,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
                 done = .true.
              end if
           end do
+          lst_m = .tocons. retval
        end if
-       lst_m = .tocons. retval
 
        call lst1_root%discard
        call lst2_root%discard
@@ -7893,14 +7893,14 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail3, head3, tail3)
        call proc (head1, head2, head3, proc_result)
        cursor = proc_result ** nil
-       retval = cursor
        if (is_not_pair (tail1)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail2)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail3)) then
-          continue
+          lst_m = cursor
        else
+          retval = cursor
           done = .false.
           do while (.not. done)
              call uncons (tail1, head1, tail1)
@@ -7918,8 +7918,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
                 done = .true.
              end if
           end do
+          lst_m = .tocons. retval
        end if
-       lst_m = .tocons. retval
 
        call lst1_root%discard
        call lst2_root%discard
@@ -7974,16 +7974,16 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail4, head4, tail4)
        call proc (head1, head2, head3, head4, proc_result)
        cursor = proc_result ** nil
-       retval = cursor
        if (is_not_pair (tail1)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail2)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail3)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail4)) then
-          continue
+          lst_m = cursor
        else
+          retval = cursor
           done = .false.
           do while (.not. done)
              call uncons (tail1, head1, tail1)
@@ -8004,8 +8004,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
                 done = .true.
              end if
           end do
+          lst_m = .tocons. retval
        end if
-       lst_m = .tocons. retval
 
        call lst1_root%discard
        call lst2_root%discard
@@ -8069,18 +8069,18 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail5, head5, tail5)
        call proc (head1, head2, head3, head4, head5, proc_result)
        cursor = proc_result ** nil
-       retval = cursor
        if (is_not_pair (tail1)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail2)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail3)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail4)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail5)) then
-          continue
+          lst_m = cursor
        else
+          retval = cursor
           done = .false.
           do while (.not. done)
              call uncons (tail1, head1, tail1)
@@ -8104,8 +8104,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
                 done = .true.
              end if
           end do
+          lst_m = .tocons. retval
        end if
-       lst_m = .tocons. retval
 
        call lst1_root%discard
        call lst2_root%discard
@@ -8178,20 +8178,20 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail6, head6, tail6)
        call proc (head1, head2, head3, head4, head5, head6, proc_result)
        cursor = proc_result ** nil
-       retval = cursor
        if (is_not_pair (tail1)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail2)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail3)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail4)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail5)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail6)) then
-          continue
+          lst_m = cursor
        else
+          retval = cursor
           done = .false.
           do while (.not. done)
              call uncons (tail1, head1, tail1)
@@ -8218,8 +8218,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
                 done = .true.
              end if
           end do
+          lst_m = .tocons. retval
        end if
-       lst_m = .tocons. retval
 
        call lst1_root%discard
        call lst2_root%discard
@@ -8301,22 +8301,22 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail7, head7, tail7)
        call proc (head1, head2, head3, head4, head5, head6, head7, proc_result)
        cursor = proc_result ** nil
-       retval = cursor
        if (is_not_pair (tail1)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail2)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail3)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail4)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail5)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail6)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail7)) then
-          continue
+          lst_m = cursor
        else
+          retval = cursor
           done = .false.
           do while (.not. done)
              call uncons (tail1, head1, tail1)
@@ -8346,8 +8346,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
                 done = .true.
              end if
           end do
+          lst_m = .tocons. retval
        end if
-       lst_m = .tocons. retval
 
        call lst1_root%discard
        call lst2_root%discard
@@ -8438,24 +8438,24 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail8, head8, tail8)
        call proc (head1, head2, head3, head4, head5, head6, head7, head8, proc_result)
        cursor = proc_result ** nil
-       retval = cursor
        if (is_not_pair (tail1)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail2)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail3)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail4)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail5)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail6)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail7)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail8)) then
-          continue
+          lst_m = cursor
        else
+          retval = cursor
           done = .false.
           do while (.not. done)
              call uncons (tail1, head1, tail1)
@@ -8488,8 +8488,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
                 done = .true.
              end if
           end do
+          lst_m = .tocons. retval
        end if
-       lst_m = .tocons. retval
 
        call lst1_root%discard
        call lst2_root%discard
@@ -8589,26 +8589,26 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail9, head9, tail9)
        call proc (head1, head2, head3, head4, head5, head6, head7, head8, head9, proc_result)
        cursor = proc_result ** nil
-       retval = cursor
        if (is_not_pair (tail1)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail2)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail3)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail4)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail5)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail6)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail7)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail8)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail9)) then
-          continue
+          lst_m = cursor
        else
+          retval = cursor
           done = .false.
           do while (.not. done)
              call uncons (tail1, head1, tail1)
@@ -8644,8 +8644,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
                 done = .true.
              end if
           end do
+          lst_m = .tocons. retval
        end if
-       lst_m = .tocons. retval
 
        call lst1_root%discard
        call lst2_root%discard
@@ -8754,28 +8754,28 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail10, head10, tail10)
        call proc (head1, head2, head3, head4, head5, head6, head7, head8, head9, head10, proc_result)
        cursor = proc_result ** nil
-       retval = cursor
        if (is_not_pair (tail1)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail2)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail3)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail4)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail5)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail6)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail7)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail8)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail9)) then
-          continue
+          lst_m = cursor
        else if (is_not_pair (tail10)) then
-          continue
+          lst_m = cursor
        else
+          retval = cursor
           done = .false.
           do while (.not. done)
              call uncons (tail1, head1, tail1)
@@ -8814,8 +8814,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
                 done = .true.
              end if
           end do
+          lst_m = .tocons. retval
        end if
-       lst_m = .tocons. retval
 
        call lst1_root%discard
        call lst2_root%discard

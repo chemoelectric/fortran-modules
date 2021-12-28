@@ -2338,16 +2338,16 @@ m4_forloop([k],[1],n,[dnl
        call proc (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
             ])head[]k]), proc_result)
        cursor = proc_result ** nil
-       retval = cursor
        if (is_not_pair (tail1)) then
 m4_forloop([k],[1],n,[dnl
-          continue
+          lst_m = cursor
 m4_if(k,n,[dnl
        else
 ],[dnl
        else if (is_not_pair (tail[]m4_eval(k + 1))) then
 ])dnl
 ])dnl
+          retval = cursor
           done = .false.
           do while (.not. done)
 m4_forloop([k],[1],n,[dnl
@@ -2368,8 +2368,8 @@ m4_if(k,n,[dnl
 ])dnl
 ])dnl
           end do
+          lst_m = .tocons. retval
        end if
-       lst_m = .tocons. retval
 
 m4_forloop([k],[1],n,[dnl
        call lst[]k[]_root%discard
