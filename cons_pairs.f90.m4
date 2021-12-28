@@ -482,17 +482,17 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
 ])dnl
   end interface unlist_with_tail
 
-m4_forloop([n],[1],ZIP_MAX,[dnl
   interface zip
-     module procedure zip[]n
-  end interface zip
-])dnl
-
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  interface unzip
-     module procedure unzip[]n
-  end interface unzip
+     module procedure zip[]n
 ])dnl
+  end interface zip
+
+  interface unzip
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure unzip[]n
+])dnl
+  end interface unzip
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind

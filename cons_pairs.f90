@@ -651,63 +651,27 @@ module cons_pairs
 
   interface zip
      module procedure zip1
-  end interface zip
-  interface zip
      module procedure zip2
-  end interface zip
-  interface zip
      module procedure zip3
-  end interface zip
-  interface zip
      module procedure zip4
-  end interface zip
-  interface zip
      module procedure zip5
-  end interface zip
-  interface zip
      module procedure zip6
-  end interface zip
-  interface zip
      module procedure zip7
-  end interface zip
-  interface zip
      module procedure zip8
-  end interface zip
-  interface zip
      module procedure zip9
-  end interface zip
-  interface zip
      module procedure zip10
   end interface zip
 
   interface unzip
      module procedure unzip1
-  end interface unzip
-  interface unzip
      module procedure unzip2
-  end interface unzip
-  interface unzip
      module procedure unzip3
-  end interface unzip
-  interface unzip
      module procedure unzip4
-  end interface unzip
-  interface unzip
      module procedure unzip5
-  end interface unzip
-  interface unzip
      module procedure unzip6
-  end interface unzip
-  interface unzip
      module procedure unzip7
-  end interface unzip
-  interface unzip
      module procedure unzip8
-  end interface unzip
-  interface unzip
      module procedure unzip9
-  end interface unzip
-  interface unzip
      module procedure unzip10
   end interface unzip
 
