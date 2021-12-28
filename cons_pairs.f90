@@ -240,6 +240,7 @@ module cons_pairs
 
   ! Zipping: joining the elements of separate lists into a list of
   ! lists.
+  public :: zip              ! Generic function.
   public :: zip1
   public :: zip2
   public :: zip3
@@ -253,6 +254,7 @@ module cons_pairs
 
   ! Unzipping: separating the elements of a list of lists into
   ! separate lists.
+  public :: unzip            ! Generic function.
   public :: unzip1
   public :: unzip2
   public :: unzip3
@@ -646,6 +648,68 @@ module cons_pairs
      module procedure unlist19_with_tail
      module procedure unlist20_with_tail
   end interface unlist_with_tail
+
+  interface zip
+     module procedure zip1
+  end interface zip
+  interface zip
+     module procedure zip2
+  end interface zip
+  interface zip
+     module procedure zip3
+  end interface zip
+  interface zip
+     module procedure zip4
+  end interface zip
+  interface zip
+     module procedure zip5
+  end interface zip
+  interface zip
+     module procedure zip6
+  end interface zip
+  interface zip
+     module procedure zip7
+  end interface zip
+  interface zip
+     module procedure zip8
+  end interface zip
+  interface zip
+     module procedure zip9
+  end interface zip
+  interface zip
+     module procedure zip10
+  end interface zip
+
+  interface unzip
+     module procedure unzip1
+  end interface unzip
+  interface unzip
+     module procedure unzip2
+  end interface unzip
+  interface unzip
+     module procedure unzip3
+  end interface unzip
+  interface unzip
+     module procedure unzip4
+  end interface unzip
+  interface unzip
+     module procedure unzip5
+  end interface unzip
+  interface unzip
+     module procedure unzip6
+  end interface unzip
+  interface unzip
+     module procedure unzip7
+  end interface unzip
+  interface unzip
+     module procedure unzip8
+  end interface unzip
+  interface unzip
+     module procedure unzip9
+  end interface unzip
+  interface unzip
+     module procedure unzip10
+  end interface unzip
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind

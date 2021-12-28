@@ -155,12 +155,14 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
 
   ! Zipping: joining the elements of separate lists into a list of
   ! lists.
+  public :: zip              ! Generic function.
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: zip[]n
 ])dnl
 
   ! Unzipping: separating the elements of a list of lists into
   ! separate lists.
+  public :: unzip            ! Generic function.
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: unzip[]n
 ])dnl
@@ -479,6 +481,18 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
      module procedure unlist[]n[]_with_tail
 ])dnl
   end interface unlist_with_tail
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  interface zip
+     module procedure zip[]n
+  end interface zip
+])dnl
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  interface unzip
+     module procedure unzip[]n
+  end interface unzip
+])dnl
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
