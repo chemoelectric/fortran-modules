@@ -55,10 +55,30 @@ module cons_pairs
   ! list that ends in a nil is called  proper  and a list that ends in
   ! a back-reference is called  circular .}
   !
-  ! NOTE: Fortran procedures do not take multiple arguments, the way
-  ! Scheme procedures do. However, the zip2, zip3, etc., functions can
-  ! be used to turn multiple-argument problems into single-argument
-  ! problems.
+
+  !
+  ! NOTE: Fortran procedures do not take variable numbers of
+  ! arguments, the way Scheme procedures do. However, the zip
+  ! functions can be used to turn multiple-argument problems into
+  ! single-argument problems.
+  !
+  ! FIXME: Extend procedures such as `map' to take more arguments, by
+  !        making them generic procedures. One can use m4 to generate
+  !        much of the code. Also we can use generics to reserve the
+  !        possibility of map taking a function as its proc, instead
+  !        of a procedure. (At the time of this writing, gfortran did
+  !        not seem to work sensibly if you tried to use a function as
+  !        the proc in such cases.)
+  !
+
+  !
+  ! WARNING: I reserve the right to turn most procedures into generic
+  !          procedures. This may affect your code if you try to pass
+  !          this module's procedures directly to other procedures;
+  !          that is, the name of the actual, non-generic
+  !          implementation may change. (Something such as is_nil or
+  !          is_pair or is_not_nil or is_not_pair is quite unlikely to
+  !          be made generic, however.)
   !
 
   !
@@ -361,9 +381,30 @@ module cons_pairs
   public :: lists_are_equal  ! Test whether two lists are `equal'. (Equivalent to SRFI-1's `list='.)
   public :: list_count       ! Count elements that satisfy a predicate. (Counting proceeds in left-to-right order.)
 
-  public :: map              ! Map list elements in an unspecified order.
-  public :: map_in_order     ! Map list elements left-to-right. (A kind of combination of map and for_each.)
-  !public :: for_each         ! Perform side effects on list elements, in order from left to right.
+  public :: map              ! Generic function: map list elements in an unspecified order.
+  public :: map_in_order     ! Generic function: map list elements left-to-right. (A kind of combination of map and for_each.)
+  public :: map1_subr        ! map for 1 lists, with a subroutine as proc.
+  public :: map2_subr        ! map for 2 lists, with a subroutine as proc.
+  public :: map3_subr        ! map for 3 lists, with a subroutine as proc.
+  public :: map4_subr        ! map for 4 lists, with a subroutine as proc.
+  public :: map5_subr        ! map for 5 lists, with a subroutine as proc.
+  public :: map6_subr        ! map for 6 lists, with a subroutine as proc.
+  public :: map7_subr        ! map for 7 lists, with a subroutine as proc.
+  public :: map8_subr        ! map for 8 lists, with a subroutine as proc.
+  public :: map9_subr        ! map for 9 lists, with a subroutine as proc.
+  public :: map10_subr        ! map for 10 lists, with a subroutine as proc.
+  public :: map1_in_order_subr ! map_in_order for 1 lists, with a subroutine as proc.
+  public :: map2_in_order_subr ! map_in_order for 2 lists, with a subroutine as proc.
+  public :: map3_in_order_subr ! map_in_order for 3 lists, with a subroutine as proc.
+  public :: map4_in_order_subr ! map_in_order for 4 lists, with a subroutine as proc.
+  public :: map5_in_order_subr ! map_in_order for 5 lists, with a subroutine as proc.
+  public :: map6_in_order_subr ! map_in_order for 6 lists, with a subroutine as proc.
+  public :: map7_in_order_subr ! map_in_order for 7 lists, with a subroutine as proc.
+  public :: map8_in_order_subr ! map_in_order for 8 lists, with a subroutine as proc.
+  public :: map9_in_order_subr ! map_in_order for 9 lists, with a subroutine as proc.
+  public :: map10_in_order_subr ! map_in_order for 10 lists, with a subroutine as proc.
+
+  !public :: for_each         ! Generic function: Perform side effects on list elements, in order from left to right.
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
@@ -415,7 +456,6 @@ module cons_pairs
 
   ! Types for folds, unfolds, maps, and side effects.
   public :: list_kons_proc_t
-  public :: list_map_proc_t
 
   abstract interface
      recursive subroutine list_kons_proc_t (kar, kdr, kons)
@@ -427,11 +467,108 @@ module cons_pairs
      end subroutine list_kons_proc_t
   end interface
 
+  public :: list_map1_subr_t
+  public :: list_map2_subr_t
+  public :: list_map3_subr_t
+  public :: list_map4_subr_t
+  public :: list_map5_subr_t
+  public :: list_map6_subr_t
+  public :: list_map7_subr_t
+  public :: list_map8_subr_t
+  public :: list_map9_subr_t
+  public :: list_map10_subr_t
+
   abstract interface
-     recursive subroutine list_map_proc_t (input, output)
-       class(*), intent(in) :: input
+     recursive subroutine list_map1_subr_t (input1, output)
+       class(*), intent(in) :: input1
        class(*), allocatable, intent(out) :: output
-     end subroutine list_map_proc_t
+     end subroutine list_map1_subr_t
+     recursive subroutine list_map2_subr_t (input1, input2, output)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map2_subr_t
+     recursive subroutine list_map3_subr_t (input1, input2, input3, output)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map3_subr_t
+     recursive subroutine list_map4_subr_t (input1, input2, input3, input4, output)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map4_subr_t
+     recursive subroutine list_map5_subr_t (input1, input2, input3, input4, input5, output)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map5_subr_t
+     recursive subroutine list_map6_subr_t (input1, input2, input3, input4, input5, &
+input6, output)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map6_subr_t
+     recursive subroutine list_map7_subr_t (input1, input2, input3, input4, input5, &
+input6, input7, output)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map7_subr_t
+     recursive subroutine list_map8_subr_t (input1, input2, input3, input4, input5, &
+input6, input7, input8, output)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map8_subr_t
+     recursive subroutine list_map9_subr_t (input1, input2, input3, input4, input5, &
+input6, input7, input8, input9, output)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map9_subr_t
+     recursive subroutine list_map10_subr_t (input1, input2, input3, input4, input5, &
+input6, input7, input8, input9, input10, output)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+       class(*), intent(in) :: input10
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map10_subr_t
   end interface
 
   abstract interface
@@ -674,6 +811,32 @@ module cons_pairs
      module procedure unzip9
      module procedure unzip10
   end interface unzip
+
+  interface map
+     module procedure map1_subr
+     module procedure map2_subr
+     module procedure map3_subr
+     module procedure map4_subr
+     module procedure map5_subr
+     module procedure map6_subr
+     module procedure map7_subr
+     module procedure map8_subr
+     module procedure map9_subr
+     module procedure map10_subr
+  end interface map
+
+  interface map_in_order
+     module procedure map1_in_order_subr
+     module procedure map2_in_order_subr
+     module procedure map3_in_order_subr
+     module procedure map4_in_order_subr
+     module procedure map5_in_order_subr
+     module procedure map6_in_order_subr
+     module procedure map7_in_order_subr
+     module procedure map8_in_order_subr
+     module procedure map9_in_order_subr
+     module procedure map10_in_order_subr
+  end interface map_in_order
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
@@ -7454,16 +7617,187 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function map (proc, lst) result (lst_m)
-    procedure(list_map_proc_t) :: proc
+  recursive function map1_subr (proc, lst) result (lst_m)
+    procedure(list_map1_subr_t) :: proc
     class(*), intent(in) :: lst
     type(cons_t) :: lst_m
 
     lst_m = map_in_order (proc, lst)
-  end function map
+  end function map1_subr
 
-  recursive function map_in_order (proc, lst) result (lst_m)
-    procedure(list_map_proc_t) :: proc
+  recursive function map2_subr (proc, lst1, lst2) result (lst_m)
+    procedure(list_map2_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+  end function map2_subr
+
+  recursive function map3_subr (proc, lst1, lst2, lst3) result (lst_m)
+    procedure(list_map3_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+  end function map3_subr
+
+  recursive function map4_subr (proc, lst1, lst2, lst3, lst4) result (lst_m)
+    procedure(list_map4_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+    lst_m = .tocons. lst4
+  end function map4_subr
+
+  recursive function map5_subr (proc, lst1, lst2, lst3, lst4, lst5) result (lst_m)
+    procedure(list_map5_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+    lst_m = .tocons. lst4
+    lst_m = .tocons. lst5
+  end function map5_subr
+
+  recursive function map6_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6) result (lst_m)
+    procedure(list_map6_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+    lst_m = .tocons. lst4
+    lst_m = .tocons. lst5
+    lst_m = .tocons. lst6
+  end function map6_subr
+
+  recursive function map7_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_m)
+    procedure(list_map7_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+    lst_m = .tocons. lst4
+    lst_m = .tocons. lst5
+    lst_m = .tocons. lst6
+    lst_m = .tocons. lst7
+  end function map7_subr
+
+  recursive function map8_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_m)
+    procedure(list_map8_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+    lst_m = .tocons. lst4
+    lst_m = .tocons. lst5
+    lst_m = .tocons. lst6
+    lst_m = .tocons. lst7
+    lst_m = .tocons. lst8
+  end function map8_subr
+
+  recursive function map9_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_m)
+    procedure(list_map9_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+    lst_m = .tocons. lst4
+    lst_m = .tocons. lst5
+    lst_m = .tocons. lst6
+    lst_m = .tocons. lst7
+    lst_m = .tocons. lst8
+    lst_m = .tocons. lst9
+  end function map9_subr
+
+  recursive function map10_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (lst_m)
+    procedure(list_map10_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+    lst_m = .tocons. lst4
+    lst_m = .tocons. lst5
+    lst_m = .tocons. lst6
+    lst_m = .tocons. lst7
+    lst_m = .tocons. lst8
+    lst_m = .tocons. lst9
+    lst_m = .tocons. lst10
+  end function map10_subr
+
+  recursive function map1_in_order_subr (proc, lst) result (lst_m)
+    procedure(list_map1_subr_t) :: proc
     class(*), intent(in) :: lst
     type(cons_t) :: lst_m
 
@@ -7493,7 +7827,178 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        lst_m = .tocons. retval
        call lst_root%discard
     end if
-  end function map_in_order
+  end function map1_in_order_subr
+
+  recursive function map2_in_order_subr (proc, lst1, lst2) result (lst_m)
+    procedure(list_map2_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+  end function map2_in_order_subr
+
+  recursive function map3_in_order_subr (proc, lst1, lst2, lst3) result (lst_m)
+    procedure(list_map3_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+  end function map3_in_order_subr
+
+  recursive function map4_in_order_subr (proc, lst1, lst2, lst3, lst4) result (lst_m)
+    procedure(list_map4_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+    lst_m = .tocons. lst4
+  end function map4_in_order_subr
+
+  recursive function map5_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5) result (lst_m)
+    procedure(list_map5_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+    lst_m = .tocons. lst4
+    lst_m = .tocons. lst5
+  end function map5_in_order_subr
+
+  recursive function map6_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6) result (lst_m)
+    procedure(list_map6_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+    lst_m = .tocons. lst4
+    lst_m = .tocons. lst5
+    lst_m = .tocons. lst6
+  end function map6_in_order_subr
+
+  recursive function map7_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_m)
+    procedure(list_map7_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+    lst_m = .tocons. lst4
+    lst_m = .tocons. lst5
+    lst_m = .tocons. lst6
+    lst_m = .tocons. lst7
+  end function map7_in_order_subr
+
+  recursive function map8_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_m)
+    procedure(list_map8_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+    lst_m = .tocons. lst4
+    lst_m = .tocons. lst5
+    lst_m = .tocons. lst6
+    lst_m = .tocons. lst7
+    lst_m = .tocons. lst8
+  end function map8_in_order_subr
+
+  recursive function map9_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_m)
+    procedure(list_map9_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+    lst_m = .tocons. lst4
+    lst_m = .tocons. lst5
+    lst_m = .tocons. lst6
+    lst_m = .tocons. lst7
+    lst_m = .tocons. lst8
+    lst_m = .tocons. lst9
+  end function map9_in_order_subr
+
+  recursive function map10_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (lst_m)
+    procedure(list_map10_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+    lst_m = .tocons. lst1
+    lst_m = .tocons. lst2
+    lst_m = .tocons. lst3
+    lst_m = .tocons. lst4
+    lst_m = .tocons. lst5
+    lst_m = .tocons. lst6
+    lst_m = .tocons. lst7
+    lst_m = .tocons. lst8
+    lst_m = .tocons. lst9
+    lst_m = .tocons. lst10
+  end function map10_in_order_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -7694,10 +8199,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   recursive function unfold_with_tail_gen (pred, f, g, seed, tail_gen) result (lst)
     procedure(list_predicate1_t) :: pred
-    procedure(list_map_proc_t) :: f
-    procedure(list_map_proc_t) :: g
+    procedure(list_map1_subr_t) :: f
+    procedure(list_map1_subr_t) :: g
     class(*), intent(in) :: seed
-    procedure(list_map_proc_t) :: tail_gen
+    procedure(list_map1_subr_t) :: tail_gen
     class(*), allocatable :: lst
 
     lst = recursion (.autoval. seed)
@@ -7732,8 +8237,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   recursive function unfold_with_nil_tail (pred, f, g, seed) result (lst)
     procedure(list_predicate1_t) :: pred
-    procedure(list_map_proc_t) :: f
-    procedure(list_map_proc_t) :: g
+    procedure(list_map1_subr_t) :: f
+    procedure(list_map1_subr_t) :: g
     class(*), intent(in) :: seed
     class(*), allocatable :: lst
 
@@ -7769,8 +8274,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   recursive function unfold_right_with_tail (pred, f, g, seed, tail) result (lst)
     procedure(list_predicate1_t) :: pred
-    procedure(list_map_proc_t) :: f
-    procedure(list_map_proc_t) :: g
+    procedure(list_map1_subr_t) :: f
+    procedure(list_map1_subr_t) :: g
     class(*), intent(in) :: seed
     class(*), intent(in) :: tail
     class(*), allocatable :: lst
@@ -7795,8 +8300,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
   recursive function unfold_right_with_nil_tail (pred, f, g, seed) result (lst)
     procedure(list_predicate1_t) :: pred
-    procedure(list_map_proc_t) :: f
-    procedure(list_map_proc_t) :: g
+    procedure(list_map1_subr_t) :: f
+    procedure(list_map1_subr_t) :: g
     class(*), intent(in) :: seed
     class(*), allocatable :: lst
 

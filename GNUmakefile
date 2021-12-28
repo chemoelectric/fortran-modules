@@ -53,7 +53,8 @@ M4FLAGS += -DCADADR_MAX=4
 # How many arguments should list1.. and unlist1.. go up to?
 M4FLAGS += -DLISTN_MAX=20
 
-# How many arguments should zips and unzips go up to?
+# How many arguments should zips and unzips go up to? This number also
+# is used for maps and similar procedures.
 M4FLAGS += -DZIP_MAX=10
 
 FC = gfortran

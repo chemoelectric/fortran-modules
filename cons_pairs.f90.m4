@@ -65,10 +65,30 @@ module cons_pairs
   ! list that ends in a nil is called ‘proper’ and a list that ends in
   ! a back-reference is called ‘circular’.}
   !
-  ! NOTE: Fortran procedures do not take multiple arguments, the way
-  ! Scheme procedures do. However, the zip2, zip3, etc., functions can
-  ! be used to turn multiple-argument problems into single-argument
-  ! problems.
+
+  !
+  ! NOTE: Fortran procedures do not take variable numbers of
+  ! arguments, the way Scheme procedures do. However, the zip
+  ! functions can be used to turn multiple-argument problems into
+  ! single-argument problems.
+  !
+  ! FIXME: Extend procedures such as `map' to take more arguments, by
+  !        making them generic procedures. One can use m4 to generate
+  !        much of the code. Also we can use generics to reserve the
+  !        possibility of map taking a function as its proc, instead
+  !        of a procedure. (At the time of this writing, gfortran did
+  !        not seem to work sensibly if you tried to use a function as
+  !        the proc in such cases.)
+  !
+
+  !
+  ! WARNING: I reserve the right to turn most procedures into generic
+  !          procedures. This may affect your code if you try to pass
+  !          this module's procedures directly to other procedures;
+  !          that is, the name of the actual, non-generic
+  !          implementation may change. (Something such as is_nil or
+  !          is_pair or is_not_nil or is_not_pair is quite unlikely to
+  !          be made generic, however.)
   !
 
   !
@@ -262,9 +282,16 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: lists_are_equal  ! Test whether two lists are `equal'. (Equivalent to SRFI-1's `list='.)
   public :: list_count       ! Count elements that satisfy a predicate. (Counting proceeds in left-to-right order.)
 
-  public :: map              ! Map list elements in an unspecified order.
-  public :: map_in_order     ! Map list elements left-to-right. (A kind of combination of map and for_each.)
-  !public :: for_each         ! Perform side effects on list elements, in order from left to right.
+  public :: map              ! Generic function: map list elements in an unspecified order.
+  public :: map_in_order     ! Generic function: map list elements left-to-right. (A kind of combination of map and for_each.)
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: map[]n[]_subr        ! map for n lists, with a subroutine as proc.
+])dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: map[]n[]_in_order_subr ! map_in_order for n lists, with a subroutine as proc.
+])dnl
+
+  !public :: for_each         ! Generic function: Perform side effects on list elements, in order from left to right.
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
@@ -316,7 +343,6 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 
   ! Types for folds, unfolds, maps, and side effects.
   public :: list_kons_proc_t
-  public :: list_map_proc_t
 
   abstract interface
      recursive subroutine list_kons_proc_t (kar, kdr, kons)
@@ -328,11 +354,20 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      end subroutine list_kons_proc_t
   end interface
 
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: list_map[]n[]_subr_t
+])dnl
+
   abstract interface
-     recursive subroutine list_map_proc_t (input, output)
-       class(*), intent(in) :: input
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     recursive subroutine list_map[]n[]_subr_t (input1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+])input[]k]), output)
+m4_forloop([k],[1],n,[dnl
+       class(*), intent(in) :: input[]k
+])dnl
        class(*), allocatable, intent(out) :: output
-     end subroutine list_map_proc_t
+     end subroutine list_map[]n[]_subr_t
+])dnl
   end interface
 
   abstract interface
@@ -493,6 +528,18 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure unzip[]n
 ])dnl
   end interface unzip
+
+  interface map
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure map[]n[]_subr
+])dnl
+  end interface map
+
+  interface map_in_order
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure map[]n[]_in_order_subr
+])dnl
+  end interface map_in_order
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
@@ -2224,16 +2271,32 @@ m4_if(k,n,[],[dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function map (proc, lst) result (lst_m)
-    procedure(list_map_proc_t) :: proc
+  recursive function map1_subr (proc, lst) result (lst_m)
+    procedure(list_map1_subr_t) :: proc
     class(*), intent(in) :: lst
     type(cons_t) :: lst_m
 
     lst_m = map_in_order (proc, lst)
-  end function map
+  end function map1_subr
 
-  recursive function map_in_order (proc, lst) result (lst_m)
-    procedure(list_map_proc_t) :: proc
+m4_forloop([n],[2],ZIP_MAX,[dnl
+  recursive function map[]n[]_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+       ])lst[]k])) result (lst_m)
+    procedure(list_map[]n[]_subr_t) :: proc
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+m4_forloop([k],[1],n,[dnl   (((((Suppress unused variable warnings)))))
+    lst_m = .tocons. lst[]k
+])dnl
+  end function map[]n[]_subr
+
+])dnl
+  recursive function map1_in_order_subr (proc, lst) result (lst_m)
+    procedure(list_map1_subr_t) :: proc
     class(*), intent(in) :: lst
     type(cons_t) :: lst_m
 
@@ -2263,8 +2326,24 @@ m4_if(k,n,[],[dnl
        lst_m = .tocons. retval
        call lst_root%discard
     end if
-  end function map_in_order
+  end function map1_in_order_subr
 
+m4_forloop([n],[2],ZIP_MAX,[dnl
+  recursive function map[]n[]_in_order_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+       ])lst[]k])) result (lst_m)
+    procedure(list_map[]n[]_subr_t) :: proc
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_m
+
+    call error_abort ("not yet implemented")
+m4_forloop([k],[1],n,[dnl   (((((Suppress unused variable warnings)))))
+    lst_m = .tocons. lst[]k
+])dnl
+  end function map[]n[]_in_order_subr
+
+])dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function fold (kons, knil, lst) result (retval)
@@ -2464,10 +2543,10 @@ m4_if(k,n,[],[dnl
 
   recursive function unfold_with_tail_gen (pred, f, g, seed, tail_gen) result (lst)
     procedure(list_predicate1_t) :: pred
-    procedure(list_map_proc_t) :: f
-    procedure(list_map_proc_t) :: g
+    procedure(list_map1_subr_t) :: f
+    procedure(list_map1_subr_t) :: g
     class(*), intent(in) :: seed
-    procedure(list_map_proc_t) :: tail_gen
+    procedure(list_map1_subr_t) :: tail_gen
     class(*), allocatable :: lst
 
     lst = recursion (.autoval. seed)
@@ -2502,8 +2581,8 @@ m4_if(k,n,[],[dnl
 
   recursive function unfold_with_nil_tail (pred, f, g, seed) result (lst)
     procedure(list_predicate1_t) :: pred
-    procedure(list_map_proc_t) :: f
-    procedure(list_map_proc_t) :: g
+    procedure(list_map1_subr_t) :: f
+    procedure(list_map1_subr_t) :: g
     class(*), intent(in) :: seed
     class(*), allocatable :: lst
 
@@ -2539,8 +2618,8 @@ m4_if(k,n,[],[dnl
 
   recursive function unfold_right_with_tail (pred, f, g, seed, tail) result (lst)
     procedure(list_predicate1_t) :: pred
-    procedure(list_map_proc_t) :: f
-    procedure(list_map_proc_t) :: g
+    procedure(list_map1_subr_t) :: f
+    procedure(list_map1_subr_t) :: g
     class(*), intent(in) :: seed
     class(*), intent(in) :: tail
     class(*), allocatable :: lst
@@ -2565,8 +2644,8 @@ m4_if(k,n,[],[dnl
 
   recursive function unfold_right_with_nil_tail (pred, f, g, seed) result (lst)
     procedure(list_predicate1_t) :: pred
-    procedure(list_map_proc_t) :: f
-    procedure(list_map_proc_t) :: g
+    procedure(list_map1_subr_t) :: f
+    procedure(list_map1_subr_t) :: g
     class(*), intent(in) :: seed
     class(*), allocatable :: lst
 
