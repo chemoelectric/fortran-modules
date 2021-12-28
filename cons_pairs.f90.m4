@@ -2288,10 +2288,8 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-m4_forloop([k],[1],n,[dnl   (((((Suppress unused variable warnings)))))
-    lst_m = .tocons. lst[]k
-])dnl
+    lst_m = map[]n[]_in_order_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+       ])lst[]k]))
   end function map[]n[]_subr
 
 ])dnl
@@ -2300,7 +2298,8 @@ m4_forloop([k],[1],n,[dnl   (((((Suppress unused variable warnings)))))
     class(*), intent(in) :: lst
     type(cons_t) :: lst_m
 
-    class(*), allocatable :: head, head_mapped, tail
+    class(*), allocatable :: head, tail
+    class(*), allocatable :: proc_result
     type(gcroot_t) :: lst_root
     type(gcroot_t) :: retval
     type(cons_t) :: cursor
@@ -2312,14 +2311,14 @@ m4_forloop([k],[1],n,[dnl   (((((Suppress unused variable warnings)))))
        lst_root = lst ! Protect the input list against garbage
                       ! collections by proc.
        call uncons (lst, head, tail)
-       call proc (head, head_mapped)
-       cursor = head_mapped ** nil
+       call proc (head, proc_result)
+       cursor = proc_result ** nil
        retval = cursor ! retval is gcroot_t, to protect the return
                        ! value against garbage collections by proc.
        do while (is_pair (tail))
           call uncons (tail, head, tail)
-          call proc (head, head_mapped)
-          new_pair = head_mapped ** nil
+          call proc (head, proc_result)
+          new_pair = proc_result ** nil
           call set_cdr (cursor, new_pair)
           cursor = new_pair
        end do
@@ -2337,10 +2336,78 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-m4_forloop([k],[1],n,[dnl   (((((Suppress unused variable warnings)))))
-    lst_m = .tocons. lst[]k
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: lst[]k[]_root
 ])dnl
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable :: head[]k, tail[]k
+])dnl
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+m4_forloop([k],[1],n,[dnl
+       lst_m = nil
+m4_if(k,n,[dnl
+    else
+],[dnl
+    else if (is_not_pair (lst[]m4_eval(k + 1))) then
+])dnl
+])dnl
+m4_forloop([k],[1],n,[dnl
+       lst[]k[]_root = lst[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+       tail[]k = .autoval. lst[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+       call uncons (tail[]k, head[]k, tail[]k)
+])dnl
+       call proc (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+            ])head[]k]), proc_result)
+       cursor = proc_result ** nil
+       retval = cursor
+       if (is_not_pair (tail1)) then
+m4_forloop([k],[1],n,[dnl
+          continue
+m4_if(k,n,[dnl
+       else
+],[dnl
+       else if (is_not_pair (tail[]m4_eval(k + 1))) then
+])dnl
+])dnl
+          done = .false.
+          do while (.not. done)
+m4_forloop([k],[1],n,[dnl
+             call uncons (tail[]k, head[]k, tail[]k)
+])dnl
+             call proc (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+                  ])head[]k]), proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+m4_forloop([k],[1],n,[dnl
+                done = .true.
+m4_if(k,n,[dnl
+             end if
+],[dnl
+             else if (is_not_pair (tail[]m4_eval(k + 1))) then
+])dnl
+])dnl
+          end do
+       end if
+       lst_m = .tocons. retval
+
+m4_forloop([k],[1],n,[dnl
+       call lst[]k[]_root%discard
+])dnl
+    end if
   end function map[]n[]_in_order_subr
 
 ])dnl

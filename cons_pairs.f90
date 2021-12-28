@@ -7631,9 +7631,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst2
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
+    lst_m = map2_in_order_subr (proc, lst1, lst2)
   end function map2_subr
 
   recursive function map3_subr (proc, lst1, lst2, lst3) result (lst_m)
@@ -7643,10 +7641,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst3
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
+    lst_m = map3_in_order_subr (proc, lst1, lst2, lst3)
   end function map3_subr
 
   recursive function map4_subr (proc, lst1, lst2, lst3, lst4) result (lst_m)
@@ -7657,11 +7652,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst4
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
-    lst_m = .tocons. lst4
+    lst_m = map4_in_order_subr (proc, lst1, lst2, lst3, lst4)
   end function map4_subr
 
   recursive function map5_subr (proc, lst1, lst2, lst3, lst4, lst5) result (lst_m)
@@ -7673,12 +7664,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst5
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
-    lst_m = .tocons. lst4
-    lst_m = .tocons. lst5
+    lst_m = map5_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5)
   end function map5_subr
 
   recursive function map6_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6) result (lst_m)
@@ -7691,13 +7677,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst6
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
-    lst_m = .tocons. lst4
-    lst_m = .tocons. lst5
-    lst_m = .tocons. lst6
+    lst_m = map6_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6)
   end function map6_subr
 
   recursive function map7_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_m)
@@ -7711,14 +7691,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst7
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
-    lst_m = .tocons. lst4
-    lst_m = .tocons. lst5
-    lst_m = .tocons. lst6
-    lst_m = .tocons. lst7
+    lst_m = map7_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7)
   end function map7_subr
 
   recursive function map8_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_m)
@@ -7733,15 +7706,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst8
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
-    lst_m = .tocons. lst4
-    lst_m = .tocons. lst5
-    lst_m = .tocons. lst6
-    lst_m = .tocons. lst7
-    lst_m = .tocons. lst8
+    lst_m = map8_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8)
   end function map8_subr
 
   recursive function map9_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_m)
@@ -7757,16 +7722,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst9
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
-    lst_m = .tocons. lst4
-    lst_m = .tocons. lst5
-    lst_m = .tocons. lst6
-    lst_m = .tocons. lst7
-    lst_m = .tocons. lst8
-    lst_m = .tocons. lst9
+    lst_m = map9_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9)
   end function map9_subr
 
   recursive function map10_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (lst_m)
@@ -7783,17 +7739,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst10
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
-    lst_m = .tocons. lst4
-    lst_m = .tocons. lst5
-    lst_m = .tocons. lst6
-    lst_m = .tocons. lst7
-    lst_m = .tocons. lst8
-    lst_m = .tocons. lst9
-    lst_m = .tocons. lst10
+    lst_m = map10_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10)
   end function map10_subr
 
   recursive function map1_in_order_subr (proc, lst) result (lst_m)
@@ -7801,7 +7747,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst
     type(cons_t) :: lst_m
 
-    class(*), allocatable :: head, head_mapped, tail
+    class(*), allocatable :: head, tail
+    class(*), allocatable :: proc_result
     type(gcroot_t) :: lst_root
     type(gcroot_t) :: retval
     type(cons_t) :: cursor
@@ -7813,14 +7760,14 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        lst_root = lst ! Protect the input list against garbage
                       ! collections by proc.
        call uncons (lst, head, tail)
-       call proc (head, head_mapped)
-       cursor = head_mapped ** nil
+       call proc (head, proc_result)
+       cursor = proc_result ** nil
        retval = cursor ! retval is gcroot_t, to protect the return
                        ! value against garbage collections by proc.
        do while (is_pair (tail))
           call uncons (tail, head, tail)
-          call proc (head, head_mapped)
-          new_pair = head_mapped ** nil
+          call proc (head, proc_result)
+          new_pair = proc_result ** nil
           call set_cdr (cursor, new_pair)
           cursor = new_pair
        end do
@@ -7835,9 +7782,57 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst2
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+       lst_m = nil
+    else if (is_not_pair (lst2)) then
+       lst_m = nil
+    else
+       lst1_root = lst1
+       lst2_root = lst2
+
+       tail1 = .autoval. lst1
+       tail2 = .autoval. lst2
+
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call proc (head1, head2, proc_result)
+       cursor = proc_result ** nil
+       retval = cursor
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call proc (head1, head2, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             end if
+          end do
+       end if
+       lst_m = .tocons. retval
+
+       call lst1_root%discard
+       call lst2_root%discard
+    end if
   end function map2_in_order_subr
 
   recursive function map3_in_order_subr (proc, lst1, lst2, lst3) result (lst_m)
@@ -7847,10 +7842,70 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst3
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+       lst_m = nil
+    else if (is_not_pair (lst2)) then
+       lst_m = nil
+    else if (is_not_pair (lst3)) then
+       lst_m = nil
+    else
+       lst1_root = lst1
+       lst2_root = lst2
+       lst3_root = lst3
+
+       tail1 = .autoval. lst1
+       tail2 = .autoval. lst2
+       tail3 = .autoval. lst3
+
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call proc (head1, head2, head3, proc_result)
+       cursor = proc_result ** nil
+       retval = cursor
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call proc (head1, head2, head3, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             end if
+          end do
+       end if
+       lst_m = .tocons. retval
+
+       call lst1_root%discard
+       call lst2_root%discard
+       call lst3_root%discard
+    end if
   end function map3_in_order_subr
 
   recursive function map4_in_order_subr (proc, lst1, lst2, lst3, lst4) result (lst_m)
@@ -7861,11 +7916,83 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst4
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
-    lst_m = .tocons. lst4
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+       lst_m = nil
+    else if (is_not_pair (lst2)) then
+       lst_m = nil
+    else if (is_not_pair (lst3)) then
+       lst_m = nil
+    else if (is_not_pair (lst4)) then
+       lst_m = nil
+    else
+       lst1_root = lst1
+       lst2_root = lst2
+       lst3_root = lst3
+       lst4_root = lst4
+
+       tail1 = .autoval. lst1
+       tail2 = .autoval. lst2
+       tail3 = .autoval. lst3
+       tail4 = .autoval. lst4
+
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call proc (head1, head2, head3, head4, proc_result)
+       cursor = proc_result ** nil
+       retval = cursor
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call proc (head1, head2, head3, head4, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             end if
+          end do
+       end if
+       lst_m = .tocons. retval
+
+       call lst1_root%discard
+       call lst2_root%discard
+       call lst3_root%discard
+       call lst4_root%discard
+    end if
   end function map4_in_order_subr
 
   recursive function map5_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5) result (lst_m)
@@ -7877,12 +8004,96 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst5
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
-    lst_m = .tocons. lst4
-    lst_m = .tocons. lst5
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+       lst_m = nil
+    else if (is_not_pair (lst2)) then
+       lst_m = nil
+    else if (is_not_pair (lst3)) then
+       lst_m = nil
+    else if (is_not_pair (lst4)) then
+       lst_m = nil
+    else if (is_not_pair (lst5)) then
+       lst_m = nil
+    else
+       lst1_root = lst1
+       lst2_root = lst2
+       lst3_root = lst3
+       lst4_root = lst4
+       lst5_root = lst5
+
+       tail1 = .autoval. lst1
+       tail2 = .autoval. lst2
+       tail3 = .autoval. lst3
+       tail4 = .autoval. lst4
+       tail5 = .autoval. lst5
+
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call proc (head1, head2, head3, head4, head5, proc_result)
+       cursor = proc_result ** nil
+       retval = cursor
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call proc (head1, head2, head3, head4, head5, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             end if
+          end do
+       end if
+       lst_m = .tocons. retval
+
+       call lst1_root%discard
+       call lst2_root%discard
+       call lst3_root%discard
+       call lst4_root%discard
+       call lst5_root%discard
+    end if
   end function map5_in_order_subr
 
   recursive function map6_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6) result (lst_m)
@@ -7895,13 +8106,109 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst6
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
-    lst_m = .tocons. lst4
-    lst_m = .tocons. lst5
-    lst_m = .tocons. lst6
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+       lst_m = nil
+    else if (is_not_pair (lst2)) then
+       lst_m = nil
+    else if (is_not_pair (lst3)) then
+       lst_m = nil
+    else if (is_not_pair (lst4)) then
+       lst_m = nil
+    else if (is_not_pair (lst5)) then
+       lst_m = nil
+    else if (is_not_pair (lst6)) then
+       lst_m = nil
+    else
+       lst1_root = lst1
+       lst2_root = lst2
+       lst3_root = lst3
+       lst4_root = lst4
+       lst5_root = lst5
+       lst6_root = lst6
+
+       tail1 = .autoval. lst1
+       tail2 = .autoval. lst2
+       tail3 = .autoval. lst3
+       tail4 = .autoval. lst4
+       tail5 = .autoval. lst5
+       tail6 = .autoval. lst6
+
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call proc (head1, head2, head3, head4, head5, head6, proc_result)
+       cursor = proc_result ** nil
+       retval = cursor
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call proc (head1, head2, head3, head4, head5, head6, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             end if
+          end do
+       end if
+       lst_m = .tocons. retval
+
+       call lst1_root%discard
+       call lst2_root%discard
+       call lst3_root%discard
+       call lst4_root%discard
+       call lst5_root%discard
+       call lst6_root%discard
+    end if
   end function map6_in_order_subr
 
   recursive function map7_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_m)
@@ -7915,14 +8222,122 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst7
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
-    lst_m = .tocons. lst4
-    lst_m = .tocons. lst5
-    lst_m = .tocons. lst6
-    lst_m = .tocons. lst7
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+       lst_m = nil
+    else if (is_not_pair (lst2)) then
+       lst_m = nil
+    else if (is_not_pair (lst3)) then
+       lst_m = nil
+    else if (is_not_pair (lst4)) then
+       lst_m = nil
+    else if (is_not_pair (lst5)) then
+       lst_m = nil
+    else if (is_not_pair (lst6)) then
+       lst_m = nil
+    else if (is_not_pair (lst7)) then
+       lst_m = nil
+    else
+       lst1_root = lst1
+       lst2_root = lst2
+       lst3_root = lst3
+       lst4_root = lst4
+       lst5_root = lst5
+       lst6_root = lst6
+       lst7_root = lst7
+
+       tail1 = .autoval. lst1
+       tail2 = .autoval. lst2
+       tail3 = .autoval. lst3
+       tail4 = .autoval. lst4
+       tail5 = .autoval. lst5
+       tail6 = .autoval. lst6
+       tail7 = .autoval. lst7
+
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call proc (head1, head2, head3, head4, head5, head6, head7, proc_result)
+       cursor = proc_result ** nil
+       retval = cursor
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else if (is_not_pair (tail7)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call proc (head1, head2, head3, head4, head5, head6, head7, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             end if
+          end do
+       end if
+       lst_m = .tocons. retval
+
+       call lst1_root%discard
+       call lst2_root%discard
+       call lst3_root%discard
+       call lst4_root%discard
+       call lst5_root%discard
+       call lst6_root%discard
+       call lst7_root%discard
+    end if
   end function map7_in_order_subr
 
   recursive function map8_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_m)
@@ -7937,15 +8352,135 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst8
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
-    lst_m = .tocons. lst4
-    lst_m = .tocons. lst5
-    lst_m = .tocons. lst6
-    lst_m = .tocons. lst7
-    lst_m = .tocons. lst8
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+       lst_m = nil
+    else if (is_not_pair (lst2)) then
+       lst_m = nil
+    else if (is_not_pair (lst3)) then
+       lst_m = nil
+    else if (is_not_pair (lst4)) then
+       lst_m = nil
+    else if (is_not_pair (lst5)) then
+       lst_m = nil
+    else if (is_not_pair (lst6)) then
+       lst_m = nil
+    else if (is_not_pair (lst7)) then
+       lst_m = nil
+    else if (is_not_pair (lst8)) then
+       lst_m = nil
+    else
+       lst1_root = lst1
+       lst2_root = lst2
+       lst3_root = lst3
+       lst4_root = lst4
+       lst5_root = lst5
+       lst6_root = lst6
+       lst7_root = lst7
+       lst8_root = lst8
+
+       tail1 = .autoval. lst1
+       tail2 = .autoval. lst2
+       tail3 = .autoval. lst3
+       tail4 = .autoval. lst4
+       tail5 = .autoval. lst5
+       tail6 = .autoval. lst6
+       tail7 = .autoval. lst7
+       tail8 = .autoval. lst8
+
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call proc (head1, head2, head3, head4, head5, head6, head7, head8, proc_result)
+       cursor = proc_result ** nil
+       retval = cursor
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else if (is_not_pair (tail7)) then
+          continue
+       else if (is_not_pair (tail8)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call proc (head1, head2, head3, head4, head5, head6, head7, head8, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             end if
+          end do
+       end if
+       lst_m = .tocons. retval
+
+       call lst1_root%discard
+       call lst2_root%discard
+       call lst3_root%discard
+       call lst4_root%discard
+       call lst5_root%discard
+       call lst6_root%discard
+       call lst7_root%discard
+       call lst8_root%discard
+    end if
   end function map8_in_order_subr
 
   recursive function map9_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_m)
@@ -7961,16 +8496,148 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst9
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
-    lst_m = .tocons. lst4
-    lst_m = .tocons. lst5
-    lst_m = .tocons. lst6
-    lst_m = .tocons. lst7
-    lst_m = .tocons. lst8
-    lst_m = .tocons. lst9
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+       lst_m = nil
+    else if (is_not_pair (lst2)) then
+       lst_m = nil
+    else if (is_not_pair (lst3)) then
+       lst_m = nil
+    else if (is_not_pair (lst4)) then
+       lst_m = nil
+    else if (is_not_pair (lst5)) then
+       lst_m = nil
+    else if (is_not_pair (lst6)) then
+       lst_m = nil
+    else if (is_not_pair (lst7)) then
+       lst_m = nil
+    else if (is_not_pair (lst8)) then
+       lst_m = nil
+    else if (is_not_pair (lst9)) then
+       lst_m = nil
+    else
+       lst1_root = lst1
+       lst2_root = lst2
+       lst3_root = lst3
+       lst4_root = lst4
+       lst5_root = lst5
+       lst6_root = lst6
+       lst7_root = lst7
+       lst8_root = lst8
+       lst9_root = lst9
+
+       tail1 = .autoval. lst1
+       tail2 = .autoval. lst2
+       tail3 = .autoval. lst3
+       tail4 = .autoval. lst4
+       tail5 = .autoval. lst5
+       tail6 = .autoval. lst6
+       tail7 = .autoval. lst7
+       tail8 = .autoval. lst8
+       tail9 = .autoval. lst9
+
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call uncons (tail9, head9, tail9)
+       call proc (head1, head2, head3, head4, head5, head6, head7, head8, head9, proc_result)
+       cursor = proc_result ** nil
+       retval = cursor
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else if (is_not_pair (tail7)) then
+          continue
+       else if (is_not_pair (tail8)) then
+          continue
+       else if (is_not_pair (tail9)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             call proc (head1, head2, head3, head4, head5, head6, head7, head8, head9, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             else if (is_not_pair (tail9)) then
+                done = .true.
+             end if
+          end do
+       end if
+       lst_m = .tocons. retval
+
+       call lst1_root%discard
+       call lst2_root%discard
+       call lst3_root%discard
+       call lst4_root%discard
+       call lst5_root%discard
+       call lst6_root%discard
+       call lst7_root%discard
+       call lst8_root%discard
+       call lst9_root%discard
+    end if
   end function map9_in_order_subr
 
   recursive function map10_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (lst_m)
@@ -7987,17 +8654,161 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst10
     type(cons_t) :: lst_m
 
-    call error_abort ("not yet implemented")
-    lst_m = .tocons. lst1
-    lst_m = .tocons. lst2
-    lst_m = .tocons. lst3
-    lst_m = .tocons. lst4
-    lst_m = .tocons. lst5
-    lst_m = .tocons. lst6
-    lst_m = .tocons. lst7
-    lst_m = .tocons. lst8
-    lst_m = .tocons. lst9
-    lst_m = .tocons. lst10
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+       lst_m = nil
+    else if (is_not_pair (lst2)) then
+       lst_m = nil
+    else if (is_not_pair (lst3)) then
+       lst_m = nil
+    else if (is_not_pair (lst4)) then
+       lst_m = nil
+    else if (is_not_pair (lst5)) then
+       lst_m = nil
+    else if (is_not_pair (lst6)) then
+       lst_m = nil
+    else if (is_not_pair (lst7)) then
+       lst_m = nil
+    else if (is_not_pair (lst8)) then
+       lst_m = nil
+    else if (is_not_pair (lst9)) then
+       lst_m = nil
+    else if (is_not_pair (lst10)) then
+       lst_m = nil
+    else
+       lst1_root = lst1
+       lst2_root = lst2
+       lst3_root = lst3
+       lst4_root = lst4
+       lst5_root = lst5
+       lst6_root = lst6
+       lst7_root = lst7
+       lst8_root = lst8
+       lst9_root = lst9
+       lst10_root = lst10
+
+       tail1 = .autoval. lst1
+       tail2 = .autoval. lst2
+       tail3 = .autoval. lst3
+       tail4 = .autoval. lst4
+       tail5 = .autoval. lst5
+       tail6 = .autoval. lst6
+       tail7 = .autoval. lst7
+       tail8 = .autoval. lst8
+       tail9 = .autoval. lst9
+       tail10 = .autoval. lst10
+
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call uncons (tail9, head9, tail9)
+       call uncons (tail10, head10, tail10)
+       call proc (head1, head2, head3, head4, head5, head6, head7, head8, head9, head10, proc_result)
+       cursor = proc_result ** nil
+       retval = cursor
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else if (is_not_pair (tail7)) then
+          continue
+       else if (is_not_pair (tail8)) then
+          continue
+       else if (is_not_pair (tail9)) then
+          continue
+       else if (is_not_pair (tail10)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             call uncons (tail10, head10, tail10)
+             call proc (head1, head2, head3, head4, head5, head6, head7, head8, head9, head10, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             else if (is_not_pair (tail9)) then
+                done = .true.
+             else if (is_not_pair (tail10)) then
+                done = .true.
+             end if
+          end do
+       end if
+       lst_m = .tocons. retval
+
+       call lst1_root%discard
+       call lst2_root%discard
+       call lst3_root%discard
+       call lst4_root%discard
+       call lst5_root%discard
+       call lst6_root%discard
+       call lst7_root%discard
+       call lst8_root%discard
+       call lst9_root%discard
+       call lst10_root%discard
+    end if
   end function map10_in_order_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

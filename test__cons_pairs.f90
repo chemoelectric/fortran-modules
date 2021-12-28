@@ -1523,6 +1523,8 @@ contains
     ! Tests of map/map_in_order.
 
     type(cons_t) :: lst1, lst2, lst3
+    type(cons_t) :: lst4, lst5, lst6
+    type(gcroot_t) :: rooted_lst7
     integer :: count
 
     ! Select the second element of each list in a list-of-lists. (An example from SRFI-1.)
@@ -1530,6 +1532,8 @@ contains
     lst2 = map (kcadr, lst1)
     lst3 = list (2, 5, 8)
     call check (lists_are_equal (int_eq, lst2, lst3), "test0310-0010 failed")
+    ! Try it with a nil list.
+    call check (lists_are_equal (int_eq, map (kcadr, nil), nil), "test0310-0015 failed")
     !
     ! Because we did not use gcroot_t, we need to reassign all the
     ! lists. (But this way is a better test.)
@@ -1538,6 +1542,8 @@ contains
     lst2 = map_in_order (kcadr, lst1)
     lst3 = list (2, 5, 8)
     call check (lists_are_equal (int_eq, lst2, lst3), "test0310-0020 failed")
+    ! Try it with a nil list.
+    call check (lists_are_equal (int_eq, map_in_order (kcadr, nil), nil), "test0310-0025 failed")
 
     ! Raise the elements of a list to their own power. (An example from SRFI-1.)
     call check (lists_are_equal (int_eq, &
@@ -1549,27 +1555,64 @@ contains
          list (1, 4, 27, 256, 3125)), &
          "test0310-0040 failed")
 
-    ! Add the elements of two lists. (Adapted from an example in
-    ! SRFI-1.)
+    ! Add the elements of two lists. (An example from SRFI-1.)
     lst1 = list (1, 2, 3)
     lst2 = list (4, 5, 6)
-    lst3 = map (kadd, zip (lst1, lst2))
+    lst3 = map (kadd, lst1, lst2)
     call check (lists_are_equal (int_eq, lst3, list (5, 7, 9)), "test0310-0050 failed")
     lst1 = list (1, 2, 3)
     lst2 = list (4, 5, 6)
-    lst3 = map_in_order (kadd, zip (lst1, lst2))
+    lst3 = map_in_order (kadd, lst1, lst2)
     call check (lists_are_equal (int_eq, lst3, list (5, 7, 9)), "test0310-0060 failed")
+
+    ! Add the elements of five lists.
+    lst1 = iota (5, 1)
+    lst2 = iota (5, 2)
+    lst3 = iota (5, 3)
+    lst4 = iota (5, 4)
+    lst5 = iota (5, 5)
+    lst6 = map (kadd5, lst1, lst2, lst3, lst4, lst5)
+    rooted_lst7 = list (&
+         1 + 2 + 3 + 4 + 5, &
+         2 + 3 + 4 + 5 + 6, &
+         3 + 4 + 5 + 6 + 7, &
+         4 + 5 + 6 + 7 + 8, &
+         5 + 6 + 7 + 8 + 9)
+    call check (lists_are_equal (int_eq, lst6, rooted_lst7), "test0310-0070 failed")
+    lst1 = iota (5, 1)
+    lst2 = iota (5, 2)
+    lst3 = iota (5, 3)
+    lst4 = iota (5, 4)
+    lst5 = iota (5, 5)
+    lst6 = map_in_order (kadd5, lst1, lst2, lst3, lst4, lst5)
+    call check (lists_are_equal (int_eq, lst6, rooted_lst7), "test0310-0080 failed")
+
+    ! Try them with nil lists.
+    lst1 = iota (5, 1)
+    lst2 = iota (5, 2)
+    lst3 = nil
+    lst4 = iota (5, 4)
+    lst5 = iota (5, 5)
+    lst6 = map (kadd5, lst1, lst2, lst3, lst4, lst5)
+    call check (lists_are_equal (int_eq, lst6, nil), "test0310-0090 failed")
+    lst1 = iota (5, 1)
+    lst2 = iota (5, 2)
+    lst3 = iota (5, 3)
+    lst4 = nil
+    lst5 = iota (5, 5)
+    lst6 = map_in_order (kadd5, lst1, lst2, lst3, lst4, lst5)
+    call check (lists_are_equal (int_eq, lst6, nil), "test0310-0100 failed")
 
     ! With side effects. (An example from SRFI-1.)
     count = 0
     lst1 = str_t ('a') ** str_t ('b') ** nil
     lst2 = map (kincrcount, lst1)
     call check (lists_are_equal (int_eq, lst2, list (1, 2)) .or. lists_are_equal (int_eq, lst2, list (2, 1)), &
-         "test0310-0070 failed")
+         "test0310-0110 failed")
     count = 0
     lst1 = str_t ('a') ** str_t ('b') ** nil
     lst2 = map_in_order (kincrcount, lst1)
-    call check (lists_are_equal (int_eq, lst2, list (1, 2)), "test0310-0080 failed")
+    call check (lists_are_equal (int_eq, lst2, list (1, 2)), "test0310-0120 failed")
 
   contains
 
@@ -1587,12 +1630,19 @@ contains
       y = int_cast (x) ** int_cast (x)
     end subroutine kselfpower
 
-    recursive subroutine kadd (lst, sum)
-      class(*), intent(in) :: lst
+    recursive subroutine kadd (x, y, sum)
+      class(*), intent(in) :: x, y
       class(*), allocatable, intent(out) :: sum
       call collect_garbage_now
-      sum = int_cast (first (lst)) + int_cast (second (lst))
+      sum = int_cast (x) + int_cast (y)
     end subroutine kadd
+
+    recursive subroutine kadd5 (x, y, z, u, v, sum)
+      class(*), intent(in) :: x, y, z, u, v
+      class(*), allocatable, intent(out) :: sum
+      call collect_garbage_now
+      sum = int_cast (x) + int_cast (y) + int_cast (z) + int_cast (u) + int_cast (v)
+    end subroutine kadd5
 
     recursive subroutine kincrcount (ignored, count_val)
       class(*), intent(in) :: ignored
