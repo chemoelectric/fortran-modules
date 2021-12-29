@@ -319,8 +319,8 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: fold_right       ! Generic function: `the fundamental list recursion operator.'
   public :: pair_fold        ! Generic function: like fold, but applied to sublists instead of elements.
   public :: pair_fold_right  ! Generic function: like fold_right, but applied to sublists instead of elements.
-  public :: reduce           ! A variant of fold. See SRFI-1.
-  public :: reduce_right     ! A variant of fold_right. See SRFI-1.
+  public :: reduce           ! Generic function: A variant of fold. See SRFI-1.
+  public :: reduce_right     ! Generic function: A variant of fold_right. See SRFI-1.
 
   public :: unfold           ! Generic: `The fundamental recursive list constructor.' See SRFI-1.
   public :: unfold_with_tail_gen ! One of the implementations of `unfold'.
@@ -349,6 +349,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: pair_fold[]n[]_right_subr
 ])dnl
+
+  ! Implementations of reduce.
+  public :: reduce_subr
+
+  ! Implementations of reduce_right
+  public :: reduce_right_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -629,6 +635,14 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure pair_fold[]n[]_right_subr
 ])dnl
   end interface pair_fold_right
+
+  interface reduce
+     module procedure reduce_subr
+  end interface reduce
+
+  interface reduce_right
+     module procedure reduce_right_subr
+  end interface reduce_right
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
@@ -2867,7 +2881,7 @@ m4_forloop([k],[2],n,[dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function reduce (kons, right_identity, lst) result (retval)
+  recursive function reduce_subr (kons, right_identity, lst) result (retval)
     procedure(list_kons1_subr_t) :: kons
     class(*), intent(in) :: right_identity
     class(*), intent(in) :: lst
@@ -2882,11 +2896,11 @@ dnl
     else
        retval = .autoval. right_identity
     end if
-  end function reduce
+  end function reduce_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function reduce_right (kons, right_identity, lst) result (retval)
+  recursive function reduce_right_subr (kons, right_identity, lst) result (retval)
     procedure(list_kons1_subr_t) :: kons
     class(*), intent(in) :: right_identity
     class(*), intent(in) :: lst
@@ -2925,7 +2939,7 @@ dnl
       end if
     end function recursion
 
-  end function reduce_right
+  end function reduce_right_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

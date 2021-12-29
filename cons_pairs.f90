@@ -455,8 +455,8 @@ module cons_pairs
   public :: fold_right       ! Generic function: `the fundamental list recursion operator.'
   public :: pair_fold        ! Generic function: like fold, but applied to sublists instead of elements.
   public :: pair_fold_right  ! Generic function: like fold_right, but applied to sublists instead of elements.
-  public :: reduce           ! A variant of fold. See SRFI-1.
-  public :: reduce_right     ! A variant of fold_right. See SRFI-1.
+  public :: reduce           ! Generic function: A variant of fold. See SRFI-1.
+  public :: reduce_right     ! Generic function: A variant of fold_right. See SRFI-1.
 
   public :: unfold           ! Generic: `The fundamental recursive list constructor.' See SRFI-1.
   public :: unfold_with_tail_gen ! One of the implementations of `unfold'.
@@ -513,6 +513,12 @@ module cons_pairs
   public :: pair_fold8_right_subr
   public :: pair_fold9_right_subr
   public :: pair_fold10_right_subr
+
+  ! Implementations of reduce.
+  public :: reduce_subr
+
+  ! Implementations of reduce_right
+  public :: reduce_right_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1210,6 +1216,14 @@ module cons_pairs
      module procedure pair_fold9_right_subr
      module procedure pair_fold10_right_subr
   end interface pair_fold_right
+
+  interface reduce
+     module procedure reduce_subr
+  end interface reduce
+
+  interface reduce_right
+     module procedure reduce_right_subr
+  end interface reduce_right
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
@@ -13672,7 +13686,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function reduce (kons, right_identity, lst) result (retval)
+  recursive function reduce_subr (kons, right_identity, lst) result (retval)
     procedure(list_kons1_subr_t) :: kons
     class(*), intent(in) :: right_identity
     class(*), intent(in) :: lst
@@ -13687,11 +13701,11 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     else
        retval = .autoval. right_identity
     end if
-  end function reduce
+  end function reduce_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function reduce_right (kons, right_identity, lst) result (retval)
+  recursive function reduce_right_subr (kons, right_identity, lst) result (retval)
     procedure(list_kons1_subr_t) :: kons
     class(*), intent(in) :: right_identity
     class(*), intent(in) :: lst
@@ -13730,7 +13744,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
       end if
     end function recursion
 
-  end function reduce_right
+  end function reduce_right_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
