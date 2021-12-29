@@ -58,10 +58,9 @@ M4FLAGS += -DLISTN_MAX=20
 M4FLAGS += -DZIP_MAX=10
 
 FC = gfortran
-FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all -Wall -Wextra -Wno-compare-reals
+FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all -Wall -Wextra -Wno-compare-reals -Wno-unused-dummy-argument
 COMPILE.f90 = $(FC) $(FCFLAGS) $(XFCFLAGS)
 FCFLAG_WNO_TRAMPOLINES = -Wno-trampolines
-FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT = -Wno-unused-dummy-argument
 
 %.anchor: %.f90
 	$(COMPILE.f90) -c -fsyntax-only $(<) && touch $(@)
@@ -110,11 +109,6 @@ test__boxes: $(addsuffix .$(OBJEXT), test__boxes boxes garbage_collector unused_
 
 test__cons_pairs: $(addsuffix .$(OBJEXT), test__cons_pairs cons_pairs garbage_collector unused_variables)
 	$(COMPILE.f90) $(^) -o $(@)
-
-unused_variables.anchor: unused_variables.f90
-	$(COMPILE.f90) $(FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT) -c -fsyntax-only $(<) && touch $(@)
-unused_variables.$(OBJEXT): unused_variables.anchor
-	$(COMPILE.f90) $(FCFLAG_WNO_UNUSED_DUMMY_ARGUMENT) -c $(<:.anchor=.f90) -o $(@)
 
 test__cons_pairs.anchor: test__cons_pairs.f90
 	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c -fsyntax-only $(<) && touch $(@)

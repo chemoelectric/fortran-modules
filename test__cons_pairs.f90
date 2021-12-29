@@ -24,7 +24,6 @@
 
 module test__cons_pairs
 
-  use, non_intrinsic :: unused_variables
   use, non_intrinsic :: garbage_collector
   use, non_intrinsic :: cons_pairs
 
@@ -404,22 +403,33 @@ contains
   subroutine test0050
     type(gcroot_t) :: tail
 
-    call check (lists_are_equal (int_eq, nil, nil), "test0050-0010 failed")
-    call check (lists_are_equal (int_eq, list (1), list (1)), "test0050-0020 failed")
-    call check (lists_are_equal (int_eq, list (1, 2), list (1, 2)), "test0050-0030 failed")
-    call check (lists_are_equal (int_eq, list (1, 2, 3, 4, 5), list (1, 2, 3, 4, 5)), "test0050-0040 failed")
+    call check (list_equal (int_eq, nil, nil), "test0050-0010 failed")
+    call check (list_equal (int_eq, list (1), list (1)), "test0050-0020 failed")
+    call check (list_equal (int_eq, list (1, 2), list (1, 2)), "test0050-0030 failed")
+    call check (list_equal (int_eq, list (1, 2, 3, 4, 5), list (1, 2, 3, 4, 5)), "test0050-0040 failed")
 
-    call check (.not. lists_are_equal (int_eq, nil, list (1)), "test0050-0110 failed")
-    call check (.not. lists_are_equal (int_eq, list (1), nil), "test0050-0120 failed")
-    call check (.not. lists_are_equal (int_eq, list (1, 2, 3, 4), list (1, 2, 3, 4, 5)), "test0050-0130 failed")
-    call check (.not. lists_are_equal (int_eq, list (1, 2, 3, 4, 5), list (1, 2, 3, 4)), "test0050-0140 failed")
-    call check (.not. lists_are_equal (int_eq, list (1, 2, 3, 4, 5), list (1, 2, 3, 4, 6)), "test0050-0150 failed")
+    call check (.not. list_equal (int_eq, nil, list (1)), "test0050-0110 failed")
+    call check (.not. list_equal (int_eq, list (1), nil), "test0050-0120 failed")
+    call check (.not. list_equal (int_eq, list (1, 2, 3, 4), list (1, 2, 3, 4, 5)), "test0050-0130 failed")
+    call check (.not. list_equal (int_eq, list (1, 2, 3, 4, 5), list (1, 2, 3, 4)), "test0050-0140 failed")
+    call check (.not. list_equal (int_eq, list (1, 2, 3, 4, 5), list (1, 2, 3, 4, 6)), "test0050-0150 failed")
 
     ! Check some lists with shared tails.
     tail = list (3, 2, 1)
-    call check (lists_are_equal (int_eq, tail, tail), "test0050-0200 failed")
-    call check (lists_are_equal (int_eq, 5 ** cons (4, tail), 5 ** cons (4, tail)), "test0050-0210 failed")
-    call check (.not. lists_are_equal (int_eq, 5 ** cons (4, tail), 5 ** cons (40, tail)), "test0050-0220 failed")
+    call check (list_equal (int_eq, tail, tail), "test0050-0200 failed")
+    call check (list_equal (int_eq, 5 ** cons (4, tail), 5 ** cons (4, tail)), "test0050-0210 failed")
+    call check (.not. list_equal (int_eq, 5 ** cons (4, tail), 5 ** cons (40, tail)), "test0050-0220 failed")
+
+    ! Check with zero list arguments.
+    call check (list_equal (int_eq), "test0050-0300 failed")
+
+    ! Check with one list argument.
+    call check (list_equal (int_eq, list (1, 2, 3)), "test0050-0310 failed")
+
+    ! Check with multiple list arguments.
+    call check (list_equal (int_eq, list (1, 2, 3), list (1, 2, 3), list (1, 2, 3), list (1, 2, 3)), "test0050-0320 failed")
+    call check (.not. list_equal (int_eq, list (1, 2, 3), list (1, 2, 3), list (1, 6, 3), list (1, 2, 3)), "test0050-0330 failed")
+    call check (.not. list_equal (int_eq, list (1, 2, 3), list (1, 2, 3), list (1, 3), list (1, 2, 3)), "test0050-0340 failed")
   end subroutine test0050
 
   subroutine test0060
@@ -429,14 +439,14 @@ contains
     lst2 = list (1, 2)
     lst3 = list (1, 2, 3)
 
-    call check (lists_are_equal (int_eq, take (nil, 0_sz), nil), "test0060-0010 failed")
-    call check (lists_are_equal (int_eq, take (lst1, 0_sz), nil), "test0060-0020 failed")
-    call check (lists_are_equal (int_eq, take (lst3, 0_sz), nil), "test0060-0030 failed")
+    call check (list_equal (int_eq, take (nil, 0_sz), nil), "test0060-0010 failed")
+    call check (list_equal (int_eq, take (lst1, 0_sz), nil), "test0060-0020 failed")
+    call check (list_equal (int_eq, take (lst3, 0_sz), nil), "test0060-0030 failed")
 
-    call check (lists_are_equal (int_eq, take (lst1, 1_sz), lst1), "test0060-0040 failed")
-    call check (lists_are_equal (int_eq, take (lst3, 1_sz), lst1), "test0060-0050 failed")
-    call check (lists_are_equal (int_eq, take (lst3, 2_sz), lst2), "test0060-0060 failed")
-    call check (lists_are_equal (int_eq, take (lst3, 3_sz), lst3), "test0060-0070 failed")
+    call check (list_equal (int_eq, take (lst1, 1_sz), lst1), "test0060-0040 failed")
+    call check (list_equal (int_eq, take (lst3, 1_sz), lst1), "test0060-0050 failed")
+    call check (list_equal (int_eq, take (lst3, 2_sz), lst2), "test0060-0060 failed")
+    call check (list_equal (int_eq, take (lst3, 3_sz), lst3), "test0060-0070 failed")
   end subroutine test0060
 
   subroutine test0065
@@ -446,27 +456,27 @@ contains
     lst2 = list (1, 2)
     lst3 = list (1, 2, 3)
 
-    call check (lists_are_equal (int_eq, take (nil, 0_sz), nil), "test0065-0010 failed")
-    call check (lists_are_equal (int_eq, take (lst1, 0_sz), nil), "test0065-0020 failed")
-    call check (lists_are_equal (int_eq, take (lst3, 0_sz), nil), "test0065-0030 failed")
+    call check (list_equal (int_eq, take (nil, 0_sz), nil), "test0065-0010 failed")
+    call check (list_equal (int_eq, take (lst1, 0_sz), nil), "test0065-0020 failed")
+    call check (list_equal (int_eq, take (lst3, 0_sz), nil), "test0065-0030 failed")
 
-    call check (lists_are_equal (int_eq, take (lst1, 1_sz), lst1), "test0065-0040 failed")
-    call check (lists_are_equal (int_eq, take (lst3, 1_sz), lst1), "test0065-0050 failed")
-    call check (lists_are_equal (int_eq, take (lst3, 2_sz), lst2), "test0065-0060 failed")
-    call check (lists_are_equal (int_eq, take (lst3, 3_sz), lst3), "test0065-0070 failed")
+    call check (list_equal (int_eq, take (lst1, 1_sz), lst1), "test0065-0040 failed")
+    call check (list_equal (int_eq, take (lst3, 1_sz), lst1), "test0065-0050 failed")
+    call check (list_equal (int_eq, take (lst3, 2_sz), lst2), "test0065-0060 failed")
+    call check (list_equal (int_eq, take (lst3, 3_sz), lst3), "test0065-0070 failed")
 
-    call check (lists_are_equal (int_eq, take (lst3, 3), lst3), "test0065-0075 failed")
+    call check (list_equal (int_eq, take (lst3, 3), lst3), "test0065-0075 failed")
 
-    call check (lists_are_equal (int_eq, takex (nil, 0_sz), nil), "test0065-1010 failed")
-    call check (lists_are_equal (int_eq, takex (list (1), 0_sz), nil), "test0065-1020 failed")
-    call check (lists_are_equal (int_eq, takex (list (1, 2, 3), 0_sz), nil), "test0065-1030 failed")
+    call check (list_equal (int_eq, takex (nil, 0_sz), nil), "test0065-1010 failed")
+    call check (list_equal (int_eq, takex (list (1), 0_sz), nil), "test0065-1020 failed")
+    call check (list_equal (int_eq, takex (list (1, 2, 3), 0_sz), nil), "test0065-1030 failed")
 
-    call check (lists_are_equal (int_eq, takex (list (1), 1_sz), lst1), "test0065-1040 failed")
-    call check (lists_are_equal (int_eq, takex (list (1, 2, 3), 1_sz), lst1), "test0065-1050 failed")
-    call check (lists_are_equal (int_eq, takex (list (1, 2, 3), 2_sz), lst2), "test0065-1060 failed")
-    call check (lists_are_equal (int_eq, takex (list (1, 2, 3), 3_sz), lst3), "test0065-1070 failed")
+    call check (list_equal (int_eq, takex (list (1), 1_sz), lst1), "test0065-1040 failed")
+    call check (list_equal (int_eq, takex (list (1, 2, 3), 1_sz), lst1), "test0065-1050 failed")
+    call check (list_equal (int_eq, takex (list (1, 2, 3), 2_sz), lst2), "test0065-1060 failed")
+    call check (list_equal (int_eq, takex (list (1, 2, 3), 3_sz), lst3), "test0065-1070 failed")
 
-    call check (lists_are_equal (int_eq, takex (list (1, 2, 3), 3), lst3), "test0065-1075 failed")
+    call check (list_equal (int_eq, takex (list (1, 2, 3), 3), lst3), "test0065-1075 failed")
   end subroutine test0065
 
   subroutine test0070
@@ -538,29 +548,29 @@ contains
   end subroutine test0075
 
   subroutine test0080
-    call check (lists_are_equal (int_eq, make_list (0_sz, 5), nil), "test0080-0010 failed")
-    call check (lists_are_equal (int_eq, make_list (1_sz, 5), 5 ** nil), "test0080-0020 failed")
-    call check (lists_are_equal (int_eq, make_list (5_sz, 5), list (5, 5, 5, 5, 5)), "test0080-0030 failed")
+    call check (list_equal (int_eq, make_list (0_sz, 5), nil), "test0080-0010 failed")
+    call check (list_equal (int_eq, make_list (1_sz, 5), 5 ** nil), "test0080-0020 failed")
+    call check (list_equal (int_eq, make_list (5_sz, 5), list (5, 5, 5, 5, 5)), "test0080-0030 failed")
 
-    call check (lists_are_equal (int_eq, make_list (0, 5), nil), "test0080-0040 failed")
-    call check (lists_are_equal (int_eq, make_list (1, 5), 5 ** nil), "test0080-0050 failed")
-    call check (lists_are_equal (int_eq, make_list (5, 5), list (5, 5, 5, 5, 5)), "test0080-0060 failed")
+    call check (list_equal (int_eq, make_list (0, 5), nil), "test0080-0040 failed")
+    call check (list_equal (int_eq, make_list (1, 5), 5 ** nil), "test0080-0050 failed")
+    call check (list_equal (int_eq, make_list (5, 5), list (5, 5, 5, 5, 5)), "test0080-0060 failed")
   end subroutine test0080
 
   subroutine test0090
-    call check (lists_are_equal (real_eq, list_tabulate0 (0_sz, make_real), nil), "test0090-0010 failed")
-    call check (lists_are_equal (real_eq, list_tabulate1 (0_sz, make_real), nil), "test0090-0020 failed")
-    call check (lists_are_equal (real_eq, list_tabulaten (0_sz, -1_sz, make_real), nil), "test0090-0030 failed")
+    call check (list_equal (real_eq, list_tabulate0 (0_sz, make_real), nil), "test0090-0010 failed")
+    call check (list_equal (real_eq, list_tabulate1 (0_sz, make_real), nil), "test0090-0020 failed")
+    call check (list_equal (real_eq, list_tabulaten (0_sz, -1_sz, make_real), nil), "test0090-0030 failed")
 
-    call check (lists_are_equal (real_eq, list_tabulate0 (1_sz, make_real), 0.0 ** nil), "test0090-0040 failed")
-    call check (lists_are_equal (real_eq, list_tabulate1 (1_sz, make_real), 1.0 ** nil), "test0090-0050 failed")
-    call check (lists_are_equal (real_eq, list_tabulaten (1_sz, -1_sz, make_real), (-1.0) ** nil), "test0090-0060 failed")
+    call check (list_equal (real_eq, list_tabulate0 (1_sz, make_real), 0.0 ** nil), "test0090-0040 failed")
+    call check (list_equal (real_eq, list_tabulate1 (1_sz, make_real), 1.0 ** nil), "test0090-0050 failed")
+    call check (list_equal (real_eq, list_tabulaten (1_sz, -1_sz, make_real), (-1.0) ** nil), "test0090-0060 failed")
 
-    call check (lists_are_equal (real_eq, list_tabulate0 (5_sz, make_real), list (0.0, 1.0, 2.0, 3.0, 4.0)), &
+    call check (list_equal (real_eq, list_tabulate0 (5_sz, make_real), list (0.0, 1.0, 2.0, 3.0, 4.0)), &
          "test0090-0070 failed")
-    call check (lists_are_equal (real_eq, list_tabulate1 (5_sz, make_real), list (1.0, 2.0, 3.0, 4.0, 5.0)), &
+    call check (list_equal (real_eq, list_tabulate1 (5_sz, make_real), list (1.0, 2.0, 3.0, 4.0, 5.0)), &
          "test0090-0080 failed")
-    call check (lists_are_equal (real_eq, list_tabulaten (5_sz, -1_sz, make_real), list (-1.0, 0.0, 1.0, 2.0, 3.0)), &
+    call check (list_equal (real_eq, list_tabulaten (5_sz, -1_sz, make_real), list (-1.0, 0.0, 1.0, 2.0, 3.0)), &
          "test0090-0090 failed")
   contains
 
@@ -573,26 +583,26 @@ contains
   end subroutine test0090
 
   subroutine test0100
-    call check (lists_are_equal (int_eq, reverse (nil), nil), "test0100-0010 failed")
-    call check (lists_are_equal (int_eq, reverse (123 ** nil), 123 ** nil), "test0100-0020 failed")
-    call check (lists_are_equal (int_eq, reverse (list (1, 2, 3, 4, 5)), list (5, 4, 3, 2, 1)), "test0100-0030 failed")
+    call check (list_equal (int_eq, reverse (nil), nil), "test0100-0010 failed")
+    call check (list_equal (int_eq, reverse (123 ** nil), 123 ** nil), "test0100-0020 failed")
+    call check (list_equal (int_eq, reverse (list (1, 2, 3, 4, 5)), list (5, 4, 3, 2, 1)), "test0100-0030 failed")
 
-    call check (lists_are_equal (int_eq, reversex (nil), nil), "test0100-0040 failed")
-    call check (lists_are_equal (int_eq, reversex (123 ** nil), 123 ** nil), "test0100-0050 failed")
-    call check (lists_are_equal (int_eq, reversex (list (1, 2, 3, 4, 5)), list (5, 4, 3, 2, 1)), "test0100-0060 failed")
+    call check (list_equal (int_eq, reversex (nil), nil), "test0100-0040 failed")
+    call check (list_equal (int_eq, reversex (123 ** nil), 123 ** nil), "test0100-0050 failed")
+    call check (list_equal (int_eq, reversex (list (1, 2, 3, 4, 5)), list (5, 4, 3, 2, 1)), "test0100-0060 failed")
   end subroutine test0100
 
   subroutine test0110
-    call check (lists_are_equal (int_eq, take (circular_list (1 ** nil), 5_sz), list (1, 1, 1, 1, 1)), &
+    call check (list_equal (int_eq, take (circular_list (1 ** nil), 5_sz), list (1, 1, 1, 1, 1)), &
          "test0110-0010 failed")
-    call check (lists_are_equal (int_eq, &
+    call check (list_equal (int_eq, &
          take (circular_list (1 ** 2 ** 3 ** nil), 10_sz), &
          1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** nil), &
          "test0110-0020 failed")
 
-    call check (lists_are_equal (int_eq, take (circular_listx (1 ** nil), 5_sz), list (1, 1, 1, 1, 1)), &
+    call check (list_equal (int_eq, take (circular_listx (1 ** nil), 5_sz), list (1, 1, 1, 1, 1)), &
          "test0110-0030 failed")
-    call check (lists_are_equal (int_eq, &
+    call check (list_equal (int_eq, &
          take (circular_listx (1 ** 2 ** 3 ** nil), 10_sz), &
          1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** nil), &
          "test0110-0040 failed")
@@ -620,16 +630,16 @@ contains
 
     lst1 = nil
     lst2 = list_copy (lst1)
-    call check (lists_are_equal (int_eq, lst1, lst2), "test0130-0010 failed")
+    call check (list_equal (int_eq, lst1, lst2), "test0130-0010 failed")
 
     lst1 = 123 ** nil
     lst2 = list_copy (lst1)
-    call check (lists_are_equal (int_eq, lst1, lst2), "test0130-0020 failed")
+    call check (list_equal (int_eq, lst1, lst2), "test0130-0020 failed")
     call check (is_nil (cdr (last_pair (lst2))), "test0130-0025 failed")
 
     lst1 = iota (100_sz, 1_sz)
     lst2 = list_copy (lst1)
-    call check (lists_are_equal (size_kind_eq, lst1, lst2), "test0130-0030 failed")
+    call check (list_equal (size_kind_eq, lst1, lst2), "test0130-0030 failed")
     call check (is_nil (cdr (last_pair (lst2))), "test0130-0035 failed")
 
     ! Test a dotted list.
@@ -661,30 +671,30 @@ contains
   subroutine test0150
     type(gcroot_t) :: lst
 
-    call check (lists_are_equal (int_eq, take_right (nil, 0_sz), nil), "test0150-0010 failed")
-    call check (lists_are_equal (int_eq, take_right (list (1), 0_sz), nil), "test0150-0020 failed")
-    call check (lists_are_equal (size_kind_eq, take_right (iota (100_sz), 0_sz), nil), "test0150-0030 failed")
+    call check (list_equal (int_eq, take_right (nil, 0_sz), nil), "test0150-0010 failed")
+    call check (list_equal (int_eq, take_right (list (1), 0_sz), nil), "test0150-0020 failed")
+    call check (list_equal (size_kind_eq, take_right (iota (100_sz), 0_sz), nil), "test0150-0030 failed")
 
-    call check (lists_are_equal (int_eq, take_right (list (1), 1_sz), list (1)), "test0150-0040 failed")
-    call check (lists_are_equal (size_kind_eq, take_right (iota (100_sz), 1_sz), list (99_sz)), "test0150-0050 failed")
+    call check (list_equal (int_eq, take_right (list (1), 1_sz), list (1)), "test0150-0040 failed")
+    call check (list_equal (size_kind_eq, take_right (iota (100_sz), 1_sz), list (99_sz)), "test0150-0050 failed")
 
-    call check (lists_are_equal (size_kind_eq, take_right (iota (100_sz), 5_sz), iota (5_sz, 95_sz)), "test0150-0060 failed")
-    call check (lists_are_equal (int_eq, take_right (iota (100), 5), iota (5, 95)), "test0150-0065 failed")
+    call check (list_equal (size_kind_eq, take_right (iota (100_sz), 5_sz), iota (5_sz, 95_sz)), "test0150-0060 failed")
+    call check (list_equal (int_eq, take_right (iota (100), 5), iota (5, 95)), "test0150-0065 failed")
 
     call check (take_right (5, 0_sz) .eqi. 5, "test0150-0070 failed")
     call check (take_right (cons (4, 5), 0_sz) .eqi. 5, "test0150-0080 failed")
     call check (car (take_right (3 ** cons (4, 5), 1_sz)) .eqi. 4, "test0150-0090 failed")
     call check (cdr (take_right (3 ** cons (4, 5), 1_sz)) .eqi. 5, "test0150-0100 failed")
 
-    call check (lists_are_equal (int_eq, drop (nil, 0_sz), nil), "test0150-1010 failed")
-    call check (lists_are_equal (int_eq, drop (list (1), 1_sz), nil), "test0150-1020 failed")
-    call check (lists_are_equal (size_kind_eq, drop (iota (100_sz), 100_sz), nil), "test0150-1030 failed")
+    call check (list_equal (int_eq, drop (nil, 0_sz), nil), "test0150-1010 failed")
+    call check (list_equal (int_eq, drop (list (1), 1_sz), nil), "test0150-1020 failed")
+    call check (list_equal (size_kind_eq, drop (iota (100_sz), 100_sz), nil), "test0150-1030 failed")
 
     call check (is_nil (drop (list (1), 1_sz)), "test0150-1040 failed")
-    call check (lists_are_equal (size_kind_eq, drop (iota (100_sz), 99_sz), list (99_sz)), "test0150-1050 failed")
+    call check (list_equal (size_kind_eq, drop (iota (100_sz), 99_sz), list (99_sz)), "test0150-1050 failed")
 
-    call check (lists_are_equal (size_kind_eq, drop (iota (100_sz), 95_sz), iota (5_sz, 95_sz)), "test0150-1060 failed")
-    call check (lists_are_equal (int_eq, drop (iota (100), 95), iota (5, 95)), "test0150-1065 failed")
+    call check (list_equal (size_kind_eq, drop (iota (100_sz), 95_sz), iota (5_sz, 95_sz)), "test0150-1060 failed")
+    call check (list_equal (int_eq, drop (iota (100), 95), iota (5, 95)), "test0150-1065 failed")
 
     call check (drop (5, 0_sz) .eqi. 5, "test0150-1070 failed")
     call check (drop (cons (4, 5), 1_sz) .eqi. 5, "test0150-1080 failed")
@@ -693,37 +703,37 @@ contains
 
     lst = list (1, 2, 3)
 
-    call check (lists_are_equal (int_eq, take_right (lst, 0_sz), nil), "test0150-2010 failed")
-    call check (lists_are_equal (int_eq, take_right (lst, 1_sz), list (3)), "test0150-2020 failed")
-    call check (lists_are_equal (int_eq, take_right (lst, 2_sz), list (2, 3)), "test0150-2030 failed")
-    call check (lists_are_equal (int_eq, take_right (lst, 3_sz), lst), "test0150-2040 failed")
+    call check (list_equal (int_eq, take_right (lst, 0_sz), nil), "test0150-2010 failed")
+    call check (list_equal (int_eq, take_right (lst, 1_sz), list (3)), "test0150-2020 failed")
+    call check (list_equal (int_eq, take_right (lst, 2_sz), list (2, 3)), "test0150-2030 failed")
+    call check (list_equal (int_eq, take_right (lst, 3_sz), lst), "test0150-2040 failed")
 
-    call check (lists_are_equal (int_eq, drop (lst, 0_sz), lst), "test0150-3010 failed")
-    call check (lists_are_equal (int_eq, drop (lst, 1_sz), list (2, 3)), "test0150-3020 failed")
-    call check (lists_are_equal (int_eq, drop (lst, 2_sz), list (3)), "test0150-3030 failed")
-    call check (lists_are_equal (int_eq, drop (lst, 3_sz), nil), "test0150-3040 failed")
+    call check (list_equal (int_eq, drop (lst, 0_sz), lst), "test0150-3010 failed")
+    call check (list_equal (int_eq, drop (lst, 1_sz), list (2, 3)), "test0150-3020 failed")
+    call check (list_equal (int_eq, drop (lst, 2_sz), list (3)), "test0150-3030 failed")
+    call check (list_equal (int_eq, drop (lst, 3_sz), nil), "test0150-3040 failed")
   end subroutine test0150
 
   subroutine test0160
-    call check (lists_are_equal (int_eq, drop_right (nil, 0_sz), nil), "test0160-0010 failed")
-    call check (lists_are_equal (int_eq, drop_right (list (1), 0_sz), list (1)), "test0160-0020 failed")
-    call check (lists_are_equal (int_eq, drop_right (list (1), 1_sz), nil), "test0160-0030 failed")
-    call check (lists_are_equal (size_kind_eq, drop_right (iota (100_sz), 0_sz), iota (100_sz)), "test0160-0040 failed")
-    call check (lists_are_equal (size_kind_eq, drop_right (iota (100_sz), 100_sz), nil), "test0160-0050 failed")
-    call check (lists_are_equal (size_kind_eq, drop_right (iota (100_sz), 50_sz), iota (50_sz)), "test0160-0060 failed")
-    call check (lists_are_equal (size_kind_eq, drop_right (iota (100_sz), 25_sz), iota (75_sz)), "test0160-0070 failed")
-    call check (lists_are_equal (size_kind_eq, drop_right (iota (100_sz), 75_sz), iota (25_sz)), "test0160-0080 failed")
-    call check (lists_are_equal (int_eq, drop_right (iota (100), 75), iota (25)), "test0160-0085 failed")
+    call check (list_equal (int_eq, drop_right (nil, 0_sz), nil), "test0160-0010 failed")
+    call check (list_equal (int_eq, drop_right (list (1), 0_sz), list (1)), "test0160-0020 failed")
+    call check (list_equal (int_eq, drop_right (list (1), 1_sz), nil), "test0160-0030 failed")
+    call check (list_equal (size_kind_eq, drop_right (iota (100_sz), 0_sz), iota (100_sz)), "test0160-0040 failed")
+    call check (list_equal (size_kind_eq, drop_right (iota (100_sz), 100_sz), nil), "test0160-0050 failed")
+    call check (list_equal (size_kind_eq, drop_right (iota (100_sz), 50_sz), iota (50_sz)), "test0160-0060 failed")
+    call check (list_equal (size_kind_eq, drop_right (iota (100_sz), 25_sz), iota (75_sz)), "test0160-0070 failed")
+    call check (list_equal (size_kind_eq, drop_right (iota (100_sz), 75_sz), iota (25_sz)), "test0160-0080 failed")
+    call check (list_equal (int_eq, drop_right (iota (100), 75), iota (25)), "test0160-0085 failed")
 
-    call check (lists_are_equal (int_eq, drop_rightx (nil, 0_sz), nil), "test0160-1010 failed")
-    call check (lists_are_equal (int_eq, drop_rightx (list (1), 0_sz), list (1)), "test0160-1020 failed")
-    call check (lists_are_equal (int_eq, drop_rightx (list (1), 1_sz), nil), "test0160-1030 failed")
-    call check (lists_are_equal (size_kind_eq, drop_rightx (iota (100_sz), 0_sz), iota (100_sz)), "test0160-1040 failed")
-    call check (lists_are_equal (size_kind_eq, drop_rightx (iota (100_sz), 100_sz), nil), "test0160-1050 failed")
-    call check (lists_are_equal (size_kind_eq, drop_rightx (iota (100_sz), 50_sz), iota (50_sz)), "test0160-1060 failed")
-    call check (lists_are_equal (size_kind_eq, drop_rightx (iota (100_sz), 25_sz), iota (75_sz)), "test0160-1070 failed")
-    call check (lists_are_equal (size_kind_eq, drop_rightx (iota (100_sz), 75_sz), iota (25_sz)), "test0160-1080 failed")
-    call check (lists_are_equal (int_eq, drop_rightx (iota (100), 75), iota (25)), "test1160-0085 failed")
+    call check (list_equal (int_eq, drop_rightx (nil, 0_sz), nil), "test0160-1010 failed")
+    call check (list_equal (int_eq, drop_rightx (list (1), 0_sz), list (1)), "test0160-1020 failed")
+    call check (list_equal (int_eq, drop_rightx (list (1), 1_sz), nil), "test0160-1030 failed")
+    call check (list_equal (size_kind_eq, drop_rightx (iota (100_sz), 0_sz), iota (100_sz)), "test0160-1040 failed")
+    call check (list_equal (size_kind_eq, drop_rightx (iota (100_sz), 100_sz), nil), "test0160-1050 failed")
+    call check (list_equal (size_kind_eq, drop_rightx (iota (100_sz), 50_sz), iota (50_sz)), "test0160-1060 failed")
+    call check (list_equal (size_kind_eq, drop_rightx (iota (100_sz), 25_sz), iota (75_sz)), "test0160-1070 failed")
+    call check (list_equal (size_kind_eq, drop_rightx (iota (100_sz), 75_sz), iota (25_sz)), "test0160-1080 failed")
+    call check (list_equal (int_eq, drop_rightx (iota (100), 75), iota (25)), "test1160-0085 failed")
   end subroutine test0160
 
   subroutine test0170
@@ -736,31 +746,31 @@ contains
 
     call split_at (list (1, 2, 3), 0_sz, lst_left, lst_right)
     call check (is_nil (lst_left), "test0170-0030 failed")
-    call check (lists_are_equal (int_eq, lst_right, list (1, 2, 3)), "test0170-0040 failed")
+    call check (list_equal (int_eq, lst_right, list (1, 2, 3)), "test0170-0040 failed")
 
     call split_at (list (1, 2, 3), 1_sz, lst_left, lst_right)
-    call check (lists_are_equal (int_eq, lst_left, list (1)), "test0170-0050 failed")
-    call check (lists_are_equal (int_eq, lst_right, list (2, 3)), "test0170-0060 failed")
+    call check (list_equal (int_eq, lst_left, list (1)), "test0170-0050 failed")
+    call check (list_equal (int_eq, lst_right, list (2, 3)), "test0170-0060 failed")
 
     call split_at (list (1, 2, 3), 2_sz, lst_left, lst_right)
-    call check (lists_are_equal (int_eq, lst_left, list (1, 2)), "test0170-0070 failed")
-    call check (lists_are_equal (int_eq, lst_right, list (3)), "test0170-0080 failed")
+    call check (list_equal (int_eq, lst_left, list (1, 2)), "test0170-0070 failed")
+    call check (list_equal (int_eq, lst_right, list (3)), "test0170-0080 failed")
 
     call split_at (list (1, 2, 3), 2, lst_left, lst_right)
-    call check (lists_are_equal (int_eq, lst_left, list (1, 2)), "test0170-0085 failed")
-    call check (lists_are_equal (int_eq, lst_right, list (3)), "test0170-0086 failed")
+    call check (list_equal (int_eq, lst_left, list (1, 2)), "test0170-0085 failed")
+    call check (list_equal (int_eq, lst_right, list (3)), "test0170-0086 failed")
 
     call split_at (list (1, 2, 3), 3_sz, lst_left, lst_right)
-    call check (lists_are_equal (int_eq, lst_left, list (1, 2, 3)), "test0170-0090 failed")
+    call check (list_equal (int_eq, lst_left, list (1, 2, 3)), "test0170-0090 failed")
     call check (is_nil (lst_right), "test0170-0100 failed")
 
     call split_at (1 ** cons (2, 3), 1_sz, lst_left, lst_right)
-    call check (lists_are_equal (int_eq, lst_left, list (1)), "test0170-0110 failed")
+    call check (list_equal (int_eq, lst_left, list (1)), "test0170-0110 failed")
     call check (car (lst_right) .eqi. 2, "test0170-0120 failed")
     call check (cdr (lst_right) .eqi. 3, "test0170-0130 failed")
 
     call split_at (1 ** cons (2, 3), 2_sz, lst_left, lst_right)
-    call check (lists_are_equal (int_eq, lst_left, list (1, 2)), "test0170-0140 failed")
+    call check (list_equal (int_eq, lst_left, list (1, 2)), "test0170-0140 failed")
     call check (lst_right .eqi. 3, "test0170-0150 failed")
 
     call split_atx (nil, 0_sz, lst_left, lst_right)
@@ -769,31 +779,31 @@ contains
 
     call split_atx (list (1, 2, 3), 0_sz, lst_left, lst_right)
     call check (is_nil (lst_left), "test0170-1030 failed")
-    call check (lists_are_equal (int_eq, lst_right, list (1, 2, 3)), "test0170-1040 failed")
+    call check (list_equal (int_eq, lst_right, list (1, 2, 3)), "test0170-1040 failed")
 
     call split_atx (list (1, 2, 3), 1_sz, lst_left, lst_right)
-    call check (lists_are_equal (int_eq, lst_left, list (1)), "test0170-1050 failed")
-    call check (lists_are_equal (int_eq, lst_right, list (2, 3)), "test0170-1060 failed")
+    call check (list_equal (int_eq, lst_left, list (1)), "test0170-1050 failed")
+    call check (list_equal (int_eq, lst_right, list (2, 3)), "test0170-1060 failed")
 
     call split_atx (list (1, 2, 3), 2_sz, lst_left, lst_right)
-    call check (lists_are_equal (int_eq, lst_left, list (1, 2)), "test0170-1070 failed")
-    call check (lists_are_equal (int_eq, lst_right, list (3)), "test0170-1080 failed")
+    call check (list_equal (int_eq, lst_left, list (1, 2)), "test0170-1070 failed")
+    call check (list_equal (int_eq, lst_right, list (3)), "test0170-1080 failed")
 
     call split_atx (list (1, 2, 3), 2, lst_left, lst_right)
-    call check (lists_are_equal (int_eq, lst_left, list (1, 2)), "test0170-1085 failed")
-    call check (lists_are_equal (int_eq, lst_right, list (3)), "test0170-1086 failed")
+    call check (list_equal (int_eq, lst_left, list (1, 2)), "test0170-1085 failed")
+    call check (list_equal (int_eq, lst_right, list (3)), "test0170-1086 failed")
 
     call split_atx (list (1, 2, 3), 3_sz, lst_left, lst_right)
-    call check (lists_are_equal (int_eq, lst_left, list (1, 2, 3)), "test0170-1090 failed")
+    call check (list_equal (int_eq, lst_left, list (1, 2, 3)), "test0170-1090 failed")
     call check (is_nil (lst_right), "test0170-1100 failed")
 
     call split_atx (1 ** cons (2, 3), 1_sz, lst_left, lst_right)
-    call check (lists_are_equal (int_eq, lst_left, list (1)), "test0170-1110 failed")
+    call check (list_equal (int_eq, lst_left, list (1)), "test0170-1110 failed")
     call check (car (lst_right) .eqi. 2, "test0170-1120 failed")
     call check (cdr (lst_right) .eqi. 3, "test0170-1130 failed")
 
     call split_atx (1 ** cons (2, 3), 2_sz, lst_left, lst_right)
-    call check (lists_are_equal (int_eq, lst_left, list (1, 2)), "test0170-1140 failed")
+    call check (list_equal (int_eq, lst_left, list (1, 2)), "test0170-1140 failed")
     call check (lst_right .eqi. 3, "test0170-1150 failed")
   end subroutine test0170
 
@@ -812,48 +822,48 @@ contains
   end subroutine test0180
 
   subroutine test0190
-    call check (lists_are_equal (int_eq, append (nil, nil), nil), "test0190-0010 failed")
+    call check (list_equal (int_eq, append (nil, nil), nil), "test0190-0010 failed")
     call check (append (nil, 123) .eqi. 123, "test0190-0020 failed")
-    call check (lists_are_equal (int_eq, append (nil, list (123)), list (123)), "test0190-0030 failed")
-    call check (lists_are_equal (int_eq, append (list (123), nil), list (123)), "test0190-0040 failed")
+    call check (list_equal (int_eq, append (nil, list (123)), list (123)), "test0190-0030 failed")
+    call check (list_equal (int_eq, append (list (123), nil), list (123)), "test0190-0040 failed")
     call check (car (append (list (123), 45)) .eqi. 123, "test0190-0050 failed")
     call check (cdr (append (list (123), 45)) .eqi. 45, "test0190-0060 failed")
-    call check (lists_are_equal (size_kind_eq, &
+    call check (list_equal (size_kind_eq, &
          append (iota (75_sz, 1_sz), iota (25_sz, 76_sz)), &
          iota (100_sz, 1_sz)), &
          "test0190-0070 failed")
 
-    call check (lists_are_equal (int_eq, appendx (nil, nil), nil), "test0190-1010 failed")
+    call check (list_equal (int_eq, appendx (nil, nil), nil), "test0190-1010 failed")
     call check (appendx (nil, 123) .eqi. 123, "test0190-1020 failed")
-    call check (lists_are_equal (int_eq, appendx (nil, list (123)), list (123)), "test0190-1030 failed")
-    call check (lists_are_equal (int_eq, appendx (list (123), nil), list (123)), "test0190-1040 failed")
+    call check (list_equal (int_eq, appendx (nil, list (123)), list (123)), "test0190-1030 failed")
+    call check (list_equal (int_eq, appendx (list (123), nil), list (123)), "test0190-1040 failed")
     call check (car (appendx (list (123), 45)) .eqi. 123, "test0190-1050 failed")
     call check (cdr (appendx (list (123), 45)) .eqi. 45, "test0190-1060 failed")
-    call check (lists_are_equal (size_kind_eq, &
+    call check (list_equal (size_kind_eq, &
          appendx (iota (75_sz, 1_sz), iota (25_sz, 76_sz)), &
          iota (100_sz, 1_sz)), &
          "test0190-1070 failed")
   end subroutine test0190
 
   subroutine test0195
-    call check (lists_are_equal (int_eq, append_reverse (nil, nil), nil), "test0195-0010 failed")
+    call check (list_equal (int_eq, append_reverse (nil, nil), nil), "test0195-0010 failed")
     call check (append_reverse (nil, 123) .eqi. 123, "test0195-0020 failed")
-    call check (lists_are_equal (int_eq, append_reverse (nil, list (123)), list (123)), "test0195-0030 failed")
-    call check (lists_are_equal (int_eq, append_reverse (list (123), nil), list (123)), "test0195-0040 failed")
+    call check (list_equal (int_eq, append_reverse (nil, list (123)), list (123)), "test0195-0030 failed")
+    call check (list_equal (int_eq, append_reverse (list (123), nil), list (123)), "test0195-0040 failed")
     call check (car (append_reverse (list (123), 45)) .eqi. 123, "test0195-0050 failed")
     call check (cdr (append_reverse (list (123), 45)) .eqi. 45, "test0195-0060 failed")
-    call check (lists_are_equal (size_kind_eq, &
+    call check (list_equal (size_kind_eq, &
          append_reverse (iota (75_sz, 75_sz, -1_sz), iota (25_sz, 76_sz)), &
          iota (100_sz, 1_sz)), &
          "test0195-0070 failed")
 
-    call check (lists_are_equal (int_eq, append_reversex (nil, nil), nil), "test0195-1010 failed")
+    call check (list_equal (int_eq, append_reversex (nil, nil), nil), "test0195-1010 failed")
     call check (append_reversex (nil, 123) .eqi. 123, "test0195-1020 failed")
-    call check (lists_are_equal (int_eq, append_reversex (nil, list (123)), list (123)), "test0195-1030 failed")
-    call check (lists_are_equal (int_eq, append_reversex (list (123), nil), list (123)), "test0195-1040 failed")
+    call check (list_equal (int_eq, append_reversex (nil, list (123)), list (123)), "test0195-1030 failed")
+    call check (list_equal (int_eq, append_reversex (list (123), nil), list (123)), "test0195-1040 failed")
     call check (car (append_reversex (list (123), 45)) .eqi. 123, "test0195-1050 failed")
     call check (cdr (append_reversex (list (123), 45)) .eqi. 45, "test0195-1060 failed")
-    call check (lists_are_equal (size_kind_eq, &
+    call check (list_equal (size_kind_eq, &
          append_reversex (iota (75_sz, 75_sz, -1_sz), iota (25_sz, 76_sz)), &
          iota (100_sz, 1_sz)), &
          "test0195-1070 failed")
@@ -868,15 +878,15 @@ contains
     call check (is_nil (appendx ()), "test0197-0020 failed")
 
     ! One arguments. Always simply returns the given list.
-    call check (lists_are_equal (int_eq, append (list (1, 2, 3)), list (1, 2, 3)), "test0197-0030 failed")
-    call check (lists_are_equal (int_eq, appendx (list (1, 2, 3)), list (1, 2, 3)), "test0197-0040 failed")
+    call check (list_equal (int_eq, append (list (1, 2, 3)), list (1, 2, 3)), "test0197-0030 failed")
+    call check (list_equal (int_eq, appendx (list (1, 2, 3)), list (1, 2, 3)), "test0197-0040 failed")
 
     ! Five arguments.
-    call check (lists_are_equal (int_eq, &
+    call check (list_equal (int_eq, &
          append (iota (20, 1), iota (20, 21), iota (20, 41), iota (20, 61), iota (20, 81)), &
          iota (100, 1)), &
          "test0197-0050 failed")
-    call check (lists_are_equal (int_eq, &
+    call check (list_equal (int_eq, &
          appendx (iota (20, 1), iota (20, 21), iota (20, 41), iota (20, 61), iota (20, 81)), &
          iota (100, 1)), &
          "test0197-0050 failed")
@@ -886,11 +896,11 @@ contains
     call check (is_nil (concatenate (nil)), "test0200-0010 failed")
     call check (is_nil (concatenate (123)), "test0200-0020 failed")
 
-    call check (lists_are_equal (int_eq, concatenate (list (123 ** nil)), 123 ** nil), "test0200-0030 failed")
-    call check (lists_are_equal (int_eq, concatenate (list (123 ** nil, nil)), 123 ** nil), "test0200-0040 failed")
-    call check (lists_are_equal (int_eq, concatenate (list (nil, 123 ** nil)), 123 ** nil), "test0200-0050 failed")
+    call check (list_equal (int_eq, concatenate (list (123 ** nil)), 123 ** nil), "test0200-0030 failed")
+    call check (list_equal (int_eq, concatenate (list (123 ** nil, nil)), 123 ** nil), "test0200-0040 failed")
+    call check (list_equal (int_eq, concatenate (list (nil, 123 ** nil)), 123 ** nil), "test0200-0050 failed")
 
-    call check (lists_are_equal (size_kind_eq, &
+    call check (list_equal (size_kind_eq, &
          concatenate (list (iota (25_sz, 1_sz), nil, iota (50_sz, 26_sz), iota (25_sz, 76_sz), nil)), &
          iota (100_sz, 1_sz)), &
          "test0200-0060 failed")
@@ -898,11 +908,11 @@ contains
     call check (is_nil (concatenatex (nil)), "test0200-1010 failed")
     call check (is_nil (concatenatex (123)), "test0200-1020 failed")
 
-    call check (lists_are_equal (int_eq, concatenatex (list (123 ** nil)), 123 ** nil), "test0200-1030 failed")
-    call check (lists_are_equal (int_eq, concatenatex (list (123 ** nil, nil)), 123 ** nil), "test0200-1040 failed")
-    call check (lists_are_equal (int_eq, concatenatex (list (nil, 123 ** nil)), 123 ** nil), "test0200-1050 failed")
+    call check (list_equal (int_eq, concatenatex (list (123 ** nil)), 123 ** nil), "test0200-1030 failed")
+    call check (list_equal (int_eq, concatenatex (list (123 ** nil, nil)), 123 ** nil), "test0200-1040 failed")
+    call check (list_equal (int_eq, concatenatex (list (nil, 123 ** nil)), 123 ** nil), "test0200-1050 failed")
 
-    call check (lists_are_equal (size_kind_eq, &
+    call check (list_equal (size_kind_eq, &
          concatenatex (list (iota (25_sz, 1_sz), nil, iota (50_sz, 26_sz), iota (25_sz, 76_sz), nil)), &
          iota (100_sz, 1_sz)), &
          "test0200-1060 failed")
@@ -936,7 +946,7 @@ contains
     i = 1
     p = zipped1
     do while (is_pair (p))
-       call check (lists_are_equal (int_eq, car (p), list (i)), "test0210-0110 failed")
+       call check (list_equal (int_eq, car (p), list (i)), "test0210-0110 failed")
        i = i + 1
        p = cdr (p)
     end do
@@ -944,7 +954,7 @@ contains
     i = 1
     p = zipped2
     do while (is_pair (p))
-       call check (lists_are_equal (int_eq, car (p), list (i + 1, i + 2)), "test0210-0120 failed")
+       call check (list_equal (int_eq, car (p), list (i + 1, i + 2)), "test0210-0120 failed")
        i = i + 1
        p = cdr (p)
     end do
@@ -952,7 +962,7 @@ contains
     i = 1
     p = zipped3
     do while (is_pair (p))
-       call check (lists_are_equal (int_eq, car (p), list (i + 1, i + 2, i + 4)), "test0210-0130 failed")
+       call check (list_equal (int_eq, car (p), list (i + 1, i + 2, i + 4)), "test0210-0130 failed")
        i = i + 1
        p = cdr (p)
     end do
@@ -960,7 +970,7 @@ contains
     i = 1
     p = zipped4
     do while (is_pair (p))
-       call check (lists_are_equal (int_eq, car (p), list (i, i + 1, i + 3, i + 4)), "test0210-0140 failed")
+       call check (list_equal (int_eq, car (p), list (i, i + 1, i + 3, i + 4)), "test0210-0140 failed")
        i = i + 1
        p = cdr (p)
     end do
@@ -968,37 +978,37 @@ contains
     i = 1
     p = zipped5
     do while (is_pair (p))
-       call check (lists_are_equal (int_eq, car (p), list (i, i + 1, i + 2, i + 3, i + 4)), "test0210-0150 failed")
+       call check (list_equal (int_eq, car (p), list (i, i + 1, i + 2, i + 3, i + 4)), "test0210-0150 failed")
        i = i + 1
        p = cdr (p)
     end do
 
-    call check (lists_are_equal (int_eq, unzip1f (zipped1), lst1), "test0210-0200 failed")
+    call check (list_equal (int_eq, unzip1f (zipped1), lst1), "test0210-0200 failed")
 
     call unzip (zipped1, unzipped1)
-    call check (lists_are_equal (int_eq, unzipped1, lst1), "test0210-0210 failed")
+    call check (list_equal (int_eq, unzipped1, lst1), "test0210-0210 failed")
 
     call unzip (zipped2, unzipped2, unzipped3)
-    call check (lists_are_equal (int_eq, unzipped2, take (lst2, 100)), "test0210-0220 failed")
-    call check (lists_are_equal (int_eq, unzipped3, lst3), "test0210-0230 failed")
+    call check (list_equal (int_eq, unzipped2, take (lst2, 100)), "test0210-0220 failed")
+    call check (list_equal (int_eq, unzipped3, lst3), "test0210-0230 failed")
 
     call unzip (zipped3, unzipped2, unzipped3, unzipped5)
-    call check (lists_are_equal (int_eq, unzipped2, take (lst2, 100)), "test0210-0240 failed")
-    call check (lists_are_equal (int_eq, unzipped3, lst3), "test0210-0250 failed")
-    call check (lists_are_equal (int_eq, unzipped5, take (lst5, 100)), "test0210-0260 failed")
+    call check (list_equal (int_eq, unzipped2, take (lst2, 100)), "test0210-0240 failed")
+    call check (list_equal (int_eq, unzipped3, lst3), "test0210-0250 failed")
+    call check (list_equal (int_eq, unzipped5, take (lst5, 100)), "test0210-0260 failed")
 
     call unzip (zipped4, unzipped1, unzipped2, unzipped4, unzipped5)
-    call check (lists_are_equal (int_eq, unzipped1, take (lst1, 200)), "test0210-0270 failed")
-    call check (lists_are_equal (int_eq, unzipped2, lst2), "test0210-0280 failed")
-    call check (lists_are_equal (int_eq, unzipped4, lst4), "test0210-0290 failed")
-    call check (lists_are_equal (int_eq, unzipped5, take (lst5, 200)), "test0210-0300 failed")
+    call check (list_equal (int_eq, unzipped1, take (lst1, 200)), "test0210-0270 failed")
+    call check (list_equal (int_eq, unzipped2, lst2), "test0210-0280 failed")
+    call check (list_equal (int_eq, unzipped4, lst4), "test0210-0290 failed")
+    call check (list_equal (int_eq, unzipped5, take (lst5, 200)), "test0210-0300 failed")
 
     call unzip (zipped5, unzipped1, unzipped2, unzipped3, unzipped4, unzipped5)
-    call check (lists_are_equal (int_eq, unzipped1, take (lst1, 100)), "test0210-0310 failed")
-    call check (lists_are_equal (int_eq, unzipped2, take (lst2, 100)), "test0210-0320 failed")
-    call check (lists_are_equal (int_eq, unzipped3, lst3), "test0210-0320 failed")
-    call check (lists_are_equal (int_eq, unzipped4, take (lst4, 100)), "test0210-0340 failed")
-    call check (lists_are_equal (int_eq, unzipped5, take (lst5, 100)), "test0210-0350 failed")
+    call check (list_equal (int_eq, unzipped1, take (lst1, 100)), "test0210-0310 failed")
+    call check (list_equal (int_eq, unzipped2, take (lst2, 100)), "test0210-0320 failed")
+    call check (list_equal (int_eq, unzipped3, lst3), "test0210-0320 failed")
+    call check (list_equal (int_eq, unzipped4, take (lst4, 100)), "test0210-0340 failed")
+    call check (list_equal (int_eq, unzipped5, take (lst5, 100)), "test0210-0350 failed")
 
     call check (is_nil (zip (nil)), "test0210-0410 failed")
     call check (is_nil (zip (nil, iota (10))), "test0210-0420 failed")
@@ -1086,16 +1096,16 @@ contains
     ! Use fold to reverse a list. (An example from SRFI-1.)
     lst1 = iota (10, 1)
     lst2 = .tocons. fold (kcons, nil, lst1)
-    call check (lists_are_equal (int_eq, lst1, iota (10, 1)), "test0230-0020 failed")
-    call check (lists_are_equal (int_eq, lst2, iota (10, 10, -1)), "test0230-0030 failed")
+    call check (list_equal (int_eq, lst1, iota (10, 1)), "test0230-0020 failed")
+    call check (list_equal (int_eq, lst2, iota (10, 10, -1)), "test0230-0030 failed")
 
     ! Use fold to do an append-reverse. (An example from SRFI-1.)
     lst1 = iota (10, 11)
     lst2 = iota (10, 10, -1)
     lst3 = .tocons. fold (kcons, lst1, lst2)
-    call check (lists_are_equal (int_eq, lst1, iota (10, 11)), "test0230-0040 failed")
-    call check (lists_are_equal (int_eq, lst2, iota (10, 10, -1)), "test0230-0050 failed")
-    call check (lists_are_equal (int_eq, lst3, iota (20, 1)), "test0230-0060 failed")
+    call check (list_equal (int_eq, lst1, iota (10, 11)), "test0230-0040 failed")
+    call check (list_equal (int_eq, lst2, iota (10, 10, -1)), "test0230-0050 failed")
+    call check (list_equal (int_eq, lst3, iota (20, 1)), "test0230-0060 failed")
 
     ! Count how many strings are in a list. (Adapted from an example
     ! in SRFI-1.)
@@ -1192,24 +1202,24 @@ contains
     ! Use fold_right to copy a list. (An example from SRFI-1.)
     lst1 = iota (100, 1)
     lst2 = .tocons. fold_right (kcons, nil, lst1)
-    call check (lists_are_equal (int_eq, lst1, iota (100, 1)), "test0240-0010 failed")
-    call check (lists_are_equal (int_eq, lst2, iota (100, 1)), "test0240-0020 failed")
+    call check (list_equal (int_eq, lst1, iota (100, 1)), "test0240-0010 failed")
+    call check (list_equal (int_eq, lst2, iota (100, 1)), "test0240-0020 failed")
 
     ! Keep only the even elements of a list. (An example from SRFI-1.)
     lst1 = iota (100, 1)
     lst2 = .tocons. fold_right (kcons_if_even, nil, lst1)
-    call check (lists_are_equal (int_eq, lst1, iota (100, 1)), "test0240-0030 failed")
-    call check (lists_are_equal (int_eq, lst2, iota (50, 2, 2)), "test0240-0040 failed")
+    call check (list_equal (int_eq, lst1, iota (100, 1)), "test0240-0030 failed")
+    call check (list_equal (int_eq, lst2, iota (50, 2, 2)), "test0240-0040 failed")
 
     ! Try it again with a nil list.
     lst2 = .tocons. fold_right (kcons_if_even, nil, nil)
-    call check (lists_are_equal (int_eq, lst2, nil), "test0240-0050 failed")
+    call check (list_equal (int_eq, lst2, nil), "test0240-0050 failed")
 
     ! Try it again, but with a non-nil tail.
     lst1 = iota (95, 1)
     lst2 = .tocons. fold_right (kcons_if_even, 96 ** 98 ** 100 ** nil, lst1)
-    call check (lists_are_equal (int_eq, lst1, iota (95, 1)), "test0240-0060 failed")
-    call check (lists_are_equal (int_eq, lst2, iota (50, 2, 2)), "test0240-0070 failed")
+    call check (list_equal (int_eq, lst1, iota (95, 1)), "test0240-0060 failed")
+    call check (list_equal (int_eq, lst2, iota (50, 2, 2)), "test0240-0070 failed")
 
   contains
 
@@ -1245,17 +1255,17 @@ contains
     ! Destructively reverse a list. (An example from SRFI-1.)
     lst1 = iota (100, 1)
     lst2 = .tocons. pair_fold (ksetcdr, nil, lst1)
-    call check (lists_are_equal (int_eq, lst1, 1 ** nil), "test0250-0010 failed")
-    call check (lists_are_equal (int_eq, lst2, iota (100, 100, -1)), "test0250-0020 failed")
+    call check (list_equal (int_eq, lst1, 1 ** nil), "test0250-0010 failed")
+    call check (list_equal (int_eq, lst2, iota (100, 100, -1)), "test0250-0020 failed")
 
     ! Enumerate tails in order of ascending length.
     lst1 = iota (100, 1)
     lst2 = .tocons. pair_fold (kcopy, nil, lst1)
-    call check (lists_are_equal (int_eq, lst1, iota (100, 1)), "test0250-0030 failed")
+    call check (list_equal (int_eq, lst1, iota (100, 1)), "test0250-0030 failed")
     i = 1
     p = lst2
     do while (is_pair (p))
-       call check (lists_are_equal (int_eq, car (p), iota (i, 101 - i)), "test0250-0040 failed")
+       call check (list_equal (int_eq, car (p), iota (i, 101 - i)), "test0250-0040 failed")
        i = i + 1
        p = .tocons. cdr (p)
     end do
@@ -1294,19 +1304,19 @@ contains
     lst1 = iota (100, 1)
     lst2 = iota (100, 101)
     lst3 = .tocons. pair_fold_right (ksetcdr, lst2, lst1)
-    call check (lists_are_equal (int_eq, lst1, iota (200, 1)), "test0260-0010 failed")
-    call check (lists_are_equal (int_eq, lst2, iota (100, 101)), "test0260-0015 failed")
-    call check (lists_are_equal (int_eq, lst3, iota (200, 1)), "test0260-0020 failed")
+    call check (list_equal (int_eq, lst1, iota (200, 1)), "test0260-0010 failed")
+    call check (list_equal (int_eq, lst2, iota (100, 101)), "test0260-0015 failed")
+    call check (list_equal (int_eq, lst3, iota (200, 1)), "test0260-0020 failed")
 
     ! Enumerate tails in order of descending length. (An example from
     ! SRFI-1.)
     lst1 = iota (100, 1)
     lst2 = .tocons. pair_fold_right (kcopy, nil, lst1)
-    call check (lists_are_equal (int_eq, lst1, iota (100, 1)), "test0260-0030 failed")
+    call check (list_equal (int_eq, lst1, iota (100, 1)), "test0260-0030 failed")
     i = 1
     p = lst2
     do while (is_pair (p))
-       call check (lists_are_equal (int_eq, car (p), iota (101 - i, i)), "test0260-0040 failed")
+       call check (list_equal (int_eq, car (p), iota (101 - i, i)), "test0260-0040 failed")
        i = i + 1
        p = .tocons. cdr (p)
     end do
@@ -1371,13 +1381,13 @@ contains
     lst1 = list (1 ** 2 ** 3 ** nil, 4 ** 5 ** nil, nil, 6 ** 7 ** 8 ** 9 ** 10 ** nil, nil)
     lst2 = .tocons. reduce_right (kappend, nil, lst1)
     lst3 = iota (10, 1)
-    call check (lists_are_equal (int_eq, lst2, lst3), "test0280-0010 failed")
+    call check (list_equal (int_eq, lst2, lst3), "test0280-0010 failed")
 
     ! Try it on a nil list
     lst1 = nil
     lst2 = .tocons. reduce_right (kappend, nil, lst1)
     lst3 = nil
-    call check (lists_are_equal (int_eq, lst2, lst3), "test0280-0020 failed")
+    call check (list_equal (int_eq, lst2, lst3), "test0280-0020 failed")
 
   contains
 
@@ -1400,13 +1410,13 @@ contains
     class(*), allocatable :: p, q
 
     ! List of squares 1**2,2**2,...,10**2. (An example from SRFI-1.)
-    call check (lists_are_equal (int_eq, &
+    call check (list_equal (int_eq, &
          unfold (k_gt_10, square_k, increment_k, 1), &
          list (1**2, 2**2, 3**2, 4**2, 5**2, 6**2, 7**2, 8**2, 9**2, 10**2)), &
          "test0290-0010 failed")
 
     ! Copy a proper list. (An example from SRFI-1.)
-    call check (lists_are_equal (int_eq, unfold (is_nil, kcar, kcdr, iota (100, 1)), iota (100, 1)), "test0290-0020 failed")
+    call check (list_equal (int_eq, unfold (is_nil, kcar, kcdr, iota (100, 1)), iota (100, 1)), "test0290-0020 failed")
 
     ! Copy a possibly dotted list. (An example from SRFI-1.)
     lst1 = iota (100, 1)
@@ -1429,12 +1439,12 @@ contains
     tail = iota (100, 10, 10)
     lst1 = .tocons. unfold (is_nil, kcar, kcdr, head, ktail)
     lst2 = .tocons. append (head, tail)
-    call check (lists_are_equal (int_eq, lst1, lst2), "test0290-0060 failed")
+    call check (list_equal (int_eq, lst1, lst2), "test0290-0060 failed")
 
     ! The following can be done because we made head and tail gcroot_t
     ! instead of cons_t.
     call collect_garbage_now
-    call check (lists_are_equal (int_eq, &
+    call check (list_equal (int_eq, &
          unfold (is_nil, kcar, kcdr, head, ktail), &
          append(head, tail)), &
          "test0290-0070 failed")
@@ -1487,7 +1497,6 @@ contains
       class(*), intent(in) :: x
       class(*), allocatable, intent(out) :: tl
       call collect_garbage_now
-      call unused_variable (x)
       tl = tail
     end subroutine ktail
 
@@ -1498,19 +1507,19 @@ contains
     ! Tests of unfold_right.
 
     ! List of squares 1**2,2**2,...,10**2. (An example from SRFI-1.)
-    call check (lists_are_equal (int_eq, &
+    call check (list_equal (int_eq, &
          unfold_right (k_eq_0, square_k, decrement_k, 10), &
          list (1**2, 2**2, 3**2, 4**2, 5**2, 6**2, 7**2, 8**2, 9**2, 10**2)), &
          "test0290-0010 failed")
 
     ! Reverse a proper list. (An example from SRFI-1.)
-    call check (lists_are_equal (int_eq, &
+    call check (list_equal (int_eq, &
          unfold_right (is_nil, kcar, kcdr, iota (100, 1)), &
          iota (100, 100, -1)), &
          "test0290-0020 failed")
 
     ! Append-reverse a proper list. (An example from SRFI-1.)
-    call check (lists_are_equal (int_eq, &
+    call check (list_equal (int_eq, &
          unfold_right (is_nil, kcar, kcdr, iota (50, 51), iota (50, 50, -1)), &
          iota (100, 100, -1)), &
          "test0290-0030 failed")
@@ -1567,11 +1576,11 @@ contains
     lst1 = list (list (1, 2), list (4, 5), list (7, 8))
     lst2 = map (kcadr, lst1)
     lst3 = list (2, 5, 8)
-    call check (lists_are_equal (int_eq, lst2, lst3), "test0310-0010 failed")
+    call check (list_equal (int_eq, lst2, lst3), "test0310-0010 failed")
     ! Try it with a nil list.
-    call check (lists_are_equal (int_eq, map (kcadr, nil), nil), "test0310-0015 failed")
+    call check (list_equal (int_eq, map (kcadr, nil), nil), "test0310-0015 failed")
     ! Try it with a length-1 list.
-    call check (lists_are_equal (int_eq, map (kcadr, list (list (1, 2))), list (2)), "test0310-0017 failed")
+    call check (list_equal (int_eq, map (kcadr, list (list (1, 2))), list (2)), "test0310-0017 failed")
     !
     ! Because we did not use gcroot_t, we need to reassign all the
     ! lists. (But this way is a better test.)
@@ -1579,18 +1588,18 @@ contains
     lst1 = list (list (1, 2), list (4, 5), list (7, 8))
     lst2 = map_in_order (kcadr, lst1)
     lst3 = list (2, 5, 8)
-    call check (lists_are_equal (int_eq, lst2, lst3), "test0310-0020 failed")
+    call check (list_equal (int_eq, lst2, lst3), "test0310-0020 failed")
     ! Try it with a nil list.
-    call check (lists_are_equal (int_eq, map_in_order (kcadr, nil), nil), "test0310-0025 failed")
+    call check (list_equal (int_eq, map_in_order (kcadr, nil), nil), "test0310-0025 failed")
     ! Try it with a length-1 list.
-    call check (lists_are_equal (int_eq, map_in_order (kcadr, list (list (1, 2))), list (2)), "test0310-0027 failed")
+    call check (list_equal (int_eq, map_in_order (kcadr, list (list (1, 2))), list (2)), "test0310-0027 failed")
 
     ! Raise the elements of a list to their own power. (An example from SRFI-1.)
-    call check (lists_are_equal (int_eq, &
+    call check (list_equal (int_eq, &
          map (kselfpower, iota (5, 1)), &
          list (1, 4, 27, 256, 3125)), &
          "test0310-0030 failed")
-    call check (lists_are_equal (int_eq, &
+    call check (list_equal (int_eq, &
          map_in_order (kselfpower, iota (5, 1)), &
          list (1, 4, 27, 256, 3125)), &
          "test0310-0040 failed")
@@ -1599,11 +1608,11 @@ contains
     lst1 = list (1, 2, 3)
     lst2 = list (4, 5, 6)
     lst3 = map (kadd, lst1, lst2)
-    call check (lists_are_equal (int_eq, lst3, list (5, 7, 9)), "test0310-0050 failed")
+    call check (list_equal (int_eq, lst3, list (5, 7, 9)), "test0310-0050 failed")
     lst1 = list (1, 2, 3)
     lst2 = list (4, 5, 6)
     lst3 = map_in_order (kadd, lst1, lst2)
-    call check (lists_are_equal (int_eq, lst3, list (5, 7, 9)), "test0310-0060 failed")
+    call check (list_equal (int_eq, lst3, list (5, 7, 9)), "test0310-0060 failed")
 
     ! Add the elements of five lists.
     lst1 = iota (5, 1)
@@ -1618,14 +1627,14 @@ contains
          3 + 4 + 5 + 6 + 7, &
          4 + 5 + 6 + 7 + 8, &
          5 + 6 + 7 + 8 + 9)
-    call check (lists_are_equal (int_eq, lst6, rooted_lst7), "test0310-0070 failed")
+    call check (list_equal (int_eq, lst6, rooted_lst7), "test0310-0070 failed")
     lst1 = iota (5, 1)
     lst2 = iota (5, 2)
     lst3 = iota (5, 3)
     lst4 = iota (5, 4)
     lst5 = iota (5, 5)
     lst6 = map_in_order (kadd5, lst1, lst2, lst3, lst4, lst5)
-    call check (lists_are_equal (int_eq, lst6, rooted_lst7), "test0310-0080 failed")
+    call check (list_equal (int_eq, lst6, rooted_lst7), "test0310-0080 failed")
 
     ! Try them with nil lists.
     lst1 = iota (5, 1)
@@ -1634,25 +1643,25 @@ contains
     lst4 = iota (5, 4)
     lst5 = iota (5, 5)
     lst6 = map (kadd5, lst1, lst2, lst3, lst4, lst5)
-    call check (lists_are_equal (int_eq, lst6, nil), "test0310-0090 failed")
+    call check (list_equal (int_eq, lst6, nil), "test0310-0090 failed")
     lst1 = iota (5, 1)
     lst2 = iota (5, 2)
     lst3 = iota (5, 3)
     lst4 = nil
     lst5 = iota (5, 5)
     lst6 = map_in_order (kadd5, lst1, lst2, lst3, lst4, lst5)
-    call check (lists_are_equal (int_eq, lst6, nil), "test0310-0100 failed")
+    call check (list_equal (int_eq, lst6, nil), "test0310-0100 failed")
 
     ! With side effects. (An example from SRFI-1.)
     count = 0
     lst1 = str_t ('a') ** str_t ('b') ** nil
     lst2 = map (kincrcount, lst1)
-    call check (lists_are_equal (int_eq, lst2, list (1, 2)) .or. lists_are_equal (int_eq, lst2, list (2, 1)), &
+    call check (list_equal (int_eq, lst2, list (1, 2)) .or. list_equal (int_eq, lst2, list (2, 1)), &
          "test0310-0110 failed")
     count = 0
     lst1 = str_t ('a') ** str_t ('b') ** nil
     lst2 = map_in_order (kincrcount, lst1)
-    call check (lists_are_equal (int_eq, lst2, list (1, 2)), "test0310-0120 failed")
+    call check (list_equal (int_eq, lst2, list (1, 2)), "test0310-0120 failed")
 
   contains
 
@@ -1688,7 +1697,6 @@ contains
       class(*), intent(in) :: ignored
       class(*), allocatable, intent(out) :: count_val
       call collect_garbage_now
-      call unused_variable (ignored)
       count = count + 1
       count_val = count
     end subroutine kincrcount

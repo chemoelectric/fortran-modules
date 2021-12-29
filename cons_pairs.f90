@@ -393,7 +393,18 @@ module cons_pairs
   public :: circular_list    ! Make a copy of a list, but with the tail connected to the head.
   public :: circular_listx   ! Like circular_list, but allowed to destroy its inputs.
 
-  public :: lists_are_equal  ! Test whether two lists are `equal'. (Equivalent to SRFI-1's `list='.)
+  public :: list_equal       ! Generic function: Test whether two or more lists are `equal'. (Equivalent to SRFI-1's `list='.)
+  public :: list_equal0
+  public :: list_equal1
+  public :: list_equal2
+  public :: list_equal3
+  public :: list_equal4
+  public :: list_equal5
+  public :: list_equal6
+  public :: list_equal7
+  public :: list_equal8
+  public :: list_equal9
+  public :: list_equal10
 
   ! Count elements that satisfy a predicate. Counting proceeds in
   ! left-to-right order. (This is called `list_count' instead of
@@ -916,6 +927,20 @@ module cons_pairs
      module procedure unzip9
      module procedure unzip10
   end interface unzip
+
+  interface list_equal
+     module procedure list_equal0
+     module procedure list_equal1
+     module procedure list_equal2
+     module procedure list_equal3
+     module procedure list_equal4
+     module procedure list_equal5
+     module procedure list_equal6
+     module procedure list_equal7
+     module procedure list_equal8
+     module procedure list_equal9
+     module procedure list_equal10
+  end interface list_equal
 
   interface list_count
      module procedure list_count1
@@ -7956,44 +7981,31 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function lists_are_equal (pred, lst1, lst2) result (bool)
-    !
-    ! An equivalent to SRFI-1 `(list= pred lst1 lst2)'.
-    !
-    ! In the call
-    !
-    !    lists_are_equal (pred, lst1, lst2)
-    !
-    ! pred is applied with an element of lst1 as its first argument
-    ! and an element of lst2 as its second argument.
-    !
-    ! The pred function must be some kind of `equality' test, and not
-    ! just any predicate (such as a `less than' test); in particular,
-    !
-    !    pred (x, y)
-    !
-    ! must return .true. if x and y are the same object. (Therefore
-    ! shared tails always are `equal'.)
-    !
-    ! The current implementation does not handle circular lists.
-    !
-    ! WARNING: It is an error to call this procedure if either lst1 or
-    !          lst2 is a dotted list.
-    !
+  recursive function list_equal0 (pred) result (bool)
     procedure(list_predicate2_t) :: pred
-    class(*), intent(in) :: lst1, lst2
+    logical :: bool
+
+    bool = .true.
+  end function list_equal0
+
+  recursive function list_equal1 (pred, lst1) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    logical :: bool
+
+    bool = .true.
+  end function list_equal1
+
+  recursive function list_equal2_unrooted (pred, lst1, lst2) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
     logical :: bool
 
     type(cons_t) :: p, q
     class(*), allocatable :: p_hd, q_hd
     class(*), allocatable :: p_tl, q_tl
     logical :: done
-
-    type(gcroot_t) :: lst1_root, lst2_root
-
-    ! Protect against garbage collections in the predicate.
-    lst1_root = lst1
-    lst2_root = lst2
 
     p = .tocons. lst1
     q = .tocons. lst2
@@ -8025,36 +8037,374 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           end if
        end if
     end do
+  end function list_equal2_unrooted
+
+  recursive function list_equal2 (pred, lst1, lst2) result (bool)
+    !
+    ! An equivalent to SRFI-1 `(list= pred lst1 lst2)'.
+    !
+    ! In the call
+    !
+    !    list_equal2 (pred, lst1, lst2)
+    !
+    ! pred is applied with an element of lst1 as its first argument
+    ! and an element of lst2 as its second argument.
+    !
+    ! The pred function must be some kind of `equality' test, and not
+    ! just any predicate (such as a `less than' test); in particular,
+    !
+    !    pred (x, y)
+    !
+    ! must return .true. if x and y are the same object. (Therefore
+    ! shared tails always are `equal'.)
+    !
+    ! The current implementation does not handle circular lists.
+    !
+    ! WARNING: It is an error to call this procedure if either lst1 or
+    !          lst2 is a dotted list.
+    !
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
 
     call lst1_root%discard
     call lst2_root%discard
-  end function lists_are_equal
+  end function list_equal2
+
+  recursive function list_equal3 (pred, lst1, lst2, lst3) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
+    if (bool) bool = list_equal2_unrooted (pred, lst2, lst3)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+  end function list_equal3
+
+  recursive function list_equal4 (pred, lst1, lst2, lst3, lst4) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
+    if (bool) bool = list_equal2_unrooted (pred, lst2, lst3)
+    if (bool) bool = list_equal2_unrooted (pred, lst3, lst4)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+  end function list_equal4
+
+  recursive function list_equal5 (pred, lst1, lst2, lst3, lst4, lst5) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
+    if (bool) bool = list_equal2_unrooted (pred, lst2, lst3)
+    if (bool) bool = list_equal2_unrooted (pred, lst3, lst4)
+    if (bool) bool = list_equal2_unrooted (pred, lst4, lst5)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+  end function list_equal5
+
+  recursive function list_equal6 (pred, lst1, lst2, lst3, lst4, lst5, lst6) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
+    if (bool) bool = list_equal2_unrooted (pred, lst2, lst3)
+    if (bool) bool = list_equal2_unrooted (pred, lst3, lst4)
+    if (bool) bool = list_equal2_unrooted (pred, lst4, lst5)
+    if (bool) bool = list_equal2_unrooted (pred, lst5, lst6)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+  end function list_equal6
+
+  recursive function list_equal7 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
+    if (bool) bool = list_equal2_unrooted (pred, lst2, lst3)
+    if (bool) bool = list_equal2_unrooted (pred, lst3, lst4)
+    if (bool) bool = list_equal2_unrooted (pred, lst4, lst5)
+    if (bool) bool = list_equal2_unrooted (pred, lst5, lst6)
+    if (bool) bool = list_equal2_unrooted (pred, lst6, lst7)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+  end function list_equal7
+
+  recursive function list_equal8 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
+    if (bool) bool = list_equal2_unrooted (pred, lst2, lst3)
+    if (bool) bool = list_equal2_unrooted (pred, lst3, lst4)
+    if (bool) bool = list_equal2_unrooted (pred, lst4, lst5)
+    if (bool) bool = list_equal2_unrooted (pred, lst5, lst6)
+    if (bool) bool = list_equal2_unrooted (pred, lst6, lst7)
+    if (bool) bool = list_equal2_unrooted (pred, lst7, lst8)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+  end function list_equal8
+
+  recursive function list_equal9 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
+    if (bool) bool = list_equal2_unrooted (pred, lst2, lst3)
+    if (bool) bool = list_equal2_unrooted (pred, lst3, lst4)
+    if (bool) bool = list_equal2_unrooted (pred, lst4, lst5)
+    if (bool) bool = list_equal2_unrooted (pred, lst5, lst6)
+    if (bool) bool = list_equal2_unrooted (pred, lst6, lst7)
+    if (bool) bool = list_equal2_unrooted (pred, lst7, lst8)
+    if (bool) bool = list_equal2_unrooted (pred, lst8, lst9)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+  end function list_equal9
+
+  recursive function list_equal10 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
+    if (bool) bool = list_equal2_unrooted (pred, lst2, lst3)
+    if (bool) bool = list_equal2_unrooted (pred, lst3, lst4)
+    if (bool) bool = list_equal2_unrooted (pred, lst4, lst5)
+    if (bool) bool = list_equal2_unrooted (pred, lst5, lst6)
+    if (bool) bool = list_equal2_unrooted (pred, lst6, lst7)
+    if (bool) bool = list_equal2_unrooted (pred, lst7, lst8)
+    if (bool) bool = list_equal2_unrooted (pred, lst8, lst9)
+    if (bool) bool = list_equal2_unrooted (pred, lst9, lst10)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+  end function list_equal10
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!!$  recursive function list_count1 (pred, lst) result (n)
-!!$    procedure(list_predicate1_t) :: pred
-!!$    class(*), intent(in) :: lst
-!!$    integer(sz) :: n
-!!$
-!!$    type(gcroot_t) :: lst_root
-!!$    class(*), allocatable :: head
-!!$    class(*), allocatable :: tail
-!!$
-!!$    ! Protect lst against garbage collections performed by `pred'.
-!!$    lst_root = lst
-!!$
-!!$    n = 0
-!!$    tail = .autoval. lst
-!!$    do while (is_pair (tail))
-!!$       call uncons (tail, head, tail)
-!!$       if (pred (head)) then
-!!$          n = n + 1
-!!$       end if
-!!$    end do
-!!$
-!!$    call lst_root%discard
-!!$  end function list_count
 
   recursive function list_count1 (pred, lst1) result (total)
     procedure(list_predicate1_t) :: pred

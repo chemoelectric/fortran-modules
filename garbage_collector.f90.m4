@@ -36,7 +36,6 @@ module garbage_collector
 
   use, intrinsic :: iso_c_binding ! In case someone chooses a C type for size_kind.
   use, intrinsic :: iso_fortran_env
-  use, non_intrinsic :: unused_variables
 
   implicit none
   private
@@ -315,10 +314,6 @@ m4_if(DEBUGGING,[true],[dnl
     integer(size_kind), intent(in) :: branch_number
     logical :: branch_number_out_of_range
     class(*), allocatable :: branch
-
-    call unused_variable (this)
-    call unused_variable (branch_number)
-    call unused_variable (branch)
 
     branch_number_out_of_range = .true.
   end subroutine collectible_t_get_branch

@@ -286,7 +286,10 @@ m4_forloop([n],[0],ZIP_MAX,[dnl
   public :: circular_list    ! Make a copy of a list, but with the tail connected to the head.
   public :: circular_listx   ! Like circular_list, but allowed to destroy its inputs.
 
-  public :: lists_are_equal  ! Test whether two lists are `equal'. (Equivalent to SRFI-1's `list='.)
+  public :: list_equal       ! Generic function: Test whether two or more lists are `equal'. (Equivalent to SRFI-1's `list='.)
+m4_forloop([n],[0],ZIP_MAX,[dnl
+  public :: list_equal[]n
+])dnl
 
   ! Count elements that satisfy a predicate. Counting proceeds in
   ! left-to-right order. (This is called `list_count' instead of
@@ -536,6 +539,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure unzip[]n
 ])dnl
   end interface unzip
+
+  interface list_equal
+m4_forloop([n],[0],ZIP_MAX,[dnl
+     module procedure list_equal[]n
+])dnl
+  end interface list_equal
 
   interface list_count
 m4_forloop([n],[1],ZIP_MAX,[dnl
@@ -2250,44 +2259,31 @@ dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function lists_are_equal (pred, lst1, lst2) result (bool)
-    !
-    ! An equivalent to SRFI-1 `(list= pred lst1 lst2)'.
-    !
-    ! In the call
-    !
-    !    lists_are_equal (pred, lst1, lst2)
-    !
-    ! pred is applied with an element of lst1 as its first argument
-    ! and an element of lst2 as its second argument.
-    !
-    ! The pred function must be some kind of `equality' test, and not
-    ! just any predicate (such as a `less than' test); in particular,
-    !
-    !    pred (x, y)
-    !
-    ! must return .true. if x and y are the same object. (Therefore
-    ! shared tails always are `equal'.)
-    !
-    ! The current implementation does not handle circular lists.
-    !
-    ! WARNING: It is an error to call this procedure if either lst1 or
-    !          lst2 is a dotted list.
-    !
+  recursive function list_equal0 (pred) result (bool)
     procedure(list_predicate2_t) :: pred
-    class(*), intent(in) :: lst1, lst2
+    logical :: bool
+
+    bool = .true.
+  end function list_equal0
+
+  recursive function list_equal1 (pred, lst1) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    logical :: bool
+
+    bool = .true.
+  end function list_equal1
+
+  recursive function list_equal2_unrooted (pred, lst1, lst2) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
     logical :: bool
 
     type(cons_t) :: p, q
     class(*), allocatable :: p_hd, q_hd
     class(*), allocatable :: p_tl, q_tl
     logical :: done
-
-    type(gcroot_t) :: lst1_root, lst2_root
-
-    ! Protect against garbage collections in the predicate.
-    lst1_root = lst1
-    lst2_root = lst2
 
     p = .tocons. lst1
     q = .tocons. lst2
@@ -2319,36 +2315,79 @@ dnl
           end if
        end if
     end do
+  end function list_equal2_unrooted
+
+  recursive function list_equal2 (pred, lst1, lst2) result (bool)
+    !
+    ! An equivalent to SRFI-1 `(list= pred lst1 lst2)'.
+    !
+    ! In the call
+    !
+    !    list_equal2 (pred, lst1, lst2)
+    !
+    ! pred is applied with an element of lst1 as its first argument
+    ! and an element of lst2 as its second argument.
+    !
+    ! The pred function must be some kind of `equality' test, and not
+    ! just any predicate (such as a `less than' test); in particular,
+    !
+    !    pred (x, y)
+    !
+    ! must return .true. if x and y are the same object. (Therefore
+    ! shared tails always are `equal'.)
+    !
+    ! The current implementation does not handle circular lists.
+    !
+    ! WARNING: It is an error to call this procedure if either lst1 or
+    !          lst2 is a dotted list.
+    !
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
 
     call lst1_root%discard
     call lst2_root%discard
-  end function lists_are_equal
+  end function list_equal2
 
+m4_forloop([n],[3],ZIP_MAX,[dnl
+  recursive function list_equal[]n (pred, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+       ])lst[]k])) result (bool)
+    procedure(list_predicate2_t) :: pred
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    logical :: bool
+
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: lst[]k[]_root
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    lst[]k[]_root = lst[]k
+])dnl
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
+m4_forloop([k],[3],n,[dnl
+    if (bool) bool = list_equal2_unrooted (pred, lst[]m4_eval(k - 1), lst[]k)
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    call lst[]k[]_root%discard
+])dnl
+  end function list_equal[]n
+
+])dnl
+dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!!$  recursive function list_count1 (pred, lst) result (n)
-!!$    procedure(list_predicate1_t) :: pred
-!!$    class(*), intent(in) :: lst
-!!$    integer(sz) :: n
-!!$
-!!$    type(gcroot_t) :: lst_root
-!!$    class(*), allocatable :: head
-!!$    class(*), allocatable :: tail
-!!$
-!!$    ! Protect lst against garbage collections performed by `pred'.
-!!$    lst_root = lst
-!!$
-!!$    n = 0
-!!$    tail = .autoval. lst
-!!$    do while (is_pair (tail))
-!!$       call uncons (tail, head, tail)
-!!$       if (pred (head)) then
-!!$          n = n + 1
-!!$       end if
-!!$    end do
-!!$
-!!$    call lst_root%discard
-!!$  end function list_count
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
   recursive function list_count[]n (pred, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
