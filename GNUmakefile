@@ -73,7 +73,6 @@ FCFLAG_WNO_TRAMPOLINES = -Wno-trampolines
 	$(COMPILE.m4) $(<) > $(@)
 
 MODULE_BASENAMES =
-MODULE_BASENAMES += unused_variables
 MODULE_BASENAMES += garbage_collector
 MODULE_BASENAMES += boxes
 MODULE_BASENAMES += cons_pairs
@@ -104,10 +103,10 @@ check-boxes: test__boxes
 check-cons_pairs: test__cons_pairs
 	./test__cons_pairs
 
-test__boxes: $(addsuffix .$(OBJEXT), test__boxes boxes garbage_collector unused_variables)
+test__boxes: $(addsuffix .$(OBJEXT), test__boxes boxes garbage_collector)
 	$(COMPILE.f90) $(^) -o $(@)
 
-test__cons_pairs: $(addsuffix .$(OBJEXT), test__cons_pairs cons_pairs garbage_collector unused_variables)
+test__cons_pairs: $(addsuffix .$(OBJEXT), test__cons_pairs cons_pairs garbage_collector)
 	$(COMPILE.f90) $(^) -o $(@)
 
 test__cons_pairs.anchor: test__cons_pairs.f90
@@ -117,10 +116,6 @@ test__cons_pairs.$(OBJEXT): test__cons_pairs.anchor
 
 cons_lists.f90: cadadr.m4
 
-unused_variables.anchor: unused_variables.mod
-unused_variables.mod:
-
-garbage_collector.anchor: unused_variables.anchor
 garbage_collector.anchor: garbage_collector.mod
 garbage_collector.mod:
 

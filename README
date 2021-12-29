@@ -1,10 +1,6 @@
 Fortran modules for general programming
 ---------------------------------------
 
-unused_variables.f90   -- A way to quiet some warnings. Not
-                          necessarily the most efficient method.
-                          (Expat license)
-
 garbage_collector.f90  -- Garbage collection for Fortran.
                           (Expat license)
                           (Under development)
