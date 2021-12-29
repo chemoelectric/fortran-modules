@@ -452,7 +452,7 @@ module cons_pairs
 !!
 
   public :: fold             ! Generic function: `The fundamental list iterator.'
-  public :: fold_right       ! `The fundamental list recursion operator.'
+  public :: fold_right       ! Generic function: `The fundamental list recursion operator.'
   public :: pair_fold        ! Like fold, but applied to sublists instead of elements.
   public :: pair_fold_right  ! Like fold_right, but applied to sublists instead of elements.
   public :: reduce           ! A variant of fold. See SRFI-1.
@@ -466,7 +466,7 @@ module cons_pairs
   public :: unfold_right_with_tail     ! One of the implementations of `unfold_right'.
   public :: unfold_right_with_nil_tail ! One of the implementations of `unfold_right'.
 
-  ! Implementations of fold
+  ! Implementations of fold.
   public :: fold1_subr
   public :: fold2_subr
   public :: fold3_subr
@@ -477,6 +477,18 @@ module cons_pairs
   public :: fold8_subr
   public :: fold9_subr
   public :: fold10_subr
+
+  ! Implementations of fold_right.
+  public :: fold1_right_subr
+  public :: fold2_right_subr
+  public :: fold3_right_subr
+  public :: fold4_right_subr
+  public :: fold5_right_subr
+  public :: fold6_right_subr
+  public :: fold7_right_subr
+  public :: fold8_right_subr
+  public :: fold9_right_subr
+  public :: fold10_right_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -581,8 +593,10 @@ module cons_pairs
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! Types for folds, unfolds, maps, and side effects.
+!!
 
-  ! Types for folds, unfolds, maps, and side effects.
   public :: list_kons1_subr_t
   public :: list_kons2_subr_t
   public :: list_kons3_subr_t
@@ -1133,6 +1147,19 @@ module cons_pairs
      module procedure fold9_subr
      module procedure fold10_subr
   end interface fold
+
+  interface fold_right
+     module procedure fold1_right_subr
+     module procedure fold2_right_subr
+     module procedure fold3_right_subr
+     module procedure fold4_right_subr
+     module procedure fold5_right_subr
+     module procedure fold6_right_subr
+     module procedure fold7_right_subr
+     module procedure fold8_right_subr
+     module procedure fold9_right_subr
+     module procedure fold10_right_subr
+  end interface fold_right
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
@@ -11195,9 +11222,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function fold_right (kons, knil, lst) result (retval)
+  recursive function fold1_right_subr (kons, knil, lst1) result (retval)
     !
-    ! WARNING: This implementation is recursive and uses O(n) stack
+    ! WARNING: This implementation is recursive and uses O(1) stack
     !          space. If you need to do something like this
     !          iteratively, you can use `fold' on the reverse of lst.
     !
@@ -11214,32 +11241,885 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     !
     procedure(list_kons1_subr_t) :: kons
     class(*), intent(in) :: knil
-    class(*), intent(in) :: lst
+    class(*), intent(in) :: lst1
     class(*), allocatable :: retval
 
-    type(gcroot_t) :: lst_root
+    type(gcroot_t) :: lst1_root
 
-    lst_root = lst
-    retval = recursion (.autoval. lst)
-    call lst_root%discard
+    lst1_root = lst1
+
+    retval = &
+         recursion (.autoval. lst1)
+
+    call lst1_root%discard
 
   contains
 
-    recursive function recursion (lst) result (retval)
-      class(*), intent(in) :: lst
+    recursive function recursion (lst1) result (retval)
+      class(*), intent(in) :: lst1
       class(*), allocatable :: retval
 
       type(gcroot_t) :: recursion_result
 
-      if (is_not_pair (lst)) then
+      if (is_not_pair (lst1)) then
          retval = knil
       else
-         recursion_result = recursion (cdr (lst))
-         call kons (car (lst), .val. recursion_result, retval)
+         recursion_result = &
+              recursion (cdr (lst1))
+         call kons (car (lst1), .val. recursion_result, retval)
       end if
     end function recursion
 
-  end function fold_right
+  end function fold1_right_subr
+  recursive function fold2_right_subr (kons, knil, lst1, lst2) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(2) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons2_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2)
+
+    call lst1_root%discard
+    call lst2_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2))
+         call kons (car (lst1), car (lst2), .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function fold2_right_subr
+  recursive function fold3_right_subr (kons, knil, lst1, lst2, lst3) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(3) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons3_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3))
+         call kons (car (lst1), car (lst2), car (lst3), .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function fold3_right_subr
+  recursive function fold4_right_subr (kons, knil, lst1, lst2, lst3, lst4) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(4) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons4_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4))
+         call kons (car (lst1), car (lst2), car (lst3), &
+              car (lst4), .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function fold4_right_subr
+  recursive function fold5_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(5) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons5_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5))
+         call kons (car (lst1), car (lst2), car (lst3), &
+              car (lst4), car (lst5), .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function fold5_right_subr
+  recursive function fold6_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(6) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons6_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6))
+         call kons (car (lst1), car (lst2), car (lst3), &
+              car (lst4), car (lst5), car (lst6), .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function fold6_right_subr
+  recursive function fold7_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(7) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons7_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6, &
+         .autoval. lst7)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), intent(in) :: lst7
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else if (is_not_pair (lst7)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6), &
+              cdr (lst7))
+         call kons (car (lst1), car (lst2), car (lst3), &
+              car (lst4), car (lst5), car (lst6), &
+              car (lst7), .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function fold7_right_subr
+  recursive function fold8_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(8) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons8_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6, &
+         .autoval. lst7, .autoval. lst8)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), intent(in) :: lst7
+      class(*), intent(in) :: lst8
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else if (is_not_pair (lst7)) then
+         retval = knil
+      else if (is_not_pair (lst8)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6), &
+              cdr (lst7), cdr (lst8))
+         call kons (car (lst1), car (lst2), car (lst3), &
+              car (lst4), car (lst5), car (lst6), &
+              car (lst7), car (lst8), .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function fold8_right_subr
+  recursive function fold9_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(9) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons9_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6, &
+         .autoval. lst7, .autoval. lst8, .autoval. lst9)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), intent(in) :: lst7
+      class(*), intent(in) :: lst8
+      class(*), intent(in) :: lst9
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else if (is_not_pair (lst7)) then
+         retval = knil
+      else if (is_not_pair (lst8)) then
+         retval = knil
+      else if (is_not_pair (lst9)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6), &
+              cdr (lst7), cdr (lst8), cdr (lst9))
+         call kons (car (lst1), car (lst2), car (lst3), &
+              car (lst4), car (lst5), car (lst6), &
+              car (lst7), car (lst8), car (lst9), .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function fold9_right_subr
+  recursive function fold10_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(10) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons10_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6, &
+         .autoval. lst7, .autoval. lst8, .autoval. lst9, &
+         .autoval. lst10)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), intent(in) :: lst7
+      class(*), intent(in) :: lst8
+      class(*), intent(in) :: lst9
+      class(*), intent(in) :: lst10
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else if (is_not_pair (lst7)) then
+         retval = knil
+      else if (is_not_pair (lst8)) then
+         retval = knil
+      else if (is_not_pair (lst9)) then
+         retval = knil
+      else if (is_not_pair (lst10)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6), &
+              cdr (lst7), cdr (lst8), cdr (lst9), &
+              cdr (lst10))
+         call kons (car (lst1), car (lst2), car (lst3), &
+              car (lst4), car (lst5), car (lst6), &
+              car (lst7), car (lst8), car (lst9), &
+              car (lst10), .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function fold10_right_subr
+
+!!$  recursive function fold_right (kons, knil, lst) result (retval)
+!!$    !
+!!$    ! WARNING: This implementation is recursive and uses O(n) stack
+!!$    !          space. If you need to do something like this
+!!$    !          iteratively, you can use `fold' on the reverse of lst.
+!!$    !
+!!$    !          A recursive implementation tends to be faster, at least
+!!$    !          in functional languages:
+!!$    !
+!!$    !             * the list need not be reversed,
+!!$    !
+!!$    !             * on most hardware, the stack puts values near each
+!!$    !               other in memory.
+!!$    !
+!!$    !          In any case, a recursive implementation illustrates
+!!$    !          the fundamental meaning of the operation.
+!!$    !
+!!$    procedure(list_kons1_subr_t) :: kons
+!!$    class(*), intent(in) :: knil
+!!$    class(*), intent(in) :: lst
+!!$    class(*), allocatable :: retval
+!!$
+!!$    type(gcroot_t) :: lst_root
+!!$
+!!$    lst_root = lst
+!!$    retval = recursion (.autoval. lst)
+!!$    call lst_root%discard
+!!$
+!!$  contains
+!!$
+!!$    recursive function recursion (lst) result (retval)
+!!$      class(*), intent(in) :: lst
+!!$      class(*), allocatable :: retval
+!!$
+!!$      type(gcroot_t) :: recursion_result
+!!$
+!!$      if (is_not_pair (lst)) then
+!!$         retval = knil
+!!$      else
+!!$         recursion_result = recursion (cdr (lst))
+!!$         call kons (car (lst), .val. recursion_result, retval)
+!!$      end if
+!!$    end function recursion
+!!$
+!!$  end function fold_right
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function pair_fold (kons, knil, lst) result (retval)
     procedure(list_kons1_subr_t) :: kons
@@ -11268,6 +12148,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
     call lst_root%discard
   end function pair_fold
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function pair_fold_right (kons, knil, lst) result (retval)
     !

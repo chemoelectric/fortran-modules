@@ -316,7 +316,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 !!
 
   public :: fold             ! Generic function: `The fundamental list iterator.'
-  public :: fold_right       ! `The fundamental list recursion operator.'
+  public :: fold_right       ! Generic function: `The fundamental list recursion operator.'
   public :: pair_fold        ! Like fold, but applied to sublists instead of elements.
   public :: pair_fold_right  ! Like fold_right, but applied to sublists instead of elements.
   public :: reduce           ! A variant of fold. See SRFI-1.
@@ -330,9 +330,14 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: unfold_right_with_tail     ! One of the implementations of `unfold_right'.
   public :: unfold_right_with_nil_tail ! One of the implementations of `unfold_right'.
 
-  ! Implementations of fold
+  ! Implementations of fold.
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: fold[]n[]_subr
+])dnl
+
+  ! Implementations of fold_right.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: fold[]n[]_right_subr
 ])dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -356,8 +361,10 @@ m4_forloop([k],[1],n,[dnl
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! Types for folds, unfolds, maps, and side effects.
+!!
 
-  ! Types for folds, unfolds, maps, and side effects.
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: list_kons[]n[]_subr_t
 ])dnl
@@ -594,6 +601,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure fold[]n[]_subr
 ])dnl
   end interface fold
+
+  interface fold_right
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure fold[]n[]_right_subr
+])dnl
+  end interface fold_right
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
@@ -2634,7 +2647,9 @@ m4_forloop([k],[1],n,[dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function fold_right (kons, knil, lst) result (retval)
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function fold[]n[]_right_subr (kons, knil, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])lst[]k])) result (retval)
     !
     ! WARNING: This implementation is recursive and uses O(n) stack
     !          space. If you need to do something like this
@@ -2651,34 +2666,105 @@ dnl
     !          In any case, a recursive implementation illustrates
     !          the fundamental meaning of the operation.
     !
-    procedure(list_kons1_subr_t) :: kons
+    procedure(list_kons[]n[]_subr_t) :: kons
     class(*), intent(in) :: knil
-    class(*), intent(in) :: lst
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
     class(*), allocatable :: retval
 
-    type(gcroot_t) :: lst_root
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: lst[]k[]_root
+])dnl
 
-    lst_root = lst
-    retval = recursion (.autoval. lst)
-    call lst_root%discard
+m4_forloop([k],[1],n,[dnl
+    lst[]k[]_root = lst[]k
+])dnl
+
+    retval = &
+         recursion (.autoval. lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
+         ]).autoval. lst[]k]))
+
+m4_forloop([k],[1],n,[dnl
+    call lst[]k[]_root%discard
+])dnl
 
   contains
 
-    recursive function recursion (lst) result (retval)
-      class(*), intent(in) :: lst
+    recursive function recursion (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])lst[]k])) result (retval)
+m4_forloop([k],[1],n,[dnl
+      class(*), intent(in) :: lst[]k
+])dnl
       class(*), allocatable :: retval
 
       type(gcroot_t) :: recursion_result
 
-      if (is_not_pair (lst)) then
+      if (is_not_pair (lst1)) then
          retval = knil
+m4_forloop([k],[2],n,[dnl
+      else if (is_not_pair (lst[]k)) then
+         retval = knil
+])dnl
       else
-         recursion_result = recursion (cdr (lst))
-         call kons (car (lst), .val. recursion_result, retval)
+         recursion_result = &
+              recursion (cdr (lst1)[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
+              ])cdr (lst[]k)]))
+         call kons (car (lst1)[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
+              ])car (lst[]k)]), .val. recursion_result, retval)
       end if
     end function recursion
 
-  end function fold_right
+  end function fold[]n[]_right_subr
+])dnl
+
+!!$  recursive function fold_right (kons, knil, lst) result (retval)
+!!$    !
+!!$    ! WARNING: This implementation is recursive and uses O(n) stack
+!!$    !          space. If you need to do something like this
+!!$    !          iteratively, you can use `fold' on the reverse of lst.
+!!$    !
+!!$    !          A recursive implementation tends to be faster, at least
+!!$    !          in functional languages:
+!!$    !
+!!$    !             * the list need not be reversed,
+!!$    !
+!!$    !             * on most hardware, the stack puts values near each
+!!$    !               other in memory.
+!!$    !
+!!$    !          In any case, a recursive implementation illustrates
+!!$    !          the fundamental meaning of the operation.
+!!$    !
+!!$    procedure(list_kons1_subr_t) :: kons
+!!$    class(*), intent(in) :: knil
+!!$    class(*), intent(in) :: lst
+!!$    class(*), allocatable :: retval
+!!$
+!!$    type(gcroot_t) :: lst_root
+!!$
+!!$    lst_root = lst
+!!$    retval = recursion (.autoval. lst)
+!!$    call lst_root%discard
+!!$
+!!$  contains
+!!$
+!!$    recursive function recursion (lst) result (retval)
+!!$      class(*), intent(in) :: lst
+!!$      class(*), allocatable :: retval
+!!$
+!!$      type(gcroot_t) :: recursion_result
+!!$
+!!$      if (is_not_pair (lst)) then
+!!$         retval = knil
+!!$      else
+!!$         recursion_result = recursion (cdr (lst))
+!!$         call kons (car (lst), .val. recursion_result, retval)
+!!$      end if
+!!$    end function recursion
+!!$
+!!$  end function fold_right
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function pair_fold (kons, knil, lst) result (retval)
     procedure(list_kons1_subr_t) :: kons
@@ -2707,6 +2793,8 @@ dnl
 
     call lst_root%discard
   end function pair_fold
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function pair_fold_right (kons, knil, lst) result (retval)
     !

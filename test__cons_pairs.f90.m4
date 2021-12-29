@@ -1150,13 +1150,15 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     recursive subroutine klist (kar1, kar2, kar3, kdr, kons)
       class(*), intent(in) :: kar1, kar2, kar3, kdr
       class(*), allocatable, intent(out) :: kons
+
+      call collect_garbage_now
       kons = cons (list (kar1, kar2, kar3), kdr)
     end subroutine klist
 
   end subroutine test0230
 
   subroutine test0240
-    type(cons_t) :: lst1, lst2
+    type(cons_t) :: lst1, lst2, lst3, lst4
 
     ! Tests of fold_right.
 
@@ -1182,6 +1184,17 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (list_equal (int_eq, lst1, iota (95, 1)), "test0240-0060 failed")
     call check (list_equal (int_eq, lst2, iota (50, 2, 2)), "test0240-0070 failed")
 
+    ! A zip of three lists.
+    lst1 = list (1, 2, 3, 4)
+    lst2 = list (10, 20, 30, 40)
+    lst3 = list (100, 200, 300, 400)
+    lst4 = .tocons. fold_right (klist, nil, lst1, lst2, lst3)
+    call check (length (lst4) == 4, "test0230-0200 failed")
+    call check (list_equal (int_eq, list_ref1 (lst4, 1), list (1, 10, 100)), "test0240-0210 failed")
+    call check (list_equal (int_eq, list_ref1 (lst4, 2), list (2, 20, 200)), "test0240-0220 failed")
+    call check (list_equal (int_eq, list_ref1 (lst4, 3), list (3, 30, 300)), "test0240-0230 failed")
+    call check (list_equal (int_eq, list_ref1 (lst4, 4), list (4, 40, 400)), "test0240-0240 failed")
+
   contains
 
     recursive subroutine kcons (kar, kdr, kons)
@@ -1203,6 +1216,14 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
          kons = kdr
       end if
     end subroutine kcons_if_even
+
+    recursive subroutine klist (kar1, kar2, kar3, kdr, kons)
+      class(*), intent(in) :: kar1, kar2, kar3, kdr
+      class(*), allocatable, intent(out) :: kons
+
+      call collect_garbage_now
+      kons = cons (list (kar1, kar2, kar3), kdr)
+    end subroutine klist
 
   end subroutine test0240
 
