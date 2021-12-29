@@ -315,10 +315,10 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 !! FOLDS AND UNFOLDS
 !!
 
-  public :: fold             ! Generic function: `The fundamental list iterator.'
-  public :: fold_right       ! Generic function: `The fundamental list recursion operator.'
+  public :: fold             ! Generic function: `the fundamental list iterator.'
+  public :: fold_right       ! Generic function: `the fundamental list recursion operator.'
   public :: pair_fold        ! Generic function: like fold, but applied to sublists instead of elements.
-  public :: pair_fold_right  ! Like fold_right, but applied to sublists instead of elements.
+  public :: pair_fold_right  ! Generic function: like fold_right, but applied to sublists instead of elements.
   public :: reduce           ! A variant of fold. See SRFI-1.
   public :: reduce_right     ! A variant of fold_right. See SRFI-1.
 
@@ -343,6 +343,11 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   ! Implementations of pair_fold.
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: pair_fold[]n[]_subr
+])dnl
+
+  ! Implementations of pair_fold_right.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: pair_fold[]n[]_right_subr
 ])dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -618,6 +623,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure pair_fold[]n[]_subr
 ])dnl
   end interface pair_fold
+
+  interface pair_fold_right
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure pair_fold[]n[]_right_subr
+])dnl
+  end interface pair_fold_right
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
@@ -2794,39 +2805,67 @@ m4_forloop([k],[1],n,[dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function pair_fold_right (kons, knil, lst) result (retval)
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function pair_fold[]n[]_right_subr (kons, knil, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])lst[]k])) result (retval)
     !
     ! WARNING: This implementation is recursive and uses O(n) stack
     !          space.
     !
-    procedure(list_kons1_subr_t) :: kons
+    procedure(list_kons[]n[]_subr_t) :: kons
     class(*), intent(in) :: knil
-    class(*), intent(in) :: lst
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
     class(*), allocatable :: retval
 
-    type(gcroot_t) :: lst_root
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: lst[]k[]_root
+])dnl
 
-    lst_root = lst
-    retval = recursion (.autoval. lst)
-    call lst_root%discard
+m4_forloop([k],[1],n,[dnl
+    lst[]k[]_root = lst[]k
+])dnl
+
+    retval = &
+         recursion (.autoval. lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
+         ]).autoval. lst[]k]))
+
+m4_forloop([k],[1],n,[dnl
+    call lst[]k[]_root%discard
+])dnl
 
   contains
 
-    recursive function recursion (lst) result (retval)
-      class(*), intent(in) :: lst
+    recursive function recursion (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+         ])lst[]k])) result (retval)
+m4_forloop([k],[1],n,[dnl
+      class(*), intent(in) :: lst[]k
+])dnl
       class(*), allocatable :: retval
 
       type(gcroot_t) :: recursion_result
 
-      if (is_not_pair (lst)) then
+      if (is_not_pair (lst1)) then
          retval = knil
+m4_forloop([k],[2],n,[dnl
+      else if (is_not_pair (lst[]k)) then
+         retval = knil
+])dnl
       else
-         recursion_result = recursion (cdr (lst))
-         call kons (lst, .val. recursion_result, retval)
+         recursion_result = &
+              recursion (cdr (lst1)[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
+              ])cdr (lst[]k)]))
+         call kons (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
+              ])lst[]k]), .val. recursion_result, retval)
       end if
     end function recursion
 
-  end function pair_fold_right
+  end function pair_fold[]n[]_right_subr
+
+])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function reduce (kons, right_identity, lst) result (retval)
     procedure(list_kons1_subr_t) :: kons
