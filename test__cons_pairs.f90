@@ -1089,6 +1089,7 @@ contains
     ! Tests of fold.
 
     type(cons_t) :: lst1, lst2, lst3
+    type(gcroot_t) :: lst4
 
     ! Use fold to add the numbers in a list. (An example from SRFI-1.)
     call check (fold (kons_iadd, 0, iota (10, 1)) .eqi. 55, "test0230-0010 failed")
@@ -1127,6 +1128,17 @@ contains
 
     ! Try it again with a nil list.
     call check (str_t_cast (fold (kons_longer_str, str_t (''), nil)) == str_t (''), "test0230-0100 failed")
+
+    ! A zip-reverse of three lists.
+    lst1 = list (1, 2, 3, 4)
+    lst2 = list (10, 20, 30, 40)
+    lst3 = list (100, 200, 300, 400)
+    lst4 = .tocons. fold (klist, nil, lst1, lst2, lst3)
+    call check (length (lst4) == 4, "test0230-0200 failed")
+    call check (list_equal (int_eq, list_ref1 (lst4, 1), list (4, 40, 400)), "test0230-0210 failed")
+    call check (list_equal (int_eq, list_ref1 (lst4, 2), list (3, 30, 300)), "test0230-0220 failed")
+    call check (list_equal (int_eq, list_ref1 (lst4, 3), list (2, 20, 200)), "test0230-0230 failed")
+    call check (list_equal (int_eq, list_ref1 (lst4, 4), list (1, 10, 100)), "test0230-0240 failed")
 
   contains
 
@@ -1191,6 +1203,12 @@ contains
       end if
       call collect_garbage_now
     end subroutine kons_longer_str
+
+    recursive subroutine klist (kar1, kar2, kar3, kdr, kons)
+      class(*), intent(in) :: kar1, kar2, kar3, kdr
+      class(*), allocatable, intent(out) :: kons
+      kons = cons (list (kar1, kar2, kar3), kdr)
+    end subroutine klist
 
   end subroutine test0230
 
