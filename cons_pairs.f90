@@ -453,7 +453,7 @@ module cons_pairs
 
   public :: fold             ! Generic function: `The fundamental list iterator.'
   public :: fold_right       ! Generic function: `The fundamental list recursion operator.'
-  public :: pair_fold        ! Like fold, but applied to sublists instead of elements.
+  public :: pair_fold        ! Generic function: like fold, but applied to sublists instead of elements.
   public :: pair_fold_right  ! Like fold_right, but applied to sublists instead of elements.
   public :: reduce           ! A variant of fold. See SRFI-1.
   public :: reduce_right     ! A variant of fold_right. See SRFI-1.
@@ -489,6 +489,18 @@ module cons_pairs
   public :: fold8_right_subr
   public :: fold9_right_subr
   public :: fold10_right_subr
+
+  ! Implementations of pair_fold.
+  public :: pair_fold1_subr
+  public :: pair_fold2_subr
+  public :: pair_fold3_subr
+  public :: pair_fold4_subr
+  public :: pair_fold5_subr
+  public :: pair_fold6_subr
+  public :: pair_fold7_subr
+  public :: pair_fold8_subr
+  public :: pair_fold9_subr
+  public :: pair_fold10_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1160,6 +1172,19 @@ module cons_pairs
      module procedure fold9_right_subr
      module procedure fold10_right_subr
   end interface fold_right
+
+  interface pair_fold
+     module procedure pair_fold1_subr
+     module procedure pair_fold2_subr
+     module procedure pair_fold3_subr
+     module procedure pair_fold4_subr
+     module procedure pair_fold5_subr
+     module procedure pair_fold6_subr
+     module procedure pair_fold7_subr
+     module procedure pair_fold8_subr
+     module procedure pair_fold9_subr
+     module procedure pair_fold10_subr
+  end interface pair_fold
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
@@ -12073,81 +12098,809 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end function recursion
 
   end function fold10_right_subr
-
-!!$  recursive function fold_right (kons, knil, lst) result (retval)
-!!$    !
-!!$    ! WARNING: This implementation is recursive and uses O(n) stack
-!!$    !          space. If you need to do something like this
-!!$    !          iteratively, you can use `fold' on the reverse of lst.
-!!$    !
-!!$    !          A recursive implementation tends to be faster, at least
-!!$    !          in functional languages:
-!!$    !
-!!$    !             * the list need not be reversed,
-!!$    !
-!!$    !             * on most hardware, the stack puts values near each
-!!$    !               other in memory.
-!!$    !
-!!$    !          In any case, a recursive implementation illustrates
-!!$    !          the fundamental meaning of the operation.
-!!$    !
-!!$    procedure(list_kons1_subr_t) :: kons
-!!$    class(*), intent(in) :: knil
-!!$    class(*), intent(in) :: lst
-!!$    class(*), allocatable :: retval
-!!$
-!!$    type(gcroot_t) :: lst_root
-!!$
-!!$    lst_root = lst
-!!$    retval = recursion (.autoval. lst)
-!!$    call lst_root%discard
-!!$
-!!$  contains
-!!$
-!!$    recursive function recursion (lst) result (retval)
-!!$      class(*), intent(in) :: lst
-!!$      class(*), allocatable :: retval
-!!$
-!!$      type(gcroot_t) :: recursion_result
-!!$
-!!$      if (is_not_pair (lst)) then
-!!$         retval = knil
-!!$      else
-!!$         recursion_result = recursion (cdr (lst))
-!!$         call kons (car (lst), .val. recursion_result, retval)
-!!$      end if
-!!$    end function recursion
-!!$
-!!$  end function fold_right
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function pair_fold (kons, knil, lst) result (retval)
+  recursive function pair_fold1_subr (kons, knil, lst1) result (retval)
     procedure(list_kons1_subr_t) :: kons
     class(*), intent(in) :: knil
-    class(*), intent(in) :: lst
+    class(*), intent(in) :: lst1
     class(*), allocatable :: retval
 
-    class(*), allocatable :: new_retval
-    type(gcroot_t) :: tail, new_tail
-
-    type(gcroot_t) :: lst_root
+    type(gcroot_t) :: lst1_root
     type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    class(*), allocatable :: new_retval
+    logical :: done
 
     ! Protect against garbage collections performed by kons.
-    lst_root = lst
+    lst1_root = lst1
 
     retval = knil
-    tail = lst_root
-    do while (is_pair (tail))
-       new_tail = cdr (tail)
-       retval_root = retval
-       call kons (.val. tail, retval, new_retval)
-       retval = new_retval
-       tail = new_tail
+    tail1 = lst1_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          retval_root = retval
+          call kons (.val. tail1, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+       end if
     end do
 
-    call lst_root%discard
-  end function pair_fold
+    call retval_root%discard
+    call lst1_root%discard
+  end function pair_fold1_subr
+
+  recursive function pair_fold2_subr (kons, knil, lst1, lst2) result (retval)
+    procedure(list_kons2_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    type(gcroot_t) :: tail2, new_tail2
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+
+    retval = knil
+    tail1 = lst1_root
+    tail2 = lst2_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          new_tail2 = cdr (tail2)
+          retval_root = retval
+          call kons (.val. tail1, .val. tail2, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+          tail2 = new_tail2
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+  end function pair_fold2_subr
+
+  recursive function pair_fold3_subr (kons, knil, lst1, lst2, lst3) result (retval)
+    procedure(list_kons3_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    type(gcroot_t) :: tail2, new_tail2
+    type(gcroot_t) :: tail3, new_tail3
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+
+    retval = knil
+    tail1 = lst1_root
+    tail2 = lst2_root
+    tail3 = lst3_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          new_tail2 = cdr (tail2)
+          new_tail3 = cdr (tail3)
+          retval_root = retval
+          call kons (.val. tail1, .val. tail2, .val. tail3, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+          tail2 = new_tail2
+          tail3 = new_tail3
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+  end function pair_fold3_subr
+
+  recursive function pair_fold4_subr (kons, knil, lst1, lst2, lst3, lst4) result (retval)
+    procedure(list_kons4_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    type(gcroot_t) :: tail2, new_tail2
+    type(gcroot_t) :: tail3, new_tail3
+    type(gcroot_t) :: tail4, new_tail4
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+
+    retval = knil
+    tail1 = lst1_root
+    tail2 = lst2_root
+    tail3 = lst3_root
+    tail4 = lst4_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          new_tail2 = cdr (tail2)
+          new_tail3 = cdr (tail3)
+          new_tail4 = cdr (tail4)
+          retval_root = retval
+          call kons (.val. tail1, .val. tail2, .val. tail3, &
+               .val. tail4, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+          tail2 = new_tail2
+          tail3 = new_tail3
+          tail4 = new_tail4
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+  end function pair_fold4_subr
+
+  recursive function pair_fold5_subr (kons, knil, lst1, lst2, lst3, lst4, lst5) result (retval)
+    procedure(list_kons5_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    type(gcroot_t) :: tail2, new_tail2
+    type(gcroot_t) :: tail3, new_tail3
+    type(gcroot_t) :: tail4, new_tail4
+    type(gcroot_t) :: tail5, new_tail5
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+
+    retval = knil
+    tail1 = lst1_root
+    tail2 = lst2_root
+    tail3 = lst3_root
+    tail4 = lst4_root
+    tail5 = lst5_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          new_tail2 = cdr (tail2)
+          new_tail3 = cdr (tail3)
+          new_tail4 = cdr (tail4)
+          new_tail5 = cdr (tail5)
+          retval_root = retval
+          call kons (.val. tail1, .val. tail2, .val. tail3, &
+               .val. tail4, .val. tail5, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+          tail2 = new_tail2
+          tail3 = new_tail3
+          tail4 = new_tail4
+          tail5 = new_tail5
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+  end function pair_fold5_subr
+
+  recursive function pair_fold6_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6) result (retval)
+    procedure(list_kons6_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    type(gcroot_t) :: tail2, new_tail2
+    type(gcroot_t) :: tail3, new_tail3
+    type(gcroot_t) :: tail4, new_tail4
+    type(gcroot_t) :: tail5, new_tail5
+    type(gcroot_t) :: tail6, new_tail6
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+
+    retval = knil
+    tail1 = lst1_root
+    tail2 = lst2_root
+    tail3 = lst3_root
+    tail4 = lst4_root
+    tail5 = lst5_root
+    tail6 = lst6_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          new_tail2 = cdr (tail2)
+          new_tail3 = cdr (tail3)
+          new_tail4 = cdr (tail4)
+          new_tail5 = cdr (tail5)
+          new_tail6 = cdr (tail6)
+          retval_root = retval
+          call kons (.val. tail1, .val. tail2, .val. tail3, &
+               .val. tail4, .val. tail5, .val. tail6, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+          tail2 = new_tail2
+          tail3 = new_tail3
+          tail4 = new_tail4
+          tail5 = new_tail5
+          tail6 = new_tail6
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+  end function pair_fold6_subr
+
+  recursive function pair_fold7_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (retval)
+    procedure(list_kons7_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    type(gcroot_t) :: tail2, new_tail2
+    type(gcroot_t) :: tail3, new_tail3
+    type(gcroot_t) :: tail4, new_tail4
+    type(gcroot_t) :: tail5, new_tail5
+    type(gcroot_t) :: tail6, new_tail6
+    type(gcroot_t) :: tail7, new_tail7
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+
+    retval = knil
+    tail1 = lst1_root
+    tail2 = lst2_root
+    tail3 = lst3_root
+    tail4 = lst4_root
+    tail5 = lst5_root
+    tail6 = lst6_root
+    tail7 = lst7_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          new_tail2 = cdr (tail2)
+          new_tail3 = cdr (tail3)
+          new_tail4 = cdr (tail4)
+          new_tail5 = cdr (tail5)
+          new_tail6 = cdr (tail6)
+          new_tail7 = cdr (tail7)
+          retval_root = retval
+          call kons (.val. tail1, .val. tail2, .val. tail3, &
+               .val. tail4, .val. tail5, .val. tail6, &
+               .val. tail7, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+          tail2 = new_tail2
+          tail3 = new_tail3
+          tail4 = new_tail4
+          tail5 = new_tail5
+          tail6 = new_tail6
+          tail7 = new_tail7
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+  end function pair_fold7_subr
+
+  recursive function pair_fold8_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (retval)
+    procedure(list_kons8_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    type(gcroot_t) :: tail2, new_tail2
+    type(gcroot_t) :: tail3, new_tail3
+    type(gcroot_t) :: tail4, new_tail4
+    type(gcroot_t) :: tail5, new_tail5
+    type(gcroot_t) :: tail6, new_tail6
+    type(gcroot_t) :: tail7, new_tail7
+    type(gcroot_t) :: tail8, new_tail8
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+
+    retval = knil
+    tail1 = lst1_root
+    tail2 = lst2_root
+    tail3 = lst3_root
+    tail4 = lst4_root
+    tail5 = lst5_root
+    tail6 = lst6_root
+    tail7 = lst7_root
+    tail8 = lst8_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          new_tail2 = cdr (tail2)
+          new_tail3 = cdr (tail3)
+          new_tail4 = cdr (tail4)
+          new_tail5 = cdr (tail5)
+          new_tail6 = cdr (tail6)
+          new_tail7 = cdr (tail7)
+          new_tail8 = cdr (tail8)
+          retval_root = retval
+          call kons (.val. tail1, .val. tail2, .val. tail3, &
+               .val. tail4, .val. tail5, .val. tail6, &
+               .val. tail7, .val. tail8, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+          tail2 = new_tail2
+          tail3 = new_tail3
+          tail4 = new_tail4
+          tail5 = new_tail5
+          tail6 = new_tail6
+          tail7 = new_tail7
+          tail8 = new_tail8
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+  end function pair_fold8_subr
+
+  recursive function pair_fold9_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (retval)
+    procedure(list_kons9_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    type(gcroot_t) :: tail2, new_tail2
+    type(gcroot_t) :: tail3, new_tail3
+    type(gcroot_t) :: tail4, new_tail4
+    type(gcroot_t) :: tail5, new_tail5
+    type(gcroot_t) :: tail6, new_tail6
+    type(gcroot_t) :: tail7, new_tail7
+    type(gcroot_t) :: tail8, new_tail8
+    type(gcroot_t) :: tail9, new_tail9
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+
+    retval = knil
+    tail1 = lst1_root
+    tail2 = lst2_root
+    tail3 = lst3_root
+    tail4 = lst4_root
+    tail5 = lst5_root
+    tail6 = lst6_root
+    tail7 = lst7_root
+    tail8 = lst8_root
+    tail9 = lst9_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          new_tail2 = cdr (tail2)
+          new_tail3 = cdr (tail3)
+          new_tail4 = cdr (tail4)
+          new_tail5 = cdr (tail5)
+          new_tail6 = cdr (tail6)
+          new_tail7 = cdr (tail7)
+          new_tail8 = cdr (tail8)
+          new_tail9 = cdr (tail9)
+          retval_root = retval
+          call kons (.val. tail1, .val. tail2, .val. tail3, &
+               .val. tail4, .val. tail5, .val. tail6, &
+               .val. tail7, .val. tail8, .val. tail9, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+          tail2 = new_tail2
+          tail3 = new_tail3
+          tail4 = new_tail4
+          tail5 = new_tail5
+          tail6 = new_tail6
+          tail7 = new_tail7
+          tail8 = new_tail8
+          tail9 = new_tail9
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+  end function pair_fold9_subr
+
+  recursive function pair_fold10_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (retval)
+    procedure(list_kons10_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    type(gcroot_t) :: tail2, new_tail2
+    type(gcroot_t) :: tail3, new_tail3
+    type(gcroot_t) :: tail4, new_tail4
+    type(gcroot_t) :: tail5, new_tail5
+    type(gcroot_t) :: tail6, new_tail6
+    type(gcroot_t) :: tail7, new_tail7
+    type(gcroot_t) :: tail8, new_tail8
+    type(gcroot_t) :: tail9, new_tail9
+    type(gcroot_t) :: tail10, new_tail10
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+
+    retval = knil
+    tail1 = lst1_root
+    tail2 = lst2_root
+    tail3 = lst3_root
+    tail4 = lst4_root
+    tail5 = lst5_root
+    tail6 = lst6_root
+    tail7 = lst7_root
+    tail8 = lst8_root
+    tail9 = lst9_root
+    tail10 = lst10_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          new_tail2 = cdr (tail2)
+          new_tail3 = cdr (tail3)
+          new_tail4 = cdr (tail4)
+          new_tail5 = cdr (tail5)
+          new_tail6 = cdr (tail6)
+          new_tail7 = cdr (tail7)
+          new_tail8 = cdr (tail8)
+          new_tail9 = cdr (tail9)
+          new_tail10 = cdr (tail10)
+          retval_root = retval
+          call kons (.val. tail1, .val. tail2, .val. tail3, &
+               .val. tail4, .val. tail5, .val. tail6, &
+               .val. tail7, .val. tail8, .val. tail9, &
+               .val. tail10, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+          tail2 = new_tail2
+          tail3 = new_tail3
+          tail4 = new_tail4
+          tail5 = new_tail5
+          tail6 = new_tail6
+          tail7 = new_tail7
+          tail8 = new_tail8
+          tail9 = new_tail9
+          tail10 = new_tail10
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+  end function pair_fold10_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -12201,6 +12954,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        retval = .autoval. right_identity
     end if
   end function reduce
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function reduce_right (kons, right_identity, lst) result (retval)
     procedure(list_kons1_subr_t) :: kons

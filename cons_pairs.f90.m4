@@ -317,7 +317,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 
   public :: fold             ! Generic function: `The fundamental list iterator.'
   public :: fold_right       ! Generic function: `The fundamental list recursion operator.'
-  public :: pair_fold        ! Like fold, but applied to sublists instead of elements.
+  public :: pair_fold        ! Generic function: like fold, but applied to sublists instead of elements.
   public :: pair_fold_right  ! Like fold_right, but applied to sublists instead of elements.
   public :: reduce           ! A variant of fold. See SRFI-1.
   public :: reduce_right     ! A variant of fold_right. See SRFI-1.
@@ -338,6 +338,11 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   ! Implementations of fold_right.
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: fold[]n[]_right_subr
+])dnl
+
+  ! Implementations of pair_fold.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: pair_fold[]n[]_subr
 ])dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -607,6 +612,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure fold[]n[]_right_subr
 ])dnl
   end interface fold_right
+
+  interface pair_fold
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure pair_fold[]n[]_subr
+])dnl
+  end interface pair_fold
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
@@ -2717,83 +2728,70 @@ m4_forloop([k],[2],n,[dnl
 
   end function fold[]n[]_right_subr
 ])dnl
-
-!!$  recursive function fold_right (kons, knil, lst) result (retval)
-!!$    !
-!!$    ! WARNING: This implementation is recursive and uses O(n) stack
-!!$    !          space. If you need to do something like this
-!!$    !          iteratively, you can use `fold' on the reverse of lst.
-!!$    !
-!!$    !          A recursive implementation tends to be faster, at least
-!!$    !          in functional languages:
-!!$    !
-!!$    !             * the list need not be reversed,
-!!$    !
-!!$    !             * on most hardware, the stack puts values near each
-!!$    !               other in memory.
-!!$    !
-!!$    !          In any case, a recursive implementation illustrates
-!!$    !          the fundamental meaning of the operation.
-!!$    !
-!!$    procedure(list_kons1_subr_t) :: kons
-!!$    class(*), intent(in) :: knil
-!!$    class(*), intent(in) :: lst
-!!$    class(*), allocatable :: retval
-!!$
-!!$    type(gcroot_t) :: lst_root
-!!$
-!!$    lst_root = lst
-!!$    retval = recursion (.autoval. lst)
-!!$    call lst_root%discard
-!!$
-!!$  contains
-!!$
-!!$    recursive function recursion (lst) result (retval)
-!!$      class(*), intent(in) :: lst
-!!$      class(*), allocatable :: retval
-!!$
-!!$      type(gcroot_t) :: recursion_result
-!!$
-!!$      if (is_not_pair (lst)) then
-!!$         retval = knil
-!!$      else
-!!$         recursion_result = recursion (cdr (lst))
-!!$         call kons (car (lst), .val. recursion_result, retval)
-!!$      end if
-!!$    end function recursion
-!!$
-!!$  end function fold_right
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function pair_fold (kons, knil, lst) result (retval)
-    procedure(list_kons1_subr_t) :: kons
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function pair_fold[]n[]_subr (kons, knil, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+       ])lst[]k])) result (retval)
+    procedure(list_kons[]n[]_subr_t) :: kons
     class(*), intent(in) :: knil
-    class(*), intent(in) :: lst
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
     class(*), allocatable :: retval
 
-    class(*), allocatable :: new_retval
-    type(gcroot_t) :: tail, new_tail
-
-    type(gcroot_t) :: lst_root
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: lst[]k[]_root
+])dnl
     type(gcroot_t) :: retval_root
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: tail[]k, new_tail[]k
+])dnl
+    class(*), allocatable :: new_retval
+    logical :: done
 
     ! Protect against garbage collections performed by kons.
-    lst_root = lst
+m4_forloop([k],[1],n,[dnl
+    lst[]k[]_root = lst[]k
+])dnl
 
     retval = knil
-    tail = lst_root
-    do while (is_pair (tail))
-       new_tail = cdr (tail)
-       retval_root = retval
-       call kons (.val. tail, retval, new_retval)
-       retval = new_retval
-       tail = new_tail
+m4_forloop([k],[1],n,[dnl
+    tail[]k = lst[]k[]_root
+])dnl
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+m4_forloop([k],[1],n,[dnl
+          done = .true.
+m4_if(k,n,[dnl
+       else
+],[dnl
+       else if (is_not_pair (tail[]m4_eval(k + 1))) then
+])dnl
+])dnl
+m4_forloop([k],[1],n,[dnl
+          new_tail[]k = cdr (tail[]k)
+])dnl
+          retval_root = retval
+          call kons (.val. tail1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
+               ]).val. tail[]k]), retval, new_retval)
+          retval = new_retval
+m4_forloop([k],[1],n,[dnl
+          tail[]k = new_tail[]k
+])dnl
+       end if
     end do
 
-    call lst_root%discard
-  end function pair_fold
+    call retval_root%discard
+m4_forloop([k],[1],n,[dnl
+    call lst[]k[]_root%discard
+])dnl
+  end function pair_fold[]n[]_subr
 
+])dnl
+dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function pair_fold_right (kons, knil, lst) result (retval)
@@ -2846,6 +2844,8 @@ dnl
        retval = .autoval. right_identity
     end if
   end function reduce
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function reduce_right (kons, right_identity, lst) result (retval)
     procedure(list_kons1_subr_t) :: kons

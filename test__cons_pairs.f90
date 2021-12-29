@@ -1288,7 +1288,7 @@ contains
 
     ! Tests of pair_fold.
 
-    type(cons_t) :: lst1, lst2, p
+    type(cons_t) :: lst1, lst2, lst3, lst4, p
     integer :: i
 
     ! Destructively reverse a list. (An example from SRFI-1.)
@@ -1310,6 +1310,15 @@ contains
     end do
     call check (is_nil (p), "test0250-0050 failed")
 
+    ! Add numbers and reverse the list, as if one were using regular
+    ! fold instead of pair_fold. (It seems a simple way to test
+    ! multiple lists support).
+    lst1 = list (1, 2, 3, 4)
+    lst2 = list (10, 20, 30, 40)
+    lst3 = list (100, 200, 300, 400)
+    lst4 = .tocons. pair_fold (kadd3cdr, nil, lst1, lst2, lst3)
+    call check (list_equal (int_eq, lst4, list (444, 333, 222, 111)), "test0250-0200 failed")
+
   contains
 
     recursive subroutine ksetcdr (kar, kdr, kons)
@@ -1328,6 +1337,14 @@ contains
       call collect_garbage_now
       kons = cons (list_copy (kar), kdr)
     end subroutine kcopy
+
+    recursive subroutine kadd3cdr (kar1, kar2, kar3, kdr, kons)
+      class(*), intent(in) :: kar1, kar2, kar3, kdr
+      class(*), allocatable, intent(out) :: kons
+
+      call collect_garbage_now
+      kons = cons (int_cast (car (kar1)) + int_cast (car (kar2)) + int_cast (car (kar3)), kdr)
+    end subroutine kadd3cdr
 
   end subroutine test0250
 
