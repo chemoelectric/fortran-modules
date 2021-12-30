@@ -1912,6 +1912,72 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   end subroutine test0340
 
+  subroutine test0350
+    !
+    ! Tests of filterx.
+    !
+
+    type(cons_t) :: lst1, lst2
+    class(*), allocatable :: result1
+
+    lst1 = list (1, 2.0, 3, 4.0, 5.0, 6, 7, 8)
+    result1 = filterx (is_int, lst1)
+    lst2 = list (1, 3, 6, 7, 8)
+    call check (list_equal (int_eq, result1, lst2), "test0350-0010 failed")
+
+    lst1 = list (1.0, 2.0, 3, 4.0, 5.0, 6, 7, 8)
+    result1 = filterx (is_int, lst1)
+    lst2 = list (3, 6, 7, 8)
+    call check (list_equal (int_eq, result1, lst2), "test0350-0020 failed")
+
+    lst1 = list (1.0, 2.0, 3, 4.0, 5.0, 6, 7, 8.0)
+    result1 = filterx (is_int, lst1)
+    lst2 = list (3, 6, 7)
+    call check (list_equal (int_eq, result1, lst2), "test0350-0030 failed")
+
+    lst1 = list ()
+    result1 = filterx (is_int, lst1)
+    lst2 = list ()
+    call check (list_equal (int_eq, result1, lst2), "test0350-0040 failed")
+
+    lst1 = list (123)
+    result1 = filterx (is_int, lst1)
+    lst2 = list (123)
+    call check (list_equal (int_eq, result1, lst2), "test0350-0050 failed")
+
+    lst1 = list (123.0)
+    result1 = filterx (is_int, lst1)
+    lst2 = list ()
+    call check (list_equal (int_eq, result1, lst2), "test0350-0060 failed")
+
+    lst1 = iota (100, 1)
+    result1 = filterx (is_int, lst1)
+    lst2 = iota (100, 1)
+    call check (list_equal (int_eq, result1, lst2), "test0350-0070 failed")
+
+    lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0)
+    result1 = filterx (is_int, lst1)
+    lst2 = list ()
+    call check (list_equal (int_eq, result1, lst2), "test0350-0080 failed")
+
+  contains
+
+    recursive function is_int (obj) result (bool)
+      class(*), intent(in) :: obj
+      logical :: bool
+
+      call collect_garbage_now
+
+      select type (obj)
+      type is (integer)
+         bool = .true.
+      class default
+         bool = .false.
+      end select
+    end function is_int
+
+  end subroutine test0350
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1955,6 +2021,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0320
     call test0330
     call test0340
+    call test0350
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

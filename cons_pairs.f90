@@ -339,7 +339,8 @@ module cons_pairs
   public :: length           ! The length of a proper or dotted list.
   public :: lengthc          ! The length of a proper or dotted list, or -1 for a circular list. (SRFI-1 has `length+'.)
 
-  ! The generics:
+  ! Some generic functions for breaking a list at a point specified by
+  ! an integer index:
   public :: take             ! Return a freshly allocated copy of the first n elements of a list.
   public :: takex            ! Like take, but allowed to destroy its inputs. (Currently, it cannot handle circular lists.)
   public :: drop             ! Return a common tail containing all but the first n elements of a list.
@@ -348,7 +349,8 @@ module cons_pairs
   public :: drop_rightx      ! Like drop_right, but allowed to destroy its inputs.
   public :: split_at         ! Do both take and drop, at the same time.
   public :: split_atx        ! Like split_at, but allowed to destroy its inputs.
-  ! Versions for INTEGER(int64).
+
+  ! Implementations for INTEGER(int64).
   public :: take_size_kind
   public :: takex_size_kind
   public :: drop_size_kind
@@ -357,7 +359,8 @@ module cons_pairs
   public :: drop_rightx_size_kind
   public :: split_at_size_kind
   public :: split_atx_size_kind
-  ! Versions for INTEGER of the default kind.
+
+  ! Implementations for INTEGER of the default kind.
   public :: take_int
   public :: takex_int
   public :: drop_int
@@ -370,9 +373,14 @@ module cons_pairs
   public :: last_pair        ! Return the last pair of a list.
   public :: last             ! Return the last CAR of a list.
 
-  public :: make_list        ! Generic: return a list of repeated values.
-  public :: make_list_size_kind ! Version for INTEGER(int64).
-  public :: make_list_int       ! Version for INTEGER of the default kind.
+  ! Generic function: return a list of a single value, repeated.
+  public :: make_list
+
+  ! An implementation for INTEGER(int64).
+  public :: make_list_size_kind
+
+  ! An implementation for INTEGER of the default kind.
+  public :: make_list_int
 
   ! Return a list of values determined by a procedure.
   public :: list_tabulate_init_proc_t ! The type for the initialization procedure.
@@ -552,25 +560,40 @@ module cons_pairs
   public :: pair_for_each9_subr
   public :: pair_for_each10_subr
 
+  !public :: filter           ! Return the elements of a list that
+                             ! satisfy a predicate.
+  public :: filterx          ! Like filter, but allowed to destroy its
+                             ! input.
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! FOLDS AND UNFOLDS
 !!
 
-  public :: fold             ! Generic function: `the fundamental list iterator.'
-  public :: fold_right       ! Generic function: `the fundamental list recursion operator.'
-  public :: pair_fold        ! Generic function: like fold, but applied to sublists instead of elements.
-  public :: pair_fold_right  ! Generic function: like fold_right, but applied to sublists instead of elements.
-  public :: reduce           ! Generic function: A variant of fold. See SRFI-1.
-  public :: reduce_right     ! Generic function: A variant of fold_right. See SRFI-1.
+  public :: fold             ! Generic function: `the fundamental list
+                             ! iterator.'
+  public :: fold_right       ! Generic function: `the fundamental list
+                             ! recursion operator.'
+  public :: pair_fold        ! Generic function: like fold, but
+                             ! applied to sublists instead of
+                             ! elements.
+  public :: pair_fold_right  ! Generic function: like fold_right, but
+                             ! applied to sublists instead of
+                             ! elements.
+  public :: reduce           ! Generic function: A variant of
+                             ! fold. See SRFI-1.
+  public :: reduce_right     ! Generic function: A variant of
+                             ! fold_right. See SRFI-1.
 
-  public :: unfold           ! Generic: `The fundamental recursive list constructor.' See SRFI-1.
-  public :: unfold_with_tail_gen ! One of the implementations of `unfold'.
-  public :: unfold_with_nil_tail ! One of the implementations of `unfold'.
+  public :: unfold           ! Generic: `The fundamental recursive
+                             ! list constructor.' See SRFI-1.
+  public :: unfold_with_tail_gen ! An implementation.
+  public :: unfold_with_nil_tail ! Another implementation.
 
-  public :: unfold_right     ! Generic: `The fundamental iterative list constructor.' See SRFI-1.
-  public :: unfold_right_with_tail     ! One of the implementations of `unfold_right'.
-  public :: unfold_right_with_nil_tail ! One of the implementations of `unfold_right'.
+  public :: unfold_right     ! Generic: `The fundamental iterative
+                             ! list constructor.' See SRFI-1.
+  public :: unfold_right_with_tail     ! An implementation.
+  public :: unfold_right_with_nil_tail ! Another implementation.
 
   ! Implementations of fold.
   public :: fold1_subr
@@ -11743,24 +11766,24 @@ contains
 
     tail1 = lst1
 
-    call skip_falses (all_done, proc_result1)
+    call skip_falses (proc_result1)
     if (all_done) then
        lst_m = nil
     else
        retval = proc_result1 ! Protect proc_result1 from garbage collections.
-       call skip_falses (all_done, proc_result2)
+       call skip_falses (proc_result2)
        if (all_done) then
           lst_m = proc_result1 ** nil
           call retval%discard
        else
           cursor = proc_result2 ** nil
           retval = proc_result1 ** cursor
-          call skip_falses (all_done, proc_result2)
+          call skip_falses (proc_result2)
           do while (.not. all_done)
              new_pair = proc_result2 ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
-             call skip_falses (all_done, proc_result2)
+             call skip_falses (proc_result2)
           end do
           lst_m = .tocons. retval
        end if
@@ -11770,8 +11793,7 @@ contains
 
   contains
 
-    recursive subroutine skip_falses (all_done, proc_result)
-      logical, intent(out) :: all_done
+    recursive subroutine skip_falses (proc_result)
       class(*), allocatable, intent(out) :: proc_result
 
       logical :: all_skipped
@@ -11821,24 +11843,24 @@ contains
     tail1 = lst1
     tail2 = lst2
 
-    call skip_falses (all_done, proc_result1)
+    call skip_falses (proc_result1)
     if (all_done) then
        lst_m = nil
     else
        retval = proc_result1 ! Protect proc_result1 from garbage collections.
-       call skip_falses (all_done, proc_result2)
+       call skip_falses (proc_result2)
        if (all_done) then
           lst_m = proc_result1 ** nil
           call retval%discard
        else
           cursor = proc_result2 ** nil
           retval = proc_result1 ** cursor
-          call skip_falses (all_done, proc_result2)
+          call skip_falses (proc_result2)
           do while (.not. all_done)
              new_pair = proc_result2 ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
-             call skip_falses (all_done, proc_result2)
+             call skip_falses (proc_result2)
           end do
           lst_m = .tocons. retval
        end if
@@ -11849,8 +11871,7 @@ contains
 
   contains
 
-    recursive subroutine skip_falses (all_done, proc_result)
-      logical, intent(out) :: all_done
+    recursive subroutine skip_falses (proc_result)
       class(*), allocatable, intent(out) :: proc_result
 
       logical :: all_skipped
@@ -11909,24 +11930,24 @@ contains
     tail2 = lst2
     tail3 = lst3
 
-    call skip_falses (all_done, proc_result1)
+    call skip_falses (proc_result1)
     if (all_done) then
        lst_m = nil
     else
        retval = proc_result1 ! Protect proc_result1 from garbage collections.
-       call skip_falses (all_done, proc_result2)
+       call skip_falses (proc_result2)
        if (all_done) then
           lst_m = proc_result1 ** nil
           call retval%discard
        else
           cursor = proc_result2 ** nil
           retval = proc_result1 ** cursor
-          call skip_falses (all_done, proc_result2)
+          call skip_falses (proc_result2)
           do while (.not. all_done)
              new_pair = proc_result2 ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
-             call skip_falses (all_done, proc_result2)
+             call skip_falses (proc_result2)
           end do
           lst_m = .tocons. retval
        end if
@@ -11938,8 +11959,7 @@ contains
 
   contains
 
-    recursive subroutine skip_falses (all_done, proc_result)
-      logical, intent(out) :: all_done
+    recursive subroutine skip_falses (proc_result)
       class(*), allocatable, intent(out) :: proc_result
 
       logical :: all_skipped
@@ -12007,24 +12027,24 @@ contains
     tail3 = lst3
     tail4 = lst4
 
-    call skip_falses (all_done, proc_result1)
+    call skip_falses (proc_result1)
     if (all_done) then
        lst_m = nil
     else
        retval = proc_result1 ! Protect proc_result1 from garbage collections.
-       call skip_falses (all_done, proc_result2)
+       call skip_falses (proc_result2)
        if (all_done) then
           lst_m = proc_result1 ** nil
           call retval%discard
        else
           cursor = proc_result2 ** nil
           retval = proc_result1 ** cursor
-          call skip_falses (all_done, proc_result2)
+          call skip_falses (proc_result2)
           do while (.not. all_done)
              new_pair = proc_result2 ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
-             call skip_falses (all_done, proc_result2)
+             call skip_falses (proc_result2)
           end do
           lst_m = .tocons. retval
        end if
@@ -12037,8 +12057,7 @@ contains
 
   contains
 
-    recursive subroutine skip_falses (all_done, proc_result)
-      logical, intent(out) :: all_done
+    recursive subroutine skip_falses (proc_result)
       class(*), allocatable, intent(out) :: proc_result
 
       logical :: all_skipped
@@ -12115,24 +12134,24 @@ contains
     tail4 = lst4
     tail5 = lst5
 
-    call skip_falses (all_done, proc_result1)
+    call skip_falses (proc_result1)
     if (all_done) then
        lst_m = nil
     else
        retval = proc_result1 ! Protect proc_result1 from garbage collections.
-       call skip_falses (all_done, proc_result2)
+       call skip_falses (proc_result2)
        if (all_done) then
           lst_m = proc_result1 ** nil
           call retval%discard
        else
           cursor = proc_result2 ** nil
           retval = proc_result1 ** cursor
-          call skip_falses (all_done, proc_result2)
+          call skip_falses (proc_result2)
           do while (.not. all_done)
              new_pair = proc_result2 ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
-             call skip_falses (all_done, proc_result2)
+             call skip_falses (proc_result2)
           end do
           lst_m = .tocons. retval
        end if
@@ -12146,8 +12165,7 @@ contains
 
   contains
 
-    recursive subroutine skip_falses (all_done, proc_result)
-      logical, intent(out) :: all_done
+    recursive subroutine skip_falses (proc_result)
       class(*), allocatable, intent(out) :: proc_result
 
       logical :: all_skipped
@@ -12234,24 +12252,24 @@ contains
     tail5 = lst5
     tail6 = lst6
 
-    call skip_falses (all_done, proc_result1)
+    call skip_falses (proc_result1)
     if (all_done) then
        lst_m = nil
     else
        retval = proc_result1 ! Protect proc_result1 from garbage collections.
-       call skip_falses (all_done, proc_result2)
+       call skip_falses (proc_result2)
        if (all_done) then
           lst_m = proc_result1 ** nil
           call retval%discard
        else
           cursor = proc_result2 ** nil
           retval = proc_result1 ** cursor
-          call skip_falses (all_done, proc_result2)
+          call skip_falses (proc_result2)
           do while (.not. all_done)
              new_pair = proc_result2 ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
-             call skip_falses (all_done, proc_result2)
+             call skip_falses (proc_result2)
           end do
           lst_m = .tocons. retval
        end if
@@ -12266,8 +12284,7 @@ contains
 
   contains
 
-    recursive subroutine skip_falses (all_done, proc_result)
-      logical, intent(out) :: all_done
+    recursive subroutine skip_falses (proc_result)
       class(*), allocatable, intent(out) :: proc_result
 
       logical :: all_skipped
@@ -12364,24 +12381,24 @@ contains
     tail6 = lst6
     tail7 = lst7
 
-    call skip_falses (all_done, proc_result1)
+    call skip_falses (proc_result1)
     if (all_done) then
        lst_m = nil
     else
        retval = proc_result1 ! Protect proc_result1 from garbage collections.
-       call skip_falses (all_done, proc_result2)
+       call skip_falses (proc_result2)
        if (all_done) then
           lst_m = proc_result1 ** nil
           call retval%discard
        else
           cursor = proc_result2 ** nil
           retval = proc_result1 ** cursor
-          call skip_falses (all_done, proc_result2)
+          call skip_falses (proc_result2)
           do while (.not. all_done)
              new_pair = proc_result2 ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
-             call skip_falses (all_done, proc_result2)
+             call skip_falses (proc_result2)
           end do
           lst_m = .tocons. retval
        end if
@@ -12397,8 +12414,7 @@ contains
 
   contains
 
-    recursive subroutine skip_falses (all_done, proc_result)
-      logical, intent(out) :: all_done
+    recursive subroutine skip_falses (proc_result)
       class(*), allocatable, intent(out) :: proc_result
 
       logical :: all_skipped
@@ -12504,24 +12520,24 @@ contains
     tail7 = lst7
     tail8 = lst8
 
-    call skip_falses (all_done, proc_result1)
+    call skip_falses (proc_result1)
     if (all_done) then
        lst_m = nil
     else
        retval = proc_result1 ! Protect proc_result1 from garbage collections.
-       call skip_falses (all_done, proc_result2)
+       call skip_falses (proc_result2)
        if (all_done) then
           lst_m = proc_result1 ** nil
           call retval%discard
        else
           cursor = proc_result2 ** nil
           retval = proc_result1 ** cursor
-          call skip_falses (all_done, proc_result2)
+          call skip_falses (proc_result2)
           do while (.not. all_done)
              new_pair = proc_result2 ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
-             call skip_falses (all_done, proc_result2)
+             call skip_falses (proc_result2)
           end do
           lst_m = .tocons. retval
        end if
@@ -12538,8 +12554,7 @@ contains
 
   contains
 
-    recursive subroutine skip_falses (all_done, proc_result)
-      logical, intent(out) :: all_done
+    recursive subroutine skip_falses (proc_result)
       class(*), allocatable, intent(out) :: proc_result
 
       logical :: all_skipped
@@ -12654,24 +12669,24 @@ contains
     tail8 = lst8
     tail9 = lst9
 
-    call skip_falses (all_done, proc_result1)
+    call skip_falses (proc_result1)
     if (all_done) then
        lst_m = nil
     else
        retval = proc_result1 ! Protect proc_result1 from garbage collections.
-       call skip_falses (all_done, proc_result2)
+       call skip_falses (proc_result2)
        if (all_done) then
           lst_m = proc_result1 ** nil
           call retval%discard
        else
           cursor = proc_result2 ** nil
           retval = proc_result1 ** cursor
-          call skip_falses (all_done, proc_result2)
+          call skip_falses (proc_result2)
           do while (.not. all_done)
              new_pair = proc_result2 ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
-             call skip_falses (all_done, proc_result2)
+             call skip_falses (proc_result2)
           end do
           lst_m = .tocons. retval
        end if
@@ -12689,8 +12704,7 @@ contains
 
   contains
 
-    recursive subroutine skip_falses (all_done, proc_result)
-      logical, intent(out) :: all_done
+    recursive subroutine skip_falses (proc_result)
       class(*), allocatable, intent(out) :: proc_result
 
       logical :: all_skipped
@@ -12814,24 +12828,24 @@ contains
     tail9 = lst9
     tail10 = lst10
 
-    call skip_falses (all_done, proc_result1)
+    call skip_falses (proc_result1)
     if (all_done) then
        lst_m = nil
     else
        retval = proc_result1 ! Protect proc_result1 from garbage collections.
-       call skip_falses (all_done, proc_result2)
+       call skip_falses (proc_result2)
        if (all_done) then
           lst_m = proc_result1 ** nil
           call retval%discard
        else
           cursor = proc_result2 ** nil
           retval = proc_result1 ** cursor
-          call skip_falses (all_done, proc_result2)
+          call skip_falses (proc_result2)
           do while (.not. all_done)
              new_pair = proc_result2 ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
-             call skip_falses (all_done, proc_result2)
+             call skip_falses (proc_result2)
           end do
           lst_m = .tocons. retval
        end if
@@ -12850,8 +12864,7 @@ contains
 
   contains
 
-    recursive subroutine skip_falses (all_done, proc_result)
-      logical, intent(out) :: all_done
+    recursive subroutine skip_falses (proc_result)
       class(*), allocatable, intent(out) :: proc_result
 
       logical :: all_skipped
@@ -14273,6 +14286,121 @@ contains
     call lst9_root%discard
     call lst10_root%discard
   end subroutine pair_for_each10_subr
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! Filtering and partitioning.
+!!
+
+  recursive function filterx (pred, lst) result (lst_f)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_f
+
+    class(*), allocatable :: first_true
+    class(*), allocatable :: last_true
+    class(*), allocatable :: first_false
+    type(gcroot_t) :: retval
+    logical :: done
+
+    if (is_not_pair (lst)) then
+       ! lst is empty, but possibly dotted. Copy the terminating
+       ! object (so it is a kind of shared tail).
+       lst_f = lst
+    else
+       retval = lst            ! Protect lst from garbage collections.
+       call drop_falses (lst, first_true)
+       if (is_not_pair (first_true)) then
+          ! There are no trues and there is no shared tail.
+          lst_f = nil
+          call retval%discard
+       else
+          retval = first_true
+          call take_trues (first_true, last_true, first_false)
+          if (is_not_pair (first_false)) then
+             ! The entire result is a tail of the input list.
+             lst_f = .val. retval
+          else
+             done = .false.
+             do while (.not. done)
+                call drop_falses (first_false, first_true)
+                if (is_not_pair (first_true)) then
+                   ! The tail of the original is a run of
+                   ! falses. Remove it, and then the filtering is
+                   ! done.
+                   call set_cdr (last_true, nil)
+                   done = .true.
+                else
+                   ! Leave out the run of falses, destructively.
+                   call set_cdr (last_true, first_true)
+                   ! Get the next run of trues.
+                   call take_trues (first_true, last_true, first_false)
+                   if (is_not_pair (first_false)) then
+                      ! The tail of the original is a run of
+                      ! trues. The filtering is done.
+                      done = .true.
+                   end if
+                end if
+             end do
+             lst_f = .val. retval
+          end if
+       end if
+    end if
+
+  contains
+
+    recursive subroutine drop_falses (lst, first_true)
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: first_true
+
+      class(*), allocatable :: p
+      logical :: all_dropped
+
+      p = lst
+      all_dropped = .false.
+      do while (.not. all_dropped)
+         if (is_not_pair (p)) then
+            first_true = p
+            all_dropped = .true.
+         else
+            if (pred (car (p))) then
+               first_true = p
+               all_dropped = .true.
+            else
+               p = cdr (p)
+            end if
+         end if
+      end do
+    end subroutine drop_falses
+
+    recursive subroutine take_trues (lst, last_true, first_false)
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: last_true
+      class(*), allocatable, intent(out) :: first_false
+
+      class(*), allocatable :: p
+      logical :: all_taken
+
+      last_true = lst
+      p = cdr (lst)
+      all_taken = .false.
+      do while (.not. all_taken)
+         if (is_not_pair (p)) then
+            first_false = p
+            all_taken = .true.
+         else
+            if (pred (car (p))) then
+               last_true = p
+               p = cdr (p)
+            else
+               first_false = p
+               all_taken = .true.
+            end if
+         end if
+      end do
+    end subroutine take_trues
+
+  end function filterx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
