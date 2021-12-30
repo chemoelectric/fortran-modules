@@ -1774,6 +1774,44 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   end subroutine test0320
 
+  subroutine test0330
+    !
+    ! Tests of pair_for_each.
+    !
+
+    type(gcroot_t) :: lst1, lst2, lst3
+
+    lst1 = nil
+    lst2 = nil
+    lst3 = nil
+    call pair_for_each (cons_them, list (1, 2, 3), list (4, 5, 6), list (7, 8, 9))
+    call check (length (lst1) == 3, "test0330-0010 failed")
+    call check (length (lst2) == 3, "test0330-0020 failed")
+    call check (length (lst3) == 3, "test0330-0030 failed")
+    call check (list_equal (int_eq, first (lst1), list (3)), "test0330-0040 failed")
+    call check (list_equal (int_eq, second (lst1), list (2, 3)), "test0330-0050 failed")
+    call check (list_equal (int_eq, third (lst1), list (1, 2, 3)), "test0330-0060 failed")
+    call check (list_equal (int_eq, first (lst2), list (6)), "test0330-0070 failed")
+    call check (list_equal (int_eq, second (lst2), list (5, 6)), "test0330-0080 failed")
+    call check (list_equal (int_eq, third (lst2), list (4, 5, 6)), "test0330-0090 failed")
+    call check (list_equal (int_eq, first (lst3), list (9)), "test0330-0100 failed")
+    call check (list_equal (int_eq, second (lst3), list (8, 9)), "test0330-0110 failed")
+    call check (list_equal (int_eq, third (lst3), list (7, 8, 9)), "test0330-0120 failed")
+
+  contains
+
+    recursive subroutine cons_them (obj1, obj2, obj3)
+      class(*), intent(in) :: obj1
+      class(*), intent(in) :: obj2
+      class(*), intent(in) :: obj3
+      call collect_garbage_now
+      lst1 = cons (obj1, lst1)
+      lst2 = cons (obj2, lst2)
+      lst3 = cons (obj3, lst3)
+    end subroutine cons_them
+
+  end subroutine test0330
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1815,6 +1853,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0300
     call test0310
     call test0320
+    call test0330
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

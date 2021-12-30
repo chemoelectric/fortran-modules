@@ -331,6 +331,9 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: for_each         ! Generic function: perform side effects
                              ! on list elements, in order from left to
                              ! right.
+  public :: pair_for_each    ! Generic function: like for_each, but
+                             ! with the procedure applied to sublists
+                             ! rather than elements.
 
   ! Implementations of map, taking a subroutine as the mapping
   ! procedure.
@@ -348,6 +351,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   ! per-element procedure.
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: for_each[]n[]_subr
+])dnl
+
+  ! Implementations of pair_for_each, taking a subroutine as the
+  ! per-sublist procedure.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: pair_for_each[]n[]_subr
 ])dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -468,7 +477,8 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   abstract interface
      !
      ! Types for the per-element-procedure argument to a for_each
-     ! procedure.
+     ! procedure; for the per-sublist-procedure argument to a
+     ! pair_for_each procedure; etc.
      !
 m4_forloop([n],[1],ZIP_MAX,[dnl
      recursive subroutine list_side_effect[]n[]_subr_t (input1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
@@ -680,6 +690,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure for_each[]n[]_subr
 ])dnl
   end interface for_each
+
+  interface pair_for_each
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure pair_for_each[]n[]_subr
+])dnl
+  end interface pair_for_each
 
   interface fold
 m4_forloop([n],[1],ZIP_MAX,[dnl
@@ -2767,6 +2783,59 @@ m4_forloop([k],[1],n,[dnl
     call lst[]k[]_root%discard
 ])dnl
   end subroutine for_each[]n[]_subr
+
+])dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! pair_for_each
+!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive subroutine pair_for_each[]n[]_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])lst[]k]))
+    procedure(list_side_effect[]n[]_subr_t) :: proc
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: lst[]k[]_root
+])dnl
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable :: tail[]k
+])dnl
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+m4_forloop([k],[1],n,[dnl
+    lst[]k[]_root = lst[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    tail[]k = .autoval. lst[]k
+])dnl
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+m4_forloop([k],[2],n,[dnl
+       else if (is_not_pair (tail[]k)) then
+          done = .true.
+])dnl
+       else
+          call proc (tail1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+               ])tail[]k]))
+m4_forloop([k],[1],n,[dnl
+          tail[]k = cdr (tail[]k)
+])dnl
+       end if
+    end do
+
+m4_forloop([k],[1],n,[dnl
+    call lst[]k[]_root%discard
+])dnl
+  end subroutine pair_for_each[]n[]_subr
 
 ])dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
