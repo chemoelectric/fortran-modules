@@ -1791,6 +1791,46 @@ contains
 
   end subroutine test0310
 
+  subroutine test0320
+    !
+    ! Tests of for_each.
+    !
+
+    integer :: count
+    type(gcroot_t) :: lst1, lst2, lst3
+
+    count = 0
+    call for_each (add_to_count, iota (10, 1))
+    call check (count == 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10, "test0320-0010 failed")
+
+    lst1 = nil
+    lst2 = nil
+    lst3 = nil
+    call for_each (cons_them, list (1, 2, 3), list (4, 5, 6), list (7, 8, 9))
+    call check (list_equal (int_eq, lst1, list (3, 2, 1)), "test0320-0020 failed")
+    call check (list_equal (int_eq, lst2, list (6, 5, 4)), "test0320-0030 failed")
+    call check (list_equal (int_eq, lst3, list (9, 8, 7)), "test0320-0030 failed")
+
+  contains
+
+    recursive subroutine add_to_count (n)
+      class(*), intent(in) :: n
+      call collect_garbage_now
+      count = count + int_cast (n)
+    end subroutine add_to_count
+
+    recursive subroutine cons_them (obj1, obj2, obj3)
+      class(*), intent(in) :: obj1
+      class(*), intent(in) :: obj2
+      class(*), intent(in) :: obj3
+      call collect_garbage_now
+      lst1 = cons (obj1, lst1)
+      lst2 = cons (obj2, lst2)
+      lst3 = cons (obj3, lst3)
+    end subroutine cons_them
+
+  end subroutine test0320
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1831,6 +1871,7 @@ contains
     call test0290
     call test0300
     call test0310
+    call test0320
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

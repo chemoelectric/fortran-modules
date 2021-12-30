@@ -323,16 +323,32 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: list_count[]n
 ])dnl
 
-  public :: map              ! Generic function: map list elements in an unspecified order.
-  public :: map_in_order     ! Generic function: map list elements left-to-right. (A kind of combination of map and for_each.)
+  public :: map              ! Generic function: map list elements in
+                             ! an unspecified order.
+  public :: map_in_order     ! Generic function: map list elements
+                             ! left-to-right. (A kind of combination
+                             ! of map and for_each.)
+  public :: for_each         ! Generic function: perform side effects
+                             ! on list elements, in order from left to
+                             ! right.
+
+  ! Implementations of map, taking a subroutine as the mapping
+  ! procedure.
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  public :: map[]n[]_subr        ! map for n lists, with a subroutine as proc.
+  public :: map[]n[]_subr
 ])dnl
+
+  ! Implementations of map_in_order, taking a subroutine as the
+  ! mapping procedure.
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: map[]n[]_in_order_subr ! map_in_order for n lists, with a subroutine as proc.
 ])dnl
 
-  !public :: for_each         ! Generic function: Perform side effects on list elements, in order from left to right.
+  ! Implementations of for_each, taking a subroutine as the
+  ! per-element procedure.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: for_each[]n[]_subr
+])dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
@@ -430,6 +446,10 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 ])dnl
 
   abstract interface
+     !
+     ! Types for the per-element-mapping argument to a map procedure,
+     ! an unfold, etc.
+     !
 m4_forloop([n],[1],ZIP_MAX,[dnl
      recursive subroutine list_map[]n[]_subr_t (input1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
           ])input[]k]), output)
@@ -441,10 +461,23 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
   end interface
 
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: list_side_effect[]n[]_subr_t
+])dnl
+
   abstract interface
-     recursive subroutine list_side_effect_proc_t (input)
-       class(*), intent(in) :: input
-     end subroutine list_side_effect_proc_t
+     !
+     ! Types for the per-element-procedure argument to a for_each
+     ! procedure.
+     !
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     recursive subroutine list_side_effect[]n[]_subr_t (input1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+          ])input[]k]))
+m4_forloop([k],[1],n,[dnl
+       class(*), intent(in) :: input[]k
+])dnl
+     end subroutine list_side_effect[]n[]_subr_t
+])dnl
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -641,6 +674,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure map[]n[]_in_order_subr
 ])dnl
   end interface map_in_order
+
+  interface for_each
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure for_each[]n[]_subr
+])dnl
+  end interface for_each
 
   interface fold
 m4_forloop([n],[1],ZIP_MAX,[dnl
@@ -2674,6 +2713,60 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
     end if
   end function map[]n[]_in_order_subr
+
+])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! for_each
+!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive subroutine for_each[]n[]_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])lst[]k]))
+    procedure(list_side_effect[]n[]_subr_t) :: proc
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: lst[]k[]_root
+])dnl
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable :: head[]k, tail[]k
+])dnl
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+m4_forloop([k],[1],n,[dnl
+    lst[]k[]_root = lst[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    tail[]k = .autoval. lst[]k
+])dnl
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+m4_forloop([k],[2],n,[dnl
+       else if (is_not_pair (tail[]k)) then
+          done = .true.
+])dnl
+       else
+m4_forloop([k],[1],n,[dnl
+          call uncons (tail[]k, head[]k, tail[]k)
+])dnl
+          call proc (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+               ])head[]k]))
+       end if
+    end do
+
+m4_forloop([k],[1],n,[dnl
+    call lst[]k[]_root%discard
+])dnl
+  end subroutine for_each[]n[]_subr
 
 ])dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

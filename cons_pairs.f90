@@ -462,18 +462,30 @@ module cons_pairs
   public :: list_count9
   public :: list_count10
 
-  public :: map              ! Generic function: map list elements in an unspecified order.
-  public :: map_in_order     ! Generic function: map list elements left-to-right. (A kind of combination of map and for_each.)
-  public :: map1_subr        ! map for 1 lists, with a subroutine as proc.
-  public :: map2_subr        ! map for 2 lists, with a subroutine as proc.
-  public :: map3_subr        ! map for 3 lists, with a subroutine as proc.
-  public :: map4_subr        ! map for 4 lists, with a subroutine as proc.
-  public :: map5_subr        ! map for 5 lists, with a subroutine as proc.
-  public :: map6_subr        ! map for 6 lists, with a subroutine as proc.
-  public :: map7_subr        ! map for 7 lists, with a subroutine as proc.
-  public :: map8_subr        ! map for 8 lists, with a subroutine as proc.
-  public :: map9_subr        ! map for 9 lists, with a subroutine as proc.
-  public :: map10_subr        ! map for 10 lists, with a subroutine as proc.
+  public :: map              ! Generic function: map list elements in
+                             ! an unspecified order.
+  public :: map_in_order     ! Generic function: map list elements
+                             ! left-to-right. (A kind of combination
+                             ! of map and for_each.)
+  public :: for_each         ! Generic function: perform side effects
+                             ! on list elements, in order from left to
+                             ! right.
+
+  ! Implementations of map, taking a subroutine as the mapping
+  ! procedure.
+  public :: map1_subr
+  public :: map2_subr
+  public :: map3_subr
+  public :: map4_subr
+  public :: map5_subr
+  public :: map6_subr
+  public :: map7_subr
+  public :: map8_subr
+  public :: map9_subr
+  public :: map10_subr
+
+  ! Implementations of map_in_order, taking a subroutine as the
+  ! mapping procedure.
   public :: map1_in_order_subr ! map_in_order for 1 lists, with a subroutine as proc.
   public :: map2_in_order_subr ! map_in_order for 2 lists, with a subroutine as proc.
   public :: map3_in_order_subr ! map_in_order for 3 lists, with a subroutine as proc.
@@ -485,7 +497,18 @@ module cons_pairs
   public :: map9_in_order_subr ! map_in_order for 9 lists, with a subroutine as proc.
   public :: map10_in_order_subr ! map_in_order for 10 lists, with a subroutine as proc.
 
-  !public :: for_each         ! Generic function: Perform side effects on list elements, in order from left to right.
+  ! Implementations of for_each, taking a subroutine as the
+  ! per-element procedure.
+  public :: for_each1_subr
+  public :: for_each2_subr
+  public :: for_each3_subr
+  public :: for_each4_subr
+  public :: for_each5_subr
+  public :: for_each6_subr
+  public :: for_each7_subr
+  public :: for_each8_subr
+  public :: for_each9_subr
+  public :: for_each10_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
@@ -802,6 +825,10 @@ module cons_pairs
   public :: list_map10_subr_t
 
   abstract interface
+     !
+     ! Types for the per-element-mapping argument to a map procedure,
+     ! an unfold, etc.
+     !
      recursive subroutine list_map1_subr_t (input1, output)
        class(*), intent(in) :: input1
        class(*), allocatable, intent(out) :: output
@@ -894,10 +921,102 @@ module cons_pairs
      end subroutine list_map10_subr_t
   end interface
 
+  public :: list_side_effect1_subr_t
+  public :: list_side_effect2_subr_t
+  public :: list_side_effect3_subr_t
+  public :: list_side_effect4_subr_t
+  public :: list_side_effect5_subr_t
+  public :: list_side_effect6_subr_t
+  public :: list_side_effect7_subr_t
+  public :: list_side_effect8_subr_t
+  public :: list_side_effect9_subr_t
+  public :: list_side_effect10_subr_t
+
   abstract interface
-     recursive subroutine list_side_effect_proc_t (input)
-       class(*), intent(in) :: input
-     end subroutine list_side_effect_proc_t
+     !
+     ! Types for the per-element-procedure argument to a for_each
+     ! procedure.
+     !
+     recursive subroutine list_side_effect1_subr_t (input1)
+       class(*), intent(in) :: input1
+     end subroutine list_side_effect1_subr_t
+     recursive subroutine list_side_effect2_subr_t (input1, input2)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+     end subroutine list_side_effect2_subr_t
+     recursive subroutine list_side_effect3_subr_t (input1, input2, input3)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+     end subroutine list_side_effect3_subr_t
+     recursive subroutine list_side_effect4_subr_t (input1, input2, input3, input4)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+     end subroutine list_side_effect4_subr_t
+     recursive subroutine list_side_effect5_subr_t (input1, input2, input3, input4, input5)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+     end subroutine list_side_effect5_subr_t
+     recursive subroutine list_side_effect6_subr_t (input1, input2, input3, input4, input5, &
+          input6)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+     end subroutine list_side_effect6_subr_t
+     recursive subroutine list_side_effect7_subr_t (input1, input2, input3, input4, input5, &
+          input6, input7)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+     end subroutine list_side_effect7_subr_t
+     recursive subroutine list_side_effect8_subr_t (input1, input2, input3, input4, input5, &
+          input6, input7, input8)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+     end subroutine list_side_effect8_subr_t
+     recursive subroutine list_side_effect9_subr_t (input1, input2, input3, input4, input5, &
+          input6, input7, input8, input9)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+     end subroutine list_side_effect9_subr_t
+     recursive subroutine list_side_effect10_subr_t (input1, input2, input3, input4, input5, &
+          input6, input7, input8, input9, input10)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+       class(*), intent(in) :: input10
+     end subroutine list_side_effect10_subr_t
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1238,6 +1357,19 @@ module cons_pairs
      module procedure map9_in_order_subr
      module procedure map10_in_order_subr
   end interface map_in_order
+
+  interface for_each
+     module procedure for_each1_subr
+     module procedure for_each2_subr
+     module procedure for_each3_subr
+     module procedure for_each4_subr
+     module procedure for_each5_subr
+     module procedure for_each6_subr
+     module procedure for_each7_subr
+     module procedure for_each8_subr
+     module procedure for_each9_subr
+     module procedure for_each10_subr
+  end interface for_each
 
   interface fold
      module procedure fold1_subr
@@ -11375,6 +11507,686 @@ contains
        call lst10_root%discard
     end if
   end function map10_in_order_subr
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! for_each
+!!
+
+  recursive subroutine for_each1_subr (proc, lst1)
+    procedure(list_side_effect1_subr_t) :: proc
+    class(*), intent(in) :: lst1
+
+    type(gcroot_t) :: lst1_root
+    class(*), allocatable :: head1, tail1
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+
+    tail1 = .autoval. lst1
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call proc (head1)
+       end if
+    end do
+
+    call lst1_root%discard
+  end subroutine for_each1_subr
+
+  recursive subroutine for_each2_subr (proc, lst1, lst2)
+    procedure(list_side_effect2_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call proc (head1, head2)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+  end subroutine for_each2_subr
+
+  recursive subroutine for_each3_subr (proc, lst1, lst2, lst3)
+    procedure(list_side_effect3_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call proc (head1, head2, head3)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+  end subroutine for_each3_subr
+
+  recursive subroutine for_each4_subr (proc, lst1, lst2, lst3, lst4)
+    procedure(list_side_effect4_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call proc (head1, head2, head3, head4)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+  end subroutine for_each4_subr
+
+  recursive subroutine for_each5_subr (proc, lst1, lst2, lst3, lst4, lst5)
+    procedure(list_side_effect5_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call proc (head1, head2, head3, head4, head5)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+  end subroutine for_each5_subr
+
+  recursive subroutine for_each6_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6)
+    procedure(list_side_effect6_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call proc (head1, head2, head3, head4, head5, &
+               head6)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+  end subroutine for_each6_subr
+
+  recursive subroutine for_each7_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7)
+    procedure(list_side_effect7_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+  end subroutine for_each7_subr
+
+  recursive subroutine for_each8_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8)
+    procedure(list_side_effect8_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+  end subroutine for_each8_subr
+
+  recursive subroutine for_each9_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9)
+    procedure(list_side_effect9_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+  end subroutine for_each9_subr
+
+  recursive subroutine for_each10_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10)
+    procedure(list_side_effect10_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+  end subroutine for_each10_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
