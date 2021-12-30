@@ -129,33 +129,59 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: ninth
   public :: tenth
 
-  public :: list_ref0        ! Generic function: return any one of the 0th, 1st, 2nd, etc., elements.
-  public :: list_ref1        ! Generic function: Return any one of the 1st, 2nd, 3rd, etc., elements.
-  public :: list_refn        ! Generic function: Return any one of the nth, (n+1)th, (n+2)th, etc., elements.
-  public :: list_ref0_size_kind ! Versions for INTEGER(SIZE_KIND).
+  public :: list_ref0        ! Generic function: return any one of the
+                             ! 0th, 1st, 2nd, etc., elements.
+  public :: list_ref1        ! Generic function: Return any one of the
+                             ! 1st, 2nd, 3rd, etc., elements.
+  public :: list_refn        ! Generic function: Return any one of the
+                             ! nth, (n+1)th, (n+2)th, etc., elements.
+
+  ! Implementations for INTEGER(SIZE_KIND).
+  public :: list_ref0_size_kind
   public :: list_ref1_size_kind
   public :: list_refn_size_kind
-  public :: list_ref0_int    ! Versions for INTEGER of the default kind.
+
+  ! Implementations for INTEGER of the default kind.
+  public :: list_ref0_int
   public :: list_ref1_int
   public :: list_refn_int
 
-  ! Make or unmake a list. (SRFI-1 has `list', and its `cons*'
-  ! procedure is similar to our `list_with_tail'.)
-  public :: list             ! Generic function.
-  public :: list_with_tail   ! Generic function.
-  public :: unlist           ! Generic function.
-  public :: unlist_with_tail ! Generic function.
+  ! Make or unmake a list. (SRFI-1 has `list' and `circular-list', and
+  ! its `cons*' procedure is similar to our `list_with_tail'.)
+  public :: list             ! Generic function: make a list from
+                             ! elements.
+  public :: list_with_tail   ! Generic function: make a list from
+                             ! elements and a tail.
+  public :: unlist           ! Generic function: extract elements from
+                             ! a list.
+  public :: unlist_with_tail ! Generic function: extract elements and
+                             ! a tail from a list.
+  public :: circular_list    ! Generic function: make a circular list
+                             ! from elements.
+
+  ! Implementations of list.
 m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: list[]n
 ])dnl
+
+  ! Implementations of list_with_tail.
 m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: list[]n[]_with_tail
 ])dnl
+
+  ! Implementations of unlist.
 m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: unlist[]n
 ])dnl
+
+  ! Implementations of unlist_with_tail.
 m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: unlist[]n[]_with_tail
+])dnl
+
+  ! Implementations of circular_list.
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  public :: circular_list[]n
 ])dnl
 
   ! Zipping: joining the elements of separate lists into a list of
@@ -364,7 +390,7 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
 
   abstract interface
 m4_forloop([n],[1],ZIP_MAX,[dnl
-     recursive function list_predicate[]n[]_t (x1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+     recursive function list_predicate[]n[]_t (x1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
           ])x[]k])) result (bool)
 m4_forloop([k],[1],n,[dnl
        class(*), intent(in) :: [x]k
@@ -388,7 +414,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      ! Types for the `kons' argument to a fold procedure.
      !
 m4_forloop([n],[1],ZIP_MAX,[dnl
-     recursive subroutine list_kons[]n[]_subr_t (kar1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+     recursive subroutine list_kons[]n[]_subr_t (kar1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
           ])kar[]k]), kdr, kons_result)
 m4_forloop([k],[1],n,[dnl
        class(*), intent(in) :: kar[]k
@@ -561,6 +587,12 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
      module procedure unlist[]n[]_with_tail
 ])dnl
   end interface unlist_with_tail
+
+  interface circular_list
+m4_forloop([n],[1],LISTN_MAX,[dnl
+     module procedure circular_list[]n
+])dnl
+  end interface circular_list
 
   interface zip
 m4_forloop([n],[1],ZIP_MAX,[dnl
@@ -1090,10 +1122,10 @@ m4_bits_to_get_nth_element([10],[element])dnl
   end function list_refn_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-dnl
-m4_forloop([n],[1],LISTN_MAX,[
-  function list[]n (obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
-])obj[]k])) result (lst)
+
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  function list[]n (obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])obj[]k])) result (lst)
 m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: obj[]k
 ])dnl
@@ -1105,11 +1137,12 @@ m4_forloop([k],[2],n,[dnl
     lst = obj[]m4_eval(n - k + 1) ** lst
 ])dnl
   end function list[]n
+
 ])dnl
 dnl
-m4_forloop([n],[1],LISTN_MAX,[
-  function list[]n[]_with_tail (obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
-])obj[]k]), tail) result (lst)
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  function list[]n[]_with_tail (obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])obj[]k]), tail) result (lst)
 m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: obj[]k
 ])dnl
@@ -1117,16 +1150,16 @@ m4_forloop([k],[1],n,[dnl
     type(cons_t) :: lst
 
     lst = cons (obj[]n, tail)
-dnl
 m4_forloop([k],[2],n,[dnl
     lst = obj[]m4_eval(n - k + 1) ** lst
 ])dnl
   end function list[]n[]_with_tail
+
 ])dnl
 dnl
-m4_forloop([n],[1],LISTN_MAX,[
-  subroutine unlist[]n (lst, obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
-])obj[]k]))
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  subroutine unlist[]n (lst, obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])obj[]k]))
     !
     ! This subroutine `unlists' the n elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -1148,11 +1181,12 @@ m4_forloop([k],[2],n,[dnl
        call error_abort ("unlist[]n[] of a list that is too long")
     end if
   end subroutine unlist[]n
+
 ])dnl
 dnl
-m4_forloop([n],[1],LISTN_MAX,[
-  subroutine unlist[]n[]_with_tail (lst, obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
-])obj[]k]), tail)
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  subroutine unlist[]n[]_with_tail (lst, obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])obj[]k]), tail)
     !
     ! This subroutine `unlists' the leading n elements of lst, and
     ! also returns the tail.
@@ -1173,12 +1207,34 @@ m4_forloop([k],[2],n,[dnl
 ])dnl
     tail = tl
   end subroutine unlist[]n[]_with_tail
+
+])dnl
+dnl
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  function circular_list[]n (obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])obj[]k])) result (lst)
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: obj[]k
 ])dnl
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj[]n ** nil
+    lst = last_pair
 dnl
-m4_forloop([n],[1],ZIP_MAX,[
-  function zip[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+m4_forloop([k],[2],n,[dnl
+    lst = obj[]m4_eval(n - k + 1) ** lst
+])dnl
+    call set_cdr (last_pair, lst)
+  end function circular_list[]n
+
+])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  function zip[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        ])lst[]k])) result (lst_z)
 m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: lst[]k
@@ -1250,12 +1306,13 @@ m4_if(k,n,[dnl
        end if
     end if
   end function zip[]n
-])dnl
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+])dnl
 dnl
-m4_forloop([n],[1],ZIP_MAX,[
-  subroutine unzip[]n (lst_zipped, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  subroutine unzip[]n (lst_zipped, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        ])lst[]k]))
     class(*), intent(in) :: lst_zipped
 m4_forloop([k],[1],n,[dnl
@@ -1326,8 +1383,9 @@ m4_if(k,n,[],[dnl
        end do
     end if
   end subroutine unzip[]n
-])dnl
 
+])dnl
+dnl
   function unzip1f (lst_zipped) result (lst)
     class(*), intent(in) :: lst_zipped
     type(cons_t) :: lst
@@ -2061,7 +2119,7 @@ m4_if(k,n,[],[dnl
   end function append2
 
 m4_forloop([n],[3],ZIP_MAX,[dnl
-  function append[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+  function append[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        ])lst[]k])) result (lst_a)
 m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: lst[]k
@@ -2109,7 +2167,7 @@ dnl
   end function appendx2
 
 m4_forloop([n],[3],ZIP_MAX,[dnl
-  function appendx[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+  function appendx[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        ])lst[]k])) result (lst_a)
 m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: lst[]k
@@ -2425,7 +2483,7 @@ dnl
   end function list_equal2
 
 m4_forloop([n],[3],ZIP_MAX,[dnl
-  recursive function list_equal[]n (pred, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+  recursive function list_equal[]n (pred, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        ])lst[]k])) result (bool)
     procedure(list_predicate2_t) :: pred
 m4_forloop([k],[1],n,[dnl
@@ -2456,7 +2514,7 @@ dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  recursive function list_count[]n (pred, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+  recursive function list_count[]n (pred, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        ])lst[]k])) result (total)
     procedure(list_predicate[]n[]_t) :: pred
 m4_forloop([k],[1],n,[dnl
@@ -2495,7 +2553,7 @@ m4_if(k,n,[dnl
 m4_forloop([k],[1],n,[dnl
           call uncons (tail[]k, head[]k, tail[]k)
 ])dnl
-          if (pred (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+          if (pred (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
                ])head[]k]))) then
              total = total + 1
           end if
@@ -2515,7 +2573,7 @@ dnl
 !!
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  recursive function map[]n[]_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+  recursive function map[]n[]_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        ])lst[]k])) result (lst_m)
     procedure(list_map[]n[]_subr_t) :: proc
 m4_forloop([k],[1],n,[dnl
@@ -2523,7 +2581,7 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
     type(cons_t) :: lst_m
 
-    lst_m = map[]n[]_in_order_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+    lst_m = map[]n[]_in_order_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        ])lst[]k]))
   end function map[]n[]_subr
 
@@ -2535,7 +2593,7 @@ dnl
 !!
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  recursive function map[]n[]_in_order_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+  recursive function map[]n[]_in_order_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        ])lst[]k])) result (lst_m)
     procedure(list_map[]n[]_subr_t) :: proc
 m4_forloop([k],[1],n,[dnl
@@ -2575,7 +2633,7 @@ m4_forloop([k],[1],n,[dnl
 m4_forloop([k],[1],n,[dnl
        call uncons (tail[]k, head[]k, tail[]k)
 ])dnl
-       call proc (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+       call proc (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
             ])head[]k]), proc_result)
        cursor = proc_result ** nil
        if (is_not_pair (tail1)) then
@@ -2593,7 +2651,7 @@ m4_if(k,n,[dnl
 m4_forloop([k],[1],n,[dnl
              call uncons (tail[]k, head[]k, tail[]k)
 ])dnl
-             call proc (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+             call proc (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
                   ])head[]k]), proc_result)
              new_pair = proc_result ** nil
              call set_cdr (cursor, new_pair)
@@ -2621,7 +2679,7 @@ m4_forloop([k],[1],n,[dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  recursive function fold[]n[]_subr (kons, knil, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+  recursive function fold[]n[]_subr (kons, knil, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        ])lst[]k])) result (retval)
     procedure(list_kons[]n[]_subr_t) :: kons
     class(*), intent(in) :: knil
@@ -2755,7 +2813,7 @@ dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  recursive function pair_fold[]n[]_subr (kons, knil, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 10),[1],[&
+  recursive function pair_fold[]n[]_subr (kons, knil, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        ])lst[]k])) result (retval)
     procedure(list_kons[]n[]_subr_t) :: kons
     class(*), intent(in) :: knil

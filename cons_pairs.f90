@@ -146,22 +146,37 @@ module cons_pairs
   public :: ninth
   public :: tenth
 
-  public :: list_ref0        ! Generic function: return any one of the 0th, 1st, 2nd, etc., elements.
-  public :: list_ref1        ! Generic function: Return any one of the 1st, 2nd, 3rd, etc., elements.
-  public :: list_refn        ! Generic function: Return any one of the nth, (n+1)th, (n+2)th, etc., elements.
-  public :: list_ref0_size_kind ! Versions for INTEGER(int64).
+  public :: list_ref0        ! Generic function: return any one of the
+                             ! 0th, 1st, 2nd, etc., elements.
+  public :: list_ref1        ! Generic function: Return any one of the
+                             ! 1st, 2nd, 3rd, etc., elements.
+  public :: list_refn        ! Generic function: Return any one of the
+                             ! nth, (n+1)th, (n+2)th, etc., elements.
+
+  ! Implementations for INTEGER(int64).
+  public :: list_ref0_size_kind
   public :: list_ref1_size_kind
   public :: list_refn_size_kind
-  public :: list_ref0_int    ! Versions for INTEGER of the default kind.
+
+  ! Implementations for INTEGER of the default kind.
+  public :: list_ref0_int
   public :: list_ref1_int
   public :: list_refn_int
 
-  ! Make or unmake a list. (SRFI-1 has `list', and its `cons*'
-  ! procedure is similar to our `list_with_tail'.)
-  public :: list             ! Generic function.
-  public :: list_with_tail   ! Generic function.
-  public :: unlist           ! Generic function.
-  public :: unlist_with_tail ! Generic function.
+  ! Make or unmake a list. (SRFI-1 has `list' and `circular-list', and
+  ! its `cons*' procedure is similar to our `list_with_tail'.)
+  public :: list             ! Generic function: make a list from
+                             ! elements.
+  public :: list_with_tail   ! Generic function: make a list from
+                             ! elements and a tail.
+  public :: unlist           ! Generic function: extract elements from
+                             ! a list.
+  public :: unlist_with_tail ! Generic function: extract elements and
+                             ! a tail from a list.
+  public :: circular_list    ! Generic function: make a circular list
+                             ! from elements.
+
+  ! Implementations of list.
   public :: list1
   public :: list2
   public :: list3
@@ -182,6 +197,8 @@ module cons_pairs
   public :: list18
   public :: list19
   public :: list20
+
+  ! Implementations of list_with_tail.
   public :: list1_with_tail
   public :: list2_with_tail
   public :: list3_with_tail
@@ -202,6 +219,8 @@ module cons_pairs
   public :: list18_with_tail
   public :: list19_with_tail
   public :: list20_with_tail
+
+  ! Implementations of unlist.
   public :: unlist1
   public :: unlist2
   public :: unlist3
@@ -222,6 +241,8 @@ module cons_pairs
   public :: unlist18
   public :: unlist19
   public :: unlist20
+
+  ! Implementations of unlist_with_tail.
   public :: unlist1_with_tail
   public :: unlist2_with_tail
   public :: unlist3_with_tail
@@ -242,6 +263,28 @@ module cons_pairs
   public :: unlist18_with_tail
   public :: unlist19_with_tail
   public :: unlist20_with_tail
+
+  ! Implementations of circular_list.
+  public :: circular_list1
+  public :: circular_list2
+  public :: circular_list3
+  public :: circular_list4
+  public :: circular_list5
+  public :: circular_list6
+  public :: circular_list7
+  public :: circular_list8
+  public :: circular_list9
+  public :: circular_list10
+  public :: circular_list11
+  public :: circular_list12
+  public :: circular_list13
+  public :: circular_list14
+  public :: circular_list15
+  public :: circular_list16
+  public :: circular_list17
+  public :: circular_list18
+  public :: circular_list19
+  public :: circular_list20
 
   ! Zipping: joining the elements of separate lists into a list of
   ! lists.
@@ -563,7 +606,8 @@ module cons_pairs
        class(*), intent(in) :: x5
        logical :: bool
      end function list_predicate5_t
-     recursive function list_predicate6_t (x1, x2, x3, x4, x5, x6) result (bool)
+     recursive function list_predicate6_t (x1, x2, x3, x4, x5, &
+          x6) result (bool)
        class(*), intent(in) :: x1
        class(*), intent(in) :: x2
        class(*), intent(in) :: x3
@@ -572,7 +616,8 @@ module cons_pairs
        class(*), intent(in) :: x6
        logical :: bool
      end function list_predicate6_t
-     recursive function list_predicate7_t (x1, x2, x3, x4, x5, x6, x7) result (bool)
+     recursive function list_predicate7_t (x1, x2, x3, x4, x5, &
+          x6, x7) result (bool)
        class(*), intent(in) :: x1
        class(*), intent(in) :: x2
        class(*), intent(in) :: x3
@@ -582,7 +627,8 @@ module cons_pairs
        class(*), intent(in) :: x7
        logical :: bool
      end function list_predicate7_t
-     recursive function list_predicate8_t (x1, x2, x3, x4, x5, x6, x7, x8) result (bool)
+     recursive function list_predicate8_t (x1, x2, x3, x4, x5, &
+          x6, x7, x8) result (bool)
        class(*), intent(in) :: x1
        class(*), intent(in) :: x2
        class(*), intent(in) :: x3
@@ -593,7 +639,8 @@ module cons_pairs
        class(*), intent(in) :: x8
        logical :: bool
      end function list_predicate8_t
-     recursive function list_predicate9_t (x1, x2, x3, x4, x5, x6, x7, x8, x9) result (bool)
+     recursive function list_predicate9_t (x1, x2, x3, x4, x5, &
+          x6, x7, x8, x9) result (bool)
        class(*), intent(in) :: x1
        class(*), intent(in) :: x2
        class(*), intent(in) :: x3
@@ -605,7 +652,8 @@ module cons_pairs
        class(*), intent(in) :: x9
        logical :: bool
      end function list_predicate9_t
-     recursive function list_predicate10_t (x1, x2, x3, x4, x5, x6, x7, x8, x9, x10) result (bool)
+     recursive function list_predicate10_t (x1, x2, x3, x4, x5, &
+          x6, x7, x8, x9, x10) result (bool)
        class(*), intent(in) :: x1
        class(*), intent(in) :: x2
        class(*), intent(in) :: x3
@@ -675,7 +723,8 @@ module cons_pairs
        class(*), intent(in) :: kdr
        class(*), allocatable, intent(out) :: kons_result
      end subroutine list_kons5_subr_t
-     recursive subroutine list_kons6_subr_t (kar1, kar2, kar3, kar4, kar5, kar6, kdr, kons_result)
+     recursive subroutine list_kons6_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          kar6, kdr, kons_result)
        class(*), intent(in) :: kar1
        class(*), intent(in) :: kar2
        class(*), intent(in) :: kar3
@@ -685,7 +734,8 @@ module cons_pairs
        class(*), intent(in) :: kdr
        class(*), allocatable, intent(out) :: kons_result
      end subroutine list_kons6_subr_t
-     recursive subroutine list_kons7_subr_t (kar1, kar2, kar3, kar4, kar5, kar6, kar7, kdr, kons_result)
+     recursive subroutine list_kons7_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          kar6, kar7, kdr, kons_result)
        class(*), intent(in) :: kar1
        class(*), intent(in) :: kar2
        class(*), intent(in) :: kar3
@@ -696,7 +746,8 @@ module cons_pairs
        class(*), intent(in) :: kdr
        class(*), allocatable, intent(out) :: kons_result
      end subroutine list_kons7_subr_t
-     recursive subroutine list_kons8_subr_t (kar1, kar2, kar3, kar4, kar5, kar6, kar7, kar8, kdr, kons_result)
+     recursive subroutine list_kons8_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          kar6, kar7, kar8, kdr, kons_result)
        class(*), intent(in) :: kar1
        class(*), intent(in) :: kar2
        class(*), intent(in) :: kar3
@@ -708,7 +759,8 @@ module cons_pairs
        class(*), intent(in) :: kdr
        class(*), allocatable, intent(out) :: kons_result
      end subroutine list_kons8_subr_t
-     recursive subroutine list_kons9_subr_t (kar1, kar2, kar3, kar4, kar5, kar6, kar7, kar8, kar9, kdr, kons_result)
+     recursive subroutine list_kons9_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          kar6, kar7, kar8, kar9, kdr, kons_result)
        class(*), intent(in) :: kar1
        class(*), intent(in) :: kar2
        class(*), intent(in) :: kar3
@@ -721,7 +773,8 @@ module cons_pairs
        class(*), intent(in) :: kdr
        class(*), allocatable, intent(out) :: kons_result
      end subroutine list_kons9_subr_t
-     recursive subroutine list_kons10_subr_t (kar1, kar2, kar3, kar4, kar5, kar6, kar7, kar8, kar9, kar10, kdr, kons_result)
+     recursive subroutine list_kons10_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          kar6, kar7, kar8, kar9, kar10, kdr, kons_result)
        class(*), intent(in) :: kar1
        class(*), intent(in) :: kar2
        class(*), intent(in) :: kar3
@@ -1055,6 +1108,29 @@ module cons_pairs
      module procedure unlist19_with_tail
      module procedure unlist20_with_tail
   end interface unlist_with_tail
+
+  interface circular_list
+     module procedure circular_list1
+     module procedure circular_list2
+     module procedure circular_list3
+     module procedure circular_list4
+     module procedure circular_list5
+     module procedure circular_list6
+     module procedure circular_list7
+     module procedure circular_list8
+     module procedure circular_list9
+     module procedure circular_list10
+     module procedure circular_list11
+     module procedure circular_list12
+     module procedure circular_list13
+     module procedure circular_list14
+     module procedure circular_list15
+     module procedure circular_list16
+     module procedure circular_list17
+     module procedure circular_list18
+     module procedure circular_list19
+     module procedure circular_list20
+  end interface circular_list
 
   interface zip
      module procedure zip1
@@ -2034,7 +2110,8 @@ contains
     lst = obj1 ** lst
   end function list5
 
-  function list6 (obj1, obj2, obj3, obj4, obj5, obj6) result (lst)
+  function list6 (obj1, obj2, obj3, obj4, obj5, &
+       obj6) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2051,7 +2128,8 @@ contains
     lst = obj1 ** lst
   end function list6
 
-  function list7 (obj1, obj2, obj3, obj4, obj5, obj6, obj7) result (lst)
+  function list7 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2070,7 +2148,8 @@ contains
     lst = obj1 ** lst
   end function list7
 
-  function list8 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8) result (lst)
+  function list8 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2091,7 +2170,8 @@ contains
     lst = obj1 ** lst
   end function list8
 
-  function list9 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9) result (lst)
+  function list9 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2114,7 +2194,8 @@ contains
     lst = obj1 ** lst
   end function list9
 
-  function list10 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10) result (lst)
+  function list10 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2139,8 +2220,9 @@ contains
     lst = obj1 ** lst
   end function list10
 
-  function list11 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11) result (lst)
+  function list11 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2167,8 +2249,9 @@ obj11) result (lst)
     lst = obj1 ** lst
   end function list11
 
-  function list12 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12) result (lst)
+  function list12 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2197,8 +2280,9 @@ obj11, obj12) result (lst)
     lst = obj1 ** lst
   end function list12
 
-  function list13 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13) result (lst)
+  function list13 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2229,8 +2313,9 @@ obj11, obj12, obj13) result (lst)
     lst = obj1 ** lst
   end function list13
 
-  function list14 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14) result (lst)
+  function list14 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2263,8 +2348,9 @@ obj11, obj12, obj13, obj14) result (lst)
     lst = obj1 ** lst
   end function list14
 
-  function list15 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15) result (lst)
+  function list15 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2299,8 +2385,10 @@ obj11, obj12, obj13, obj14, obj15) result (lst)
     lst = obj1 ** lst
   end function list15
 
-  function list16 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16) result (lst)
+  function list16 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2337,8 +2425,10 @@ obj11, obj12, obj13, obj14, obj15, obj16) result (lst)
     lst = obj1 ** lst
   end function list16
 
-  function list17 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17) result (lst)
+  function list17 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2377,8 +2467,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17) result (lst)
     lst = obj1 ** lst
   end function list17
 
-  function list18 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18) result (lst)
+  function list18 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2419,8 +2511,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18) result (lst)
     lst = obj1 ** lst
   end function list18
 
-  function list19 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19) result (lst)
+  function list19 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18, obj19) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2463,8 +2557,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19) result (lst)
     lst = obj1 ** lst
   end function list19
 
-  function list20 (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (lst)
+  function list20 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18, obj19, obj20) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2569,7 +2665,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     lst = obj1 ** lst
   end function list5_with_tail
 
-  function list6_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, tail) result (lst)
+  function list6_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2587,7 +2684,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     lst = obj1 ** lst
   end function list6_with_tail
 
-  function list7_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, tail) result (lst)
+  function list7_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2607,7 +2705,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     lst = obj1 ** lst
   end function list7_with_tail
 
-  function list8_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, tail) result (lst)
+  function list8_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2629,7 +2728,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     lst = obj1 ** lst
   end function list8_with_tail
 
-  function list9_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, tail) result (lst)
+  function list9_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2653,7 +2753,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     lst = obj1 ** lst
   end function list9_with_tail
 
-  function list10_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, tail) result (lst)
+  function list10_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2679,8 +2780,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20) result (ls
     lst = obj1 ** lst
   end function list10_with_tail
 
-  function list11_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, tail) result (lst)
+  function list11_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2708,8 +2810,9 @@ obj11, tail) result (lst)
     lst = obj1 ** lst
   end function list11_with_tail
 
-  function list12_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, tail) result (lst)
+  function list12_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2739,8 +2842,9 @@ obj11, obj12, tail) result (lst)
     lst = obj1 ** lst
   end function list12_with_tail
 
-  function list13_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, tail) result (lst)
+  function list13_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2772,8 +2876,9 @@ obj11, obj12, obj13, tail) result (lst)
     lst = obj1 ** lst
   end function list13_with_tail
 
-  function list14_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, tail) result (lst)
+  function list14_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2807,8 +2912,9 @@ obj11, obj12, obj13, obj14, tail) result (lst)
     lst = obj1 ** lst
   end function list14_with_tail
 
-  function list15_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, tail) result (lst)
+  function list15_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2844,8 +2950,10 @@ obj11, obj12, obj13, obj14, obj15, tail) result (lst)
     lst = obj1 ** lst
   end function list15_with_tail
 
-  function list16_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, tail) result (lst)
+  function list16_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2883,8 +2991,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, tail) result (lst)
     lst = obj1 ** lst
   end function list16_with_tail
 
-  function list17_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17, tail) result (lst)
+  function list17_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2924,8 +3034,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, tail) result (lst)
     lst = obj1 ** lst
   end function list17_with_tail
 
-  function list18_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, tail) result (lst)
+  function list18_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -2967,8 +3079,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, tail) result (lst)
     lst = obj1 ** lst
   end function list18_with_tail
 
-  function list19_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, tail) result (lst)
+  function list19_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18, obj19, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -3012,8 +3126,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, tail) result (lst
     lst = obj1 ** lst
   end function list19_with_tail
 
-  function list20_with_tail (obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail) result (lst)
+  function list20_with_tail (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18, obj19, obj20, tail) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
@@ -3164,7 +3280,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail) resu
     end if
   end subroutine unlist5
 
-  subroutine unlist6 (lst, obj1, obj2, obj3, obj4, obj5, obj6)
+  subroutine unlist6 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6)
     !
     ! This subroutine `unlists' the 6 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3191,7 +3308,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail) resu
     end if
   end subroutine unlist6
 
-  subroutine unlist7 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7)
+  subroutine unlist7 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7)
     !
     ! This subroutine `unlists' the 7 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3220,7 +3338,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail) resu
     end if
   end subroutine unlist7
 
-  subroutine unlist8 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8)
+  subroutine unlist8 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8)
     !
     ! This subroutine `unlists' the 8 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3251,7 +3370,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail) resu
     end if
   end subroutine unlist8
 
-  subroutine unlist9 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9)
+  subroutine unlist9 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9)
     !
     ! This subroutine `unlists' the 9 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3284,7 +3404,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail) resu
     end if
   end subroutine unlist9
 
-  subroutine unlist10 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10)
+  subroutine unlist10 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10)
     !
     ! This subroutine `unlists' the 10 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3319,8 +3440,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail) resu
     end if
   end subroutine unlist10
 
-  subroutine unlist11 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11)
+  subroutine unlist11 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11)
     !
     ! This subroutine `unlists' the 11 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3357,8 +3479,9 @@ obj11)
     end if
   end subroutine unlist11
 
-  subroutine unlist12 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12)
+  subroutine unlist12 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12)
     !
     ! This subroutine `unlists' the 12 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3397,8 +3520,9 @@ obj11, obj12)
     end if
   end subroutine unlist12
 
-  subroutine unlist13 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13)
+  subroutine unlist13 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13)
     !
     ! This subroutine `unlists' the 13 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3439,8 +3563,9 @@ obj11, obj12, obj13)
     end if
   end subroutine unlist13
 
-  subroutine unlist14 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14)
+  subroutine unlist14 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14)
     !
     ! This subroutine `unlists' the 14 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3483,8 +3608,9 @@ obj11, obj12, obj13, obj14)
     end if
   end subroutine unlist14
 
-  subroutine unlist15 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15)
+  subroutine unlist15 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15)
     !
     ! This subroutine `unlists' the 15 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3529,8 +3655,10 @@ obj11, obj12, obj13, obj14, obj15)
     end if
   end subroutine unlist15
 
-  subroutine unlist16 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16)
+  subroutine unlist16 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16)
     !
     ! This subroutine `unlists' the 16 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3577,8 +3705,10 @@ obj11, obj12, obj13, obj14, obj15, obj16)
     end if
   end subroutine unlist16
 
-  subroutine unlist17 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17)
+  subroutine unlist17 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17)
     !
     ! This subroutine `unlists' the 17 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3627,8 +3757,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17)
     end if
   end subroutine unlist17
 
-  subroutine unlist18 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18)
+  subroutine unlist18 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18)
     !
     ! This subroutine `unlists' the 18 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3679,8 +3811,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18)
     end if
   end subroutine unlist18
 
-  subroutine unlist19 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19)
+  subroutine unlist19 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18, obj19)
     !
     ! This subroutine `unlists' the 19 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3733,8 +3867,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19)
     end if
   end subroutine unlist19
 
-  subroutine unlist20 (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
+  subroutine unlist20 (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18, obj19, obj20)
     !
     ! This subroutine `unlists' the 20 elements of lst (which is
     ! allowed to be dotted, in which case the extra value is ignored).
@@ -3889,7 +4025,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     tail = tl
   end subroutine unlist5_with_tail
 
-  subroutine unlist6_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, tail)
+  subroutine unlist6_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, tail)
     !
     ! This subroutine `unlists' the leading 6 elements of lst, and
     ! also returns the tail.
@@ -3915,7 +4052,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     tail = tl
   end subroutine unlist6_with_tail
 
-  subroutine unlist7_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, tail)
+  subroutine unlist7_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, tail)
     !
     ! This subroutine `unlists' the leading 7 elements of lst, and
     ! also returns the tail.
@@ -3943,7 +4081,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     tail = tl
   end subroutine unlist7_with_tail
 
-  subroutine unlist8_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, tail)
+  subroutine unlist8_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, tail)
     !
     ! This subroutine `unlists' the leading 8 elements of lst, and
     ! also returns the tail.
@@ -3973,7 +4112,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     tail = tl
   end subroutine unlist8_with_tail
 
-  subroutine unlist9_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, tail)
+  subroutine unlist9_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, tail)
     !
     ! This subroutine `unlists' the leading 9 elements of lst, and
     ! also returns the tail.
@@ -4005,7 +4145,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     tail = tl
   end subroutine unlist9_with_tail
 
-  subroutine unlist10_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, tail)
+  subroutine unlist10_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, tail)
     !
     ! This subroutine `unlists' the leading 10 elements of lst, and
     ! also returns the tail.
@@ -4039,8 +4180,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20)
     tail = tl
   end subroutine unlist10_with_tail
 
-  subroutine unlist11_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, tail)
+  subroutine unlist11_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, tail)
     !
     ! This subroutine `unlists' the leading 11 elements of lst, and
     ! also returns the tail.
@@ -4076,8 +4218,9 @@ obj11, tail)
     tail = tl
   end subroutine unlist11_with_tail
 
-  subroutine unlist12_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, tail)
+  subroutine unlist12_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, tail)
     !
     ! This subroutine `unlists' the leading 12 elements of lst, and
     ! also returns the tail.
@@ -4115,8 +4258,9 @@ obj11, obj12, tail)
     tail = tl
   end subroutine unlist12_with_tail
 
-  subroutine unlist13_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, tail)
+  subroutine unlist13_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, tail)
     !
     ! This subroutine `unlists' the leading 13 elements of lst, and
     ! also returns the tail.
@@ -4156,8 +4300,9 @@ obj11, obj12, obj13, tail)
     tail = tl
   end subroutine unlist13_with_tail
 
-  subroutine unlist14_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, tail)
+  subroutine unlist14_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, tail)
     !
     ! This subroutine `unlists' the leading 14 elements of lst, and
     ! also returns the tail.
@@ -4199,8 +4344,9 @@ obj11, obj12, obj13, obj14, tail)
     tail = tl
   end subroutine unlist14_with_tail
 
-  subroutine unlist15_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, tail)
+  subroutine unlist15_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, tail)
     !
     ! This subroutine `unlists' the leading 15 elements of lst, and
     ! also returns the tail.
@@ -4244,8 +4390,10 @@ obj11, obj12, obj13, obj14, obj15, tail)
     tail = tl
   end subroutine unlist15_with_tail
 
-  subroutine unlist16_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, tail)
+  subroutine unlist16_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, tail)
     !
     ! This subroutine `unlists' the leading 16 elements of lst, and
     ! also returns the tail.
@@ -4291,8 +4439,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, tail)
     tail = tl
   end subroutine unlist16_with_tail
 
-  subroutine unlist17_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17, tail)
+  subroutine unlist17_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, tail)
     !
     ! This subroutine `unlists' the leading 17 elements of lst, and
     ! also returns the tail.
@@ -4340,8 +4490,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, tail)
     tail = tl
   end subroutine unlist17_with_tail
 
-  subroutine unlist18_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, tail)
+  subroutine unlist18_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18, tail)
     !
     ! This subroutine `unlists' the leading 18 elements of lst, and
     ! also returns the tail.
@@ -4391,8 +4543,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, tail)
     tail = tl
   end subroutine unlist18_with_tail
 
-  subroutine unlist19_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, tail)
+  subroutine unlist19_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18, obj19, tail)
     !
     ! This subroutine `unlists' the leading 19 elements of lst, and
     ! also returns the tail.
@@ -4444,8 +4598,10 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, tail)
     tail = tl
   end subroutine unlist19_with_tail
 
-  subroutine unlist20_with_tail (lst, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9, obj10, &
-obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
+  subroutine unlist20_with_tail (lst, obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18, obj19, obj20, tail)
     !
     ! This subroutine `unlists' the leading 20 elements of lst, and
     ! also returns the tail.
@@ -4498,6 +4654,636 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call uncons (tl, obj20, tl)
     tail = tl
   end subroutine unlist20_with_tail
+
+  function circular_list1 (obj1) result (lst)
+    class(*), intent(in) :: obj1
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj1 ** nil
+    lst = last_pair
+    call set_cdr (last_pair, lst)
+  end function circular_list1
+
+  function circular_list2 (obj1, obj2) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj2 ** nil
+    lst = last_pair
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list2
+
+  function circular_list3 (obj1, obj2, obj3) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj3 ** nil
+    lst = last_pair
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list3
+
+  function circular_list4 (obj1, obj2, obj3, obj4) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj4 ** nil
+    lst = last_pair
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list4
+
+  function circular_list5 (obj1, obj2, obj3, obj4, obj5) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj5 ** nil
+    lst = last_pair
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list5
+
+  function circular_list6 (obj1, obj2, obj3, obj4, obj5, &
+       obj6) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj6 ** nil
+    lst = last_pair
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list6
+
+  function circular_list7 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj7 ** nil
+    lst = last_pair
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list7
+
+  function circular_list8 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj8 ** nil
+    lst = last_pair
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list8
+
+  function circular_list9 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj9 ** nil
+    lst = last_pair
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list9
+
+  function circular_list10 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj10 ** nil
+    lst = last_pair
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list10
+
+  function circular_list11 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj11 ** nil
+    lst = last_pair
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list11
+
+  function circular_list12 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj12 ** nil
+    lst = last_pair
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list12
+
+  function circular_list13 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj13 ** nil
+    lst = last_pair
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list13
+
+  function circular_list14 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj14 ** nil
+    lst = last_pair
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list14
+
+  function circular_list15 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj15 ** nil
+    lst = last_pair
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list15
+
+  function circular_list16 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj16 ** nil
+    lst = last_pair
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list16
+
+  function circular_list17 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+    class(*), intent(in) :: obj17
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj17 ** nil
+    lst = last_pair
+    lst = obj16 ** lst
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list17
+
+  function circular_list18 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+    class(*), intent(in) :: obj17
+    class(*), intent(in) :: obj18
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj18 ** nil
+    lst = last_pair
+    lst = obj17 ** lst
+    lst = obj16 ** lst
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list18
+
+  function circular_list19 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18, obj19) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+    class(*), intent(in) :: obj17
+    class(*), intent(in) :: obj18
+    class(*), intent(in) :: obj19
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj19 ** nil
+    lst = last_pair
+    lst = obj18 ** lst
+    lst = obj17 ** lst
+    lst = obj16 ** lst
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list19
+
+  function circular_list20 (obj1, obj2, obj3, obj4, obj5, &
+       obj6, obj7, obj8, obj9, obj10, &
+       obj11, obj12, obj13, obj14, obj15, &
+       obj16, obj17, obj18, obj19, obj20) result (lst)
+    class(*), intent(in) :: obj1
+    class(*), intent(in) :: obj2
+    class(*), intent(in) :: obj3
+    class(*), intent(in) :: obj4
+    class(*), intent(in) :: obj5
+    class(*), intent(in) :: obj6
+    class(*), intent(in) :: obj7
+    class(*), intent(in) :: obj8
+    class(*), intent(in) :: obj9
+    class(*), intent(in) :: obj10
+    class(*), intent(in) :: obj11
+    class(*), intent(in) :: obj12
+    class(*), intent(in) :: obj13
+    class(*), intent(in) :: obj14
+    class(*), intent(in) :: obj15
+    class(*), intent(in) :: obj16
+    class(*), intent(in) :: obj17
+    class(*), intent(in) :: obj18
+    class(*), intent(in) :: obj19
+    class(*), intent(in) :: obj20
+
+    type(cons_t) :: last_pair
+    type(cons_t) :: lst
+
+    last_pair = obj20 ** nil
+    lst = last_pair
+    lst = obj19 ** lst
+    lst = obj18 ** lst
+    lst = obj17 ** lst
+    lst = obj16 ** lst
+    lst = obj15 ** lst
+    lst = obj14 ** lst
+    lst = obj13 ** lst
+    lst = obj12 ** lst
+    lst = obj11 ** lst
+    lst = obj10 ** lst
+    lst = obj9 ** lst
+    lst = obj8 ** lst
+    lst = obj7 ** lst
+    lst = obj6 ** lst
+    lst = obj5 ** lst
+    lst = obj4 ** lst
+    lst = obj3 ** lst
+    lst = obj2 ** lst
+    lst = obj1 ** lst
+    call set_cdr (last_pair, lst)
+  end function circular_list20
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -4826,7 +5612,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end function zip5
 
-  function zip6 (lst1, lst2, lst3, lst4, lst5, lst6) result (lst_z)
+  function zip6 (lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (lst_z)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -4930,7 +5717,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end function zip6
 
-  function zip7 (lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_z)
+  function zip7 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (lst_z)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -5047,7 +5835,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end function zip7
 
-  function zip8 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_z)
+  function zip8 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (lst_z)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -5177,7 +5966,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end function zip8
 
-  function zip9 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_z)
+  function zip9 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (lst_z)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -5320,7 +6110,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end function zip9
 
-  function zip10 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (lst_z)
+  function zip10 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (lst_z)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -5943,7 +6734,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end subroutine unzip5
 
-  subroutine unzip6 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6)
+  subroutine unzip6 (lst_zipped, lst1, lst2, lst3, lst4, lst5, &
+       lst6)
     class(*), intent(in) :: lst_zipped
     type(cons_t), intent(inout) :: lst1
     type(cons_t), intent(inout) :: lst2
@@ -6102,7 +6894,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end subroutine unzip6
 
-  subroutine unzip7 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7)
+  subroutine unzip7 (lst_zipped, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7)
     class(*), intent(in) :: lst_zipped
     type(cons_t), intent(inout) :: lst1
     type(cons_t), intent(inout) :: lst2
@@ -6283,7 +7076,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end subroutine unzip7
 
-  subroutine unzip8 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8)
+  subroutine unzip8 (lst_zipped, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8)
     class(*), intent(in) :: lst_zipped
     type(cons_t), intent(inout) :: lst1
     type(cons_t), intent(inout) :: lst2
@@ -6486,7 +7280,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end subroutine unzip8
 
-  subroutine unzip9 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9)
+  subroutine unzip9 (lst_zipped, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9)
     class(*), intent(in) :: lst_zipped
     type(cons_t), intent(inout) :: lst1
     type(cons_t), intent(inout) :: lst2
@@ -6711,7 +7506,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end subroutine unzip9
 
-  subroutine unzip10 (lst_zipped, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10)
+  subroutine unzip10 (lst_zipped, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10)
     class(*), intent(in) :: lst_zipped
     type(cons_t), intent(inout) :: lst1
     type(cons_t), intent(inout) :: lst2
@@ -7726,7 +8522,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     lst_a = append2 (lst1, lst_a)
   end function append5
 
-  function append6 (lst1, lst2, lst3, lst4, lst5, lst6) result (lst_a)
+  function append6 (lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (lst_a)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -7742,7 +8539,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     lst_a = append2 (lst1, lst_a)
   end function append6
 
-  function append7 (lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_a)
+  function append7 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (lst_a)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -7760,7 +8558,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     lst_a = append2 (lst1, lst_a)
   end function append7
 
-  function append8 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_a)
+  function append8 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (lst_a)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -7780,7 +8579,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     lst_a = append2 (lst1, lst_a)
   end function append8
 
-  function append9 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_a)
+  function append9 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (lst_a)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -7802,7 +8602,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     lst_a = append2 (lst1, lst_a)
   end function append9
 
-  function append10 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (lst_a)
+  function append10 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (lst_a)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -7894,7 +8695,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     lst_a = appendx2 (lst1, lst_a)
   end function appendx5
 
-  function appendx6 (lst1, lst2, lst3, lst4, lst5, lst6) result (lst_a)
+  function appendx6 (lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (lst_a)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -7910,7 +8712,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     lst_a = appendx2 (lst1, lst_a)
   end function appendx6
 
-  function appendx7 (lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_a)
+  function appendx7 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (lst_a)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -7928,7 +8731,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     lst_a = appendx2 (lst1, lst_a)
   end function appendx7
 
-  function appendx8 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_a)
+  function appendx8 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (lst_a)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -7948,7 +8752,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     lst_a = appendx2 (lst1, lst_a)
   end function appendx8
 
-  function appendx9 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_a)
+  function appendx9 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (lst_a)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -7970,7 +8775,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     lst_a = appendx2 (lst1, lst_a)
   end function appendx9
 
-  function appendx10 (lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (lst_a)
+  function appendx10 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (lst_a)
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -8378,7 +9184,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst5_root%discard
   end function list_equal5
 
-  recursive function list_equal6 (pred, lst1, lst2, lst3, lst4, lst5, lst6) result (bool)
+  recursive function list_equal6 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (bool)
     procedure(list_predicate2_t) :: pred
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -8416,7 +9223,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst6_root%discard
   end function list_equal6
 
-  recursive function list_equal7 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (bool)
+  recursive function list_equal7 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (bool)
     procedure(list_predicate2_t) :: pred
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -8459,7 +9267,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst7_root%discard
   end function list_equal7
 
-  recursive function list_equal8 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (bool)
+  recursive function list_equal8 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (bool)
     procedure(list_predicate2_t) :: pred
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -8507,7 +9316,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst8_root%discard
   end function list_equal8
 
-  recursive function list_equal9 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (bool)
+  recursive function list_equal9 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (bool)
     procedure(list_predicate2_t) :: pred
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -8560,7 +9370,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst9_root%discard
   end function list_equal9
 
-  recursive function list_equal10 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (bool)
+  recursive function list_equal10 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (bool)
     procedure(list_predicate2_t) :: pred
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -8855,7 +9666,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst5_root%discard
   end function list_count5
 
-  recursive function list_count6 (pred, lst1, lst2, lst3, lst4, lst5, lst6) result (total)
+  recursive function list_count6 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (total)
     procedure(list_predicate6_t) :: pred
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -8915,7 +9727,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           call uncons (tail4, head4, tail4)
           call uncons (tail5, head5, tail5)
           call uncons (tail6, head6, tail6)
-          if (pred (head1, head2, head3, head4, head5, head6)) then
+          if (pred (head1, head2, head3, head4, head5, &
+               head6)) then
              total = total + 1
           end if
        end if
@@ -8929,7 +9742,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst6_root%discard
   end function list_count6
 
-  recursive function list_count7 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (total)
+  recursive function list_count7 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (total)
     procedure(list_predicate7_t) :: pred
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -8997,7 +9811,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           call uncons (tail5, head5, tail5)
           call uncons (tail6, head6, tail6)
           call uncons (tail7, head7, tail7)
-          if (pred (head1, head2, head3, head4, head5, head6, head7)) then
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7)) then
              total = total + 1
           end if
        end if
@@ -9012,7 +9827,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst7_root%discard
   end function list_count7
 
-  recursive function list_count8 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (total)
+  recursive function list_count8 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (total)
     procedure(list_predicate8_t) :: pred
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -9088,7 +9904,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           call uncons (tail6, head6, tail6)
           call uncons (tail7, head7, tail7)
           call uncons (tail8, head8, tail8)
-          if (pred (head1, head2, head3, head4, head5, head6, head7, head8)) then
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8)) then
              total = total + 1
           end if
        end if
@@ -9104,7 +9921,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst8_root%discard
   end function list_count8
 
-  recursive function list_count9 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (total)
+  recursive function list_count9 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (total)
     procedure(list_predicate9_t) :: pred
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -9188,7 +10006,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           call uncons (tail7, head7, tail7)
           call uncons (tail8, head8, tail8)
           call uncons (tail9, head9, tail9)
-          if (pred (head1, head2, head3, head4, head5, head6, head7, head8, head9)) then
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9)) then
              total = total + 1
           end if
        end if
@@ -9205,7 +10024,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst9_root%discard
   end function list_count9
 
-  recursive function list_count10 (pred, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (total)
+  recursive function list_count10 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (total)
     procedure(list_predicate10_t) :: pred
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -9297,7 +10117,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           call uncons (tail8, head8, tail8)
           call uncons (tail9, head9, tail9)
           call uncons (tail10, head10, tail10)
-          if (pred (head1, head2, head3, head4, head5, head6, head7, head8, head9, head10)) then
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10)) then
              total = total + 1
           end if
        end if
@@ -9370,7 +10191,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     lst_m = map5_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5)
   end function map5_subr
 
-  recursive function map6_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6) result (lst_m)
+  recursive function map6_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (lst_m)
     procedure(list_map6_subr_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -9380,10 +10202,12 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst6
     type(cons_t) :: lst_m
 
-    lst_m = map6_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6)
+    lst_m = map6_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6)
   end function map6_subr
 
-  recursive function map7_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_m)
+  recursive function map7_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (lst_m)
     procedure(list_map7_subr_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -9394,10 +10218,12 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst7
     type(cons_t) :: lst_m
 
-    lst_m = map7_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7)
+    lst_m = map7_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7)
   end function map7_subr
 
-  recursive function map8_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_m)
+  recursive function map8_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (lst_m)
     procedure(list_map8_subr_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -9409,10 +10235,12 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst8
     type(cons_t) :: lst_m
 
-    lst_m = map8_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8)
+    lst_m = map8_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8)
   end function map8_subr
 
-  recursive function map9_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_m)
+  recursive function map9_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (lst_m)
     procedure(list_map9_subr_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -9425,10 +10253,12 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst9
     type(cons_t) :: lst_m
 
-    lst_m = map9_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9)
+    lst_m = map9_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9)
   end function map9_subr
 
-  recursive function map10_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (lst_m)
+  recursive function map10_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (lst_m)
     procedure(list_map10_subr_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -9442,7 +10272,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     class(*), intent(in) :: lst10
     type(cons_t) :: lst_m
 
-    lst_m = map10_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10)
+    lst_m = map10_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10)
   end function map10_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -9815,7 +10646,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end function map5_in_order_subr
 
-  recursive function map6_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6) result (lst_m)
+  recursive function map6_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (lst_m)
     procedure(list_map6_subr_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -9876,7 +10708,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail4, head4, tail4)
        call uncons (tail5, head5, tail5)
        call uncons (tail6, head6, tail6)
-       call proc (head1, head2, head3, head4, head5, head6, proc_result)
+       call proc (head1, head2, head3, head4, head5, &
+            head6, proc_result)
        cursor = proc_result ** nil
        if (is_not_pair (tail1)) then
           lst_m = cursor
@@ -9900,7 +10733,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
              call uncons (tail4, head4, tail4)
              call uncons (tail5, head5, tail5)
              call uncons (tail6, head6, tail6)
-             call proc (head1, head2, head3, head4, head5, head6, proc_result)
+             call proc (head1, head2, head3, head4, head5, &
+                  head6, proc_result)
              new_pair = proc_result ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
@@ -9930,7 +10764,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end function map6_in_order_subr
 
-  recursive function map7_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (lst_m)
+  recursive function map7_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (lst_m)
     procedure(list_map7_subr_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -9999,7 +10834,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail5, head5, tail5)
        call uncons (tail6, head6, tail6)
        call uncons (tail7, head7, tail7)
-       call proc (head1, head2, head3, head4, head5, head6, head7, proc_result)
+       call proc (head1, head2, head3, head4, head5, &
+            head6, head7, proc_result)
        cursor = proc_result ** nil
        if (is_not_pair (tail1)) then
           lst_m = cursor
@@ -10026,7 +10862,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
              call uncons (tail5, head5, tail5)
              call uncons (tail6, head6, tail6)
              call uncons (tail7, head7, tail7)
-             call proc (head1, head2, head3, head4, head5, head6, head7, proc_result)
+             call proc (head1, head2, head3, head4, head5, &
+                  head6, head7, proc_result)
              new_pair = proc_result ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
@@ -10059,7 +10896,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end function map7_in_order_subr
 
-  recursive function map8_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (lst_m)
+  recursive function map8_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (lst_m)
     procedure(list_map8_subr_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -10136,7 +10974,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail6, head6, tail6)
        call uncons (tail7, head7, tail7)
        call uncons (tail8, head8, tail8)
-       call proc (head1, head2, head3, head4, head5, head6, head7, head8, proc_result)
+       call proc (head1, head2, head3, head4, head5, &
+            head6, head7, head8, proc_result)
        cursor = proc_result ** nil
        if (is_not_pair (tail1)) then
           lst_m = cursor
@@ -10166,7 +11005,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
              call uncons (tail6, head6, tail6)
              call uncons (tail7, head7, tail7)
              call uncons (tail8, head8, tail8)
-             call proc (head1, head2, head3, head4, head5, head6, head7, head8, proc_result)
+             call proc (head1, head2, head3, head4, head5, &
+                  head6, head7, head8, proc_result)
              new_pair = proc_result ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
@@ -10202,7 +11042,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end function map8_in_order_subr
 
-  recursive function map9_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (lst_m)
+  recursive function map9_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (lst_m)
     procedure(list_map9_subr_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -10287,7 +11128,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail7, head7, tail7)
        call uncons (tail8, head8, tail8)
        call uncons (tail9, head9, tail9)
-       call proc (head1, head2, head3, head4, head5, head6, head7, head8, head9, proc_result)
+       call proc (head1, head2, head3, head4, head5, &
+            head6, head7, head8, head9, proc_result)
        cursor = proc_result ** nil
        if (is_not_pair (tail1)) then
           lst_m = cursor
@@ -10320,7 +11162,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
              call uncons (tail7, head7, tail7)
              call uncons (tail8, head8, tail8)
              call uncons (tail9, head9, tail9)
-             call proc (head1, head2, head3, head4, head5, head6, head7, head8, head9, proc_result)
+             call proc (head1, head2, head3, head4, head5, &
+                  head6, head7, head8, head9, proc_result)
              new_pair = proc_result ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
@@ -10359,7 +11202,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     end if
   end function map9_in_order_subr
 
-  recursive function map10_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (lst_m)
+  recursive function map10_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (lst_m)
     procedure(list_map10_subr_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -10452,7 +11296,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call uncons (tail8, head8, tail8)
        call uncons (tail9, head9, tail9)
        call uncons (tail10, head10, tail10)
-       call proc (head1, head2, head3, head4, head5, head6, head7, head8, head9, head10, proc_result)
+       call proc (head1, head2, head3, head4, head5, &
+            head6, head7, head8, head9, head10, proc_result)
        cursor = proc_result ** nil
        if (is_not_pair (tail1)) then
           lst_m = cursor
@@ -10488,7 +11333,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
              call uncons (tail8, head8, tail8)
              call uncons (tail9, head9, tail9)
              call uncons (tail10, head10, tail10)
-             call proc (head1, head2, head3, head4, head5, head6, head7, head8, head9, head10, proc_result)
+             call proc (head1, head2, head3, head4, head5, &
+                  head6, head7, head8, head9, head10, proc_result)
              new_pair = proc_result ** nil
              call set_cdr (cursor, new_pair)
              cursor = new_pair
@@ -10792,7 +11638,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst5_root%discard
   end function fold5_subr
 
-  recursive function fold6_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6) result (retval)
+  recursive function fold6_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (retval)
     procedure(list_kons6_subr_t) :: kons
     class(*), intent(in) :: knil
     class(*), intent(in) :: lst1
@@ -10872,7 +11719,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst6_root%discard
   end function fold6_subr
 
-  recursive function fold7_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (retval)
+  recursive function fold7_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (retval)
     procedure(list_kons7_subr_t) :: kons
     class(*), intent(in) :: knil
     class(*), intent(in) :: lst1
@@ -10961,7 +11809,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst7_root%discard
   end function fold7_subr
 
-  recursive function fold8_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (retval)
+  recursive function fold8_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (retval)
     procedure(list_kons8_subr_t) :: kons
     class(*), intent(in) :: knil
     class(*), intent(in) :: lst1
@@ -11059,7 +11908,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst8_root%discard
   end function fold8_subr
 
-  recursive function fold9_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (retval)
+  recursive function fold9_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (retval)
     procedure(list_kons9_subr_t) :: kons
     class(*), intent(in) :: knil
     class(*), intent(in) :: lst1
@@ -11166,7 +12016,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst9_root%discard
   end function fold9_subr
 
-  recursive function fold10_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (retval)
+  recursive function fold10_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (retval)
     procedure(list_kons10_subr_t) :: kons
     class(*), intent(in) :: knil
     class(*), intent(in) :: lst1
@@ -12409,7 +13260,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst5_root%discard
   end function pair_fold5_subr
 
-  recursive function pair_fold6_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6) result (retval)
+  recursive function pair_fold6_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (retval)
     procedure(list_kons6_subr_t) :: kons
     class(*), intent(in) :: knil
     class(*), intent(in) :: lst1
@@ -12494,7 +13346,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst6_root%discard
   end function pair_fold6_subr
 
-  recursive function pair_fold7_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6, lst7) result (retval)
+  recursive function pair_fold7_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (retval)
     procedure(list_kons7_subr_t) :: kons
     class(*), intent(in) :: knil
     class(*), intent(in) :: lst1
@@ -12590,7 +13443,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst7_root%discard
   end function pair_fold7_subr
 
-  recursive function pair_fold8_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8) result (retval)
+  recursive function pair_fold8_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (retval)
     procedure(list_kons8_subr_t) :: kons
     class(*), intent(in) :: knil
     class(*), intent(in) :: lst1
@@ -12696,7 +13550,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst8_root%discard
   end function pair_fold8_subr
 
-  recursive function pair_fold9_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9) result (retval)
+  recursive function pair_fold9_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (retval)
     procedure(list_kons9_subr_t) :: kons
     class(*), intent(in) :: knil
     class(*), intent(in) :: lst1
@@ -12812,7 +13667,8 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
     call lst9_root%discard
   end function pair_fold9_subr
 
-  recursive function pair_fold10_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8, lst9, lst10) result (retval)
+  recursive function pair_fold10_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (retval)
     procedure(list_kons10_subr_t) :: kons
     class(*), intent(in) :: knil
     class(*), intent(in) :: lst1

@@ -538,10 +538,16 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   subroutine test0110
     call check (list_equal (int_eq, take (make_circular (1 ** nil), 5_sz), list (1, 1, 1, 1, 1)), &
          "test0110-0010 failed")
+    call check (list_equal (int_eq, take (circular_list (1), 5_sz), list (1, 1, 1, 1, 1)), &
+         "test0110-0015 failed")
     call check (list_equal (int_eq, &
          take (make_circular (1 ** 2 ** 3 ** nil), 10_sz), &
          1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** nil), &
          "test0110-0020 failed")
+    call check (list_equal (int_eq, &
+         take (circular_list (1, 2, 3), 10_sz), &
+         1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** nil), &
+         "test0110-0025 failed")
 
     call check (list_equal (int_eq, take (make_circularx (1 ** nil), 5_sz), list (1, 1, 1, 1, 1)), &
          "test0110-0030 failed")
@@ -551,16 +557,25 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
          "test0110-0040 failed")
 
     call check (is_circular_list (make_circular (1 ** nil)), "test0110-0050 failed")
+    call check (is_circular_list (circular_list (1)), "test0110-0055 failed")
     call check (is_circular_list (make_circular (1 ** 2 ** 3 ** nil)), "test0110-0060 failed")
+    call check (is_circular_list (circular_list (1, 2, 3)), "test0110-0065 failed")
     call check (is_circular_list (4 ** 5 ** make_circular (1 ** 2 ** 3 ** nil)), "test0110-0070 failed")
+    call check (is_circular_list (4 ** 5 ** circular_list (1, 2, 3)), "test0110-0075 failed")
 
     call check (.not. is_proper_list (make_circular (1 ** nil)), "test0110-0080 failed")
+    call check (.not. is_proper_list (circular_list (1)), "test0110-0085 failed")
     call check (.not. is_proper_list (make_circular (1 ** 2 ** 3 ** nil)), "test0110-0090 failed")
+    call check (.not. is_proper_list (circular_list (1, 2, 3)), "test0110-0095 failed")
     call check (.not. is_proper_list (4 ** 5 ** make_circular (1 ** 2 ** 3 ** nil)), "test0110-0100 failed")
+    call check (.not. is_proper_list (4 ** 5 ** circular_list (1, 2, 3)), "test0110-0105 failed")
 
     call check (.not. is_dotted_list (make_circular (1 ** nil)), "test0110-0110 failed")
+    call check (.not. is_dotted_list (circular_list (1)), "test0110-0115 failed")
     call check (.not. is_dotted_list (make_circular (1 ** 2 ** 3 ** nil)), "test0110-0120 failed")
+    call check (.not. is_dotted_list (circular_list (1, 2, 3)), "test0110-0125 failed")
     call check (.not. is_dotted_list (4 ** 5 ** make_circular (1 ** 2 ** 3 ** nil)), "test0110-0130 failed")
+    call check (.not. is_dotted_list (4 ** 5 ** circular_list (1, 2, 3)), "test0110-0135 failed")
   end subroutine test0110
 
   subroutine test0120
