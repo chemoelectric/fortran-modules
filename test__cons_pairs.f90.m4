@@ -2194,7 +2194,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   subroutine test0380
     !
-    ! Tests of filter.
+    ! Tests of remove.
     !
 
     type(cons_t) :: lst1, lst1a, lst2
