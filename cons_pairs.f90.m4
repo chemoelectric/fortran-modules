@@ -159,12 +159,21 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: circular_list    ! Generic function: make a circular list
                              ! from elements.
 
-  ! Implementations of list.
-m4_forloop([n],[1],LISTN_MAX,[dnl
+  ! Implementations of list. These include `list0', which takes no
+  ! arguments and returns a nil list.
+m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: list[]n
 ])dnl
 
   ! Implementations of list_with_tail.
+  !
+  ! Note that there is no `list0_with_tail'. Why not? Because the tail
+  ! might be a degenerate dotted list. Therefore a `list0_with_tail'
+  ! function would have to return class(*). All the other
+  ! list_with_tail implementations can -- and do -- return
+  ! type(cons_t). The distinction is undesirable, so `list0_with_tail'
+  ! is simply left out.
+  !
 m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: list[]n[]_with_tail
 ])dnl
@@ -328,6 +337,9 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: map_in_order     ! Generic function: map list elements
                              ! left-to-right. (A kind of combination
                              ! of map and for_each.)
+  public :: filter_map       ! Generic function: like map, but do not
+                             ! save any results that satisfy `type is
+                             ! (logical)' and are .false.
   public :: for_each         ! Generic function: perform side effects
                              ! on list elements, in order from left to
                              ! right.
@@ -344,7 +356,13 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   ! Implementations of map_in_order, taking a subroutine as the
   ! mapping procedure.
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  public :: map[]n[]_in_order_subr ! map_in_order for n lists, with a subroutine as proc.
+  public :: map[]n[]_in_order_subr
+])dnl
+
+  ! Implementations of filter_map, taking a subroutine as the mapping
+  ! procedure.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: filter_map[]n[]_subr
 ])dnl
 
   ! Implementations of for_each, taking a subroutine as the
@@ -608,7 +626,7 @@ m4_forloop([k],[1],n,[dnl
   end interface unfold_right
 
   interface list
-m4_forloop([n],[1],LISTN_MAX,[dnl
+m4_forloop([n],[0],LISTN_MAX,[dnl
      module procedure list[]n
 ])dnl
   end interface list
@@ -684,6 +702,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure map[]n[]_in_order_subr
 ])dnl
   end interface map_in_order
+
+  interface filter_map
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure filter_map[]n[]_subr
+])dnl
+  end interface filter_map
 
   interface for_each
 m4_forloop([n],[1],ZIP_MAX,[dnl
@@ -1177,6 +1201,11 @@ m4_bits_to_get_nth_element([10],[element])dnl
   end function list_refn_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function list0 () result (lst)
+    type(cons_t) :: lst
+    lst = nil
+  end function list0
 
 m4_forloop([n],[1],LISTN_MAX,[dnl
   function list[]n (obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
@@ -2729,6 +2758,124 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
     end if
   end function map[]n[]_in_order_subr
+
+])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! filter_map. These are implemented in terms of private `filter map
+!! in order' functions, which *perhaps* one day will be made public.
+!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function filter_map[]n[]_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])lst[]k])) result (lst_m)
+    procedure(list_map[]n[]_subr_t) :: proc
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map[]n[]_in_order_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])lst[]k]))
+  end function filter_map[]n[]_subr
+
+])dnl
+dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function filter_map[]n[]_in_order_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])lst[]k])) result (lst_m)
+    procedure(list_map[]n[]_subr_t) :: proc
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_m
+
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: lst[]k[]_root
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable :: head[]k, tail[]k
+])dnl
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+m4_forloop([k],[1],n,[dnl
+    lst[]k[]_root = lst[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    tail[]k = lst[]k
+])dnl
+
+    call skip_falses (all_done, proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (all_done, proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (all_done, proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (all_done, proc_result2)
+          end do
+          lst_m = .tocons. retval
+       end if
+    end if
+
+m4_forloop([k],[1],n,[dnl
+    call lst[]k[]_root%discard
+])dnl
+
+  contains
+
+    recursive subroutine skip_falses (all_done, proc_result)
+      logical, intent(out) :: all_done
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+m4_forloop([k],[2],n,[dnl
+         else if (is_not_pair (tail[]k)) then
+            all_done = .true.
+            all_skipped = .true.
+])dnl
+         else
+            all_done = .false.
+m4_forloop([k],[1],n,[dnl
+            call uncons (tail[]k, head[]k, tail[]k)
+])dnl
+            call proc (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+                 ])head[]k]), proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map[]n[]_in_order_subr
 
 ])dnl
 dnl

@@ -176,7 +176,9 @@ module cons_pairs
   public :: circular_list    ! Generic function: make a circular list
                              ! from elements.
 
-  ! Implementations of list.
+  ! Implementations of list. These include `list0', which takes no
+  ! arguments and returns a nil list.
+  public :: list0
   public :: list1
   public :: list2
   public :: list3
@@ -199,6 +201,14 @@ module cons_pairs
   public :: list20
 
   ! Implementations of list_with_tail.
+  !
+  ! Note that there is no `list0_with_tail'. Why not? Because the tail
+  ! might be a degenerate dotted list. Therefore a `list0_with_tail'
+  ! function would have to return class(*). All the other
+  ! list_with_tail implementations can -- and do -- return
+  ! type(cons_t). The distinction is undesirable, so `list0_with_tail'
+  ! is simply left out.
+  !
   public :: list1_with_tail
   public :: list2_with_tail
   public :: list3_with_tail
@@ -467,6 +477,9 @@ module cons_pairs
   public :: map_in_order     ! Generic function: map list elements
                              ! left-to-right. (A kind of combination
                              ! of map and for_each.)
+  public :: filter_map       ! Generic function: like map, but do not
+                             ! save any results that satisfy `type is
+                             ! (logical)' and are .false.
   public :: for_each         ! Generic function: perform side effects
                              ! on list elements, in order from left to
                              ! right.
@@ -489,16 +502,29 @@ module cons_pairs
 
   ! Implementations of map_in_order, taking a subroutine as the
   ! mapping procedure.
-  public :: map1_in_order_subr ! map_in_order for 1 lists, with a subroutine as proc.
-  public :: map2_in_order_subr ! map_in_order for 2 lists, with a subroutine as proc.
-  public :: map3_in_order_subr ! map_in_order for 3 lists, with a subroutine as proc.
-  public :: map4_in_order_subr ! map_in_order for 4 lists, with a subroutine as proc.
-  public :: map5_in_order_subr ! map_in_order for 5 lists, with a subroutine as proc.
-  public :: map6_in_order_subr ! map_in_order for 6 lists, with a subroutine as proc.
-  public :: map7_in_order_subr ! map_in_order for 7 lists, with a subroutine as proc.
-  public :: map8_in_order_subr ! map_in_order for 8 lists, with a subroutine as proc.
-  public :: map9_in_order_subr ! map_in_order for 9 lists, with a subroutine as proc.
-  public :: map10_in_order_subr ! map_in_order for 10 lists, with a subroutine as proc.
+  public :: map1_in_order_subr
+  public :: map2_in_order_subr
+  public :: map3_in_order_subr
+  public :: map4_in_order_subr
+  public :: map5_in_order_subr
+  public :: map6_in_order_subr
+  public :: map7_in_order_subr
+  public :: map8_in_order_subr
+  public :: map9_in_order_subr
+  public :: map10_in_order_subr
+
+  ! Implementations of filter_map, taking a subroutine as the mapping
+  ! procedure.
+  public :: filter_map1_subr
+  public :: filter_map2_subr
+  public :: filter_map3_subr
+  public :: filter_map4_subr
+  public :: filter_map5_subr
+  public :: filter_map6_subr
+  public :: filter_map7_subr
+  public :: filter_map8_subr
+  public :: filter_map9_subr
+  public :: filter_map10_subr
 
   ! Implementations of for_each, taking a subroutine as the
   ! per-element procedure.
@@ -1154,6 +1180,7 @@ module cons_pairs
   end interface unfold_right
 
   interface list
+     module procedure list0
      module procedure list1
      module procedure list2
      module procedure list3
@@ -1374,6 +1401,19 @@ module cons_pairs
      module procedure map9_in_order_subr
      module procedure map10_in_order_subr
   end interface map_in_order
+
+  interface filter_map
+     module procedure filter_map1_subr
+     module procedure filter_map2_subr
+     module procedure filter_map3_subr
+     module procedure filter_map4_subr
+     module procedure filter_map5_subr
+     module procedure filter_map6_subr
+     module procedure filter_map7_subr
+     module procedure filter_map8_subr
+     module procedure filter_map9_subr
+     module procedure filter_map10_subr
+  end interface filter_map
 
   interface for_each
      module procedure for_each1_subr
@@ -2216,6 +2256,11 @@ contains
   end function list_refn_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function list0 () result (lst)
+    type(cons_t) :: lst
+    lst = nil
+  end function list0
 
   function list1 (obj1) result (lst)
     class(*), intent(in) :: obj1
@@ -11537,6 +11582,1337 @@ contains
        call lst10_root%discard
     end if
   end function map10_in_order_subr
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! filter_map. These are implemented in terms of private `filter map
+!! in order' functions, which *perhaps* one day will be made public.
+!!
+
+  recursive function filter_map1_subr (proc, lst1) result (lst_m)
+    procedure(list_map1_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map1_in_order_subr (proc, lst1)
+  end function filter_map1_subr
+
+  recursive function filter_map2_subr (proc, lst1, lst2) result (lst_m)
+    procedure(list_map2_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map2_in_order_subr (proc, lst1, lst2)
+  end function filter_map2_subr
+
+  recursive function filter_map3_subr (proc, lst1, lst2, lst3) result (lst_m)
+    procedure(list_map3_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map3_in_order_subr (proc, lst1, lst2, lst3)
+  end function filter_map3_subr
+
+  recursive function filter_map4_subr (proc, lst1, lst2, lst3, lst4) result (lst_m)
+    procedure(list_map4_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map4_in_order_subr (proc, lst1, lst2, lst3, lst4)
+  end function filter_map4_subr
+
+  recursive function filter_map5_subr (proc, lst1, lst2, lst3, lst4, lst5) result (lst_m)
+    procedure(list_map5_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map5_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5)
+  end function filter_map5_subr
+
+  recursive function filter_map6_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (lst_m)
+    procedure(list_map6_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map6_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6)
+  end function filter_map6_subr
+
+  recursive function filter_map7_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (lst_m)
+    procedure(list_map7_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map7_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7)
+  end function filter_map7_subr
+
+  recursive function filter_map8_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (lst_m)
+    procedure(list_map8_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map8_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8)
+  end function filter_map8_subr
+
+  recursive function filter_map9_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (lst_m)
+    procedure(list_map9_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map9_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9)
+  end function filter_map9_subr
+
+  recursive function filter_map10_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (lst_m)
+    procedure(list_map10_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map10_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10)
+  end function filter_map10_subr
+
+  recursive function filter_map1_in_order_subr (proc, lst1) result (lst_m)
+    procedure(list_map1_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+
+    tail1 = lst1
+
+    call skip_falses (all_done, proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (all_done, proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (all_done, proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (all_done, proc_result2)
+          end do
+          lst_m = .tocons. retval
+       end if
+    end if
+
+    call lst1_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (all_done, proc_result)
+      logical, intent(out) :: all_done
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call proc (head1, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map1_in_order_subr
+
+  recursive function filter_map2_in_order_subr (proc, lst1, lst2) result (lst_m)
+    procedure(list_map2_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+    lst2_root = lst2
+
+    tail1 = lst1
+    tail2 = lst2
+
+    call skip_falses (all_done, proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (all_done, proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (all_done, proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (all_done, proc_result2)
+          end do
+          lst_m = .tocons. retval
+       end if
+    end if
+
+    call lst1_root%discard
+    call lst2_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (all_done, proc_result)
+      logical, intent(out) :: all_done
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail2)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call uncons (tail2, head2, tail2)
+            call proc (head1, head2, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map2_in_order_subr
+
+  recursive function filter_map3_in_order_subr (proc, lst1, lst2, lst3) result (lst_m)
+    procedure(list_map3_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+
+    tail1 = lst1
+    tail2 = lst2
+    tail3 = lst3
+
+    call skip_falses (all_done, proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (all_done, proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (all_done, proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (all_done, proc_result2)
+          end do
+          lst_m = .tocons. retval
+       end if
+    end if
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (all_done, proc_result)
+      logical, intent(out) :: all_done
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail2)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail3)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call uncons (tail2, head2, tail2)
+            call uncons (tail3, head3, tail3)
+            call proc (head1, head2, head3, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map3_in_order_subr
+
+  recursive function filter_map4_in_order_subr (proc, lst1, lst2, lst3, lst4) result (lst_m)
+    procedure(list_map4_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+
+    tail1 = lst1
+    tail2 = lst2
+    tail3 = lst3
+    tail4 = lst4
+
+    call skip_falses (all_done, proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (all_done, proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (all_done, proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (all_done, proc_result2)
+          end do
+          lst_m = .tocons. retval
+       end if
+    end if
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (all_done, proc_result)
+      logical, intent(out) :: all_done
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail2)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail3)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail4)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call uncons (tail2, head2, tail2)
+            call uncons (tail3, head3, tail3)
+            call uncons (tail4, head4, tail4)
+            call proc (head1, head2, head3, head4, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map4_in_order_subr
+
+  recursive function filter_map5_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5) result (lst_m)
+    procedure(list_map5_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+
+    tail1 = lst1
+    tail2 = lst2
+    tail3 = lst3
+    tail4 = lst4
+    tail5 = lst5
+
+    call skip_falses (all_done, proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (all_done, proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (all_done, proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (all_done, proc_result2)
+          end do
+          lst_m = .tocons. retval
+       end if
+    end if
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (all_done, proc_result)
+      logical, intent(out) :: all_done
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail2)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail3)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail4)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail5)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call uncons (tail2, head2, tail2)
+            call uncons (tail3, head3, tail3)
+            call uncons (tail4, head4, tail4)
+            call uncons (tail5, head5, tail5)
+            call proc (head1, head2, head3, head4, head5, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map5_in_order_subr
+
+  recursive function filter_map6_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (lst_m)
+    procedure(list_map6_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+
+    tail1 = lst1
+    tail2 = lst2
+    tail3 = lst3
+    tail4 = lst4
+    tail5 = lst5
+    tail6 = lst6
+
+    call skip_falses (all_done, proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (all_done, proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (all_done, proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (all_done, proc_result2)
+          end do
+          lst_m = .tocons. retval
+       end if
+    end if
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (all_done, proc_result)
+      logical, intent(out) :: all_done
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail2)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail3)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail4)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail5)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail6)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call uncons (tail2, head2, tail2)
+            call uncons (tail3, head3, tail3)
+            call uncons (tail4, head4, tail4)
+            call uncons (tail5, head5, tail5)
+            call uncons (tail6, head6, tail6)
+            call proc (head1, head2, head3, head4, head5, &
+                 head6, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map6_in_order_subr
+
+  recursive function filter_map7_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (lst_m)
+    procedure(list_map7_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+
+    tail1 = lst1
+    tail2 = lst2
+    tail3 = lst3
+    tail4 = lst4
+    tail5 = lst5
+    tail6 = lst6
+    tail7 = lst7
+
+    call skip_falses (all_done, proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (all_done, proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (all_done, proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (all_done, proc_result2)
+          end do
+          lst_m = .tocons. retval
+       end if
+    end if
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (all_done, proc_result)
+      logical, intent(out) :: all_done
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail2)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail3)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail4)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail5)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail6)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail7)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call uncons (tail2, head2, tail2)
+            call uncons (tail3, head3, tail3)
+            call uncons (tail4, head4, tail4)
+            call uncons (tail5, head5, tail5)
+            call uncons (tail6, head6, tail6)
+            call uncons (tail7, head7, tail7)
+            call proc (head1, head2, head3, head4, head5, &
+                 head6, head7, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map7_in_order_subr
+
+  recursive function filter_map8_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (lst_m)
+    procedure(list_map8_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+
+    tail1 = lst1
+    tail2 = lst2
+    tail3 = lst3
+    tail4 = lst4
+    tail5 = lst5
+    tail6 = lst6
+    tail7 = lst7
+    tail8 = lst8
+
+    call skip_falses (all_done, proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (all_done, proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (all_done, proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (all_done, proc_result2)
+          end do
+          lst_m = .tocons. retval
+       end if
+    end if
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (all_done, proc_result)
+      logical, intent(out) :: all_done
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail2)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail3)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail4)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail5)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail6)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail7)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail8)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call uncons (tail2, head2, tail2)
+            call uncons (tail3, head3, tail3)
+            call uncons (tail4, head4, tail4)
+            call uncons (tail5, head5, tail5)
+            call uncons (tail6, head6, tail6)
+            call uncons (tail7, head7, tail7)
+            call uncons (tail8, head8, tail8)
+            call proc (head1, head2, head3, head4, head5, &
+                 head6, head7, head8, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map8_in_order_subr
+
+  recursive function filter_map9_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (lst_m)
+    procedure(list_map9_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+
+    tail1 = lst1
+    tail2 = lst2
+    tail3 = lst3
+    tail4 = lst4
+    tail5 = lst5
+    tail6 = lst6
+    tail7 = lst7
+    tail8 = lst8
+    tail9 = lst9
+
+    call skip_falses (all_done, proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (all_done, proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (all_done, proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (all_done, proc_result2)
+          end do
+          lst_m = .tocons. retval
+       end if
+    end if
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (all_done, proc_result)
+      logical, intent(out) :: all_done
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail2)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail3)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail4)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail5)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail6)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail7)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail8)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail9)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call uncons (tail2, head2, tail2)
+            call uncons (tail3, head3, tail3)
+            call uncons (tail4, head4, tail4)
+            call uncons (tail5, head5, tail5)
+            call uncons (tail6, head6, tail6)
+            call uncons (tail7, head7, tail7)
+            call uncons (tail8, head8, tail8)
+            call uncons (tail9, head9, tail9)
+            call proc (head1, head2, head3, head4, head5, &
+                 head6, head7, head8, head9, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map9_in_order_subr
+
+  recursive function filter_map10_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (lst_m)
+    procedure(list_map10_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+
+    tail1 = lst1
+    tail2 = lst2
+    tail3 = lst3
+    tail4 = lst4
+    tail5 = lst5
+    tail6 = lst6
+    tail7 = lst7
+    tail8 = lst8
+    tail9 = lst9
+    tail10 = lst10
+
+    call skip_falses (all_done, proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (all_done, proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (all_done, proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (all_done, proc_result2)
+          end do
+          lst_m = .tocons. retval
+       end if
+    end if
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (all_done, proc_result)
+      logical, intent(out) :: all_done
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail2)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail3)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail4)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail5)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail6)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail7)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail8)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail9)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail10)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call uncons (tail2, head2, tail2)
+            call uncons (tail3, head3, tail3)
+            call uncons (tail4, head4, tail4)
+            call uncons (tail5, head5, tail5)
+            call uncons (tail6, head6, tail6)
+            call uncons (tail7, head7, tail7)
+            call uncons (tail8, head8, tail8)
+            call uncons (tail9, head9, tail9)
+            call uncons (tail10, head10, tail10)
+            call proc (head1, head2, head3, head4, head5, &
+                 head6, head7, head8, head9, head10, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map10_in_order_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!

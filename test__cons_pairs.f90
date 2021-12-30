@@ -1869,6 +1869,106 @@ contains
 
   end subroutine test0330
 
+  subroutine test0340
+    !
+    ! Tests of filter_map.
+    !
+
+    type(cons_t) :: lst1, lst2, lst3
+    type(cons_t) :: lst4, lst5
+
+    lst1 = list (1, 2, 3, 4, 5)
+    lst2 = list (1, 2, 3, 4, 5)
+    lst3 = list (1, 2, 3, 4, 5)
+    lst4 = filter_map (proc1, lst1, lst2, lst3)
+    lst5 = list (3, 6, 9, 12, 15)
+    call check (list_equal (int_eq, lst4, lst5), "test0340-0010 failed")
+
+    lst1 = list (1, 2, 3, 4, 5)
+    lst2 = list (1.0, 2, 3.0, 4, 5)
+    lst3 = list (1, 2, 3, 4, 5.0)
+    lst4 = filter_map (proc1, lst1, lst2, lst3)
+    lst5 = list (6, 12)
+    call check (list_equal (int_eq, lst4, lst5), "test0340-0020 failed")
+
+    lst1 = list (1, 2, 3, 4, 5)
+    lst2 = list (1.0, 2, 3.0, 4, 5)
+    lst3 = list (1, 2, 3, 4, 5)
+    lst4 = filter_map (proc1, lst1, lst2, lst3)
+    lst5 = list (6, 12, 15)
+    call check (list_equal (int_eq, lst4, lst5), "test0340-0025 failed")
+
+    lst1 = list (1, 2)
+    lst2 = list (1, 2, 3, 4, 5)
+    lst3 = list (1, 2, 3, 4, 5)
+    lst4 = filter_map (proc1, lst1, lst2, lst3)
+    lst5 = list (3, 6)
+    call check (list_equal (int_eq, lst4, lst5), "test0340-0030 failed")
+
+    lst1 = list (1, 2)
+    lst2 = list (1.0, 2, 3, 4, 5)
+    lst3 = list (1, 2, 3, 4, 5)
+    lst4 = filter_map (proc1, lst1, lst2, lst3)
+    lst5 = list (6)
+    call check (list_equal (int_eq, lst4, lst5), "test0340-0040 failed")
+
+    lst1 = list (1, 2.0)
+    lst2 = list (1, 2, 3, 4, 5)
+    lst3 = list (1, 2, 3, 4, 5)
+    lst4 = filter_map (proc1, lst1, lst2, lst3)
+    lst5 = list (3)
+    call check (list_equal (int_eq, lst4, lst5), "test0340-0050 failed")
+
+    lst1 = list (1, 2)
+    lst2 = list (1)
+    lst3 = list (1, 2, 3, 4, 5)
+    lst4 = filter_map (proc1, lst1, lst2, lst3)
+    lst5 = list (3)
+    call check (list_equal (int_eq, lst4, lst5), "test0340-0060 failed")
+
+    lst1 = list (1.0, 2)
+    lst2 = list (1)
+    lst3 = list (1, 2, 3, 4, 5)
+    lst4 = filter_map (proc1, lst1, lst2, lst3)
+    lst5 = list ()
+    call check (list_equal (int_eq, lst4, lst5), "test0340-0060 failed")
+
+    lst1 = list (1, 2)
+    lst2 = list ()
+    lst3 = list (1, 2, 3, 4, 5)
+    lst4 = filter_map (proc1, lst1, lst2, lst3)
+    lst5 = list ()
+    call check (list_equal (int_eq, lst4, lst5), "test0340-0070 failed")
+
+  contains
+
+    recursive subroutine proc1 (obj1, obj2, obj3, retval)
+      !
+      ! If all the obj are integers, return their sum. Otherwise
+      ! return .false.
+      !
+      class(*), intent(in) :: obj1
+      class(*), intent(in) :: obj2
+      class(*), intent(in) :: obj3
+      class(*), allocatable, intent(out) :: retval
+
+      call collect_garbage_now
+
+      retval = .false.
+      select type (obj1)
+      type is (integer)
+         select type (obj2)
+         type is (integer)
+            select type (obj3)
+            type is (integer)
+               retval = obj1 + obj2 + obj3
+            end select
+         end select
+      end select
+    end subroutine proc1
+
+  end subroutine test0340
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1911,6 +2011,7 @@ contains
     call test0310
     call test0320
     call test0330
+    call test0340
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
