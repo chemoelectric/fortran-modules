@@ -1978,6 +1978,72 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   end subroutine test0350
 
+  subroutine test0355
+    !
+    ! Tests of removex.
+    !
+
+    type(cons_t) :: lst1, lst2
+    class(*), allocatable :: result1
+
+    lst1 = list (1, 2.0, 3, 4.0, 5.0, 6, 7, 8)
+    result1 = removex (is_real, lst1)
+    lst2 = list (1, 3, 6, 7, 8)
+    call check (list_equal (int_eq, result1, lst2), "test0355-0010 failed")
+
+    lst1 = list (1.0, 2.0, 3, 4.0, 5.0, 6, 7, 8)
+    result1 = removex (is_real, lst1)
+    lst2 = list (3, 6, 7, 8)
+    call check (list_equal (int_eq, result1, lst2), "test0355-0020 failed")
+
+    lst1 = list (1.0, 2.0, 3, 4.0, 5.0, 6, 7, 8.0)
+    result1 = removex (is_real, lst1)
+    lst2 = list (3, 6, 7)
+    call check (list_equal (int_eq, result1, lst2), "test0355-0030 failed")
+
+    lst1 = list ()
+    result1 = removex (is_real, lst1)
+    lst2 = list ()
+    call check (list_equal (int_eq, result1, lst2), "test0355-0040 failed")
+
+    lst1 = list (123)
+    result1 = removex (is_real, lst1)
+    lst2 = list (123)
+    call check (list_equal (int_eq, result1, lst2), "test0355-0050 failed")
+
+    lst1 = list (123.0)
+    result1 = removex (is_real, lst1)
+    lst2 = list ()
+    call check (list_equal (int_eq, result1, lst2), "test0355-0060 failed")
+
+    lst1 = iota (100, 1)
+    result1 = removex (is_real, lst1)
+    lst2 = iota (100, 1)
+    call check (list_equal (int_eq, result1, lst2), "test0355-0070 failed")
+
+    lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0)
+    result1 = removex (is_real, lst1)
+    lst2 = list ()
+    call check (list_equal (int_eq, result1, lst2), "test0355-0080 failed")
+
+  contains
+
+    recursive function is_real (obj) result (bool)
+      class(*), intent(in) :: obj
+      logical :: bool
+
+      call collect_garbage_now
+
+      select type (obj)
+      type is (real)
+         bool = .true.
+      class default
+         bool = .false.
+      end select
+    end function is_real
+
+  end subroutine test0355
+
   subroutine test0360
     !
     ! Tests of removex.
@@ -2126,6 +2192,88 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   end subroutine test0370
 
+  subroutine test0380
+    !
+    ! Tests of filter.
+    !
+
+    type(cons_t) :: lst1, lst1a, lst2
+    class(*), allocatable :: result1
+
+    lst1 = list (1, 2.0, 3, 4.0, 5.0, 6, 7, 8)
+    lst1a = lst1
+    result1 = remove (is_real, lst1)
+    lst2 = list (1, 3, 6, 7, 8)
+    call check (list_equal (int_eq, lst1, lst1a), "test0380-0005 failed")
+    call check (list_equal (int_eq, result1, lst2), "test0380-0010 failed")
+
+    lst1 = list (1.0, 2.0, 3, 4.0, 5.0, 6, 7, 8)
+    lst1a = lst1
+    result1 = remove (is_real, lst1)
+    lst2 = list (3, 6, 7, 8)
+    call check (list_equal (int_eq, lst1, lst1a), "test0380-0015 failed")
+    call check (list_equal (int_eq, result1, lst2), "test0380-0020 failed")
+
+    lst1 = list (1.0, 2.0, 3, 4.0, 5.0, 6, 7, 8.0)
+    lst1a = lst1
+    result1 = remove (is_real, lst1)
+    lst2 = list (3, 6, 7)
+    call check (list_equal (int_eq, lst1, lst1a), "test0380-0025 failed")
+    call check (list_equal (int_eq, result1, lst2), "test0380-0030 failed")
+
+    lst1 = list ()
+    lst1a = lst1
+    result1 = remove (is_real, lst1)
+    lst2 = list ()
+    call check (list_equal (int_eq, lst1, lst1a), "test0380-0035 failed")
+    call check (list_equal (int_eq, result1, lst2), "test0380-0040 failed")
+
+    lst1 = list (123)
+    lst1a = lst1
+    result1 = remove (is_real, lst1)
+    lst2 = list (123)
+    call check (list_equal (int_eq, lst1, lst1a), "test0380-0045 failed")
+    call check (list_equal (int_eq, result1, lst2), "test0380-0050 failed")
+
+    lst1 = list (123.0)
+    lst1a = lst1
+    result1 = remove (is_real, lst1)
+    lst2 = list ()
+    call check (list_equal (int_eq, lst1, lst1a), "test0380-0055 failed")
+    call check (list_equal (int_eq, result1, lst2), "test0380-0060 failed")
+
+    lst1 = iota (100, 1)
+    lst1a = lst1
+    result1 = remove (is_real, lst1)
+    lst2 = iota (100, 1)
+    call check (list_equal (int_eq, lst1, lst1a), "test0380-0065 failed")
+    call check (list_equal (int_eq, result1, lst2), "test0380-0070 failed")
+
+    lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0)
+    lst1a = lst1
+    result1 = remove (is_real, lst1)
+    lst2 = list ()
+    call check (list_equal (int_eq, lst1, lst1a), "test0380-0075 failed")
+    call check (list_equal (int_eq, result1, lst2), "test0380-0080 failed")
+
+  contains
+
+    recursive function is_real (obj) result (bool)
+      class(*), intent(in) :: obj
+      logical :: bool
+
+      call collect_garbage_now
+
+      select type (obj)
+      type is (real)
+         bool = .true.
+      class default
+         bool = .false.
+      end select
+    end function is_real
+
+  end subroutine test0380
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -2170,8 +2318,10 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0330
     call test0340
     call test0350
+    call test0355
     call test0360
     call test0370
+    call test0380
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
