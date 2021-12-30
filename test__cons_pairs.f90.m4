@@ -1987,60 +1987,60 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     class(*), allocatable :: result1
 
     lst1 = list (1, 2.0, 3, 4.0, 5.0, 6, 7, 8)
-    result1 = filterx (is_real, lst1)
+    result1 = removex (is_int, lst1)
     lst2 = list (2.0, 4.0, 5.0)
     call check (list_equal (real_eq, result1, lst2), "test0360-0010 failed")
 
     lst1 = list (1.0, 2.0, 3, 4.0, 5.0, 6, 7, 8)
-    result1 = filterx (is_real, lst1)
+    result1 = removex (is_int, lst1)
     lst2 = list (1.0, 2.0, 4.0, 5.0)
     call check (list_equal (real_eq, result1, lst2), "test0360-0020 failed")
 
     lst1 = list (1.0, 2.0, 3, 4.0, 5.0, 6, 7, 8.0)
-    result1 = filterx (is_real, lst1)
+    result1 = removex (is_int, lst1)
     lst2 = list (1.0, 2.0, 4.0, 5.0, 8.0)
     call check (list_equal (real_eq, result1, lst2), "test0360-0030 failed")
 
     lst1 = list ()
-    result1 = filterx (is_real, lst1)
+    result1 = removex (is_int, lst1)
     lst2 = list ()
     call check (list_equal (real_eq, result1, lst2), "test0360-0040 failed")
 
     lst1 = list (123)
-    result1 = filterx (is_real, lst1)
+    result1 = removex (is_int, lst1)
     lst2 = list ()
     call check (list_equal (real_eq, result1, lst2), "test0360-0050 failed")
 
     lst1 = list (123.0)
-    result1 = filterx (is_real, lst1)
+    result1 = removex (is_int, lst1)
     lst2 = list (123.0)
     call check (list_equal (real_eq, result1, lst2), "test0360-0060 failed")
 
     lst1 = iota (100, 1)
-    result1 = filterx (is_real, lst1)
+    result1 = removex (is_int, lst1)
     lst2 = list ()
     call check (list_equal (real_eq, result1, lst2), "test0360-0070 failed")
 
     lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0)
-    result1 = filterx (is_real, lst1)
+    result1 = removex (is_int, lst1)
     lst2 = list (1.0, 2.0, 3.0, 4.0, 5.0)
     call check (list_equal (real_eq, result1, lst2), "test0360-0080 failed")
 
   contains
 
-    recursive function is_real (obj) result (bool)
+    recursive function is_int (obj) result (bool)
       class(*), intent(in) :: obj
       logical :: bool
 
       call collect_garbage_now
 
       select type (obj)
-      type is (real)
+      type is (integer)
          bool = .true.
       class default
          bool = .false.
       end select
-    end function is_real
+    end function is_int
 
   end subroutine test0360
 
