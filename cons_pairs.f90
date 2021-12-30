@@ -4657,9 +4657,9 @@ contains
 
   function circular_list1 (obj1) result (lst)
     class(*), intent(in) :: obj1
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj1 ** nil
     lst = last_pair
@@ -4669,9 +4669,9 @@ contains
   function circular_list2 (obj1, obj2) result (lst)
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj2 ** nil
     lst = last_pair
@@ -4683,9 +4683,9 @@ contains
     class(*), intent(in) :: obj1
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj3 ** nil
     lst = last_pair
@@ -4699,9 +4699,9 @@ contains
     class(*), intent(in) :: obj2
     class(*), intent(in) :: obj3
     class(*), intent(in) :: obj4
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj4 ** nil
     lst = last_pair
@@ -4717,9 +4717,9 @@ contains
     class(*), intent(in) :: obj3
     class(*), intent(in) :: obj4
     class(*), intent(in) :: obj5
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj5 ** nil
     lst = last_pair
@@ -4738,9 +4738,9 @@ contains
     class(*), intent(in) :: obj4
     class(*), intent(in) :: obj5
     class(*), intent(in) :: obj6
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj6 ** nil
     lst = last_pair
@@ -4761,9 +4761,9 @@ contains
     class(*), intent(in) :: obj5
     class(*), intent(in) :: obj6
     class(*), intent(in) :: obj7
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj7 ** nil
     lst = last_pair
@@ -4786,9 +4786,9 @@ contains
     class(*), intent(in) :: obj6
     class(*), intent(in) :: obj7
     class(*), intent(in) :: obj8
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj8 ** nil
     lst = last_pair
@@ -4813,9 +4813,9 @@ contains
     class(*), intent(in) :: obj7
     class(*), intent(in) :: obj8
     class(*), intent(in) :: obj9
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj9 ** nil
     lst = last_pair
@@ -4842,9 +4842,9 @@ contains
     class(*), intent(in) :: obj8
     class(*), intent(in) :: obj9
     class(*), intent(in) :: obj10
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj10 ** nil
     lst = last_pair
@@ -4874,9 +4874,9 @@ contains
     class(*), intent(in) :: obj9
     class(*), intent(in) :: obj10
     class(*), intent(in) :: obj11
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj11 ** nil
     lst = last_pair
@@ -4908,9 +4908,9 @@ contains
     class(*), intent(in) :: obj10
     class(*), intent(in) :: obj11
     class(*), intent(in) :: obj12
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj12 ** nil
     lst = last_pair
@@ -4944,9 +4944,9 @@ contains
     class(*), intent(in) :: obj11
     class(*), intent(in) :: obj12
     class(*), intent(in) :: obj13
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj13 ** nil
     lst = last_pair
@@ -4982,9 +4982,9 @@ contains
     class(*), intent(in) :: obj12
     class(*), intent(in) :: obj13
     class(*), intent(in) :: obj14
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj14 ** nil
     lst = last_pair
@@ -5022,9 +5022,9 @@ contains
     class(*), intent(in) :: obj13
     class(*), intent(in) :: obj14
     class(*), intent(in) :: obj15
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj15 ** nil
     lst = last_pair
@@ -5065,9 +5065,9 @@ contains
     class(*), intent(in) :: obj14
     class(*), intent(in) :: obj15
     class(*), intent(in) :: obj16
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj16 ** nil
     lst = last_pair
@@ -5110,9 +5110,9 @@ contains
     class(*), intent(in) :: obj15
     class(*), intent(in) :: obj16
     class(*), intent(in) :: obj17
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj17 ** nil
     lst = last_pair
@@ -5157,9 +5157,9 @@ contains
     class(*), intent(in) :: obj16
     class(*), intent(in) :: obj17
     class(*), intent(in) :: obj18
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj18 ** nil
     lst = last_pair
@@ -5206,9 +5206,9 @@ contains
     class(*), intent(in) :: obj17
     class(*), intent(in) :: obj18
     class(*), intent(in) :: obj19
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj19 ** nil
     lst = last_pair
@@ -5257,9 +5257,9 @@ contains
     class(*), intent(in) :: obj18
     class(*), intent(in) :: obj19
     class(*), intent(in) :: obj20
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj20 ** nil
     lst = last_pair

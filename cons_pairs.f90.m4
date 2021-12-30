@@ -1216,9 +1216,9 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
 m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: obj[]k
 ])dnl
+    type(cons_t) :: lst
 
     type(cons_t) :: last_pair
-    type(cons_t) :: lst
 
     last_pair = obj[]n ** nil
     lst = last_pair
