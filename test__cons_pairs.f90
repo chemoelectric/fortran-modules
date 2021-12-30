@@ -593,31 +593,31 @@ contains
   end subroutine test0100
 
   subroutine test0110
-    call check (list_equal (int_eq, take (circular_list (1 ** nil), 5_sz), list (1, 1, 1, 1, 1)), &
+    call check (list_equal (int_eq, take (make_circular (1 ** nil), 5_sz), list (1, 1, 1, 1, 1)), &
          "test0110-0010 failed")
     call check (list_equal (int_eq, &
-         take (circular_list (1 ** 2 ** 3 ** nil), 10_sz), &
+         take (make_circular (1 ** 2 ** 3 ** nil), 10_sz), &
          1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** nil), &
          "test0110-0020 failed")
 
-    call check (list_equal (int_eq, take (circular_listx (1 ** nil), 5_sz), list (1, 1, 1, 1, 1)), &
+    call check (list_equal (int_eq, take (make_circularx (1 ** nil), 5_sz), list (1, 1, 1, 1, 1)), &
          "test0110-0030 failed")
     call check (list_equal (int_eq, &
-         take (circular_listx (1 ** 2 ** 3 ** nil), 10_sz), &
+         take (make_circularx (1 ** 2 ** 3 ** nil), 10_sz), &
          1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** 2 ** 3 ** 1 ** nil), &
          "test0110-0040 failed")
 
-    call check (is_circular_list (circular_list (1 ** nil)), "test0110-0050 failed")
-    call check (is_circular_list (circular_list (1 ** 2 ** 3 ** nil)), "test0110-0060 failed")
-    call check (is_circular_list (4 ** 5 ** circular_list (1 ** 2 ** 3 ** nil)), "test0110-0070 failed")
+    call check (is_circular_list (make_circular (1 ** nil)), "test0110-0050 failed")
+    call check (is_circular_list (make_circular (1 ** 2 ** 3 ** nil)), "test0110-0060 failed")
+    call check (is_circular_list (4 ** 5 ** make_circular (1 ** 2 ** 3 ** nil)), "test0110-0070 failed")
 
-    call check (.not. is_proper_list (circular_list (1 ** nil)), "test0110-0080 failed")
-    call check (.not. is_proper_list (circular_list (1 ** 2 ** 3 ** nil)), "test0110-0090 failed")
-    call check (.not. is_proper_list (4 ** 5 ** circular_list (1 ** 2 ** 3 ** nil)), "test0110-0100 failed")
+    call check (.not. is_proper_list (make_circular (1 ** nil)), "test0110-0080 failed")
+    call check (.not. is_proper_list (make_circular (1 ** 2 ** 3 ** nil)), "test0110-0090 failed")
+    call check (.not. is_proper_list (4 ** 5 ** make_circular (1 ** 2 ** 3 ** nil)), "test0110-0100 failed")
 
-    call check (.not. is_dotted_list (circular_list (1 ** nil)), "test0110-0110 failed")
-    call check (.not. is_dotted_list (circular_list (1 ** 2 ** 3 ** nil)), "test0110-0120 failed")
-    call check (.not. is_dotted_list (4 ** 5 ** circular_list (1 ** 2 ** 3 ** nil)), "test0110-0130 failed")
+    call check (.not. is_dotted_list (make_circular (1 ** nil)), "test0110-0110 failed")
+    call check (.not. is_dotted_list (make_circular (1 ** 2 ** 3 ** nil)), "test0110-0120 failed")
+    call check (.not. is_dotted_list (4 ** 5 ** make_circular (1 ** 2 ** 3 ** nil)), "test0110-0130 failed")
   end subroutine test0110
 
   subroutine test0120
@@ -664,8 +664,8 @@ contains
     call check (lengthc (1 ** nil) == 1_sz, "test0140-0120 failed")
     call check (lengthc (cons (1, 2)) == 1_sz, "test0140-0125 failed")
     call check (lengthc (iota (100_sz)) == 100_sz, "test0140-0130 failed")
-    call check (lengthc (circular_list (iota (100_sz))) == -1_sz, "test0140-0140 failed")
-    call check (lengthc (123 ** 456 ** circular_list (iota (100_sz))) == -1_sz, "test0140-0150 failed")
+    call check (lengthc (make_circular (iota (100_sz))) == -1_sz, "test0140-0140 failed")
+    call check (lengthc (123 ** 456 ** make_circular (iota (100_sz))) == -1_sz, "test0140-0150 failed")
   end subroutine test0140
 
   subroutine test0150
@@ -1051,8 +1051,8 @@ contains
     call check (list_count (pred, iota (100, 1)) == 1, "test0220-0030 failed")
     call check (list_count (pred, iota (100, -50)) == 3, "test0220-0040 failed")
     call check (list_count (pred, iota (100, 2)) == 0, "test0220-0050 failed")
-    call check (list_count (pred, take (circular_list (list (-1, 0, 1)), 100)) == 100, "test0220-0060 failed")
-    call check (list_count (pred, take (circular_list (list (-2, -1, 0, 1, 2)), 100)) == 60, "test0220-0070 failed")
+    call check (list_count (pred, take (make_circular (list (-1, 0, 1)), 100)) == 100, "test0220-0060 failed")
+    call check (list_count (pred, take (make_circular (list (-2, -1, 0, 1, 2)), 100)) == 60, "test0220-0070 failed")
 
     call check (list_count (pred3, iota (100), nil, iota (1000)) == 0, "test0220-1010 failed")
     call check (list_count (pred3, iota (100), iota (1000), iota (50)) == 2, "test0220-1020 failed")

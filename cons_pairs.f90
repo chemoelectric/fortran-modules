@@ -57,20 +57,6 @@ module cons_pairs
   !
 
   !
-  ! NOTE: Fortran procedures do not take variable numbers of
-  ! arguments, the way Scheme procedures do. However, the zip
-  ! functions can be used to turn multiple-argument problems into
-  ! single-argument problems.
-  !
-  ! FIXME: Generalize more procedures to take multiple arguments, by
-  !        making them generic procedures. Also we can use generics to
-  !        reserve the possibility of, say, `map' taking a function as
-  !        its proc, instead of a procedure. (At the time of this
-  !        writing, gfortran did not seem to work sensibly if you
-  !        tried to use a function as the proc in such cases.)
-  !
-
-  !
   ! WARNING: I reserve the right to turn most procedures into generic
   !          procedures. This may affect your code if you try to pass
   !          this module's procedures directly to other procedures;
@@ -363,16 +349,23 @@ module cons_pairs
 
   public :: list_copy        ! Make a copy of a list.
   public :: reverse          ! Make a copy of a list, but reversed.
-  public :: reversex         ! Like reverse, but allowed to destroy its inputs.
-  public :: append           ! Generic function: concatenate two lists.
+  public :: reversex         ! Like reverse, but allowed to destroy
+                             ! its inputs.
+  public :: append           ! Generic function: concatenate two
+                             ! lists.
   public :: appendx          ! Generic function: like append, but
-                             !    allowed to destroy all its argument
-                             !    lists but the last (which becomes a
-                             !    shared tail).
-  public :: append_reverse   ! Concatenate the reverse of the first list to the (unreversed) second list.
-  public :: append_reversex  ! Like append_reverse, but allowed to destroy its *first* argument (but not the latter argument).
-  public :: concatenate      ! Concatenate the lists in a list of lists.
-  public :: concatenatex     ! Like concatenate, but allowed to destroy its inputs.
+                             ! allowed to destroy all its argument
+                             ! lists but the last (which becomes a
+                             ! shared tail).
+  public :: append_reverse   ! Concatenate the reverse of the first
+                             ! list to the (unreversed) second list.
+  public :: append_reversex  ! Like append_reverse, but allowed to
+                             ! destroy its *first* argument (but not
+                             ! the latter argument).
+  public :: concatenate      ! Concatenate the lists in a list of
+                             ! lists.
+  public :: concatenatex     ! Like concatenate, but allowed to
+                             ! destroy its inputs.
 
   ! Implementations of append and appendx.
   public :: append0, appendx0
@@ -387,13 +380,18 @@ module cons_pairs
   public :: append9, appendx9
   public :: append10, appendx10
 
-  ! Although `circular_list' and `circular_listx' gets their names
-  ! from the SRFI-1 `circular-list', as input they take a regular
-  ! list, rather than multiple arguments for individual list elements.
-  public :: circular_list    ! Make a copy of a list, but with the tail connected to the head.
-  public :: circular_listx   ! Like circular_list, but allowed to destroy its inputs.
+  ! `make_circular' and `make_circularx' are not part of SRFI-1, but
+  !  are related to `circular-list'.
+  public :: make_circular    ! Make a copy of a list, but with the
+                             ! tail connected to the head.
+  public :: make_circularx   ! Like make_circular, but allowed to
+                             ! destroy its inputs.
 
-  public :: list_equal       ! Generic function: Test whether two or more lists are `equal'. (Equivalent to SRFI-1's `list='.)
+  public :: list_equal       ! Generic function: Test whether two or
+                             ! more lists are `equal'. (Equivalent to
+                             ! SRFI-1's `list='.)
+
+  ! Implementations of list_equal.
   public :: list_equal0
   public :: list_equal1
   public :: list_equal2
@@ -8078,7 +8076,7 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function circular_list (lst) result (clst)
+  function make_circular (lst) result (clst)
     !
     ! Make a fully circular list with the same CARs as lst.
     !
@@ -8095,14 +8093,14 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
           call reverse_in_place (clst)
           call set_cdr (the_last_pair, clst)
        else
-          call error_abort ("circular_list of a nil list")
+          call error_abort ("make_circular of a nil list")
        end if
     class default
-       call error_abort ("circular_list of an object with no pairs")
+       call error_abort ("make_circular of an object with no pairs")
     end select
-  end function circular_list
+  end function make_circular
 
-  function circular_listx (lst) result (clst)
+  function make_circularx (lst) result (clst)
     !
     ! Connect the tail of lst to its head, destructively.
     !
@@ -8117,9 +8115,9 @@ obj11, obj12, obj13, obj14, obj15, obj16, obj17, obj18, obj19, obj20, tail)
        call set_cdr (the_last_pair, lst1)
        clst = lst1
     class default
-       call error_abort ("circular_listx of an object with no pairs")
+       call error_abort ("make_circularx of an object with no pairs")
     end select
-  end function circular_listx
+  end function make_circularx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
