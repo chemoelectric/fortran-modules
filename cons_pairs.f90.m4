@@ -393,6 +393,11 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
                              ! not* satisfy a predicate.
   public :: removex          ! Like remove, but allowed to destroy its
                              ! input.
+  !public :: partition        ! Combines filter and remove, to make two
+                             ! lists out of the elements of the input
+                             ! list.
+  public :: partitionx       ! Like partition, but allowed to destroy
+                             ! its input.
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
@@ -3016,6 +3021,205 @@ m4_forloop([k],[1],n,[dnl
 !! Filtering and partitioning.
 !!
 
+  recursive subroutine drop_falses (pred, lst, first_true)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(out) :: first_true
+
+    class(*), allocatable :: p
+    logical :: all_dropped
+
+    p = lst
+    all_dropped = .false.
+    do while (.not. all_dropped)
+       if (is_not_pair (p)) then
+          first_true = p
+          all_dropped = .true.
+       else
+          if (pred (car (p))) then
+             first_true = p
+             all_dropped = .true.
+          else
+             p = cdr (p)
+          end if
+       end if
+    end do
+  end subroutine drop_falses
+
+  recursive subroutine drop_trues (pred, lst, first_false)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(out) :: first_false
+
+    class(*), allocatable :: p
+    logical :: all_dropped
+
+    p = lst
+    all_dropped = .false.
+    do while (.not. all_dropped)
+       if (is_not_pair (p)) then
+          first_false = p
+          all_dropped = .true.
+       else
+          if (pred (car (p))) then
+             p = cdr (p)
+          else
+             first_false = p
+             all_dropped = .true.
+          end if
+       end if
+    end do
+  end subroutine drop_trues
+
+  recursive subroutine take_falses_destructively (pred, lst, last_false, first_true)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(out) :: last_false
+    class(*), allocatable, intent(out) :: first_true
+
+    class(*), allocatable :: p
+    logical :: all_taken
+
+    last_false = lst
+    p = cdr (lst)
+    all_taken = .false.
+    do while (.not. all_taken)
+       if (is_not_pair (p)) then
+          first_true = p
+          all_taken = .true.
+       else
+          if (pred (car (p))) then
+             first_true = p
+             all_taken = .true.
+          else
+             last_false = p
+             p = cdr (p)
+          end if
+       end if
+    end do
+  end subroutine take_falses_destructively
+
+  recursive subroutine take_trues_destructively (pred, lst, last_true, first_false)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(out) :: last_true
+    class(*), allocatable, intent(out) :: first_false
+
+    class(*), allocatable :: p
+    logical :: all_taken
+
+    last_true = lst
+    p = cdr (lst)
+    all_taken = .false.
+    do while (.not. all_taken)
+       if (is_not_pair (p)) then
+          first_false = p
+          all_taken = .true.
+       else
+          if (pred (car (p))) then
+             last_true = p
+             p = cdr (p)
+          else
+             first_false = p
+             all_taken = .true.
+          end if
+       end if
+    end do
+  end subroutine take_trues_destructively
+
+  recursive subroutine take_falses_nondestructively (pred, lst, falses, last_false, first_true)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(out) :: falses
+    class(*), allocatable, intent(out) :: last_false
+    class(*), allocatable, intent(out) :: first_true
+
+    class(*), allocatable :: p
+    type(cons_t) :: new_pair
+    logical :: all_taken
+
+    p = cdr (lst)
+    all_taken = .false.
+    do while (.not. all_taken)
+       if (is_not_pair (p)) then
+          first_true = p
+          all_taken = .true.
+       else
+          if (pred (car (p))) then
+             first_true = p
+             all_taken = .true.
+          else
+             p = cdr (p)
+          end if
+       end if
+    end do
+
+    if (is_not_pair (first_true)) then
+       ! lst ends on a run of falses. Set `falses' to the run of
+       ! falses, for use as a shared tail. (There is no need to set
+       ! `last_pair'.)
+       falses = lst
+    else
+       ! Copy the run of falses, saving a reference to its last
+       ! pair.
+       falses = car (lst) ** nil
+       last_false = falses
+       p = cdr (lst)
+       do while (.not. cons_t_eq (p, first_true))
+          new_pair = car (p) ** nil
+          call set_cdr (last_false, new_pair)
+          last_false = new_pair
+          p = cdr (p)
+       end do
+    end if
+  end subroutine take_falses_nondestructively
+
+  recursive subroutine take_trues_nondestructively (pred, lst, trues, last_true, first_false)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(out) :: trues
+    class(*), allocatable, intent(out) :: last_true
+    class(*), allocatable, intent(out) :: first_false
+
+    class(*), allocatable :: p
+    type(cons_t) :: new_pair
+    logical :: all_taken
+
+    p = cdr (lst)
+    all_taken = .false.
+    do while (.not. all_taken)
+       if (is_not_pair (p)) then
+          first_false = p
+          all_taken = .true.
+       else
+          if (pred (car (p))) then
+             p = cdr (p)
+          else
+             first_false = p
+             all_taken = .true.
+          end if
+       end if
+    end do
+
+    if (is_not_pair (first_false)) then
+       ! lst ends on a run of trues. Set `trues' to the run of
+       ! trues, for use as a shared tail. (There is no need to set
+       ! `last_pair'.)
+       trues = lst
+    else
+       ! Copy the run of trues, saving a reference to its last pair.
+       trues = car (lst) ** nil
+       last_true = trues
+       p = cdr (lst)
+       do while (.not. cons_t_eq (p, first_false))
+          new_pair = car (p) ** nil
+          call set_cdr (last_true, new_pair)
+          last_true = new_pair
+          p = cdr (p)
+       end do
+    end if
+  end subroutine take_trues_nondestructively
+
   recursive function filterx (pred, lst) result (lst_f)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
@@ -3033,21 +3237,21 @@ m4_forloop([k],[1],n,[dnl
        lst_f = lst
     else
        retval = lst            ! Protect lst from garbage collections.
-       call drop_falses (lst, first_true)
+       call drop_falses (pred, lst, first_true)
        if (is_not_pair (first_true)) then
           ! There are no trues and there is no shared tail.
           lst_f = nil
           call retval%discard
        else
           retval = first_true
-          call take_trues (first_true, last_true, first_false)
+          call take_trues_destructively (pred, first_true, last_true, first_false)
           if (is_not_pair (first_false)) then
              ! The entire result is a tail of the input list.
              lst_f = .val. retval
           else
              done = .false.
              do while (.not. done)
-                call drop_falses (first_false, first_true)
+                call drop_falses (pred, first_false, first_true)
                 if (is_not_pair (first_true)) then
                    ! The tail of the original is a run of
                    ! falses. Remove it, and then the filtering is
@@ -3058,7 +3262,7 @@ m4_forloop([k],[1],n,[dnl
                    ! Leave out the run of falses, destructively.
                    call set_cdr (last_true, first_true)
                    ! Get the next run of trues.
-                   call take_trues (first_true, last_true, first_false)
+                   call take_trues_destructively (pred, first_true, last_true, first_false)
                    if (is_not_pair (first_false)) then
                       ! The tail of the original is a run of
                       ! trues. The filtering is done.
@@ -3070,66 +3274,12 @@ m4_forloop([k],[1],n,[dnl
           end if
        end if
     end if
-
-  contains
-
-    recursive subroutine drop_falses (lst, first_true)
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: first_true
-
-      class(*), allocatable :: p
-      logical :: all_dropped
-
-      p = lst
-      all_dropped = .false.
-      do while (.not. all_dropped)
-         if (is_not_pair (p)) then
-            first_true = p
-            all_dropped = .true.
-         else
-            if (pred (car (p))) then
-               first_true = p
-               all_dropped = .true.
-            else
-               p = cdr (p)
-            end if
-         end if
-      end do
-    end subroutine drop_falses
-
-    recursive subroutine take_trues (lst, last_true, first_false)
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: last_true
-      class(*), allocatable, intent(out) :: first_false
-
-      class(*), allocatable :: p
-      logical :: all_taken
-
-      last_true = lst
-      p = cdr (lst)
-      all_taken = .false.
-      do while (.not. all_taken)
-         if (is_not_pair (p)) then
-            first_false = p
-            all_taken = .true.
-         else
-            if (pred (car (p))) then
-               last_true = p
-               p = cdr (p)
-            else
-               first_false = p
-               all_taken = .true.
-            end if
-         end if
-      end do
-    end subroutine take_trues
-
   end function filterx
 
-  recursive function removex (pred, lst) result (lst_f)
+  recursive function removex (pred, lst) result (lst_r)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
-    class(*), allocatable :: lst_f
+    class(*), allocatable :: lst_r
 
     class(*), allocatable :: first_false
     class(*), allocatable :: last_false
@@ -3140,24 +3290,24 @@ m4_forloop([k],[1],n,[dnl
     if (is_not_pair (lst)) then
        ! lst is empty, but possibly dotted. Copy the terminating
        ! object (so it is a kind of shared tail).
-       lst_f = lst
+       lst_r = lst
     else
        retval = lst            ! Protect lst from garbage collections.
-       call drop_trues (lst, first_false)
+       call drop_trues (pred, lst, first_false)
        if (is_not_pair (first_false)) then
           ! There are no trues and there is no shared tail.
-          lst_f = nil
+          lst_r = nil
           call retval%discard
        else
           retval = first_false
-          call take_falses (first_false, last_false, first_true)
+          call take_falses_destructively (pred, first_false, last_false, first_true)
           if (is_not_pair (first_true)) then
              ! The entire result is a tail of the input list.
-             lst_f = .val. retval
+             lst_r = .val. retval
           else
              done = .false.
              do while (.not. done)
-                call drop_trues (first_true, first_false)
+                call drop_trues (pred, first_true, first_false)
                 if (is_not_pair (first_false)) then
                    ! The tail of the original is a run of
                    ! falses. Remove it, and then the filtering is
@@ -3168,7 +3318,7 @@ m4_forloop([k],[1],n,[dnl
                    ! Leave out the run of falses, destructively.
                    call set_cdr (last_false, first_false)
                    ! Get the next run of trues.
-                   call take_falses (first_false, last_false, first_true)
+                   call take_falses_destructively (pred, first_false, last_false, first_true)
                    if (is_not_pair (first_true)) then
                       ! The tail of the original is a run of
                       ! trues. The filtering is done.
@@ -3176,64 +3326,10 @@ m4_forloop([k],[1],n,[dnl
                    end if
                 end if
              end do
-             lst_f = .val. retval
+             lst_r = .val. retval
           end if
        end if
     end if
-
-  contains
-
-    recursive subroutine drop_trues (lst, first_false)
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: first_false
-
-      class(*), allocatable :: p
-      logical :: all_dropped
-
-      p = lst
-      all_dropped = .false.
-      do while (.not. all_dropped)
-         if (is_not_pair (p)) then
-            first_false = p
-            all_dropped = .true.
-         else
-            if (pred (car (p))) then
-               p = cdr (p)
-            else
-               first_false = p
-               all_dropped = .true.
-            end if
-         end if
-      end do
-    end subroutine drop_trues
-
-    recursive subroutine take_falses (lst, last_false, first_true)
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: last_false
-      class(*), allocatable, intent(out) :: first_true
-
-      class(*), allocatable :: p
-      logical :: all_taken
-
-      last_false = lst
-      p = cdr (lst)
-      all_taken = .false.
-      do while (.not. all_taken)
-         if (is_not_pair (p)) then
-            first_true = p
-            all_taken = .true.
-         else
-            if (pred (car (p))) then
-               first_true = p
-               all_taken = .true.
-            else
-               last_false = p
-               p = cdr (p)
-            end if
-         end if
-      end do
-    end subroutine take_falses
-
   end function removex
 
   recursive function filter (pred, lst) result (lst_f)
@@ -3257,12 +3353,12 @@ m4_forloop([k],[1],n,[dnl
        ! object (so it is a kind of shared tail).
        lst_f = lst
     else
-       call drop_falses (lst, first_true)
+       call drop_falses (pred, lst, first_true)
        if (is_not_pair (first_true)) then
           ! There are no trues and there is no shared tail.
           lst_f = nil
        else
-          call take_trues (first_true, trues, last_true1, first_false)
+          call take_trues_nondestructively (pred, first_true, trues, last_true1, first_false)
           if (is_not_pair (first_false)) then
              ! The entire result is a tail of the input list. Share
              ! it.
@@ -3271,7 +3367,7 @@ m4_forloop([k],[1],n,[dnl
              retval = trues
              done = .false.
              do while (.not. done)
-                call drop_falses (first_false, first_true)
+                call drop_falses (pred, first_false, first_true)
                 if (is_not_pair (first_true)) then
                    ! The tail of the original is a run of
                    ! falses. Leave it out. Filtering is done.
@@ -3279,7 +3375,7 @@ m4_forloop([k],[1],n,[dnl
                 else
                    ! Leave out the run of falses. Get the next run of
                    ! trues.
-                   call take_trues (first_true, trues, last_true2, first_false)
+                   call take_trues_nondestructively (pred, first_true, trues, last_true2, first_false)
                    call set_cdr (last_true1, trues)
                    if (is_not_pair (first_false)) then
                       ! The tail of the original is a run of
@@ -3297,84 +3393,12 @@ m4_forloop([k],[1],n,[dnl
     end if
 
     call lst_root%discard
-
-  contains
-
-    recursive subroutine drop_falses (lst, first_true)
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: first_true
-
-      class(*), allocatable :: p
-      logical :: all_dropped
-
-      p = lst
-      all_dropped = .false.
-      do while (.not. all_dropped)
-         if (is_not_pair (p)) then
-            first_true = p
-            all_dropped = .true.
-         else
-            if (pred (car (p))) then
-               first_true = p
-               all_dropped = .true.
-            else
-               p = cdr (p)
-            end if
-         end if
-      end do
-    end subroutine drop_falses
-
-    recursive subroutine take_trues (lst, trues, last_true, first_false)
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: trues
-      class(*), allocatable, intent(out) :: last_true
-      class(*), allocatable, intent(out) :: first_false
-
-      class(*), allocatable :: p
-      type(cons_t) :: new_pair
-      logical :: all_taken
-
-      p = cdr (lst)
-      all_taken = .false.
-      do while (.not. all_taken)
-         if (is_not_pair (p)) then
-            first_false = p
-            all_taken = .true.
-         else
-            if (pred (car (p))) then
-               p = cdr (p)
-            else
-               first_false = p
-               all_taken = .true.
-            end if
-         end if
-      end do
-
-      if (is_not_pair (first_false)) then
-         ! lst ends on a run of trues. Set `trues' to the run of
-         ! trues, for use as a shared tail. (There is no need to set
-         ! `last_pair'.)
-         trues = lst
-      else
-         ! Copy the run of trues, saving a reference to its last pair.
-         trues = car (lst) ** nil
-         last_true = trues
-         p = cdr (lst)
-         do while (.not. cons_t_eq (p, first_false))
-            new_pair = car (p) ** nil
-            call set_cdr (last_true, new_pair)
-            last_true = new_pair
-            p = cdr (p)
-         end do
-      end if
-    end subroutine take_trues
-
   end function filter
 
-  recursive function remove (pred, lst) result (lst_f)
+  recursive function remove (pred, lst) result (lst_r)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
-    class(*), allocatable :: lst_f
+    class(*), allocatable :: lst_r
 
     class(*), allocatable :: first_false
     class(*), allocatable :: last_false1, last_false2
@@ -3390,23 +3414,23 @@ m4_forloop([k],[1],n,[dnl
     if (is_not_pair (lst)) then
        ! lst is empty, but possibly dotted. Copy the terminating
        ! object (so it is a kind of shared tail).
-       lst_f = lst
+       lst_r = lst
     else
-       call drop_trues (lst, first_false)
+       call drop_trues (pred, lst, first_false)
        if (is_not_pair (first_false)) then
           ! There are no falses and there is no shared tail.
-          lst_f = nil
+          lst_r = nil
        else
-          call take_falses (first_false, falses, last_false1, first_true)
+          call take_falses_nondestructively (pred, first_false, falses, last_false1, first_true)
           if (is_not_pair (first_true)) then
              ! The entire result is a tail of the input list. Share
              ! it.
-             lst_f = falses
+             lst_r = falses
           else
              retval = falses
              done = .false.
              do while (.not. done)
-                call drop_trues (first_true, first_false)
+                call drop_trues (pred, first_true, first_false)
                 if (is_not_pair (first_false)) then
                    ! The tail of the original is a run of
                    ! falses. Leave it out. Filtering is done.
@@ -3414,7 +3438,7 @@ m4_forloop([k],[1],n,[dnl
                 else
                    ! Leave out the run of falses. Get the next run of
                    ! falses.
-                   call take_falses (first_false, falses, last_false2, first_true)
+                   call take_falses_nondestructively (pred, first_false, falses, last_false2, first_true)
                    call set_cdr (last_false1, falses)
                    if (is_not_pair (first_true)) then
                       ! The tail of the original is a run of
@@ -3426,86 +3450,113 @@ m4_forloop([k],[1],n,[dnl
                    end if
                 end if
              end do
-             lst_f = .val. retval
+             lst_r = .val. retval
           end if
        end if
     end if
 
     call lst_root%discard
+  end function remove
+
+  recursive subroutine partitionx (pred, lst, lst_f, lst_r)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: lst_f ! The `filter' list.
+    class(*), allocatable, intent(inout) :: lst_r ! The `remove' list.
+
+    class(*), allocatable :: first_true
+    class(*), allocatable :: last_true1, last_true2
+    class(*), allocatable :: first_false
+    class(*), allocatable :: last_false1, last_false2
+    type(gcroot_t) :: p
+    type(gcroot_t) :: retval_f
+    type(gcroot_t) :: retval_r
+    logical :: done
+    logical :: next_is_true
+
+    if (is_not_pair (lst)) then
+       ! lst is empty, but possibly dotted. Copy the terminating
+       ! object to one or the other output list, arbitrarily. It will
+       ! serve as a kind of shared tail.
+       lst_f = lst
+       lst_r = nil
+    else
+       p = lst
+       next_is_true = pred (car (p))
+
+       retval_f = nil
+       retval_r = nil
+       done = .false.
+       do while (.not. done)
+          if (next_is_true) then
+             call take_trues_destructively (pred, .val. p, last_true2, first_false)
+             call attach_p_to_retval_f
+             if (is_not_pair (first_false)) then
+                ! lst ends on a run of trues. The run of trues will be
+                ! a shared tail. The falses get terminated with a nil.
+                call terminate_retval_r
+                done = .true.
+             else
+                last_true1 = last_true2
+                p = first_false
+                next_is_true = .false.
+             end if
+          else
+             call take_falses_destructively (pred, .val. p, last_false2, first_true)
+             call attach_p_to_retval_r
+             if (is_not_pair (first_true)) then
+                ! lst ends on a run of falses. The run of falses will
+                ! be a shared tail. The trues get terminated with a
+                ! nil.
+                call terminate_retval_f
+                done = .true.
+             else
+                last_false1 = last_false2
+                p = first_true
+                next_is_true = .true.
+             end if
+          end if
+       end do
+       lst_f = .val. retval_f
+       lst_r = .val. retval_r
+    end if
 
   contains
 
-    recursive subroutine drop_trues (lst, first_false)
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: first_false
-
-      class(*), allocatable :: p
-      logical :: all_dropped
-
-      p = lst
-      all_dropped = .false.
-      do while (.not. all_dropped)
-         if (is_not_pair (p)) then
-            first_false = p
-            all_dropped = .true.
-         else
-            if (pred (car (p))) then
-               p = cdr (p)
-            else
-               first_false = p
-               all_dropped = .true.
-            end if
-         end if
-      end do
-    end subroutine drop_trues
-
-    recursive subroutine take_falses (lst, falses, last_false, first_true)
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: falses
-      class(*), allocatable, intent(out) :: last_false
-      class(*), allocatable, intent(out) :: first_true
-
-      class(*), allocatable :: p
-      type(cons_t) :: new_pair
-      logical :: all_taken
-
-      p = cdr (lst)
-      all_taken = .false.
-      do while (.not. all_taken)
-         if (is_not_pair (p)) then
-            first_true = p
-            all_taken = .true.
-         else
-            if (pred (car (p))) then
-               first_true = p
-               all_taken = .true.
-            else
-               p = cdr (p)
-            end if
-         end if
-      end do
-
-      if (is_not_pair (first_true)) then
-         ! lst ends on a run of falses. Set `falses' to the run of
-         ! falses, for use as a shared tail. (There is no need to set
-         ! `last_pair'.)
-         falses = lst
+    subroutine attach_p_to_retval_f
+      if (is_nil (retval_f)) then
+         ! Start a new list.
+         retval_f = p
       else
-         ! Copy the run of falses, saving a reference to its last
-         ! pair.
-         falses = car (lst) ** nil
-         last_false = falses
-         p = cdr (lst)
-         do while (.not. cons_t_eq (p, first_true))
-            new_pair = car (p) ** nil
-            call set_cdr (last_false, new_pair)
-            last_false = new_pair
-            p = cdr (p)
-         end do
+         ! Extend an existing list.
+         call set_cdr (last_true1, p)
       end if
-    end subroutine take_falses
+    end subroutine attach_p_to_retval_f
 
-  end function remove
+    subroutine attach_p_to_retval_r
+      if (is_nil (retval_r)) then
+         ! Start a new list.
+         retval_r = p
+      else
+         ! Extend an existing list.
+         call set_cdr (last_false1, p)
+      end if
+    end subroutine attach_p_to_retval_r
+
+    subroutine terminate_retval_f
+      if (is_not_nil (retval_f)) then
+         ! Terminate the list of trues.
+         call set_cdr (last_true1, nil)
+      end if
+    end subroutine terminate_retval_f
+
+    subroutine terminate_retval_r
+      if (is_not_nil (retval_r)) then
+         call set_cdr (last_false1, nil)
+      end if
+    end subroutine terminate_retval_r
+
+  end subroutine partitionx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

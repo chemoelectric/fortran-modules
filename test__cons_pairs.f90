@@ -2331,6 +2331,97 @@ contains
 
   end subroutine test0380
 
+  subroutine test0390
+    !
+    ! Tests of partitionx.
+    !
+
+    type(cons_t) :: lst1, lst2, lst3
+    class(*), allocatable :: lst_f, lst_r
+
+    ! The list is nil.
+    lst1 = list ()
+    call partitionx (is_int, lst1, lst_f, lst_r)
+    lst2 = list ()
+    lst3 = list ()
+    call check (list_equal (int_eq, lst_f, lst2), "test0390-0010 failed")
+    call check (list_equal (real_eq, lst_r, lst3), "test0390-0020 failed")
+
+    ! The list is degenerate.
+    call partitionx (is_int, str_t ('abc'), lst_f, lst_r)
+    call check (length (lst_f) == 0, "test0390-0030 failed")
+    call check (length (lst_r) == 0, "test0390-0040 failed")
+    ! One or the other of the output lists gets the degenerate
+    ! `tail'. Which list gets it is unspecified.
+    call check ((is_nil (lst_f) .and. is_not_nil (lst_r)) .or. (is_not_nil (lst_f) .and. is_nil (lst_r)), &
+         "test0390-0045 failed")
+
+    ! The entire list is a run of integers.
+    lst1 = list (1, 2, 3, 4, 5, 6, 7, 8)
+    call partitionx (is_int, lst1, lst_f, lst_r)
+    lst2 = list (1, 2, 3, 4, 5, 6, 7, 8)
+    lst3 = list ()
+    call check (list_equal (int_eq, lst_f, lst2), "test0390-0050 failed")
+    call check (list_equal (real_eq, lst_r, lst3), "test0390-0060 failed")
+
+    ! The entire list is a run of reals.
+    lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
+    call partitionx (is_int, lst1, lst_f, lst_r)
+    lst2 = list ()
+    lst3 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
+    call check (list_equal (int_eq, lst_f, lst2), "test0390-0070 failed")
+    call check (list_equal (real_eq, lst_r, lst3), "test0390-0080 failed")
+
+    ! All reals, followed by all integers.
+    lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6, 7, 8)
+    call partitionx (is_int, lst1, lst_f, lst_r)
+    lst2 = list (6, 7, 8)
+    lst3 = list (1.0, 2.0, 3.0, 4.0, 5.0)
+    call check (list_equal (int_eq, lst_f, lst2), "test0390-0090 failed")
+    call check (list_equal (real_eq, lst_r, lst3), "test0390-0100 failed")
+
+    ! All integers, followed by all reals
+    lst1 = list (1, 2, 3, 4, 5, 6.0, 7.0, 8.0)
+    call partitionx (is_int, lst1, lst_f, lst_r)
+    lst2 = list (1, 2, 3, 4, 5)
+    lst3 = list (6.0, 7.0, 8.0)
+    call check (list_equal (int_eq, lst_f, lst2), "test0390-0110 failed")
+    call check (list_equal (real_eq, lst_r, lst3), "test0390-0120 failed")
+
+    ! A mix of reals and integers
+    lst1 = list (1, 2.0, 3, 4.0, 5.0, 6, 7, 8)
+    call partitionx (is_int, lst1, lst_f, lst_r)
+    lst2 = list (1, 3, 6, 7, 8)
+    lst3 = list (2.0, 4.0, 5.0)
+    call check (list_equal (int_eq, lst_f, lst2), "test0390-0130 failed")
+    call check (list_equal (real_eq, lst_r, lst3), "test0390-0140 failed")
+
+    ! A mix of reals and integers
+    lst1 = list (1.0, 2, 3.0, 4, 5, 6.0, 7.0, 8.0)
+    call partitionx (is_int, lst1, lst_f, lst_r)
+    lst2 = list (2, 4, 5)
+    lst3 = list (1.0, 3.0, 6.0, 7.0, 8.0)
+    call check (list_equal (int_eq, lst_f, lst2), "test0390-0150 failed")
+    call check (list_equal (real_eq, lst_r, lst3), "test0390-0160 failed")
+
+  contains
+
+    recursive function is_int (obj) result (bool)
+      class(*), intent(in) :: obj
+      logical :: bool
+
+      call collect_garbage_now
+
+      select type (obj)
+      type is (integer)
+         bool = .true.
+      class default
+         bool = .false.
+      end select
+    end function is_int
+
+  end subroutine test0390
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -2379,6 +2470,7 @@ contains
     call test0360
     call test0370
     call test0380
+    call test0390
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
