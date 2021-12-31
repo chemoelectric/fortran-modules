@@ -568,7 +568,7 @@ module cons_pairs
                              ! not* satisfy a predicate.
   public :: removex          ! Like remove, but allowed to destroy its
                              ! input.
-  !public :: partition        ! Combines filter and remove, to make two
+  public :: partition        ! Combines filter and remove, to make two
                              ! lists out of the elements of the input
                              ! list.
   public :: partitionx       ! Like partition, but allowed to destroy
@@ -14514,10 +14514,10 @@ contains
     if (is_not_pair (lst)) then
        ! lst is empty, but possibly dotted. Copy the terminating
        ! object (so it is a kind of shared tail).
-       lst_f = lst
+       lst_f = .autoval. lst
     else
        retval = lst            ! Protect lst from garbage collections.
-       call drop_falses (pred, lst, first_true)
+       call drop_falses (pred, .autoval. lst, first_true)
        if (is_not_pair (first_true)) then
           ! There are no trues and there is no shared tail.
           lst_f = nil
@@ -14570,10 +14570,10 @@ contains
     if (is_not_pair (lst)) then
        ! lst is empty, but possibly dotted. Copy the terminating
        ! object (so it is a kind of shared tail).
-       lst_r = lst
+       lst_r = .autoval. lst
     else
        retval = lst            ! Protect lst from garbage collections.
-       call drop_trues (pred, lst, first_false)
+       call drop_trues (pred, .autoval. lst, first_false)
        if (is_not_pair (first_false)) then
           ! There are no trues and there is no shared tail.
           lst_r = nil
@@ -14619,8 +14619,8 @@ contains
 
     class(*), allocatable :: first_true
     class(*), allocatable :: last_true1, last_true2
-    class(*), allocatable :: first_false
     class(*), allocatable :: trues
+    class(*), allocatable :: first_false
     type(gcroot_t) :: lst_root
     type(gcroot_t) :: retval
     logical :: done
@@ -14631,9 +14631,9 @@ contains
     if (is_not_pair (lst)) then
        ! lst is empty, but possibly dotted. Copy the terminating
        ! object (so it is a kind of shared tail).
-       lst_f = lst
+       lst_f = .autoval. lst
     else
-       call drop_falses (pred, lst, first_true)
+       call drop_falses (pred, .autoval. lst, first_true)
        if (is_not_pair (first_true)) then
           ! There are no trues and there is no shared tail.
           lst_f = nil
@@ -14691,12 +14691,15 @@ contains
     ! Protect the input from garbage collections instigated by pred.
     lst_root = lst
 
+    first_true = nil
+    first_false = nil
+
     if (is_not_pair (lst)) then
        ! lst is empty, but possibly dotted. Copy the terminating
        ! object (so it is a kind of shared tail).
-       lst_r = lst
+       lst_r = .autoval. lst
     else
-       call drop_trues (pred, lst, first_false)
+       call drop_trues (pred, .autoval. lst, first_false)
        if (is_not_pair (first_false)) then
           ! There are no falses and there is no shared tail.
           lst_r = nil
@@ -14758,7 +14761,7 @@ contains
        ! lst is empty, but possibly dotted. Copy the terminating
        ! object to one or the other output list, arbitrarily. It will
        ! serve as a kind of shared tail.
-       lst_f = lst
+       lst_f = .autoval. lst
        lst_r = nil
     else
        p = lst
@@ -14837,6 +14840,114 @@ contains
     end subroutine terminate_retval_r
 
   end subroutine partitionx
+
+  recursive subroutine partition (pred, lst, lst_f, lst_r)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(inout) :: lst_f ! The `filter' list.
+    class(*), allocatable, intent(inout) :: lst_r ! The `remove' list.
+
+    class(*), allocatable :: first_true
+    class(*), allocatable :: last_true1, last_true2
+    class(*), allocatable :: first_false
+    class(*), allocatable :: last_false1, last_false2
+    class(*), allocatable :: trues
+    class(*), allocatable :: falses
+    type(gcroot_t) :: lst_root
+    type(gcroot_t) :: p
+    type(gcroot_t) :: retval_f
+    type(gcroot_t) :: retval_r
+    logical :: done
+    logical :: next_is_true
+
+    if (is_not_pair (lst)) then
+       ! lst is empty, but possibly dotted. Copy the terminating
+       ! object to one or the other output list, arbitrarily. It will
+       ! serve as a kind of shared tail.
+       lst_f = .autoval. lst
+       lst_r = nil
+    else
+       lst_root = lst ! Protect the input list against garbage
+                      ! collections by pred.
+
+       p = lst
+       next_is_true = pred (car (p))
+
+       retval_f = nil
+       retval_r = nil
+       done = .false.
+       do while (.not. done)
+          if (next_is_true) then
+             call take_trues_nondestructively (pred, .val. p, trues, last_true2, first_false)
+             call attach_trues_to_retval_f
+             if (is_not_pair (first_false)) then
+                ! lst ends on a run of trues. The run of trues will be
+                ! a shared tail. The falses get terminated with a nil.
+                call terminate_retval_r
+                done = .true.
+             else
+                last_true1 = last_true2
+                p = first_false
+                next_is_true = .false.
+             end if
+          else
+             call take_falses_nondestructively (pred, .val. p, falses, last_false2, first_true)
+             call attach_falses_to_retval_r
+             if (is_not_pair (first_true)) then
+                ! lst ends on a run of falses. The run of falses will
+                ! be a shared tail. The trues get terminated with a
+                ! nil.
+                call terminate_retval_f
+                done = .true.
+             else
+                last_false1 = last_false2
+                p = first_true
+                next_is_true = .true.
+             end if
+          end if
+       end do
+       lst_f = .val. retval_f
+       lst_r = .val. retval_r
+
+       call lst_root%discard
+    end if
+
+  contains
+
+    subroutine attach_trues_to_retval_f
+      if (is_nil (retval_f)) then
+         ! Start a new list.
+         retval_f = trues
+      else
+         ! Extend an existing list.
+         call set_cdr (last_true1, trues)
+      end if
+    end subroutine attach_trues_to_retval_f
+
+    subroutine attach_falses_to_retval_r
+      if (is_nil (retval_r)) then
+         ! Start a new list.
+         retval_r = falses
+      else
+         ! Extend an existing list.
+         call set_cdr (last_false1, falses)
+      end if
+    end subroutine attach_falses_to_retval_r
+
+    subroutine terminate_retval_f
+      if (is_not_nil (retval_f)) then
+         ! Terminate the list of trues.
+         call set_cdr (last_true1, nil)
+      end if
+    end subroutine terminate_retval_f
+
+    subroutine terminate_retval_r
+      if (is_not_nil (retval_r)) then
+         call set_cdr (last_false1, nil)
+      end if
+    end subroutine terminate_retval_r
+
+  end subroutine partition
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

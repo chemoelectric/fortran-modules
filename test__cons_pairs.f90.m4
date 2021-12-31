@@ -172,6 +172,27 @@ contains
     bool = real_cast (obj1) == real_cast (obj2)
   end function real_eq
 
+  function num_same (obj1, obj2) result (bool)
+    !
+    ! Are obj1 and obj2 either equal integers or equal reals?
+    !
+    class(*), intent(in) :: obj1, obj2
+    logical :: bool
+    bool = .false.
+    select type (obj1)
+    type is (integer)
+       select type (obj2)
+       type is (integer)
+          bool = obj1 == obj2
+       end select
+    type is (real)
+       select type (obj2)
+       type is (real)
+          bool = obj1 == obj2
+       end select
+    end select
+  end function num_same
+
   subroutine test0010
     type(gcroot_t) :: cons1
     class(*), allocatable :: car1, cdr1
@@ -2115,63 +2136,64 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     ! Tests of filter.
     !
 
-    type(cons_t) :: lst1, lst1a, lst2
+    type(cons_t) :: lst1, lst2
+    type(gcroot_t) :: lst1a
     class(*), allocatable :: result1
 
     lst1 = list (1, 2.0, 3, 4.0, 5.0, 6, 7, 8)
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = filter (is_int, lst1)
     lst2 = list (1, 3, 6, 7, 8)
-    call check (list_equal (int_eq, lst1, lst1a), "test0370-0005 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0370-0005 failed")
     call check (list_equal (int_eq, result1, lst2), "test0370-0010 failed")
 
     lst1 = list (1.0, 2.0, 3, 4.0, 5.0, 6, 7, 8)
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = filter (is_int, lst1)
     lst2 = list (3, 6, 7, 8)
-    call check (list_equal (int_eq, lst1, lst1a), "test0370-0015 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0370-0015 failed")
     call check (list_equal (int_eq, result1, lst2), "test0370-0020 failed")
 
     lst1 = list (1.0, 2.0, 3, 4.0, 5.0, 6, 7, 8.0)
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = filter (is_int, lst1)
     lst2 = list (3, 6, 7)
-    call check (list_equal (int_eq, lst1, lst1a), "test0370-0025 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0370-0025 failed")
     call check (list_equal (int_eq, result1, lst2), "test0370-0030 failed")
 
     lst1 = list ()
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = filter (is_int, lst1)
     lst2 = list ()
-    call check (list_equal (int_eq, lst1, lst1a), "test0370-0035 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0370-0035 failed")
     call check (list_equal (int_eq, result1, lst2), "test0370-0040 failed")
 
     lst1 = list (123)
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = filter (is_int, lst1)
     lst2 = list (123)
-    call check (list_equal (int_eq, lst1, lst1a), "test0370-0045 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0370-0045 failed")
     call check (list_equal (int_eq, result1, lst2), "test0370-0050 failed")
 
     lst1 = list (123.0)
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = filter (is_int, lst1)
     lst2 = list ()
-    call check (list_equal (int_eq, lst1, lst1a), "test0370-0055 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0370-0055 failed")
     call check (list_equal (int_eq, result1, lst2), "test0370-0060 failed")
 
     lst1 = iota (100, 1)
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = filter (is_int, lst1)
     lst2 = iota (100, 1)
-    call check (list_equal (int_eq, lst1, lst1a), "test0370-0065 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0370-0065 failed")
     call check (list_equal (int_eq, result1, lst2), "test0370-0070 failed")
 
     lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0)
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = filter (is_int, lst1)
     lst2 = list ()
-    call check (list_equal (int_eq, lst1, lst1a), "test0370-0075 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0370-0075 failed")
     call check (list_equal (int_eq, result1, lst2), "test0370-0080 failed")
 
   contains
@@ -2197,63 +2219,64 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     ! Tests of remove.
     !
 
-    type(cons_t) :: lst1, lst1a, lst2
+    type(cons_t) :: lst1, lst2
+    type(gcroot_t) :: lst1a
     class(*), allocatable :: result1
 
     lst1 = list (1, 2.0, 3, 4.0, 5.0, 6, 7, 8)
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = remove (is_real, lst1)
     lst2 = list (1, 3, 6, 7, 8)
-    call check (list_equal (int_eq, lst1, lst1a), "test0380-0005 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0380-0005 failed")
     call check (list_equal (int_eq, result1, lst2), "test0380-0010 failed")
 
     lst1 = list (1.0, 2.0, 3, 4.0, 5.0, 6, 7, 8)
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = remove (is_real, lst1)
     lst2 = list (3, 6, 7, 8)
-    call check (list_equal (int_eq, lst1, lst1a), "test0380-0015 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0380-0015 failed")
     call check (list_equal (int_eq, result1, lst2), "test0380-0020 failed")
 
     lst1 = list (1.0, 2.0, 3, 4.0, 5.0, 6, 7, 8.0)
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = remove (is_real, lst1)
     lst2 = list (3, 6, 7)
-    call check (list_equal (int_eq, lst1, lst1a), "test0380-0025 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0380-0025 failed")
     call check (list_equal (int_eq, result1, lst2), "test0380-0030 failed")
 
     lst1 = list ()
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = remove (is_real, lst1)
     lst2 = list ()
-    call check (list_equal (int_eq, lst1, lst1a), "test0380-0035 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0380-0035 failed")
     call check (list_equal (int_eq, result1, lst2), "test0380-0040 failed")
 
     lst1 = list (123)
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = remove (is_real, lst1)
     lst2 = list (123)
-    call check (list_equal (int_eq, lst1, lst1a), "test0380-0045 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0380-0045 failed")
     call check (list_equal (int_eq, result1, lst2), "test0380-0050 failed")
 
     lst1 = list (123.0)
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = remove (is_real, lst1)
     lst2 = list ()
-    call check (list_equal (int_eq, lst1, lst1a), "test0380-0055 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0380-0055 failed")
     call check (list_equal (int_eq, result1, lst2), "test0380-0060 failed")
 
     lst1 = iota (100, 1)
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = remove (is_real, lst1)
     lst2 = iota (100, 1)
-    call check (list_equal (int_eq, lst1, lst1a), "test0380-0065 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0380-0065 failed")
     call check (list_equal (int_eq, result1, lst2), "test0380-0070 failed")
 
     lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0)
-    lst1a = lst1
+    lst1a = list_copy (lst1)
     result1 = remove (is_real, lst1)
     lst2 = list ()
-    call check (list_equal (int_eq, lst1, lst1a), "test0380-0075 failed")
+    call check (list_equal (num_same, lst1, lst1a), "test0380-0075 failed")
     call check (list_equal (int_eq, result1, lst2), "test0380-0080 failed")
 
   contains
@@ -2365,6 +2388,112 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   end subroutine test0390
 
+  subroutine test0400
+    !
+    ! Tests of partition.
+    !
+
+    type(cons_t) :: lst1, lst2, lst3
+    type(gcroot_t) :: lst1a
+    class(*), allocatable :: lst_f, lst_r
+
+    ! The list is nil.
+    lst1 = list ()
+    lst1a = list_copy (lst1)
+    call partition (is_int, lst1, lst_f, lst_r)
+    lst2 = list ()
+    lst3 = list ()
+    call check (list_equal (num_same, lst1, lst1a), "test0400-0005 failed")
+    call check (list_equal (int_eq, lst_f, lst2), "test0400-0010 failed")
+    call check (list_equal (real_eq, lst_r, lst3), "test0400-0020 failed")
+
+    ! The list is degenerate.
+    call partition (is_int, str_t ('abc'), lst_f, lst_r)
+    call check (length (lst_f) == 0, "test0400-0030 failed")
+    call check (length (lst_r) == 0, "test0400-0040 failed")
+    ! One or the other of the output lists gets the degenerate
+    ! `tail'. Which list gets it is unspecified.
+    call check ((is_nil (lst_f) .and. is_not_nil (lst_r)) .or. (is_not_nil (lst_f) .and. is_nil (lst_r)), &
+         "test0400-0045 failed")
+
+    ! The entire list is a run of integers.
+    lst1 = list (1, 2, 3, 4, 5, 6, 7, 8)
+    lst1a = list_copy (lst1)
+    call partition (is_int, lst1, lst_f, lst_r)
+    lst2 = list (1, 2, 3, 4, 5, 6, 7, 8)
+    lst3 = list ()
+    call check (list_equal (num_same, lst1, lst1a), "test0400-0045 failed")
+    call check (list_equal (int_eq, lst_f, lst2), "test0400-0050 failed")
+    call check (list_equal (real_eq, lst_r, lst3), "test0400-0060 failed")
+
+    ! The entire list is a run of reals.
+    lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
+    lst1a = list_copy (lst1)
+    call partition (is_int, lst1, lst_f, lst_r)
+    lst2 = list ()
+    lst3 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
+    call check (list_equal (num_same, lst1, lst1a), "test0400-0065 failed")
+    call check (list_equal (int_eq, lst_f, lst2), "test0400-0070 failed")
+    call check (list_equal (real_eq, lst_r, lst3), "test0400-0080 failed")
+
+    ! All reals, followed by all integers.
+    lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6, 7, 8)
+    lst1a = list_copy (lst1)
+    call partition (is_int, lst1, lst_f, lst_r)
+    lst2 = list (6, 7, 8)
+    lst3 = list (1.0, 2.0, 3.0, 4.0, 5.0)
+    call check (list_equal (num_same, lst1, lst1a), "test0400-0085 failed")
+    call check (list_equal (int_eq, lst_f, lst2), "test0400-0090 failed")
+    call check (list_equal (real_eq, lst_r, lst3), "test0400-0100 failed")
+
+    ! All integers, followed by all reals
+    lst1 = list (1, 2, 3, 4, 5, 6.0, 7.0, 8.0)
+    lst1a = list_copy (lst1)
+    call partition (is_int, lst1, lst_f, lst_r)
+    lst2 = list (1, 2, 3, 4, 5)
+    lst3 = list (6.0, 7.0, 8.0)
+    call check (list_equal (num_same, lst1, lst1a), "test0400-0105 failed")
+    call check (list_equal (int_eq, lst_f, lst2), "test0400-0110 failed")
+    call check (list_equal (real_eq, lst_r, lst3), "test0400-0120 failed")
+
+    ! A mix of reals and integers
+    lst1 = list (1, 2.0, 3, 4.0, 5.0, 6, 7, 8)
+    lst1a = list_copy (lst1)
+    call partition (is_int, lst1, lst_f, lst_r)
+    lst2 = list (1, 3, 6, 7, 8)
+    lst3 = list (2.0, 4.0, 5.0)
+    call check (list_equal (num_same, lst1, lst1a), "test0400-0125 failed")
+    call check (list_equal (int_eq, lst_f, lst2), "test0400-0130 failed")
+    call check (list_equal (real_eq, lst_r, lst3), "test0400-0140 failed")
+
+    ! A mix of reals and integers
+    lst1 = list (1.0, 2, 3.0, 4, 5, 6.0, 7.0, 8.0)
+    lst1a = list_copy (lst1)
+    call partition (is_int, lst1, lst_f, lst_r)
+    lst2 = list (2, 4, 5)
+    lst3 = list (1.0, 3.0, 6.0, 7.0, 8.0)
+    call check (list_equal (num_same, lst1, lst1a), "test0400-0145 failed")
+    call check (list_equal (int_eq, lst_f, lst2), "test0400-0150 failed")
+    call check (list_equal (real_eq, lst_r, lst3), "test0400-0160 failed")
+
+  contains
+
+    recursive function is_int (obj) result (bool)
+      class(*), intent(in) :: obj
+      logical :: bool
+
+      call collect_garbage_now
+
+      select type (obj)
+      type is (integer)
+         bool = .true.
+      class default
+         bool = .false.
+      end select
+    end function is_int
+
+  end subroutine test0400
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -2414,6 +2543,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0370
     call test0380
     call test0390
+    call test0400
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
