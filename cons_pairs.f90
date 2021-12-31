@@ -593,6 +593,10 @@ module cons_pairs
                              ! return a nil list. (SRFI-1 `find-tail'
                              ! returns #f instead of '().)
 
+  public :: take_while       ! Return the longest initial prefixt
+                             ! whose elements all satisfy a predicate.
+  public :: take_whilex      ! Like take_while, but allowed to destroy
+                             ! its inputs.
   public :: drop_while       ! Drop the longest initial prefix whose
                              ! elements satisfy a predicate.
 
@@ -14996,6 +15000,52 @@ contains
     end subroutine attach_falses_to_retval_r
 
   end subroutine partition
+
+  recursive function take_whilex (pred, lst) result (lst_tw)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_tw
+
+    if (is_nil_list (lst)) then
+       lst_tw = nil
+    else if (.not. pred (car (lst))) then
+       lst_tw = nil
+    else
+       block
+         type(gcroot_t) :: lst1
+         class(*), allocatable :: last_true
+         class(*), allocatable :: first_false
+
+         lst1 = lst
+         call take_trues_destructively (pred, .val. lst1, last_true, first_false)
+         call set_cdr (last_true, nil)
+         lst_tw = .tocons. lst1
+       end block
+    end if
+  end function take_whilex
+
+  recursive function take_while (pred, lst) result (lst_tw)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_tw
+
+    if (is_nil_list (lst)) then
+       lst_tw = nil
+    else if (.not. pred (car (lst))) then
+       lst_tw = nil
+    else
+       block
+         type(gcroot_t) :: lst1
+         class(*), allocatable :: trues
+         class(*), allocatable :: last_true
+         class(*), allocatable :: first_false
+
+         lst1 = lst
+         call take_trues_nondestructively (pred, .val. lst1, trues, last_true, first_false)
+         lst_tw = .tocons. trues
+       end block
+    end if
+  end function take_while
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

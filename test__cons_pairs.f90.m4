@@ -2652,6 +2652,38 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   end subroutine test0480
 
+  subroutine test0490
+    !
+    ! FIXME: Add tests that the inputs to take_while are not
+    ! destroyed.
+    !
+
+    ! An example from SRFI-1.
+    call check (list_equal (int_eq, take_whilex (is_even, list (2, 18, 3, 10, 22, 9)), list (2, 18)), "test0490-0010 failed")
+    call check (list_equal (int_eq, take_while (is_even, list (2, 18, 3, 10, 22, 9)), list (2, 18)), "test0490-0020 failed")
+
+    call check (list_equal (int_eq, take_whilex (is_even, list (3, 10, 22, 9)), list ()), "test0490-0030 failed")
+    call check (list_equal (int_eq, take_while (is_even, list (3, 10, 22, 9)), list ()), "test0490-0040 failed")
+
+    call check (list_equal (int_eq, take_whilex (is_even, list (2)), list (2)), "test0490-0050 failed")
+    call check (list_equal (int_eq, take_while (is_even, list (2)), list (2)), "test0490-0060 failed")
+
+    call check (list_equal (int_eq, take_whilex (is_even, list (3)), list ()), "test0490-0070 failed")
+    call check (list_equal (int_eq, take_while (is_even, list (3)), list ()), "test0490-0080 failed")
+
+    call check (list_equal (int_eq, take_whilex (is_even, list ()), list ()), "test0490-0090 failed")
+    call check (list_equal (int_eq, take_while (is_even, list ()), list ()), "test0490-0100 failed")
+    
+  contains
+
+    function is_even (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+      bool = (mod (int_cast (x), 2) == 0)
+    end function is_even
+
+  end subroutine test0490
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -2710,6 +2742,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0460
     call test0470
     call test0480
+    call test0490
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
