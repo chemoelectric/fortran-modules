@@ -2494,6 +2494,50 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   end subroutine test0400
 
+  subroutine test0410
+    call check (list_equal (int_eq, member (int_eq, 1, list (1, 2, 3)), list (1, 2, 3)), "test0410-0010 failed")
+    call check (list_equal (int_eq, member (int_eq, 2, list (1, 2, 3)), list (2, 3)), "test0410-0020 failed")
+    call check (list_equal (int_eq, member (int_eq, 3, list (1, 2, 3)), list (3)), "test0410-0030 failed")
+    call check (list_equal (int_eq, member (int_eq, 4, list (1, 2, 3)), list ()), "test0410-0040 failed")
+    call check (list_equal (int_eq, member (int_eq, 1, list ()), list ()), "test0410-0050 failed")
+    call check (list_equal (int_eq, member (int_eq, 1, 1), list ()), "test0410-0060 failed") ! degenerate dotted list.
+  end subroutine test0410
+
+  subroutine test0420
+    call check (list_equal (int_eq, deletex (int_eq, 1, list (1, 2, 3)), list (2, 3)), "test0420-0010 failed")
+    call check (list_equal (int_eq, deletex (int_eq, 2, list (1, 2, 3)), list (1, 3)), "test0420-0020 failed")
+    call check (list_equal (int_eq, deletex (int_eq, 3, list (1, 2, 3)), list (1, 2)), "test0420-0030 failed")
+    call check (list_equal (int_eq, deletex (int_eq, 1, list (1, 1, 1, 1, 1, 2, 3)), list (2, 3)), "test0420-0040 failed")
+    call check (list_equal (int_eq, deletex (int_eq, 3, list (1, 2, 3, 3, 3, 3, 3)), list (1, 2)), "test0420-0050 failed")
+    call check (list_equal (int_eq, deletex (int_eq, 1, list (1, 2, 1, 2, 1, 2, 1)), list (2, 2, 2)), "test0420-0060 failed")
+    call check (list_equal (int_eq, deletex (int_eq, 1, list (1, 2, 1, 3, 1, 4, 1)), list (2, 3, 4)), "test0420-0070 failed")
+    call check (list_equal (int_eq, deletex (int_eq, 5, list (1, 2, 1, 3, 1, 4, 1)), list (1, 2, 1, 3, 1, 4, 1)), &
+         "test0420-0080 failed")
+    call check (list_equal (int_eq, deletex (int_eq, 1, list ()), list ()), "test0420-0090 failed")
+    call check (list_equal (int_eq, deletex (int_eq, 1, list (1)), list ()), "test0420-0100 failed")
+    call check (list_equal (int_eq, deletex (int_eq, 2, list (1)), list (1)), "test0420-0110 failed")
+    call check (deletex (int_eq, 1, 1) .eqi. 1, "test0420-0120 failed")
+  end subroutine test0420
+
+  subroutine test0430
+    !
+    ! FIXME: Add tests that the inputs are not destroyed.
+    !
+    call check (list_equal (int_eq, delete (int_eq, 1, list (1, 2, 3)), list (2, 3)), "test0430-0010 failed")
+    call check (list_equal (int_eq, delete (int_eq, 2, list (1, 2, 3)), list (1, 3)), "test0430-0020 failed")
+    call check (list_equal (int_eq, delete (int_eq, 3, list (1, 2, 3)), list (1, 2)), "test0430-0030 failed")
+    call check (list_equal (int_eq, delete (int_eq, 1, list (1, 1, 1, 1, 1, 2, 3)), list (2, 3)), "test0430-0040 failed")
+    call check (list_equal (int_eq, delete (int_eq, 3, list (1, 2, 3, 3, 3, 3, 3)), list (1, 2)), "test0430-0050 failed")
+    call check (list_equal (int_eq, delete (int_eq, 1, list (1, 2, 1, 2, 1, 2, 1)), list (2, 2, 2)), "test0430-0060 failed")
+    call check (list_equal (int_eq, delete (int_eq, 1, list (1, 2, 1, 3, 1, 4, 1)), list (2, 3, 4)), "test0430-0070 failed")
+    call check (list_equal (int_eq, delete (int_eq, 5, list (1, 2, 1, 3, 1, 4, 1)), list (1, 2, 1, 3, 1, 4, 1)), &
+         "test0430-0080 failed")
+    call check (list_equal (int_eq, delete (int_eq, 1, list ()), list ()), "test0430-0090 failed")
+    call check (list_equal (int_eq, delete (int_eq, 1, list (1)), list ()), "test0430-0100 failed")
+    call check (list_equal (int_eq, delete (int_eq, 2, list (1)), list (1)), "test0430-0110 failed")
+    call check (delete (int_eq, 1, 1) .eqi. 1, "test0430-0120 failed")
+  end subroutine test0430
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -2544,6 +2588,9 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0380
     call test0390
     call test0400
+    call test0410
+    call test0420
+    call test0430
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

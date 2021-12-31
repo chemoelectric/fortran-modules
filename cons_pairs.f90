@@ -572,6 +572,22 @@ module cons_pairs
   public :: partitionx       ! Like partition, but allowed to destroy
                              ! its input.
 
+  public :: member           ! Return the first sublist whose CAR
+                             ! `equals' a given value, or return a nil
+                             ! list. (SRFI-1 `member' would return #f
+                             ! instead of '(), and its argument order
+                             ! is different. Also note that `member'
+                             ! can be used for tests other than
+                             ! equalities. See SRFI-1.)
+
+  public :: delete           ! Remove all elements that `equal' a
+                             ! given value. (SRFI-1 `delete' has a
+                             ! different argument order.  Also note
+                             ! that `delete' can be used for tests
+                             ! other than equalities. See SRFI-1.)
+  public :: deletex          ! Like delete, but allowed to destroy its
+                             ! inputs.
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! FOLDS AND UNFOLDS
@@ -14932,6 +14948,289 @@ contains
     end subroutine attach_falses_to_retval_r
 
   end subroutine partition
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function member (pred, x, lst) result (sublst)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: x
+    class(*), intent(in) :: lst
+    type(cons_t) :: sublst
+
+    class(*), allocatable :: p
+    logical :: done
+
+    type(gcroot_t) :: x_root
+    type(gcroot_t) :: lst_root
+
+    x_root = x
+    lst_root = lst
+
+    p = .autoval. lst
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (p)) then
+          sublst = nil
+          done = .true.
+       else if (pred (x, car (p))) then
+          sublst = .tocons. p
+          done = .true.
+       else
+          p = cdr (p)
+       end if
+    end do
+
+    call x_root%discard
+    call lst_root%discard
+  end function member
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+  recursive subroutine drop_equals_trues (pred, x, lst, first_false)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: x
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(out) :: first_false
+
+    class(*), allocatable :: p
+    logical :: all_dropped
+
+    p = lst
+    all_dropped = .false.
+    do while (.not. all_dropped)
+       if (is_not_pair (p)) then
+          first_false = p
+          all_dropped = .true.
+       else
+          if (pred (x, car (p))) then
+             p = cdr (p)
+          else
+             first_false = p
+             all_dropped = .true.
+          end if
+       end if
+    end do
+  end subroutine drop_equals_trues
+
+  recursive subroutine take_equals_falses_destructively (pred, x, lst, last_false, first_true)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: x
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(out) :: last_false
+    class(*), allocatable, intent(out) :: first_true
+
+    class(*), allocatable :: p
+    logical :: all_taken
+
+    last_false = lst
+    p = cdr (lst)
+    all_taken = .false.
+    do while (.not. all_taken)
+       if (is_not_pair (p)) then
+          first_true = p
+          all_taken = .true.
+       else
+          if (pred (x, car (p))) then
+             first_true = p
+             all_taken = .true.
+          else
+             last_false = p
+             p = cdr (p)
+          end if
+       end if
+    end do
+  end subroutine take_equals_falses_destructively
+
+  recursive subroutine take_equals_falses_nondestructively (pred, x, lst, falses, last_false, first_true)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: x
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(out) :: falses
+    class(*), allocatable, intent(out) :: last_false
+    class(*), allocatable, intent(out) :: first_true
+
+    class(*), allocatable :: p
+    type(cons_t) :: new_pair
+    logical :: all_taken
+
+    p = cdr (lst)
+    all_taken = .false.
+    do while (.not. all_taken)
+       if (is_not_pair (p)) then
+          first_true = p
+          all_taken = .true.
+       else
+          if (pred (x, car (p))) then
+             first_true = p
+             all_taken = .true.
+          else
+             p = cdr (p)
+          end if
+       end if
+    end do
+
+    if (is_not_pair (first_true)) then
+       ! lst ends on a run of falses. Set `falses' to the run of
+       ! falses, for use as a shared tail. (There is no need to set
+       ! `last_pair'.)
+       falses = lst
+    else
+       ! Copy the run of falses, saving a reference to its last
+       ! pair.
+       falses = car (lst) ** nil
+       last_false = falses
+       p = cdr (lst)
+       do while (.not. cons_t_eq (p, first_true))
+          new_pair = car (p) ** nil
+          call set_cdr (last_false, new_pair)
+          last_false = new_pair
+          p = cdr (p)
+       end do
+    end if
+  end subroutine take_equals_falses_nondestructively
+
+  recursive function deletex (pred, x, lst) result (lst_d)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: x
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_d
+
+    class(*), allocatable :: first_false
+    class(*), allocatable :: last_false
+    class(*), allocatable :: first_true
+    class(*), allocatable :: xx
+    type(gcroot_t) :: retval
+    logical :: done
+
+    type(gcroot_t) :: x_root
+
+    ! Protect x against garbage collections instigated by
+    ! pred.
+    x_root = x
+
+    xx = .autoval. x
+
+    if (is_not_pair (lst)) then
+       ! lst is empty, but possibly dotted. Copy the terminating
+       ! object (so it is a kind of shared tail).
+       lst_d = .autoval. lst
+    else
+       retval = lst            ! Protect lst from garbage collections.
+       call drop_equals_trues (pred, xx, .autoval. lst, first_false)
+       if (is_not_pair (first_false)) then
+          ! There are no trues and there is no shared tail.
+          lst_d = nil
+          call retval%discard
+       else
+          retval = first_false
+          call take_equals_falses_destructively (pred, xx, first_false, last_false, first_true)
+          if (is_not_pair (first_true)) then
+             ! The entire result is a tail of the input list.
+             lst_d = .val. retval
+          else
+             done = .false.
+             do while (.not. done)
+                call drop_equals_trues (pred, xx, first_true, first_false)
+                if (is_not_pair (first_false)) then
+                   ! The tail of the original is a run of
+                   ! falses. Remove it, and then the filtering is
+                   ! done.
+                   call set_cdr (last_false, nil)
+                   done = .true.
+                else
+                   ! Leave out the run of falses, destructively.
+                   call set_cdr (last_false, first_false)
+                   ! Get the next run of trues.
+                   call take_equals_falses_destructively (pred, xx, first_false, last_false, first_true)
+                   if (is_not_pair (first_true)) then
+                      ! The tail of the original is a run of
+                      ! trues. The filtering is done.
+                      done = .true.
+                   end if
+                end if
+             end do
+             lst_d = .val. retval
+          end if
+       end if
+    end if
+
+    call x_root%discard
+  end function deletex
+
+  recursive function delete (pred, x, lst) result (lst_d)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: x
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_d
+
+    class(*), allocatable :: first_false
+    class(*), allocatable :: last_false1, last_false2
+    class(*), allocatable :: first_true
+    class(*), allocatable :: falses
+    class(*), allocatable :: xx
+    type(gcroot_t) :: retval
+    logical :: done
+
+    type(gcroot_t) :: x_root
+    type(gcroot_t) :: lst_root
+
+    ! Protect x and lst against garbage collections instigated by
+    ! pred.
+    x_root = x
+    lst_root = lst
+
+    xx = .autoval. x
+    first_true = nil
+    first_false = nil
+
+    if (is_not_pair (lst)) then
+       ! lst is empty, but possibly dotted. Copy the terminating
+       ! object (so it is a kind of shared tail).
+       lst_d = .autoval. lst
+    else
+       call drop_equals_trues (pred, xx, .autoval. lst, first_false)
+       if (is_not_pair (first_false)) then
+          ! There are no falses and there is no shared tail.
+          lst_d = nil
+       else
+          call take_equals_falses_nondestructively (pred, xx, first_false, falses, last_false1, first_true)
+          if (is_not_pair (first_true)) then
+             ! The entire result is a tail of the input list. Share
+             ! it.
+             lst_d = falses
+          else
+             retval = falses
+             done = .false.
+             do while (.not. done)
+                call drop_equals_trues (pred, xx, first_true, first_false)
+                if (is_not_pair (first_false)) then
+                   ! The tail of the original is a run of
+                   ! falses. Leave it out. Filtering is done.
+                   done = .true.
+                else
+                   ! Leave out the run of falses. Get the next run of
+                   ! falses.
+                   call take_equals_falses_nondestructively (pred, xx, first_false, falses, last_false2, first_true)
+                   call set_cdr (last_false1, falses)
+                   if (is_not_pair (first_true)) then
+                      ! The tail of the original is a run of
+                      ! falses. Keep it as a shared tail. Filtering is
+                      ! done.
+                      done = .true.
+                   else
+                      last_false1 = last_false2
+                   end if
+                end if
+             end do
+             lst_d = .val. retval
+          end if
+       end if
+    end if
+
+    call x_root%discard
+    call lst_root%discard
+  end function delete
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
