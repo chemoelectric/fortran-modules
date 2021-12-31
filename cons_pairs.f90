@@ -78,8 +78,13 @@ module cons_pairs
   implicit none
   private
 
+  ! is_false and is_not_false are useful for treating .false. the way
+  ! Scheme treats #f.
   public :: cons_t           ! The type for NIL-lists and garbage-collectible CONS-pairs.
   public :: nil              ! The canonical NIL-list (commonly written '() in Scheme).
+
+  public :: is_false         ! Is a class(*) or gcroot_t object a logical .false.?
+  public :: is_not_false     ! Is a class(*) or gcroot_t object not a logical .false.?
 
   public :: is_pair          ! Is the object either a CONS-pair or a gcroot_t containing a CONS-pair?
   public :: is_not_pair      ! Is the object neither a CONS-pair nor a gcroot_t containing a CONS-pair?
@@ -579,6 +584,17 @@ module cons_pairs
                              ! is different. Also note that `member'
                              ! can be used for tests other than
                              ! equalities. See SRFI-1.)
+
+  public :: find             ! Return the first element of that
+                             ! satisfies a predicate. Return
+                             ! .false. if no element does.
+  public :: find_tail        ! Return the first pair whose CAR
+                             ! satisfies a predicate; if no pair does,
+                             ! return a nil list. (SRFI-1 `find-tail'
+                             ! returns #f instead of '().)
+
+  public :: drop_while       ! Drop the longest initial prefix whose
+                             ! elements satisfy a predicate.
 
   public :: delete           ! Remove all elements that `equal' a
                              ! given value. (SRFI-1 `delete' has a
@@ -1609,6 +1625,32 @@ contains
        end if
     end if
   end subroutine cons_t_get_branch
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function is_false (obj) result (bool)
+    class(*), intent(in) :: obj
+    logical :: bool
+
+    select type (val => .autoval. obj)
+    type is (logical)
+       bool = .not. val
+    class default
+       bool = .false.
+    end select
+  end function is_false
+
+  function is_not_false (obj) result (bool)
+    class(*), intent(in) :: obj
+    logical :: bool
+
+    select type (val => .autoval. obj)
+    type is (logical)
+       bool = val
+    class default
+       bool = .true.
+    end select
+  end function is_not_false
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -14989,6 +15031,67 @@ contains
     call x_root%discard
     call lst_root%discard
   end function member
+
+  recursive function find (pred, lst) result (obj)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: obj
+
+    type(cons_t) :: tail
+
+    tail = find_tail (pred, lst)
+    if (is_pair (tail)) then
+       obj = car (tail)
+    else
+       obj = .false.
+    end if
+  end function find
+
+  recursive function find_tail (pred, lst) result (lst_ft)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_ft
+
+    type(gcroot_t) :: p
+    logical :: done
+
+    p = lst
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (p)) then
+          lst_ft = nil        ! SRFI-1 `find-tail' returns #f instead.
+          done = .true.
+       else if (pred (car (p))) then
+          lst_ft = .tocons. p
+          done = .true.
+       else
+          p = cdr (p)
+       end if
+    end do
+  end function find_tail
+
+  recursive function drop_while (pred, lst) result (lst_dw)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_dw
+
+    type(gcroot_t) :: p
+    logical :: done
+
+    p = lst
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (p)) then
+          lst_dw = nil
+          done = .true.
+       else if (pred (car (p))) then
+          p = cdr (p)
+       else
+          lst_dw = .tocons. p
+          done = .true.
+       end if
+    end do
+  end function drop_while
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

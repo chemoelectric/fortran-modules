@@ -2568,6 +2568,90 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (list_equal (int_eq, delete_duplicates (int_eq, make_list (500, 1)), list (1)), "test0450-0060 failed")
   end subroutine test0450
 
+  subroutine test0460
+    !
+    ! Test is_false and is_not_false.
+    !
+    type(gcroot_t) :: obj
+
+    obj = .false.
+    call check (is_false (obj), "test0460-0010 failed")
+    call check (is_false (.val. obj), "test0460-0020 failed")
+    call check (.not. is_not_false (obj), "test0460-0030 failed")
+    call check (.not. is_not_false (.val. obj), "test0460-0040 failed")
+
+    obj = .true.
+    call check (.not. is_false (obj), "test0460-0050 failed")
+    call check (.not. is_false (.val. obj), "test0460-0060 failed")
+    call check (is_not_false (obj), "test0460-0070 failed")
+    call check (is_not_false (.val. obj), "test0460-0080 failed")
+
+    obj = 123
+    call check (.not. is_false (obj), "test0460-0090 failed")
+    call check (.not. is_false (.val. obj), "test0460-0100 failed")
+    call check (is_not_false (obj), "test0460-0110 failed")
+    call check (is_not_false (.val. obj), "test0460-0120 failed")
+  end subroutine test0460
+
+  subroutine test0470
+    type(cons_t) :: lst
+
+    lst = list (1, 3, 5, 7, 8, 9, 11, 13, 14)
+    call check (find (is_even, lst) .eqi. 8, "test0470-0010 failed")
+    call check (list_equal (int_eq, find_tail (is_even, lst), list (8, 9, 11, 13, 14)), "test0470-0020 failed")
+
+    lst = list ()
+    call check (is_false (find (is_even, lst)), "test0470-0030 failed")
+    call check (list_equal (int_eq, find_tail (is_even, lst), list ()), "test0470-0040 failed")
+
+    lst = list (1, 3, 5, 7, 9, 11, 13)
+    call check (is_false (find (is_even, lst)), "test0470-0050 failed")
+    call check (list_equal (int_eq, find_tail (is_even, lst), list ()), "test0470-0060 failed")
+
+  contains
+
+    function is_even (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+      bool = (mod (int_cast (x), 2) == 0)
+    end function is_even
+
+  end subroutine test0470
+
+  subroutine test0480
+    type(cons_t) :: lst
+
+    lst = list (1, 3, 5, 7, 8, 9, 11, 13, 14)
+    call check (list_equal (int_eq, drop_while (is_odd, lst), list (8, 9, 11, 13, 14)), "test0480-0020 failed")
+
+    lst = list ()
+    call check (list_equal (int_eq, drop_while (is_odd, lst), list ()), "test0480-0040 failed")
+
+    lst = list (1, 3, 5, 7, 9, 11, 13)
+    call check (list_equal (int_eq, drop_while (is_odd, lst), list ()), "test0480-0060 failed")
+
+    lst = drop_while (is_odd, circular_list (1, 3, 5, 8))
+    call check (first (lst) .eqi. 8,  "test0480-0070 failed")
+    call check (second (lst) .eqi. 1,  "test0480-0080 failed")
+    call check (third (lst) .eqi. 3,  "test0480-0090 failed")
+    call check (fourth (lst) .eqi. 5,  "test0480-0100 failed")
+    call check (fifth (lst) .eqi. 8,  "test0480-0110 failed")
+    call check (sixth (lst) .eqi. 1,  "test0480-0120 failed")
+    call check (seventh (lst) .eqi. 3,  "test0480-0130 failed")
+    call check (eighth (lst) .eqi. 5,  "test0480-0140 failed")
+    call check (ninth (lst) .eqi. 8,  "test0480-0150 failed")
+    call check (tenth (lst) .eqi. 1,  "test0480-0160 failed")
+
+  contains
+
+    function is_odd (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+      bool = (mod (int_cast (x), 2) == 1)
+    end function is_odd
+
+  end subroutine test0480
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -2623,6 +2707,9 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0430
     call test0440
     call test0450
+    call test0460
+    call test0470
+    call test0480
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
