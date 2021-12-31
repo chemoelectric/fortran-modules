@@ -534,31 +534,29 @@ module cons_pairs
   public :: filter_map9_subr
   public :: filter_map10_subr
 
-  ! Implementations of for_each, taking a subroutine as the
-  ! per-element procedure.
-  public :: for_each1_subr
-  public :: for_each2_subr
-  public :: for_each3_subr
-  public :: for_each4_subr
-  public :: for_each5_subr
-  public :: for_each6_subr
-  public :: for_each7_subr
-  public :: for_each8_subr
-  public :: for_each9_subr
-  public :: for_each10_subr
+  ! Implementations of for_each.
+  public :: for_each1
+  public :: for_each2
+  public :: for_each3
+  public :: for_each4
+  public :: for_each5
+  public :: for_each6
+  public :: for_each7
+  public :: for_each8
+  public :: for_each9
+  public :: for_each10
 
-  ! Implementations of pair_for_each, taking a subroutine as the
-  ! per-sublist procedure.
-  public :: pair_for_each1_subr
-  public :: pair_for_each2_subr
-  public :: pair_for_each3_subr
-  public :: pair_for_each4_subr
-  public :: pair_for_each5_subr
-  public :: pair_for_each6_subr
-  public :: pair_for_each7_subr
-  public :: pair_for_each8_subr
-  public :: pair_for_each9_subr
-  public :: pair_for_each10_subr
+  ! Implementations of pair_for_each.
+  public :: pair_for_each1
+  public :: pair_for_each2
+  public :: pair_for_each3
+  public :: pair_for_each4
+  public :: pair_for_each5
+  public :: pair_for_each6
+  public :: pair_for_each7
+  public :: pair_for_each8
+  public :: pair_for_each9
+  public :: pair_for_each10
 
   public :: filter           ! Return the elements of a list that *do*
                              ! satisfy a predicate.
@@ -995,16 +993,16 @@ module cons_pairs
      end subroutine list_map10_subr_t
   end interface
 
-  public :: list_side_effect1_subr_t
-  public :: list_side_effect2_subr_t
-  public :: list_side_effect3_subr_t
-  public :: list_side_effect4_subr_t
-  public :: list_side_effect5_subr_t
-  public :: list_side_effect6_subr_t
-  public :: list_side_effect7_subr_t
-  public :: list_side_effect8_subr_t
-  public :: list_side_effect9_subr_t
-  public :: list_side_effect10_subr_t
+  public :: list_side_effects1_t
+  public :: list_side_effects2_t
+  public :: list_side_effects3_t
+  public :: list_side_effects4_t
+  public :: list_side_effects5_t
+  public :: list_side_effects6_t
+  public :: list_side_effects7_t
+  public :: list_side_effects8_t
+  public :: list_side_effects9_t
+  public :: list_side_effects10_t
 
   abstract interface
      !
@@ -1012,32 +1010,32 @@ module cons_pairs
      ! procedure; for the per-sublist-procedure argument to a
      ! pair_for_each procedure; etc.
      !
-     recursive subroutine list_side_effect1_subr_t (input1)
+     recursive subroutine list_side_effects1_t (input1)
        class(*), intent(in) :: input1
-     end subroutine list_side_effect1_subr_t
-     recursive subroutine list_side_effect2_subr_t (input1, input2)
+     end subroutine list_side_effects1_t
+     recursive subroutine list_side_effects2_t (input1, input2)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
-     end subroutine list_side_effect2_subr_t
-     recursive subroutine list_side_effect3_subr_t (input1, input2, input3)
+     end subroutine list_side_effects2_t
+     recursive subroutine list_side_effects3_t (input1, input2, input3)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
        class(*), intent(in) :: input3
-     end subroutine list_side_effect3_subr_t
-     recursive subroutine list_side_effect4_subr_t (input1, input2, input3, input4)
+     end subroutine list_side_effects3_t
+     recursive subroutine list_side_effects4_t (input1, input2, input3, input4)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
        class(*), intent(in) :: input3
        class(*), intent(in) :: input4
-     end subroutine list_side_effect4_subr_t
-     recursive subroutine list_side_effect5_subr_t (input1, input2, input3, input4, input5)
+     end subroutine list_side_effects4_t
+     recursive subroutine list_side_effects5_t (input1, input2, input3, input4, input5)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
        class(*), intent(in) :: input3
        class(*), intent(in) :: input4
        class(*), intent(in) :: input5
-     end subroutine list_side_effect5_subr_t
-     recursive subroutine list_side_effect6_subr_t (input1, input2, input3, input4, input5, &
+     end subroutine list_side_effects5_t
+     recursive subroutine list_side_effects6_t (input1, input2, input3, input4, input5, &
           input6)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
@@ -1045,8 +1043,8 @@ module cons_pairs
        class(*), intent(in) :: input4
        class(*), intent(in) :: input5
        class(*), intent(in) :: input6
-     end subroutine list_side_effect6_subr_t
-     recursive subroutine list_side_effect7_subr_t (input1, input2, input3, input4, input5, &
+     end subroutine list_side_effects6_t
+     recursive subroutine list_side_effects7_t (input1, input2, input3, input4, input5, &
           input6, input7)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
@@ -1055,8 +1053,8 @@ module cons_pairs
        class(*), intent(in) :: input5
        class(*), intent(in) :: input6
        class(*), intent(in) :: input7
-     end subroutine list_side_effect7_subr_t
-     recursive subroutine list_side_effect8_subr_t (input1, input2, input3, input4, input5, &
+     end subroutine list_side_effects7_t
+     recursive subroutine list_side_effects8_t (input1, input2, input3, input4, input5, &
           input6, input7, input8)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
@@ -1066,8 +1064,8 @@ module cons_pairs
        class(*), intent(in) :: input6
        class(*), intent(in) :: input7
        class(*), intent(in) :: input8
-     end subroutine list_side_effect8_subr_t
-     recursive subroutine list_side_effect9_subr_t (input1, input2, input3, input4, input5, &
+     end subroutine list_side_effects8_t
+     recursive subroutine list_side_effects9_t (input1, input2, input3, input4, input5, &
           input6, input7, input8, input9)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
@@ -1078,8 +1076,8 @@ module cons_pairs
        class(*), intent(in) :: input7
        class(*), intent(in) :: input8
        class(*), intent(in) :: input9
-     end subroutine list_side_effect9_subr_t
-     recursive subroutine list_side_effect10_subr_t (input1, input2, input3, input4, input5, &
+     end subroutine list_side_effects9_t
+     recursive subroutine list_side_effects10_t (input1, input2, input3, input4, input5, &
           input6, input7, input8, input9, input10)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
@@ -1091,7 +1089,7 @@ module cons_pairs
        class(*), intent(in) :: input8
        class(*), intent(in) :: input9
        class(*), intent(in) :: input10
-     end subroutine list_side_effect10_subr_t
+     end subroutine list_side_effects10_t
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1448,29 +1446,29 @@ module cons_pairs
   end interface filter_map
 
   interface for_each
-     module procedure for_each1_subr
-     module procedure for_each2_subr
-     module procedure for_each3_subr
-     module procedure for_each4_subr
-     module procedure for_each5_subr
-     module procedure for_each6_subr
-     module procedure for_each7_subr
-     module procedure for_each8_subr
-     module procedure for_each9_subr
-     module procedure for_each10_subr
+     module procedure for_each1
+     module procedure for_each2
+     module procedure for_each3
+     module procedure for_each4
+     module procedure for_each5
+     module procedure for_each6
+     module procedure for_each7
+     module procedure for_each8
+     module procedure for_each9
+     module procedure for_each10
   end interface for_each
 
   interface pair_for_each
-     module procedure pair_for_each1_subr
-     module procedure pair_for_each2_subr
-     module procedure pair_for_each3_subr
-     module procedure pair_for_each4_subr
-     module procedure pair_for_each5_subr
-     module procedure pair_for_each6_subr
-     module procedure pair_for_each7_subr
-     module procedure pair_for_each8_subr
-     module procedure pair_for_each9_subr
-     module procedure pair_for_each10_subr
+     module procedure pair_for_each1
+     module procedure pair_for_each2
+     module procedure pair_for_each3
+     module procedure pair_for_each4
+     module procedure pair_for_each5
+     module procedure pair_for_each6
+     module procedure pair_for_each7
+     module procedure pair_for_each8
+     module procedure pair_for_each9
+     module procedure pair_for_each10
   end interface pair_for_each
 
   interface fold
@@ -12941,8 +12939,8 @@ contains
 !! for_each
 !!
 
-  recursive subroutine for_each1_subr (proc, lst1)
-    procedure(list_side_effect1_subr_t) :: proc
+  recursive subroutine for_each1 (proc, lst1)
+    procedure(list_side_effects1_t) :: proc
     class(*), intent(in) :: lst1
 
     type(gcroot_t) :: lst1_root
@@ -12965,10 +12963,10 @@ contains
     end do
 
     call lst1_root%discard
-  end subroutine for_each1_subr
+  end subroutine for_each1
 
-  recursive subroutine for_each2_subr (proc, lst1, lst2)
-    procedure(list_side_effect2_subr_t) :: proc
+  recursive subroutine for_each2 (proc, lst1, lst2)
+    procedure(list_side_effects2_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
 
@@ -13000,10 +12998,10 @@ contains
 
     call lst1_root%discard
     call lst2_root%discard
-  end subroutine for_each2_subr
+  end subroutine for_each2
 
-  recursive subroutine for_each3_subr (proc, lst1, lst2, lst3)
-    procedure(list_side_effect3_subr_t) :: proc
+  recursive subroutine for_each3 (proc, lst1, lst2, lst3)
+    procedure(list_side_effects3_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -13044,10 +13042,10 @@ contains
     call lst1_root%discard
     call lst2_root%discard
     call lst3_root%discard
-  end subroutine for_each3_subr
+  end subroutine for_each3
 
-  recursive subroutine for_each4_subr (proc, lst1, lst2, lst3, lst4)
-    procedure(list_side_effect4_subr_t) :: proc
+  recursive subroutine for_each4 (proc, lst1, lst2, lst3, lst4)
+    procedure(list_side_effects4_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -13097,10 +13095,10 @@ contains
     call lst2_root%discard
     call lst3_root%discard
     call lst4_root%discard
-  end subroutine for_each4_subr
+  end subroutine for_each4
 
-  recursive subroutine for_each5_subr (proc, lst1, lst2, lst3, lst4, lst5)
-    procedure(list_side_effect5_subr_t) :: proc
+  recursive subroutine for_each5 (proc, lst1, lst2, lst3, lst4, lst5)
+    procedure(list_side_effects5_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -13159,11 +13157,11 @@ contains
     call lst3_root%discard
     call lst4_root%discard
     call lst5_root%discard
-  end subroutine for_each5_subr
+  end subroutine for_each5
 
-  recursive subroutine for_each6_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+  recursive subroutine for_each6 (proc, lst1, lst2, lst3, lst4, lst5, &
        lst6)
-    procedure(list_side_effect6_subr_t) :: proc
+    procedure(list_side_effects6_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -13232,11 +13230,11 @@ contains
     call lst4_root%discard
     call lst5_root%discard
     call lst6_root%discard
-  end subroutine for_each6_subr
+  end subroutine for_each6
 
-  recursive subroutine for_each7_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+  recursive subroutine for_each7 (proc, lst1, lst2, lst3, lst4, lst5, &
        lst6, lst7)
-    procedure(list_side_effect7_subr_t) :: proc
+    procedure(list_side_effects7_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -13314,11 +13312,11 @@ contains
     call lst5_root%discard
     call lst6_root%discard
     call lst7_root%discard
-  end subroutine for_each7_subr
+  end subroutine for_each7
 
-  recursive subroutine for_each8_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+  recursive subroutine for_each8 (proc, lst1, lst2, lst3, lst4, lst5, &
        lst6, lst7, lst8)
-    procedure(list_side_effect8_subr_t) :: proc
+    procedure(list_side_effects8_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -13405,11 +13403,11 @@ contains
     call lst6_root%discard
     call lst7_root%discard
     call lst8_root%discard
-  end subroutine for_each8_subr
+  end subroutine for_each8
 
-  recursive subroutine for_each9_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+  recursive subroutine for_each9 (proc, lst1, lst2, lst3, lst4, lst5, &
        lst6, lst7, lst8, lst9)
-    procedure(list_side_effect9_subr_t) :: proc
+    procedure(list_side_effects9_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -13505,11 +13503,11 @@ contains
     call lst7_root%discard
     call lst8_root%discard
     call lst9_root%discard
-  end subroutine for_each9_subr
+  end subroutine for_each9
 
-  recursive subroutine for_each10_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+  recursive subroutine for_each10 (proc, lst1, lst2, lst3, lst4, lst5, &
        lst6, lst7, lst8, lst9, lst10)
-    procedure(list_side_effect10_subr_t) :: proc
+    procedure(list_side_effects10_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -13614,15 +13612,15 @@ contains
     call lst8_root%discard
     call lst9_root%discard
     call lst10_root%discard
-  end subroutine for_each10_subr
+  end subroutine for_each10
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! pair_for_each
 !!
 
-  recursive subroutine pair_for_each1_subr (proc, lst1)
-    procedure(list_side_effect1_subr_t) :: proc
+  recursive subroutine pair_for_each1 (proc, lst1)
+    procedure(list_side_effects1_t) :: proc
     class(*), intent(in) :: lst1
 
     type(gcroot_t) :: lst1_root
@@ -13645,10 +13643,10 @@ contains
     end do
 
     call lst1_root%discard
-  end subroutine pair_for_each1_subr
+  end subroutine pair_for_each1
 
-  recursive subroutine pair_for_each2_subr (proc, lst1, lst2)
-    procedure(list_side_effect2_subr_t) :: proc
+  recursive subroutine pair_for_each2 (proc, lst1, lst2)
+    procedure(list_side_effects2_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
 
@@ -13680,10 +13678,10 @@ contains
 
     call lst1_root%discard
     call lst2_root%discard
-  end subroutine pair_for_each2_subr
+  end subroutine pair_for_each2
 
-  recursive subroutine pair_for_each3_subr (proc, lst1, lst2, lst3)
-    procedure(list_side_effect3_subr_t) :: proc
+  recursive subroutine pair_for_each3 (proc, lst1, lst2, lst3)
+    procedure(list_side_effects3_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -13724,10 +13722,10 @@ contains
     call lst1_root%discard
     call lst2_root%discard
     call lst3_root%discard
-  end subroutine pair_for_each3_subr
+  end subroutine pair_for_each3
 
-  recursive subroutine pair_for_each4_subr (proc, lst1, lst2, lst3, lst4)
-    procedure(list_side_effect4_subr_t) :: proc
+  recursive subroutine pair_for_each4 (proc, lst1, lst2, lst3, lst4)
+    procedure(list_side_effects4_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -13777,10 +13775,10 @@ contains
     call lst2_root%discard
     call lst3_root%discard
     call lst4_root%discard
-  end subroutine pair_for_each4_subr
+  end subroutine pair_for_each4
 
-  recursive subroutine pair_for_each5_subr (proc, lst1, lst2, lst3, lst4, lst5)
-    procedure(list_side_effect5_subr_t) :: proc
+  recursive subroutine pair_for_each5 (proc, lst1, lst2, lst3, lst4, lst5)
+    procedure(list_side_effects5_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -13839,11 +13837,11 @@ contains
     call lst3_root%discard
     call lst4_root%discard
     call lst5_root%discard
-  end subroutine pair_for_each5_subr
+  end subroutine pair_for_each5
 
-  recursive subroutine pair_for_each6_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+  recursive subroutine pair_for_each6 (proc, lst1, lst2, lst3, lst4, lst5, &
        lst6)
-    procedure(list_side_effect6_subr_t) :: proc
+    procedure(list_side_effects6_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -13912,11 +13910,11 @@ contains
     call lst4_root%discard
     call lst5_root%discard
     call lst6_root%discard
-  end subroutine pair_for_each6_subr
+  end subroutine pair_for_each6
 
-  recursive subroutine pair_for_each7_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+  recursive subroutine pair_for_each7 (proc, lst1, lst2, lst3, lst4, lst5, &
        lst6, lst7)
-    procedure(list_side_effect7_subr_t) :: proc
+    procedure(list_side_effects7_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -13994,11 +13992,11 @@ contains
     call lst5_root%discard
     call lst6_root%discard
     call lst7_root%discard
-  end subroutine pair_for_each7_subr
+  end subroutine pair_for_each7
 
-  recursive subroutine pair_for_each8_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+  recursive subroutine pair_for_each8 (proc, lst1, lst2, lst3, lst4, lst5, &
        lst6, lst7, lst8)
-    procedure(list_side_effect8_subr_t) :: proc
+    procedure(list_side_effects8_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -14085,11 +14083,11 @@ contains
     call lst6_root%discard
     call lst7_root%discard
     call lst8_root%discard
-  end subroutine pair_for_each8_subr
+  end subroutine pair_for_each8
 
-  recursive subroutine pair_for_each9_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+  recursive subroutine pair_for_each9 (proc, lst1, lst2, lst3, lst4, lst5, &
        lst6, lst7, lst8, lst9)
-    procedure(list_side_effect9_subr_t) :: proc
+    procedure(list_side_effects9_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -14185,11 +14183,11 @@ contains
     call lst7_root%discard
     call lst8_root%discard
     call lst9_root%discard
-  end subroutine pair_for_each9_subr
+  end subroutine pair_for_each9
 
-  recursive subroutine pair_for_each10_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+  recursive subroutine pair_for_each10 (proc, lst1, lst2, lst3, lst4, lst5, &
        lst6, lst7, lst8, lst9, lst10)
-    procedure(list_side_effect10_subr_t) :: proc
+    procedure(list_side_effects10_t) :: proc
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
@@ -14294,7 +14292,7 @@ contains
     call lst8_root%discard
     call lst9_root%discard
     call lst10_root%discard
-  end subroutine pair_for_each10_subr
+  end subroutine pair_for_each10
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!

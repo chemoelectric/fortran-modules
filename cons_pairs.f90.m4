@@ -373,16 +373,14 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: filter_map[]n[]_subr
 ])dnl
 
-  ! Implementations of for_each, taking a subroutine as the
-  ! per-element procedure.
+  ! Implementations of for_each.
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  public :: for_each[]n[]_subr
+  public :: for_each[]n[]
 ])dnl
 
-  ! Implementations of pair_for_each, taking a subroutine as the
-  ! per-sublist procedure.
+  ! Implementations of pair_for_each.
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  public :: pair_for_each[]n[]_subr
+  public :: pair_for_each[]n[]
 ])dnl
 
   public :: filter           ! Return the elements of a list that *do*
@@ -521,7 +519,7 @@ m4_forloop([k],[1],n,[dnl
   end interface
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  public :: list_side_effect[]n[]_subr_t
+  public :: list_side_effects[]n[]_t
 ])dnl
 
   abstract interface
@@ -531,12 +529,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      ! pair_for_each procedure; etc.
      !
 m4_forloop([n],[1],ZIP_MAX,[dnl
-     recursive subroutine list_side_effect[]n[]_subr_t (input1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+     recursive subroutine list_side_effects[]n[]_t (input1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
           ])input[]k]))
 m4_forloop([k],[1],n,[dnl
        class(*), intent(in) :: input[]k
 ])dnl
-     end subroutine list_side_effect[]n[]_subr_t
+     end subroutine list_side_effects[]n[]_t
 ])dnl
   end interface
 
@@ -743,13 +741,13 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 
   interface for_each
 m4_forloop([n],[1],ZIP_MAX,[dnl
-     module procedure for_each[]n[]_subr
+     module procedure for_each[]n[]
 ])dnl
   end interface for_each
 
   interface pair_for_each
 m4_forloop([n],[1],ZIP_MAX,[dnl
-     module procedure pair_for_each[]n[]_subr
+     module procedure pair_for_each[]n[]
 ])dnl
   end interface pair_for_each
 
@@ -2916,9 +2914,9 @@ dnl
 !!
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  recursive subroutine for_each[]n[]_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+  recursive subroutine for_each[]n (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        ])lst[]k]))
-    procedure(list_side_effect[]n[]_subr_t) :: proc
+    procedure(list_side_effects[]n[]_t) :: proc
 m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: lst[]k
 ])dnl
@@ -2960,7 +2958,7 @@ m4_forloop([k],[1],n,[dnl
 m4_forloop([k],[1],n,[dnl
     call lst[]k[]_root%discard
 ])dnl
-  end subroutine for_each[]n[]_subr
+  end subroutine for_each[]n
 
 ])dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2969,9 +2967,9 @@ m4_forloop([k],[1],n,[dnl
 !!
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  recursive subroutine pair_for_each[]n[]_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+  recursive subroutine pair_for_each[]n (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        ])lst[]k]))
-    procedure(list_side_effect[]n[]_subr_t) :: proc
+    procedure(list_side_effects[]n[]_t) :: proc
 m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: lst[]k
 ])dnl
@@ -3013,7 +3011,7 @@ m4_forloop([k],[1],n,[dnl
 m4_forloop([k],[1],n,[dnl
     call lst[]k[]_root%discard
 ])dnl
-  end subroutine pair_for_each[]n[]_subr
+  end subroutine pair_for_each[]n
 
 ])dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
