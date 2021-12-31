@@ -416,7 +416,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: delete_duplicates ! See SRFI-1. (Note that SRFI-1
                               ! `delete_duplicates' has a different
                               ! argument order.)
-  !public :: delete_duplicatesx ! Like delete_duplicates, but allowed
+  public :: delete_duplicatesx ! Like delete_duplicates, but allowed
                                ! to destroy is inputs.
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -3959,8 +3959,9 @@ m4_forloop([k],[1],n,[dnl
   end function delete
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  recursive function delete_duplicates (pred, lst) result (lst_dd)
+dnl
+m4_define([m4_delete_duplicates],[dnl
+  recursive function $1 (pred, lst) result (lst_dd)
     !
     ! This implementation, based on the SRFI-1 reference
     ! implementation, is non-tail recursive and uses up stack
@@ -3992,7 +3993,7 @@ m4_forloop([k],[1],n,[dnl
          lst_dd = .tocons. lst
       else
          call uncons (lst, x, tail)
-         deletion_result = delete (pred, x, tail)
+         deletion_result = $2 (pred, x, tail)
          new_tail = recursion (deletion_result)
          if (cons_t_eq (.tocons. tail, .tocons. new_tail)) then
             lst_dd = .tocons. lst
@@ -4002,18 +4003,12 @@ m4_forloop([k],[1],n,[dnl
       end if
     end function recursion
 
-  end function delete_duplicates
+  end function $1
+])dnl
 
-!!$(define (delete-duplicates lis . maybe-=)
-!!$  (let ((elt= (:optional maybe-= equal?)))
-!!$    (check-arg procedure? elt= delete-duplicates)
-!!$    (let recur ((lis lis))
-!!$      (if (null-list? lis) lis
-!!$	  (let* ((x (car lis))
-!!$		     (tail (cdr lis))
-!!$		     (new-tail (recur (delete x tail elt=))))
-!!$	    (if (eq? tail new-tail) lis (cons x new-tail)))))))
-
+m4_delete_duplicates([delete_duplicatesx],[deletex])
+m4_delete_duplicates([delete_duplicates],[delete])
+dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 m4_forloop([n],[1],ZIP_MAX,[dnl

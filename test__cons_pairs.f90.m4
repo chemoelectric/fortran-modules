@@ -2539,7 +2539,17 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
   end subroutine test0430
 
   subroutine test0440
-    ! FIXME: Put delete_duplicatesx here.
+    !
+    ! FIXME: Test that the shared-tail mechanism works.
+    !
+    call check (list_equal (int_eq, delete_duplicatesx (int_eq, list (1, 2, 1, 3, 1, 4, 1)), list (1, 2, 3, 4)), &
+         "test0440-0010 failed")
+    call check (list_equal (int_eq, delete_duplicatesx (int_eq, list (1, 2, 1, 2, 1, 2, 1)), list (1, 2)), &
+         "test0440-0020 failed")
+    call check (list_equal (int_eq, delete_duplicatesx (int_eq, list ()), list ()), "test0440-0030 failed")
+    call check (list_equal (int_eq, delete_duplicatesx (int_eq, list (1)), list (1)), "test0440-0040 failed")
+    call check (list_equal (int_eq, delete_duplicatesx (int_eq, list (1, 1)), list (1)), "test0440-0050 failed")
+    call check (list_equal (int_eq, delete_duplicatesx (int_eq, make_list (500, 1)), list (1)), "test0440-0060 failed")
   end subroutine test0440
 
   subroutine test0450
