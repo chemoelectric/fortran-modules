@@ -599,6 +599,14 @@ module cons_pairs
                              ! its inputs.
   public :: drop_while       ! Drop the longest initial prefix whose
                              ! elements satisfy a predicate.
+  public :: span             ! A combination of take_while and
+                             ! drop_while. See SRFI-1.
+  public :: spanx            ! Like span, but allowed to destroy its
+                             ! inputs.
+  public :: break            ! Like span, but with the sense of the
+                             ! predicate reversed. See SRFI-1.
+  public :: breakx           ! Like break, but allowed to destroy its
+                             ! inputs.
 
   public :: delete           ! Remove all elements that `equal' a
                              ! given value. (SRFI-1 `delete' has a
@@ -15012,14 +15020,14 @@ contains
        lst_tw = nil
     else
        block
-         type(gcroot_t) :: lst1
+         type(gcroot_t) :: lst_root
          class(*), allocatable :: last_true
          class(*), allocatable :: first_false
 
-         lst1 = lst
-         call take_trues_destructively (pred, .val. lst1, last_true, first_false)
+         lst_root = lst
+         call take_trues_destructively (pred, .val. lst_root, last_true, first_false)
          call set_cdr (last_true, nil)
-         lst_tw = .tocons. lst1
+         lst_tw = .tocons. lst_root
        end block
     end if
   end function take_whilex
@@ -15035,17 +15043,125 @@ contains
        lst_tw = nil
     else
        block
-         type(gcroot_t) :: lst1
+         type(gcroot_t) :: lst_root
          class(*), allocatable :: trues
          class(*), allocatable :: last_true
          class(*), allocatable :: first_false
 
-         lst1 = lst
-         call take_trues_nondestructively (pred, .val. lst1, trues, last_true, first_false)
+         lst_root = lst
+         call take_trues_nondestructively (pred, .val. lst_root, trues, last_true, first_false)
          lst_tw = .tocons. trues
        end block
     end if
   end function take_while
+
+  recursive subroutine spanx (pred, lst, lst1, lst2)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t), intent(out) :: lst1
+    type(cons_t), intent(out) :: lst2
+
+    if (is_nil_list (lst)) then
+       lst1 = nil
+       lst2 = nil
+    else if (.not. pred (car (lst))) then
+       lst1 = nil
+       lst2 = .tocons. lst
+    else
+       block
+         type(gcroot_t) :: lst_root
+         class(*), allocatable :: last_true
+         class(*), allocatable :: first_false
+
+         lst_root = lst
+         call take_trues_destructively (pred, .val. lst_root, last_true, first_false)
+         call set_cdr (last_true, nil)
+         lst1 = .tocons. lst_root
+         lst2 = .tocons. first_false
+       end block
+    end if
+  end subroutine spanx
+
+  recursive subroutine span (pred, lst, lst1, lst2)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t), intent(out) :: lst1
+    type(cons_t), intent(out) :: lst2
+
+    if (is_nil_list (lst)) then
+       lst1 = nil
+       lst2 = nil
+    else if (.not. pred (car (lst))) then
+       lst1 = nil
+       lst2 = .tocons. lst
+    else
+       block
+         type(gcroot_t) :: lst_root
+         class(*), allocatable :: trues
+         class(*), allocatable :: last_true
+         class(*), allocatable :: first_false
+
+         lst_root = lst
+         call take_trues_nondestructively (pred, .val. lst_root, trues, last_true, first_false)
+         lst1 = .tocons. trues
+         lst2 = .tocons. first_false
+       end block
+    end if
+  end subroutine span
+
+  recursive subroutine breakx (pred, lst, lst1, lst2)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t), intent(out) :: lst1
+    type(cons_t), intent(out) :: lst2
+
+    if (is_nil_list (lst)) then
+       lst1 = nil
+       lst2 = nil
+    else if (pred (car (lst))) then
+       lst1 = .tocons. lst
+       lst2 = nil
+    else
+       block
+         type(gcroot_t) :: lst_root
+         class(*), allocatable :: last_false
+         class(*), allocatable :: first_true
+
+         lst_root = lst
+         call take_falses_destructively (pred, .val. lst_root, last_false, first_true)
+         call set_cdr (last_false, nil)
+         lst1 = .tocons. lst_root
+         lst2 = .tocons. first_true
+       end block
+    end if
+  end subroutine breakx
+
+  recursive subroutine break (pred, lst, lst1, lst2)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t), intent(out) :: lst1
+    type(cons_t), intent(out) :: lst2
+
+    if (is_nil_list (lst)) then
+       lst1 = nil
+       lst2 = nil
+    else if (pred (car (lst))) then
+       lst1 = .tocons. lst
+       lst2 = nil
+    else
+       block
+         type(gcroot_t) :: lst_root
+         class(*), allocatable :: falses
+         class(*), allocatable :: last_false
+         class(*), allocatable :: first_true
+
+         lst_root = lst
+         call take_falses_nondestructively (pred, .val. lst_root, falses, last_false, first_true)
+         lst1 = .tocons. falses
+         lst2 = .tocons. first_true
+       end block
+    end if
+  end subroutine break
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

@@ -2673,7 +2673,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     call check (list_equal (int_eq, take_whilex (is_even, list ()), list ()), "test0490-0090 failed")
     call check (list_equal (int_eq, take_while (is_even, list ()), list ()), "test0490-0100 failed")
-    
+
   contains
 
     function is_even (x) result (bool)
@@ -2683,6 +2683,71 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     end function is_even
 
   end subroutine test0490
+
+  subroutine test0500
+    type(gcroot_t) :: lst
+    type(cons_t) :: lst1, lst2
+
+    ! An example from SRFI-1.
+    lst = list (2, 18, 3, 10, 22, 9)
+    call span (is_even, lst, lst1, lst2)
+    call check (list_equal (int_eq, lst, list (2, 18, 3, 10, 22, 9)), "test0500-0010 failed")
+    call check (list_equal (int_eq, lst1, list (2, 18)), "test0500-0020 failed")
+    call check (list_equal (int_eq, lst2, list (3, 10, 22, 9)), "test0500-0030 failed")
+    call spanx (is_even, lst, lst1, lst2)
+    call check (list_equal (int_eq, lst1, list (2, 18)), "test0500-0040 failed")
+    call check (list_equal (int_eq, lst2, list (3, 10, 22, 9)), "test0500-0050 failed")
+
+    ! An example from SRFI-1.
+    lst = list (3, 1, 4, 1, 5, 9)
+    call break (is_even, lst, lst1, lst2)
+    call check (list_equal (int_eq, lst, list (3, 1, 4, 1, 5, 9)), "test0500-0110 failed")
+    call check (list_equal (int_eq, lst1, list (3, 1)), "test0500-0120 failed")
+    call check (list_equal (int_eq, lst2, list (4, 1, 5, 9)), "test0500-0130 failed")
+    call breakx (is_even, lst, lst1, lst2)
+    call check (list_equal (int_eq, lst1, list (3, 1)), "test0500-0140 failed")
+    call check (list_equal (int_eq, lst2, list (4, 1, 5, 9)), "test0500-0150 failed")
+
+    lst = list (2, 18, 3, 10, 22, 9)
+    call break (is_even, lst, lst1, lst2)
+    call check (list_equal (int_eq, lst, list (2, 18, 3, 10, 22, 9)), "test0500-0210 failed")
+    call check (list_equal (int_eq, lst1, list (2, 18, 3, 10, 22, 9)), "test0500-0220 failed")
+    call check (list_equal (int_eq, lst2, list ()), "test0500-0230 failed")
+    call breakx (is_even, lst, lst1, lst2)
+    call check (list_equal (int_eq, lst1, list (2, 18, 3, 10, 22, 9)), "test0500-0240 failed")
+    call check (list_equal (int_eq, lst2, list ()), "test0500-0250 failed")
+
+    lst = list (3, 1, 4, 1, 5, 9)
+    call span (is_even, lst, lst1, lst2)
+    call check (list_equal (int_eq, lst, list (3, 1, 4, 1, 5, 9)), "test0500-0310 failed")
+    call check (list_equal (int_eq, lst1, list ()), "test0500-0320 failed")
+    call check (list_equal (int_eq, lst2, list (3, 1, 4, 1, 5, 9)), "test0500-0330 failed")
+    call spanx (is_even, lst, lst1, lst2)
+    call check (list_equal (int_eq, lst1, list ()), "test0500-0340 failed")
+    call check (list_equal (int_eq, lst2, list (3, 1, 4, 1, 5, 9)), "test0500-0350 failed")
+
+    call span (is_even, nil, lst1, lst2)
+    call check (is_nil (lst1), "test0500-0400 failed")
+    call check (is_nil (lst2), "test0500-0410 failed")
+    call spanx (is_even, nil, lst1, lst2)
+    call check (is_nil (lst1), "test0500-0420 failed")
+    call check (is_nil (lst2), "test0500-0430 failed")
+    call break (is_even, nil, lst1, lst2)
+    call check (is_nil (lst1), "test0500-0440 failed")
+    call check (is_nil (lst2), "test0500-0450 failed")
+    call breakx (is_even, nil, lst1, lst2)
+    call check (is_nil (lst1), "test0500-0460 failed")
+    call check (is_nil (lst2), "test0500-0470 failed")
+
+  contains
+
+    function is_even (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+      bool = (mod (int_cast (x), 2) == 0)
+    end function is_even
+
+  end subroutine test0500
 
   subroutine run_tests
     heap_size_limit = 0
@@ -2743,6 +2808,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0470
     call test0480
     call test0490
+    call test0500
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
