@@ -14882,8 +14882,8 @@ contains
              call attach_trues_to_retval_f
              if (is_not_pair (first_false)) then
                 ! lst ends on a run of trues. The run of trues will be
-                ! a shared tail. The falses get terminated with a nil.
-                call terminate_retval_r
+                ! a shared tail. (Unlike in partitionx, the falses are
+                ! already terminated with a nil.)
                 done = .true.
              else
                 last_true1 = last_true2
@@ -14895,9 +14895,8 @@ contains
              call attach_falses_to_retval_r
              if (is_not_pair (first_true)) then
                 ! lst ends on a run of falses. The run of falses will
-                ! be a shared tail. The trues get terminated with a
-                ! nil.
-                call terminate_retval_f
+                ! be a shared tail. (Unlike in partitionx, the trues
+                ! are already terminated with a nil.)
                 done = .true.
              else
                 last_false1 = last_false2
@@ -14933,19 +14932,6 @@ contains
          call set_cdr (last_false1, falses)
       end if
     end subroutine attach_falses_to_retval_r
-
-    subroutine terminate_retval_f
-      if (is_not_nil (retval_f)) then
-         ! Terminate the list of trues.
-         call set_cdr (last_true1, nil)
-      end if
-    end subroutine terminate_retval_f
-
-    subroutine terminate_retval_r
-      if (is_not_nil (retval_r)) then
-         call set_cdr (last_false1, nil)
-      end if
-    end subroutine terminate_retval_r
 
   end subroutine partition
 
