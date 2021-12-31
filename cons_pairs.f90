@@ -588,6 +588,12 @@ module cons_pairs
   public :: deletex          ! Like delete, but allowed to destroy its
                              ! inputs.
 
+  public :: delete_duplicates ! See SRFI-1. (Note that SRFI-1
+                              ! `delete_duplicates' has a different
+                              ! argument order.)
+  !public :: delete_duplicatesx ! Like delete_duplicates, but allowed
+                               ! to destroy is inputs.
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! FOLDS AND UNFOLDS
@@ -15231,6 +15237,62 @@ contains
     call x_root%discard
     call lst_root%discard
   end function delete
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function delete_duplicates (pred, lst) result (lst_dd)
+    !
+    ! This implementation, based on the SRFI-1 reference
+    ! implementation, is non-tail recursive and uses up stack
+    ! space. However, this is not a major problem: the function is
+    ! specified to be O(n**2) and so is unsuitable for long lists,
+    ! anyway.
+    !
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_dd
+
+    type(gcroot_t) :: lst_root
+
+    lst_root = lst
+    lst_dd = recursion (lst_root)
+
+  contains
+
+    recursive function recursion (lst) result (lst_dd)
+      type(gcroot_t), intent(in) :: lst
+      type(cons_t) :: lst_dd
+
+      class(*), allocatable :: x
+      class(*), allocatable :: tail
+      type(gcroot_t) :: deletion_result
+      type(gcroot_t) :: new_tail
+
+      if (is_nil_list (lst)) then
+         lst_dd = .tocons. lst
+      else
+         call uncons (lst, x, tail)
+         deletion_result = delete (pred, x, tail)
+         new_tail = recursion (deletion_result)
+         if (cons_t_eq (.tocons. tail, .tocons. new_tail)) then
+            lst_dd = .tocons. lst
+         else
+            lst_dd = cons (x, new_tail)
+         end if
+      end if
+    end function recursion
+
+  end function delete_duplicates
+
+!!$(define (delete-duplicates lis . maybe-=)
+!!$  (let ((elt= (:optional maybe-= equal?)))
+!!$    (check-arg procedure? elt= delete-duplicates)
+!!$    (let recur ((lis lis))
+!!$      (if (null-list? lis) lis
+!!$	  (let* ((x (car lis))
+!!$		     (tail (cdr lis))
+!!$		     (new-tail (recur (delete x tail elt=))))
+!!$	    (if (eq? tail new-tail) lis (cons x new-tail)))))))
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

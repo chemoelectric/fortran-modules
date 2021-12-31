@@ -2538,6 +2538,26 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (delete (int_eq, 1, 1) .eqi. 1, "test0430-0120 failed")
   end subroutine test0430
 
+  subroutine test0440
+    ! FIXME: Put delete_duplicatesx here.
+  end subroutine test0440
+
+  subroutine test0450
+    !
+    ! FIXME: Add tests that the inputs are not destroyed.
+    !
+    ! FIXME: Test that the shared-tail mechanism works.
+    !
+    call check (list_equal (int_eq, delete_duplicates (int_eq, list (1, 2, 1, 3, 1, 4, 1)), list (1, 2, 3, 4)), &
+         "test0450-0010 failed")
+    call check (list_equal (int_eq, delete_duplicates (int_eq, list (1, 2, 1, 2, 1, 2, 1)), list (1, 2)), &
+         "test0450-0020 failed")
+    call check (list_equal (int_eq, delete_duplicates (int_eq, list ()), list ()), "test0450-0030 failed")
+    call check (list_equal (int_eq, delete_duplicates (int_eq, list (1)), list (1)), "test0450-0040 failed")
+    call check (list_equal (int_eq, delete_duplicates (int_eq, list (1, 1)), list (1)), "test0450-0050 failed")
+    call check (list_equal (int_eq, delete_duplicates (int_eq, make_list (500, 1)), list (1)), "test0450-0060 failed")
+  end subroutine test0450
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -2591,6 +2611,8 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0410
     call test0420
     call test0430
+    call test0440
+    call test0450
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
