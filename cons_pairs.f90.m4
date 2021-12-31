@@ -2840,7 +2840,7 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
 
 m4_forloop([k],[1],n,[dnl
-    tail[]k = lst[]k
+    tail[]k = .autoval. lst[]k
 ])dnl
 
     call skip_falses (proc_result1)

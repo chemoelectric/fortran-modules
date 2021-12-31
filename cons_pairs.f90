@@ -11771,7 +11771,7 @@ contains
 
     lst1_root = lst1
 
-    tail1 = lst1
+    tail1 = .autoval. lst1
 
     call skip_falses (proc_result1)
     if (all_done) then
@@ -11847,8 +11847,8 @@ contains
     lst1_root = lst1
     lst2_root = lst2
 
-    tail1 = lst1
-    tail2 = lst2
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
 
     call skip_falses (proc_result1)
     if (all_done) then
@@ -11933,9 +11933,9 @@ contains
     lst2_root = lst2
     lst3_root = lst3
 
-    tail1 = lst1
-    tail2 = lst2
-    tail3 = lst3
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
 
     call skip_falses (proc_result1)
     if (all_done) then
@@ -12029,10 +12029,10 @@ contains
     lst3_root = lst3
     lst4_root = lst4
 
-    tail1 = lst1
-    tail2 = lst2
-    tail3 = lst3
-    tail4 = lst4
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
 
     call skip_falses (proc_result1)
     if (all_done) then
@@ -12135,11 +12135,11 @@ contains
     lst4_root = lst4
     lst5_root = lst5
 
-    tail1 = lst1
-    tail2 = lst2
-    tail3 = lst3
-    tail4 = lst4
-    tail5 = lst5
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
 
     call skip_falses (proc_result1)
     if (all_done) then
@@ -12252,12 +12252,12 @@ contains
     lst5_root = lst5
     lst6_root = lst6
 
-    tail1 = lst1
-    tail2 = lst2
-    tail3 = lst3
-    tail4 = lst4
-    tail5 = lst5
-    tail6 = lst6
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
 
     call skip_falses (proc_result1)
     if (all_done) then
@@ -12380,13 +12380,13 @@ contains
     lst6_root = lst6
     lst7_root = lst7
 
-    tail1 = lst1
-    tail2 = lst2
-    tail3 = lst3
-    tail4 = lst4
-    tail5 = lst5
-    tail6 = lst6
-    tail7 = lst7
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
 
     call skip_falses (proc_result1)
     if (all_done) then
@@ -12518,14 +12518,14 @@ contains
     lst7_root = lst7
     lst8_root = lst8
 
-    tail1 = lst1
-    tail2 = lst2
-    tail3 = lst3
-    tail4 = lst4
-    tail5 = lst5
-    tail6 = lst6
-    tail7 = lst7
-    tail8 = lst8
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
 
     call skip_falses (proc_result1)
     if (all_done) then
@@ -12666,15 +12666,15 @@ contains
     lst8_root = lst8
     lst9_root = lst9
 
-    tail1 = lst1
-    tail2 = lst2
-    tail3 = lst3
-    tail4 = lst4
-    tail5 = lst5
-    tail6 = lst6
-    tail7 = lst7
-    tail8 = lst8
-    tail9 = lst9
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
 
     call skip_falses (proc_result1)
     if (all_done) then
@@ -12824,16 +12824,16 @@ contains
     lst9_root = lst9
     lst10_root = lst10
 
-    tail1 = lst1
-    tail2 = lst2
-    tail3 = lst3
-    tail4 = lst4
-    tail5 = lst5
-    tail6 = lst6
-    tail7 = lst7
-    tail8 = lst8
-    tail9 = lst9
-    tail10 = lst10
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
 
     call skip_falses (proc_result1)
     if (all_done) then
