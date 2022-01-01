@@ -468,6 +468,29 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: delete_duplicatesx ! Like delete_duplicates, but allowed
                                ! to destroy is inputs.
 
+  ! SRFI-1 `any' has been renamed `some' here, to avoid conflict with
+  ! the Fortran intrinsic function `any'. Also it returns specifically
+  ! a logical value, .true. or .false. The SRFI-1 behavior is
+  ! available as `some_map' (by analogy to `filter_map').
+  public :: some             ! Generic function: applies a predicate
+                             ! across lists, returning .true. if the
+                             ! predicate returns .true. on any
+                             ! application.
+  public :: some_map         ! Generic function: applies a mapping
+                             ! procedure across lists, returning the
+                             ! result of the mapping the first time it
+                             ! comes out as a value other than .false.
+
+  ! Implementations of `some'.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: some[]n
+])dnl
+
+  ! Implementations of `some_map'.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: some_map[]n[]_subr
+])dnl
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! FOLDS AND UNFOLDS
@@ -831,6 +854,18 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure pair_for_each[]n[]
 ])dnl
   end interface pair_for_each
+
+  interface some
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure some[]n
+])dnl
+  end interface some
+
+  interface some_map
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure some_map[]n[]_subr
+])dnl
+  end interface some_map
 
   interface fold
 m4_forloop([n],[1],ZIP_MAX,[dnl
@@ -4462,6 +4497,106 @@ m4_define([m4_delete_duplicates],[dnl
 
 m4_delete_duplicates([delete_duplicatesx],[deletex])
 m4_delete_duplicates([delete_duplicates],[delete])
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function some[]n (pred, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])lst[]k])) result (bool)
+    procedure(list_predicate[]n[]_t) :: pred
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    logical :: bool
+
+    logical :: done
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable :: head[]k, tail[]k
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: lst[]k[]_root
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    lst[]k[]_root = lst[]k
+])dnl
+
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+m4_forloop([k],[2],n,[dnl
+       else if (is_nil_list (lst[]k[]_root)) then
+          done = .true.
+])dnl
+       else
+m4_forloop([k],[1],n,[dnl
+          call uncons (lst[]k[]_root, head[]k, tail[]k)
+])dnl
+          if (pred (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+               ])head[]k]))) then
+             bool = .true.
+             done = .true.
+          else
+m4_forloop([k],[1],n,[dnl
+             lst[]k[]_root = tail[]k
+])dnl
+          end if
+       end if
+    end do
+  end function some[]n
+
+])dnl
+dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function some_map[]n[]_subr (proc, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])lst[]k])) result (retval)
+    procedure(list_map[]n[]_subr_t) :: proc
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    class(*), allocatable :: retval
+
+    logical :: done
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable :: head[]k, tail[]k
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: lst[]k[]_root
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    lst[]k[]_root = lst[]k
+])dnl
+
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+m4_forloop([k],[2],n,[dnl
+       else if (is_nil_list (lst[]k[]_root)) then
+          done = .true.
+])dnl
+       else
+m4_forloop([k],[1],n,[dnl
+          call uncons (lst[]k[]_root, head[]k, tail[]k)
+])dnl
+          call proc (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+               ])head[]k]), retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+m4_forloop([k],[1],n,[dnl
+             lst[]k[]_root = tail[]k
+])dnl
+          end if
+       end if
+    end do
+  end function some_map[]n[]_subr
+
+])dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

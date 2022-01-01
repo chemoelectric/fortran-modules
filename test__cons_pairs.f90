@@ -3210,6 +3210,42 @@ contains
 
   end subroutine test0510
 
+  subroutine test0520
+
+    call check (.not. some (is_even, iota (100, 1, 2)), "test0520-0010 failed")
+    call check (some (is_even, append (iota (100, 1, 2), iota (100, 2, 2))), "test0520-0020 failed")
+    call check (.not. some (is_even, nil), "test0520-0030 failed")
+
+  contains
+
+    function is_even (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+      bool = (mod (int_cast (x), 2) == 0)
+    end function is_even
+
+  end subroutine test0520
+
+  subroutine test0530
+
+    call check (is_false (some_map (return_if_even, iota (100, 1, 2))), "test0530-0010 failed")
+    call check (some_map (return_if_even, append (iota (100, 1, 2), iota (100, 20, 20))) .eqi. 20, "test0530-0020 failed")
+    call check (is_false (some_map (return_if_even, nil)), "test0530-0030 failed")
+
+  contains
+
+    subroutine return_if_even (x, retval)
+      class(*), intent(in) :: x
+      class(*), allocatable, intent(out) :: retval
+      if (mod (int_cast (x), 2) == 0) then
+         retval = x
+      else
+         retval = .false.
+      end if
+    end subroutine return_if_even
+
+  end subroutine test0530
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -3275,6 +3311,8 @@ contains
     call test0490
     call test0500
     call test0510
+    call test0520
+    call test0530
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

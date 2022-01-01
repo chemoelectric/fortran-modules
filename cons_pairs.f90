@@ -643,6 +643,43 @@ module cons_pairs
   public :: delete_duplicatesx ! Like delete_duplicates, but allowed
                                ! to destroy is inputs.
 
+  ! SRFI-1 `any' has been renamed `some' here, to avoid conflict with
+  ! the Fortran intrinsic function `any'. Also it returns specifically
+  ! a logical value, .true. or .false. The SRFI-1 behavior is
+  ! available as `some_map' (by analogy to `filter_map').
+  public :: some             ! Generic function: applies a predicate
+                             ! across lists, returning .true. if the
+                             ! predicate returns .true. on any
+                             ! application.
+  public :: some_map         ! Generic function: applies a mapping
+                             ! procedure across lists, returning the
+                             ! result of the mapping the first time it
+                             ! comes out as a value other than .false.
+
+  ! Implementations of `some'.
+  public :: some1
+  public :: some2
+  public :: some3
+  public :: some4
+  public :: some5
+  public :: some6
+  public :: some7
+  public :: some8
+  public :: some9
+  public :: some10
+
+  ! Implementations of `some_map'.
+  public :: some_map1_subr
+  public :: some_map2_subr
+  public :: some_map3_subr
+  public :: some_map4_subr
+  public :: some_map5_subr
+  public :: some_map6_subr
+  public :: some_map7_subr
+  public :: some_map8_subr
+  public :: some_map9_subr
+  public :: some_map10_subr
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! FOLDS AND UNFOLDS
@@ -1551,6 +1588,32 @@ module cons_pairs
      module procedure pair_for_each9
      module procedure pair_for_each10
   end interface pair_for_each
+
+  interface some
+     module procedure some1
+     module procedure some2
+     module procedure some3
+     module procedure some4
+     module procedure some5
+     module procedure some6
+     module procedure some7
+     module procedure some8
+     module procedure some9
+     module procedure some10
+  end interface some
+
+  interface some_map
+     module procedure some_map1_subr
+     module procedure some_map2_subr
+     module procedure some_map3_subr
+     module procedure some_map4_subr
+     module procedure some_map5_subr
+     module procedure some_map6_subr
+     module procedure some_map7_subr
+     module procedure some_map8_subr
+     module procedure some_map9_subr
+     module procedure some_map10_subr
+  end interface some_map
 
   interface fold
      module procedure fold1_subr
@@ -15781,6 +15844,1308 @@ contains
     end function recursion
 
   end function delete_duplicates
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function some1 (pred, lst1) result (bool)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst1
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    type(gcroot_t) :: lst1_root
+
+    lst1_root = lst1
+
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          if (pred (head1)) then
+             bool = .true.
+             done = .true.
+          else
+             lst1_root = tail1
+          end if
+       end if
+    end do
+  end function some1
+
+  recursive function some2 (pred, lst1, lst2) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          if (pred (head1, head2)) then
+             bool = .true.
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+          end if
+       end if
+    end do
+  end function some2
+
+  recursive function some3 (pred, lst1, lst2, lst3) result (bool)
+    procedure(list_predicate3_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          if (pred (head1, head2, head3)) then
+             bool = .true.
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+          end if
+       end if
+    end do
+  end function some3
+
+  recursive function some4 (pred, lst1, lst2, lst3, lst4) result (bool)
+    procedure(list_predicate4_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          if (pred (head1, head2, head3, head4)) then
+             bool = .true.
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+          end if
+       end if
+    end do
+  end function some4
+
+  recursive function some5 (pred, lst1, lst2, lst3, lst4, lst5) result (bool)
+    procedure(list_predicate5_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          if (pred (head1, head2, head3, head4, head5)) then
+             bool = .true.
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+          end if
+       end if
+    end do
+  end function some5
+
+  recursive function some6 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (bool)
+    procedure(list_predicate6_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6)) then
+             bool = .true.
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+          end if
+       end if
+    end do
+  end function some6
+
+  recursive function some7 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (bool)
+    procedure(list_predicate7_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else if (is_nil_list (lst7_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          call uncons (lst7_root, head7, tail7)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7)) then
+             bool = .true.
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+             lst7_root = tail7
+          end if
+       end if
+    end do
+  end function some7
+
+  recursive function some8 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (bool)
+    procedure(list_predicate8_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else if (is_nil_list (lst7_root)) then
+          done = .true.
+       else if (is_nil_list (lst8_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          call uncons (lst7_root, head7, tail7)
+          call uncons (lst8_root, head8, tail8)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8)) then
+             bool = .true.
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+             lst7_root = tail7
+             lst8_root = tail8
+          end if
+       end if
+    end do
+  end function some8
+
+  recursive function some9 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (bool)
+    procedure(list_predicate9_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else if (is_nil_list (lst7_root)) then
+          done = .true.
+       else if (is_nil_list (lst8_root)) then
+          done = .true.
+       else if (is_nil_list (lst9_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          call uncons (lst7_root, head7, tail7)
+          call uncons (lst8_root, head8, tail8)
+          call uncons (lst9_root, head9, tail9)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9)) then
+             bool = .true.
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+             lst7_root = tail7
+             lst8_root = tail8
+             lst9_root = tail9
+          end if
+       end if
+    end do
+  end function some9
+
+  recursive function some10 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (bool)
+    procedure(list_predicate10_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else if (is_nil_list (lst7_root)) then
+          done = .true.
+       else if (is_nil_list (lst8_root)) then
+          done = .true.
+       else if (is_nil_list (lst9_root)) then
+          done = .true.
+       else if (is_nil_list (lst10_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          call uncons (lst7_root, head7, tail7)
+          call uncons (lst8_root, head8, tail8)
+          call uncons (lst9_root, head9, tail9)
+          call uncons (lst10_root, head10, tail10)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10)) then
+             bool = .true.
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+             lst7_root = tail7
+             lst8_root = tail8
+             lst9_root = tail9
+             lst10_root = tail10
+          end if
+       end if
+    end do
+  end function some10
+
+  recursive function some_map1_subr (proc, lst1) result (retval)
+    procedure(list_map1_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    type(gcroot_t) :: lst1_root
+
+    lst1_root = lst1
+
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call proc (head1, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+             lst1_root = tail1
+          end if
+       end if
+    end do
+  end function some_map1_subr
+
+  recursive function some_map2_subr (proc, lst1, lst2) result (retval)
+    procedure(list_map2_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call proc (head1, head2, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+          end if
+       end if
+    end do
+  end function some_map2_subr
+
+  recursive function some_map3_subr (proc, lst1, lst2, lst3) result (retval)
+    procedure(list_map3_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call proc (head1, head2, head3, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+          end if
+       end if
+    end do
+  end function some_map3_subr
+
+  recursive function some_map4_subr (proc, lst1, lst2, lst3, lst4) result (retval)
+    procedure(list_map4_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call proc (head1, head2, head3, head4, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+          end if
+       end if
+    end do
+  end function some_map4_subr
+
+  recursive function some_map5_subr (proc, lst1, lst2, lst3, lst4, lst5) result (retval)
+    procedure(list_map5_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call proc (head1, head2, head3, head4, head5, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+          end if
+       end if
+    end do
+  end function some_map5_subr
+
+  recursive function some_map6_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (retval)
+    procedure(list_map6_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+          end if
+       end if
+    end do
+  end function some_map6_subr
+
+  recursive function some_map7_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (retval)
+    procedure(list_map7_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else if (is_nil_list (lst7_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          call uncons (lst7_root, head7, tail7)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+             lst7_root = tail7
+          end if
+       end if
+    end do
+  end function some_map7_subr
+
+  recursive function some_map8_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (retval)
+    procedure(list_map8_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else if (is_nil_list (lst7_root)) then
+          done = .true.
+       else if (is_nil_list (lst8_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          call uncons (lst7_root, head7, tail7)
+          call uncons (lst8_root, head8, tail8)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+             lst7_root = tail7
+             lst8_root = tail8
+          end if
+       end if
+    end do
+  end function some_map8_subr
+
+  recursive function some_map9_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (retval)
+    procedure(list_map9_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else if (is_nil_list (lst7_root)) then
+          done = .true.
+       else if (is_nil_list (lst8_root)) then
+          done = .true.
+       else if (is_nil_list (lst9_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          call uncons (lst7_root, head7, tail7)
+          call uncons (lst8_root, head8, tail8)
+          call uncons (lst9_root, head9, tail9)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+             lst7_root = tail7
+             lst8_root = tail8
+             lst9_root = tail9
+          end if
+       end if
+    end do
+  end function some_map9_subr
+
+  recursive function some_map10_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (retval)
+    procedure(list_map10_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else if (is_nil_list (lst7_root)) then
+          done = .true.
+       else if (is_nil_list (lst8_root)) then
+          done = .true.
+       else if (is_nil_list (lst9_root)) then
+          done = .true.
+       else if (is_nil_list (lst10_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          call uncons (lst7_root, head7, tail7)
+          call uncons (lst8_root, head8, tail8)
+          call uncons (lst9_root, head9, tail9)
+          call uncons (lst10_root, head10, tail10)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+             lst7_root = tail7
+             lst8_root = tail8
+             lst9_root = tail9
+             lst10_root = tail10
+          end if
+       end if
+    end do
+  end function some_map10_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
