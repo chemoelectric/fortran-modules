@@ -1,6 +1,6 @@
 ! -*- F90 -*- 
 !
-! Copyright 2021 Barry Schwartz
+! Copyright 2021, 2022 Barry Schwartz
 !
 ! Permission is hereby granted, free of charge, to any person
 ! obtaining a copy of this software and associated documentation files
@@ -352,7 +352,9 @@ module cons_pairs
   public :: take_right       ! Return a common tail containing the last n elements of a list.
   public :: drop_right       ! Return a freshly allocated copy of all but the last n elements of a list.
   public :: drop_rightx      ! Like drop_right, but allowed to destroy its inputs.
-  public :: split_at         ! Do both take and drop, at the same time.
+  public :: do_split_at      ! Do both take and drop, at the same time. (Subroutine version.)
+  public :: do_split_atx     ! Like split_at, but allowed to destroy its inputs.
+  public :: split_at         ! Do both take and drop, at the same time. (Function version.)
   public :: split_atx        ! Like split_at, but allowed to destroy its inputs.
 
   ! Implementations for INTEGER(int64).
@@ -362,6 +364,8 @@ module cons_pairs
   public :: take_right_size_kind
   public :: drop_right_size_kind
   public :: drop_rightx_size_kind
+  public :: do_split_at_size_kind
+  public :: do_split_atx_size_kind
   public :: split_at_size_kind
   public :: split_atx_size_kind
 
@@ -372,6 +376,8 @@ module cons_pairs
   public :: take_right_int
   public :: drop_right_int
   public :: drop_rightx_int
+  public :: do_split_at_int
+  public :: do_split_atx_int
   public :: split_at_int
   public :: split_atx_int
 
@@ -1210,10 +1216,20 @@ module cons_pairs
      module procedure drop_rightx_int
   end interface drop_rightx
 
+  interface do_split_at
+     module procedure do_split_at_size_kind
+     module procedure do_split_at_int
+  end interface do_split_at
+
   interface split_at
      module procedure split_at_size_kind
      module procedure split_at_int
   end interface split_at
+
+  interface do_split_atx
+     module procedure do_split_atx_size_kind
+     module procedure do_split_atx_int
+  end interface do_split_atx
 
   interface split_atx
      module procedure split_atx_size_kind
@@ -8439,7 +8455,7 @@ contains
     lst_dr = drop_rightx_size_kind (lst, nn)
   end function drop_rightx_int
 
-  subroutine split_at_size_kind (lst, n, lst_left, lst_right)
+  subroutine do_split_at_size_kind (lst, n, lst_left, lst_right)
     !
     ! If n is positive, then lst must be a CONS-pair.
     !
@@ -8489,9 +8505,28 @@ contains
           call error_abort ("positive split_at of an object with no pairs")
        end select
     end if
-  end subroutine split_at_size_kind
+  end subroutine do_split_at_size_kind
 
-  subroutine split_at_int (lst, n, lst_left, lst_right)
+  function split_at_size_kind (lst, n) result (retval)
+    !
+    ! Returns list (lst_left, lst_right).
+    !
+    ! If n is positive, then lst must be a CONS-pair.
+    !
+    ! If lst is dotted, then lst_right will be dotted.
+    !
+    class(*), intent(in) :: lst
+    integer(sz), intent(in) :: n
+    type(cons_t) :: retval
+
+    type(cons_t) :: lst_left
+    class(*), allocatable :: lst_right
+
+    call do_split_at_size_kind (lst, n, lst_left, lst_right)
+    retval = lst_left ** lst_right ** nil
+  end function split_at_size_kind
+
+  subroutine do_split_at_int (lst, n, lst_left, lst_right)
     !
     ! If n is positive, then lst must be a CONS-pair.
     !
@@ -8505,10 +8540,29 @@ contains
     integer(sz) :: nn
 
     nn = n
-    call split_at_size_kind (lst, nn, lst_left, lst_right)
-  end subroutine split_at_int
+    call do_split_at_size_kind (lst, nn, lst_left, lst_right)
+  end subroutine do_split_at_int
 
-  subroutine split_atx_size_kind (lst, n, lst_left, lst_right)
+  function split_at_int (lst, n) result (retval)
+    !
+    ! Returns list (lst_left, lst_right).
+    !
+    ! If n is positive, then lst must be a CONS-pair.
+    !
+    ! If lst is dotted, then lst_right will be dotted.
+    !
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t) :: retval
+
+    type(cons_t) :: lst_left
+    class(*), allocatable :: lst_right
+
+    call do_split_at_int (lst, n, lst_left, lst_right)
+    retval = lst_left ** lst_right ** nil
+  end function split_at_int
+
+  subroutine do_split_atx_size_kind (lst, n, lst_left, lst_right)
     !
     ! If n is positive, then lst must be a CONS-pair.
     !
@@ -8527,7 +8581,7 @@ contains
     else
        lst1 = .autoval. lst
        if (is_not_pair (lst1)) then
-          call error_abort ("positive split_atx of an object with no pairs")
+          call error_abort ("positive do_split_atx of an object with no pairs")
        else
           lst_left = .tocons. lst1
           lst1 = drop (lst_left, n - 1)
@@ -8535,9 +8589,28 @@ contains
           call set_cdr (lst1, nil)
        end if
     end if
-  end subroutine split_atx_size_kind
+  end subroutine do_split_atx_size_kind
 
-  subroutine split_atx_int (lst, n, lst_left, lst_right)
+  function split_atx_size_kind (lst, n) result (retval)
+    !
+    ! Returns list (lst_left, lst_right).
+    !
+    ! If n is positive, then lst must be a CONS-pair.
+    !
+    ! If lst is dotted, then lst_right will be dotted.
+    !
+    class(*), intent(in) :: lst
+    integer(sz), intent(in) :: n
+    type(cons_t) :: retval
+
+    type(cons_t) :: lst_left
+    class(*), allocatable :: lst_right
+
+    call do_split_atx_size_kind (lst, n, lst_left, lst_right)
+    retval = lst_left ** lst_right ** nil
+  end function split_atx_size_kind
+
+  subroutine do_split_atx_int (lst, n, lst_left, lst_right)
     !
     ! If n is positive, then lst must be a CONS-pair.
     !
@@ -8551,8 +8624,27 @@ contains
     integer(sz) :: nn
 
     nn = n
-    call split_atx_size_kind (lst, nn, lst_left, lst_right)
-  end subroutine split_atx_int
+    call do_split_atx_size_kind (lst, nn, lst_left, lst_right)
+  end subroutine do_split_atx_int
+
+  function split_atx_int (lst, n) result (retval)
+    !
+    ! Returns list (lst_left, lst_right).
+    !
+    ! If n is positive, then lst must be a CONS-pair.
+    !
+    ! If lst is dotted, then lst_right will be dotted.
+    !
+    class(*), intent(in) :: lst
+    integer, intent(in) :: n
+    type(cons_t) :: retval
+
+    type(cons_t) :: lst_left
+    class(*), allocatable :: lst_right
+
+    call do_split_atx_int (lst, n, lst_left, lst_right)
+    retval = lst_left ** lst_right ** nil
+  end function split_atx_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

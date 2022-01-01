@@ -1,6 +1,6 @@
 ! -*- F90 -*- include(`common-macros.m4')m4_include([cadadr.m4])
 !
-! Copyright 2021 Barry Schwartz
+! Copyright 2021, 2022 Barry Schwartz
 !
 ! Permission is hereby granted, free of charge, to any person
 ! obtaining a copy of this software and associated documentation files
@@ -719,72 +719,212 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     type(cons_t) :: lst_left
     class(*), allocatable :: lst_right
 
-    call split_at (nil, 0_sz, lst_left, lst_right)
+    call do_split_at (nil, 0_sz, lst_left, lst_right)
     call check (is_nil (lst_left), "test0170-0010 failed")
     call check (is_nil (lst_right), "test0170-0020 failed")
 
-    call split_at (list (1, 2, 3), 0_sz, lst_left, lst_right)
+    call do_split_at (list (1, 2, 3), 0_sz, lst_left, lst_right)
     call check (is_nil (lst_left), "test0170-0030 failed")
     call check (list_equal (int_eq, lst_right, list (1, 2, 3)), "test0170-0040 failed")
 
-    call split_at (list (1, 2, 3), 1_sz, lst_left, lst_right)
+    call do_split_at (list (1, 2, 3), 1_sz, lst_left, lst_right)
     call check (list_equal (int_eq, lst_left, list (1)), "test0170-0050 failed")
     call check (list_equal (int_eq, lst_right, list (2, 3)), "test0170-0060 failed")
 
-    call split_at (list (1, 2, 3), 2_sz, lst_left, lst_right)
+    call do_split_at (list (1, 2, 3), 2_sz, lst_left, lst_right)
     call check (list_equal (int_eq, lst_left, list (1, 2)), "test0170-0070 failed")
     call check (list_equal (int_eq, lst_right, list (3)), "test0170-0080 failed")
 
-    call split_at (list (1, 2, 3), 2, lst_left, lst_right)
+    call do_split_at (list (1, 2, 3), 2, lst_left, lst_right)
     call check (list_equal (int_eq, lst_left, list (1, 2)), "test0170-0085 failed")
     call check (list_equal (int_eq, lst_right, list (3)), "test0170-0086 failed")
 
-    call split_at (list (1, 2, 3), 3_sz, lst_left, lst_right)
+    call do_split_at (list (1, 2, 3), 3_sz, lst_left, lst_right)
     call check (list_equal (int_eq, lst_left, list (1, 2, 3)), "test0170-0090 failed")
     call check (is_nil (lst_right), "test0170-0100 failed")
 
-    call split_at (1 ** cons (2, 3), 1_sz, lst_left, lst_right)
+    call do_split_at (1 ** cons (2, 3), 1_sz, lst_left, lst_right)
     call check (list_equal (int_eq, lst_left, list (1)), "test0170-0110 failed")
     call check (car (lst_right) .eqi. 2, "test0170-0120 failed")
     call check (cdr (lst_right) .eqi. 3, "test0170-0130 failed")
 
-    call split_at (1 ** cons (2, 3), 2_sz, lst_left, lst_right)
+    call do_split_at (1 ** cons (2, 3), 2_sz, lst_left, lst_right)
     call check (list_equal (int_eq, lst_left, list (1, 2)), "test0170-0140 failed")
     call check (lst_right .eqi. 3, "test0170-0150 failed")
 
-    call split_atx (nil, 0_sz, lst_left, lst_right)
+    call do_split_atx (nil, 0_sz, lst_left, lst_right)
     call check (is_nil (lst_left), "test0170-1010 failed")
     call check (is_nil (lst_right), "test0170-1020 failed")
 
-    call split_atx (list (1, 2, 3), 0_sz, lst_left, lst_right)
+    call do_split_atx (list (1, 2, 3), 0_sz, lst_left, lst_right)
     call check (is_nil (lst_left), "test0170-1030 failed")
     call check (list_equal (int_eq, lst_right, list (1, 2, 3)), "test0170-1040 failed")
 
-    call split_atx (list (1, 2, 3), 1_sz, lst_left, lst_right)
+    call do_split_atx (list (1, 2, 3), 1_sz, lst_left, lst_right)
     call check (list_equal (int_eq, lst_left, list (1)), "test0170-1050 failed")
     call check (list_equal (int_eq, lst_right, list (2, 3)), "test0170-1060 failed")
 
-    call split_atx (list (1, 2, 3), 2_sz, lst_left, lst_right)
+    call do_split_atx (list (1, 2, 3), 2_sz, lst_left, lst_right)
     call check (list_equal (int_eq, lst_left, list (1, 2)), "test0170-1070 failed")
     call check (list_equal (int_eq, lst_right, list (3)), "test0170-1080 failed")
 
-    call split_atx (list (1, 2, 3), 2, lst_left, lst_right)
+    call do_split_atx (list (1, 2, 3), 2, lst_left, lst_right)
     call check (list_equal (int_eq, lst_left, list (1, 2)), "test0170-1085 failed")
     call check (list_equal (int_eq, lst_right, list (3)), "test0170-1086 failed")
 
-    call split_atx (list (1, 2, 3), 3_sz, lst_left, lst_right)
+    call do_split_atx (list (1, 2, 3), 3_sz, lst_left, lst_right)
     call check (list_equal (int_eq, lst_left, list (1, 2, 3)), "test0170-1090 failed")
     call check (is_nil (lst_right), "test0170-1100 failed")
 
-    call split_atx (1 ** cons (2, 3), 1_sz, lst_left, lst_right)
+    call do_split_atx (1 ** cons (2, 3), 1_sz, lst_left, lst_right)
     call check (list_equal (int_eq, lst_left, list (1)), "test0170-1110 failed")
     call check (car (lst_right) .eqi. 2, "test0170-1120 failed")
     call check (cdr (lst_right) .eqi. 3, "test0170-1130 failed")
 
-    call split_atx (1 ** cons (2, 3), 2_sz, lst_left, lst_right)
+    call do_split_atx (1 ** cons (2, 3), 2_sz, lst_left, lst_right)
     call check (list_equal (int_eq, lst_left, list (1, 2)), "test0170-1140 failed")
     call check (lst_right .eqi. 3, "test0170-1150 failed")
   end subroutine test0170
+
+  subroutine test0173
+    type(gcroot_t) :: retval
+
+    retval = split_at (nil, 0_sz)
+    call check (is_nil (first (retval)), "test0173-0010 failed")
+    call check (is_nil (second (retval)), "test0173-0020 failed")
+
+    retval = split_at (list (1, 2, 3), 0_sz)
+    call check (is_nil (first (retval)), "test0173-0030 failed")
+    call check (list_equal (int_eq, second (retval), list (1, 2, 3)), "test0173-0040 failed")
+
+    retval = split_at (list (1, 2, 3), 1_sz)
+    call check (list_equal (int_eq, first (retval), list (1)), "test0173-0050 failed")
+    call check (list_equal (int_eq, second (retval), list (2, 3)), "test0173-0060 failed")
+
+    retval = split_at (list (1, 2, 3), 2_sz)
+    call check (list_equal (int_eq, first (retval), list (1, 2)), "test0173-0070 failed")
+    call check (list_equal (int_eq, second (retval), list (3)), "test0173-0080 failed")
+
+    retval = split_at (list (1, 2, 3), 2)
+    call check (list_equal (int_eq, first (retval), list (1, 2)), "test0173-0085 failed")
+    call check (list_equal (int_eq, second (retval), list (3)), "test0173-0086 failed")
+
+    retval = split_at (list (1, 2, 3), 3_sz)
+    call check (list_equal (int_eq, first (retval), list (1, 2, 3)), "test0173-0090 failed")
+    call check (is_nil (second (retval)), "test0173-0100 failed")
+
+    retval = split_at (1 ** cons (2, 3), 1_sz)
+    call check (list_equal (int_eq, first (retval), list (1)), "test0173-0110 failed")
+    call check (car (second (retval)) .eqi. 2, "test0173-0120 failed")
+    call check (cdr (second (retval)) .eqi. 3, "test0173-0130 failed")
+
+    retval = split_at (1 ** cons (2, 3), 2_sz)
+    call check (list_equal (int_eq, first (retval), list (1, 2)), "test0173-0140 failed")
+    call check (second (retval) .eqi. 3, "test0173-0150 failed")
+
+    retval = split_atx (nil, 0_sz)
+    call check (is_nil (first (retval)), "test0173-1010 failed")
+    call check (is_nil (second (retval)), "test0173-1020 failed")
+
+    retval = split_atx (list (1, 2, 3), 0_sz)
+    call check (is_nil (first (retval)), "test0173-1030 failed")
+    call check (list_equal (int_eq, second (retval), list (1, 2, 3)), "test0173-1040 failed")
+
+    retval = split_atx (list (1, 2, 3), 1_sz)
+    call check (list_equal (int_eq, first (retval), list (1)), "test0173-1050 failed")
+    call check (list_equal (int_eq, second (retval), list (2, 3)), "test0173-1060 failed")
+
+    retval = split_atx (list (1, 2, 3), 2_sz)
+    call check (list_equal (int_eq, first (retval), list (1, 2)), "test0173-1070 failed")
+    call check (list_equal (int_eq, second (retval), list (3)), "test0173-1080 failed")
+
+    retval = split_atx (list (1, 2, 3), 2)
+    call check (list_equal (int_eq, first (retval), list (1, 2)), "test0173-1085 failed")
+    call check (list_equal (int_eq, second (retval), list (3)), "test0173-1086 failed")
+
+    retval = split_atx (list (1, 2, 3), 3_sz)
+    call check (list_equal (int_eq, first (retval), list (1, 2, 3)), "test0173-1090 failed")
+    call check (is_nil (second (retval)), "test0173-1100 failed")
+
+    retval = split_atx (1 ** cons (2, 3), 1_sz)
+    call check (list_equal (int_eq, first (retval), list (1)), "test0173-1110 failed")
+    call check (car (second (retval)) .eqi. 2, "test0173-1120 failed")
+    call check (cdr (second (retval)) .eqi. 3, "test0173-1130 failed")
+
+    retval = split_atx (1 ** cons (2, 3), 2_sz)
+    call check (list_equal (int_eq, first (retval), list (1, 2)), "test0173-1140 failed")
+    call check (second (retval) .eqi. 3, "test0173-1150 failed")
+  end subroutine test0173
+
+  subroutine test0176
+    type(gcroot_t) :: retval
+
+    retval = split_at (nil, 0)
+    call check (is_nil (first (retval)), "test0176-0010 failed")
+    call check (is_nil (second (retval)), "test0176-0020 failed")
+
+    retval = split_at (list (1, 2, 3), 0)
+    call check (is_nil (first (retval)), "test0176-0030 failed")
+    call check (list_equal (int_eq, second (retval), list (1, 2, 3)), "test0176-0040 failed")
+
+    retval = split_at (list (1, 2, 3), 1)
+    call check (list_equal (int_eq, first (retval), list (1)), "test0176-0050 failed")
+    call check (list_equal (int_eq, second (retval), list (2, 3)), "test0176-0060 failed")
+
+    retval = split_at (list (1, 2, 3), 2)
+    call check (list_equal (int_eq, first (retval), list (1, 2)), "test0176-0070 failed")
+    call check (list_equal (int_eq, second (retval), list (3)), "test0176-0080 failed")
+
+    retval = split_at (list (1, 2, 3), 2)
+    call check (list_equal (int_eq, first (retval), list (1, 2)), "test0176-0085 failed")
+    call check (list_equal (int_eq, second (retval), list (3)), "test0176-0086 failed")
+
+    retval = split_at (list (1, 2, 3), 3)
+    call check (list_equal (int_eq, first (retval), list (1, 2, 3)), "test0176-0090 failed")
+    call check (is_nil (second (retval)), "test0176-0100 failed")
+
+    retval = split_at (1 ** cons (2, 3), 1)
+    call check (list_equal (int_eq, first (retval), list (1)), "test0176-0110 failed")
+    call check (car (second (retval)) .eqi. 2, "test0176-0120 failed")
+    call check (cdr (second (retval)) .eqi. 3, "test0176-0130 failed")
+
+    retval = split_at (1 ** cons (2, 3), 2)
+    call check (list_equal (int_eq, first (retval), list (1, 2)), "test0176-0140 failed")
+    call check (second (retval) .eqi. 3, "test0176-0150 failed")
+
+    retval = split_atx (nil, 0)
+    call check (is_nil (first (retval)), "test0176-1010 failed")
+    call check (is_nil (second (retval)), "test0176-1020 failed")
+
+    retval = split_atx (list (1, 2, 3), 0)
+    call check (is_nil (first (retval)), "test0176-1030 failed")
+    call check (list_equal (int_eq, second (retval), list (1, 2, 3)), "test0176-1040 failed")
+
+    retval = split_atx (list (1, 2, 3), 1)
+    call check (list_equal (int_eq, first (retval), list (1)), "test0176-1050 failed")
+    call check (list_equal (int_eq, second (retval), list (2, 3)), "test0176-1060 failed")
+
+    retval = split_atx (list (1, 2, 3), 2)
+    call check (list_equal (int_eq, first (retval), list (1, 2)), "test0176-1070 failed")
+    call check (list_equal (int_eq, second (retval), list (3)), "test0176-1080 failed")
+
+    retval = split_atx (list (1, 2, 3), 2)
+    call check (list_equal (int_eq, first (retval), list (1, 2)), "test0176-1085 failed")
+    call check (list_equal (int_eq, second (retval), list (3)), "test0176-1086 failed")
+
+    retval = split_atx (list (1, 2, 3), 3)
+    call check (list_equal (int_eq, first (retval), list (1, 2, 3)), "test0176-1090 failed")
+    call check (is_nil (second (retval)), "test0176-1100 failed")
+
+    retval = split_atx (1 ** cons (2, 3), 1)
+    call check (list_equal (int_eq, first (retval), list (1)), "test0176-1110 failed")
+    call check (car (second (retval)) .eqi. 2, "test0176-1120 failed")
+    call check (cdr (second (retval)) .eqi. 3, "test0176-1130 failed")
+
+    retval = split_atx (1 ** cons (2, 3), 2)
+    call check (list_equal (int_eq, first (retval), list (1, 2)), "test0176-1140 failed")
+    call check (second (retval) .eqi. 3, "test0176-1150 failed")
+  end subroutine test0176
 
   subroutine test0180
     type(gcroot_t) :: lst1, lst2, lst3, lst4, lst5, lst6, lst7, lst8
@@ -2772,6 +2912,8 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0150
     call test0160
     call test0170
+    call test0173
+    call test0176
     call test0180
     call test0190
     call test0195

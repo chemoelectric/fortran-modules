@@ -412,7 +412,6 @@ contains
           deallocate (this%root)
        end select
     end if
-!!$    nullify (this%root)         ! FIXME: IS THIS NEEDED?
   end subroutine gcroot_t_finalize
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
