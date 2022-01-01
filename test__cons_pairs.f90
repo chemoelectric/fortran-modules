@@ -143,6 +143,17 @@ contains
     end select
   end function real_cast
 
+  function logical_cast (obj) result (b)
+    class(*), intent(in) :: obj
+    logical :: b
+    select type (obj)
+    type is (logical)
+       b = obj
+    class default
+       call error_abort ("logical_cast of an incompatible object")
+    end select
+  end function logical_cast
+
   function str_t_cast (obj) result (s)
     class(*), intent(in) :: obj
     type(str_t) :: s
@@ -3264,6 +3275,48 @@ contains
 
   end subroutine test0530
 
+  subroutine test0540
+
+    call check (.not. every (is_even, append (iota (100, 2, 2), iota (100, 1))), "test0540-0010 failed")
+    call check (every (is_even, append (iota (100, 2, 2))), "test0540-0020 failed")
+    call check (every (is_even, nil), "test0540-0030 failed")
+
+  contains
+
+    function is_even (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (mod (int_cast (x), 2) == 0)
+    end function is_even
+
+  end subroutine test0540
+
+  subroutine test0550
+
+    call check (is_false (every_map (return_if_even, append (iota (100, 2, 2), iota (100, 1)))), "test0550-0010 failed")
+    call check (every_map (return_if_even, append (iota (100, 2, 2))) .eqi. 200, "test0550-0020 failed")
+    call check (logical_cast (every_map (return_if_even, nil)), "test0550-0030 failed")
+
+  contains
+
+    subroutine return_if_even (x, retval)
+      class(*), intent(in) :: x
+      class(*), allocatable, intent(out) :: retval
+
+      call collect_garbage_now
+
+      if (mod (int_cast (x), 2) == 0) then
+         retval = x
+      else
+         retval = .false.
+      end if
+    end subroutine return_if_even
+
+  end subroutine test0550
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -3331,6 +3384,8 @@ contains
     call test0510
     call test0520
     call test0530
+    call test0540
+    call test0550
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
