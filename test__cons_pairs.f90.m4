@@ -2439,7 +2439,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   subroutine test0390
     !
-    ! Tests of partitionx.
+    ! Tests of do_partitionx.
     !
 
     type(cons_t) :: lst1, lst2, lst3
@@ -2447,14 +2447,14 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     ! The list is nil.
     lst1 = list ()
-    call partitionx (is_int, lst1, lst_f, lst_r)
+    call do_partitionx (is_int, lst1, lst_f, lst_r)
     lst2 = list ()
     lst3 = list ()
     call check (list_equal (int_eq, lst_f, lst2), "test0390-0010 failed")
     call check (list_equal (real_eq, lst_r, lst3), "test0390-0020 failed")
 
     ! The list is degenerate.
-    call partitionx (is_int, str_t ('abc'), lst_f, lst_r)
+    call do_partitionx (is_int, str_t ('abc'), lst_f, lst_r)
     call check (length (lst_f) == 0, "test0390-0030 failed")
     call check (length (lst_r) == 0, "test0390-0040 failed")
     ! One or the other of the output lists gets the degenerate
@@ -2464,7 +2464,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     ! The entire list is a run of integers.
     lst1 = list (1, 2, 3, 4, 5, 6, 7, 8)
-    call partitionx (is_int, lst1, lst_f, lst_r)
+    call do_partitionx (is_int, lst1, lst_f, lst_r)
     lst2 = list (1, 2, 3, 4, 5, 6, 7, 8)
     lst3 = list ()
     call check (list_equal (int_eq, lst_f, lst2), "test0390-0050 failed")
@@ -2472,7 +2472,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     ! The entire list is a run of reals.
     lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
-    call partitionx (is_int, lst1, lst_f, lst_r)
+    call do_partitionx (is_int, lst1, lst_f, lst_r)
     lst2 = list ()
     lst3 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
     call check (list_equal (int_eq, lst_f, lst2), "test0390-0070 failed")
@@ -2480,7 +2480,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     ! All reals, followed by all integers.
     lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6, 7, 8)
-    call partitionx (is_int, lst1, lst_f, lst_r)
+    call do_partitionx (is_int, lst1, lst_f, lst_r)
     lst2 = list (6, 7, 8)
     lst3 = list (1.0, 2.0, 3.0, 4.0, 5.0)
     call check (list_equal (int_eq, lst_f, lst2), "test0390-0090 failed")
@@ -2488,7 +2488,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     ! All integers, followed by all reals
     lst1 = list (1, 2, 3, 4, 5, 6.0, 7.0, 8.0)
-    call partitionx (is_int, lst1, lst_f, lst_r)
+    call do_partitionx (is_int, lst1, lst_f, lst_r)
     lst2 = list (1, 2, 3, 4, 5)
     lst3 = list (6.0, 7.0, 8.0)
     call check (list_equal (int_eq, lst_f, lst2), "test0390-0110 failed")
@@ -2496,7 +2496,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     ! A mix of reals and integers
     lst1 = list (1, 2.0, 3, 4.0, 5.0, 6, 7, 8)
-    call partitionx (is_int, lst1, lst_f, lst_r)
+    call do_partitionx (is_int, lst1, lst_f, lst_r)
     lst2 = list (1, 3, 6, 7, 8)
     lst3 = list (2.0, 4.0, 5.0)
     call check (list_equal (int_eq, lst_f, lst2), "test0390-0130 failed")
@@ -2504,7 +2504,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     ! A mix of reals and integers
     lst1 = list (1.0, 2, 3.0, 4, 5, 6.0, 7.0, 8.0)
-    call partitionx (is_int, lst1, lst_f, lst_r)
+    call do_partitionx (is_int, lst1, lst_f, lst_r)
     lst2 = list (2, 4, 5)
     lst3 = list (1.0, 3.0, 6.0, 7.0, 8.0)
     call check (list_equal (int_eq, lst_f, lst2), "test0390-0150 failed")
@@ -2528,9 +2528,101 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   end subroutine test0390
 
+  subroutine test0395
+    !
+    ! Tests of partitionx.
+    !
+
+    type(cons_t) :: lst1, lst2, lst3
+    type(gcroot_t) :: retval
+
+    ! The list is nil.
+    lst1 = list ()
+    retval = partitionx (is_int, lst1)
+    lst2 = list ()
+    lst3 = list ()
+    call check (list_equal (int_eq, first (retval), lst2), "test0395-0010 failed")
+    call check (list_equal (real_eq, second (retval), lst3), "test0395-0020 failed")
+
+    ! The list is degenerate.
+    retval = partitionx (is_int, str_t ('abc'))
+    call check (length (first (retval)) == 0, "test0395-0030 failed")
+    call check (length (second (retval)) == 0, "test0395-0040 failed")
+    ! One or the other of the output lists gets the degenerate
+    ! `tail'. Which list gets it is unspecified.
+    call check ((is_nil (first (retval)) .and. is_not_nil (second (retval))) &
+         &        .or. (is_not_nil (first (retval)) .and. is_nil (second (retval))), &
+         "test0395-0045 failed")
+
+    ! The entire list is a run of integers.
+    lst1 = list (1, 2, 3, 4, 5, 6, 7, 8)
+    retval = partitionx (is_int, lst1)
+    lst2 = list (1, 2, 3, 4, 5, 6, 7, 8)
+    lst3 = list ()
+    call check (list_equal (int_eq, first (retval), lst2), "test0395-0050 failed")
+    call check (list_equal (real_eq, second (retval), lst3), "test0395-0060 failed")
+
+    ! The entire list is a run of reals.
+    lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
+    retval = partitionx (is_int, lst1)
+    lst2 = list ()
+    lst3 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
+    call check (list_equal (int_eq, first (retval), lst2), "test0395-0070 failed")
+    call check (list_equal (real_eq, second (retval), lst3), "test0395-0080 failed")
+
+    ! All reals, followed by all integers.
+    lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6, 7, 8)
+    retval = partitionx (is_int, lst1)
+    lst2 = list (6, 7, 8)
+    lst3 = list (1.0, 2.0, 3.0, 4.0, 5.0)
+    call check (list_equal (int_eq, first (retval), lst2), "test0395-0090 failed")
+    call check (list_equal (real_eq, second (retval), lst3), "test0395-0100 failed")
+
+    ! All integers, followed by all reals
+    lst1 = list (1, 2, 3, 4, 5, 6.0, 7.0, 8.0)
+    retval = partitionx (is_int, lst1)
+    lst2 = list (1, 2, 3, 4, 5)
+    lst3 = list (6.0, 7.0, 8.0)
+    call check (list_equal (int_eq, first (retval), lst2), "test0395-0110 failed")
+    call check (list_equal (real_eq, second (retval), lst3), "test0395-0120 failed")
+
+    ! A mix of reals and integers
+    lst1 = list (1, 2.0, 3, 4.0, 5.0, 6, 7, 8)
+    retval = partitionx (is_int, lst1)
+    lst2 = list (1, 3, 6, 7, 8)
+    lst3 = list (2.0, 4.0, 5.0)
+    call check (list_equal (int_eq, first (retval), lst2), "test0395-0130 failed")
+    call check (list_equal (real_eq, second (retval), lst3), "test0395-0140 failed")
+
+    ! A mix of reals and integers
+    lst1 = list (1.0, 2, 3.0, 4, 5, 6.0, 7.0, 8.0)
+    retval = partitionx (is_int, lst1)
+    lst2 = list (2, 4, 5)
+    lst3 = list (1.0, 3.0, 6.0, 7.0, 8.0)
+    call check (list_equal (int_eq, first (retval), lst2), "test0395-0150 failed")
+    call check (list_equal (real_eq, second (retval), lst3), "test0395-0160 failed")
+
+  contains
+
+    recursive function is_int (obj) result (bool)
+      class(*), intent(in) :: obj
+      logical :: bool
+
+      call collect_garbage_now
+
+      select type (obj)
+      type is (integer)
+         bool = .true.
+      class default
+         bool = .false.
+      end select
+    end function is_int
+
+  end subroutine test0395
+
   subroutine test0400
     !
-    ! Tests of partition.
+    ! Tests of do_partition.
     !
 
     type(cons_t) :: lst1, lst2, lst3
@@ -2540,7 +2632,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     ! The list is nil.
     lst1 = list ()
     lst1a = list_copy (lst1)
-    call partition (is_int, lst1, lst_f, lst_r)
+    call do_partition (is_int, lst1, lst_f, lst_r)
     lst2 = list ()
     lst3 = list ()
     call check (list_equal (num_same, lst1, lst1a), "test0400-0005 failed")
@@ -2548,7 +2640,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (list_equal (real_eq, lst_r, lst3), "test0400-0020 failed")
 
     ! The list is degenerate.
-    call partition (is_int, str_t ('abc'), lst_f, lst_r)
+    call do_partition (is_int, str_t ('abc'), lst_f, lst_r)
     call check (length (lst_f) == 0, "test0400-0030 failed")
     call check (length (lst_r) == 0, "test0400-0040 failed")
     ! One or the other of the output lists gets the degenerate
@@ -2559,7 +2651,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     ! The entire list is a run of integers.
     lst1 = list (1, 2, 3, 4, 5, 6, 7, 8)
     lst1a = list_copy (lst1)
-    call partition (is_int, lst1, lst_f, lst_r)
+    call do_partition (is_int, lst1, lst_f, lst_r)
     lst2 = list (1, 2, 3, 4, 5, 6, 7, 8)
     lst3 = list ()
     call check (list_equal (num_same, lst1, lst1a), "test0400-0045 failed")
@@ -2569,7 +2661,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     ! The entire list is a run of reals.
     lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
     lst1a = list_copy (lst1)
-    call partition (is_int, lst1, lst_f, lst_r)
+    call do_partition (is_int, lst1, lst_f, lst_r)
     lst2 = list ()
     lst3 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
     call check (list_equal (num_same, lst1, lst1a), "test0400-0065 failed")
@@ -2579,7 +2671,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     ! All reals, followed by all integers.
     lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6, 7, 8)
     lst1a = list_copy (lst1)
-    call partition (is_int, lst1, lst_f, lst_r)
+    call do_partition (is_int, lst1, lst_f, lst_r)
     lst2 = list (6, 7, 8)
     lst3 = list (1.0, 2.0, 3.0, 4.0, 5.0)
     call check (list_equal (num_same, lst1, lst1a), "test0400-0085 failed")
@@ -2589,7 +2681,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     ! All integers, followed by all reals
     lst1 = list (1, 2, 3, 4, 5, 6.0, 7.0, 8.0)
     lst1a = list_copy (lst1)
-    call partition (is_int, lst1, lst_f, lst_r)
+    call do_partition (is_int, lst1, lst_f, lst_r)
     lst2 = list (1, 2, 3, 4, 5)
     lst3 = list (6.0, 7.0, 8.0)
     call check (list_equal (num_same, lst1, lst1a), "test0400-0105 failed")
@@ -2599,7 +2691,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     ! A mix of reals and integers
     lst1 = list (1, 2.0, 3, 4.0, 5.0, 6, 7, 8)
     lst1a = list_copy (lst1)
-    call partition (is_int, lst1, lst_f, lst_r)
+    call do_partition (is_int, lst1, lst_f, lst_r)
     lst2 = list (1, 3, 6, 7, 8)
     lst3 = list (2.0, 4.0, 5.0)
     call check (list_equal (num_same, lst1, lst1a), "test0400-0125 failed")
@@ -2609,7 +2701,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     ! A mix of reals and integers
     lst1 = list (1.0, 2, 3.0, 4, 5, 6.0, 7.0, 8.0)
     lst1a = list_copy (lst1)
-    call partition (is_int, lst1, lst_f, lst_r)
+    call do_partition (is_int, lst1, lst_f, lst_r)
     lst2 = list (2, 4, 5)
     lst3 = list (1.0, 3.0, 6.0, 7.0, 8.0)
     call check (list_equal (num_same, lst1, lst1a), "test0400-0145 failed")
@@ -2633,6 +2725,113 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     end function is_int
 
   end subroutine test0400
+
+  subroutine test0405
+    !
+    ! Tests of partition.
+    !
+
+    type(cons_t) :: lst1, lst2, lst3
+    type(gcroot_t) :: lst1a
+    type(gcroot_t) :: retval
+
+    ! The list is nil.
+    lst1 = list ()
+    lst1a = list_copy (lst1)
+    retval = partition (is_int, lst1)
+    lst2 = list ()
+    lst3 = list ()
+    call check (list_equal (num_same, lst1, lst1a), "test0405-0005 failed")
+    call check (list_equal (int_eq, first (retval), lst2), "test0405-0010 failed")
+    call check (list_equal (real_eq, second (retval), lst3), "test0405-0020 failed")
+
+    ! The list is degenerate.
+    retval = partition (is_int, str_t ('abc'))
+    call check (length (first (retval)) == 0, "test0405-0030 failed")
+    call check (length (second (retval)) == 0, "test0405-0040 failed")
+    ! One or the other of the output lists gets the degenerate
+    ! `tail'. Which list gets it is unspecified.
+    call check ((is_nil (first (retval)) .and. is_not_nil (second (retval))) &
+         &        .or. (is_not_nil (first (retval)) .and. is_nil (second (retval))), &
+         "test0405-0045 failed")
+
+    ! The entire list is a run of integers.
+    lst1 = list (1, 2, 3, 4, 5, 6, 7, 8)
+    lst1a = list_copy (lst1)
+    retval = partition (is_int, lst1)
+    lst2 = list (1, 2, 3, 4, 5, 6, 7, 8)
+    lst3 = list ()
+    call check (list_equal (num_same, lst1, lst1a), "test0405-0045 failed")
+    call check (list_equal (int_eq, first (retval), lst2), "test0405-0050 failed")
+    call check (list_equal (real_eq, second (retval), lst3), "test0405-0060 failed")
+
+    ! The entire list is a run of reals.
+    lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
+    lst1a = list_copy (lst1)
+    retval = partition (is_int, lst1)
+    lst2 = list ()
+    lst3 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
+    call check (list_equal (num_same, lst1, lst1a), "test0405-0065 failed")
+    call check (list_equal (int_eq, first (retval), lst2), "test0405-0070 failed")
+    call check (list_equal (real_eq, second (retval), lst3), "test0405-0080 failed")
+
+    ! All reals, followed by all integers.
+    lst1 = list (1.0, 2.0, 3.0, 4.0, 5.0, 6, 7, 8)
+    lst1a = list_copy (lst1)
+    retval = partition (is_int, lst1)
+    lst2 = list (6, 7, 8)
+    lst3 = list (1.0, 2.0, 3.0, 4.0, 5.0)
+    call check (list_equal (num_same, lst1, lst1a), "test0405-0085 failed")
+    call check (list_equal (int_eq, first (retval), lst2), "test0405-0090 failed")
+    call check (list_equal (real_eq, second (retval), lst3), "test0405-0100 failed")
+
+    ! All integers, followed by all reals
+    lst1 = list (1, 2, 3, 4, 5, 6.0, 7.0, 8.0)
+    lst1a = list_copy (lst1)
+    retval = partition (is_int, lst1)
+    lst2 = list (1, 2, 3, 4, 5)
+    lst3 = list (6.0, 7.0, 8.0)
+    call check (list_equal (num_same, lst1, lst1a), "test0405-0105 failed")
+    call check (list_equal (int_eq, first (retval), lst2), "test0405-0110 failed")
+    call check (list_equal (real_eq, second (retval), lst3), "test0405-0120 failed")
+
+    ! A mix of reals and integers
+    lst1 = list (1, 2.0, 3, 4.0, 5.0, 6, 7, 8)
+    lst1a = list_copy (lst1)
+    retval = partition (is_int, lst1)
+    lst2 = list (1, 3, 6, 7, 8)
+    lst3 = list (2.0, 4.0, 5.0)
+    call check (list_equal (num_same, lst1, lst1a), "test0405-0125 failed")
+    call check (list_equal (int_eq, first (retval), lst2), "test0405-0130 failed")
+    call check (list_equal (real_eq, second (retval), lst3), "test0405-0140 failed")
+
+    ! A mix of reals and integers
+    lst1 = list (1.0, 2, 3.0, 4, 5, 6.0, 7.0, 8.0)
+    lst1a = list_copy (lst1)
+    retval = partition (is_int, lst1)
+    lst2 = list (2, 4, 5)
+    lst3 = list (1.0, 3.0, 6.0, 7.0, 8.0)
+    call check (list_equal (num_same, lst1, lst1a), "test0405-0145 failed")
+    call check (list_equal (int_eq, first (retval), lst2), "test0405-0150 failed")
+    call check (list_equal (real_eq, second (retval), lst3), "test0405-0160 failed")
+
+  contains
+
+    recursive function is_int (obj) result (bool)
+      class(*), intent(in) :: obj
+      logical :: bool
+
+      call collect_garbage_now
+
+      select type (obj)
+      type is (integer)
+         bool = .true.
+      class default
+         bool = .false.
+      end select
+    end function is_int
+
+  end subroutine test0405
 
   subroutine test0410
     call check (list_equal (int_eq, member (int_eq, 1, list (1, 2, 3)), list (1, 2, 3)), "test0410-0010 failed")
@@ -2940,7 +3139,9 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0370
     call test0380
     call test0390
+    call test0395
     call test0400
+    call test0405
     call test0410
     call test0420
     call test0430

@@ -236,7 +236,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: drop_right       ! Return a freshly allocated copy of all but the last n elements of a list.
   public :: drop_rightx      ! Like drop_right, but allowed to destroy its inputs.
   public :: do_split_at      ! Do both take and drop, at the same time. (Subroutine version.)
-  public :: do_split_atx     ! Like split_at, but allowed to destroy its inputs.
+  public :: do_split_atx     ! Like do_split_at, but allowed to destroy its inputs.
   public :: split_at         ! Do both take and drop, at the same time. (Function version.)
   public :: split_atx        ! Like split_at, but allowed to destroy its inputs.
 
@@ -402,9 +402,14 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
                              ! not* satisfy a predicate.
   public :: removex          ! Like remove, but allowed to destroy its
                              ! input.
+  public :: do_partition     ! Combines filter and remove, to make two
+                             ! lists out of the elements of the input
+                             ! list. (Subroutine version.)
+  public :: do_partitionx    ! Like do_partition, but allowed to
+                             ! destroy its input.
   public :: partition        ! Combines filter and remove, to make two
                              ! lists out of the elements of the input
-                             ! list.
+                             ! list. (Function version.)
   public :: partitionx       ! Like partition, but allowed to destroy
                              ! its input.
 
@@ -3627,7 +3632,7 @@ m4_forloop([k],[1],n,[dnl
     call lst_root%discard
   end function remove
 
-  recursive subroutine partitionx (pred, lst, lst_f, lst_r)
+  recursive subroutine do_partitionx (pred, lst, lst_f, lst_r)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     class(*), allocatable, intent(inout) :: lst_f ! The `filter' list.
@@ -3725,9 +3730,24 @@ m4_forloop([k],[1],n,[dnl
       end if
     end subroutine terminate_retval_r
 
-  end subroutine partitionx
+  end subroutine do_partitionx
 
-  recursive subroutine partition (pred, lst, lst_f, lst_r)
+  recursive function partitionx (pred, lst) result (retval)
+    !
+    ! Returns list2 (lst_f, lst_r).
+    !
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t) :: retval
+
+    class(*), allocatable :: lst_f ! The `filter' list.
+    class(*), allocatable :: lst_r ! The `remove' list.
+
+    call do_partitionx (pred, lst, lst_f, lst_r)
+    retval = lst_f ** lst_r ** nil
+  end function partitionx
+
+  recursive subroutine do_partition (pred, lst, lst_f, lst_r)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     class(*), allocatable, intent(inout) :: lst_f ! The `filter' list.
@@ -3768,8 +3788,8 @@ m4_forloop([k],[1],n,[dnl
              call attach_trues_to_retval_f
              if (is_not_pair (first_false)) then
                 ! lst ends on a run of trues. The run of trues will be
-                ! a shared tail. (Unlike in partitionx, the falses are
-                ! already terminated with a nil.)
+                ! a shared tail. (Unlike in do_partitionx, the falses
+                ! are already terminated with a nil.)
                 done = .true.
              else
                 last_true1 = last_true2
@@ -3781,8 +3801,8 @@ m4_forloop([k],[1],n,[dnl
              call attach_falses_to_retval_r
              if (is_not_pair (first_true)) then
                 ! lst ends on a run of falses. The run of falses will
-                ! be a shared tail. (Unlike in partitionx, the trues
-                ! are already terminated with a nil.)
+                ! be a shared tail. (Unlike in do_partitionx, the
+                ! trues are already terminated with a nil.)
                 done = .true.
              else
                 last_false1 = last_false2
@@ -3819,7 +3839,22 @@ m4_forloop([k],[1],n,[dnl
       end if
     end subroutine attach_falses_to_retval_r
 
-  end subroutine partition
+  end subroutine do_partition
+
+  recursive function partition (pred, lst) result (retval)
+    !
+    ! Returns list2 (lst_f, lst_r).
+    !
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t) :: retval
+
+    class(*), allocatable :: lst_f ! The `filter' list.
+    class(*), allocatable :: lst_r ! The `remove' list.
+
+    call do_partition (pred, lst, lst_f, lst_r)
+    retval = lst_f ** lst_r ** nil
+  end function partition
 
   recursive function take_whilex (pred, lst) result (lst_tw)
     procedure(list_predicate1_t) :: pred
