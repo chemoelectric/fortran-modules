@@ -716,6 +716,59 @@ module cons_pairs
   public :: every_map9_subr
   public :: every_map10_subr
 
+  ! The list_index functions are designed so they always return a
+  ! negative number on failure to satisfy the predicate, and so the
+  ! negative number is always -1, if the index base is non-negative.
+  ! This seemed a convenient convention.
+  public :: list_index0      ! Generic function: return the 0-based
+                             ! index where a predicate is first
+                             ! satisfied, or -1 if it is never
+                             ! satisfied.
+  public :: list_index1      ! Generic function: return the 1-based
+                             ! index where a predicate is first
+                             ! satisfied, or -1 if it is never
+                             ! satisfied.
+  public :: list_indexn      ! Generic function: return the n-based
+                             ! index where a predicate is first
+                             ! satisfied, or min (-1, n - 1) if it is
+                             ! never satisfied.
+
+  ! Implementations of list_index0.
+  public :: list_index0_1
+  public :: list_index0_2
+  public :: list_index0_3
+  public :: list_index0_4
+  public :: list_index0_5
+  public :: list_index0_6
+  public :: list_index0_7
+  public :: list_index0_8
+  public :: list_index0_9
+  public :: list_index0_10
+
+  ! Implementations of list_index1.
+  public :: list_index1_1
+  public :: list_index1_2
+  public :: list_index1_3
+  public :: list_index1_4
+  public :: list_index1_5
+  public :: list_index1_6
+  public :: list_index1_7
+  public :: list_index1_8
+  public :: list_index1_9
+  public :: list_index1_10
+
+  ! Implementations of list_indexn.
+  public :: list_indexn_1
+  public :: list_indexn_2
+  public :: list_indexn_3
+  public :: list_indexn_4
+  public :: list_indexn_5
+  public :: list_indexn_6
+  public :: list_indexn_7
+  public :: list_indexn_8
+  public :: list_indexn_9
+  public :: list_indexn_10
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! FOLDS AND UNFOLDS
@@ -1689,6 +1742,45 @@ module cons_pairs
      module procedure fold9_subr
      module procedure fold10_subr
   end interface fold
+
+  interface list_index0
+     module procedure list_index0_1
+     module procedure list_index0_2
+     module procedure list_index0_3
+     module procedure list_index0_4
+     module procedure list_index0_5
+     module procedure list_index0_6
+     module procedure list_index0_7
+     module procedure list_index0_8
+     module procedure list_index0_9
+     module procedure list_index0_10
+  end interface list_index0
+
+  interface list_index1
+     module procedure list_index1_1
+     module procedure list_index1_2
+     module procedure list_index1_3
+     module procedure list_index1_4
+     module procedure list_index1_5
+     module procedure list_index1_6
+     module procedure list_index1_7
+     module procedure list_index1_8
+     module procedure list_index1_9
+     module procedure list_index1_10
+  end interface list_index1
+
+  interface list_indexn
+     module procedure list_indexn_1
+     module procedure list_indexn_2
+     module procedure list_indexn_3
+     module procedure list_indexn_4
+     module procedure list_indexn_5
+     module procedure list_indexn_6
+     module procedure list_indexn_7
+     module procedure list_indexn_8
+     module procedure list_indexn_9
+     module procedure list_indexn_10
+  end interface list_indexn
 
   interface fold_right
      module procedure fold1_right_subr
@@ -18514,6 +18606,968 @@ contains
        end if
     end do
   end function every_map10_subr
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function list_indexn_1 (pred, n, lst1) result (index)
+    procedure(list_predicate1_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    type(gcroot_t) :: lst1_root
+
+    lst1_root = lst1
+
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          if (pred (head1)) then
+             index = i
+             done = .true.
+          else
+             lst1_root = tail1
+             i = i + 1
+          end if
+       end if
+    end do
+  end function list_indexn_1
+
+  recursive function list_indexn_2 (pred, n, lst1, lst2) result (index)
+    procedure(list_predicate2_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          if (pred (head1, head2)) then
+             index = i
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             i = i + 1
+          end if
+       end if
+    end do
+  end function list_indexn_2
+
+  recursive function list_indexn_3 (pred, n, lst1, lst2, lst3) result (index)
+    procedure(list_predicate3_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          if (pred (head1, head2, head3)) then
+             index = i
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             i = i + 1
+          end if
+       end if
+    end do
+  end function list_indexn_3
+
+  recursive function list_indexn_4 (pred, n, lst1, lst2, lst3, lst4) result (index)
+    procedure(list_predicate4_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          if (pred (head1, head2, head3, head4)) then
+             index = i
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             i = i + 1
+          end if
+       end if
+    end do
+  end function list_indexn_4
+
+  recursive function list_indexn_5 (pred, n, lst1, lst2, lst3, lst4, lst5) result (index)
+    procedure(list_predicate5_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          if (pred (head1, head2, head3, head4, head5)) then
+             index = i
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             i = i + 1
+          end if
+       end if
+    end do
+  end function list_indexn_5
+
+  recursive function list_indexn_6 (pred, n, lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (index)
+    procedure(list_predicate6_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6)) then
+             index = i
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+             i = i + 1
+          end if
+       end if
+    end do
+  end function list_indexn_6
+
+  recursive function list_indexn_7 (pred, n, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (index)
+    procedure(list_predicate7_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else if (is_nil_list (lst7_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          call uncons (lst7_root, head7, tail7)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7)) then
+             index = i
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+             lst7_root = tail7
+             i = i + 1
+          end if
+       end if
+    end do
+  end function list_indexn_7
+
+  recursive function list_indexn_8 (pred, n, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (index)
+    procedure(list_predicate8_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else if (is_nil_list (lst7_root)) then
+          done = .true.
+       else if (is_nil_list (lst8_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          call uncons (lst7_root, head7, tail7)
+          call uncons (lst8_root, head8, tail8)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8)) then
+             index = i
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+             lst7_root = tail7
+             lst8_root = tail8
+             i = i + 1
+          end if
+       end if
+    end do
+  end function list_indexn_8
+
+  recursive function list_indexn_9 (pred, n, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (index)
+    procedure(list_predicate9_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else if (is_nil_list (lst7_root)) then
+          done = .true.
+       else if (is_nil_list (lst8_root)) then
+          done = .true.
+       else if (is_nil_list (lst9_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          call uncons (lst7_root, head7, tail7)
+          call uncons (lst8_root, head8, tail8)
+          call uncons (lst9_root, head9, tail9)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9)) then
+             index = i
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+             lst7_root = tail7
+             lst8_root = tail8
+             lst9_root = tail9
+             i = i + 1
+          end if
+       end if
+    end do
+  end function list_indexn_9
+
+  recursive function list_indexn_10 (pred, n, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (index)
+    procedure(list_predicate10_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+       else if (is_nil_list (lst2_root)) then
+          done = .true.
+       else if (is_nil_list (lst3_root)) then
+          done = .true.
+       else if (is_nil_list (lst4_root)) then
+          done = .true.
+       else if (is_nil_list (lst5_root)) then
+          done = .true.
+       else if (is_nil_list (lst6_root)) then
+          done = .true.
+       else if (is_nil_list (lst7_root)) then
+          done = .true.
+       else if (is_nil_list (lst8_root)) then
+          done = .true.
+       else if (is_nil_list (lst9_root)) then
+          done = .true.
+       else if (is_nil_list (lst10_root)) then
+          done = .true.
+       else
+          call uncons (lst1_root, head1, tail1)
+          call uncons (lst2_root, head2, tail2)
+          call uncons (lst3_root, head3, tail3)
+          call uncons (lst4_root, head4, tail4)
+          call uncons (lst5_root, head5, tail5)
+          call uncons (lst6_root, head6, tail6)
+          call uncons (lst7_root, head7, tail7)
+          call uncons (lst8_root, head8, tail8)
+          call uncons (lst9_root, head9, tail9)
+          call uncons (lst10_root, head10, tail10)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10)) then
+             index = i
+             done = .true.
+          else
+             lst1_root = tail1
+             lst2_root = tail2
+             lst3_root = tail3
+             lst4_root = tail4
+             lst5_root = tail5
+             lst6_root = tail6
+             lst7_root = tail7
+             lst8_root = tail8
+             lst9_root = tail9
+             lst10_root = tail10
+             i = i + 1
+          end if
+       end if
+    end do
+  end function list_indexn_10
+
+  recursive function list_index0_1 (pred, lst1) result (index)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst1
+    integer(sz) :: index
+
+    index = list_indexn_1 (pred, 0_sz, lst1)
+  end function list_index0_1
+
+  recursive function list_index0_2 (pred, lst1, lst2) result (index)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    integer(sz) :: index
+
+    index = list_indexn_2 (pred, 0_sz, lst1, lst2)
+  end function list_index0_2
+
+  recursive function list_index0_3 (pred, lst1, lst2, lst3) result (index)
+    procedure(list_predicate3_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    integer(sz) :: index
+
+    index = list_indexn_3 (pred, 0_sz, lst1, lst2, lst3)
+  end function list_index0_3
+
+  recursive function list_index0_4 (pred, lst1, lst2, lst3, lst4) result (index)
+    procedure(list_predicate4_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    integer(sz) :: index
+
+    index = list_indexn_4 (pred, 0_sz, lst1, lst2, lst3, lst4)
+  end function list_index0_4
+
+  recursive function list_index0_5 (pred, lst1, lst2, lst3, lst4, lst5) result (index)
+    procedure(list_predicate5_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    integer(sz) :: index
+
+    index = list_indexn_5 (pred, 0_sz, lst1, lst2, lst3, lst4, lst5)
+  end function list_index0_5
+
+  recursive function list_index0_6 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (index)
+    procedure(list_predicate6_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    integer(sz) :: index
+
+    index = list_indexn_6 (pred, 0_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6)
+  end function list_index0_6
+
+  recursive function list_index0_7 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (index)
+    procedure(list_predicate7_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    integer(sz) :: index
+
+    index = list_indexn_7 (pred, 0_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7)
+  end function list_index0_7
+
+  recursive function list_index0_8 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (index)
+    procedure(list_predicate8_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    integer(sz) :: index
+
+    index = list_indexn_8 (pred, 0_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8)
+  end function list_index0_8
+
+  recursive function list_index0_9 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (index)
+    procedure(list_predicate9_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    integer(sz) :: index
+
+    index = list_indexn_9 (pred, 0_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9)
+  end function list_index0_9
+
+  recursive function list_index0_10 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (index)
+    procedure(list_predicate10_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    integer(sz) :: index
+
+    index = list_indexn_10 (pred, 0_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10)
+  end function list_index0_10
+
+  recursive function list_index1_1 (pred, lst1) result (index)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst1
+    integer(sz) :: index
+
+    index = list_indexn_1 (pred, 1_sz, lst1)
+  end function list_index1_1
+
+  recursive function list_index1_2 (pred, lst1, lst2) result (index)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    integer(sz) :: index
+
+    index = list_indexn_2 (pred, 1_sz, lst1, lst2)
+  end function list_index1_2
+
+  recursive function list_index1_3 (pred, lst1, lst2, lst3) result (index)
+    procedure(list_predicate3_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    integer(sz) :: index
+
+    index = list_indexn_3 (pred, 1_sz, lst1, lst2, lst3)
+  end function list_index1_3
+
+  recursive function list_index1_4 (pred, lst1, lst2, lst3, lst4) result (index)
+    procedure(list_predicate4_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    integer(sz) :: index
+
+    index = list_indexn_4 (pred, 1_sz, lst1, lst2, lst3, lst4)
+  end function list_index1_4
+
+  recursive function list_index1_5 (pred, lst1, lst2, lst3, lst4, lst5) result (index)
+    procedure(list_predicate5_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    integer(sz) :: index
+
+    index = list_indexn_5 (pred, 1_sz, lst1, lst2, lst3, lst4, lst5)
+  end function list_index1_5
+
+  recursive function list_index1_6 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6) result (index)
+    procedure(list_predicate6_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    integer(sz) :: index
+
+    index = list_indexn_6 (pred, 1_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6)
+  end function list_index1_6
+
+  recursive function list_index1_7 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7) result (index)
+    procedure(list_predicate7_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    integer(sz) :: index
+
+    index = list_indexn_7 (pred, 1_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7)
+  end function list_index1_7
+
+  recursive function list_index1_8 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8) result (index)
+    procedure(list_predicate8_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    integer(sz) :: index
+
+    index = list_indexn_8 (pred, 1_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8)
+  end function list_index1_8
+
+  recursive function list_index1_9 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9) result (index)
+    procedure(list_predicate9_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    integer(sz) :: index
+
+    index = list_indexn_9 (pred, 1_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9)
+  end function list_index1_9
+
+  recursive function list_index1_10 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10) result (index)
+    procedure(list_predicate10_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    integer(sz) :: index
+
+    index = list_indexn_10 (pred, 1_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10)
+  end function list_index1_10
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

@@ -513,6 +513,38 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: every_map[]n[]_subr
 ])dnl
 
+  ! The list_index functions are designed so they always return a
+  ! negative number on failure to satisfy the predicate, and so the
+  ! negative number is always -1, if the index base is non-negative.
+  ! This seemed a convenient convention.
+  public :: list_index0      ! Generic function: return the 0-based
+                             ! index where a predicate is first
+                             ! satisfied, or -1 if it is never
+                             ! satisfied.
+  public :: list_index1      ! Generic function: return the 1-based
+                             ! index where a predicate is first
+                             ! satisfied, or -1 if it is never
+                             ! satisfied.
+  public :: list_indexn      ! Generic function: return the n-based
+                             ! index where a predicate is first
+                             ! satisfied, or min (-1, n - 1) if it is
+                             ! never satisfied.
+
+  ! Implementations of list_index0.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: list_index0_[]n
+])dnl
+
+  ! Implementations of list_index1.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: list_index1_[]n
+])dnl
+
+  ! Implementations of list_indexn.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: list_indexn_[]n
+])dnl
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! FOLDS AND UNFOLDS
@@ -906,6 +938,24 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure fold[]n[]_subr
 ])dnl
   end interface fold
+
+  interface list_index0
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure list_index0_[]n
+])dnl
+  end interface list_index0
+
+  interface list_index1
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure list_index1_[]n
+])dnl
+  end interface list_index1
+
+  interface list_indexn
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure list_indexn_[]n
+])dnl
+  end interface list_indexn
 
   interface fold_right
 m4_forloop([n],[1],ZIP_MAX,[dnl
@@ -4724,6 +4774,91 @@ m4_forloop([k],[1],n,[dnl
        end if
     end do
   end function every_map[]n[]_subr
+
+])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function list_indexn_[]n (pred, [n], lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])lst[]k])) result (index)
+    procedure(list_predicate[]n[]_t) :: pred
+    integer(sz), intent(in) :: [n]
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable :: head[]k, tail[]k
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: lst[]k[]_root
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    lst[]k[]_root = lst[]k
+])dnl
+
+    index = min (-1_sz, [n] - 1)
+    i = [n]
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (lst1_root)) then
+          done = .true.
+m4_forloop([k],[2],n,[dnl
+       else if (is_nil_list (lst[]k[]_root)) then
+          done = .true.
+])dnl
+       else
+m4_forloop([k],[1],n,[dnl
+          call uncons (lst[]k[]_root, head[]k, tail[]k)
+])dnl
+          if (pred (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+               ])head[]k]))) then
+             index = i
+             done = .true.
+          else
+m4_forloop([k],[1],n,[dnl
+             lst[]k[]_root = tail[]k
+])dnl
+             i = i + 1
+          end if
+       end if
+    end do
+  end function list_indexn_[]n
+
+])dnl
+dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function list_index0_[]n (pred, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])lst[]k])) result (index)
+    procedure(list_predicate[]n[]_t) :: pred
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    integer(sz) :: index
+
+    index = list_indexn_[]n (pred, 0_sz, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+         ])lst[]k]))
+  end function list_index0_[]n
+
+])dnl
+dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function list_index1_[]n (pred, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       ])lst[]k])) result (index)
+    procedure(list_predicate[]n[]_t) :: pred
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    integer(sz) :: index
+
+    index = list_indexn_[]n (pred, 1_sz, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+         ])lst[]k]))
+  end function list_index1_[]n
 
 ])dnl
 dnl

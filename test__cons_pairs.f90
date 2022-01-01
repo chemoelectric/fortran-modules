@@ -3239,6 +3239,11 @@ contains
     call check (some (is_even, append (iota (100, 1, 2), iota (100, 2, 2))), "test0520-0020 failed")
     call check (.not. some (is_even, nil), "test0520-0030 failed")
 
+    call check (.not. some (is_lt, list (2, 3, 4), list (1, 2, 3)), "test0520-0040 failed")
+    call check (.not. some (is_lt, list (), list (1, 2, 3)), "test0520-0050 failed")
+    call check (.not. some (is_lt, list (2, 3, 4), list ()), "test0520-0060 failed")
+    call check (some (is_lt, list (2, 3, 4), list (1, 4, 4)), "test0520-0070 failed")
+
   contains
 
     function is_even (x) result (bool)
@@ -3249,6 +3254,16 @@ contains
 
       bool = (mod (int_cast (x), 2) == 0)
     end function is_even
+
+    function is_lt (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y))
+    end function is_lt
 
   end subroutine test0520
 
@@ -3258,6 +3273,12 @@ contains
     call check (some_map (return_if_even, append (iota (100, 1, 2), iota (100, 20, 20))) .eqi. 20, "test0530-0020 failed")
     call check (is_false (some_map (return_if_even, nil)), "test0530-0030 failed")
 
+    call check (is_false (some_map (return_sum_if_even, list (2, 3, 4), list (1, 2, 3))), "test0530-0040 failed")
+    call check (is_false (some_map (return_sum_if_even, list (), list (1, 2, 3))), "test0530-0050 failed")
+    call check (is_false (some_map (return_sum_if_even, list (2, 3, 4), list ())), "test0530-0060 failed")
+    call check (some_map (return_sum_if_even, list (2, 3, 4), list (1, 4, 4)) .eqi. 8, "test0530-0070 failed")
+    call check (some_map (return_sum_if_even, list (2, 3, 4), list (1, 3, 4)) .eqi. 6, "test0530-0080 failed")
+
   contains
 
     subroutine return_if_even (x, retval)
@@ -3273,6 +3294,23 @@ contains
       end if
     end subroutine return_if_even
 
+    subroutine return_sum_if_even (x, y, retval)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      class(*), allocatable, intent(out) :: retval
+
+      integer :: sum
+
+      call collect_garbage_now
+
+      sum = int_cast (x) + int_cast (y)
+      if (mod (sum, 2) == 0) then
+         retval = sum
+      else
+         retval = .false.
+      end if
+    end subroutine return_sum_if_even
+
   end subroutine test0530
 
   subroutine test0540
@@ -3280,6 +3318,12 @@ contains
     call check (.not. every (is_even, append (iota (100, 2, 2), iota (100, 1))), "test0540-0010 failed")
     call check (every (is_even, append (iota (100, 2, 2))), "test0540-0020 failed")
     call check (every (is_even, nil), "test0540-0030 failed")
+
+    call check (.not. every (is_lt, list (2, 3, 4), list (1, 2, 3)), "test0540-0040 failed")
+    call check (every (is_lt, list (), list (1, 2, 3)), "test0540-0050 failed")
+    call check (every (is_lt, list (2, 3, 4), list ()), "test0540-0060 failed")
+    call check (.not. every (is_lt, list (2, 3, 4), list (1, 4, 4)), "test0540-0070 failed")
+    call check (every (is_lt, list (1, 2, 3), list (2, 3, 4)), "test0540-0080 failed")
 
   contains
 
@@ -3292,6 +3336,16 @@ contains
       bool = (mod (int_cast (x), 2) == 0)
     end function is_even
 
+    function is_lt (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y))
+    end function is_lt
+
   end subroutine test0540
 
   subroutine test0550
@@ -3299,6 +3353,14 @@ contains
     call check (is_false (every_map (return_if_even, append (iota (100, 2, 2), iota (100, 1)))), "test0550-0010 failed")
     call check (every_map (return_if_even, append (iota (100, 2, 2))) .eqi. 200, "test0550-0020 failed")
     call check (logical_cast (every_map (return_if_even, nil)), "test0550-0030 failed")
+
+    call check (is_false (every_map (return_sum_if_even, list (2, 3, 4), list (1, 2, 3))), "test0550-0040 failed")
+    call check (logical_cast (every_map (return_sum_if_even, list (), list (1, 2, 3))), "test0550-0050 failed")
+    call check (logical_cast (every_map (return_sum_if_even, list (2, 3, 4), list ())), "test0550-0060 failed")
+    call check (is_false (every_map (return_sum_if_even, list (2, 3, 4), list (1, 4, 4))), "test0550-0070 failed")
+    call check (is_false (every_map (return_sum_if_even, list (2, 3, 4), list (1, 3, 4))), "test0550-0080 failed")
+    call check (every_map (return_sum_if_even, list (2, 3, 4), list (2, 3, 4)) .eqi. 8, "test0550-0090 failed")
+    call check (every_map (return_sum_if_even, list (2, 3, 4), list (2, 3, 4, 5)) .eqi. 8, "test0550-0100 failed")
 
   contains
 
@@ -3315,7 +3377,67 @@ contains
       end if
     end subroutine return_if_even
 
+    subroutine return_sum_if_even (x, y, retval)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      class(*), allocatable, intent(out) :: retval
+
+      integer :: sum
+
+      call collect_garbage_now
+
+      sum = int_cast (x) + int_cast (y)
+      if (mod (sum, 2) == 0) then
+         retval = sum
+      else
+         retval = .false.
+      end if
+    end subroutine return_sum_if_even
+
   end subroutine test0550
+
+  subroutine test0560
+
+    ! An example from SRFI-1.
+    call check (list_index0 (is_even, list (3, 1, 4, 1, 5, 9)) == 2, "test0560-0010 failed")
+    call check (list_index1 (is_even, list (3, 1, 4, 1, 5, 9)) == 3, "test0560-0020 failed")
+    call check (list_indexn (is_even, 2_sz, list (3, 1, 4, 1, 5, 9)) == 4, "test0560-0030 failed")
+    call check (list_indexn (is_even, -2_sz, list (3, 1, 4, 1, 5, 9)) == 0, "test0560-0040 failed")
+
+    ! An example from SRFI-1.
+    call check (list_index0 (is_lt, list (3, 1, 4, 1, 5, 9), list (2, 7, 1, 8, 2)) == 1, "test0560-0110 failed")
+    call check (list_index1 (is_lt, list (3, 1, 4, 1, 5, 9), list (2, 7, 1, 8, 2)) == 2, "test0560-0120 failed")
+    call check (list_indexn (is_lt, 2_sz, list (3, 1, 4, 1, 5, 9), list (2, 7, 1, 8, 2)) == 3, "test0560-0130 failed")
+    call check (list_indexn (is_lt, -2_sz, list (3, 1, 4, 1, 5, 9), list (2, 7, 1, 8, 2)) == -1, "test0560-0140 failed")
+
+    ! An example from SRFI-1.
+    call check (list_index0 (int_eq, list (3, 1, 4, 1, 5, 9, 2, 5, 6), list (2, 7, 1, 8, 2)) == -1, "test0560-0210 failed")
+    call check (list_index1 (int_eq, list (3, 1, 4, 1, 5, 9, 2, 5, 6), list (2, 7, 1, 8, 2)) == -1, "test0560-0220 failed")
+    call check (list_indexn (int_eq, 2_sz, list (3, 1, 4, 1, 5, 9, 2, 5, 6), list (2, 7, 1, 8, 2)) == -1, "test0560-0230 failed")
+    call check (list_indexn (int_eq, -2_sz, list (3, 1, 4, 1, 5, 9, 2, 5, 6), list (2, 7, 1, 8, 2)) == -3, "test0560-0240 failed")
+
+  contains
+
+    function is_even (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (mod (int_cast (x), 2) == 0)
+    end function is_even
+
+    function is_lt (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y))
+    end function is_lt
+
+  end subroutine test0560
 
   subroutine run_tests
     heap_size_limit = 0
@@ -3386,6 +3508,7 @@ contains
     call test0530
     call test0540
     call test0550
+    call test0560
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
