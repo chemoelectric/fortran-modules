@@ -3043,6 +3043,9 @@ contains
     function is_odd (x) result (bool)
       class(*), intent(in) :: x
       logical :: bool
+
+      call collect_garbage_now
+
       bool = (mod (int_cast (x), 2) == 1)
     end function is_odd
 
@@ -3075,6 +3078,9 @@ contains
     function is_even (x) result (bool)
       class(*), intent(in) :: x
       logical :: bool
+
+      call collect_garbage_now
+
       bool = (mod (int_cast (x), 2) == 0)
     end function is_even
 
@@ -3140,6 +3146,9 @@ contains
     function is_even (x) result (bool)
       class(*), intent(in) :: x
       logical :: bool
+
+      call collect_garbage_now
+
       bool = (mod (int_cast (x), 2) == 0)
     end function is_even
 
@@ -3205,6 +3214,9 @@ contains
     function is_even (x) result (bool)
       class(*), intent(in) :: x
       logical :: bool
+
+      call collect_garbage_now
+
       bool = (mod (int_cast (x), 2) == 0)
     end function is_even
 
@@ -3221,6 +3233,9 @@ contains
     function is_even (x) result (bool)
       class(*), intent(in) :: x
       logical :: bool
+
+      call collect_garbage_now
+
       bool = (mod (int_cast (x), 2) == 0)
     end function is_even
 
@@ -3237,6 +3252,9 @@ contains
     subroutine return_if_even (x, retval)
       class(*), intent(in) :: x
       class(*), allocatable, intent(out) :: retval
+
+      call collect_garbage_now
+
       if (mod (int_cast (x), 2) == 0) then
          retval = x
       else

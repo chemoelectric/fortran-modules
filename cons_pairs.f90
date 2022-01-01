@@ -15214,21 +15214,19 @@ contains
     class(*), intent(in) :: lst
     type(cons_t) :: lst_tw
 
-    if (is_nil_list (lst)) then
+    type(gcroot_t) :: lst_root
+    class(*), allocatable :: last_true
+    class(*), allocatable :: first_false
+
+    lst_root = lst
+    if (is_nil_list (lst_root)) then
        lst_tw = nil
-    else if (.not. pred (car (lst))) then
+    else if (.not. pred (car (lst_root))) then
        lst_tw = nil
     else
-       block
-         type(gcroot_t) :: lst_root
-         class(*), allocatable :: last_true
-         class(*), allocatable :: first_false
-
-         lst_root = lst
-         call take_trues_destructively (pred, .val. lst_root, last_true, first_false)
-         call set_cdr (last_true, nil)
-         lst_tw = .tocons. lst_root
-       end block
+       call take_trues_destructively (pred, .val. lst_root, last_true, first_false)
+       call set_cdr (last_true, nil)
+       lst_tw = .tocons. lst_root
     end if
   end function take_whilex
 
@@ -15237,21 +15235,19 @@ contains
     class(*), intent(in) :: lst
     type(cons_t) :: lst_tw
 
-    if (is_nil_list (lst)) then
+    type(gcroot_t) :: lst_root
+    class(*), allocatable :: trues
+    class(*), allocatable :: last_true
+    class(*), allocatable :: first_false
+
+    lst_root = lst
+    if (is_nil_list (lst_root)) then
        lst_tw = nil
-    else if (.not. pred (car (lst))) then
+    else if (.not. pred (car (lst_root))) then
        lst_tw = nil
     else
-       block
-         type(gcroot_t) :: lst_root
-         class(*), allocatable :: trues
-         class(*), allocatable :: last_true
-         class(*), allocatable :: first_false
-
-         lst_root = lst
-         call take_trues_nondestructively (pred, .val. lst_root, trues, last_true, first_false)
-         lst_tw = .tocons. trues
-       end block
+       call take_trues_nondestructively (pred, .val. lst_root, trues, last_true, first_false)
+       lst_tw = .tocons. trues
     end if
   end function take_while
 
