@@ -610,8 +610,18 @@ module cons_pairs
                              ! its inputs.
   public :: drop_while       ! Drop the longest initial prefix whose
                              ! elements satisfy a predicate.
+  public :: do_span          ! A combination of take_while and
+                             ! drop_while. See SRFI-1. (Subroutine
+                             ! version.)
+  public :: do_spanx         ! Like do_span, but allowed to destroy
+                             ! its inputs.
+  public :: do_break         ! Like do_span, but with the sense of the
+                             ! predicate reversed. See SRFI-1.
+  public :: do_breakx        ! Like do_break, but allowed to destroy
+                             ! its inputs.
   public :: span             ! A combination of take_while and
-                             ! drop_while. See SRFI-1.
+                             ! drop_while. See SRFI-1. (Function
+                             ! version.)
   public :: spanx            ! Like span, but allowed to destroy its
                              ! inputs.
   public :: break            ! Like span, but with the sense of the
@@ -15182,7 +15192,7 @@ contains
     end if
   end function take_while
 
-  recursive subroutine spanx (pred, lst, lst1, lst2)
+  recursive subroutine do_spanx (pred, lst, lst1, lst2)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     type(cons_t), intent(out) :: lst1
@@ -15207,9 +15217,21 @@ contains
          lst2 = .tocons. first_false
        end block
     end if
-  end subroutine spanx
+  end subroutine do_spanx
 
-  recursive subroutine span (pred, lst, lst1, lst2)
+  recursive function spanx (pred, lst) result (retval)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t) :: retval
+
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+
+    call do_spanx (pred, lst, lst1, lst2)
+    retval = lst1 ** lst2 ** nil
+  end function spanx
+
+  recursive subroutine do_span (pred, lst, lst1, lst2)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     type(cons_t), intent(out) :: lst1
@@ -15234,9 +15256,21 @@ contains
          lst2 = .tocons. first_false
        end block
     end if
-  end subroutine span
+  end subroutine do_span
 
-  recursive subroutine breakx (pred, lst, lst1, lst2)
+  recursive function span (pred, lst) result (retval)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t) :: retval
+
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+
+    call do_span (pred, lst, lst1, lst2)
+    retval = lst1 ** lst2 ** nil
+  end function span
+
+  recursive subroutine do_breakx (pred, lst, lst1, lst2)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     type(cons_t), intent(out) :: lst1
@@ -15261,9 +15295,21 @@ contains
          lst2 = .tocons. first_true
        end block
     end if
-  end subroutine breakx
+  end subroutine do_breakx
 
-  recursive subroutine break (pred, lst, lst1, lst2)
+  recursive function breakx (pred, lst) result (retval)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t) :: retval
+
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+
+    call do_breakx (pred, lst, lst1, lst2)
+    retval = lst1 ** lst2 ** nil
+  end function breakx
+
+  recursive subroutine do_break (pred, lst, lst1, lst2)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst
     type(cons_t), intent(out) :: lst1
@@ -15288,7 +15334,19 @@ contains
          lst2 = .tocons. first_true
        end block
     end if
-  end subroutine break
+  end subroutine do_break
+
+  recursive function break (pred, lst) result (retval)
+    procedure(list_predicate1_t) :: pred
+    class(*), intent(in) :: lst
+    type(cons_t) :: retval
+
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+
+    call do_break (pred, lst, lst1, lst2)
+    retval = lst1 ** lst2 ** nil
+  end function break
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
