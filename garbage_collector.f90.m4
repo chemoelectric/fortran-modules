@@ -1,6 +1,6 @@
 ! -*- F90 -*- include(`common-macros.m4')m4_include([cadadr.m4])
 !
-! Copyright 2021 Barry Schwartz
+! Copyright 2021, 2022 Barry Schwartz
 !
 ! Permission is hereby granted, free of charge, to any person
 ! obtaining a copy of this software and associated documentation files
@@ -373,10 +373,6 @@ m4_if(DEBUGGING,[true],[dnl
        deallocate (this_one%collectible)
     end if
 
-    nullify (this_one%next)        ! FIXME: IS THIS NEEDED?
-    nullify (this_one%prev)        ! FIXME: IS THIS NEEDED?
-    nullify (this_one%collectible) ! FIXME: IS THIS NEEDED?
-
     roots_count = roots_count - 1
 
     m4_if(DEBUGGING,[true],[write (*,'("    there are now ", i3)') roots_count])
@@ -484,7 +480,6 @@ m4_if(DEBUGGING,[true],[dnl
           deallocate (this%root)
        end select
     end if
-    nullify (this%root)         ! FIXME: IS THIS NEEDED?
   end subroutine gcroot_t_finalize
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
