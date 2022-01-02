@@ -133,6 +133,8 @@ m4_if(DEBUGGING,[true],[dnl
 
 contains
 
+m4_define([m4_deallocate_if_associated],[if (associated ($1)) deallocate ($1)])dnl
+dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 m4_if(DEBUGGING,[true],[dnl
@@ -369,9 +371,7 @@ m4_if(DEBUGGING,[true],[dnl
     prev => this_one%prev
     prev%next => next
     next%prev => prev
-    if (associated (this_one%collectible)) then
-       deallocate (this_one%collectible)
-    end if
+    m4_deallocate_if_associated([this_one%collectible])
 
     roots_count = roots_count - 1
 
@@ -407,7 +407,7 @@ m4_if(DEBUGGING,[true],[dnl
     end select
   end function gcroot_t_autoval
 
-  subroutine gcroot_t_assign (dst, src)
+  recursive subroutine gcroot_t_assign (dst, src)
     class(gcroot_t), intent(inout) :: dst
     class(*), intent(in) :: src
 
@@ -416,12 +416,19 @@ m4_if(DEBUGGING,[true],[dnl
        if (associated (src%heap_element)) then
           ! Create a new root.
           m4_if(DEBUGGING,[true],[write (*,'("gcroot_t_assign of a collectible_t")')])
-          block
-            class(root_t), pointer :: new_root
-            call roots_insert (roots, src, new_root)
-            call gcroot_t_finalize (dst)
-            dst%root => new_root
-          end block
+          select type (root => dst%root)
+          class is (root_t)
+             ! Reuse the roots list entry.
+             m4_deallocate_if_associated([root%collectible])
+             allocate (root%collectible, source = src)
+          class default
+             m4_deallocate_if_associated([dst%root])
+             block
+               class(root_t), pointer :: new_root
+               call roots_insert (roots, src, new_root)
+               dst%root => new_root
+             end block
+          end select
        else
           ! A NIL-list or some such object that is technically a
           ! collectible_t, but not treated as a heap object.
@@ -430,23 +437,7 @@ m4_if(DEBUGGING,[true],[dnl
           allocate (dst%root, source = src)
        end if
     class is (gcroot_t)
-       m4_if(DEBUGGING,[true],[write (*,'("gcroot_t_assign of a gcroot_t")')])
-       select type (root => src%root)
-       class is (root_t)
-          ! Copy the root.
-          m4_if(DEBUGGING,[true],[write (*,'("    which is a root")')])
-          block
-            class(root_t), pointer :: new_root
-            call roots_insert (roots, root%collectible, new_root)
-            call gcroot_t_finalize (dst)
-            dst%root => new_root
-          end block
-       class default
-          ! Copy the non-collectible data.
-          m4_if(DEBUGGING,[true],[write (*,'("    which is not a root")')])
-          call gcroot_t_finalize (dst)
-          allocate (dst%root, source = root)
-       end select
+       call gcroot_t_assign (dst, .val. src)
     class default
        ! Copy the non-collectible data.
        m4_if(DEBUGGING,[true],[write (*,'("gcroot_t_assign of non-collectible data")')])
