@@ -16008,21 +16008,22 @@ contains
 
     lst1_root = lst1
 
+    tail1 = .autoval. lst1
     bool = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
+          call uncons (tail1, head1, tail1)
           if (pred (head1)) then
              bool = .true.
              done = .true.
-          else
-             lst1_root = tail1
           end if
        end if
     end do
+
+    call lst1_root%discard
   end function some1
 
   recursive function some2 (pred, lst1, lst2) result (bool)
@@ -16040,25 +16041,27 @@ contains
     lst1_root = lst1
     lst2_root = lst2
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
     bool = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
           if (pred (head1, head2)) then
              bool = .true.
              done = .true.
-          else
-             lst1_root = tail1
-             lst2_root = tail2
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
   end function some2
 
   recursive function some3 (pred, lst1, lst2, lst3) result (bool)
@@ -16080,29 +16083,32 @@ contains
     lst2_root = lst2
     lst3_root = lst3
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
     bool = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
           if (pred (head1, head2, head3)) then
              bool = .true.
              done = .true.
-          else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
   end function some3
 
   recursive function some4 (pred, lst1, lst2, lst3, lst4) result (bool)
@@ -16128,33 +16134,37 @@ contains
     lst3_root = lst3
     lst4_root = lst4
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
     bool = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
-       else if (is_nil_list (lst4_root)) then
+       else if (is_nil_list (tail4)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
-          call uncons (lst4_root, head4, tail4)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
           if (pred (head1, head2, head3, head4)) then
              bool = .true.
              done = .true.
-          else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
-             lst4_root = tail4
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
   end function some4
 
   recursive function some5 (pred, lst1, lst2, lst3, lst4, lst5) result (bool)
@@ -16184,37 +16194,42 @@ contains
     lst4_root = lst4
     lst5_root = lst5
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
     bool = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
-       else if (is_nil_list (lst4_root)) then
+       else if (is_nil_list (tail4)) then
           done = .true.
-       else if (is_nil_list (lst5_root)) then
+       else if (is_nil_list (tail5)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
-          call uncons (lst4_root, head4, tail4)
-          call uncons (lst5_root, head5, tail5)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
           if (pred (head1, head2, head3, head4, head5)) then
              bool = .true.
              done = .true.
-          else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
-             lst4_root = tail4
-             lst5_root = tail5
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
   end function some5
 
   recursive function some6 (pred, lst1, lst2, lst3, lst4, lst5, &
@@ -16249,42 +16264,48 @@ contains
     lst5_root = lst5
     lst6_root = lst6
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
     bool = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
-       else if (is_nil_list (lst4_root)) then
+       else if (is_nil_list (tail4)) then
           done = .true.
-       else if (is_nil_list (lst5_root)) then
+       else if (is_nil_list (tail5)) then
           done = .true.
-       else if (is_nil_list (lst6_root)) then
+       else if (is_nil_list (tail6)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
-          call uncons (lst4_root, head4, tail4)
-          call uncons (lst5_root, head5, tail5)
-          call uncons (lst6_root, head6, tail6)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
           if (pred (head1, head2, head3, head4, head5, &
                head6)) then
              bool = .true.
              done = .true.
-          else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
-             lst4_root = tail4
-             lst5_root = tail5
-             lst6_root = tail6
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
   end function some6
 
   recursive function some7 (pred, lst1, lst2, lst3, lst4, lst5, &
@@ -16323,46 +16344,53 @@ contains
     lst6_root = lst6
     lst7_root = lst7
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
     bool = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
-       else if (is_nil_list (lst4_root)) then
+       else if (is_nil_list (tail4)) then
           done = .true.
-       else if (is_nil_list (lst5_root)) then
+       else if (is_nil_list (tail5)) then
           done = .true.
-       else if (is_nil_list (lst6_root)) then
+       else if (is_nil_list (tail6)) then
           done = .true.
-       else if (is_nil_list (lst7_root)) then
+       else if (is_nil_list (tail7)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
-          call uncons (lst4_root, head4, tail4)
-          call uncons (lst5_root, head5, tail5)
-          call uncons (lst6_root, head6, tail6)
-          call uncons (lst7_root, head7, tail7)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
           if (pred (head1, head2, head3, head4, head5, &
                head6, head7)) then
              bool = .true.
              done = .true.
-          else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
-             lst4_root = tail4
-             lst5_root = tail5
-             lst6_root = tail6
-             lst7_root = tail7
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
   end function some7
 
   recursive function some8 (pred, lst1, lst2, lst3, lst4, lst5, &
@@ -16405,50 +16433,58 @@ contains
     lst7_root = lst7
     lst8_root = lst8
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
     bool = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
-       else if (is_nil_list (lst4_root)) then
+       else if (is_nil_list (tail4)) then
           done = .true.
-       else if (is_nil_list (lst5_root)) then
+       else if (is_nil_list (tail5)) then
           done = .true.
-       else if (is_nil_list (lst6_root)) then
+       else if (is_nil_list (tail6)) then
           done = .true.
-       else if (is_nil_list (lst7_root)) then
+       else if (is_nil_list (tail7)) then
           done = .true.
-       else if (is_nil_list (lst8_root)) then
+       else if (is_nil_list (tail8)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
-          call uncons (lst4_root, head4, tail4)
-          call uncons (lst5_root, head5, tail5)
-          call uncons (lst6_root, head6, tail6)
-          call uncons (lst7_root, head7, tail7)
-          call uncons (lst8_root, head8, tail8)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
           if (pred (head1, head2, head3, head4, head5, &
                head6, head7, head8)) then
              bool = .true.
              done = .true.
-          else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
-             lst4_root = tail4
-             lst5_root = tail5
-             lst6_root = tail6
-             lst7_root = tail7
-             lst8_root = tail8
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
   end function some8
 
   recursive function some9 (pred, lst1, lst2, lst3, lst4, lst5, &
@@ -16495,54 +16531,63 @@ contains
     lst8_root = lst8
     lst9_root = lst9
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
     bool = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
-       else if (is_nil_list (lst4_root)) then
+       else if (is_nil_list (tail4)) then
           done = .true.
-       else if (is_nil_list (lst5_root)) then
+       else if (is_nil_list (tail5)) then
           done = .true.
-       else if (is_nil_list (lst6_root)) then
+       else if (is_nil_list (tail6)) then
           done = .true.
-       else if (is_nil_list (lst7_root)) then
+       else if (is_nil_list (tail7)) then
           done = .true.
-       else if (is_nil_list (lst8_root)) then
+       else if (is_nil_list (tail8)) then
           done = .true.
-       else if (is_nil_list (lst9_root)) then
+       else if (is_nil_list (tail9)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
-          call uncons (lst4_root, head4, tail4)
-          call uncons (lst5_root, head5, tail5)
-          call uncons (lst6_root, head6, tail6)
-          call uncons (lst7_root, head7, tail7)
-          call uncons (lst8_root, head8, tail8)
-          call uncons (lst9_root, head9, tail9)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
           if (pred (head1, head2, head3, head4, head5, &
                head6, head7, head8, head9)) then
              bool = .true.
              done = .true.
-          else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
-             lst4_root = tail4
-             lst5_root = tail5
-             lst6_root = tail6
-             lst7_root = tail7
-             lst8_root = tail8
-             lst9_root = tail9
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
   end function some9
 
   recursive function some10 (pred, lst1, lst2, lst3, lst4, lst5, &
@@ -16593,58 +16638,68 @@ contains
     lst9_root = lst9
     lst10_root = lst10
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
     bool = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
-       else if (is_nil_list (lst4_root)) then
+       else if (is_nil_list (tail4)) then
           done = .true.
-       else if (is_nil_list (lst5_root)) then
+       else if (is_nil_list (tail5)) then
           done = .true.
-       else if (is_nil_list (lst6_root)) then
+       else if (is_nil_list (tail6)) then
           done = .true.
-       else if (is_nil_list (lst7_root)) then
+       else if (is_nil_list (tail7)) then
           done = .true.
-       else if (is_nil_list (lst8_root)) then
+       else if (is_nil_list (tail8)) then
           done = .true.
-       else if (is_nil_list (lst9_root)) then
+       else if (is_nil_list (tail9)) then
           done = .true.
-       else if (is_nil_list (lst10_root)) then
+       else if (is_nil_list (tail10)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
-          call uncons (lst4_root, head4, tail4)
-          call uncons (lst5_root, head5, tail5)
-          call uncons (lst6_root, head6, tail6)
-          call uncons (lst7_root, head7, tail7)
-          call uncons (lst8_root, head8, tail8)
-          call uncons (lst9_root, head9, tail9)
-          call uncons (lst10_root, head10, tail10)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
           if (pred (head1, head2, head3, head4, head5, &
                head6, head7, head8, head9, head10)) then
              bool = .true.
              done = .true.
-          else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
-             lst4_root = tail4
-             lst5_root = tail5
-             lst6_root = tail6
-             lst7_root = tail7
-             lst8_root = tail8
-             lst9_root = tail9
-             lst10_root = tail10
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
   end function some10
 
   recursive function some_map1_subr (proc, lst1) result (retval)
@@ -16658,21 +16713,23 @@ contains
 
     lst1_root = lst1
 
+    tail1 = .autoval. lst1
     retval = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
+          call uncons (tail1, head1, tail1)
           call proc (head1, retval)
           if (is_not_false (retval)) then
              done = .true.
           else
-             lst1_root = tail1
           end if
        end if
     end do
+
+    call lst1_root%discard
   end function some_map1_subr
 
   recursive function some_map2_subr (proc, lst1, lst2) result (retval)
@@ -16690,25 +16747,28 @@ contains
     lst1_root = lst1
     lst2_root = lst2
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
     retval = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
           call proc (head1, head2, retval)
           if (is_not_false (retval)) then
              done = .true.
           else
-             lst1_root = tail1
-             lst2_root = tail2
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
   end function some_map2_subr
 
   recursive function some_map3_subr (proc, lst1, lst2, lst3) result (retval)
@@ -16730,29 +16790,33 @@ contains
     lst2_root = lst2
     lst3_root = lst3
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
     retval = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
           call proc (head1, head2, head3, retval)
           if (is_not_false (retval)) then
              done = .true.
           else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
   end function some_map3_subr
 
   recursive function some_map4_subr (proc, lst1, lst2, lst3, lst4) result (retval)
@@ -16778,33 +16842,38 @@ contains
     lst3_root = lst3
     lst4_root = lst4
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
     retval = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
-       else if (is_nil_list (lst4_root)) then
+       else if (is_nil_list (tail4)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
-          call uncons (lst4_root, head4, tail4)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
           call proc (head1, head2, head3, head4, retval)
           if (is_not_false (retval)) then
              done = .true.
           else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
-             lst4_root = tail4
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
   end function some_map4_subr
 
   recursive function some_map5_subr (proc, lst1, lst2, lst3, lst4, lst5) result (retval)
@@ -16834,37 +16903,43 @@ contains
     lst4_root = lst4
     lst5_root = lst5
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
     retval = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
-       else if (is_nil_list (lst4_root)) then
+       else if (is_nil_list (tail4)) then
           done = .true.
-       else if (is_nil_list (lst5_root)) then
+       else if (is_nil_list (tail5)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
-          call uncons (lst4_root, head4, tail4)
-          call uncons (lst5_root, head5, tail5)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
           call proc (head1, head2, head3, head4, head5, retval)
           if (is_not_false (retval)) then
              done = .true.
           else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
-             lst4_root = tail4
-             lst5_root = tail5
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
   end function some_map5_subr
 
   recursive function some_map6_subr (proc, lst1, lst2, lst3, lst4, lst5, &
@@ -16899,42 +16974,49 @@ contains
     lst5_root = lst5
     lst6_root = lst6
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
     retval = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
-       else if (is_nil_list (lst4_root)) then
+       else if (is_nil_list (tail4)) then
           done = .true.
-       else if (is_nil_list (lst5_root)) then
+       else if (is_nil_list (tail5)) then
           done = .true.
-       else if (is_nil_list (lst6_root)) then
+       else if (is_nil_list (tail6)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
-          call uncons (lst4_root, head4, tail4)
-          call uncons (lst5_root, head5, tail5)
-          call uncons (lst6_root, head6, tail6)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
           call proc (head1, head2, head3, head4, head5, &
                head6, retval)
           if (is_not_false (retval)) then
              done = .true.
           else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
-             lst4_root = tail4
-             lst5_root = tail5
-             lst6_root = tail6
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
   end function some_map6_subr
 
   recursive function some_map7_subr (proc, lst1, lst2, lst3, lst4, lst5, &
@@ -16973,46 +17055,54 @@ contains
     lst6_root = lst6
     lst7_root = lst7
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
     retval = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
-       else if (is_nil_list (lst4_root)) then
+       else if (is_nil_list (tail4)) then
           done = .true.
-       else if (is_nil_list (lst5_root)) then
+       else if (is_nil_list (tail5)) then
           done = .true.
-       else if (is_nil_list (lst6_root)) then
+       else if (is_nil_list (tail6)) then
           done = .true.
-       else if (is_nil_list (lst7_root)) then
+       else if (is_nil_list (tail7)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
-          call uncons (lst4_root, head4, tail4)
-          call uncons (lst5_root, head5, tail5)
-          call uncons (lst6_root, head6, tail6)
-          call uncons (lst7_root, head7, tail7)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
           call proc (head1, head2, head3, head4, head5, &
                head6, head7, retval)
           if (is_not_false (retval)) then
              done = .true.
           else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
-             lst4_root = tail4
-             lst5_root = tail5
-             lst6_root = tail6
-             lst7_root = tail7
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
   end function some_map7_subr
 
   recursive function some_map8_subr (proc, lst1, lst2, lst3, lst4, lst5, &
@@ -17055,50 +17145,59 @@ contains
     lst7_root = lst7
     lst8_root = lst8
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
     retval = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
-       else if (is_nil_list (lst4_root)) then
+       else if (is_nil_list (tail4)) then
           done = .true.
-       else if (is_nil_list (lst5_root)) then
+       else if (is_nil_list (tail5)) then
           done = .true.
-       else if (is_nil_list (lst6_root)) then
+       else if (is_nil_list (tail6)) then
           done = .true.
-       else if (is_nil_list (lst7_root)) then
+       else if (is_nil_list (tail7)) then
           done = .true.
-       else if (is_nil_list (lst8_root)) then
+       else if (is_nil_list (tail8)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
-          call uncons (lst4_root, head4, tail4)
-          call uncons (lst5_root, head5, tail5)
-          call uncons (lst6_root, head6, tail6)
-          call uncons (lst7_root, head7, tail7)
-          call uncons (lst8_root, head8, tail8)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
           call proc (head1, head2, head3, head4, head5, &
                head6, head7, head8, retval)
           if (is_not_false (retval)) then
              done = .true.
           else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
-             lst4_root = tail4
-             lst5_root = tail5
-             lst6_root = tail6
-             lst7_root = tail7
-             lst8_root = tail8
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
   end function some_map8_subr
 
   recursive function some_map9_subr (proc, lst1, lst2, lst3, lst4, lst5, &
@@ -17145,54 +17244,64 @@ contains
     lst8_root = lst8
     lst9_root = lst9
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
     retval = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
-       else if (is_nil_list (lst4_root)) then
+       else if (is_nil_list (tail4)) then
           done = .true.
-       else if (is_nil_list (lst5_root)) then
+       else if (is_nil_list (tail5)) then
           done = .true.
-       else if (is_nil_list (lst6_root)) then
+       else if (is_nil_list (tail6)) then
           done = .true.
-       else if (is_nil_list (lst7_root)) then
+       else if (is_nil_list (tail7)) then
           done = .true.
-       else if (is_nil_list (lst8_root)) then
+       else if (is_nil_list (tail8)) then
           done = .true.
-       else if (is_nil_list (lst9_root)) then
+       else if (is_nil_list (tail9)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
-          call uncons (lst4_root, head4, tail4)
-          call uncons (lst5_root, head5, tail5)
-          call uncons (lst6_root, head6, tail6)
-          call uncons (lst7_root, head7, tail7)
-          call uncons (lst8_root, head8, tail8)
-          call uncons (lst9_root, head9, tail9)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
           call proc (head1, head2, head3, head4, head5, &
                head6, head7, head8, head9, retval)
           if (is_not_false (retval)) then
              done = .true.
           else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
-             lst4_root = tail4
-             lst5_root = tail5
-             lst6_root = tail6
-             lst7_root = tail7
-             lst8_root = tail8
-             lst9_root = tail9
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
   end function some_map9_subr
 
   recursive function some_map10_subr (proc, lst1, lst2, lst3, lst4, lst5, &
@@ -17243,58 +17352,69 @@ contains
     lst9_root = lst9
     lst10_root = lst10
 
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
     retval = .false.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
-       else if (is_nil_list (lst2_root)) then
+       else if (is_nil_list (tail2)) then
           done = .true.
-       else if (is_nil_list (lst3_root)) then
+       else if (is_nil_list (tail3)) then
           done = .true.
-       else if (is_nil_list (lst4_root)) then
+       else if (is_nil_list (tail4)) then
           done = .true.
-       else if (is_nil_list (lst5_root)) then
+       else if (is_nil_list (tail5)) then
           done = .true.
-       else if (is_nil_list (lst6_root)) then
+       else if (is_nil_list (tail6)) then
           done = .true.
-       else if (is_nil_list (lst7_root)) then
+       else if (is_nil_list (tail7)) then
           done = .true.
-       else if (is_nil_list (lst8_root)) then
+       else if (is_nil_list (tail8)) then
           done = .true.
-       else if (is_nil_list (lst9_root)) then
+       else if (is_nil_list (tail9)) then
           done = .true.
-       else if (is_nil_list (lst10_root)) then
+       else if (is_nil_list (tail10)) then
           done = .true.
        else
-          call uncons (lst1_root, head1, tail1)
-          call uncons (lst2_root, head2, tail2)
-          call uncons (lst3_root, head3, tail3)
-          call uncons (lst4_root, head4, tail4)
-          call uncons (lst5_root, head5, tail5)
-          call uncons (lst6_root, head6, tail6)
-          call uncons (lst7_root, head7, tail7)
-          call uncons (lst8_root, head8, tail8)
-          call uncons (lst9_root, head9, tail9)
-          call uncons (lst10_root, head10, tail10)
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
           call proc (head1, head2, head3, head4, head5, &
                head6, head7, head8, head9, head10, retval)
           if (is_not_false (retval)) then
              done = .true.
           else
-             lst1_root = tail1
-             lst2_root = tail2
-             lst3_root = tail3
-             lst4_root = tail4
-             lst5_root = tail5
-             lst6_root = tail6
-             lst7_root = tail7
-             lst8_root = tail8
-             lst9_root = tail9
-             lst10_root = tail10
           end if
        end if
     end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
   end function some_map10_subr
 
   recursive function every1 (pred, lst1) result (bool)
