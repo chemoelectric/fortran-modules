@@ -771,6 +771,19 @@ module cons_pairs
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
+!! ASSOCIATION LISTS
+!!
+
+  public :: assoc            ! Return the first association pair to
+                             ! match the key. If there is no match,
+                             ! return a nil. (SRFI-1 `assoc', by
+                             ! contrast, returns #f; also its argument
+                             ! order is different. We return a nil
+                             ! because both pairs and nil are
+                             ! type(cons_t).)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
 !! FOLDS AND UNFOLDS
 !!
 
@@ -15616,10 +15629,13 @@ contains
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ft
 
-    type(gcroot_t) :: p
+    type(gcroot_t) :: lst_root
+    class(*), allocatable :: p
     logical :: done
 
-    p = lst
+    lst_root = lst
+
+    p = .autoval. lst
     done = .false.
     do while (.not. done)
        if (is_nil_list (p)) then
@@ -15632,6 +15648,8 @@ contains
           p = cdr (p)
        end if
     end do
+
+    call lst_root%discard
   end function find_tail
 
   recursive function drop_while (pred, lst) result (lst_dw)
@@ -19863,6 +19881,37 @@ contains
     index = list_indexn_10 (pred, 1_sz, lst1, lst2, lst3, lst4, lst5, &
          lst6, lst7, lst8, lst9, lst10)
   end function list_index1_10
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function assoc (pred, key, alst) result (retval)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: key
+    class(*), intent(in) :: alst
+    type(cons_t) :: retval
+
+    type(gcroot_t) :: alst_root
+    class(*), allocatable :: p
+    logical :: done
+
+    alst_root = alst
+
+    p = .autoval. alst
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (p)) then
+          retval = nil          ! SRFI-1 `assoc' returns #f instead.
+          done = .true.
+       else if (pred (key, caar (p))) then
+          retval = .tocons. (car (p))
+          done = .true.
+       else
+          p = cdr (p)
+       end if
+    end do
+
+    call alst_root%discard
+  end function assoc
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

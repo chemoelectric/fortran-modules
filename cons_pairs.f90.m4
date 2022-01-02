@@ -547,6 +547,19 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
+!! ASSOCIATION LISTS
+!!
+
+  public :: assoc            ! Return the first association pair to
+                             ! match the key. If there is no match,
+                             ! return a nil. (SRFI-1 `assoc', by
+                             ! contrast, returns #f; also its argument
+                             ! order is different. We return a nil
+                             ! because both pairs and nil are
+                             ! type(cons_t).)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
 !! FOLDS AND UNFOLDS
 !!
 
@@ -4238,10 +4251,13 @@ m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ft
 
-    type(gcroot_t) :: p
+    type(gcroot_t) :: lst_root
+    class(*), allocatable :: p
     logical :: done
 
-    p = lst
+    lst_root = lst
+
+    p = .autoval. lst
     done = .false.
     do while (.not. done)
        if (is_nil_list (p)) then
@@ -4254,6 +4270,8 @@ m4_forloop([k],[1],n,[dnl
           p = cdr (p)
        end if
     end do
+
+    call lst_root%discard
   end function find_tail
 
   recursive function drop_while (pred, lst) result (lst_dw)
@@ -4879,6 +4897,37 @@ m4_forloop([k],[1],n,[dnl
 
 ])dnl
 dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function assoc (pred, key, alst) result (retval)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: key
+    class(*), intent(in) :: alst
+    type(cons_t) :: retval
+
+    type(gcroot_t) :: alst_root
+    class(*), allocatable :: p
+    logical :: done
+
+    alst_root = alst
+
+    p = .autoval. alst
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (p)) then
+          retval = nil          ! SRFI-1 `assoc' returns #f instead.
+          done = .true.
+       else if (pred (key, caar (p))) then
+          retval = .tocons. (car (p))
+          done = .true.
+       else
+          p = cdr (p)
+       end if
+    end do
+
+    call alst_root%discard
+  end function assoc
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 m4_forloop([n],[1],ZIP_MAX,[dnl

@@ -3439,6 +3439,30 @@ contains
 
   end subroutine test0560
 
+  subroutine test0570
+    type(cons_t) :: retval
+
+    retval = assoc (is_lt, 5, zip (iota (100, 1), iota (100, 10, 10)))
+    call check (first (retval) .eqi. 6, "test0570-0010 failed")
+    call check (second (retval) .eqi. 60, "test0570-0020 failed")
+
+    retval = assoc (is_lt, 50000, zip (iota (100, 1), iota (100, 10, 10)))
+    call check (is_nil (retval), "test0570-0030 failed")
+
+  contains
+
+    function is_lt (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y))
+    end function is_lt
+
+  end subroutine test0570
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -3509,6 +3533,7 @@ contains
     call test0540
     call test0550
     call test0560
+    call test0570
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
