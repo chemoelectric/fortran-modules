@@ -4699,30 +4699,33 @@ m4_forloop([k],[1],n,[dnl
     lst[]k[]_root = lst[]k
 ])dnl
 
+m4_forloop([k],[1],n,[dnl
+    tail[]k = .autoval. lst[]k
+])dnl
     bool = .true.
     done = .false.
     do while (.not. done)
-       if (is_nil_list (lst1_root)) then
+       if (is_nil_list (tail1)) then
           done = .true.
 m4_forloop([k],[2],n,[dnl
-       else if (is_nil_list (lst[]k[]_root)) then
+       else if (is_nil_list (tail[]k)) then
           done = .true.
 ])dnl
        else
 m4_forloop([k],[1],n,[dnl
-          call uncons (lst[]k[]_root, head[]k, tail[]k)
+          call uncons (tail[]k, head[]k, tail[]k)
 ])dnl
-          if (pred (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+          if (.not. pred (head1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
                ])head[]k]))) then
-m4_forloop([k],[1],n,[dnl
-             lst[]k[]_root = tail[]k
-])dnl
-          else
              bool = .false.
              done = .true.
           end if
        end if
     end do
+
+m4_forloop([k],[1],n,[dnl
+    call lst[]k[]_root%discard
+])dnl
   end function every[]n
 
 ])dnl
@@ -4749,7 +4752,7 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
 
 m4_forloop([k],[1],n,[dnl
-    tail[]k = lst[]k
+    tail[]k = .autoval. lst[]k
 ])dnl
     retval = .true.
     done = .false.
