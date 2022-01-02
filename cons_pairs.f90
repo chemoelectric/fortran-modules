@@ -1914,7 +1914,7 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function is_pair (obj) result (bool)
+  pure function is_pair (obj) result (bool)
     class(*), intent(in) :: obj
     logical :: bool
 
@@ -1930,7 +1930,7 @@ contains
     end select
   end function is_pair
 
-  function is_not_pair (obj) result (bool)
+  pure function is_not_pair (obj) result (bool)
     class(*), intent(in) :: obj
     logical :: bool
 
@@ -1939,7 +1939,7 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function is_nil (obj) result (bool)
+  pure function is_nil (obj) result (bool)
     class(*), intent(in) :: obj
     logical :: bool
 
@@ -1955,7 +1955,7 @@ contains
     end select
   end function is_nil
 
-  function is_not_nil (obj) result (bool)
+  pure function is_not_nil (obj) result (bool)
     class(*), intent(in) :: obj
     logical :: bool
 

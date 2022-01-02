@@ -1,4 +1,4 @@
-# Copyright 2021 Barry Schwartz
+# Copyright 2021, 2022 Barry Schwartz
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files
@@ -58,9 +58,24 @@ M4FLAGS += -DLISTN_MAX=20
 M4FLAGS += -DZIP_MAX=10
 
 FC = gfortran
-FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all -Wall -Wextra -Wno-compare-reals -Wno-unused-dummy-argument
+
+FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all -Wall -Wextra
+
+# It is a grave error to teach that it is ‘wrong’ to test equality of
+# two floating point numbers. (Awk, for instance, uses floating point
+# format to store integers.)
+FCFLAGS += -Wno-compare-reals
+
+# Unused dummy arguments are often a fine thing.
+FCFLAGS += -Wno-unused-dummy-argument
+
 COMPILE.f90 = $(FC) $(FCFLAGS) $(XFCFLAGS)
+
+# Sometimes we tolerate trampolines.
 FCFLAG_WNO_TRAMPOLINES = -Wno-trampolines
+
+# Sometimes we tolerate elimination of impure functions.
+FCFLAGS_WNO_FUNCTION_ELIMINATION = -Wno-function-elimination
 
 %.anchor: %.f90
 	$(COMPILE.f90) -c -fsyntax-only $(<) && touch $(@)
@@ -110,9 +125,9 @@ test__cons_pairs: $(addsuffix .$(OBJEXT), test__cons_pairs cons_pairs garbage_co
 	$(COMPILE.f90) $(^) -o $(@)
 
 test__cons_pairs.anchor: test__cons_pairs.f90
-	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c -fsyntax-only $(<) && touch $(@)
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c -fsyntax-only $(<) && touch $(@)
 test__cons_pairs.$(OBJEXT): test__cons_pairs.anchor
-	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c $(<:.anchor=.f90) -o $(@)
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c $(<:.anchor=.f90) -o $(@)
 
 cons_lists.f90: cadadr.m4
 
@@ -123,6 +138,7 @@ boxes.anchor: garbage_collector.anchor
 boxes.anchor: boxes.mod
 boxes.mod:
 
+cons_pairs.f90: cadadr.m4
 cons_pairs.anchor: garbage_collector.anchor
 cons_pairs.anchor: cons_pairs.mod
 cons_pairs.mod:
@@ -131,6 +147,7 @@ test__boxes.anchor: boxes.anchor
 test__boxes.anchor: test__boxes.mod
 test__boxes.mod:
 
+test__cons_pairs.f90: cadadr.m4
 test__cons_pairs.anchor: cons_pairs.anchor
 test__cons_pairs.anchor: test__cons_pairs.mod
 test__cons_pairs.mod:

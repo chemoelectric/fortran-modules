@@ -1,4 +1,4 @@
-! -*- F90 -*- include(`common-macros.m4')m4_include([cadadr.m4])
+! -*- F90 -*- include(`common-macros.m4')
 !
 ! Copyright 2021 Barry Schwartz
 !

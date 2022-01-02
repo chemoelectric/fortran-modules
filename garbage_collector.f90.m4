@@ -1,4 +1,4 @@
-! -*- F90 -*- include(`common-macros.m4')m4_include([cadadr.m4])
+! -*- F90 -*- include(`common-macros.m4')
 !
 ! Copyright 2021, 2022 Barry Schwartz
 !
@@ -381,7 +381,7 @@ m4_if(DEBUGGING,[true],[dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function gcroot_t_val (this) result (retval)
+  pure function gcroot_t_val (this) result (retval)
     class(gcroot_t), intent(in) :: this
     class(*), allocatable :: retval
     select type (root => this%root)
@@ -392,7 +392,7 @@ m4_if(DEBUGGING,[true],[dnl
     end select
   end function gcroot_t_val
 
-  function gcroot_t_autoval (obj) result (retval)
+  pure function gcroot_t_autoval (obj) result (retval)
     !
     ! Do (.val. obj) if obj is a gcroot. Otherwise just copy the
     ! object, unaltered.

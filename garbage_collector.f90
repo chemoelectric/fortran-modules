@@ -313,7 +313,7 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function gcroot_t_val (this) result (retval)
+  pure function gcroot_t_val (this) result (retval)
     class(gcroot_t), intent(in) :: this
     class(*), allocatable :: retval
     select type (root => this%root)
@@ -324,7 +324,7 @@ contains
     end select
   end function gcroot_t_val
 
-  function gcroot_t_autoval (obj) result (retval)
+  pure function gcroot_t_autoval (obj) result (retval)
     !
     ! Do (.val. obj) if obj is a gcroot. Otherwise just copy the
     ! object, unaltered.
