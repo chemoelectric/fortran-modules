@@ -3441,6 +3441,7 @@ contains
 
   subroutine test0570
     type(cons_t) :: retval
+    class(*), allocatable :: alst1, alst2
 
     retval = assoc (is_lt, 5, zip (iota (100, 1), iota (100, 10, 10)))
     call check (first (retval) .eqi. 6, "test0570-0010 failed")
@@ -3448,6 +3449,26 @@ contains
 
     retval = assoc (is_lt, 50000, zip (iota (100, 1), iota (100, 10, 10)))
     call check (is_nil (retval), "test0570-0030 failed")
+
+    retval = assoc (int_eq, 7, alist_cons (2, 20, alist_cons (4, 40, alist_cons (7, 70, alist_cons (8, 80, nil)))))
+    call check (car (retval) .eqi. 7, "test0570-0040 failed")
+    call check (cdr (retval) .eqi. 70, "test0570-0050 failed")
+
+    alst1 = zip (iota (100, 1), iota (100, 10, 10))
+    alst2 = alist_copy (alst1)
+    call set_cdr (alst1, nil)
+    call check (is_nil (assoc (int_eq, 50, alst1)), "test0570-0060 failed")
+    call check (car (assoc (int_eq, 50, alst2)) .eqi. 50, "test0570-0070 failed")
+    call check (cadr (assoc (int_eq, 50, alst2)) .eqi. 500, "test0570-0080 failed")
+
+    alst1 = zip (iota (100, 1), iota (100, 10, 10))
+    alst2 = alist_delete (key_divides_value, 2, alst1)
+    call check (list_equal (entry_eq, alst1, zip (iota (100, 1), iota (100, 10, 10))), "test0570-0090 failed")
+    call check (list_equal (entry_eq, alst2, zip (iota (50, 1, 2), iota (50, 10, 20))), "test0570-0100 failed")
+
+    alst1 = zip (iota (100, 1), iota (100, 10, 10))
+    alst2 = alist_deletex (key_divides_value, 2, alst1)
+    call check (list_equal (entry_eq, alst2, zip (iota (50, 1, 2), iota (50, 10, 20))), "test0570-0110 failed")
 
   contains
 
@@ -3460,6 +3481,28 @@ contains
 
       bool = (int_cast (x) < int_cast (y))
     end function is_lt
+
+    function key_divides_value (key, val) result (bool)
+      class(*), intent(in) :: key
+      class(*), intent(in) :: val
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (mod (int_cast (val), int_cast (key)) == 0)
+    end function key_divides_value
+
+    function entry_eq (pair1, pair2) result (bool)
+      class(*), intent(in) :: pair1
+      class(*), intent(in) :: pair2
+      logical :: bool
+
+      ! DO NOT COLLECT GARBAGE in this function. We use it for
+      ! list_equal tests and do not want to collect garbage during
+      ! them.
+
+      bool = (first (pair1) .eqi. first (pair2)) .and. (second (pair1) .eqi. second (pair2))
+    end function entry_eq
 
   end subroutine test0570
 

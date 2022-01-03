@@ -781,6 +781,14 @@ module cons_pairs
                              ! order is different. We return a nil
                              ! because both pairs and nil are
                              ! type(cons_t).)
+  public :: alist_cons       ! CONS an association pair onto a list.
+  public :: alist_copy       ! Copy an association list, being sure to
+                             ! copy each association pair, as well.
+  public :: alist_delete     ! Delete all associations matching the
+                             ! key. (The argument order is different
+                             ! from that of SRFI-1 `alist-delete'.)
+  public :: alist_deletex    ! Like alist_delete, but allowed to
+                             ! destroy its input association list.
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
@@ -15677,7 +15685,6 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
   recursive subroutine drop_equals_trues (pred, x, lst, first_false)
     procedure(list_predicate2_t) :: pred
     class(*), intent(in) :: x
@@ -19912,6 +19919,292 @@ contains
 
     call alst_root%discard
   end function assoc
+
+  function alist_cons (key, val, alst) result (longer_alst)
+    class(*), intent(in) :: key
+    class(*), intent(in) :: val
+    class(*), intent(in) :: alst
+    type(cons_t) :: longer_alst
+
+    longer_alst = cons (cons (key, val), alst)
+  end function alist_cons
+
+  function alist_copy (alst) result (alst_c)
+    class(*), intent(in) :: alst
+    class(*), allocatable :: alst_c
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: key
+    class(*), allocatable :: val
+    type(cons_t) :: cursor
+    type(cons_t) :: new_pair
+
+    tail = .autoval. alst
+    if (is_not_pair (tail)) then
+       alst_c = tail
+    else
+       call uncons (tail, head, tail)
+       cursor = head ** nil
+       alst_c = cursor
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          call uncons (head, key, val)
+          new_pair = cons (key, val) ** nil
+          call set_cdr (cursor, new_pair)
+          cursor = new_pair
+       end do
+       if (is_not_nil (tail)) then
+          call set_cdr (cursor, tail)
+       end if
+    end if
+  end function alist_copy
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive subroutine drop_key_equals_trues (pred, key, alst, first_false)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: key
+    class(*), intent(in) :: alst
+    class(*), allocatable, intent(out) :: first_false
+
+    class(*), allocatable :: p
+    logical :: all_dropped
+
+    p = alst
+    all_dropped = .false.
+    do while (.not. all_dropped)
+       if (is_not_pair (p)) then
+          first_false = p
+          all_dropped = .true.
+       else
+          if (pred (key, caar (p))) then
+             p = cdr (p)
+          else
+             first_false = p
+             all_dropped = .true.
+          end if
+       end if
+    end do
+  end subroutine drop_key_equals_trues
+
+  recursive subroutine take_key_equals_falses_destructively (pred, key, alst, last_false, first_true)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: key
+    class(*), intent(in) :: alst
+    class(*), allocatable, intent(out) :: last_false
+    class(*), allocatable, intent(out) :: first_true
+
+    class(*), allocatable :: p
+    logical :: all_taken
+
+    last_false = alst
+    p = cdr (alst)
+    all_taken = .false.
+    do while (.not. all_taken)
+       if (is_not_pair (p)) then
+          first_true = p
+          all_taken = .true.
+       else
+          if (pred (key, caar (p))) then
+             first_true = p
+             all_taken = .true.
+          else
+             last_false = p
+             p = cdr (p)
+          end if
+       end if
+    end do
+  end subroutine take_key_equals_falses_destructively
+
+  recursive subroutine take_key_equals_falses_nondestructively (pred, key, alst, falses, last_false, first_true)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: key
+    class(*), intent(in) :: alst
+    class(*), allocatable, intent(out) :: falses
+    class(*), allocatable, intent(out) :: last_false
+    class(*), allocatable, intent(out) :: first_true
+
+    class(*), allocatable :: p
+    type(cons_t) :: new_pair
+    logical :: all_taken
+
+    p = cdr (alst)
+    all_taken = .false.
+    do while (.not. all_taken)
+       if (is_not_pair (p)) then
+          first_true = p
+          all_taken = .true.
+       else
+          if (pred (key, caar (p))) then
+             first_true = p
+             all_taken = .true.
+          else
+             p = cdr (p)
+          end if
+       end if
+    end do
+
+    if (is_not_pair (first_true)) then
+       ! alst ends on a run of falses. Set `falses' to the run of
+       ! falses, for use as a shared tail. (There is no need to set
+       ! `last_pair'.)
+       falses = alst
+    else
+       ! Copy the run of falses, saving a reference to its last
+       ! pair.
+       falses = car (alst) ** nil
+       last_false = falses
+       p = cdr (alst)
+       do while (.not. cons_t_eq (p, first_true))
+          new_pair = car (p) ** nil
+          call set_cdr (last_false, new_pair)
+          last_false = new_pair
+          p = cdr (p)
+       end do
+    end if
+  end subroutine take_key_equals_falses_nondestructively
+
+  recursive function alist_deletex (pred, key, alst) result (alst_d)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: key
+    class(*), intent(in) :: alst
+    class(*), allocatable :: alst_d
+
+    class(*), allocatable :: first_false
+    class(*), allocatable :: last_false
+    class(*), allocatable :: first_true
+    class(*), allocatable :: kk
+    type(gcroot_t) :: retval
+    logical :: done
+
+    type(gcroot_t) :: key_root
+
+    ! Protect key against garbage collections instigated by pred.
+    key_root = key
+
+    kk = .autoval. key
+
+    if (is_not_pair (alst)) then
+       ! alst is empty, but possibly dotted. Copy the terminating
+       ! object (so it is a kind of shared tail).
+       alst_d = .autoval. alst
+    else
+       retval = alst          ! Protect alst from garbage collections.
+       call drop_key_equals_trues (pred, kk, .autoval. alst, first_false)
+       if (is_not_pair (first_false)) then
+          ! There are no trues and there is no shared tail.
+          alst_d = nil
+          call retval%discard
+       else
+          retval = first_false
+          call take_key_equals_falses_destructively (pred, kk, first_false, last_false, first_true)
+          if (is_not_pair (first_true)) then
+             ! The entire result is a tail of the input list.
+             alst_d = .val. retval
+          else
+             done = .false.
+             do while (.not. done)
+                call drop_key_equals_trues (pred, kk, first_true, first_false)
+                if (is_not_pair (first_false)) then
+                   ! The tail of the original is a run of
+                   ! falses. Remove it, and then the filtering is
+                   ! done.
+                   call set_cdr (last_false, nil)
+                   done = .true.
+                else
+                   ! Leave out the run of falses, destructively.
+                   call set_cdr (last_false, first_false)
+                   ! Get the next run of trues.
+                   call take_key_equals_falses_destructively (pred, kk, first_false, last_false, first_true)
+                   if (is_not_pair (first_true)) then
+                      ! The tail of the original is a run of
+                      ! trues. The filtering is done.
+                      done = .true.
+                   end if
+                end if
+             end do
+             alst_d = .val. retval
+          end if
+       end if
+    end if
+
+    call key_root%discard
+  end function alist_deletex
+
+  recursive function alist_delete (pred, key, alst) result (alst_d)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: key
+    class(*), intent(in) :: alst
+    class(*), allocatable :: alst_d
+
+    class(*), allocatable :: first_false
+    class(*), allocatable :: last_false1, last_false2
+    class(*), allocatable :: first_true
+    class(*), allocatable :: falses
+    class(*), allocatable :: kk
+    type(gcroot_t) :: retval
+    logical :: done
+
+    type(gcroot_t) :: key_root
+    type(gcroot_t) :: alst_root
+
+    ! Protect key and alst against garbage collections instigated by
+    ! pred.
+    key_root = key
+    alst_root = alst
+
+    kk = .autoval. key
+    first_true = nil
+    first_false = nil
+
+    if (is_not_pair (alst)) then
+       ! alst is empty, but possibly dotted. Copy the terminating
+       ! object (so it is a kind of shared tail).
+       alst_d = .autoval. alst
+    else
+       call drop_key_equals_trues (pred, kk, .autoval. alst, first_false)
+       if (is_not_pair (first_false)) then
+          ! There are no falses and there is no shared tail.
+          alst_d = nil
+       else
+          call take_key_equals_falses_nondestructively (pred, kk, first_false, falses, last_false1, first_true)
+          if (is_not_pair (first_true)) then
+             ! The entire result is a tail of the input list. Share
+             ! it.
+             alst_d = falses
+          else
+             retval = falses
+             done = .false.
+             do while (.not. done)
+                call drop_key_equals_trues (pred, kk, first_true, first_false)
+                if (is_not_pair (first_false)) then
+                   ! The tail of the original is a run of
+                   ! falses. Leave it out. Filtering is done.
+                   done = .true.
+                else
+                   ! Leave out the run of falses. Get the next run of
+                   ! falses.
+                   call take_key_equals_falses_nondestructively (pred, kk, first_false, falses, last_false2, first_true)
+                   call set_cdr (last_false1, falses)
+                   if (is_not_pair (first_true)) then
+                      ! The tail of the original is a run of
+                      ! falses. Keep it as a shared tail. Filtering is
+                      ! done.
+                      done = .true.
+                   else
+                      last_false1 = last_false2
+                   end if
+                end if
+             end do
+             alst_d = .val. retval
+          end if
+       end if
+    end if
+
+    call key_root%discard
+    call alst_root%discard
+  end function alist_delete
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
