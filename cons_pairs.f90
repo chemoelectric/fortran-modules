@@ -23581,7 +23581,14 @@ contains
     class(*), intent(in) :: lst2
     type(cons_t) :: lst_m
 
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+
+    lst1_root = lst1
+    lst2_root = lst2
     lst_m = list_mergex (compare, list_copy (lst1), list_copy (lst2))
+    call lst1_root%discard
+    call lst2_root%discard
   end function list_merge
 
   recursive function list_mergex (compare, lst1, lst2) result (lst_m)
@@ -23593,28 +23600,21 @@ contains
     class(*), intent(in) :: lst2
     type(cons_t) :: lst_m
 
-    type(gcroot_t) :: lst1_root
-    type(gcroot_t) :: lst2_root
-    type(cons_t) :: p1
-    type(cons_t) :: p2
+    type(gcroot_t) :: p1
+    type(gcroot_t) :: p2
 
-    lst1_root = lst1
-    lst2_root = lst2
-
-    p1 = .tocons. lst1
-    p2 = .tocons. lst2
-    lst_m = .tocons. merge_lists (p1, p2)
-
-    call lst1_root%discard
-    call lst2_root%discard
+    p1 = lst1
+    p2 = lst2
+    lst_m = merge_lists (p1, p2)
 
   contains
 
     recursive function merge_lists (p1, p2) result (lst_m)
-      type(cons_t) :: p1
-      type(cons_t) :: p2
-      type(gcroot_t) :: lst_m
+      type(gcroot_t) :: p1
+      type(gcroot_t) :: p2
+      type(cons_t) :: lst_m
 
+      type(gcroot_t) :: lst_m_root
       class(*), allocatable :: hd1, tl1
       class(*), allocatable :: hd2, tl2
       type(cons_t) :: cursor
@@ -23623,22 +23623,23 @@ contains
       logical :: done
 
       if (is_not_pair (p1)) then
-         lst_m = p2
+         lst_m = .tocons. p2
       else if (is_not_pair (p2)) then
-         lst_m = p1
+         lst_m = .tocons. p1
       else
          call uncons (p1, hd1, tl1)
          call uncons (p2, hd2, tl2)
          if (compare (hd1, hd2) <= 0) then
             p1_is_active = .true.
-            cursor = p1
-            p1 = .tocons. tl1
+            cursor = .tocons. p1
+            p1 = tl1
          else
             p1_is_active = .false.
-            cursor = p2
-            p2 = .tocons. tl2
+            cursor = .tocons. p2
+            p2 = tl2
          end if
          lst_m = cursor
+         lst_m_root = lst_m
          done = .false.
          do while (.not. done)
             if (p1_is_active) then
@@ -23656,14 +23657,14 @@ contains
                      call uncons (p1, hd1, tl1)
                      call uncons (p2, hd2, tl2)
                      if (compare (hd1, hd2) <= 0) then
-                        cursor = p1
-                        p1 = .tocons. tl1
+                        cursor = .tocons. p1
+                        p1 = tl1
                      else
                         call set_cdr (cursor, p2)
                         p1_is_active = .false.
                         p1_is_active_is_changed = .true.
-                        cursor = p2
-                        p2 = .tocons. tl2
+                        cursor = .tocons. p2
+                        p2 = tl2
                      end if
                   end if
                end do
@@ -23685,18 +23686,19 @@ contains
                         call set_cdr (cursor, p1)
                         p1_is_active = .true.
                         p1_is_active_is_changed = .true.
-                        cursor = p1
-                        p1 = .tocons. tl1
+                        cursor = .tocons. p1
+                        p1 =  tl1
                      else
                         call set_cdr (cursor, p2)
-                        cursor = p2
-                        p2 = .tocons. tl2
+                        cursor = .tocons. p2
+                        p2 =  tl2
                      end if
                   end if
                end do
             end if
          end do
       end if
+      call lst_m_root%discard
     end function merge_lists
 
   end function list_mergex
@@ -23706,7 +23708,11 @@ contains
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ss
 
+    type(gcroot_t) :: lst_root
+
+    lst_root = lst
     lst_ss = list_stable_sortx (compare, list_copy (lst))
+    call lst_root%discard
   end function list_stable_sort
 
   recursive function list_stable_sortx (compare, lst) result (lst_ss)
@@ -23716,23 +23722,18 @@ contains
 
     integer, parameter :: small_size = 11
 
-    type(gcroot_t) :: lst_root
-    type(cons_t) :: p
+    type(gcroot_t) :: p
 
-    lst_root = lst
-
-    p = .tocons. lst
+    p = lst
     if (is_not_pair (p)) then
        ! List of length zero.
-       lst_ss = p
+       lst_ss = .tocons. p
     else if (is_not_pair (cdr (p))) then
        ! List of length one.
-       lst_ss = p
+       lst_ss = .tocons. p
     else
-       lst_ss = .tocons. merge_sort (p, length (p))
+       lst_ss = merge_sort (p, length (p))
     end if
-
-    call lst_root%discard
 
   contains
 
@@ -23741,9 +23742,9 @@ contains
       ! Put CONS pairs into an array and do an insertion sort on the
       ! array.
       !
-      type(cons_t), intent(in) :: p
+      type(gcroot_t), intent(in) :: p
       integer(sz), intent(in) :: n
-      type(gcroot_t) :: lst_ss
+      type(cons_t) :: lst_ss
 
       type(cons_t), dimension(1:small_size) :: array
       type(cons_t) :: q, x
@@ -23751,10 +23752,10 @@ contains
       logical :: done
 
       if (n <= 1) then
-         lst_ss = p
+         lst_ss = .tocons. p
       else
          ! Fill the array with CONS pairs.
-         q = p
+         q = .tocons. p
          do i = 1, n
             array(i) = q
             q = .tocons. cdr (q)
@@ -23793,22 +23794,26 @@ contains
       !
       ! A top-down merge sort using non-tail recursion.
       !
-      type(cons_t), intent(in) :: p
+      type(gcroot_t), intent(in) :: p
       integer(sz), intent(in) :: n
-      type(gcroot_t) :: lst_ss
+      type(cons_t) :: lst_ss
 
       integer(sz) :: n_half
-      type(cons_t) :: split
-      type(gcroot_t) :: p_left, p_right
+      type(cons_t) :: p_left
+      class(*), allocatable :: p_right
+      type(gcroot_t) :: p_left1
+      type(gcroot_t) :: p_right1
 
       if (n <= small_size) then
          lst_ss = insertion_sort (p, n)
       else
          n_half = n / 2
-         split = split_atx (p, n_half)
-         p_left = merge_sort (.tocons. first (split), n_half)
-         p_right = merge_sort (.tocons. second (split), n - n_half)
-         lst_ss = list_mergex (compare, p_left, p_right)
+         call do_split_atx (p, n_half, p_left, p_right)
+         p_left1 = p_left
+         p_right1 = p_right
+         p_left1 = merge_sort (p_left1, n_half)
+         p_right1 = merge_sort (p_right1, n - n_half)
+         lst_ss = list_mergex (compare, p_left1, p_right1)
       end if
     end function merge_sort
 
