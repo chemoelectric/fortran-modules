@@ -623,6 +623,21 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: reduce_right_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! MERGING AND SORTING
+!!
+!! This functionality is not included in SRFI-1. The naming is
+!! influenced by SRFI-132.
+!!
+
+  public :: list_merge          ! Stable merge.
+  public :: list_mergex         ! Stable merge that is allowed to alter its inputs.
+  public :: list_stable_sort    ! Stable sort.
+  public :: list_stable_sortx   ! Stable sort that is allowed to alter its input.
+  public :: list_sort           ! Sort that may or may not be stable.
+  public :: list_sortx          ! Like list_sort but allowed to alter its input.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   ! Types for predicates.
   public :: list_predicate1_t ! A predicate taking 1 argument.
@@ -640,6 +655,18 @@ m4_forloop([k],[1],n,[dnl
        logical :: bool
      end function list_predicate[]n[]_t
 ])dnl
+  end interface
+
+  ! Type for comparisons used in sorting, merging, etc. Returns an
+  ! integer indicating sign.
+  public :: list_comparison_function_t
+
+  abstract interface
+     recursive function list_comparison_function_t (x1, x2) result (sign)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       integer :: sign
+     end function list_comparison_function_t
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -5654,6 +5681,272 @@ dnl
 
     lst = unfold_right_with_tail (pred, f, g, seed, nil)
   end function unfold_right_with_nil_tail
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function list_merge (compare, lst1, lst2) result (lst_m)
+    !
+    ! It is assumed lst1 and lst2 are proper lists.
+    !
+    procedure(list_comparison_function_t) :: compare 
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_m
+
+    lst_m = list_mergex (compare, list_copy (lst1), list_copy (lst2))
+  end function list_merge
+
+  recursive function list_mergex (compare, lst1, lst2) result (lst_m)
+    !
+    ! It is assumed lst1 and lst2 are proper lists.
+    !
+    procedure(list_comparison_function_t) :: compare 
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(cons_t) :: p1
+    type(cons_t) :: p2
+
+    lst1_root = lst1
+    lst2_root = lst2
+
+    p1 = .tocons. lst1
+    p2 = .tocons. lst2
+    lst_m = .tocons. merge_lists (p1, p2)
+
+    call lst1_root%discard
+    call lst2_root%discard
+
+  contains
+
+    recursive function merge_lists (p1, p2) result (lst_m)
+      type(cons_t) :: p1
+      type(cons_t) :: p2
+      type(gcroot_t) :: lst_m
+
+      class(*), allocatable :: hd1, tl1
+      class(*), allocatable :: hd2, tl2
+      type(cons_t) :: cursor
+      logical :: p1_is_active
+      logical :: p1_is_active_is_changed
+      logical :: done
+
+      if (is_not_pair (p1)) then
+         lst_m = p2
+      else if (is_not_pair (p2)) then
+         lst_m = p1
+      else
+         call uncons (p1, hd1, tl1)
+         call uncons (p2, hd2, tl2)
+         if (compare (hd1, hd2) <= 0) then
+            p1_is_active = .true.
+            cursor = p1
+            p1 = .tocons. tl1
+         else
+            p1_is_active = .false.
+            cursor = p2
+            p2 = .tocons. tl2
+         end if
+         lst_m = cursor
+         done = .false.
+         do while (.not. done)
+            if (p1_is_active) then
+               p1_is_active_is_changed = .false.
+               do while (.not. p1_is_active_is_changed)
+                  if (is_not_pair (p1)) then
+                     call set_cdr (cursor, p2)
+                     p1_is_active_is_changed = .true.
+                     done = .true.
+                  else if (is_not_pair (p2)) then
+                     call set_cdr (cursor, p1)
+                     p1_is_active_is_changed = .true.
+                     done = .true.
+                  else
+                     call uncons (p1, hd1, tl1)
+                     call uncons (p2, hd2, tl2)
+                     if (compare (hd1, hd2) <= 0) then
+                        cursor = p1
+                        p1 = .tocons. tl1
+                     else
+                        call set_cdr (cursor, p2)
+                        p1_is_active = .false.
+                        p1_is_active_is_changed = .true.
+                        cursor = p2
+                        p2 = .tocons. tl2
+                     end if
+                  end if
+               end do
+            else
+               p1_is_active_is_changed = .false.
+               do while (.not. p1_is_active_is_changed)
+                  if (is_not_pair (p1)) then
+                     call set_cdr (cursor, p2)
+                     p1_is_active_is_changed = .true.
+                     done = .true.
+                  else if (is_not_pair (p2)) then
+                     call set_cdr (cursor, p1)
+                     p1_is_active_is_changed = .true.
+                     done = .true.
+                  else
+                     call uncons (p1, hd1, tl1)
+                     call uncons (p2, hd2, tl2)
+                     if (compare (hd1, hd2) <= 0) then
+                        call set_cdr (cursor, p1)
+                        p1_is_active = .true.
+                        p1_is_active_is_changed = .true.
+                        cursor = p1
+                        p1 = .tocons. tl1
+                     else
+                        call set_cdr (cursor, p2)
+                        cursor = p2
+                        p2 = .tocons. tl2
+                     end if
+                  end if
+               end do
+            end if
+         end do
+      end if
+    end function merge_lists
+
+  end function list_mergex
+
+  recursive function list_stable_sort (compare, lst) result (lst_ss)
+    procedure(list_comparison_function_t) :: compare 
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_ss
+
+    lst_ss = list_stable_sortx (compare, list_copy (lst))
+  end function list_stable_sort
+
+  recursive function list_stable_sortx (compare, lst) result (lst_ss)
+    procedure(list_comparison_function_t) :: compare 
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_ss
+
+    integer, parameter :: small_size = 11
+
+    type(gcroot_t) :: lst_root
+    type(cons_t) :: p
+
+    lst_root = lst
+
+    p = .tocons. lst
+    if (is_not_pair (p)) then
+       ! List of length zero.
+       lst_ss = p
+    else if (is_not_pair (cdr (p))) then
+       ! List of length one.
+       lst_ss = p
+    else
+       lst_ss = .tocons. merge_sort (p, length (p))
+    end if
+
+    call lst_root%discard
+
+  contains
+
+    recursive function insertion_sort (p, n) result (lst_ss)
+      !
+      ! Put CONS pairs into an array and do an insertion sort on the
+      ! array.
+      !
+      type(cons_t), intent(in) :: p
+      integer(sz), intent(in) :: n
+      type(gcroot_t) :: lst_ss
+
+      type(cons_t), dimension(1:small_size) :: array
+      type(cons_t) :: q, x
+      integer(sz) :: i, j
+      logical :: done
+
+      if (n <= 1) then
+         lst_ss = p
+      else
+         ! Fill the array with CONS pairs.
+         q = p
+         do i = 1, n
+            array(i) = q
+            q = .tocons. cdr (q)
+         end do
+
+         ! Do an insertion sort on the array.
+         do i = 2, n
+            x = array(i)
+            j = i - 1
+            done = .false.
+            do while (.not. done)
+               if (j == 0) then
+                  done = .true.
+               else if (compare (car (array(j)), car (x)) <= 0) then
+                  done = .true.
+               else
+                  array(j + 1) = array(j)
+                  j = j - 1
+               end if
+            end do
+            array(j + 1) = x
+         end do
+
+         ! Connect the CONS pairs into a list.
+         call set_cdr (array(n), nil)
+         do i = n - 1, 1, -1
+            call set_cdr (array(i), array(i + 1))
+         end do
+
+         ! The result.
+         lst_ss = array(1)
+      end if
+    end function insertion_sort
+
+    recursive function merge_sort (p, n) result (lst_ss)
+      !
+      ! A top-down merge sort using non-tail recursion.
+      !
+      type(cons_t), intent(in) :: p
+      integer(sz), intent(in) :: n
+      type(gcroot_t) :: lst_ss
+
+      integer(sz) :: n_half
+      type(cons_t) :: split
+      type(gcroot_t) :: p_left, p_right
+
+      if (n <= small_size) then
+         lst_ss = insertion_sort (p, n)
+      else
+         n_half = n / 2
+         split = split_atx (p, n_half)
+         p_left = merge_sort (.tocons. first (split), n_half)
+         p_right = merge_sort (.tocons. second (split), n - n_half)
+         lst_ss = list_mergex (compare, p_left, p_right)
+      end if
+    end function merge_sort
+
+  end function list_stable_sortx
+
+  recursive function list_sort (compare, lst) result (lst_ss)
+    !
+    ! The current implementation is just list_stable_sort.
+    !
+    procedure(list_comparison_function_t) :: compare 
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_ss
+
+    lst_ss = list_stable_sort (compare, lst)
+  end function list_sort
+
+  recursive function list_sortx (compare, lst) result (lst_ss)
+    !
+    ! The current implementation is just list_stable_sortx.
+    !
+    procedure(list_comparison_function_t) :: compare 
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_ss
+
+    lst_ss = list_stable_sortx (compare, lst)
+  end function list_sortx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
