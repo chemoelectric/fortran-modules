@@ -881,6 +881,23 @@ module cons_pairs
 !! This functionality is not included in SRFI-1. The naming is
 !! influenced by SRFI-132.
 !!
+!! Note, though, that SRFI-132 uses an `ordering predicate', whereas
+!! we use a `compare' function similar to the `strcmp' function of
+!! C. Also, SRFI-132 has a notion different from ours of what
+!! constitutes a `sorted' list: we consider a sequence of two equal
+!! values to be `sorted', whereas SRFI-132 considers a sequence of two
+!! equal numbers to be `unsorted'.
+!!
+
+!!!!
+!!!! FIXME: Switch to using an ordering predicate; and, instead of
+!!!!        testing `compare (x, y) <= 0', test `.not. pred (y,
+!!!!        x)'. IOW, test that y is not `less than' x. See SRFI-95.
+!!!!
+
+!!!!
+!!!! FIXME: Add a `list_is_sorted' function.
+!!!!
 
   public :: list_merge          ! Stable merge.
   public :: list_mergex         ! Stable merge that is allowed to alter its inputs.
