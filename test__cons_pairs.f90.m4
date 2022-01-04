@@ -3648,9 +3648,9 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (list_is_sorted (is_lt, list (123)), "test0600-0070 failed")
 
     call check (.not. list_is_sorted (is_lt_only_ones, make_0_to_99_strangely_ordered ()), "test0600-0080 failed")
-    call check (list_is_sorted (is_lt_only_ones, list_sortx (is_lt_only_ones, make_0_to_99_strangely_ordered ())), &
+    call check (list_is_sorted (is_lt_only_ones, list_stable_sortx (is_lt_only_ones, make_0_to_99_strangely_ordered ())), &
          "test0600-0090 failed")
-    call check (.not. list_is_sorted (is_lt, list_sortx (is_lt_only_ones, make_0_to_99_strangely_ordered ())), &
+    call check (.not. list_is_sorted (is_lt, list_stable_sortx (is_lt_only_ones, make_0_to_99_strangely_ordered ())), &
          "test0600-0100 failed")
 
   contains
