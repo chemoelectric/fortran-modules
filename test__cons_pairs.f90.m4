@@ -3782,46 +3782,59 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   subroutine test0620
     type(cons_t) :: lst
+    type(gcroot_t) :: lst_copy
     integer :: i
 
     call check (is_nil (list_delete_neighbor_dups (is_eq, nil)), "test0620-0010 failed")
     call check (list_delete_neighbor_dups (is_eq, 123) .eqi. 123, "test0620-0020 failed")
-    call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, list (123)), list (123)), "test0620-0030 failed")
-    call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, make_list (100, 123)), list (123)), &
-         "test0620-0040 failed")
+
+    lst = list (123)
+    lst_copy = list_copy (lst)
+    call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), list (123)), "test0620-0030 failed")
+    call check (list_equal (int_eq, lst, lst_copy), "test0620-0035 failed")
+
+    lst = make_list (100, 123)
+    lst_copy = list_copy (lst)
+    call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), list (123)), "test0620-0040 failed")
+    call check (list_equal (int_eq, lst, lst_copy), "test0620-0045 failed")
 
     do i = 1, 11, 10
-       call check (list_equal (int_eq, &
-            list_delete_neighbor_dups (is_eq, append (make_list (i, 123), list (456))), &
-            list (123, 456)), &
-            "test0620-0050 failed")
+       lst = .tocons. append (make_list (i, 123), list (456))
+       lst_copy = list_copy (lst)
+       call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), list (123, 456)), "test0620-0050 failed")
+       call check (list_equal (int_eq, lst, lst_copy), "test0620-0055 failed")
     end do
 
     do i = 1, 11, 10
-       call check (list_equal (int_eq, &
-            list_delete_neighbor_dups (is_eq, cons (123, make_list (i, 456))), &
-            list (123, 456)), &
-            "test0620-0060 failed")
+       lst = .tocons. cons (123, make_list (i, 456))
+       lst_copy = list_copy (lst)
+       call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), list (123, 456)), "test0620-0060 failed")
+       call check (list_equal (int_eq, lst, lst_copy), "test0620-0065 failed")
     end do
 
     do i = 1, 11, 10
-       call check (list_equal (int_eq, &
-            list_delete_neighbor_dups (is_eq, cons (123, append (make_list (i, 456), list (789)))), &
-            list (123, 456, 789)), &
+       lst = .tocons. append (make_list (i, 456), list (789))
+       lst_copy = list_copy (lst)
+       call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, cons (123, lst)), list (123, 456, 789)), &
             "test0620-0070 failed")
+       call check (list_equal (int_eq, lst, lst_copy), "test0620-0075 failed")
     end do
 
     lst = nil
     do i = 1, 10
        lst = .tocons. append (lst, make_list (i, i))
     end do
+    lst_copy = list_copy (lst)
     call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), iota (10, 1)), "test0620-0080 failed")
+    call check (list_equal (int_eq, lst, lst_copy), "test0620-0085 failed")
 
     lst = nil
     do i = 1, 10
        lst = .tocons. append (make_list (i, i), lst)
     end do
+    lst_copy = list_copy (lst)
     call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), iota (10, 10, -1)), "test0620-0090 failed")
+    call check (list_equal (int_eq, lst, lst_copy), "test0620-0095 failed")
 
     lst = nil
     do i = 1, 10
@@ -3831,7 +3844,9 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
           lst = cons (i, lst)
        end if
     end do
+    lst_copy = list_copy (lst)
     call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), iota (10, 10, -1)), "test0620-0100 failed")
+    call check (list_equal (int_eq, lst, lst_copy), "test0620-0105 failed")
 
     lst = nil
     do i = 1, 10
@@ -3841,9 +3856,14 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
           lst = cons (i, lst)
        end if
     end do
+    lst_copy = list_copy (lst)
     call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), iota (10, 10, -1)), "test0620-0110 failed")
+    call check (list_equal (int_eq, lst, lst_copy), "test0620-0115 failed")
 
-    call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, iota (10, 1)), iota (10, 1)), "test0620-0120 failed")
+    lst = iota (10, 1)
+    lst_copy = list_copy (lst)
+    call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), iota (10, 1)), "test0620-0120 failed")
+    call check (list_equal (int_eq, lst, lst_copy), "test0620-0125 failed")
 
   contains
 
