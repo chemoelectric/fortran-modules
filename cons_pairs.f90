@@ -893,6 +893,13 @@ module cons_pairs
   public :: list_sortx          ! Like list_sort but allowed to alter its input.
   public :: list_is_sorted      ! Is the given list in sorted order?
 
+!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!! FIXME: Add list_delete_neighbor_dups
+!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!! FIXME: Add list_delete_neighbor_dupsx
+!!!!!!!!!!!!!!!!!!
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   ! Types for predicates.
