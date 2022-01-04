@@ -892,16 +892,9 @@ module cons_pairs
   public :: list_sort           ! Sort that may or may not be stable.
   public :: list_sortx          ! Like list_sort but allowed to alter its input.
   public :: list_is_sorted      ! Is the given list in sorted order?
-  public :: list_delete_neighbor_dupsx ! FIXME: DOCUMENTATION.
-
-!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!! FIXME: Add list_delete_neighbor_dups
-!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!
+  public :: list_delete_neighbor_dups  ! Delete adjacent duplicates.
+  public :: list_delete_neighbor_dupsx ! Like list_delete_neighbor_dups, but
+                                       ! allowed to modify its input list.
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -23930,6 +23923,152 @@ contains
     end if
     call lst_root%discard
   end function list_delete_neighbor_dupsx
+
+  recursive function list_delete_neighbor_dups (pred, lst) result (lst_dnd)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_dnd
+
+    type(gcroot_t) :: lst_root
+
+    if (is_not_pair (lst)) then
+       lst_dnd = .autoval. lst
+    else
+       lst_root = lst ! Protect the original list from garbage
+                      ! collections instigated by pred.
+       lst_dnd = look_for_duplicates (.tocons. lst)
+    end if
+    call lst_root%discard
+
+  contains
+
+    recursive function look_for_duplicates (lst) result (retval)
+      type(cons_t), intent(in) :: lst
+      type(cons_t) :: retval
+
+      type(gcroot_t) :: retval_root
+      type(cons_t) :: p
+      class(*), allocatable :: q
+      type(cons_t) :: last_pair
+      type(cons_t) :: new_segment
+      type(cons_t) :: new_last_pair
+
+      ! Find either the first adjacent duplicate pair or the end of
+      ! the list.
+      q = find_duplicates (lst)
+      if (is_not_pair (q)) then
+         ! There are no adjacent duplicates anywhere in the original
+         ! list. Simply return the original list.
+         retval = lst
+      else
+         ! A run of duplicates has been found. Build a new list.
+         call copy_sublist (lst, q, retval, last_pair)
+         retval_root = retval ! Protect the output list from garbage
+                              ! collections instigated by pred.
+         do while (is_pair (q))
+            q = skip_duplicates (.tocons. q)
+            if (is_not_pair (q)) then
+               ! The input list ends on a run of duplicates. Terminate
+               ! the output list.
+               call set_cdr_unless_nil (last_pair, q)
+            else
+               ! Start a new segment.
+               p = .tocons. q
+               q = find_duplicates (p)
+               if (is_not_pair (q)) then
+                  ! Append a shared tail.
+                  call set_cdr (last_pair, p)
+               else
+                  ! Copy another section of the input list, and append
+                  ! it to the output list.
+                  call copy_sublist (p, q, new_segment, new_last_pair)
+                  call set_cdr (last_pair, new_segment)
+                  last_pair = new_last_pair
+               endif
+            end if
+         end do
+      end if
+      call retval_root%discard
+    end function look_for_duplicates
+
+    recursive function find_duplicates (p) result (q)
+      type(cons_t), intent(in) :: p
+      class(*), allocatable :: q
+
+      type(cons_t) :: prev
+      logical :: done
+
+      prev = p
+      done = .false.
+      do while (.not. done)
+         q = cdr (prev)
+         if (is_not_pair (q)) then
+            ! q is the end of the input list.
+            done = .true.
+         else if (pred (car (prev), car (q))) then
+            ! q is the start of a run of duplicates.
+            done = .true.
+         else
+            ! Continue looking for a pair of duplicates.
+            prev = .tocons. q
+         end if
+      end do
+    end function find_duplicates
+
+    recursive function skip_duplicates (p) result (q)
+      type(cons_t), intent(in) :: p
+      class(*), allocatable :: q
+
+      type(cons_t) :: prev
+      logical :: done
+
+      prev = p
+      done = .false.
+      do while (.not. done)
+         q = cdr (prev)
+         if (is_not_pair (q)) then
+            ! q is the end of the input list.
+            done = .true.
+         else if (.not. pred (car (prev), car (q))) then
+            ! q is the start of a new segment.
+            done = .true.
+         else
+            ! Continue skipping duplicates.
+            prev = .tocons. q
+         end if
+      end do
+    end function skip_duplicates
+
+    subroutine set_cdr_unless_nil (pair, cdr_value)
+      type(cons_t), intent(in) :: pair
+      class(*), intent(in) :: cdr_value
+
+      if (is_not_nil (cdr_value)) then
+         call set_cdr (pair, cdr_value)
+      end if
+    end subroutine set_cdr_unless_nil
+
+    subroutine copy_sublist (p, q, sublst_copy, last_pair)
+      type(cons_t), intent(in) :: p
+      class(*), intent(in) :: q
+      type(cons_t), intent(out) :: sublst_copy
+      type(cons_t), intent(out) :: last_pair
+
+      class(*), allocatable :: head, tail
+      type(cons_t) :: new_pair
+
+      call uncons (p, head, tail)
+      sublst_copy = head ** nil
+      last_pair = sublst_copy
+      do while (.not. cons_t_eq (tail, q))
+         new_pair = (car (tail)) ** nil
+         call set_cdr (last_pair, new_pair)
+         last_pair = new_pair
+         tail = cdr (tail)
+      end do
+    end subroutine copy_sublist
+
+  end function list_delete_neighbor_dups
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
