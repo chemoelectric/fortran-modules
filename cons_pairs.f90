@@ -892,12 +892,15 @@ module cons_pairs
   public :: list_sort           ! Sort that may or may not be stable.
   public :: list_sortx          ! Like list_sort but allowed to alter its input.
   public :: list_is_sorted      ! Is the given list in sorted order?
+  public :: list_delete_neighbor_dupsx ! FIXME: DOCUMENTATION.
 
+!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!! FIXME: Add list_delete_neighbor_dups
 !!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!! FIXME: Add list_delete_neighbor_dupsx
+!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -23880,6 +23883,53 @@ contains
        end block
     end if
   end function list_is_sorted
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function list_delete_neighbor_dupsx (pred, lst) result (lst_dnd)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst
+    class(*), allocatable :: lst_dnd
+
+    type(gcroot_t) :: lst_root
+    class(*), allocatable :: element
+    class(*), allocatable :: p, q
+    logical :: done
+
+    lst_dnd = .autoval. lst
+    if (is_pair (lst_dnd)) then
+       lst_root = lst_dnd
+       p = lst_dnd
+       call uncons (p, element, q)
+       do while (is_pair (q))
+          if (.not. pred (element, car (q))) then
+             ! Adjacent elements do not match. Advance to the next
+             ! position.
+             p = q
+             call uncons (p, element, q)
+          else
+             ! A run of duplicates is detected. Now p is the pair that
+             ! will have to have its CDR changed. Advance q to the
+             ! end of the run.
+             done = .false.
+             do while (.not. done)
+                if (is_not_pair (q)) then
+                   ! q has reached the end of the input list.
+                   call set_cdr (p, q)
+                   done = .true.
+                else if (.not. pred (element, car (q))) then
+                   ! q has reached a mismatched element.
+                   call set_cdr (p, q)
+                   done = .true.
+                else
+                   call uncons (q, element, q)
+                end if
+             end do
+          end if
+       end do
+    end if
+    call lst_root%discard
+  end function list_delete_neighbor_dupsx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

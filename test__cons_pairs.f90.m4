@@ -3701,6 +3701,67 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   end subroutine test0600
 
+  subroutine test0610
+    type(cons_t) :: lst
+    integer :: i
+
+    call check (is_nil (list_delete_neighbor_dupsx (int_eq, nil)), "test0610-0010 failed")
+    call check (list_delete_neighbor_dupsx (int_eq, 123) .eqi. 123, "test0610-0020 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dupsx (int_eq, list (123)), list (123)), "test0610-0030 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dupsx (int_eq, make_list (100, 123)), list (123)), &
+         "test0610-0040 failed")
+    do i = 1, 101, 10
+       call check (list_equal (int_eq, &
+            list_delete_neighbor_dupsx (int_eq, append (make_list (i, 123), list (456))), &
+            list (123, 456)), &
+            "test0610-0050 failed")
+    end do
+    do i = 1, 101, 10
+       call check (list_equal (int_eq, &
+            list_delete_neighbor_dupsx (int_eq, cons (123, make_list (i, 456))), &
+            list (123, 456)), &
+            "test0610-0060 failed")
+    end do
+    do i = 1, 101, 10
+       call check (list_equal (int_eq, &
+            list_delete_neighbor_dupsx (int_eq, cons (123, append (make_list (i, 456), list (789)))), &
+            list (123, 456, 789)), &
+            "test0610-0070 failed")
+    end do
+
+    lst = nil
+    do i = 1, 100
+       lst = .tocons. append (lst, make_list (i, i))
+    end do
+    call check (list_equal (int_eq, list_delete_neighbor_dupsx (int_eq, lst), iota (100, 1)), "test0610-0080 failed")
+
+    lst = nil
+    do i = 1, 100
+       lst = .tocons. append (make_list (i, i), lst)
+    end do
+    call check (list_equal (int_eq, list_delete_neighbor_dupsx (int_eq, lst), iota (100, 100, -1)), "test0610-0090 failed")
+
+    lst = nil
+    do i = 1, 100
+       if (mod (i, 4) == 0) then
+          lst = .tocons. append (make_list (i, i), lst)
+       else
+          lst = cons (i, lst)
+       end if
+    end do
+    call check (list_equal (int_eq, list_delete_neighbor_dupsx (int_eq, lst), iota (100, 100, -1)), "test0610-0100 failed")
+
+    lst = nil
+    do i = 1, 100
+       if (mod (i, 4) /= 0) then
+          lst = .tocons. append (make_list (i, i), lst)
+       else
+          lst = cons (i, lst)
+       end if
+    end do
+    call check (list_equal (int_eq, list_delete_neighbor_dupsx (int_eq, lst), iota (100, 100, -1)), "test0610-0110 failed")
+  end subroutine test0610
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -3775,6 +3836,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0580
     call test0590
     call test0600
+    call test0610
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
