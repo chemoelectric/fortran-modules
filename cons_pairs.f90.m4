@@ -626,26 +626,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 !!
 !! MERGING AND SORTING
 !!
-!! This functionality is not included in SRFI-1. The naming is
-!! influenced by SRFI-132.
+!! This functionality is not included in SRFI-1, but is influenced
+!! instead more by SRFI-132,
+!! https://srfi.schemers.org/srfi-132/srfi-132.html
 !!
-!! Note, though, that SRFI-132 uses an `ordering predicate', whereas
-!! we use a `compare' function similar to the `strcmp' function of
-!! C. Also, SRFI-132 has a notion different from ours of what
-!! constitutes a `sorted' list: we consider a sequence of two equal
-!! values to be `sorted', whereas SRFI-132 considers a sequence of two
-!! equal numbers to be `unsorted'.
+!! See also SRFI-95, https://srfi.schemers.org/srfi-95/srfi-95.html
 !!
-
-!!!!
-!!!! FIXME: Switch to using an ordering predicate; and, instead of
-!!!!        testing `compare (x, y) <= 0', test `.not. pred (y,
-!!!!        x)'. IOW, test that y is not `less than' x. See SRFI-95.
-!!!!
-
-!!!!
-!!!! FIXME: Add a `list_is_sorted' function.
-!!!!
 
   public :: list_merge          ! Stable merge.
   public :: list_mergex         ! Stable merge that is allowed to alter its inputs.
@@ -653,6 +639,10 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: list_stable_sortx   ! Stable sort that is allowed to alter its input.
   public :: list_sort           ! Sort that may or may not be stable.
   public :: list_sortx          ! Like list_sort but allowed to alter its input.
+
+!!!!!
+!!!!! FIXME: ADD A list_is_sorted FUNCTION
+!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -672,18 +662,6 @@ m4_forloop([k],[1],n,[dnl
        logical :: bool
      end function list_predicate[]n[]_t
 ])dnl
-  end interface
-
-  ! Type for comparisons used in sorting, merging, etc. Returns an
-  ! integer indicating sign.
-  public :: list_comparison_function_t
-
-  abstract interface
-     recursive function list_comparison_function_t (x1, x2) result (sign)
-       class(*), intent(in) :: x1
-       class(*), intent(in) :: x2
-       integer :: sign
-     end function list_comparison_function_t
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -5701,11 +5679,11 @@ dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function list_merge (compare, lst1, lst2) result (lst_m)
+  recursive function list_merge (is_less_than, lst1, lst2) result (lst_m)
     !
     ! It is assumed lst1 and lst2 are proper lists.
     !
-    procedure(list_comparison_function_t) :: compare 
+    procedure(list_predicate2_t) :: is_less_than
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     type(cons_t) :: lst_m
@@ -5715,16 +5693,16 @@ dnl
 
     lst1_root = lst1
     lst2_root = lst2
-    lst_m = list_mergex (compare, list_copy (lst1), list_copy (lst2))
+    lst_m = list_mergex (is_less_than, list_copy (lst1), list_copy (lst2))
     call lst1_root%discard
     call lst2_root%discard
   end function list_merge
 
-  recursive function list_mergex (compare, lst1, lst2) result (lst_m)
+  recursive function list_mergex (is_less_than, lst1, lst2) result (lst_m)
     !
     ! It is assumed lst1 and lst2 are proper lists.
     !
-    procedure(list_comparison_function_t) :: compare 
+    procedure(list_predicate2_t) :: is_less_than
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     type(cons_t) :: lst_m
@@ -5758,7 +5736,7 @@ dnl
       else
          call uncons (p1, hd1, tl1)
          call uncons (p2, hd2, tl2)
-         if (compare (hd1, hd2) <= 0) then
+         if (.not. is_less_than (hd2, hd1)) then
             p1_is_active = .true.
             cursor = .tocons. p1
             p1 = tl1
@@ -5785,7 +5763,7 @@ dnl
                   else
                      call uncons (p1, hd1, tl1)
                      call uncons (p2, hd2, tl2)
-                     if (compare (hd1, hd2) <= 0) then
+                     if (.not. is_less_than (hd2, hd1)) then
                         cursor = .tocons. p1
                         p1 = tl1
                      else
@@ -5811,7 +5789,7 @@ dnl
                   else
                      call uncons (p1, hd1, tl1)
                      call uncons (p2, hd2, tl2)
-                     if (compare (hd1, hd2) <= 0) then
+                     if (.not. is_less_than (hd2, hd1)) then
                         call set_cdr (cursor, p1)
                         p1_is_active = .true.
                         p1_is_active_is_changed = .true.
@@ -5832,20 +5810,20 @@ dnl
 
   end function list_mergex
 
-  recursive function list_stable_sort (compare, lst) result (lst_ss)
-    procedure(list_comparison_function_t) :: compare 
+  recursive function list_stable_sort (is_less_than, lst) result (lst_ss)
+    procedure(list_predicate2_t) :: is_less_than
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ss
 
     type(gcroot_t) :: lst_root
 
     lst_root = lst
-    lst_ss = list_stable_sortx (compare, list_copy (lst))
+    lst_ss = list_stable_sortx (is_less_than, list_copy (lst))
     call lst_root%discard
   end function list_stable_sort
 
-  recursive function list_stable_sortx (compare, lst) result (lst_ss)
-    procedure(list_comparison_function_t) :: compare 
+  recursive function list_stable_sortx (is_less_than, lst) result (lst_ss)
+    procedure(list_predicate2_t) :: is_less_than
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ss
 
@@ -5898,7 +5876,7 @@ dnl
             do while (.not. done)
                if (j == 0) then
                   done = .true.
-               else if (compare (car (array(j)), car (x)) <= 0) then
+               else if (.not. is_less_than (car (x), car (array(j)))) then
                   done = .true.
                else
                   array(j + 1) = array(j)
@@ -5942,32 +5920,32 @@ dnl
          p_right1 = p_right
          p_left1 = merge_sort (p_left1, n_half)
          p_right1 = merge_sort (p_right1, n - n_half)
-         lst_ss = list_mergex (compare, p_left1, p_right1)
+         lst_ss = list_mergex (is_less_than, p_left1, p_right1)
       end if
     end function merge_sort
 
   end function list_stable_sortx
 
-  recursive function list_sort (compare, lst) result (lst_ss)
+  recursive function list_sort (is_less_than, lst) result (lst_ss)
     !
     ! The current implementation is just list_stable_sort.
     !
-    procedure(list_comparison_function_t) :: compare 
+    procedure(list_predicate2_t) :: is_less_than
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ss
 
-    lst_ss = list_stable_sort (compare, lst)
+    lst_ss = list_stable_sort (is_less_than, lst)
   end function list_sort
 
-  recursive function list_sortx (compare, lst) result (lst_ss)
+  recursive function list_sortx (is_less_than, lst) result (lst_ss)
     !
     ! The current implementation is just list_stable_sortx.
     !
-    procedure(list_comparison_function_t) :: compare 
+    procedure(list_predicate2_t) :: is_less_than
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ss
 
-    lst_ss = list_stable_sortx (compare, lst)
+    lst_ss = list_stable_sortx (is_less_than, lst)
   end function list_sortx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

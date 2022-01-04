@@ -73,13 +73,6 @@ contains
     if (.not. boolean) call error_abort (msg)
   end subroutine check
 
-!!$  pure function bincoef (n, k) result (coef)
-!!$    integer, intent(in) :: n
-!!$    integer, intent(in) :: k
-!!$    integer :: coef
-!!$    coef = nint (exp (log_gamma (n + 1.0D0) - log_gamma (n - k + 1.0D0) - log_gamma (k + 1.0D0)))
-!!$  end function bincoef
-
   function str_t_length (this) result (length)
     class(str_t), intent(in) :: this
     integer :: length
@@ -3457,50 +3450,44 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     lst1 = list (2, 3, 5, 6, 10)
     lst2 = list (2, 4, 4, 5, 15)
-    lst3 = list_mergex (int_cmp, lst1, lst2)
+    lst3 = list_mergex (is_lt, lst1, lst2)
     call check (list_equal (int_eq, lst3, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)), "test0580-0010 failed")
 
     lst1 = list (2, 3, 5, 6, 10)
     lst2 = list (2, 4, 4, 5, 15)
-    lst3 = list_merge (int_cmp, lst1, lst2)
+    lst3 = list_merge (is_lt, lst1, lst2)
     call check (list_equal (int_eq, lst1, list (2, 3, 5, 6, 10)), "test0580-0020 failed")
     call check (list_equal (int_eq, lst2, list (2, 4, 4, 5, 15)), "test0580-0030 failed")
     call check (list_equal (int_eq, lst3, list (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)), "test0580-0040 failed")
 
     lst1 = list (22, 31, 53, 61)
     lst2 = list (21, 42, 41, 52, 51)
-    lst3 = list_mergex (int_cmp_except_ones, lst1, lst2)
+    lst3 = list_mergex (is_lt_except_ones, lst1, lst2)
     call check (list_equal (int_eq, lst3, list (22, 21, 31, 42, 41, 53, 52, 51, 61)), "test0580-0050 failed")
 
     lst1 = list (22, 31, 53, 61)
     lst2 = list (21, 42, 41, 52, 51)
-    lst3 = list_merge (int_cmp_except_ones, lst1, lst2)
+    lst3 = list_merge (is_lt_except_ones, lst1, lst2)
     call check (list_equal (int_eq, lst1, list (22, 31, 53, 61)), "test0580-0060 failed")
     call check (list_equal (int_eq, lst2, list (21, 42, 41, 52, 51)), "test0580-0070 failed")
     call check (list_equal (int_eq, lst3, list (22, 21, 31, 42, 41, 53, 52, 51, 61)), "test0580-0080 failed")
 
   contains
 
-    function int_cmp (x, y) result (sign)
+    function is_lt (x, y) result (bool)
       class(*), intent(in) :: x
       class(*), intent(in) :: y
-      integer :: sign
+      logical :: bool
 
       call collect_garbage_now
 
-      if (int_cast (x) < int_cast (y)) then
-         sign = -1
-      else if (int_cast (x) == int_cast (y)) then
-         sign = 0
-      else
-         sign = 1
-      end if
-    end function int_cmp
+      bool = (int_cast (x) < int_cast (y))
+    end function is_lt
 
-    function int_cmp_except_ones (x, y) result (sign)
+    function is_lt_except_ones (x, y) result (bool)
       class(*), intent(in) :: x
       class(*), intent(in) :: y
-      integer :: sign
+      logical :: bool
 
       integer :: x1
       integer :: y1
@@ -3513,14 +3500,8 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
       y1 = int_cast (y)
       y1 = y1 - mod (y1, 10)
 
-      if (x1 < y1) then
-         sign = -1
-      else if (x1 == y1) then
-         sign = 0
-      else
-         sign = 1
-      end if
-    end function int_cmp_except_ones
+      bool = (x1 < y1)
+    end function is_lt_except_ones
 
   end subroutine test0580
 
@@ -3533,43 +3514,43 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     integer :: i, k
 
     lst1 = iota (100, 100, -1)
-    lst2 = list_sortx (int_cmp, lst1)
+    lst2 = list_sortx (is_lt, lst1)
     call check (list_equal (int_eq, lst2, iota (100, 1)), "test0590-0010 failed")
 
     lst1 = iota (100, 100, -1)
-    lst2 = list_sort (int_cmp, lst1)
+    lst2 = list_sort (is_lt, lst1)
     call check (list_equal (int_eq, lst1, iota (100, 100, -1)), "test0590-0020 failed")
     call check (list_equal (int_eq, lst2, iota (100, 1)), "test0590-0030 failed")
 
     lst1 = iota (100, 100, -1)
-    lst2 = list_stable_sortx (int_cmp, lst1)
+    lst2 = list_stable_sortx (is_lt, lst1)
     call check (list_equal (int_eq, lst2, iota (100, 1)), "test0590-0110 failed")
 
     lst1 = iota (100, 100, -1)
-    lst2 = list_stable_sort (int_cmp, lst1)
+    lst2 = list_stable_sort (is_lt, lst1)
     call check (list_equal (int_eq, lst1, iota (100, 100, -1)), "test0590-0120 failed")
     call check (list_equal (int_eq, lst2, iota (100, 1)), "test0590-0130 failed")
 
     lst1 = make_0_to_99_strangely_ordered ()
-    lst2 = list_sort (int_cmp, lst1)
+    lst2 = list_sort (is_lt, lst1)
     call check (list_equal (int_eq, lst1, make_0_to_99_strangely_ordered ()), "test0590-0200 failed")
     call check (list_equal (int_eq, lst2, iota (100)), "test0590-0210 failed")
 
     lst1 = make_0_to_99_strangely_ordered ()
-    lst2 = list_sortx (int_cmp, lst1)
+    lst2 = list_sortx (is_lt, lst1)
     call check (list_equal (int_eq, lst2, iota (100)), "test0590-0220 failed")
 
     lst1 = make_0_to_99_strangely_ordered ()
-    lst2 = list_stable_sort (int_cmp, lst1)
+    lst2 = list_stable_sort (is_lt, lst1)
     call check (list_equal (int_eq, lst1, make_0_to_99_strangely_ordered ()), "test0590-0230 failed")
     call check (list_equal (int_eq, lst2, iota (100)), "test0590-0240 failed")
 
     lst1 = make_0_to_99_strangely_ordered ()
-    lst2 = list_stable_sortx (int_cmp, lst1)
+    lst2 = list_stable_sortx (is_lt, lst1)
     call check (list_equal (int_eq, lst2, iota (100)), "test0590-0250 failed")
     
     lst1 = make_0_to_99_strangely_ordered ()
-    lst2 = list_stable_sort (int_cmp_only_ones, lst1)
+    lst2 = list_stable_sort (is_lt_only_ones, lst1)
     call check (list_equal (int_eq, lst1, make_0_to_99_strangely_ordered ()), "test0590-0300 failed")
     p = lst2
     i = 0
@@ -3582,48 +3563,42 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     end do
     call check (i == 100, "test0590-0330 failed")
 
-    call check (is_nil (list_sort (int_cmp, nil)), "test0590-0410 failed")
-    call check (is_nil (list_sortx (int_cmp, nil)), "test0590-0420 failed")
-    call check (is_nil (list_stable_sort (int_cmp, nil)), "test0590-0430 failed")
-    call check (is_nil (list_stable_sortx (int_cmp, nil)), "test0590-0440 failed")
+    call check (is_nil (list_sort (is_lt, nil)), "test0590-0410 failed")
+    call check (is_nil (list_sortx (is_lt, nil)), "test0590-0420 failed")
+    call check (is_nil (list_stable_sort (is_lt, nil)), "test0590-0430 failed")
+    call check (is_nil (list_stable_sortx (is_lt, nil)), "test0590-0440 failed")
 
-    call check (list_equal (int_eq, list_sort (int_cmp, list (123)), list (123)), "test0590-0510 failed")
-    call check (list_equal (int_eq, list_sortx (int_cmp, list (123)), list (123)), "test0590-0520 failed")
-    call check (list_equal (int_eq, list_stable_sort (int_cmp, list (123)), list (123)), "test0590-0530 failed")
-    call check (list_equal (int_eq, list_stable_sortx (int_cmp, list (123)), list (123)), "test0590-0540 failed")
+    call check (list_equal (int_eq, list_sort (is_lt, list (123)), list (123)), "test0590-0510 failed")
+    call check (list_equal (int_eq, list_sortx (is_lt, list (123)), list (123)), "test0590-0520 failed")
+    call check (list_equal (int_eq, list_stable_sort (is_lt, list (123)), list (123)), "test0590-0530 failed")
+    call check (list_equal (int_eq, list_stable_sortx (is_lt, list (123)), list (123)), "test0590-0540 failed")
 
-    call check (list_equal (int_eq, list_sort (int_cmp, list (1, 2)), list (1, 2)), "test0590-0610 failed")
-    call check (list_equal (int_eq, list_sortx (int_cmp, list (1, 2)), list (1, 2)), "test0590-0620 failed")
-    call check (list_equal (int_eq, list_stable_sort (int_cmp, list (1, 2)), list (1, 2)), "test0590-0630 failed")
-    call check (list_equal (int_eq, list_stable_sortx (int_cmp, list (1, 2)), list (1, 2)), "test0590-0640 failed")
+    call check (list_equal (int_eq, list_sort (is_lt, list (1, 2)), list (1, 2)), "test0590-0610 failed")
+    call check (list_equal (int_eq, list_sortx (is_lt, list (1, 2)), list (1, 2)), "test0590-0620 failed")
+    call check (list_equal (int_eq, list_stable_sort (is_lt, list (1, 2)), list (1, 2)), "test0590-0630 failed")
+    call check (list_equal (int_eq, list_stable_sortx (is_lt, list (1, 2)), list (1, 2)), "test0590-0640 failed")
 
-    call check (list_equal (int_eq, list_sort (int_cmp, list (2, 1)), list (1, 2)), "test0590-0710 failed")
-    call check (list_equal (int_eq, list_sortx (int_cmp, list (2, 1)), list (1, 2)), "test0590-0720 failed")
-    call check (list_equal (int_eq, list_stable_sort (int_cmp, list (2, 1)), list (1, 2)), "test0590-0730 failed")
-    call check (list_equal (int_eq, list_stable_sortx (int_cmp, list (2, 1)), list (1, 2)), "test0590-0740 failed")
+    call check (list_equal (int_eq, list_sort (is_lt, list (2, 1)), list (1, 2)), "test0590-0710 failed")
+    call check (list_equal (int_eq, list_sortx (is_lt, list (2, 1)), list (1, 2)), "test0590-0720 failed")
+    call check (list_equal (int_eq, list_stable_sort (is_lt, list (2, 1)), list (1, 2)), "test0590-0730 failed")
+    call check (list_equal (int_eq, list_stable_sortx (is_lt, list (2, 1)), list (1, 2)), "test0590-0740 failed")
 
   contains
 
-    function int_cmp (x, y) result (sign)
+    function is_lt (x, y) result (bool)
       class(*), intent(in) :: x
       class(*), intent(in) :: y
-      integer :: sign
+      logical :: bool
 
       call collect_garbage_now
 
-      if (int_cast (x) < int_cast (y)) then
-         sign = -1
-      else if (int_cast (x) == int_cast (y)) then
-         sign = 0
-      else
-         sign = 1
-      end if
-    end function int_cmp
+      bool = (int_cast (x) < int_cast (y))
+    end function is_lt
 
-    function int_cmp_only_ones (x, y) result (sign)
+    function is_lt_only_ones (x, y) result (bool)
       class(*), intent(in) :: x
       class(*), intent(in) :: y
-      integer :: sign
+      logical :: bool
 
       integer :: x1
       integer :: y1
@@ -3636,14 +3611,8 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
       y1 = int_cast (y)
       y1 = mod (y1, 10)
 
-      if (x1 < y1) then
-         sign = -1
-      else if (x1 == y1) then
-         sign = 0
-      else
-         sign = 1
-      end if
-    end function int_cmp_only_ones
+      bool = (x1 < y1)
+    end function is_lt_only_ones
 
     function make_0_to_99_strangely_ordered () result (lst)
       type(cons_t) :: lst
