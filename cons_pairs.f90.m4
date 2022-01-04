@@ -5862,43 +5862,39 @@ dnl
       integer(sz) :: i, j
       logical :: done
 
-      if (n <= 1) then
-         lst_ss = .tocons. p
-      else
-         ! Fill the array with CONS pairs.
-         q = .tocons. p
-         do i = 1, n
-            array(i) = q
-            q = .tocons. cdr (q)
-         end do
+      ! Fill the array with CONS pairs.
+      q = .tocons. p
+      do i = 1, n
+         array(i) = q
+         q = .tocons. cdr (q)
+      end do
 
-         ! Do an insertion sort on the array.
-         do i = 2, n
-            x = array(i)
-            j = i - 1
-            done = .false.
-            do while (.not. done)
-               if (j == 0) then
-                  done = .true.
-               else if (.not. is_less_than (car (x), car (array(j)))) then
-                  done = .true.
-               else
-                  array(j + 1) = array(j)
-                  j = j - 1
-               end if
-            end do
-            array(j + 1) = x
+      ! Do an insertion sort on the array.
+      do i = 2, n
+         x = array(i)
+         j = i - 1
+         done = .false.
+         do while (.not. done)
+            if (j == 0) then
+               done = .true.
+            else if (.not. is_less_than (car (x), car (array(j)))) then
+               done = .true.
+            else
+               array(j + 1) = array(j)
+               j = j - 1
+            end if
          end do
+         array(j + 1) = x
+      end do
 
-         ! Connect the CONS pairs into a list.
-         call set_cdr (array(n), nil)
-         do i = n - 1, 1, -1
-            call set_cdr (array(i), array(i + 1))
-         end do
+      ! Connect the CONS pairs into a list.
+      call set_cdr (array(n), nil)
+      do i = n - 1, 1, -1
+         call set_cdr (array(i), array(i + 1))
+      end do
 
-         ! The result.
-         lst_ss = array(1)
-      end if
+      ! The result.
+      lst_ss = array(1)
     end function insertion_sort
 
     recursive function merge_sort (p, n) result (lst_ss)
@@ -5916,7 +5912,13 @@ dnl
       type(gcroot_t) :: p_right1
 
       if (n <= small_size) then
-         lst_ss = insertion_sort (p, n)
+         if (list_is_sorted (is_less_than, p)) then
+            ! Save a lot of activity, if the segment is already
+            ! sorted.
+            lst_ss = .tocons. p
+         else
+            lst_ss = insertion_sort (p, n)
+         end if
       else
          n_half = n / 2
          call do_split_atx (p, n_half, p_left, p_right)
