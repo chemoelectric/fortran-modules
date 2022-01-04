@@ -3631,6 +3631,76 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
   end subroutine test0590
 
+  subroutine test0600
+
+    !
+    ! Tests of list_is_sorted.
+    !
+
+    call check (.not. list_is_sorted (is_lt, iota (100, 100, -1)), "test0600-0010 failed")
+    call check (list_is_sorted (is_lt, iota (100, 1)), "test0600-0020 failed")
+
+    call check (.not. list_is_sorted (is_lt, make_0_to_99_strangely_ordered ()), "test0600-0030 failed")
+    call check (list_is_sorted (is_lt, list_sortx (is_lt, make_0_to_99_strangely_ordered ())), "test0600-0040 failed")
+
+    call check (list_is_sorted (is_lt, make_list (100, 123)), "test0600-0050 failed")
+    call check (list_is_sorted (is_lt, nil), "test0600-0060 failed")
+    call check (list_is_sorted (is_lt, list (123)), "test0600-0070 failed")
+
+    call check (.not. list_is_sorted (is_lt_only_ones, make_0_to_99_strangely_ordered ()), "test0600-0080 failed")
+    call check (list_is_sorted (is_lt_only_ones, list_sortx (is_lt_only_ones, make_0_to_99_strangely_ordered ())), &
+         "test0600-0090 failed")
+    call check (.not. list_is_sorted (is_lt, list_sortx (is_lt_only_ones, make_0_to_99_strangely_ordered ())), &
+         "test0600-0100 failed")
+
+  contains
+
+    function is_lt (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y))
+    end function is_lt
+
+    function is_lt_only_ones (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      integer :: x1
+      integer :: y1
+
+      call collect_garbage_now
+
+      x1 = int_cast (x)
+      x1 = mod (x1, 10)
+
+      y1 = int_cast (y)
+      y1 = mod (y1, 10)
+
+      bool = (x1 < y1)
+    end function is_lt_only_ones
+
+    function make_0_to_99_strangely_ordered () result (lst)
+      type(cons_t) :: lst
+
+      lst = iota (10, 99, -1)
+      lst = .tocons. append (iota (10, 89, -1), lst)
+      lst = .tocons. append (iota (10, 79, -1), lst)
+      lst = .tocons. append (iota (10, 69, -1), lst)
+      lst = .tocons. append (iota (10, 59, -1), lst)
+      lst = .tocons. append (iota (10, 49, -1), lst)
+      lst = .tocons. append (iota (10, 39, -1), lst)
+      lst = .tocons. append (iota (10, 29, -1), lst)
+      lst = .tocons. append (iota (10, 19, -1), lst)
+      lst = .tocons. append (iota (10, 9, -1), lst)
+    end function make_0_to_99_strangely_ordered
+
+  end subroutine test0600
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -3704,6 +3774,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call test0570
     call test0580
     call test0590
+    call test0600
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

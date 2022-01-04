@@ -639,10 +639,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: list_stable_sortx   ! Stable sort that is allowed to alter its input.
   public :: list_sort           ! Sort that may or may not be stable.
   public :: list_sortx          ! Like list_sort but allowed to alter its input.
-
-!!!!!
-!!!!! FIXME: ADD A list_is_sorted FUNCTION
-!!!!!
+  public :: list_is_sorted      ! Is the given list in sorted order?
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -5947,6 +5944,45 @@ dnl
 
     lst_ss = list_stable_sortx (is_less_than, lst)
   end function list_sortx
+
+  recursive function list_is_sorted (is_less_than, lst) result (is_sorted)
+    procedure(list_predicate2_t) :: is_less_than
+    class(*), intent(in) :: lst
+    logical :: is_sorted
+
+    class(*), allocatable :: last_value
+    class(*), allocatable :: next_value
+    class(*), allocatable :: next_pair
+    logical :: done
+
+    if (is_nil_list (lst)) then
+       is_sorted = .true.
+    else if (is_nil_list (cdr (lst))) then
+       is_sorted = .true.
+    else
+       block
+         type(gcroot_t) :: lst_root
+         lst_root = lst
+         call uncons (lst, last_value, next_pair)
+         done = .false.
+         do while (.not. done)
+            if (is_nil_list (next_pair)) then
+               is_sorted = .true.
+               done = .true.
+            else
+               call uncons (next_pair, next_value, next_pair)
+               if (is_less_than (next_value, last_value)) then
+                  is_sorted = .false.
+                  done = .true.
+               else
+                  last_value = next_value
+               end if
+            end if
+         end do
+         call lst_root%discard
+       end block
+    end if
+  end function list_is_sorted
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
