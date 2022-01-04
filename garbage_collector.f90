@@ -66,7 +66,7 @@ module garbage_collector
 
   ! Extend this type to represent different kinds of heap entries.
   type :: collectible_t
-     class(heap_element_t), pointer :: heap_element => null () ! A pointer a node in the heap.
+     class(heap_element_t), pointer :: heap_element => null () ! A pointer to a node in the heap.
    contains
      procedure, pass :: get_branch => collectible_t_get_branch ! Called to find `reachable' nodes.
   end type collectible_t

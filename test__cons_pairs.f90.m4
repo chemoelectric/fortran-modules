@@ -287,7 +287,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     recursive function build_tree (m, n, k) result (tree)
       integer, intent(in) :: m, n, k
-      class(cons_t), allocatable :: tree
+      type(cons_t) :: tree
 
       if (m == n) then
          tree = cons (k, k + 1)
@@ -1219,14 +1219,14 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     ! Use fold to reverse a list. (An example from SRFI-1.)
     lst1 = iota (10, 1)
-    lst2 = .tocons. fold (kcons, nil, lst1)
+    lst2 = fold (kcons, nil, lst1)
     call check (list_equal (int_eq, lst1, iota (10, 1)), "test0230-0020 failed")
     call check (list_equal (int_eq, lst2, iota (10, 10, -1)), "test0230-0030 failed")
 
     ! Use fold to do an append-reverse. (An example from SRFI-1.)
     lst1 = iota (10, 11)
     lst2 = iota (10, 10, -1)
-    lst3 = .tocons. fold (kcons, lst1, lst2)
+    lst3 = fold (kcons, lst1, lst2)
     call check (list_equal (int_eq, lst1, iota (10, 11)), "test0230-0040 failed")
     call check (list_equal (int_eq, lst2, iota (10, 10, -1)), "test0230-0050 failed")
     call check (list_equal (int_eq, lst3, iota (20, 1)), "test0230-0060 failed")
@@ -1256,7 +1256,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     lst1 = list (1, 2, 3, 4)
     lst2 = list (10, 20, 30, 40)
     lst3 = list (100, 200, 300, 400)
-    lst4 = .tocons. fold (klist, nil, lst1, lst2, lst3)
+    lst4 = fold (klist, nil, lst1, lst2, lst3)
     call check (length (lst4) == 4, "test0230-0200 failed")
     call check (list_equal (int_eq, list_ref1 (lst4, 1), list (4, 40, 400)), "test0230-0210 failed")
     call check (list_equal (int_eq, list_ref1 (lst4, 2), list (3, 30, 300)), "test0230-0220 failed")
@@ -1344,23 +1344,23 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     ! Use fold_right to copy a list. (An example from SRFI-1.)
     lst1 = iota (100, 1)
-    lst2 = .tocons. fold_right (kcons, nil, lst1)
+    lst2 = fold_right (kcons, nil, lst1)
     call check (list_equal (int_eq, lst1, iota (100, 1)), "test0240-0010 failed")
     call check (list_equal (int_eq, lst2, iota (100, 1)), "test0240-0020 failed")
 
     ! Keep only the even elements of a list. (An example from SRFI-1.)
     lst1 = iota (100, 1)
-    lst2 = .tocons. fold_right (kcons_if_even, nil, lst1)
+    lst2 = fold_right (kcons_if_even, nil, lst1)
     call check (list_equal (int_eq, lst1, iota (100, 1)), "test0240-0030 failed")
     call check (list_equal (int_eq, lst2, iota (50, 2, 2)), "test0240-0040 failed")
 
     ! Try it again with a nil list.
-    lst2 = .tocons. fold_right (kcons_if_even, nil, nil)
+    lst2 = fold_right (kcons_if_even, nil, nil)
     call check (list_equal (int_eq, lst2, nil), "test0240-0050 failed")
 
     ! Try it again, but with a non-nil tail.
     lst1 = iota (95, 1)
-    lst2 = .tocons. fold_right (kcons_if_even, 96 ** 98 ** 100 ** nil, lst1)
+    lst2 = fold_right (kcons_if_even, 96 ** 98 ** 100 ** nil, lst1)
     call check (list_equal (int_eq, lst1, iota (95, 1)), "test0240-0060 failed")
     call check (list_equal (int_eq, lst2, iota (50, 2, 2)), "test0240-0070 failed")
 
@@ -1368,7 +1368,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     lst1 = list (1, 2, 3, 4)
     lst2 = list (10, 20, 30, 40)
     lst3 = list (100, 200, 300, 400)
-    lst4 = .tocons. fold_right (klist, nil, lst1, lst2, lst3)
+    lst4 = fold_right (klist, nil, lst1, lst2, lst3)
     call check (length (lst4) == 4, "test0230-0200 failed")
     call check (list_equal (int_eq, list_ref1 (lst4, 1), list (1, 10, 100)), "test0240-0210 failed")
     call check (list_equal (int_eq, list_ref1 (lst4, 2), list (2, 20, 200)), "test0240-0220 failed")
@@ -1416,20 +1416,20 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     ! Destructively reverse a list. (An example from SRFI-1.)
     lst1 = iota (100, 1)
-    lst2 = .tocons. pair_fold (ksetcdr, nil, lst1)
+    lst2 = pair_fold (ksetcdr, nil, lst1)
     call check (list_equal (int_eq, lst1, 1 ** nil), "test0250-0010 failed")
     call check (list_equal (int_eq, lst2, iota (100, 100, -1)), "test0250-0020 failed")
 
     ! Enumerate tails in order of ascending length.
     lst1 = iota (100, 1)
-    lst2 = .tocons. pair_fold (kcopy, nil, lst1)
+    lst2 = pair_fold (kcopy, nil, lst1)
     call check (list_equal (int_eq, lst1, iota (100, 1)), "test0250-0030 failed")
     i = 1
     p = lst2
     do while (is_pair (p))
        call check (list_equal (int_eq, car (p), iota (i, 101 - i)), "test0250-0040 failed")
        i = i + 1
-       p = .tocons. cdr (p)
+       p = cdr (p)
     end do
     call check (is_nil (p), "test0250-0050 failed")
 
@@ -1439,7 +1439,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     lst1 = list (1, 2, 3, 4)
     lst2 = list (10, 20, 30, 40)
     lst3 = list (100, 200, 300, 400)
-    lst4 = .tocons. pair_fold (kadd3cdr, nil, lst1, lst2, lst3)
+    lst4 = pair_fold (kadd3cdr, nil, lst1, lst2, lst3)
     call check (list_equal (int_eq, lst4, list (444, 333, 222, 111)), "test0250-0200 failed")
 
   contains
@@ -1482,7 +1482,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     ! are necessary.)
     lst1 = iota (100, 1)
     lst2 = iota (100, 101)
-    lst3 = .tocons. pair_fold_right (ksetcdr, lst2, lst1)
+    lst3 = pair_fold_right (ksetcdr, lst2, lst1)
     call check (list_equal (int_eq, lst1, iota (200, 1)), "test0260-0010 failed")
     call check (list_equal (int_eq, lst2, iota (100, 101)), "test0260-0015 failed")
     call check (list_equal (int_eq, lst3, iota (200, 1)), "test0260-0020 failed")
@@ -1490,14 +1490,14 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     ! Enumerate tails in order of descending length. (An example from
     ! SRFI-1.)
     lst1 = iota (100, 1)
-    lst2 = .tocons. pair_fold_right (kcopy, nil, lst1)
+    lst2 = pair_fold_right (kcopy, nil, lst1)
     call check (list_equal (int_eq, lst1, iota (100, 1)), "test0260-0030 failed")
     i = 1
     p = lst2
     do while (is_pair (p))
        call check (list_equal (int_eq, car (p), iota (101 - i, i)), "test0260-0040 failed")
        i = i + 1
-       p = .tocons. cdr (p)
+       p = cdr (p)
     end do
     call check (is_nil (p), "test0260-0050 failed")
 
@@ -1507,7 +1507,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     lst1 = list (1, 2, 3, 4)
     lst2 = list (10, 20, 30, 40)
     lst3 = list (100, 200, 300, 400)
-    lst4 = .tocons. pair_fold_right (kadd3cdr, nil, lst1, lst2, lst3)
+    lst4 = pair_fold_right (kadd3cdr, nil, lst1, lst2, lst3)
     call check (list_equal (int_eq, lst4, list (111, 222, 333, 444)), "test0260-0200 failed")
 
   contains
@@ -1547,7 +1547,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     ! Find the maximum in a list of non-negative integers. (An example
     ! from SRFI-1.)
-    lst1 = .tocons. concatenate (list (iota (10), iota (100), iota (1000), iota (100), iota (10)))
+    lst1 = concatenate (list (iota (10), iota (100), iota (1000), iota (100), iota (10)))
     call check (reduce (kmax, 0, lst1) .eqi. 999, "test0270-0010 failed")
 
     ! Try it on a nil list.
@@ -1575,13 +1575,13 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     ! An implementation of `concatenate'. (An example from SRFI-1.)
     lst1 = list (1 ** 2 ** 3 ** nil, 4 ** 5 ** nil, nil, 6 ** 7 ** 8 ** 9 ** 10 ** nil, nil)
-    lst2 = .tocons. reduce_right (kappend, nil, lst1)
+    lst2 = reduce_right (kappend, nil, lst1)
     lst3 = iota (10, 1)
     call check (list_equal (int_eq, lst2, lst3), "test0280-0010 failed")
 
     ! Try it on a nil list
     lst1 = nil
-    lst2 = .tocons. reduce_right (kappend, nil, lst1)
+    lst2 = reduce_right (kappend, nil, lst1)
     lst3 = nil
     call check (list_equal (int_eq, lst2, lst3), "test0280-0020 failed")
 
@@ -1617,7 +1617,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     ! Copy a possibly dotted list. (An example from SRFI-1.)
     lst1 = iota (100, 1)
     call set_cdr (last_pair (lst1), 101)
-    lst2 = .tocons. unfold (is_not_pair, kcar, kcdr, lst1, kpassthru)
+    lst2 = unfold (is_not_pair, kcar, kcdr, lst1, kpassthru)
     p = lst1
     q = lst2
     do while (is_pair (p))
@@ -1633,8 +1633,8 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     ! Append head onto tail. (An example from SRFI-1.)
     head = iota (100, 1)
     tail = iota (100, 10, 10)
-    lst1 = .tocons. unfold (is_nil, kcar, kcdr, head, ktail)
-    lst2 = .tocons. append (head, tail)
+    lst1 = unfold (is_nil, kcar, kcdr, head, ktail)
+    lst2 = append (head, tail)
     call check (list_equal (int_eq, lst1, lst2), "test0290-0060 failed")
 
     ! The following can be done because we made head and tail gcroot_t
@@ -3618,15 +3618,15 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
       type(cons_t) :: lst
 
       lst = iota (10, 99, -1)
-      lst = .tocons. append (iota (10, 89, -1), lst)
-      lst = .tocons. append (iota (10, 79, -1), lst)
-      lst = .tocons. append (iota (10, 69, -1), lst)
-      lst = .tocons. append (iota (10, 59, -1), lst)
-      lst = .tocons. append (iota (10, 49, -1), lst)
-      lst = .tocons. append (iota (10, 39, -1), lst)
-      lst = .tocons. append (iota (10, 29, -1), lst)
-      lst = .tocons. append (iota (10, 19, -1), lst)
-      lst = .tocons. append (iota (10, 9, -1), lst)
+      lst = append (iota (10, 89, -1), lst)
+      lst = append (iota (10, 79, -1), lst)
+      lst = append (iota (10, 69, -1), lst)
+      lst = append (iota (10, 59, -1), lst)
+      lst = append (iota (10, 49, -1), lst)
+      lst = append (iota (10, 39, -1), lst)
+      lst = append (iota (10, 29, -1), lst)
+      lst = append (iota (10, 19, -1), lst)
+      lst = append (iota (10, 9, -1), lst)
     end function make_0_to_99_strangely_ordered
 
   end subroutine test0590
@@ -3688,15 +3688,15 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
       type(cons_t) :: lst
 
       lst = iota (10, 99, -1)
-      lst = .tocons. append (iota (10, 89, -1), lst)
-      lst = .tocons. append (iota (10, 79, -1), lst)
-      lst = .tocons. append (iota (10, 69, -1), lst)
-      lst = .tocons. append (iota (10, 59, -1), lst)
-      lst = .tocons. append (iota (10, 49, -1), lst)
-      lst = .tocons. append (iota (10, 39, -1), lst)
-      lst = .tocons. append (iota (10, 29, -1), lst)
-      lst = .tocons. append (iota (10, 19, -1), lst)
-      lst = .tocons. append (iota (10, 9, -1), lst)
+      lst = append (iota (10, 89, -1), lst)
+      lst = append (iota (10, 79, -1), lst)
+      lst = append (iota (10, 69, -1), lst)
+      lst = append (iota (10, 59, -1), lst)
+      lst = append (iota (10, 49, -1), lst)
+      lst = append (iota (10, 39, -1), lst)
+      lst = append (iota (10, 29, -1), lst)
+      lst = append (iota (10, 19, -1), lst)
+      lst = append (iota (10, 9, -1), lst)
     end function make_0_to_99_strangely_ordered
 
   end subroutine test0600
@@ -3734,20 +3734,20 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     lst = nil
     do i = 1, 10
-       lst = .tocons. append (lst, make_list (i, i))
+       lst = append (lst, make_list (i, i))
     end do
     call check (list_equal (int_eq, list_delete_neighbor_dupsx (is_eq, lst), iota (10, 1)), "test0610-0080 failed")
 
     lst = nil
     do i = 1, 10
-       lst = .tocons. append (make_list (i, i), lst)
+       lst = append (make_list (i, i), lst)
     end do
     call check (list_equal (int_eq, list_delete_neighbor_dupsx (is_eq, lst), iota (10, 10, -1)), "test0610-0090 failed")
 
     lst = nil
     do i = 1, 10
        if (mod (i, 3) == 0) then
-          lst = .tocons. append (make_list (i, i), lst)
+          lst = append (make_list (i, i), lst)
        else
           lst = cons (i, lst)
        end if
@@ -3757,7 +3757,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     lst = nil
     do i = 1, 10
        if (mod (i, 3) /= 0) then
-          lst = .tocons. append (make_list (i, i), lst)
+          lst = append (make_list (i, i), lst)
        else
           lst = cons (i, lst)
        end if
@@ -3799,21 +3799,21 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     call check (list_equal (int_eq, lst, lst_copy), "test0620-0045 failed")
 
     do i = 1, 11, 10
-       lst = .tocons. append (make_list (i, 123), list (456))
+       lst = append (make_list (i, 123), list (456))
        lst_copy = list_copy (lst)
        call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), list (123, 456)), "test0620-0050 failed")
        call check (list_equal (int_eq, lst, lst_copy), "test0620-0055 failed")
     end do
 
     do i = 1, 11, 10
-       lst = .tocons. cons (123, make_list (i, 456))
+       lst = cons (123, make_list (i, 456))
        lst_copy = list_copy (lst)
        call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), list (123, 456)), "test0620-0060 failed")
        call check (list_equal (int_eq, lst, lst_copy), "test0620-0065 failed")
     end do
 
     do i = 1, 11, 10
-       lst = .tocons. append (make_list (i, 456), list (789))
+       lst = append (make_list (i, 456), list (789))
        lst_copy = list_copy (lst)
        call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, cons (123, lst)), list (123, 456, 789)), &
             "test0620-0070 failed")
@@ -3822,7 +3822,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     lst = nil
     do i = 1, 10
-       lst = .tocons. append (lst, make_list (i, i))
+       lst = append (lst, make_list (i, i))
     end do
     lst_copy = list_copy (lst)
     call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), iota (10, 1)), "test0620-0080 failed")
@@ -3830,7 +3830,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
 
     lst = nil
     do i = 1, 10
-       lst = .tocons. append (make_list (i, i), lst)
+       lst = append (make_list (i, i), lst)
     end do
     lst_copy = list_copy (lst)
     call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), iota (10, 10, -1)), "test0620-0090 failed")
@@ -3839,7 +3839,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     lst = nil
     do i = 1, 10
        if (mod (i, 3) == 0) then
-          lst = .tocons. append (make_list (i, i), lst)
+          lst = append (make_list (i, i), lst)
        else
           lst = cons (i, lst)
        end if
@@ -3851,7 +3851,7 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     lst = nil
     do i = 1, 10
        if (mod (i, 3) /= 0) then
-          lst = .tocons. append (make_list (i, i), lst)
+          lst = append (make_list (i, i), lst)
        else
           lst = cons (i, lst)
        end if
