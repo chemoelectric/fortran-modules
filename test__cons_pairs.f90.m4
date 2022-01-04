@@ -3705,132 +3705,158 @@ m4_forloop([_k],0,m4_eval([(1 << (]_i[)) - 1]),[dnl
     type(cons_t) :: lst
     integer :: i
 
-    call check (is_nil (list_delete_neighbor_dupsx (int_eq, nil)), "test0610-0010 failed")
-    call check (list_delete_neighbor_dupsx (int_eq, 123) .eqi. 123, "test0610-0020 failed")
-    call check (list_equal (int_eq, list_delete_neighbor_dupsx (int_eq, list (123)), list (123)), "test0610-0030 failed")
-    call check (list_equal (int_eq, list_delete_neighbor_dupsx (int_eq, make_list (100, 123)), list (123)), &
+    call check (is_nil (list_delete_neighbor_dupsx (is_eq, nil)), "test0610-0010 failed")
+    call check (list_delete_neighbor_dupsx (is_eq, 123) .eqi. 123, "test0610-0020 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dupsx (is_eq, list (123)), list (123)), "test0610-0030 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dupsx (is_eq, make_list (100, 123)), list (123)), &
          "test0610-0040 failed")
 
-    do i = 1, 101, 10
+    do i = 1, 11, 10
        call check (list_equal (int_eq, &
-            list_delete_neighbor_dupsx (int_eq, append (make_list (i, 123), list (456))), &
+            list_delete_neighbor_dupsx (is_eq, append (make_list (i, 123), list (456))), &
             list (123, 456)), &
             "test0610-0050 failed")
     end do
 
-    do i = 1, 101, 10
+    do i = 1, 11, 10
        call check (list_equal (int_eq, &
-            list_delete_neighbor_dupsx (int_eq, cons (123, make_list (i, 456))), &
+            list_delete_neighbor_dupsx (is_eq, cons (123, make_list (i, 456))), &
             list (123, 456)), &
             "test0610-0060 failed")
     end do
 
-    do i = 1, 101, 10
+    do i = 1, 11, 10
        call check (list_equal (int_eq, &
-            list_delete_neighbor_dupsx (int_eq, cons (123, append (make_list (i, 456), list (789)))), &
+            list_delete_neighbor_dupsx (is_eq, cons (123, append (make_list (i, 456), list (789)))), &
             list (123, 456, 789)), &
             "test0610-0070 failed")
     end do
 
     lst = nil
-    do i = 1, 100
+    do i = 1, 10
        lst = .tocons. append (lst, make_list (i, i))
     end do
-    call check (list_equal (int_eq, list_delete_neighbor_dupsx (int_eq, lst), iota (100, 1)), "test0610-0080 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dupsx (is_eq, lst), iota (10, 1)), "test0610-0080 failed")
 
     lst = nil
-    do i = 1, 100
+    do i = 1, 10
        lst = .tocons. append (make_list (i, i), lst)
     end do
-    call check (list_equal (int_eq, list_delete_neighbor_dupsx (int_eq, lst), iota (100, 100, -1)), "test0610-0090 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dupsx (is_eq, lst), iota (10, 10, -1)), "test0610-0090 failed")
 
     lst = nil
-    do i = 1, 100
-       if (mod (i, 4) == 0) then
+    do i = 1, 10
+       if (mod (i, 3) == 0) then
           lst = .tocons. append (make_list (i, i), lst)
        else
           lst = cons (i, lst)
        end if
     end do
-    call check (list_equal (int_eq, list_delete_neighbor_dupsx (int_eq, lst), iota (100, 100, -1)), "test0610-0100 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dupsx (is_eq, lst), iota (10, 10, -1)), "test0610-0100 failed")
 
     lst = nil
-    do i = 1, 100
-       if (mod (i, 4) /= 0) then
+    do i = 1, 10
+       if (mod (i, 3) /= 0) then
           lst = .tocons. append (make_list (i, i), lst)
        else
           lst = cons (i, lst)
        end if
     end do
-    call check (list_equal (int_eq, list_delete_neighbor_dupsx (int_eq, lst), iota (100, 100, -1)), "test0610-0110 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dupsx (is_eq, lst), iota (10, 10, -1)), "test0610-0110 failed")
 
-    call check (list_equal (int_eq, list_delete_neighbor_dupsx (int_eq, iota (100, 1)), iota (100, 1)), "test0610-0120 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dupsx (is_eq, iota (10, 1)), iota (10, 1)), "test0610-0120 failed")
+
+  contains
+
+    recursive function is_eq (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) == int_cast (y))
+    end function is_eq
+
   end subroutine test0610
 
   subroutine test0620
     type(cons_t) :: lst
     integer :: i
 
-    call check (is_nil (list_delete_neighbor_dups (int_eq, nil)), "test0620-0010 failed")
-    call check (list_delete_neighbor_dups (int_eq, 123) .eqi. 123, "test0620-0020 failed")
-    call check (list_equal (int_eq, list_delete_neighbor_dups (int_eq, list (123)), list (123)), "test0620-0030 failed")
-    call check (list_equal (int_eq, list_delete_neighbor_dups (int_eq, make_list (100, 123)), list (123)), &
+    call check (is_nil (list_delete_neighbor_dups (is_eq, nil)), "test0620-0010 failed")
+    call check (list_delete_neighbor_dups (is_eq, 123) .eqi. 123, "test0620-0020 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, list (123)), list (123)), "test0620-0030 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, make_list (100, 123)), list (123)), &
          "test0620-0040 failed")
 
-    do i = 1, 101, 10
+    do i = 1, 11, 10
        call check (list_equal (int_eq, &
-            list_delete_neighbor_dups (int_eq, append (make_list (i, 123), list (456))), &
+            list_delete_neighbor_dups (is_eq, append (make_list (i, 123), list (456))), &
             list (123, 456)), &
             "test0620-0050 failed")
     end do
 
-    do i = 1, 101, 10
+    do i = 1, 11, 10
        call check (list_equal (int_eq, &
-            list_delete_neighbor_dups (int_eq, cons (123, make_list (i, 456))), &
+            list_delete_neighbor_dups (is_eq, cons (123, make_list (i, 456))), &
             list (123, 456)), &
             "test0620-0060 failed")
     end do
 
-    do i = 1, 101, 10
+    do i = 1, 11, 10
        call check (list_equal (int_eq, &
-            list_delete_neighbor_dups (int_eq, cons (123, append (make_list (i, 456), list (789)))), &
+            list_delete_neighbor_dups (is_eq, cons (123, append (make_list (i, 456), list (789)))), &
             list (123, 456, 789)), &
             "test0620-0070 failed")
     end do
 
     lst = nil
-    do i = 1, 100
+    do i = 1, 10
        lst = .tocons. append (lst, make_list (i, i))
     end do
-    call check (list_equal (int_eq, list_delete_neighbor_dups (int_eq, lst), iota (100, 1)), "test0620-0080 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), iota (10, 1)), "test0620-0080 failed")
 
     lst = nil
-    do i = 1, 100
+    do i = 1, 10
        lst = .tocons. append (make_list (i, i), lst)
     end do
-    call check (list_equal (int_eq, list_delete_neighbor_dups (int_eq, lst), iota (100, 100, -1)), "test0620-0090 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), iota (10, 10, -1)), "test0620-0090 failed")
 
     lst = nil
-    do i = 1, 100
-       if (mod (i, 4) == 0) then
+    do i = 1, 10
+       if (mod (i, 3) == 0) then
           lst = .tocons. append (make_list (i, i), lst)
        else
           lst = cons (i, lst)
        end if
     end do
-    call check (list_equal (int_eq, list_delete_neighbor_dups (int_eq, lst), iota (100, 100, -1)), "test0620-0100 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), iota (10, 10, -1)), "test0620-0100 failed")
 
     lst = nil
-    do i = 1, 100
-       if (mod (i, 4) /= 0) then
+    do i = 1, 10
+       if (mod (i, 3) /= 0) then
           lst = .tocons. append (make_list (i, i), lst)
        else
           lst = cons (i, lst)
        end if
     end do
-    call check (list_equal (int_eq, list_delete_neighbor_dups (int_eq, lst), iota (100, 100, -1)), "test0620-0110 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), iota (10, 10, -1)), "test0620-0110 failed")
 
-    call check (list_equal (int_eq, list_delete_neighbor_dups (int_eq, iota (100, 1)), iota (100, 1)), "test0620-0120 failed")
+    call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, iota (10, 1)), iota (10, 1)), "test0620-0120 failed")
+
+  contains
+
+    recursive function is_eq (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) == int_cast (y))
+    end function is_eq
+
   end subroutine test0620
 
   subroutine run_tests
