@@ -1,6 +1,11 @@
 Fortran modules for general programming
 ---------------------------------------
 
+Let us consider these modules to be of ‘alpha’ quality, unless I say
+something such as ‘Under development’ next to the module’s description
+here. But they are meant for you to take them as source code and
+modify them as you like.
+
 garbage_collector.f90  -- Garbage collection for Fortran.
                           (Expat license)
 
