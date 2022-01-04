@@ -8607,12 +8607,12 @@ contains
     if (n <= 0) then
        lst_t = nil
     else
-       lst1 = .tocons. lst
+       lst1 = lst
        if (is_not_pair (lst1)) then
           lst_t = nil
        else
           lst_t = lst1
-          new_last_pair = .tocons. (drop (lst_t, n - 1))
+          new_last_pair = drop (lst_t, n - 1)
           call set_cdr (new_last_pair, nil)
        end if
     end if
@@ -8867,7 +8867,7 @@ contains
        if (is_not_pair (lst1)) then
           call error_abort ("positive do_split_atx of an object with no pairs")
        else
-          lst_left = .tocons. lst1
+          lst_left = lst1
           lst1 = drop (lst_left, n - 1)
           lst_right = cdr (lst1)
           call set_cdr (lst1, nil)
@@ -8944,7 +8944,7 @@ contains
        if (is_pair (the_last_pair)) then
           tail = cdr (the_last_pair)
           do while (is_pair (tail))
-             the_last_pair = .tocons. tail
+             the_last_pair = tail
              tail = cdr (the_last_pair)
           end do
        else
@@ -9030,7 +9030,7 @@ contains
        call init_subr (n + i, x)
        lst1 = cons (x, lst1)
     end do
-    lst = .tocons. lst1
+    lst = lst1
   end function list_tabulaten
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -9343,7 +9343,7 @@ contains
     if (is_not_pair (lst1a)) then
        lst_a = .autoval. lst2
     else
-       lst_a = .tocons. lst1a
+       lst_a = lst1a
        call set_cdr (last_pair (lst_a), .autoval. lst2)
     end if
   end function appendx2
@@ -9716,8 +9716,8 @@ contains
     class(*), allocatable :: p_tl, q_tl
     logical :: done
 
-    p = .tocons. lst1
-    q = .tocons. lst2
+    p = lst1
+    q = lst2
     done = .false.
     do while (.not. done)
        if (is_not_pair (p)) then
@@ -11008,7 +11008,7 @@ contains
                 done = .true.
              end if
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
 
        call lst1_root%discard
@@ -11066,7 +11066,7 @@ contains
                 done = .true.
              end if
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
 
        call lst1_root%discard
@@ -11138,7 +11138,7 @@ contains
                 done = .true.
              end if
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
 
        call lst1_root%discard
@@ -11224,7 +11224,7 @@ contains
                 done = .true.
              end if
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
 
        call lst1_root%discard
@@ -11324,7 +11324,7 @@ contains
                 done = .true.
              end if
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
 
        call lst1_root%discard
@@ -11441,7 +11441,7 @@ contains
                 done = .true.
              end if
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
 
        call lst1_root%discard
@@ -11572,7 +11572,7 @@ contains
                 done = .true.
              end if
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
 
        call lst1_root%discard
@@ -11717,7 +11717,7 @@ contains
                 done = .true.
              end if
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
 
        call lst1_root%discard
@@ -11876,7 +11876,7 @@ contains
                 done = .true.
              end if
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
 
        call lst1_root%discard
@@ -12049,7 +12049,7 @@ contains
                 done = .true.
              end if
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
 
        call lst1_root%discard
@@ -12244,7 +12244,7 @@ contains
              cursor = new_pair
              call skip_falses (proc_result2)
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
     end if
 
@@ -12321,7 +12321,7 @@ contains
              cursor = new_pair
              call skip_falses (proc_result2)
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
     end if
 
@@ -12408,7 +12408,7 @@ contains
              cursor = new_pair
              call skip_falses (proc_result2)
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
     end if
 
@@ -12505,7 +12505,7 @@ contains
              cursor = new_pair
              call skip_falses (proc_result2)
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
     end if
 
@@ -12612,7 +12612,7 @@ contains
              cursor = new_pair
              call skip_falses (proc_result2)
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
     end if
 
@@ -12730,7 +12730,7 @@ contains
              cursor = new_pair
              call skip_falses (proc_result2)
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
     end if
 
@@ -12859,7 +12859,7 @@ contains
              cursor = new_pair
              call skip_falses (proc_result2)
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
     end if
 
@@ -12998,7 +12998,7 @@ contains
              cursor = new_pair
              call skip_falses (proc_result2)
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
     end if
 
@@ -13147,7 +13147,7 @@ contains
              cursor = new_pair
              call skip_falses (proc_result2)
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
     end if
 
@@ -13306,7 +13306,7 @@ contains
              cursor = new_pair
              call skip_falses (proc_result2)
           end do
-          lst_m = .tocons. retval
+          lst_m = retval
        end if
     end if
 
@@ -15432,7 +15432,7 @@ contains
     else
        call take_trues_destructively (pred, .val. lst_root, last_true, first_false)
        call set_cdr (last_true, nil)
-       lst_tw = .tocons. lst_root
+       lst_tw = lst_root
     end if
   end function take_whilex
 
@@ -15453,7 +15453,7 @@ contains
        lst_tw = nil
     else
        call take_trues_nondestructively (pred, .val. lst_root, trues, last_true, first_false)
-       lst_tw = .tocons. trues
+       lst_tw = trues
     end if
   end function take_while
 
@@ -15468,7 +15468,7 @@ contains
        lst2 = nil
     else if (.not. pred (car (lst))) then
        lst1 = nil
-       lst2 = .tocons. lst
+       lst2 = lst
     else
        block
          type(gcroot_t) :: lst_root
@@ -15478,8 +15478,8 @@ contains
          lst_root = lst
          call take_trues_destructively (pred, .val. lst_root, last_true, first_false)
          call set_cdr (last_true, nil)
-         lst1 = .tocons. lst_root
-         lst2 = .tocons. first_false
+         lst1 = lst_root
+         lst2 = first_false
        end block
     end if
   end subroutine do_spanx
@@ -15507,7 +15507,7 @@ contains
        lst2 = nil
     else if (.not. pred (car (lst))) then
        lst1 = nil
-       lst2 = .tocons. lst
+       lst2 = lst
     else
        block
          type(gcroot_t) :: lst_root
@@ -15517,8 +15517,8 @@ contains
 
          lst_root = lst
          call take_trues_nondestructively (pred, .val. lst_root, trues, last_true, first_false)
-         lst1 = .tocons. trues
-         lst2 = .tocons. first_false
+         lst1 = trues
+         lst2 = first_false
        end block
     end if
   end subroutine do_span
@@ -15545,7 +15545,7 @@ contains
        lst1 = nil
        lst2 = nil
     else if (pred (car (lst))) then
-       lst1 = .tocons. lst
+       lst1 = lst
        lst2 = nil
     else
        block
@@ -15556,8 +15556,8 @@ contains
          lst_root = lst
          call take_falses_destructively (pred, .val. lst_root, last_false, first_true)
          call set_cdr (last_false, nil)
-         lst1 = .tocons. lst_root
-         lst2 = .tocons. first_true
+         lst1 = lst_root
+         lst2 = first_true
        end block
     end if
   end subroutine do_breakx
@@ -15584,7 +15584,7 @@ contains
        lst1 = nil
        lst2 = nil
     else if (pred (car (lst))) then
-       lst1 = .tocons. lst
+       lst1 = lst
        lst2 = nil
     else
        block
@@ -15595,8 +15595,8 @@ contains
 
          lst_root = lst
          call take_falses_nondestructively (pred, .val. lst_root, falses, last_false, first_true)
-         lst1 = .tocons. falses
-         lst2 = .tocons. first_true
+         lst1 = falses
+         lst2 = first_true
        end block
     end if
   end subroutine do_break
@@ -15637,7 +15637,7 @@ contains
           sublst = nil
           done = .true.
        else if (pred (x, car (p))) then
-          sublst = .tocons. p
+          sublst = p
           done = .true.
        else
           p = cdr (p)
@@ -15681,7 +15681,7 @@ contains
           lst_ft = nil        ! SRFI-1 `find-tail' returns #f instead.
           done = .true.
        else if (pred (car (p))) then
-          lst_ft = .tocons. p
+          lst_ft = p
           done = .true.
        else
           p = cdr (p)
@@ -15708,7 +15708,7 @@ contains
        else if (pred (car (p))) then
           p = cdr (p)
        else
-          lst_dw = .tocons. p
+          lst_dw = p
           done = .true.
        end if
     end do
@@ -15992,13 +15992,13 @@ contains
       type(gcroot_t) :: new_tail
 
       if (is_nil_list (lst)) then
-         lst_dd = .tocons. lst
+         lst_dd = lst
       else
          call uncons (lst, x, tail)
          deletion_result = deletex (pred, x, tail)
          new_tail = recursion (deletion_result)
          if (cons_t_eq (.tocons. tail, .tocons. new_tail)) then
-            lst_dd = .tocons. lst
+            lst_dd = lst
          else
             lst_dd = cons (x, new_tail)
          end if
@@ -16036,13 +16036,13 @@ contains
       type(gcroot_t) :: new_tail
 
       if (is_nil_list (lst)) then
-         lst_dd = .tocons. lst
+         lst_dd = lst
       else
          call uncons (lst, x, tail)
          deletion_result = delete (pred, x, tail)
          new_tail = recursion (deletion_result)
          if (cons_t_eq (.tocons. tail, .tocons. new_tail)) then
-            lst_dd = .tocons. lst
+            lst_dd = lst
          else
             lst_dd = cons (x, new_tail)
          end if
@@ -19941,7 +19941,7 @@ contains
           retval = nil          ! SRFI-1 `assoc' returns #f instead.
           done = .true.
        else if (pred (key, caar (p))) then
-          retval = .tocons. (car (p))
+          retval = car (p)
           done = .true.
        else
           p = cdr (p)
@@ -23627,19 +23627,19 @@ contains
       logical :: done
 
       if (is_not_pair (p1)) then
-         lst_m = .tocons. p2
+         lst_m = p2
       else if (is_not_pair (p2)) then
-         lst_m = .tocons. p1
+         lst_m = p1
       else
          call uncons (p1, hd1, tl1)
          call uncons (p2, hd2, tl2)
          if (.not. is_less_than (hd2, hd1)) then
             p1_is_active = .true.
-            cursor = .tocons. p1
+            cursor = p1
             p1 = tl1
          else
             p1_is_active = .false.
-            cursor = .tocons. p2
+            cursor = p2
             p2 = tl2
          end if
          lst_m = cursor
@@ -23661,13 +23661,13 @@ contains
                      call uncons (p1, hd1, tl1)
                      call uncons (p2, hd2, tl2)
                      if (.not. is_less_than (hd2, hd1)) then
-                        cursor = .tocons. p1
+                        cursor = p1
                         p1 = tl1
                      else
                         call set_cdr (cursor, p2)
                         p1_is_active = .false.
                         p1_is_active_is_changed = .true.
-                        cursor = .tocons. p2
+                        cursor = p2
                         p2 = tl2
                      end if
                   end if
@@ -23690,11 +23690,11 @@ contains
                         call set_cdr (cursor, p1)
                         p1_is_active = .true.
                         p1_is_active_is_changed = .true.
-                        cursor = .tocons. p1
+                        cursor = p1
                         p1 =  tl1
                      else
                         call set_cdr (cursor, p2)
-                        cursor = .tocons. p2
+                        cursor = p2
                         p2 =  tl2
                      end if
                   end if
@@ -23731,10 +23731,10 @@ contains
     p = lst
     if (is_not_pair (p)) then
        ! List of length zero.
-       lst_ss = .tocons. p
+       lst_ss = p
     else if (is_not_pair (cdr (p))) then
        ! List of length one.
-       lst_ss = .tocons. p
+       lst_ss = p
     else
        lst_ss = merge_sort (p, length (p))
     end if
@@ -23756,10 +23756,10 @@ contains
       logical :: done
 
       ! Fill the array with CONS pairs.
-      q = .tocons. p
+      q = p
       do i = 1, n
          array(i) = q
-         q = .tocons. cdr (q)
+         q = cdr (q)
       end do
 
       ! Do an insertion sort on the array.
@@ -23808,7 +23808,7 @@ contains
          if (list_is_sorted (is_less_than, p)) then
             ! Save a lot of activity, if the segment is already
             ! sorted.
-            lst_ss = .tocons. p
+            lst_ss = p
          else
             lst_ss = insertion_sort (p, n)
          end if
@@ -23982,7 +23982,7 @@ contains
                call set_cdr_unless_nil (last_pair, q)
             else
                ! Start a new segment.
-               p = .tocons. q
+               p = q
                q = find_duplicates (p)
                if (is_not_pair (q)) then
                   ! Append a shared tail.
@@ -24019,7 +24019,7 @@ contains
             done = .true.
          else
             ! Continue looking for a pair of duplicates.
-            prev = .tocons. q
+            prev = q
          end if
       end do
     end function find_duplicates
@@ -24043,7 +24043,7 @@ contains
             done = .true.
          else
             ! Continue skipping duplicates.
-            prev = .tocons. q
+            prev = q
          end if
       end do
     end function skip_duplicates
