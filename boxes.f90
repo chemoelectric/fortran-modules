@@ -1,6 +1,6 @@
 ! -*- F90 -*- 
 !
-! Copyright 2021 Barry Schwartz
+! Copyright 2021, 2022 Barry Schwartz
 !
 ! Permission is hereby granted, free of charge, to any person
 ! obtaining a copy of this software and associated documentation files
@@ -60,6 +60,8 @@ module boxes
   type, extends (collectible_t) :: box_t
    contains
      procedure, pass :: get_branch => box_t_get_branch
+     procedure, pass :: assign => box_t_assign
+     generic :: assignment(=) => assign
   end type box_t
 
   interface operator(.tobox.)
@@ -120,23 +122,30 @@ contains
     end select
   end function is_box
 
-  function box_t_cast (obj) result (the_box)
-    class(*), intent(in) :: obj
-    class(box_t), allocatable :: the_box
+  subroutine box_t_assign (dst, src)
+    class(box_t), intent(inout) :: dst
+    class(*), intent(in) :: src
 
-    select type (obj)
+    select type (src)
     class is (box_t)
-       the_box = obj
+       dst%heap_element => src%heap_element
     class is (gcroot_t)
-       select type (val => .val. obj)
+       select type (val => .val. src)
        class is (box_t)
-          the_box = val
+          dst%heap_element => val%heap_element
        class default
-          call error_abort ("box_t_cast of an incompatible gcroot_t object")
+          call error_abort ("assignment to box_t of an incompatible gcroot_t object")
        end select
     class default
-      call error_abort ("box_t_cast of an incompatible object")
+       call error_abort ("assignment to box_t of an incompatible object")
     end select
+  end subroutine box_t_assign
+
+  function box_t_cast (obj) result (the_box)
+    class(*), intent(in) :: obj
+    type(box_t) :: the_box
+
+    the_box = obj
   end function box_t_cast
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -178,22 +187,24 @@ contains
   end function unbox
 
   recursive subroutine set_box (the_box, contents)
-    class(box_t), intent(inout) :: the_box
+    class(*), intent(inout) :: the_box
     class(*), intent(in) :: contents
 
     type(box_data_t), pointer :: data
+    type(box_t) :: box1
 
-    deallocate (the_box%heap_element%data)
+    box1 = the_box
+    deallocate (box1%heap_element%data)
     allocate (data)
     data%contents = .autoval. contents
-    the_box%heap_element%data => data
+    box1%heap_element%data => data
   end subroutine set_box
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function autobox (contents) result (the_box)
     class(*), intent(in) :: contents
-    class(box_t), allocatable :: the_box
+    type(box_t) :: the_box
 
     select type (stuff => .autoval. contents)
     class is (box_t)

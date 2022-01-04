@@ -2028,8 +2028,8 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive subroutine cons_t_assign (dst, src)
-    class(cons_t), intent(out) :: dst
+  subroutine cons_t_assign (dst, src)
+    class(cons_t), intent(inout) :: dst
     class(*), intent(in) :: src
 
     select type (src)
