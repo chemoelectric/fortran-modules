@@ -93,6 +93,7 @@ MODULE_BASENAMES += lsets
 TEST_PROGRAM_BASENAMES =
 TEST_PROGRAM_BASENAMES += test__boxes
 TEST_PROGRAM_BASENAMES += test__cons_pairs
+TEST_PROGRAM_BASENAMES += test__lsets
 
 .PHONY: all default
 default: all
@@ -107,6 +108,7 @@ tests: $(TEST_PROGRAM_BASENAMES)
 .PHONY: check
 check: check-boxes
 check: check-cons_pairs
+check: check-lsets
 
 .PHONY: check-boxes
 check-boxes: test__boxes
@@ -116,15 +118,32 @@ check-boxes: test__boxes
 check-cons_pairs: test__cons_pairs
 	./test__cons_pairs
 
+.PHONY: check-lsets
+check-lsets: test__lsets
+	./test__lsets
+
 test__boxes: $(addsuffix .$(OBJEXT), test__boxes boxes garbage_collector)
 	$(COMPILE.f90) $(^) -o $(@)
 
 test__cons_pairs: $(addsuffix .$(OBJEXT), test__cons_pairs cons_pairs garbage_collector)
 	$(COMPILE.f90) $(^) -o $(@)
 
+test__lsets: $(addsuffix .$(OBJEXT), test__lsets lsets garbage_collector)
+	$(COMPILE.f90) $(^) -o $(@)
+
+lsets.anchor: lsets.f90
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c -fsyntax-only $(<) && touch $(@)
+lsets.$(OBJEXT): lsets.anchor
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c $(<:.anchor=.f90) -o $(@)
+
 test__cons_pairs.anchor: test__cons_pairs.f90
 	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c -fsyntax-only $(<) && touch $(@)
 test__cons_pairs.$(OBJEXT): test__cons_pairs.anchor
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c $(<:.anchor=.f90) -o $(@)
+
+test__lsets.anchor: test__lsets.f90
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c -fsyntax-only $(<) && touch $(@)
+test__lsets.$(OBJEXT): test__lsets.anchor
 	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c $(<:.anchor=.f90) -o $(@)
 
 cons_lists.f90: cadadr.m4
@@ -142,7 +161,7 @@ cons_pairs.anchor: cons_pairs.mod
 cons_pairs.mod:
 
 lsets.anchor: garbage_collector.anchor
-lsets.anchor: cons_pairs.mod
+lsets.anchor: cons_pairs.anchor
 lsets.anchor: lsets.mod
 lsets.mod:
 
@@ -151,9 +170,16 @@ test__boxes.anchor: test__boxes.mod
 test__boxes.mod:
 
 test__cons_pairs.f90: cadadr.m4
+test__cons_pairs.anchor: garbage_collector.anchor
 test__cons_pairs.anchor: cons_pairs.anchor
 test__cons_pairs.anchor: test__cons_pairs.mod
 test__cons_pairs.mod:
+
+test__lsets.anchor: garbage_collector.anchor
+test__lsets.anchor: cons_pairs.anchor
+test__lsets.anchor: lsets.anchor
+test__lsets.anchor: test__lsets.mod
+test__lsets.mod:
 
 suffixed-all-basenames = $(addsuffix $(shell printf "%s" $(1)),$(MODULE_BASENAMES) $(TEST_PROGRAM_BASENAMES))
 
