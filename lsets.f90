@@ -1143,7 +1143,7 @@ contains
   end function lset_unionx4
 
   recursive function lset_unionx5 (equal, lst1, lst2, lst3, lst4, &
-       &                          lst5) result (lst_out)
+       &                           lst5) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -1200,7 +1200,7 @@ contains
   end function lset_unionx5
 
   recursive function lset_unionx6 (equal, lst1, lst2, lst3, lst4, &
-       &                          lst5, lst6) result (lst_out)
+       &                           lst5, lst6) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -1258,7 +1258,7 @@ contains
   end function lset_unionx6
 
   recursive function lset_unionx7 (equal, lst1, lst2, lst3, lst4, &
-       &                          lst5, lst6, lst7) result (lst_out)
+       &                           lst5, lst6, lst7) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -1317,7 +1317,7 @@ contains
   end function lset_unionx7
 
   recursive function lset_unionx8 (equal, lst1, lst2, lst3, lst4, &
-       &                          lst5, lst6, lst7, lst8) result (lst_out)
+       &                           lst5, lst6, lst7, lst8) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -1377,8 +1377,8 @@ contains
   end function lset_unionx8
 
   recursive function lset_unionx9 (equal, lst1, lst2, lst3, lst4, &
-       &                          lst5, lst6, lst7, lst8, &
-       &                          lst9) result (lst_out)
+       &                           lst5, lst6, lst7, lst8, &
+       &                           lst9) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -1440,8 +1440,8 @@ contains
   end function lset_unionx9
 
   recursive function lset_unionx10 (equal, lst1, lst2, lst3, lst4, &
-       &                          lst5, lst6, lst7, lst8, &
-       &                          lst9, lst10) result (lst_out)
+       &                           lst5, lst6, lst7, lst8, &
+       &                           lst9, lst10) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
