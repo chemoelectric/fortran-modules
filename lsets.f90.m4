@@ -59,12 +59,12 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
 ])dnl
 
   ! Implementations of lset_union.
-m4_forloop([n],[0],ZIP_MAX,[dnl
+m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: lset_union[]n
 ])dnl
 
   ! Implementations of lset_unionx.
-m4_forloop([n],[0],ZIP_MAX,[dnl
+m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: lset_unionx[]n
 ])dnl
 
@@ -78,13 +78,13 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   end interface lset_adjoin
 
   interface lset_union
-m4_forloop([n],[0],ZIP_MAX,[dnl
+m4_forloop([n],[0],LISTN_MAX,[dnl
      module procedure lset_union[]n
 ])dnl
   end interface lset_union
 
   interface lset_unionx
-m4_forloop([n],[0],ZIP_MAX,[dnl
+m4_forloop([n],[0],LISTN_MAX,[dnl
      module procedure lset_unionx[]n
 ])dnl
   end interface lset_unionx
@@ -157,7 +157,7 @@ dnl
     lst_out = nil
   end function lset_union0
 
-m4_forloop([n],[1],ZIP_MAX,[dnl
+m4_forloop([n],[1],LISTN_MAX,[dnl
   recursive function lset_union[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
        &                          ])lst[]k])) result (lst_out)
     procedure(list_predicate2_t) :: equal
@@ -212,7 +212,7 @@ dnl
     lst_out = nil
   end function lset_unionx0
 
-m4_forloop([n],[1],ZIP_MAX,[dnl
+m4_forloop([n],[1],LISTN_MAX,[dnl
   recursive function lset_unionx[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
        &                           ])lst[]k])) result (lst_out)
     procedure(list_predicate2_t) :: equal
