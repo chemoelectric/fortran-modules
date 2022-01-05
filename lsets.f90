@@ -937,9 +937,6 @@ contains
     class(*), intent(in) :: lst1
     type(cons_t) :: lst_out
 
-    ! This variable is used by the nested procedures.
-    class(*), allocatable :: element
-
     lst_out = reduce (make_unionx, nil, list (lst1))
 
   contains
@@ -965,21 +962,13 @@ contains
       class(*), intent(in) :: lst
       class(*), allocatable, intent(out) :: lst_out
 
-      element = car (pair)
-      if (some (equals_element, lst)) then
-         lst_out = lst
-      else
+      if (is_nil (member (equal, car (pair), lst))) then
          call set_cdr (pair, lst)
          lst_out = pair
+      else
+         lst_out = lst
       end if
     end subroutine kons
-
-    recursive function equals_element (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-
-      bool = equal (x, element)
-    end function equals_element
 
   end function lset_unionx1
 
@@ -988,9 +977,6 @@ contains
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     type(cons_t) :: lst_out
-
-    ! This variable is used by the nested procedures.
-    class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2))
 
@@ -1017,21 +1003,13 @@ contains
       class(*), intent(in) :: lst
       class(*), allocatable, intent(out) :: lst_out
 
-      element = car (pair)
-      if (some (equals_element, lst)) then
-         lst_out = lst
-      else
+      if (is_nil (member (equal, car (pair), lst))) then
          call set_cdr (pair, lst)
          lst_out = pair
+      else
+         lst_out = lst
       end if
     end subroutine kons
-
-    recursive function equals_element (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-
-      bool = equal (x, element)
-    end function equals_element
 
   end function lset_unionx2
 
@@ -1041,9 +1019,6 @@ contains
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
     type(cons_t) :: lst_out
-
-    ! This variable is used by the nested procedures.
-    class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3))
 
@@ -1070,21 +1045,13 @@ contains
       class(*), intent(in) :: lst
       class(*), allocatable, intent(out) :: lst_out
 
-      element = car (pair)
-      if (some (equals_element, lst)) then
-         lst_out = lst
-      else
+      if (is_nil (member (equal, car (pair), lst))) then
          call set_cdr (pair, lst)
          lst_out = pair
+      else
+         lst_out = lst
       end if
     end subroutine kons
-
-    recursive function equals_element (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-
-      bool = equal (x, element)
-    end function equals_element
 
   end function lset_unionx3
 
@@ -1095,9 +1062,6 @@ contains
     class(*), intent(in) :: lst3
     class(*), intent(in) :: lst4
     type(cons_t) :: lst_out
-
-    ! This variable is used by the nested procedures.
-    class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4))
 
@@ -1124,21 +1088,13 @@ contains
       class(*), intent(in) :: lst
       class(*), allocatable, intent(out) :: lst_out
 
-      element = car (pair)
-      if (some (equals_element, lst)) then
-         lst_out = lst
-      else
+      if (is_nil (member (equal, car (pair), lst))) then
          call set_cdr (pair, lst)
          lst_out = pair
+      else
+         lst_out = lst
       end if
     end subroutine kons
-
-    recursive function equals_element (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-
-      bool = equal (x, element)
-    end function equals_element
 
   end function lset_unionx4
 
@@ -1151,9 +1107,6 @@ contains
     class(*), intent(in) :: lst4
     class(*), intent(in) :: lst5
     type(cons_t) :: lst_out
-
-    ! This variable is used by the nested procedures.
-    class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
          &            lst5))
@@ -1181,21 +1134,13 @@ contains
       class(*), intent(in) :: lst
       class(*), allocatable, intent(out) :: lst_out
 
-      element = car (pair)
-      if (some (equals_element, lst)) then
-         lst_out = lst
-      else
+      if (is_nil (member (equal, car (pair), lst))) then
          call set_cdr (pair, lst)
          lst_out = pair
+      else
+         lst_out = lst
       end if
     end subroutine kons
-
-    recursive function equals_element (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-
-      bool = equal (x, element)
-    end function equals_element
 
   end function lset_unionx5
 
@@ -1209,9 +1154,6 @@ contains
     class(*), intent(in) :: lst5
     class(*), intent(in) :: lst6
     type(cons_t) :: lst_out
-
-    ! This variable is used by the nested procedures.
-    class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
          &            lst5, lst6))
@@ -1239,21 +1181,13 @@ contains
       class(*), intent(in) :: lst
       class(*), allocatable, intent(out) :: lst_out
 
-      element = car (pair)
-      if (some (equals_element, lst)) then
-         lst_out = lst
-      else
+      if (is_nil (member (equal, car (pair), lst))) then
          call set_cdr (pair, lst)
          lst_out = pair
+      else
+         lst_out = lst
       end if
     end subroutine kons
-
-    recursive function equals_element (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-
-      bool = equal (x, element)
-    end function equals_element
 
   end function lset_unionx6
 
@@ -1268,9 +1202,6 @@ contains
     class(*), intent(in) :: lst6
     class(*), intent(in) :: lst7
     type(cons_t) :: lst_out
-
-    ! This variable is used by the nested procedures.
-    class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
          &            lst5, lst6, lst7))
@@ -1298,21 +1229,13 @@ contains
       class(*), intent(in) :: lst
       class(*), allocatable, intent(out) :: lst_out
 
-      element = car (pair)
-      if (some (equals_element, lst)) then
-         lst_out = lst
-      else
+      if (is_nil (member (equal, car (pair), lst))) then
          call set_cdr (pair, lst)
          lst_out = pair
+      else
+         lst_out = lst
       end if
     end subroutine kons
-
-    recursive function equals_element (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-
-      bool = equal (x, element)
-    end function equals_element
 
   end function lset_unionx7
 
@@ -1328,9 +1251,6 @@ contains
     class(*), intent(in) :: lst7
     class(*), intent(in) :: lst8
     type(cons_t) :: lst_out
-
-    ! This variable is used by the nested procedures.
-    class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
          &            lst5, lst6, lst7, lst8))
@@ -1358,21 +1278,13 @@ contains
       class(*), intent(in) :: lst
       class(*), allocatable, intent(out) :: lst_out
 
-      element = car (pair)
-      if (some (equals_element, lst)) then
-         lst_out = lst
-      else
+      if (is_nil (member (equal, car (pair), lst))) then
          call set_cdr (pair, lst)
          lst_out = pair
+      else
+         lst_out = lst
       end if
     end subroutine kons
-
-    recursive function equals_element (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-
-      bool = equal (x, element)
-    end function equals_element
 
   end function lset_unionx8
 
@@ -1390,9 +1302,6 @@ contains
     class(*), intent(in) :: lst8
     class(*), intent(in) :: lst9
     type(cons_t) :: lst_out
-
-    ! This variable is used by the nested procedures.
-    class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
          &            lst5, lst6, lst7, lst8, &
@@ -1421,21 +1330,13 @@ contains
       class(*), intent(in) :: lst
       class(*), allocatable, intent(out) :: lst_out
 
-      element = car (pair)
-      if (some (equals_element, lst)) then
-         lst_out = lst
-      else
+      if (is_nil (member (equal, car (pair), lst))) then
          call set_cdr (pair, lst)
          lst_out = pair
+      else
+         lst_out = lst
       end if
     end subroutine kons
-
-    recursive function equals_element (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-
-      bool = equal (x, element)
-    end function equals_element
 
   end function lset_unionx9
 
@@ -1454,9 +1355,6 @@ contains
     class(*), intent(in) :: lst9
     class(*), intent(in) :: lst10
     type(cons_t) :: lst_out
-
-    ! This variable is used by the nested procedures.
-    class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
          &            lst5, lst6, lst7, lst8, &
@@ -1485,21 +1383,13 @@ contains
       class(*), intent(in) :: lst
       class(*), allocatable, intent(out) :: lst_out
 
-      element = car (pair)
-      if (some (equals_element, lst)) then
-         lst_out = lst
-      else
+      if (is_nil (member (equal, car (pair), lst))) then
          call set_cdr (pair, lst)
          lst_out = pair
+      else
+         lst_out = lst
       end if
     end subroutine kons
-
-    recursive function equals_element (x) result (bool)
-      class(*), intent(in) :: x
-      logical :: bool
-
-      bool = equal (x, element)
-    end function equals_element
 
   end function lset_unionx10
 
