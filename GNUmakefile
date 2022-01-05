@@ -44,9 +44,6 @@ COMPILE.m4 = $(M4) $(M4FLAGS) $(XM4FLAGS)
 # ISO_Fortran_Env and ISO_C_Binding are available.)
 M4FLAGS += -DSIZE_KIND=int64
 
-# How many lists can be discarded with one call?
-M4FLAGS += -DLIST_DISCARDN_MAX=10
-
 # How deep should car-cdr permutations go?
 M4FLAGS += -DCADADR_MAX=4
 
