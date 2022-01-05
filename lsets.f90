@@ -937,7 +937,7 @@ contains
     class(*), intent(in) :: lst1
     type(cons_t) :: lst_out
 
-    ! This variable is used by the nested procedure.
+    ! This variable is used by the nested procedures.
     class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1))
@@ -989,7 +989,7 @@ contains
     class(*), intent(in) :: lst2
     type(cons_t) :: lst_out
 
-    ! This variable is used by the nested procedure.
+    ! This variable is used by the nested procedures.
     class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2))
@@ -1042,7 +1042,7 @@ contains
     class(*), intent(in) :: lst3
     type(cons_t) :: lst_out
 
-    ! This variable is used by the nested procedure.
+    ! This variable is used by the nested procedures.
     class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3))
@@ -1096,7 +1096,7 @@ contains
     class(*), intent(in) :: lst4
     type(cons_t) :: lst_out
 
-    ! This variable is used by the nested procedure.
+    ! This variable is used by the nested procedures.
     class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4))
@@ -1152,7 +1152,7 @@ contains
     class(*), intent(in) :: lst5
     type(cons_t) :: lst_out
 
-    ! This variable is used by the nested procedure.
+    ! This variable is used by the nested procedures.
     class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
@@ -1210,7 +1210,7 @@ contains
     class(*), intent(in) :: lst6
     type(cons_t) :: lst_out
 
-    ! This variable is used by the nested procedure.
+    ! This variable is used by the nested procedures.
     class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
@@ -1269,7 +1269,7 @@ contains
     class(*), intent(in) :: lst7
     type(cons_t) :: lst_out
 
-    ! This variable is used by the nested procedure.
+    ! This variable is used by the nested procedures.
     class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
@@ -1329,7 +1329,7 @@ contains
     class(*), intent(in) :: lst8
     type(cons_t) :: lst_out
 
-    ! This variable is used by the nested procedure.
+    ! This variable is used by the nested procedures.
     class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
@@ -1391,7 +1391,7 @@ contains
     class(*), intent(in) :: lst9
     type(cons_t) :: lst_out
 
-    ! This variable is used by the nested procedure.
+    ! This variable is used by the nested procedures.
     class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
@@ -1455,7 +1455,7 @@ contains
     class(*), intent(in) :: lst10
     type(cons_t) :: lst_out
 
-    ! This variable is used by the nested procedure.
+    ! This variable is used by the nested procedures.
     class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &

@@ -228,7 +228,7 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
     type(cons_t) :: lst_out
 
-    ! This variable is used by the nested procedure.
+    ! This variable is used by the nested procedures.
     class(*), allocatable :: element
 
     lst_out = reduce (make_unionx, nil, list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
