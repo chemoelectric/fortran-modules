@@ -91,6 +91,7 @@ MODULE_BASENAMES =
 MODULE_BASENAMES += garbage_collector
 MODULE_BASENAMES += boxes
 MODULE_BASENAMES += cons_pairs
+MODULE_BASENAMES += lsets
 
 TEST_PROGRAM_BASENAMES =
 TEST_PROGRAM_BASENAMES += test__boxes
@@ -142,6 +143,11 @@ cons_pairs.f90: cadadr.m4
 cons_pairs.anchor: garbage_collector.anchor
 cons_pairs.anchor: cons_pairs.mod
 cons_pairs.mod:
+
+lsets.anchor: garbage_collector.anchor
+lsets.anchor: cons_pairs.mod
+lsets.anchor: lsets.mod
+lsets.mod:
 
 test__boxes.anchor: boxes.anchor
 test__boxes.anchor: test__boxes.mod

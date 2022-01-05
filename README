@@ -19,6 +19,12 @@ cons_pairs.f90         -- CONS-pairs for Fortran, in the manner of
                           (SRFI-1).
                           (Expat license)
 
+lsets.f90              -- Lsets (lists as sets) for Fortran,
+                          in the manner of Scheme Request for
+                          Implementation 1 (SRFI-1).
+                          (Expat license)
+                          (UNDER DEVELOPMENT)
+
 
 Regarding my use of m4
 ----------------------
