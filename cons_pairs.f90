@@ -307,6 +307,11 @@ module cons_pairs
   public :: zip8
   public :: zip9
   public :: zip10
+  public :: zip11
+  public :: zip12
+  public :: zip13
+  public :: zip14
+  public :: zip15
 
   ! Unzipping: separating the elements of a list of lists into
   ! separate lists.
@@ -321,6 +326,11 @@ module cons_pairs
   public :: unzip8
   public :: unzip9
   public :: unzip10
+  public :: unzip11
+  public :: unzip12
+  public :: unzip13
+  public :: unzip14
+  public :: unzip15
 
   ! unzip1f is the same as unzip1, except as a function instead of a
   ! subroutine.
@@ -444,6 +454,11 @@ module cons_pairs
   public :: append8, appendx8
   public :: append9, appendx9
   public :: append10, appendx10
+  public :: append11, appendx11
+  public :: append12, appendx12
+  public :: append13, appendx13
+  public :: append14, appendx14
+  public :: append15, appendx15
 
   ! `make_circular' and `make_circularx' are not part of SRFI-1, but
   !  are related to `circular-list'.
@@ -468,6 +483,11 @@ module cons_pairs
   public :: list_equal8
   public :: list_equal9
   public :: list_equal10
+  public :: list_equal11
+  public :: list_equal12
+  public :: list_equal13
+  public :: list_equal14
+  public :: list_equal15
 
   ! Count elements that satisfy a predicate. Counting proceeds in
   ! left-to-right order. (This is called `list_count' instead of
@@ -483,6 +503,11 @@ module cons_pairs
   public :: list_count8
   public :: list_count9
   public :: list_count10
+  public :: list_count11
+  public :: list_count12
+  public :: list_count13
+  public :: list_count14
+  public :: list_count15
 
   public :: map              ! Generic function: map list elements in
                              ! an unspecified order.
@@ -511,6 +536,11 @@ module cons_pairs
   public :: map8_subr
   public :: map9_subr
   public :: map10_subr
+  public :: map11_subr
+  public :: map12_subr
+  public :: map13_subr
+  public :: map14_subr
+  public :: map15_subr
 
   ! Implementations of map_in_order, taking a subroutine as the
   ! mapping procedure.
@@ -524,6 +554,11 @@ module cons_pairs
   public :: map8_in_order_subr
   public :: map9_in_order_subr
   public :: map10_in_order_subr
+  public :: map11_in_order_subr
+  public :: map12_in_order_subr
+  public :: map13_in_order_subr
+  public :: map14_in_order_subr
+  public :: map15_in_order_subr
 
   ! Implementations of filter_map, taking a subroutine as the mapping
   ! procedure.
@@ -537,6 +572,11 @@ module cons_pairs
   public :: filter_map8_subr
   public :: filter_map9_subr
   public :: filter_map10_subr
+  public :: filter_map11_subr
+  public :: filter_map12_subr
+  public :: filter_map13_subr
+  public :: filter_map14_subr
+  public :: filter_map15_subr
 
   ! Implementations of for_each.
   public :: for_each1
@@ -549,6 +589,11 @@ module cons_pairs
   public :: for_each8
   public :: for_each9
   public :: for_each10
+  public :: for_each11
+  public :: for_each12
+  public :: for_each13
+  public :: for_each14
+  public :: for_each15
 
   ! Implementations of pair_for_each.
   public :: pair_for_each1
@@ -561,6 +606,11 @@ module cons_pairs
   public :: pair_for_each8
   public :: pair_for_each9
   public :: pair_for_each10
+  public :: pair_for_each11
+  public :: pair_for_each12
+  public :: pair_for_each13
+  public :: pair_for_each14
+  public :: pair_for_each15
 
   public :: filter           ! Return the elements of a list that *do*
                              ! satisfy a predicate.
@@ -672,6 +722,11 @@ module cons_pairs
   public :: some8
   public :: some9
   public :: some10
+  public :: some11
+  public :: some12
+  public :: some13
+  public :: some14
+  public :: some15
 
   ! Implementations of `some_map'.
   public :: some_map1_subr
@@ -684,6 +739,11 @@ module cons_pairs
   public :: some_map8_subr
   public :: some_map9_subr
   public :: some_map10_subr
+  public :: some_map11_subr
+  public :: some_map12_subr
+  public :: some_map13_subr
+  public :: some_map14_subr
+  public :: some_map15_subr
 
   ! Implementations of `every'.
   public :: every1
@@ -696,6 +756,11 @@ module cons_pairs
   public :: every8
   public :: every9
   public :: every10
+  public :: every11
+  public :: every12
+  public :: every13
+  public :: every14
+  public :: every15
 
   ! Implementations of `every_map'.
   public :: every_map1_subr
@@ -708,6 +773,11 @@ module cons_pairs
   public :: every_map8_subr
   public :: every_map9_subr
   public :: every_map10_subr
+  public :: every_map11_subr
+  public :: every_map12_subr
+  public :: every_map13_subr
+  public :: every_map14_subr
+  public :: every_map15_subr
 
   ! The list_index functions are designed so they always return a
   ! negative number on failure to satisfy the predicate, and so the
@@ -737,6 +807,11 @@ module cons_pairs
   public :: list_index0_8
   public :: list_index0_9
   public :: list_index0_10
+  public :: list_index0_11
+  public :: list_index0_12
+  public :: list_index0_13
+  public :: list_index0_14
+  public :: list_index0_15
 
   ! Implementations of list_index1.
   public :: list_index1_1
@@ -749,6 +824,11 @@ module cons_pairs
   public :: list_index1_8
   public :: list_index1_9
   public :: list_index1_10
+  public :: list_index1_11
+  public :: list_index1_12
+  public :: list_index1_13
+  public :: list_index1_14
+  public :: list_index1_15
 
   ! Implementations of list_indexn.
   public :: list_indexn_1
@@ -761,6 +841,11 @@ module cons_pairs
   public :: list_indexn_8
   public :: list_indexn_9
   public :: list_indexn_10
+  public :: list_indexn_11
+  public :: list_indexn_12
+  public :: list_indexn_13
+  public :: list_indexn_14
+  public :: list_indexn_15
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
@@ -824,6 +909,11 @@ module cons_pairs
   public :: fold8_subr
   public :: fold9_subr
   public :: fold10_subr
+  public :: fold11_subr
+  public :: fold12_subr
+  public :: fold13_subr
+  public :: fold14_subr
+  public :: fold15_subr
 
   ! Implementations of fold_right.
   public :: fold1_right_subr
@@ -836,6 +926,11 @@ module cons_pairs
   public :: fold8_right_subr
   public :: fold9_right_subr
   public :: fold10_right_subr
+  public :: fold11_right_subr
+  public :: fold12_right_subr
+  public :: fold13_right_subr
+  public :: fold14_right_subr
+  public :: fold15_right_subr
 
   ! Implementations of pair_fold.
   public :: pair_fold1_subr
@@ -848,6 +943,11 @@ module cons_pairs
   public :: pair_fold8_subr
   public :: pair_fold9_subr
   public :: pair_fold10_subr
+  public :: pair_fold11_subr
+  public :: pair_fold12_subr
+  public :: pair_fold13_subr
+  public :: pair_fold14_subr
+  public :: pair_fold15_subr
 
   ! Implementations of pair_fold_right.
   public :: pair_fold1_right_subr
@@ -860,6 +960,11 @@ module cons_pairs
   public :: pair_fold8_right_subr
   public :: pair_fold9_right_subr
   public :: pair_fold10_right_subr
+  public :: pair_fold11_right_subr
+  public :: pair_fold12_right_subr
+  public :: pair_fold13_right_subr
+  public :: pair_fold14_right_subr
+  public :: pair_fold15_right_subr
 
   ! Implementations of reduce.
   public :: reduce_subr
@@ -902,6 +1007,11 @@ module cons_pairs
   public :: list_predicate8_t ! A predicate taking 8 arguments.
   public :: list_predicate9_t ! A predicate taking 9 arguments.
   public :: list_predicate10_t ! A predicate taking 10 arguments.
+  public :: list_predicate11_t ! A predicate taking 11 arguments.
+  public :: list_predicate12_t ! A predicate taking 12 arguments.
+  public :: list_predicate13_t ! A predicate taking 13 arguments.
+  public :: list_predicate14_t ! A predicate taking 14 arguments.
+  public :: list_predicate15_t ! A predicate taking 15 arguments.
 
   abstract interface
      recursive function list_predicate1_t (x1) result (bool)
@@ -994,6 +1104,96 @@ module cons_pairs
        class(*), intent(in) :: x10
        logical :: bool
      end function list_predicate10_t
+     recursive function list_predicate11_t (x1, x2, x3, x4, x5, &
+          x6, x7, x8, x9, x10, &
+          x11) result (bool)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       class(*), intent(in) :: x3
+       class(*), intent(in) :: x4
+       class(*), intent(in) :: x5
+       class(*), intent(in) :: x6
+       class(*), intent(in) :: x7
+       class(*), intent(in) :: x8
+       class(*), intent(in) :: x9
+       class(*), intent(in) :: x10
+       class(*), intent(in) :: x11
+       logical :: bool
+     end function list_predicate11_t
+     recursive function list_predicate12_t (x1, x2, x3, x4, x5, &
+          x6, x7, x8, x9, x10, &
+          x11, x12) result (bool)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       class(*), intent(in) :: x3
+       class(*), intent(in) :: x4
+       class(*), intent(in) :: x5
+       class(*), intent(in) :: x6
+       class(*), intent(in) :: x7
+       class(*), intent(in) :: x8
+       class(*), intent(in) :: x9
+       class(*), intent(in) :: x10
+       class(*), intent(in) :: x11
+       class(*), intent(in) :: x12
+       logical :: bool
+     end function list_predicate12_t
+     recursive function list_predicate13_t (x1, x2, x3, x4, x5, &
+          x6, x7, x8, x9, x10, &
+          x11, x12, x13) result (bool)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       class(*), intent(in) :: x3
+       class(*), intent(in) :: x4
+       class(*), intent(in) :: x5
+       class(*), intent(in) :: x6
+       class(*), intent(in) :: x7
+       class(*), intent(in) :: x8
+       class(*), intent(in) :: x9
+       class(*), intent(in) :: x10
+       class(*), intent(in) :: x11
+       class(*), intent(in) :: x12
+       class(*), intent(in) :: x13
+       logical :: bool
+     end function list_predicate13_t
+     recursive function list_predicate14_t (x1, x2, x3, x4, x5, &
+          x6, x7, x8, x9, x10, &
+          x11, x12, x13, x14) result (bool)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       class(*), intent(in) :: x3
+       class(*), intent(in) :: x4
+       class(*), intent(in) :: x5
+       class(*), intent(in) :: x6
+       class(*), intent(in) :: x7
+       class(*), intent(in) :: x8
+       class(*), intent(in) :: x9
+       class(*), intent(in) :: x10
+       class(*), intent(in) :: x11
+       class(*), intent(in) :: x12
+       class(*), intent(in) :: x13
+       class(*), intent(in) :: x14
+       logical :: bool
+     end function list_predicate14_t
+     recursive function list_predicate15_t (x1, x2, x3, x4, x5, &
+          x6, x7, x8, x9, x10, &
+          x11, x12, x13, x14, x15) result (bool)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       class(*), intent(in) :: x3
+       class(*), intent(in) :: x4
+       class(*), intent(in) :: x5
+       class(*), intent(in) :: x6
+       class(*), intent(in) :: x7
+       class(*), intent(in) :: x8
+       class(*), intent(in) :: x9
+       class(*), intent(in) :: x10
+       class(*), intent(in) :: x11
+       class(*), intent(in) :: x12
+       class(*), intent(in) :: x13
+       class(*), intent(in) :: x14
+       class(*), intent(in) :: x15
+       logical :: bool
+     end function list_predicate15_t
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1011,6 +1211,11 @@ module cons_pairs
   public :: list_kons8_subr_t
   public :: list_kons9_subr_t
   public :: list_kons10_subr_t
+  public :: list_kons11_subr_t
+  public :: list_kons12_subr_t
+  public :: list_kons13_subr_t
+  public :: list_kons14_subr_t
+  public :: list_kons15_subr_t
 
   abstract interface
      !
@@ -1116,6 +1321,101 @@ module cons_pairs
        class(*), intent(in) :: kdr
        class(*), allocatable, intent(out) :: kons_result
      end subroutine list_kons10_subr_t
+     recursive subroutine list_kons11_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          kar6, kar7, kar8, kar9, kar10, &
+          kar11, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kar2
+       class(*), intent(in) :: kar3
+       class(*), intent(in) :: kar4
+       class(*), intent(in) :: kar5
+       class(*), intent(in) :: kar6
+       class(*), intent(in) :: kar7
+       class(*), intent(in) :: kar8
+       class(*), intent(in) :: kar9
+       class(*), intent(in) :: kar10
+       class(*), intent(in) :: kar11
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine list_kons11_subr_t
+     recursive subroutine list_kons12_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          kar6, kar7, kar8, kar9, kar10, &
+          kar11, kar12, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kar2
+       class(*), intent(in) :: kar3
+       class(*), intent(in) :: kar4
+       class(*), intent(in) :: kar5
+       class(*), intent(in) :: kar6
+       class(*), intent(in) :: kar7
+       class(*), intent(in) :: kar8
+       class(*), intent(in) :: kar9
+       class(*), intent(in) :: kar10
+       class(*), intent(in) :: kar11
+       class(*), intent(in) :: kar12
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine list_kons12_subr_t
+     recursive subroutine list_kons13_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          kar6, kar7, kar8, kar9, kar10, &
+          kar11, kar12, kar13, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kar2
+       class(*), intent(in) :: kar3
+       class(*), intent(in) :: kar4
+       class(*), intent(in) :: kar5
+       class(*), intent(in) :: kar6
+       class(*), intent(in) :: kar7
+       class(*), intent(in) :: kar8
+       class(*), intent(in) :: kar9
+       class(*), intent(in) :: kar10
+       class(*), intent(in) :: kar11
+       class(*), intent(in) :: kar12
+       class(*), intent(in) :: kar13
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine list_kons13_subr_t
+     recursive subroutine list_kons14_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          kar6, kar7, kar8, kar9, kar10, &
+          kar11, kar12, kar13, kar14, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kar2
+       class(*), intent(in) :: kar3
+       class(*), intent(in) :: kar4
+       class(*), intent(in) :: kar5
+       class(*), intent(in) :: kar6
+       class(*), intent(in) :: kar7
+       class(*), intent(in) :: kar8
+       class(*), intent(in) :: kar9
+       class(*), intent(in) :: kar10
+       class(*), intent(in) :: kar11
+       class(*), intent(in) :: kar12
+       class(*), intent(in) :: kar13
+       class(*), intent(in) :: kar14
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine list_kons14_subr_t
+     recursive subroutine list_kons15_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          kar6, kar7, kar8, kar9, kar10, &
+          kar11, kar12, kar13, kar14, kar15, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kar2
+       class(*), intent(in) :: kar3
+       class(*), intent(in) :: kar4
+       class(*), intent(in) :: kar5
+       class(*), intent(in) :: kar6
+       class(*), intent(in) :: kar7
+       class(*), intent(in) :: kar8
+       class(*), intent(in) :: kar9
+       class(*), intent(in) :: kar10
+       class(*), intent(in) :: kar11
+       class(*), intent(in) :: kar12
+       class(*), intent(in) :: kar13
+       class(*), intent(in) :: kar14
+       class(*), intent(in) :: kar15
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine list_kons15_subr_t
   end interface
 
   public :: list_map1_subr_t
@@ -1128,6 +1428,11 @@ module cons_pairs
   public :: list_map8_subr_t
   public :: list_map9_subr_t
   public :: list_map10_subr_t
+  public :: list_map11_subr_t
+  public :: list_map12_subr_t
+  public :: list_map13_subr_t
+  public :: list_map14_subr_t
+  public :: list_map15_subr_t
 
   abstract interface
      !
@@ -1224,6 +1529,96 @@ module cons_pairs
        class(*), intent(in) :: input10
        class(*), allocatable, intent(out) :: output
      end subroutine list_map10_subr_t
+     recursive subroutine list_map11_subr_t (input1, input2, input3, input4, input5, &
+          input6, input7, input8, input9, input10, &
+          input11, output)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+       class(*), intent(in) :: input10
+       class(*), intent(in) :: input11
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map11_subr_t
+     recursive subroutine list_map12_subr_t (input1, input2, input3, input4, input5, &
+          input6, input7, input8, input9, input10, &
+          input11, input12, output)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+       class(*), intent(in) :: input10
+       class(*), intent(in) :: input11
+       class(*), intent(in) :: input12
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map12_subr_t
+     recursive subroutine list_map13_subr_t (input1, input2, input3, input4, input5, &
+          input6, input7, input8, input9, input10, &
+          input11, input12, input13, output)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+       class(*), intent(in) :: input10
+       class(*), intent(in) :: input11
+       class(*), intent(in) :: input12
+       class(*), intent(in) :: input13
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map13_subr_t
+     recursive subroutine list_map14_subr_t (input1, input2, input3, input4, input5, &
+          input6, input7, input8, input9, input10, &
+          input11, input12, input13, input14, output)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+       class(*), intent(in) :: input10
+       class(*), intent(in) :: input11
+       class(*), intent(in) :: input12
+       class(*), intent(in) :: input13
+       class(*), intent(in) :: input14
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map14_subr_t
+     recursive subroutine list_map15_subr_t (input1, input2, input3, input4, input5, &
+          input6, input7, input8, input9, input10, &
+          input11, input12, input13, input14, input15, output)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+       class(*), intent(in) :: input10
+       class(*), intent(in) :: input11
+       class(*), intent(in) :: input12
+       class(*), intent(in) :: input13
+       class(*), intent(in) :: input14
+       class(*), intent(in) :: input15
+       class(*), allocatable, intent(out) :: output
+     end subroutine list_map15_subr_t
   end interface
 
   public :: list_side_effects1_t
@@ -1236,6 +1631,11 @@ module cons_pairs
   public :: list_side_effects8_t
   public :: list_side_effects9_t
   public :: list_side_effects10_t
+  public :: list_side_effects11_t
+  public :: list_side_effects12_t
+  public :: list_side_effects13_t
+  public :: list_side_effects14_t
+  public :: list_side_effects15_t
 
   abstract interface
      !
@@ -1323,6 +1723,91 @@ module cons_pairs
        class(*), intent(in) :: input9
        class(*), intent(in) :: input10
      end subroutine list_side_effects10_t
+     recursive subroutine list_side_effects11_t (input1, input2, input3, input4, input5, &
+          input6, input7, input8, input9, input10, &
+          input11)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+       class(*), intent(in) :: input10
+       class(*), intent(in) :: input11
+     end subroutine list_side_effects11_t
+     recursive subroutine list_side_effects12_t (input1, input2, input3, input4, input5, &
+          input6, input7, input8, input9, input10, &
+          input11, input12)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+       class(*), intent(in) :: input10
+       class(*), intent(in) :: input11
+       class(*), intent(in) :: input12
+     end subroutine list_side_effects12_t
+     recursive subroutine list_side_effects13_t (input1, input2, input3, input4, input5, &
+          input6, input7, input8, input9, input10, &
+          input11, input12, input13)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+       class(*), intent(in) :: input10
+       class(*), intent(in) :: input11
+       class(*), intent(in) :: input12
+       class(*), intent(in) :: input13
+     end subroutine list_side_effects13_t
+     recursive subroutine list_side_effects14_t (input1, input2, input3, input4, input5, &
+          input6, input7, input8, input9, input10, &
+          input11, input12, input13, input14)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+       class(*), intent(in) :: input10
+       class(*), intent(in) :: input11
+       class(*), intent(in) :: input12
+       class(*), intent(in) :: input13
+       class(*), intent(in) :: input14
+     end subroutine list_side_effects14_t
+     recursive subroutine list_side_effects15_t (input1, input2, input3, input4, input5, &
+          input6, input7, input8, input9, input10, &
+          input11, input12, input13, input14, input15)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+       class(*), intent(in) :: input10
+       class(*), intent(in) :: input11
+       class(*), intent(in) :: input12
+       class(*), intent(in) :: input13
+       class(*), intent(in) :: input14
+       class(*), intent(in) :: input15
+     end subroutine list_side_effects15_t
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1581,6 +2066,11 @@ module cons_pairs
      module procedure zip8
      module procedure zip9
      module procedure zip10
+     module procedure zip11
+     module procedure zip12
+     module procedure zip13
+     module procedure zip14
+     module procedure zip15
   end interface zip
 
   interface unzip
@@ -1594,6 +2084,11 @@ module cons_pairs
      module procedure unzip8
      module procedure unzip9
      module procedure unzip10
+     module procedure unzip11
+     module procedure unzip12
+     module procedure unzip13
+     module procedure unzip14
+     module procedure unzip15
   end interface unzip
 
   interface list_equal
@@ -1608,6 +2103,11 @@ module cons_pairs
      module procedure list_equal8
      module procedure list_equal9
      module procedure list_equal10
+     module procedure list_equal11
+     module procedure list_equal12
+     module procedure list_equal13
+     module procedure list_equal14
+     module procedure list_equal15
   end interface list_equal
 
   interface list_count
@@ -1621,6 +2121,11 @@ module cons_pairs
      module procedure list_count8
      module procedure list_count9
      module procedure list_count10
+     module procedure list_count11
+     module procedure list_count12
+     module procedure list_count13
+     module procedure list_count14
+     module procedure list_count15
   end interface list_count
 
   interface append
@@ -1635,6 +2140,11 @@ module cons_pairs
      module procedure append8
      module procedure append9
      module procedure append10
+     module procedure append11
+     module procedure append12
+     module procedure append13
+     module procedure append14
+     module procedure append15
   end interface append
 
   interface appendx
@@ -1649,6 +2159,11 @@ module cons_pairs
      module procedure appendx8
      module procedure appendx9
      module procedure appendx10
+     module procedure appendx11
+     module procedure appendx12
+     module procedure appendx13
+     module procedure appendx14
+     module procedure appendx15
   end interface appendx
 
   interface map
@@ -1662,6 +2177,11 @@ module cons_pairs
      module procedure map8_subr
      module procedure map9_subr
      module procedure map10_subr
+     module procedure map11_subr
+     module procedure map12_subr
+     module procedure map13_subr
+     module procedure map14_subr
+     module procedure map15_subr
   end interface map
 
   interface map_in_order
@@ -1675,6 +2195,11 @@ module cons_pairs
      module procedure map8_in_order_subr
      module procedure map9_in_order_subr
      module procedure map10_in_order_subr
+     module procedure map11_in_order_subr
+     module procedure map12_in_order_subr
+     module procedure map13_in_order_subr
+     module procedure map14_in_order_subr
+     module procedure map15_in_order_subr
   end interface map_in_order
 
   interface filter_map
@@ -1688,6 +2213,11 @@ module cons_pairs
      module procedure filter_map8_subr
      module procedure filter_map9_subr
      module procedure filter_map10_subr
+     module procedure filter_map11_subr
+     module procedure filter_map12_subr
+     module procedure filter_map13_subr
+     module procedure filter_map14_subr
+     module procedure filter_map15_subr
   end interface filter_map
 
   interface for_each
@@ -1701,6 +2231,11 @@ module cons_pairs
      module procedure for_each8
      module procedure for_each9
      module procedure for_each10
+     module procedure for_each11
+     module procedure for_each12
+     module procedure for_each13
+     module procedure for_each14
+     module procedure for_each15
   end interface for_each
 
   interface pair_for_each
@@ -1714,6 +2249,11 @@ module cons_pairs
      module procedure pair_for_each8
      module procedure pair_for_each9
      module procedure pair_for_each10
+     module procedure pair_for_each11
+     module procedure pair_for_each12
+     module procedure pair_for_each13
+     module procedure pair_for_each14
+     module procedure pair_for_each15
   end interface pair_for_each
 
   interface some
@@ -1727,6 +2267,11 @@ module cons_pairs
      module procedure some8
      module procedure some9
      module procedure some10
+     module procedure some11
+     module procedure some12
+     module procedure some13
+     module procedure some14
+     module procedure some15
   end interface some
 
   interface some_map
@@ -1740,6 +2285,11 @@ module cons_pairs
      module procedure some_map8_subr
      module procedure some_map9_subr
      module procedure some_map10_subr
+     module procedure some_map11_subr
+     module procedure some_map12_subr
+     module procedure some_map13_subr
+     module procedure some_map14_subr
+     module procedure some_map15_subr
   end interface some_map
 
   interface every
@@ -1753,6 +2303,11 @@ module cons_pairs
      module procedure every8
      module procedure every9
      module procedure every10
+     module procedure every11
+     module procedure every12
+     module procedure every13
+     module procedure every14
+     module procedure every15
   end interface every
 
   interface every_map
@@ -1766,6 +2321,11 @@ module cons_pairs
      module procedure every_map8_subr
      module procedure every_map9_subr
      module procedure every_map10_subr
+     module procedure every_map11_subr
+     module procedure every_map12_subr
+     module procedure every_map13_subr
+     module procedure every_map14_subr
+     module procedure every_map15_subr
   end interface every_map
 
   interface fold
@@ -1779,6 +2339,11 @@ module cons_pairs
      module procedure fold8_subr
      module procedure fold9_subr
      module procedure fold10_subr
+     module procedure fold11_subr
+     module procedure fold12_subr
+     module procedure fold13_subr
+     module procedure fold14_subr
+     module procedure fold15_subr
   end interface fold
 
   interface list_index0
@@ -1792,6 +2357,11 @@ module cons_pairs
      module procedure list_index0_8
      module procedure list_index0_9
      module procedure list_index0_10
+     module procedure list_index0_11
+     module procedure list_index0_12
+     module procedure list_index0_13
+     module procedure list_index0_14
+     module procedure list_index0_15
   end interface list_index0
 
   interface list_index1
@@ -1805,6 +2375,11 @@ module cons_pairs
      module procedure list_index1_8
      module procedure list_index1_9
      module procedure list_index1_10
+     module procedure list_index1_11
+     module procedure list_index1_12
+     module procedure list_index1_13
+     module procedure list_index1_14
+     module procedure list_index1_15
   end interface list_index1
 
   interface list_indexn
@@ -1818,6 +2393,11 @@ module cons_pairs
      module procedure list_indexn_8
      module procedure list_indexn_9
      module procedure list_indexn_10
+     module procedure list_indexn_11
+     module procedure list_indexn_12
+     module procedure list_indexn_13
+     module procedure list_indexn_14
+     module procedure list_indexn_15
   end interface list_indexn
 
   interface fold_right
@@ -1831,6 +2411,11 @@ module cons_pairs
      module procedure fold8_right_subr
      module procedure fold9_right_subr
      module procedure fold10_right_subr
+     module procedure fold11_right_subr
+     module procedure fold12_right_subr
+     module procedure fold13_right_subr
+     module procedure fold14_right_subr
+     module procedure fold15_right_subr
   end interface fold_right
 
   interface pair_fold
@@ -1844,6 +2429,11 @@ module cons_pairs
      module procedure pair_fold8_subr
      module procedure pair_fold9_subr
      module procedure pair_fold10_subr
+     module procedure pair_fold11_subr
+     module procedure pair_fold12_subr
+     module procedure pair_fold13_subr
+     module procedure pair_fold14_subr
+     module procedure pair_fold15_subr
   end interface pair_fold
 
   interface pair_fold_right
@@ -1857,6 +2447,11 @@ module cons_pairs
      module procedure pair_fold8_right_subr
      module procedure pair_fold9_right_subr
      module procedure pair_fold10_right_subr
+     module procedure pair_fold11_right_subr
+     module procedure pair_fold12_right_subr
+     module procedure pair_fold13_right_subr
+     module procedure pair_fold14_right_subr
+     module procedure pair_fold15_right_subr
   end interface pair_fold_right
 
   interface reduce
@@ -6873,6 +7468,991 @@ contains
     end if
   end function zip10
 
+  function zip11 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else if (is_not_pair (tail2)) then
+       lst_z = nil
+    else if (is_not_pair (tail3)) then
+       lst_z = nil
+    else if (is_not_pair (tail4)) then
+       lst_z = nil
+    else if (is_not_pair (tail5)) then
+       lst_z = nil
+    else if (is_not_pair (tail6)) then
+       lst_z = nil
+    else if (is_not_pair (tail7)) then
+       lst_z = nil
+    else if (is_not_pair (tail8)) then
+       lst_z = nil
+    else if (is_not_pair (tail9)) then
+       lst_z = nil
+    else if (is_not_pair (tail10)) then
+       lst_z = nil
+    else if (is_not_pair (tail11)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call uncons (tail9, head9, tail9)
+       call uncons (tail10, head10, tail10)
+       call uncons (tail11, head11, tail11)
+       row = nil
+       row = head11 ** row
+       row = head10 ** row
+       row = head9 ** row
+       row = head8 ** row
+       row = head7 ** row
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else if (is_not_pair (tail7)) then
+          continue
+       else if (is_not_pair (tail8)) then
+          continue
+       else if (is_not_pair (tail9)) then
+          continue
+       else if (is_not_pair (tail10)) then
+          continue
+       else if (is_not_pair (tail11)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             call uncons (tail10, head10, tail10)
+             call uncons (tail11, head11, tail11)
+             row = nil
+             row = head11 ** row
+             row = head10 ** row
+             row = head9 ** row
+             row = head8 ** row
+             row = head7 ** row
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             else if (is_not_pair (tail9)) then
+                done = .true.
+             else if (is_not_pair (tail10)) then
+                done = .true.
+             else if (is_not_pair (tail11)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip11
+
+  function zip12 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else if (is_not_pair (tail2)) then
+       lst_z = nil
+    else if (is_not_pair (tail3)) then
+       lst_z = nil
+    else if (is_not_pair (tail4)) then
+       lst_z = nil
+    else if (is_not_pair (tail5)) then
+       lst_z = nil
+    else if (is_not_pair (tail6)) then
+       lst_z = nil
+    else if (is_not_pair (tail7)) then
+       lst_z = nil
+    else if (is_not_pair (tail8)) then
+       lst_z = nil
+    else if (is_not_pair (tail9)) then
+       lst_z = nil
+    else if (is_not_pair (tail10)) then
+       lst_z = nil
+    else if (is_not_pair (tail11)) then
+       lst_z = nil
+    else if (is_not_pair (tail12)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call uncons (tail9, head9, tail9)
+       call uncons (tail10, head10, tail10)
+       call uncons (tail11, head11, tail11)
+       call uncons (tail12, head12, tail12)
+       row = nil
+       row = head12 ** row
+       row = head11 ** row
+       row = head10 ** row
+       row = head9 ** row
+       row = head8 ** row
+       row = head7 ** row
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else if (is_not_pair (tail7)) then
+          continue
+       else if (is_not_pair (tail8)) then
+          continue
+       else if (is_not_pair (tail9)) then
+          continue
+       else if (is_not_pair (tail10)) then
+          continue
+       else if (is_not_pair (tail11)) then
+          continue
+       else if (is_not_pair (tail12)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             call uncons (tail10, head10, tail10)
+             call uncons (tail11, head11, tail11)
+             call uncons (tail12, head12, tail12)
+             row = nil
+             row = head12 ** row
+             row = head11 ** row
+             row = head10 ** row
+             row = head9 ** row
+             row = head8 ** row
+             row = head7 ** row
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             else if (is_not_pair (tail9)) then
+                done = .true.
+             else if (is_not_pair (tail10)) then
+                done = .true.
+             else if (is_not_pair (tail11)) then
+                done = .true.
+             else if (is_not_pair (tail12)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip12
+
+  function zip13 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else if (is_not_pair (tail2)) then
+       lst_z = nil
+    else if (is_not_pair (tail3)) then
+       lst_z = nil
+    else if (is_not_pair (tail4)) then
+       lst_z = nil
+    else if (is_not_pair (tail5)) then
+       lst_z = nil
+    else if (is_not_pair (tail6)) then
+       lst_z = nil
+    else if (is_not_pair (tail7)) then
+       lst_z = nil
+    else if (is_not_pair (tail8)) then
+       lst_z = nil
+    else if (is_not_pair (tail9)) then
+       lst_z = nil
+    else if (is_not_pair (tail10)) then
+       lst_z = nil
+    else if (is_not_pair (tail11)) then
+       lst_z = nil
+    else if (is_not_pair (tail12)) then
+       lst_z = nil
+    else if (is_not_pair (tail13)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call uncons (tail9, head9, tail9)
+       call uncons (tail10, head10, tail10)
+       call uncons (tail11, head11, tail11)
+       call uncons (tail12, head12, tail12)
+       call uncons (tail13, head13, tail13)
+       row = nil
+       row = head13 ** row
+       row = head12 ** row
+       row = head11 ** row
+       row = head10 ** row
+       row = head9 ** row
+       row = head8 ** row
+       row = head7 ** row
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else if (is_not_pair (tail7)) then
+          continue
+       else if (is_not_pair (tail8)) then
+          continue
+       else if (is_not_pair (tail9)) then
+          continue
+       else if (is_not_pair (tail10)) then
+          continue
+       else if (is_not_pair (tail11)) then
+          continue
+       else if (is_not_pair (tail12)) then
+          continue
+       else if (is_not_pair (tail13)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             call uncons (tail10, head10, tail10)
+             call uncons (tail11, head11, tail11)
+             call uncons (tail12, head12, tail12)
+             call uncons (tail13, head13, tail13)
+             row = nil
+             row = head13 ** row
+             row = head12 ** row
+             row = head11 ** row
+             row = head10 ** row
+             row = head9 ** row
+             row = head8 ** row
+             row = head7 ** row
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             else if (is_not_pair (tail9)) then
+                done = .true.
+             else if (is_not_pair (tail10)) then
+                done = .true.
+             else if (is_not_pair (tail11)) then
+                done = .true.
+             else if (is_not_pair (tail12)) then
+                done = .true.
+             else if (is_not_pair (tail13)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip13
+
+  function zip14 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else if (is_not_pair (tail2)) then
+       lst_z = nil
+    else if (is_not_pair (tail3)) then
+       lst_z = nil
+    else if (is_not_pair (tail4)) then
+       lst_z = nil
+    else if (is_not_pair (tail5)) then
+       lst_z = nil
+    else if (is_not_pair (tail6)) then
+       lst_z = nil
+    else if (is_not_pair (tail7)) then
+       lst_z = nil
+    else if (is_not_pair (tail8)) then
+       lst_z = nil
+    else if (is_not_pair (tail9)) then
+       lst_z = nil
+    else if (is_not_pair (tail10)) then
+       lst_z = nil
+    else if (is_not_pair (tail11)) then
+       lst_z = nil
+    else if (is_not_pair (tail12)) then
+       lst_z = nil
+    else if (is_not_pair (tail13)) then
+       lst_z = nil
+    else if (is_not_pair (tail14)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call uncons (tail9, head9, tail9)
+       call uncons (tail10, head10, tail10)
+       call uncons (tail11, head11, tail11)
+       call uncons (tail12, head12, tail12)
+       call uncons (tail13, head13, tail13)
+       call uncons (tail14, head14, tail14)
+       row = nil
+       row = head14 ** row
+       row = head13 ** row
+       row = head12 ** row
+       row = head11 ** row
+       row = head10 ** row
+       row = head9 ** row
+       row = head8 ** row
+       row = head7 ** row
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else if (is_not_pair (tail7)) then
+          continue
+       else if (is_not_pair (tail8)) then
+          continue
+       else if (is_not_pair (tail9)) then
+          continue
+       else if (is_not_pair (tail10)) then
+          continue
+       else if (is_not_pair (tail11)) then
+          continue
+       else if (is_not_pair (tail12)) then
+          continue
+       else if (is_not_pair (tail13)) then
+          continue
+       else if (is_not_pair (tail14)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             call uncons (tail10, head10, tail10)
+             call uncons (tail11, head11, tail11)
+             call uncons (tail12, head12, tail12)
+             call uncons (tail13, head13, tail13)
+             call uncons (tail14, head14, tail14)
+             row = nil
+             row = head14 ** row
+             row = head13 ** row
+             row = head12 ** row
+             row = head11 ** row
+             row = head10 ** row
+             row = head9 ** row
+             row = head8 ** row
+             row = head7 ** row
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             else if (is_not_pair (tail9)) then
+                done = .true.
+             else if (is_not_pair (tail10)) then
+                done = .true.
+             else if (is_not_pair (tail11)) then
+                done = .true.
+             else if (is_not_pair (tail12)) then
+                done = .true.
+             else if (is_not_pair (tail13)) then
+                done = .true.
+             else if (is_not_pair (tail14)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip14
+
+  function zip15 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (lst_z)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    type(cons_t) :: lst_z
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    class(*), allocatable :: head15, tail15
+    type(cons_t) :: row
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+    logical :: done
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    tail15 = .autoval. lst15
+
+    if (is_not_pair (tail1)) then
+       lst_z = nil
+    else if (is_not_pair (tail2)) then
+       lst_z = nil
+    else if (is_not_pair (tail3)) then
+       lst_z = nil
+    else if (is_not_pair (tail4)) then
+       lst_z = nil
+    else if (is_not_pair (tail5)) then
+       lst_z = nil
+    else if (is_not_pair (tail6)) then
+       lst_z = nil
+    else if (is_not_pair (tail7)) then
+       lst_z = nil
+    else if (is_not_pair (tail8)) then
+       lst_z = nil
+    else if (is_not_pair (tail9)) then
+       lst_z = nil
+    else if (is_not_pair (tail10)) then
+       lst_z = nil
+    else if (is_not_pair (tail11)) then
+       lst_z = nil
+    else if (is_not_pair (tail12)) then
+       lst_z = nil
+    else if (is_not_pair (tail13)) then
+       lst_z = nil
+    else if (is_not_pair (tail14)) then
+       lst_z = nil
+    else if (is_not_pair (tail15)) then
+       lst_z = nil
+    else
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call uncons (tail9, head9, tail9)
+       call uncons (tail10, head10, tail10)
+       call uncons (tail11, head11, tail11)
+       call uncons (tail12, head12, tail12)
+       call uncons (tail13, head13, tail13)
+       call uncons (tail14, head14, tail14)
+       call uncons (tail15, head15, tail15)
+       row = nil
+       row = head15 ** row
+       row = head14 ** row
+       row = head13 ** row
+       row = head12 ** row
+       row = head11 ** row
+       row = head10 ** row
+       row = head9 ** row
+       row = head8 ** row
+       row = head7 ** row
+       row = head6 ** row
+       row = head5 ** row
+       row = head4 ** row
+       row = head3 ** row
+       row = head2 ** row
+       row = head1 ** row
+       lst_z = row ** nil
+       cursor = lst_z
+       if (is_not_pair (tail1)) then
+          continue
+       else if (is_not_pair (tail2)) then
+          continue
+       else if (is_not_pair (tail3)) then
+          continue
+       else if (is_not_pair (tail4)) then
+          continue
+       else if (is_not_pair (tail5)) then
+          continue
+       else if (is_not_pair (tail6)) then
+          continue
+       else if (is_not_pair (tail7)) then
+          continue
+       else if (is_not_pair (tail8)) then
+          continue
+       else if (is_not_pair (tail9)) then
+          continue
+       else if (is_not_pair (tail10)) then
+          continue
+       else if (is_not_pair (tail11)) then
+          continue
+       else if (is_not_pair (tail12)) then
+          continue
+       else if (is_not_pair (tail13)) then
+          continue
+       else if (is_not_pair (tail14)) then
+          continue
+       else if (is_not_pair (tail15)) then
+          continue
+       else
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             call uncons (tail10, head10, tail10)
+             call uncons (tail11, head11, tail11)
+             call uncons (tail12, head12, tail12)
+             call uncons (tail13, head13, tail13)
+             call uncons (tail14, head14, tail14)
+             call uncons (tail15, head15, tail15)
+             row = nil
+             row = head15 ** row
+             row = head14 ** row
+             row = head13 ** row
+             row = head12 ** row
+             row = head11 ** row
+             row = head10 ** row
+             row = head9 ** row
+             row = head8 ** row
+             row = head7 ** row
+             row = head6 ** row
+             row = head5 ** row
+             row = head4 ** row
+             row = head3 ** row
+             row = head2 ** row
+             row = head1 ** row
+             new_pair = row ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             else if (is_not_pair (tail9)) then
+                done = .true.
+             else if (is_not_pair (tail10)) then
+                done = .true.
+             else if (is_not_pair (tail11)) then
+                done = .true.
+             else if (is_not_pair (tail12)) then
+                done = .true.
+             else if (is_not_pair (tail13)) then
+                done = .true.
+             else if (is_not_pair (tail14)) then
+                done = .true.
+             else if (is_not_pair (tail15)) then
+                done = .true.
+             end if
+          end do
+       end if
+    end if
+  end function zip15
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   subroutine unzip1 (lst_zipped, lst1)
@@ -8360,6 +9940,1581 @@ contains
     end if
   end subroutine unzip10
 
+  subroutine unzip11 (lst_zipped, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
+    type(cons_t), intent(inout) :: lst7
+    type(cons_t), intent(inout) :: lst8
+    type(cons_t), intent(inout) :: lst9
+    type(cons_t), intent(inout) :: lst10
+    type(cons_t), intent(inout) :: lst11
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+    type(cons_t) :: cursor3
+    type(cons_t) :: cursor4
+    type(cons_t) :: cursor5
+    type(cons_t) :: cursor6
+    type(cons_t) :: cursor7
+    type(cons_t) :: cursor8
+    type(cons_t) :: cursor9
+    type(cons_t) :: cursor10
+    type(cons_t) :: cursor11
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+       lst2 = nil
+       lst3 = nil
+       lst4 = nil
+       lst5 = nil
+       lst6 = nil
+       lst7 = nil
+       lst8 = nil
+       lst9 = nil
+       lst10 = nil
+       lst11 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip11, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip11, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst2 = head ** nil
+       cursor2 = lst2
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip11, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst3 = head ** nil
+       cursor3 = lst3
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip11, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst4 = head ** nil
+       cursor4 = lst4
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip11, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst5 = head ** nil
+       cursor5 = lst5
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip11, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst6 = head ** nil
+       cursor6 = lst6
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip11, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst7 = head ** nil
+       cursor7 = lst7
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip11, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst8 = head ** nil
+       cursor8 = lst8
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip11, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst9 = head ** nil
+       cursor9 = lst9
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip11, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst10 = head ** nil
+       cursor10 = lst10
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip11, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst11 = head ** nil
+       cursor11 = lst11
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip11, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip11, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip11, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor2, new_pair)
+          cursor2 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip11, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor3, new_pair)
+          cursor3 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip11, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor4, new_pair)
+          cursor4 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip11, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor5, new_pair)
+          cursor5 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip11, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor6, new_pair)
+          cursor6 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip11, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor7, new_pair)
+          cursor7 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip11, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor8, new_pair)
+          cursor8 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip11, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor9, new_pair)
+          cursor9 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip11, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor10, new_pair)
+          cursor10 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip11, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor11, new_pair)
+          cursor11 = new_pair
+       end do
+    end if
+  end subroutine unzip11
+
+  subroutine unzip12 (lst_zipped, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
+    type(cons_t), intent(inout) :: lst7
+    type(cons_t), intent(inout) :: lst8
+    type(cons_t), intent(inout) :: lst9
+    type(cons_t), intent(inout) :: lst10
+    type(cons_t), intent(inout) :: lst11
+    type(cons_t), intent(inout) :: lst12
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+    type(cons_t) :: cursor3
+    type(cons_t) :: cursor4
+    type(cons_t) :: cursor5
+    type(cons_t) :: cursor6
+    type(cons_t) :: cursor7
+    type(cons_t) :: cursor8
+    type(cons_t) :: cursor9
+    type(cons_t) :: cursor10
+    type(cons_t) :: cursor11
+    type(cons_t) :: cursor12
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+       lst2 = nil
+       lst3 = nil
+       lst4 = nil
+       lst5 = nil
+       lst6 = nil
+       lst7 = nil
+       lst8 = nil
+       lst9 = nil
+       lst10 = nil
+       lst11 = nil
+       lst12 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip12, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip12, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst2 = head ** nil
+       cursor2 = lst2
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip12, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst3 = head ** nil
+       cursor3 = lst3
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip12, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst4 = head ** nil
+       cursor4 = lst4
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip12, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst5 = head ** nil
+       cursor5 = lst5
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip12, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst6 = head ** nil
+       cursor6 = lst6
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip12, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst7 = head ** nil
+       cursor7 = lst7
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip12, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst8 = head ** nil
+       cursor8 = lst8
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip12, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst9 = head ** nil
+       cursor9 = lst9
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip12, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst10 = head ** nil
+       cursor10 = lst10
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip12, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst11 = head ** nil
+       cursor11 = lst11
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip12, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst12 = head ** nil
+       cursor12 = lst12
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip12, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip12, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip12, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor2, new_pair)
+          cursor2 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip12, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor3, new_pair)
+          cursor3 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip12, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor4, new_pair)
+          cursor4 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip12, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor5, new_pair)
+          cursor5 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip12, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor6, new_pair)
+          cursor6 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip12, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor7, new_pair)
+          cursor7 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip12, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor8, new_pair)
+          cursor8 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip12, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor9, new_pair)
+          cursor9 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip12, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor10, new_pair)
+          cursor10 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip12, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor11, new_pair)
+          cursor11 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip12, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor12, new_pair)
+          cursor12 = new_pair
+       end do
+    end if
+  end subroutine unzip12
+
+  subroutine unzip13 (lst_zipped, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
+    type(cons_t), intent(inout) :: lst7
+    type(cons_t), intent(inout) :: lst8
+    type(cons_t), intent(inout) :: lst9
+    type(cons_t), intent(inout) :: lst10
+    type(cons_t), intent(inout) :: lst11
+    type(cons_t), intent(inout) :: lst12
+    type(cons_t), intent(inout) :: lst13
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+    type(cons_t) :: cursor3
+    type(cons_t) :: cursor4
+    type(cons_t) :: cursor5
+    type(cons_t) :: cursor6
+    type(cons_t) :: cursor7
+    type(cons_t) :: cursor8
+    type(cons_t) :: cursor9
+    type(cons_t) :: cursor10
+    type(cons_t) :: cursor11
+    type(cons_t) :: cursor12
+    type(cons_t) :: cursor13
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+       lst2 = nil
+       lst3 = nil
+       lst4 = nil
+       lst5 = nil
+       lst6 = nil
+       lst7 = nil
+       lst8 = nil
+       lst9 = nil
+       lst10 = nil
+       lst11 = nil
+       lst12 = nil
+       lst13 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip13, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip13, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst2 = head ** nil
+       cursor2 = lst2
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip13, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst3 = head ** nil
+       cursor3 = lst3
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip13, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst4 = head ** nil
+       cursor4 = lst4
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip13, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst5 = head ** nil
+       cursor5 = lst5
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip13, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst6 = head ** nil
+       cursor6 = lst6
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip13, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst7 = head ** nil
+       cursor7 = lst7
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip13, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst8 = head ** nil
+       cursor8 = lst8
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip13, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst9 = head ** nil
+       cursor9 = lst9
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip13, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst10 = head ** nil
+       cursor10 = lst10
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip13, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst11 = head ** nil
+       cursor11 = lst11
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip13, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst12 = head ** nil
+       cursor12 = lst12
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip13, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst13 = head ** nil
+       cursor13 = lst13
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip13, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip13, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip13, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor2, new_pair)
+          cursor2 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip13, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor3, new_pair)
+          cursor3 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip13, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor4, new_pair)
+          cursor4 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip13, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor5, new_pair)
+          cursor5 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip13, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor6, new_pair)
+          cursor6 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip13, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor7, new_pair)
+          cursor7 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip13, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor8, new_pair)
+          cursor8 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip13, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor9, new_pair)
+          cursor9 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip13, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor10, new_pair)
+          cursor10 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip13, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor11, new_pair)
+          cursor11 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip13, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor12, new_pair)
+          cursor12 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip13, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor13, new_pair)
+          cursor13 = new_pair
+       end do
+    end if
+  end subroutine unzip13
+
+  subroutine unzip14 (lst_zipped, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
+    type(cons_t), intent(inout) :: lst7
+    type(cons_t), intent(inout) :: lst8
+    type(cons_t), intent(inout) :: lst9
+    type(cons_t), intent(inout) :: lst10
+    type(cons_t), intent(inout) :: lst11
+    type(cons_t), intent(inout) :: lst12
+    type(cons_t), intent(inout) :: lst13
+    type(cons_t), intent(inout) :: lst14
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+    type(cons_t) :: cursor3
+    type(cons_t) :: cursor4
+    type(cons_t) :: cursor5
+    type(cons_t) :: cursor6
+    type(cons_t) :: cursor7
+    type(cons_t) :: cursor8
+    type(cons_t) :: cursor9
+    type(cons_t) :: cursor10
+    type(cons_t) :: cursor11
+    type(cons_t) :: cursor12
+    type(cons_t) :: cursor13
+    type(cons_t) :: cursor14
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+       lst2 = nil
+       lst3 = nil
+       lst4 = nil
+       lst5 = nil
+       lst6 = nil
+       lst7 = nil
+       lst8 = nil
+       lst9 = nil
+       lst10 = nil
+       lst11 = nil
+       lst12 = nil
+       lst13 = nil
+       lst14 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst2 = head ** nil
+       cursor2 = lst2
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst3 = head ** nil
+       cursor3 = lst3
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst4 = head ** nil
+       cursor4 = lst4
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst5 = head ** nil
+       cursor5 = lst5
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst6 = head ** nil
+       cursor6 = lst6
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst7 = head ** nil
+       cursor7 = lst7
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst8 = head ** nil
+       cursor8 = lst8
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst9 = head ** nil
+       cursor9 = lst9
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst10 = head ** nil
+       cursor10 = lst10
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst11 = head ** nil
+       cursor11 = lst11
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst12 = head ** nil
+       cursor12 = lst12
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst13 = head ** nil
+       cursor13 = lst13
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst14 = head ** nil
+       cursor14 = lst14
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip14, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip14, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip14, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor2, new_pair)
+          cursor2 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip14, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor3, new_pair)
+          cursor3 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip14, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor4, new_pair)
+          cursor4 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip14, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor5, new_pair)
+          cursor5 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip14, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor6, new_pair)
+          cursor6 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip14, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor7, new_pair)
+          cursor7 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip14, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor8, new_pair)
+          cursor8 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip14, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor9, new_pair)
+          cursor9 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip14, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor10, new_pair)
+          cursor10 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip14, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor11, new_pair)
+          cursor11 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip14, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor12, new_pair)
+          cursor12 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip14, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor13, new_pair)
+          cursor13 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip14, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor14, new_pair)
+          cursor14 = new_pair
+       end do
+    end if
+  end subroutine unzip14
+
+  subroutine unzip15 (lst_zipped, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15)
+    class(*), intent(in) :: lst_zipped
+    type(cons_t), intent(inout) :: lst1
+    type(cons_t), intent(inout) :: lst2
+    type(cons_t), intent(inout) :: lst3
+    type(cons_t), intent(inout) :: lst4
+    type(cons_t), intent(inout) :: lst5
+    type(cons_t), intent(inout) :: lst6
+    type(cons_t), intent(inout) :: lst7
+    type(cons_t), intent(inout) :: lst8
+    type(cons_t), intent(inout) :: lst9
+    type(cons_t), intent(inout) :: lst10
+    type(cons_t), intent(inout) :: lst11
+    type(cons_t), intent(inout) :: lst12
+    type(cons_t), intent(inout) :: lst13
+    type(cons_t), intent(inout) :: lst14
+    type(cons_t), intent(inout) :: lst15
+
+    type(cons_t) :: cursor1
+    type(cons_t) :: cursor2
+    type(cons_t) :: cursor3
+    type(cons_t) :: cursor4
+    type(cons_t) :: cursor5
+    type(cons_t) :: cursor6
+    type(cons_t) :: cursor7
+    type(cons_t) :: cursor8
+    type(cons_t) :: cursor9
+    type(cons_t) :: cursor10
+    type(cons_t) :: cursor11
+    type(cons_t) :: cursor12
+    type(cons_t) :: cursor13
+    type(cons_t) :: cursor14
+    type(cons_t) :: cursor15
+
+    class(*), allocatable :: head
+    class(*), allocatable :: tail
+    class(*), allocatable :: tl
+    type(cons_t) :: head_zipped
+    type(cons_t) :: new_pair
+
+    tail = .autoval. lst_zipped
+
+    if (is_not_pair (tail)) then
+       lst1 = nil
+       lst2 = nil
+       lst3 = nil
+       lst4 = nil
+       lst5 = nil
+       lst6 = nil
+       lst7 = nil
+       lst8 = nil
+       lst9 = nil
+       lst10 = nil
+       lst11 = nil
+       lst12 = nil
+       lst13 = nil
+       lst14 = nil
+       lst15 = nil
+    else
+       call uncons (tail, head, tail)
+       select type (head)
+       class is (cons_t)
+          head_zipped = head
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst1 = head ** nil
+       cursor1 = lst1
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst2 = head ** nil
+       cursor2 = lst2
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst3 = head ** nil
+       cursor3 = lst3
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst4 = head ** nil
+       cursor4 = lst4
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst5 = head ** nil
+       cursor5 = lst5
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst6 = head ** nil
+       cursor6 = lst6
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst7 = head ** nil
+       cursor7 = lst7
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst8 = head ** nil
+       cursor8 = lst8
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst9 = head ** nil
+       cursor9 = lst9
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst10 = head ** nil
+       cursor10 = lst10
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst11 = head ** nil
+       cursor11 = lst11
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst12 = head ** nil
+       cursor12 = lst12
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst13 = head ** nil
+       cursor13 = lst13
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst14 = head ** nil
+       cursor14 = lst14
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       call uncons (head_zipped, head, tl)
+       lst15 = head ** nil
+       cursor15 = lst15
+       select type (tl)
+       class is (cons_t)
+          head_zipped = tl
+       class default
+          call error_abort ("in unzip15, expected a cons_t")
+       end select
+       do while (is_pair (tail))
+          call uncons (tail, head, tail)
+          select type (head)
+          class is (cons_t)
+             head_zipped = head
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor1, new_pair)
+          cursor1 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor2, new_pair)
+          cursor2 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor3, new_pair)
+          cursor3 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor4, new_pair)
+          cursor4 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor5, new_pair)
+          cursor5 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor6, new_pair)
+          cursor6 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor7, new_pair)
+          cursor7 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor8, new_pair)
+          cursor8 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor9, new_pair)
+          cursor9 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor10, new_pair)
+          cursor10 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor11, new_pair)
+          cursor11 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor12, new_pair)
+          cursor12 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor13, new_pair)
+          cursor13 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          call uncons (head_zipped, head, tl)
+          new_pair = head ** nil
+          call set_cdr (cursor14, new_pair)
+          cursor14 = new_pair
+          select type (tl)
+          class is (cons_t)
+             head_zipped = tl
+          class default
+             call error_abort ("in unzip15, expected a cons_t")
+          end select
+          head = car (head_zipped)
+          new_pair = head ** nil
+          call set_cdr (cursor15, new_pair)
+          cursor15 = new_pair
+       end do
+    end if
+  end subroutine unzip15
+
   function unzip1f (lst_zipped) result (lst)
     class(*), intent(in) :: lst_zipped
     type(cons_t) :: lst
@@ -9309,6 +12464,166 @@ contains
     lst_a = append2 (lst1, lst_a)
   end function append10
 
+  function append11 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), allocatable :: lst_a
+
+    lst_a = append2 (lst10, lst11)
+    lst_a = append2 (lst9, lst_a)
+    lst_a = append2 (lst8, lst_a)
+    lst_a = append2 (lst7, lst_a)
+    lst_a = append2 (lst6, lst_a)
+    lst_a = append2 (lst5, lst_a)
+    lst_a = append2 (lst4, lst_a)
+    lst_a = append2 (lst3, lst_a)
+    lst_a = append2 (lst2, lst_a)
+    lst_a = append2 (lst1, lst_a)
+  end function append11
+
+  function append12 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), allocatable :: lst_a
+
+    lst_a = append2 (lst11, lst12)
+    lst_a = append2 (lst10, lst_a)
+    lst_a = append2 (lst9, lst_a)
+    lst_a = append2 (lst8, lst_a)
+    lst_a = append2 (lst7, lst_a)
+    lst_a = append2 (lst6, lst_a)
+    lst_a = append2 (lst5, lst_a)
+    lst_a = append2 (lst4, lst_a)
+    lst_a = append2 (lst3, lst_a)
+    lst_a = append2 (lst2, lst_a)
+    lst_a = append2 (lst1, lst_a)
+  end function append12
+
+  function append13 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), allocatable :: lst_a
+
+    lst_a = append2 (lst12, lst13)
+    lst_a = append2 (lst11, lst_a)
+    lst_a = append2 (lst10, lst_a)
+    lst_a = append2 (lst9, lst_a)
+    lst_a = append2 (lst8, lst_a)
+    lst_a = append2 (lst7, lst_a)
+    lst_a = append2 (lst6, lst_a)
+    lst_a = append2 (lst5, lst_a)
+    lst_a = append2 (lst4, lst_a)
+    lst_a = append2 (lst3, lst_a)
+    lst_a = append2 (lst2, lst_a)
+    lst_a = append2 (lst1, lst_a)
+  end function append13
+
+  function append14 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), allocatable :: lst_a
+
+    lst_a = append2 (lst13, lst14)
+    lst_a = append2 (lst12, lst_a)
+    lst_a = append2 (lst11, lst_a)
+    lst_a = append2 (lst10, lst_a)
+    lst_a = append2 (lst9, lst_a)
+    lst_a = append2 (lst8, lst_a)
+    lst_a = append2 (lst7, lst_a)
+    lst_a = append2 (lst6, lst_a)
+    lst_a = append2 (lst5, lst_a)
+    lst_a = append2 (lst4, lst_a)
+    lst_a = append2 (lst3, lst_a)
+    lst_a = append2 (lst2, lst_a)
+    lst_a = append2 (lst1, lst_a)
+  end function append14
+
+  function append15 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), allocatable :: lst_a
+
+    lst_a = append2 (lst14, lst15)
+    lst_a = append2 (lst13, lst_a)
+    lst_a = append2 (lst12, lst_a)
+    lst_a = append2 (lst11, lst_a)
+    lst_a = append2 (lst10, lst_a)
+    lst_a = append2 (lst9, lst_a)
+    lst_a = append2 (lst8, lst_a)
+    lst_a = append2 (lst7, lst_a)
+    lst_a = append2 (lst6, lst_a)
+    lst_a = append2 (lst5, lst_a)
+    lst_a = append2 (lst4, lst_a)
+    lst_a = append2 (lst3, lst_a)
+    lst_a = append2 (lst2, lst_a)
+    lst_a = append2 (lst1, lst_a)
+  end function append15
+
   function appendx0 () result (lst_a)
     class(*), allocatable :: lst_a
 
@@ -9481,6 +12796,166 @@ contains
     lst_a = appendx2 (lst2, lst_a)
     lst_a = appendx2 (lst1, lst_a)
   end function appendx10
+
+  function appendx11 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), allocatable :: lst_a
+
+    lst_a = appendx2 (lst10, lst11)
+    lst_a = appendx2 (lst9, lst_a)
+    lst_a = appendx2 (lst8, lst_a)
+    lst_a = appendx2 (lst7, lst_a)
+    lst_a = appendx2 (lst6, lst_a)
+    lst_a = appendx2 (lst5, lst_a)
+    lst_a = appendx2 (lst4, lst_a)
+    lst_a = appendx2 (lst3, lst_a)
+    lst_a = appendx2 (lst2, lst_a)
+    lst_a = appendx2 (lst1, lst_a)
+  end function appendx11
+
+  function appendx12 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), allocatable :: lst_a
+
+    lst_a = appendx2 (lst11, lst12)
+    lst_a = appendx2 (lst10, lst_a)
+    lst_a = appendx2 (lst9, lst_a)
+    lst_a = appendx2 (lst8, lst_a)
+    lst_a = appendx2 (lst7, lst_a)
+    lst_a = appendx2 (lst6, lst_a)
+    lst_a = appendx2 (lst5, lst_a)
+    lst_a = appendx2 (lst4, lst_a)
+    lst_a = appendx2 (lst3, lst_a)
+    lst_a = appendx2 (lst2, lst_a)
+    lst_a = appendx2 (lst1, lst_a)
+  end function appendx12
+
+  function appendx13 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), allocatable :: lst_a
+
+    lst_a = appendx2 (lst12, lst13)
+    lst_a = appendx2 (lst11, lst_a)
+    lst_a = appendx2 (lst10, lst_a)
+    lst_a = appendx2 (lst9, lst_a)
+    lst_a = appendx2 (lst8, lst_a)
+    lst_a = appendx2 (lst7, lst_a)
+    lst_a = appendx2 (lst6, lst_a)
+    lst_a = appendx2 (lst5, lst_a)
+    lst_a = appendx2 (lst4, lst_a)
+    lst_a = appendx2 (lst3, lst_a)
+    lst_a = appendx2 (lst2, lst_a)
+    lst_a = appendx2 (lst1, lst_a)
+  end function appendx13
+
+  function appendx14 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), allocatable :: lst_a
+
+    lst_a = appendx2 (lst13, lst14)
+    lst_a = appendx2 (lst12, lst_a)
+    lst_a = appendx2 (lst11, lst_a)
+    lst_a = appendx2 (lst10, lst_a)
+    lst_a = appendx2 (lst9, lst_a)
+    lst_a = appendx2 (lst8, lst_a)
+    lst_a = appendx2 (lst7, lst_a)
+    lst_a = appendx2 (lst6, lst_a)
+    lst_a = appendx2 (lst5, lst_a)
+    lst_a = appendx2 (lst4, lst_a)
+    lst_a = appendx2 (lst3, lst_a)
+    lst_a = appendx2 (lst2, lst_a)
+    lst_a = appendx2 (lst1, lst_a)
+  end function appendx14
+
+  function appendx15 (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (lst_a)
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), allocatable :: lst_a
+
+    lst_a = appendx2 (lst14, lst15)
+    lst_a = appendx2 (lst13, lst_a)
+    lst_a = appendx2 (lst12, lst_a)
+    lst_a = appendx2 (lst11, lst_a)
+    lst_a = appendx2 (lst10, lst_a)
+    lst_a = appendx2 (lst9, lst_a)
+    lst_a = appendx2 (lst8, lst_a)
+    lst_a = appendx2 (lst7, lst_a)
+    lst_a = appendx2 (lst6, lst_a)
+    lst_a = appendx2 (lst5, lst_a)
+    lst_a = appendx2 (lst4, lst_a)
+    lst_a = appendx2 (lst3, lst_a)
+    lst_a = appendx2 (lst2, lst_a)
+    lst_a = appendx2 (lst1, lst_a)
+  end function appendx15
 
   function append_reverse (lst1, lst2) result (lst_ar)
     !
@@ -10110,6 +13585,381 @@ contains
     call lst9_root%discard
     call lst10_root%discard
   end function list_equal10
+
+  recursive function list_equal11 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
+    if (bool) bool = list_equal2_unrooted (pred, lst2, lst3)
+    if (bool) bool = list_equal2_unrooted (pred, lst3, lst4)
+    if (bool) bool = list_equal2_unrooted (pred, lst4, lst5)
+    if (bool) bool = list_equal2_unrooted (pred, lst5, lst6)
+    if (bool) bool = list_equal2_unrooted (pred, lst6, lst7)
+    if (bool) bool = list_equal2_unrooted (pred, lst7, lst8)
+    if (bool) bool = list_equal2_unrooted (pred, lst8, lst9)
+    if (bool) bool = list_equal2_unrooted (pred, lst9, lst10)
+    if (bool) bool = list_equal2_unrooted (pred, lst10, lst11)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+  end function list_equal11
+
+  recursive function list_equal12 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
+    if (bool) bool = list_equal2_unrooted (pred, lst2, lst3)
+    if (bool) bool = list_equal2_unrooted (pred, lst3, lst4)
+    if (bool) bool = list_equal2_unrooted (pred, lst4, lst5)
+    if (bool) bool = list_equal2_unrooted (pred, lst5, lst6)
+    if (bool) bool = list_equal2_unrooted (pred, lst6, lst7)
+    if (bool) bool = list_equal2_unrooted (pred, lst7, lst8)
+    if (bool) bool = list_equal2_unrooted (pred, lst8, lst9)
+    if (bool) bool = list_equal2_unrooted (pred, lst9, lst10)
+    if (bool) bool = list_equal2_unrooted (pred, lst10, lst11)
+    if (bool) bool = list_equal2_unrooted (pred, lst11, lst12)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+  end function list_equal12
+
+  recursive function list_equal13 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
+    if (bool) bool = list_equal2_unrooted (pred, lst2, lst3)
+    if (bool) bool = list_equal2_unrooted (pred, lst3, lst4)
+    if (bool) bool = list_equal2_unrooted (pred, lst4, lst5)
+    if (bool) bool = list_equal2_unrooted (pred, lst5, lst6)
+    if (bool) bool = list_equal2_unrooted (pred, lst6, lst7)
+    if (bool) bool = list_equal2_unrooted (pred, lst7, lst8)
+    if (bool) bool = list_equal2_unrooted (pred, lst8, lst9)
+    if (bool) bool = list_equal2_unrooted (pred, lst9, lst10)
+    if (bool) bool = list_equal2_unrooted (pred, lst10, lst11)
+    if (bool) bool = list_equal2_unrooted (pred, lst11, lst12)
+    if (bool) bool = list_equal2_unrooted (pred, lst12, lst13)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+  end function list_equal13
+
+  recursive function list_equal14 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
+    if (bool) bool = list_equal2_unrooted (pred, lst2, lst3)
+    if (bool) bool = list_equal2_unrooted (pred, lst3, lst4)
+    if (bool) bool = list_equal2_unrooted (pred, lst4, lst5)
+    if (bool) bool = list_equal2_unrooted (pred, lst5, lst6)
+    if (bool) bool = list_equal2_unrooted (pred, lst6, lst7)
+    if (bool) bool = list_equal2_unrooted (pred, lst7, lst8)
+    if (bool) bool = list_equal2_unrooted (pred, lst8, lst9)
+    if (bool) bool = list_equal2_unrooted (pred, lst9, lst10)
+    if (bool) bool = list_equal2_unrooted (pred, lst10, lst11)
+    if (bool) bool = list_equal2_unrooted (pred, lst11, lst12)
+    if (bool) bool = list_equal2_unrooted (pred, lst12, lst13)
+    if (bool) bool = list_equal2_unrooted (pred, lst13, lst14)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+  end function list_equal14
+
+  recursive function list_equal15 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    logical :: bool
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+    lst15_root = lst15
+
+    bool = list_equal2_unrooted (pred, lst1, lst2)
+    if (bool) bool = list_equal2_unrooted (pred, lst2, lst3)
+    if (bool) bool = list_equal2_unrooted (pred, lst3, lst4)
+    if (bool) bool = list_equal2_unrooted (pred, lst4, lst5)
+    if (bool) bool = list_equal2_unrooted (pred, lst5, lst6)
+    if (bool) bool = list_equal2_unrooted (pred, lst6, lst7)
+    if (bool) bool = list_equal2_unrooted (pred, lst7, lst8)
+    if (bool) bool = list_equal2_unrooted (pred, lst8, lst9)
+    if (bool) bool = list_equal2_unrooted (pred, lst9, lst10)
+    if (bool) bool = list_equal2_unrooted (pred, lst10, lst11)
+    if (bool) bool = list_equal2_unrooted (pred, lst11, lst12)
+    if (bool) bool = list_equal2_unrooted (pred, lst12, lst13)
+    if (bool) bool = list_equal2_unrooted (pred, lst13, lst14)
+    if (bool) bool = list_equal2_unrooted (pred, lst14, lst15)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+    call lst15_root%discard
+  end function list_equal15
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -10818,6 +14668,711 @@ contains
     call lst10_root%discard
   end function list_count10
 
+  recursive function list_count11 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (total)
+    procedure(list_predicate11_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    integer(sz) :: total
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    logical :: done
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11)) then
+             total = total + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+  end function list_count11
+
+  recursive function list_count12 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (total)
+    procedure(list_predicate12_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    integer(sz) :: total
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    logical :: done
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12)) then
+             total = total + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+  end function list_count12
+
+  recursive function list_count13 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (total)
+    procedure(list_predicate13_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    integer(sz) :: total
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    logical :: done
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13)) then
+             total = total + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+  end function list_count13
+
+  recursive function list_count14 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (total)
+    procedure(list_predicate14_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    integer(sz) :: total
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    logical :: done
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else if (is_not_pair (tail14)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14)) then
+             total = total + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+  end function list_count14
+
+  recursive function list_count15 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (total)
+    procedure(list_predicate15_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    integer(sz) :: total
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    class(*), allocatable :: head15, tail15
+    logical :: done
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+    lst15_root = lst15
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    tail15 = .autoval. lst15
+
+    total = 0
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else if (is_not_pair (tail14)) then
+          done = .true.
+       else if (is_not_pair (tail15)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          call uncons (tail15, head15, tail15)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14, head15)) then
+             total = total + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+    call lst15_root%discard
+  end function list_count15
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! map
@@ -10957,6 +15512,126 @@ contains
     lst_m = map10_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
        lst6, lst7, lst8, lst9, lst10)
   end function map10_subr
+
+  recursive function map11_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (lst_m)
+    procedure(list_map11_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    type(cons_t) :: lst_m
+
+    lst_m = map11_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11)
+  end function map11_subr
+
+  recursive function map12_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (lst_m)
+    procedure(list_map12_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    type(cons_t) :: lst_m
+
+    lst_m = map12_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12)
+  end function map12_subr
+
+  recursive function map13_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (lst_m)
+    procedure(list_map13_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    type(cons_t) :: lst_m
+
+    lst_m = map13_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13)
+  end function map13_subr
+
+  recursive function map14_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (lst_m)
+    procedure(list_map14_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    type(cons_t) :: lst_m
+
+    lst_m = map14_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14)
+  end function map14_subr
+
+  recursive function map15_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (lst_m)
+    procedure(list_map15_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    type(cons_t) :: lst_m
+
+    lst_m = map15_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15)
+  end function map15_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
@@ -12058,6 +16733,1101 @@ contains
     end if
   end function map10_in_order_subr
 
+  recursive function map11_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (lst_m)
+    procedure(list_map11_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+       lst_m = nil
+    else if (is_not_pair (lst2)) then
+       lst_m = nil
+    else if (is_not_pair (lst3)) then
+       lst_m = nil
+    else if (is_not_pair (lst4)) then
+       lst_m = nil
+    else if (is_not_pair (lst5)) then
+       lst_m = nil
+    else if (is_not_pair (lst6)) then
+       lst_m = nil
+    else if (is_not_pair (lst7)) then
+       lst_m = nil
+    else if (is_not_pair (lst8)) then
+       lst_m = nil
+    else if (is_not_pair (lst9)) then
+       lst_m = nil
+    else if (is_not_pair (lst10)) then
+       lst_m = nil
+    else if (is_not_pair (lst11)) then
+       lst_m = nil
+    else
+       lst1_root = lst1
+       lst2_root = lst2
+       lst3_root = lst3
+       lst4_root = lst4
+       lst5_root = lst5
+       lst6_root = lst6
+       lst7_root = lst7
+       lst8_root = lst8
+       lst9_root = lst9
+       lst10_root = lst10
+       lst11_root = lst11
+
+       tail1 = .autoval. lst1
+       tail2 = .autoval. lst2
+       tail3 = .autoval. lst3
+       tail4 = .autoval. lst4
+       tail5 = .autoval. lst5
+       tail6 = .autoval. lst6
+       tail7 = .autoval. lst7
+       tail8 = .autoval. lst8
+       tail9 = .autoval. lst9
+       tail10 = .autoval. lst10
+       tail11 = .autoval. lst11
+
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call uncons (tail9, head9, tail9)
+       call uncons (tail10, head10, tail10)
+       call uncons (tail11, head11, tail11)
+       call proc (head1, head2, head3, head4, head5, &
+            head6, head7, head8, head9, head10, &
+            head11, proc_result)
+       cursor = proc_result ** nil
+       if (is_not_pair (tail1)) then
+          lst_m = cursor
+       else if (is_not_pair (tail2)) then
+          lst_m = cursor
+       else if (is_not_pair (tail3)) then
+          lst_m = cursor
+       else if (is_not_pair (tail4)) then
+          lst_m = cursor
+       else if (is_not_pair (tail5)) then
+          lst_m = cursor
+       else if (is_not_pair (tail6)) then
+          lst_m = cursor
+       else if (is_not_pair (tail7)) then
+          lst_m = cursor
+       else if (is_not_pair (tail8)) then
+          lst_m = cursor
+       else if (is_not_pair (tail9)) then
+          lst_m = cursor
+       else if (is_not_pair (tail10)) then
+          lst_m = cursor
+       else if (is_not_pair (tail11)) then
+          lst_m = cursor
+       else
+          retval = cursor
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             call uncons (tail10, head10, tail10)
+             call uncons (tail11, head11, tail11)
+             call proc (head1, head2, head3, head4, head5, &
+                  head6, head7, head8, head9, head10, &
+                  head11, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             else if (is_not_pair (tail9)) then
+                done = .true.
+             else if (is_not_pair (tail10)) then
+                done = .true.
+             else if (is_not_pair (tail11)) then
+                done = .true.
+             end if
+          end do
+          lst_m = retval
+       end if
+
+       call lst1_root%discard
+       call lst2_root%discard
+       call lst3_root%discard
+       call lst4_root%discard
+       call lst5_root%discard
+       call lst6_root%discard
+       call lst7_root%discard
+       call lst8_root%discard
+       call lst9_root%discard
+       call lst10_root%discard
+       call lst11_root%discard
+    end if
+  end function map11_in_order_subr
+
+  recursive function map12_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (lst_m)
+    procedure(list_map12_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+       lst_m = nil
+    else if (is_not_pair (lst2)) then
+       lst_m = nil
+    else if (is_not_pair (lst3)) then
+       lst_m = nil
+    else if (is_not_pair (lst4)) then
+       lst_m = nil
+    else if (is_not_pair (lst5)) then
+       lst_m = nil
+    else if (is_not_pair (lst6)) then
+       lst_m = nil
+    else if (is_not_pair (lst7)) then
+       lst_m = nil
+    else if (is_not_pair (lst8)) then
+       lst_m = nil
+    else if (is_not_pair (lst9)) then
+       lst_m = nil
+    else if (is_not_pair (lst10)) then
+       lst_m = nil
+    else if (is_not_pair (lst11)) then
+       lst_m = nil
+    else if (is_not_pair (lst12)) then
+       lst_m = nil
+    else
+       lst1_root = lst1
+       lst2_root = lst2
+       lst3_root = lst3
+       lst4_root = lst4
+       lst5_root = lst5
+       lst6_root = lst6
+       lst7_root = lst7
+       lst8_root = lst8
+       lst9_root = lst9
+       lst10_root = lst10
+       lst11_root = lst11
+       lst12_root = lst12
+
+       tail1 = .autoval. lst1
+       tail2 = .autoval. lst2
+       tail3 = .autoval. lst3
+       tail4 = .autoval. lst4
+       tail5 = .autoval. lst5
+       tail6 = .autoval. lst6
+       tail7 = .autoval. lst7
+       tail8 = .autoval. lst8
+       tail9 = .autoval. lst9
+       tail10 = .autoval. lst10
+       tail11 = .autoval. lst11
+       tail12 = .autoval. lst12
+
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call uncons (tail9, head9, tail9)
+       call uncons (tail10, head10, tail10)
+       call uncons (tail11, head11, tail11)
+       call uncons (tail12, head12, tail12)
+       call proc (head1, head2, head3, head4, head5, &
+            head6, head7, head8, head9, head10, &
+            head11, head12, proc_result)
+       cursor = proc_result ** nil
+       if (is_not_pair (tail1)) then
+          lst_m = cursor
+       else if (is_not_pair (tail2)) then
+          lst_m = cursor
+       else if (is_not_pair (tail3)) then
+          lst_m = cursor
+       else if (is_not_pair (tail4)) then
+          lst_m = cursor
+       else if (is_not_pair (tail5)) then
+          lst_m = cursor
+       else if (is_not_pair (tail6)) then
+          lst_m = cursor
+       else if (is_not_pair (tail7)) then
+          lst_m = cursor
+       else if (is_not_pair (tail8)) then
+          lst_m = cursor
+       else if (is_not_pair (tail9)) then
+          lst_m = cursor
+       else if (is_not_pair (tail10)) then
+          lst_m = cursor
+       else if (is_not_pair (tail11)) then
+          lst_m = cursor
+       else if (is_not_pair (tail12)) then
+          lst_m = cursor
+       else
+          retval = cursor
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             call uncons (tail10, head10, tail10)
+             call uncons (tail11, head11, tail11)
+             call uncons (tail12, head12, tail12)
+             call proc (head1, head2, head3, head4, head5, &
+                  head6, head7, head8, head9, head10, &
+                  head11, head12, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             else if (is_not_pair (tail9)) then
+                done = .true.
+             else if (is_not_pair (tail10)) then
+                done = .true.
+             else if (is_not_pair (tail11)) then
+                done = .true.
+             else if (is_not_pair (tail12)) then
+                done = .true.
+             end if
+          end do
+          lst_m = retval
+       end if
+
+       call lst1_root%discard
+       call lst2_root%discard
+       call lst3_root%discard
+       call lst4_root%discard
+       call lst5_root%discard
+       call lst6_root%discard
+       call lst7_root%discard
+       call lst8_root%discard
+       call lst9_root%discard
+       call lst10_root%discard
+       call lst11_root%discard
+       call lst12_root%discard
+    end if
+  end function map12_in_order_subr
+
+  recursive function map13_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (lst_m)
+    procedure(list_map13_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+       lst_m = nil
+    else if (is_not_pair (lst2)) then
+       lst_m = nil
+    else if (is_not_pair (lst3)) then
+       lst_m = nil
+    else if (is_not_pair (lst4)) then
+       lst_m = nil
+    else if (is_not_pair (lst5)) then
+       lst_m = nil
+    else if (is_not_pair (lst6)) then
+       lst_m = nil
+    else if (is_not_pair (lst7)) then
+       lst_m = nil
+    else if (is_not_pair (lst8)) then
+       lst_m = nil
+    else if (is_not_pair (lst9)) then
+       lst_m = nil
+    else if (is_not_pair (lst10)) then
+       lst_m = nil
+    else if (is_not_pair (lst11)) then
+       lst_m = nil
+    else if (is_not_pair (lst12)) then
+       lst_m = nil
+    else if (is_not_pair (lst13)) then
+       lst_m = nil
+    else
+       lst1_root = lst1
+       lst2_root = lst2
+       lst3_root = lst3
+       lst4_root = lst4
+       lst5_root = lst5
+       lst6_root = lst6
+       lst7_root = lst7
+       lst8_root = lst8
+       lst9_root = lst9
+       lst10_root = lst10
+       lst11_root = lst11
+       lst12_root = lst12
+       lst13_root = lst13
+
+       tail1 = .autoval. lst1
+       tail2 = .autoval. lst2
+       tail3 = .autoval. lst3
+       tail4 = .autoval. lst4
+       tail5 = .autoval. lst5
+       tail6 = .autoval. lst6
+       tail7 = .autoval. lst7
+       tail8 = .autoval. lst8
+       tail9 = .autoval. lst9
+       tail10 = .autoval. lst10
+       tail11 = .autoval. lst11
+       tail12 = .autoval. lst12
+       tail13 = .autoval. lst13
+
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call uncons (tail9, head9, tail9)
+       call uncons (tail10, head10, tail10)
+       call uncons (tail11, head11, tail11)
+       call uncons (tail12, head12, tail12)
+       call uncons (tail13, head13, tail13)
+       call proc (head1, head2, head3, head4, head5, &
+            head6, head7, head8, head9, head10, &
+            head11, head12, head13, proc_result)
+       cursor = proc_result ** nil
+       if (is_not_pair (tail1)) then
+          lst_m = cursor
+       else if (is_not_pair (tail2)) then
+          lst_m = cursor
+       else if (is_not_pair (tail3)) then
+          lst_m = cursor
+       else if (is_not_pair (tail4)) then
+          lst_m = cursor
+       else if (is_not_pair (tail5)) then
+          lst_m = cursor
+       else if (is_not_pair (tail6)) then
+          lst_m = cursor
+       else if (is_not_pair (tail7)) then
+          lst_m = cursor
+       else if (is_not_pair (tail8)) then
+          lst_m = cursor
+       else if (is_not_pair (tail9)) then
+          lst_m = cursor
+       else if (is_not_pair (tail10)) then
+          lst_m = cursor
+       else if (is_not_pair (tail11)) then
+          lst_m = cursor
+       else if (is_not_pair (tail12)) then
+          lst_m = cursor
+       else if (is_not_pair (tail13)) then
+          lst_m = cursor
+       else
+          retval = cursor
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             call uncons (tail10, head10, tail10)
+             call uncons (tail11, head11, tail11)
+             call uncons (tail12, head12, tail12)
+             call uncons (tail13, head13, tail13)
+             call proc (head1, head2, head3, head4, head5, &
+                  head6, head7, head8, head9, head10, &
+                  head11, head12, head13, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             else if (is_not_pair (tail9)) then
+                done = .true.
+             else if (is_not_pair (tail10)) then
+                done = .true.
+             else if (is_not_pair (tail11)) then
+                done = .true.
+             else if (is_not_pair (tail12)) then
+                done = .true.
+             else if (is_not_pair (tail13)) then
+                done = .true.
+             end if
+          end do
+          lst_m = retval
+       end if
+
+       call lst1_root%discard
+       call lst2_root%discard
+       call lst3_root%discard
+       call lst4_root%discard
+       call lst5_root%discard
+       call lst6_root%discard
+       call lst7_root%discard
+       call lst8_root%discard
+       call lst9_root%discard
+       call lst10_root%discard
+       call lst11_root%discard
+       call lst12_root%discard
+       call lst13_root%discard
+    end if
+  end function map13_in_order_subr
+
+  recursive function map14_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (lst_m)
+    procedure(list_map14_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+       lst_m = nil
+    else if (is_not_pair (lst2)) then
+       lst_m = nil
+    else if (is_not_pair (lst3)) then
+       lst_m = nil
+    else if (is_not_pair (lst4)) then
+       lst_m = nil
+    else if (is_not_pair (lst5)) then
+       lst_m = nil
+    else if (is_not_pair (lst6)) then
+       lst_m = nil
+    else if (is_not_pair (lst7)) then
+       lst_m = nil
+    else if (is_not_pair (lst8)) then
+       lst_m = nil
+    else if (is_not_pair (lst9)) then
+       lst_m = nil
+    else if (is_not_pair (lst10)) then
+       lst_m = nil
+    else if (is_not_pair (lst11)) then
+       lst_m = nil
+    else if (is_not_pair (lst12)) then
+       lst_m = nil
+    else if (is_not_pair (lst13)) then
+       lst_m = nil
+    else if (is_not_pair (lst14)) then
+       lst_m = nil
+    else
+       lst1_root = lst1
+       lst2_root = lst2
+       lst3_root = lst3
+       lst4_root = lst4
+       lst5_root = lst5
+       lst6_root = lst6
+       lst7_root = lst7
+       lst8_root = lst8
+       lst9_root = lst9
+       lst10_root = lst10
+       lst11_root = lst11
+       lst12_root = lst12
+       lst13_root = lst13
+       lst14_root = lst14
+
+       tail1 = .autoval. lst1
+       tail2 = .autoval. lst2
+       tail3 = .autoval. lst3
+       tail4 = .autoval. lst4
+       tail5 = .autoval. lst5
+       tail6 = .autoval. lst6
+       tail7 = .autoval. lst7
+       tail8 = .autoval. lst8
+       tail9 = .autoval. lst9
+       tail10 = .autoval. lst10
+       tail11 = .autoval. lst11
+       tail12 = .autoval. lst12
+       tail13 = .autoval. lst13
+       tail14 = .autoval. lst14
+
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call uncons (tail9, head9, tail9)
+       call uncons (tail10, head10, tail10)
+       call uncons (tail11, head11, tail11)
+       call uncons (tail12, head12, tail12)
+       call uncons (tail13, head13, tail13)
+       call uncons (tail14, head14, tail14)
+       call proc (head1, head2, head3, head4, head5, &
+            head6, head7, head8, head9, head10, &
+            head11, head12, head13, head14, proc_result)
+       cursor = proc_result ** nil
+       if (is_not_pair (tail1)) then
+          lst_m = cursor
+       else if (is_not_pair (tail2)) then
+          lst_m = cursor
+       else if (is_not_pair (tail3)) then
+          lst_m = cursor
+       else if (is_not_pair (tail4)) then
+          lst_m = cursor
+       else if (is_not_pair (tail5)) then
+          lst_m = cursor
+       else if (is_not_pair (tail6)) then
+          lst_m = cursor
+       else if (is_not_pair (tail7)) then
+          lst_m = cursor
+       else if (is_not_pair (tail8)) then
+          lst_m = cursor
+       else if (is_not_pair (tail9)) then
+          lst_m = cursor
+       else if (is_not_pair (tail10)) then
+          lst_m = cursor
+       else if (is_not_pair (tail11)) then
+          lst_m = cursor
+       else if (is_not_pair (tail12)) then
+          lst_m = cursor
+       else if (is_not_pair (tail13)) then
+          lst_m = cursor
+       else if (is_not_pair (tail14)) then
+          lst_m = cursor
+       else
+          retval = cursor
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             call uncons (tail10, head10, tail10)
+             call uncons (tail11, head11, tail11)
+             call uncons (tail12, head12, tail12)
+             call uncons (tail13, head13, tail13)
+             call uncons (tail14, head14, tail14)
+             call proc (head1, head2, head3, head4, head5, &
+                  head6, head7, head8, head9, head10, &
+                  head11, head12, head13, head14, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             else if (is_not_pair (tail9)) then
+                done = .true.
+             else if (is_not_pair (tail10)) then
+                done = .true.
+             else if (is_not_pair (tail11)) then
+                done = .true.
+             else if (is_not_pair (tail12)) then
+                done = .true.
+             else if (is_not_pair (tail13)) then
+                done = .true.
+             else if (is_not_pair (tail14)) then
+                done = .true.
+             end if
+          end do
+          lst_m = retval
+       end if
+
+       call lst1_root%discard
+       call lst2_root%discard
+       call lst3_root%discard
+       call lst4_root%discard
+       call lst5_root%discard
+       call lst6_root%discard
+       call lst7_root%discard
+       call lst8_root%discard
+       call lst9_root%discard
+       call lst10_root%discard
+       call lst11_root%discard
+       call lst12_root%discard
+       call lst13_root%discard
+       call lst14_root%discard
+    end if
+  end function map14_in_order_subr
+
+  recursive function map15_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (lst_m)
+    procedure(list_map15_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    class(*), allocatable :: head15, tail15
+    class(*), allocatable :: proc_result
+    logical :: done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    if (is_not_pair (lst1)) then
+       lst_m = nil
+    else if (is_not_pair (lst2)) then
+       lst_m = nil
+    else if (is_not_pair (lst3)) then
+       lst_m = nil
+    else if (is_not_pair (lst4)) then
+       lst_m = nil
+    else if (is_not_pair (lst5)) then
+       lst_m = nil
+    else if (is_not_pair (lst6)) then
+       lst_m = nil
+    else if (is_not_pair (lst7)) then
+       lst_m = nil
+    else if (is_not_pair (lst8)) then
+       lst_m = nil
+    else if (is_not_pair (lst9)) then
+       lst_m = nil
+    else if (is_not_pair (lst10)) then
+       lst_m = nil
+    else if (is_not_pair (lst11)) then
+       lst_m = nil
+    else if (is_not_pair (lst12)) then
+       lst_m = nil
+    else if (is_not_pair (lst13)) then
+       lst_m = nil
+    else if (is_not_pair (lst14)) then
+       lst_m = nil
+    else if (is_not_pair (lst15)) then
+       lst_m = nil
+    else
+       lst1_root = lst1
+       lst2_root = lst2
+       lst3_root = lst3
+       lst4_root = lst4
+       lst5_root = lst5
+       lst6_root = lst6
+       lst7_root = lst7
+       lst8_root = lst8
+       lst9_root = lst9
+       lst10_root = lst10
+       lst11_root = lst11
+       lst12_root = lst12
+       lst13_root = lst13
+       lst14_root = lst14
+       lst15_root = lst15
+
+       tail1 = .autoval. lst1
+       tail2 = .autoval. lst2
+       tail3 = .autoval. lst3
+       tail4 = .autoval. lst4
+       tail5 = .autoval. lst5
+       tail6 = .autoval. lst6
+       tail7 = .autoval. lst7
+       tail8 = .autoval. lst8
+       tail9 = .autoval. lst9
+       tail10 = .autoval. lst10
+       tail11 = .autoval. lst11
+       tail12 = .autoval. lst12
+       tail13 = .autoval. lst13
+       tail14 = .autoval. lst14
+       tail15 = .autoval. lst15
+
+       call uncons (tail1, head1, tail1)
+       call uncons (tail2, head2, tail2)
+       call uncons (tail3, head3, tail3)
+       call uncons (tail4, head4, tail4)
+       call uncons (tail5, head5, tail5)
+       call uncons (tail6, head6, tail6)
+       call uncons (tail7, head7, tail7)
+       call uncons (tail8, head8, tail8)
+       call uncons (tail9, head9, tail9)
+       call uncons (tail10, head10, tail10)
+       call uncons (tail11, head11, tail11)
+       call uncons (tail12, head12, tail12)
+       call uncons (tail13, head13, tail13)
+       call uncons (tail14, head14, tail14)
+       call uncons (tail15, head15, tail15)
+       call proc (head1, head2, head3, head4, head5, &
+            head6, head7, head8, head9, head10, &
+            head11, head12, head13, head14, head15, proc_result)
+       cursor = proc_result ** nil
+       if (is_not_pair (tail1)) then
+          lst_m = cursor
+       else if (is_not_pair (tail2)) then
+          lst_m = cursor
+       else if (is_not_pair (tail3)) then
+          lst_m = cursor
+       else if (is_not_pair (tail4)) then
+          lst_m = cursor
+       else if (is_not_pair (tail5)) then
+          lst_m = cursor
+       else if (is_not_pair (tail6)) then
+          lst_m = cursor
+       else if (is_not_pair (tail7)) then
+          lst_m = cursor
+       else if (is_not_pair (tail8)) then
+          lst_m = cursor
+       else if (is_not_pair (tail9)) then
+          lst_m = cursor
+       else if (is_not_pair (tail10)) then
+          lst_m = cursor
+       else if (is_not_pair (tail11)) then
+          lst_m = cursor
+       else if (is_not_pair (tail12)) then
+          lst_m = cursor
+       else if (is_not_pair (tail13)) then
+          lst_m = cursor
+       else if (is_not_pair (tail14)) then
+          lst_m = cursor
+       else if (is_not_pair (tail15)) then
+          lst_m = cursor
+       else
+          retval = cursor
+          done = .false.
+          do while (.not. done)
+             call uncons (tail1, head1, tail1)
+             call uncons (tail2, head2, tail2)
+             call uncons (tail3, head3, tail3)
+             call uncons (tail4, head4, tail4)
+             call uncons (tail5, head5, tail5)
+             call uncons (tail6, head6, tail6)
+             call uncons (tail7, head7, tail7)
+             call uncons (tail8, head8, tail8)
+             call uncons (tail9, head9, tail9)
+             call uncons (tail10, head10, tail10)
+             call uncons (tail11, head11, tail11)
+             call uncons (tail12, head12, tail12)
+             call uncons (tail13, head13, tail13)
+             call uncons (tail14, head14, tail14)
+             call uncons (tail15, head15, tail15)
+             call proc (head1, head2, head3, head4, head5, &
+                  head6, head7, head8, head9, head10, &
+                  head11, head12, head13, head14, head15, proc_result)
+             new_pair = proc_result ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             if (is_not_pair (tail1)) then
+                done = .true.
+             else if (is_not_pair (tail2)) then
+                done = .true.
+             else if (is_not_pair (tail3)) then
+                done = .true.
+             else if (is_not_pair (tail4)) then
+                done = .true.
+             else if (is_not_pair (tail5)) then
+                done = .true.
+             else if (is_not_pair (tail6)) then
+                done = .true.
+             else if (is_not_pair (tail7)) then
+                done = .true.
+             else if (is_not_pair (tail8)) then
+                done = .true.
+             else if (is_not_pair (tail9)) then
+                done = .true.
+             else if (is_not_pair (tail10)) then
+                done = .true.
+             else if (is_not_pair (tail11)) then
+                done = .true.
+             else if (is_not_pair (tail12)) then
+                done = .true.
+             else if (is_not_pair (tail13)) then
+                done = .true.
+             else if (is_not_pair (tail14)) then
+                done = .true.
+             else if (is_not_pair (tail15)) then
+                done = .true.
+             end if
+          end do
+          lst_m = retval
+       end if
+
+       call lst1_root%discard
+       call lst2_root%discard
+       call lst3_root%discard
+       call lst4_root%discard
+       call lst5_root%discard
+       call lst6_root%discard
+       call lst7_root%discard
+       call lst8_root%discard
+       call lst9_root%discard
+       call lst10_root%discard
+       call lst11_root%discard
+       call lst12_root%discard
+       call lst13_root%discard
+       call lst14_root%discard
+       call lst15_root%discard
+    end if
+  end function map15_in_order_subr
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! filter_map. These are implemented in terms of private `filter map
@@ -12198,6 +17968,126 @@ contains
     lst_m = filter_map10_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
        lst6, lst7, lst8, lst9, lst10)
   end function filter_map10_subr
+
+  recursive function filter_map11_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (lst_m)
+    procedure(list_map11_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map11_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11)
+  end function filter_map11_subr
+
+  recursive function filter_map12_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (lst_m)
+    procedure(list_map12_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map12_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12)
+  end function filter_map12_subr
+
+  recursive function filter_map13_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (lst_m)
+    procedure(list_map13_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map13_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13)
+  end function filter_map13_subr
+
+  recursive function filter_map14_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (lst_m)
+    procedure(list_map14_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map14_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14)
+  end function filter_map14_subr
+
+  recursive function filter_map15_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (lst_m)
+    procedure(list_map15_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    type(cons_t) :: lst_m
+
+    lst_m = filter_map15_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15)
+  end function filter_map15_subr
 
   recursive function filter_map1_in_order_subr (proc, lst1) result (lst_m)
     procedure(list_map1_subr_t) :: proc
@@ -13379,6 +19269,986 @@ contains
 
   end function filter_map10_in_order_subr
 
+  recursive function filter_map11_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (lst_m)
+    procedure(list_map11_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+
+    call skip_falses (proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (proc_result2)
+          end do
+          lst_m = retval
+       end if
+    end if
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (proc_result)
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail2)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail3)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail4)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail5)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail6)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail7)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail8)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail9)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail10)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail11)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call uncons (tail2, head2, tail2)
+            call uncons (tail3, head3, tail3)
+            call uncons (tail4, head4, tail4)
+            call uncons (tail5, head5, tail5)
+            call uncons (tail6, head6, tail6)
+            call uncons (tail7, head7, tail7)
+            call uncons (tail8, head8, tail8)
+            call uncons (tail9, head9, tail9)
+            call uncons (tail10, head10, tail10)
+            call uncons (tail11, head11, tail11)
+            call proc (head1, head2, head3, head4, head5, &
+                 head6, head7, head8, head9, head10, &
+                 head11, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map11_in_order_subr
+
+  recursive function filter_map12_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (lst_m)
+    procedure(list_map12_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+
+    call skip_falses (proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (proc_result2)
+          end do
+          lst_m = retval
+       end if
+    end if
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (proc_result)
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail2)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail3)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail4)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail5)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail6)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail7)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail8)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail9)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail10)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail11)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail12)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call uncons (tail2, head2, tail2)
+            call uncons (tail3, head3, tail3)
+            call uncons (tail4, head4, tail4)
+            call uncons (tail5, head5, tail5)
+            call uncons (tail6, head6, tail6)
+            call uncons (tail7, head7, tail7)
+            call uncons (tail8, head8, tail8)
+            call uncons (tail9, head9, tail9)
+            call uncons (tail10, head10, tail10)
+            call uncons (tail11, head11, tail11)
+            call uncons (tail12, head12, tail12)
+            call proc (head1, head2, head3, head4, head5, &
+                 head6, head7, head8, head9, head10, &
+                 head11, head12, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map12_in_order_subr
+
+  recursive function filter_map13_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (lst_m)
+    procedure(list_map13_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+
+    call skip_falses (proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (proc_result2)
+          end do
+          lst_m = retval
+       end if
+    end if
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (proc_result)
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail2)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail3)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail4)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail5)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail6)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail7)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail8)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail9)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail10)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail11)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail12)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail13)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call uncons (tail2, head2, tail2)
+            call uncons (tail3, head3, tail3)
+            call uncons (tail4, head4, tail4)
+            call uncons (tail5, head5, tail5)
+            call uncons (tail6, head6, tail6)
+            call uncons (tail7, head7, tail7)
+            call uncons (tail8, head8, tail8)
+            call uncons (tail9, head9, tail9)
+            call uncons (tail10, head10, tail10)
+            call uncons (tail11, head11, tail11)
+            call uncons (tail12, head12, tail12)
+            call uncons (tail13, head13, tail13)
+            call proc (head1, head2, head3, head4, head5, &
+                 head6, head7, head8, head9, head10, &
+                 head11, head12, head13, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map13_in_order_subr
+
+  recursive function filter_map14_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (lst_m)
+    procedure(list_map14_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+
+    call skip_falses (proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (proc_result2)
+          end do
+          lst_m = retval
+       end if
+    end if
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (proc_result)
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail2)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail3)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail4)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail5)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail6)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail7)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail8)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail9)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail10)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail11)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail12)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail13)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail14)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call uncons (tail2, head2, tail2)
+            call uncons (tail3, head3, tail3)
+            call uncons (tail4, head4, tail4)
+            call uncons (tail5, head5, tail5)
+            call uncons (tail6, head6, tail6)
+            call uncons (tail7, head7, tail7)
+            call uncons (tail8, head8, tail8)
+            call uncons (tail9, head9, tail9)
+            call uncons (tail10, head10, tail10)
+            call uncons (tail11, head11, tail11)
+            call uncons (tail12, head12, tail12)
+            call uncons (tail13, head13, tail13)
+            call uncons (tail14, head14, tail14)
+            call proc (head1, head2, head3, head4, head5, &
+                 head6, head7, head8, head9, head10, &
+                 head11, head12, head13, head14, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map14_in_order_subr
+
+  recursive function filter_map15_in_order_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (lst_m)
+    procedure(list_map15_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    type(cons_t) :: lst_m
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    class(*), allocatable :: head15, tail15
+    class(*), allocatable :: proc_result1
+    class(*), allocatable :: proc_result2
+    logical :: all_done
+    type(gcroot_t) :: retval
+    type(cons_t) :: new_pair
+    type(cons_t) :: cursor
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+    lst15_root = lst15
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    tail15 = .autoval. lst15
+
+    call skip_falses (proc_result1)
+    if (all_done) then
+       lst_m = nil
+    else
+       retval = proc_result1 ! Protect proc_result1 from garbage collections.
+       call skip_falses (proc_result2)
+       if (all_done) then
+          lst_m = proc_result1 ** nil
+          call retval%discard
+       else
+          cursor = proc_result2 ** nil
+          retval = proc_result1 ** cursor
+          call skip_falses (proc_result2)
+          do while (.not. all_done)
+             new_pair = proc_result2 ** nil
+             call set_cdr (cursor, new_pair)
+             cursor = new_pair
+             call skip_falses (proc_result2)
+          end do
+          lst_m = retval
+       end if
+    end if
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+    call lst15_root%discard
+
+  contains
+
+    recursive subroutine skip_falses (proc_result)
+      class(*), allocatable, intent(out) :: proc_result
+
+      logical :: all_skipped
+
+      all_skipped = .false.
+      do while (.not. all_skipped)
+         if (is_not_pair (tail1)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail2)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail3)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail4)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail5)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail6)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail7)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail8)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail9)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail10)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail11)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail12)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail13)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail14)) then
+            all_done = .true.
+            all_skipped = .true.
+         else if (is_not_pair (tail15)) then
+            all_done = .true.
+            all_skipped = .true.
+         else
+            all_done = .false.
+            call uncons (tail1, head1, tail1)
+            call uncons (tail2, head2, tail2)
+            call uncons (tail3, head3, tail3)
+            call uncons (tail4, head4, tail4)
+            call uncons (tail5, head5, tail5)
+            call uncons (tail6, head6, tail6)
+            call uncons (tail7, head7, tail7)
+            call uncons (tail8, head8, tail8)
+            call uncons (tail9, head9, tail9)
+            call uncons (tail10, head10, tail10)
+            call uncons (tail11, head11, tail11)
+            call uncons (tail12, head12, tail12)
+            call uncons (tail13, head13, tail13)
+            call uncons (tail14, head14, tail14)
+            call uncons (tail15, head15, tail15)
+            call proc (head1, head2, head3, head4, head5, &
+                 head6, head7, head8, head9, head10, &
+                 head11, head12, head13, head14, head15, proc_result)
+            select type (proc_result)
+            type is (logical)
+               all_skipped = proc_result
+            class default
+               all_skipped = .true.
+            end select
+         end if
+      end do
+    end subroutine skip_falses
+
+  end function filter_map15_in_order_subr
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! for_each
@@ -14059,6 +20929,696 @@ contains
     call lst10_root%discard
   end subroutine for_each10
 
+  recursive subroutine for_each11 (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11)
+    procedure(list_side_effects11_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+  end subroutine for_each11
+
+  recursive subroutine for_each12 (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12)
+    procedure(list_side_effects12_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+  end subroutine for_each12
+
+  recursive subroutine for_each13 (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13)
+    procedure(list_side_effects13_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+  end subroutine for_each13
+
+  recursive subroutine for_each14 (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14)
+    procedure(list_side_effects14_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else if (is_not_pair (tail14)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+  end subroutine for_each14
+
+  recursive subroutine for_each15 (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15)
+    procedure(list_side_effects15_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    class(*), allocatable :: head15, tail15
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+    lst15_root = lst15
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    tail15 = .autoval. lst15
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else if (is_not_pair (tail14)) then
+          done = .true.
+       else if (is_not_pair (tail15)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          call uncons (tail15, head15, tail15)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14, head15)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+    call lst15_root%discard
+  end subroutine for_each15
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
 !! pair_for_each
@@ -14738,6 +22298,696 @@ contains
     call lst9_root%discard
     call lst10_root%discard
   end subroutine pair_for_each10
+
+  recursive subroutine pair_for_each11 (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11)
+    procedure(list_side_effects11_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    class(*), allocatable :: tail1
+    class(*), allocatable :: tail2
+    class(*), allocatable :: tail3
+    class(*), allocatable :: tail4
+    class(*), allocatable :: tail5
+    class(*), allocatable :: tail6
+    class(*), allocatable :: tail7
+    class(*), allocatable :: tail8
+    class(*), allocatable :: tail9
+    class(*), allocatable :: tail10
+    class(*), allocatable :: tail11
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else
+          call proc (tail1, tail2, tail3, tail4, tail5, &
+               tail6, tail7, tail8, tail9, tail10, &
+               tail11)
+          tail1 = cdr (tail1)
+          tail2 = cdr (tail2)
+          tail3 = cdr (tail3)
+          tail4 = cdr (tail4)
+          tail5 = cdr (tail5)
+          tail6 = cdr (tail6)
+          tail7 = cdr (tail7)
+          tail8 = cdr (tail8)
+          tail9 = cdr (tail9)
+          tail10 = cdr (tail10)
+          tail11 = cdr (tail11)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+  end subroutine pair_for_each11
+
+  recursive subroutine pair_for_each12 (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12)
+    procedure(list_side_effects12_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    class(*), allocatable :: tail1
+    class(*), allocatable :: tail2
+    class(*), allocatable :: tail3
+    class(*), allocatable :: tail4
+    class(*), allocatable :: tail5
+    class(*), allocatable :: tail6
+    class(*), allocatable :: tail7
+    class(*), allocatable :: tail8
+    class(*), allocatable :: tail9
+    class(*), allocatable :: tail10
+    class(*), allocatable :: tail11
+    class(*), allocatable :: tail12
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else
+          call proc (tail1, tail2, tail3, tail4, tail5, &
+               tail6, tail7, tail8, tail9, tail10, &
+               tail11, tail12)
+          tail1 = cdr (tail1)
+          tail2 = cdr (tail2)
+          tail3 = cdr (tail3)
+          tail4 = cdr (tail4)
+          tail5 = cdr (tail5)
+          tail6 = cdr (tail6)
+          tail7 = cdr (tail7)
+          tail8 = cdr (tail8)
+          tail9 = cdr (tail9)
+          tail10 = cdr (tail10)
+          tail11 = cdr (tail11)
+          tail12 = cdr (tail12)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+  end subroutine pair_for_each12
+
+  recursive subroutine pair_for_each13 (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13)
+    procedure(list_side_effects13_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    class(*), allocatable :: tail1
+    class(*), allocatable :: tail2
+    class(*), allocatable :: tail3
+    class(*), allocatable :: tail4
+    class(*), allocatable :: tail5
+    class(*), allocatable :: tail6
+    class(*), allocatable :: tail7
+    class(*), allocatable :: tail8
+    class(*), allocatable :: tail9
+    class(*), allocatable :: tail10
+    class(*), allocatable :: tail11
+    class(*), allocatable :: tail12
+    class(*), allocatable :: tail13
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else
+          call proc (tail1, tail2, tail3, tail4, tail5, &
+               tail6, tail7, tail8, tail9, tail10, &
+               tail11, tail12, tail13)
+          tail1 = cdr (tail1)
+          tail2 = cdr (tail2)
+          tail3 = cdr (tail3)
+          tail4 = cdr (tail4)
+          tail5 = cdr (tail5)
+          tail6 = cdr (tail6)
+          tail7 = cdr (tail7)
+          tail8 = cdr (tail8)
+          tail9 = cdr (tail9)
+          tail10 = cdr (tail10)
+          tail11 = cdr (tail11)
+          tail12 = cdr (tail12)
+          tail13 = cdr (tail13)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+  end subroutine pair_for_each13
+
+  recursive subroutine pair_for_each14 (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14)
+    procedure(list_side_effects14_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    class(*), allocatable :: tail1
+    class(*), allocatable :: tail2
+    class(*), allocatable :: tail3
+    class(*), allocatable :: tail4
+    class(*), allocatable :: tail5
+    class(*), allocatable :: tail6
+    class(*), allocatable :: tail7
+    class(*), allocatable :: tail8
+    class(*), allocatable :: tail9
+    class(*), allocatable :: tail10
+    class(*), allocatable :: tail11
+    class(*), allocatable :: tail12
+    class(*), allocatable :: tail13
+    class(*), allocatable :: tail14
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else if (is_not_pair (tail14)) then
+          done = .true.
+       else
+          call proc (tail1, tail2, tail3, tail4, tail5, &
+               tail6, tail7, tail8, tail9, tail10, &
+               tail11, tail12, tail13, tail14)
+          tail1 = cdr (tail1)
+          tail2 = cdr (tail2)
+          tail3 = cdr (tail3)
+          tail4 = cdr (tail4)
+          tail5 = cdr (tail5)
+          tail6 = cdr (tail6)
+          tail7 = cdr (tail7)
+          tail8 = cdr (tail8)
+          tail9 = cdr (tail9)
+          tail10 = cdr (tail10)
+          tail11 = cdr (tail11)
+          tail12 = cdr (tail12)
+          tail13 = cdr (tail13)
+          tail14 = cdr (tail14)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+  end subroutine pair_for_each14
+
+  recursive subroutine pair_for_each15 (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15)
+    procedure(list_side_effects15_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+    class(*), allocatable :: tail1
+    class(*), allocatable :: tail2
+    class(*), allocatable :: tail3
+    class(*), allocatable :: tail4
+    class(*), allocatable :: tail5
+    class(*), allocatable :: tail6
+    class(*), allocatable :: tail7
+    class(*), allocatable :: tail8
+    class(*), allocatable :: tail9
+    class(*), allocatable :: tail10
+    class(*), allocatable :: tail11
+    class(*), allocatable :: tail12
+    class(*), allocatable :: tail13
+    class(*), allocatable :: tail14
+    class(*), allocatable :: tail15
+    logical :: done
+
+    ! Protect the input lists against garbage collections instigated
+    ! by proc.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+    lst15_root = lst15
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    tail15 = .autoval. lst15
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else if (is_not_pair (tail14)) then
+          done = .true.
+       else if (is_not_pair (tail15)) then
+          done = .true.
+       else
+          call proc (tail1, tail2, tail3, tail4, tail5, &
+               tail6, tail7, tail8, tail9, tail10, &
+               tail11, tail12, tail13, tail14, tail15)
+          tail1 = cdr (tail1)
+          tail2 = cdr (tail2)
+          tail3 = cdr (tail3)
+          tail4 = cdr (tail4)
+          tail5 = cdr (tail5)
+          tail6 = cdr (tail6)
+          tail7 = cdr (tail7)
+          tail8 = cdr (tail8)
+          tail9 = cdr (tail9)
+          tail10 = cdr (tail10)
+          tail11 = cdr (tail11)
+          tail12 = cdr (tail12)
+          tail13 = cdr (tail13)
+          tail14 = cdr (tail14)
+          tail15 = cdr (tail15)
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+    call lst15_root%discard
+  end subroutine pair_for_each15
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!
@@ -16751,6 +25001,711 @@ contains
     call lst10_root%discard
   end function some10
 
+  recursive function some11 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (bool)
+    procedure(list_predicate11_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11)) then
+             bool = .true.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+  end function some11
+
+  recursive function some12 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (bool)
+    procedure(list_predicate12_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12)) then
+             bool = .true.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+  end function some12
+
+  recursive function some13 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (bool)
+    procedure(list_predicate13_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13)) then
+             bool = .true.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+  end function some13
+
+  recursive function some14 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (bool)
+    procedure(list_predicate14_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else if (is_nil_list (tail14)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14)) then
+             bool = .true.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+  end function some14
+
+  recursive function some15 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (bool)
+    procedure(list_predicate15_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    class(*), allocatable :: head15, tail15
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+    lst15_root = lst15
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    tail15 = .autoval. lst15
+    bool = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else if (is_nil_list (tail14)) then
+          done = .true.
+       else if (is_nil_list (tail15)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          call uncons (tail15, head15, tail15)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14, head15)) then
+             bool = .true.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+    call lst15_root%discard
+  end function some15
+
   recursive function some_map1_subr (proc, lst1) result (retval)
     procedure(list_map1_subr_t) :: proc
     class(*), intent(in) :: lst1
@@ -17466,6 +26421,716 @@ contains
     call lst10_root%discard
   end function some_map10_subr
 
+  recursive function some_map11_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (retval)
+    procedure(list_map11_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+  end function some_map11_subr
+
+  recursive function some_map12_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (retval)
+    procedure(list_map12_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+  end function some_map12_subr
+
+  recursive function some_map13_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (retval)
+    procedure(list_map13_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+  end function some_map13_subr
+
+  recursive function some_map14_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (retval)
+    procedure(list_map14_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else if (is_nil_list (tail14)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+  end function some_map14_subr
+
+  recursive function some_map15_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (retval)
+    procedure(list_map15_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    class(*), allocatable :: head15, tail15
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+    lst15_root = lst15
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    tail15 = .autoval. lst15
+    retval = .false.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else if (is_nil_list (tail14)) then
+          done = .true.
+       else if (is_nil_list (tail15)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          call uncons (tail15, head15, tail15)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14, head15, retval)
+          if (is_not_false (retval)) then
+             done = .true.
+          else
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+    call lst15_root%discard
+  end function some_map15_subr
+
   recursive function every1 (pred, lst1) result (bool)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst1
@@ -18170,6 +27835,711 @@ contains
     call lst9_root%discard
     call lst10_root%discard
   end function every10
+
+  recursive function every11 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (bool)
+    procedure(list_predicate11_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    bool = .true.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          if (.not. pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11)) then
+             bool = .false.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+  end function every11
+
+  recursive function every12 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (bool)
+    procedure(list_predicate12_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    bool = .true.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          if (.not. pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12)) then
+             bool = .false.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+  end function every12
+
+  recursive function every13 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (bool)
+    procedure(list_predicate13_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    bool = .true.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          if (.not. pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13)) then
+             bool = .false.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+  end function every13
+
+  recursive function every14 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (bool)
+    procedure(list_predicate14_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    bool = .true.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else if (is_nil_list (tail14)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          if (.not. pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14)) then
+             bool = .false.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+  end function every14
+
+  recursive function every15 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (bool)
+    procedure(list_predicate15_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    logical :: bool
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    class(*), allocatable :: head15, tail15
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+    lst15_root = lst15
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    tail15 = .autoval. lst15
+    bool = .true.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else if (is_nil_list (tail14)) then
+          done = .true.
+       else if (is_nil_list (tail15)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          call uncons (tail15, head15, tail15)
+          if (.not. pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14, head15)) then
+             bool = .false.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+    call lst15_root%discard
+  end function every15
 
   recursive function every_map1_subr (proc, lst1) result (retval)
     procedure(list_map1_subr_t) :: proc
@@ -18885,6 +29255,716 @@ contains
     call lst9_root%discard
     call lst10_root%discard
   end function every_map10_subr
+
+  recursive function every_map11_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (retval)
+    procedure(list_map11_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    retval = .true.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, retval)
+          if (is_false (retval)) then
+             retval = .false.   ! Make it .false. of the default kind.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+  end function every_map11_subr
+
+  recursive function every_map12_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (retval)
+    procedure(list_map12_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    retval = .true.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, retval)
+          if (is_false (retval)) then
+             retval = .false.   ! Make it .false. of the default kind.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+  end function every_map12_subr
+
+  recursive function every_map13_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (retval)
+    procedure(list_map13_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    retval = .true.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, retval)
+          if (is_false (retval)) then
+             retval = .false.   ! Make it .false. of the default kind.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+  end function every_map13_subr
+
+  recursive function every_map14_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (retval)
+    procedure(list_map14_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    retval = .true.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else if (is_nil_list (tail14)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14, retval)
+          if (is_false (retval)) then
+             retval = .false.   ! Make it .false. of the default kind.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+  end function every_map14_subr
+
+  recursive function every_map15_subr (proc, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (retval)
+    procedure(list_map15_subr_t) :: proc
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), allocatable :: retval
+
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    class(*), allocatable :: head15, tail15
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+    lst15_root = lst15
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    tail15 = .autoval. lst15
+    retval = .true.
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else if (is_nil_list (tail14)) then
+          done = .true.
+       else if (is_nil_list (tail15)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          call uncons (tail15, head15, tail15)
+          call proc (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14, head15, retval)
+          if (is_false (retval)) then
+             retval = .false.   ! Make it .false. of the default kind.
+             done = .true.
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+    call lst15_root%discard
+  end function every_map15_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -19643,6 +30723,736 @@ contains
     call lst10_root%discard
   end function list_indexn_10
 
+  recursive function list_indexn_11 (pred, n, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (index)
+    procedure(list_predicate11_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11)) then
+             index = i
+             done = .true.
+          else
+             i = i + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+  end function list_indexn_11
+
+  recursive function list_indexn_12 (pred, n, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (index)
+    procedure(list_predicate12_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12)) then
+             index = i
+             done = .true.
+          else
+             i = i + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+  end function list_indexn_12
+
+  recursive function list_indexn_13 (pred, n, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (index)
+    procedure(list_predicate13_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13)) then
+             index = i
+             done = .true.
+          else
+             i = i + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+  end function list_indexn_13
+
+  recursive function list_indexn_14 (pred, n, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (index)
+    procedure(list_predicate14_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else if (is_nil_list (tail14)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14)) then
+             index = i
+             done = .true.
+          else
+             i = i + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+  end function list_indexn_14
+
+  recursive function list_indexn_15 (pred, n, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (index)
+    procedure(list_predicate15_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    integer(sz) :: index
+
+    integer(sz) :: i
+    logical :: done
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    class(*), allocatable :: head15, tail15
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+    lst15_root = lst15
+
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    tail15 = .autoval. lst15
+    index = min (-1_sz, n - 1)
+    i = n
+    done = .false.
+    do while (.not. done)
+       if (is_nil_list (tail1)) then
+          done = .true.
+       else if (is_nil_list (tail2)) then
+          done = .true.
+       else if (is_nil_list (tail3)) then
+          done = .true.
+       else if (is_nil_list (tail4)) then
+          done = .true.
+       else if (is_nil_list (tail5)) then
+          done = .true.
+       else if (is_nil_list (tail6)) then
+          done = .true.
+       else if (is_nil_list (tail7)) then
+          done = .true.
+       else if (is_nil_list (tail8)) then
+          done = .true.
+       else if (is_nil_list (tail9)) then
+          done = .true.
+       else if (is_nil_list (tail10)) then
+          done = .true.
+       else if (is_nil_list (tail11)) then
+          done = .true.
+       else if (is_nil_list (tail12)) then
+          done = .true.
+       else if (is_nil_list (tail13)) then
+          done = .true.
+       else if (is_nil_list (tail14)) then
+          done = .true.
+       else if (is_nil_list (tail15)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          call uncons (tail15, head15, tail15)
+          if (pred (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14, head15)) then
+             index = i
+             done = .true.
+          else
+             i = i + 1
+          end if
+       end if
+    end do
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+    call lst15_root%discard
+  end function list_indexn_15
+
   recursive function list_index0_1 (pred, lst1) result (index)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst1
@@ -19778,6 +31588,126 @@ contains
          lst6, lst7, lst8, lst9, lst10)
   end function list_index0_10
 
+  recursive function list_index0_11 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (index)
+    procedure(list_predicate11_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    integer(sz) :: index
+
+    index = list_indexn_11 (pred, 0_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11)
+  end function list_index0_11
+
+  recursive function list_index0_12 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (index)
+    procedure(list_predicate12_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    integer(sz) :: index
+
+    index = list_indexn_12 (pred, 0_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11, lst12)
+  end function list_index0_12
+
+  recursive function list_index0_13 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (index)
+    procedure(list_predicate13_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    integer(sz) :: index
+
+    index = list_indexn_13 (pred, 0_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11, lst12, lst13)
+  end function list_index0_13
+
+  recursive function list_index0_14 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (index)
+    procedure(list_predicate14_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    integer(sz) :: index
+
+    index = list_indexn_14 (pred, 0_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11, lst12, lst13, lst14)
+  end function list_index0_14
+
+  recursive function list_index0_15 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (index)
+    procedure(list_predicate15_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    integer(sz) :: index
+
+    index = list_indexn_15 (pred, 0_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11, lst12, lst13, lst14, lst15)
+  end function list_index0_15
+
   recursive function list_index1_1 (pred, lst1) result (index)
     procedure(list_predicate1_t) :: pred
     class(*), intent(in) :: lst1
@@ -19912,6 +31842,126 @@ contains
     index = list_indexn_10 (pred, 1_sz, lst1, lst2, lst3, lst4, lst5, &
          lst6, lst7, lst8, lst9, lst10)
   end function list_index1_10
+
+  recursive function list_index1_11 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (index)
+    procedure(list_predicate11_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    integer(sz) :: index
+
+    index = list_indexn_11 (pred, 1_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11)
+  end function list_index1_11
+
+  recursive function list_index1_12 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (index)
+    procedure(list_predicate12_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    integer(sz) :: index
+
+    index = list_indexn_12 (pred, 1_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11, lst12)
+  end function list_index1_12
+
+  recursive function list_index1_13 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (index)
+    procedure(list_predicate13_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    integer(sz) :: index
+
+    index = list_indexn_13 (pred, 1_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11, lst12, lst13)
+  end function list_index1_13
+
+  recursive function list_index1_14 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (index)
+    procedure(list_predicate14_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    integer(sz) :: index
+
+    index = list_indexn_14 (pred, 1_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11, lst12, lst13, lst14)
+  end function list_index1_14
+
+  recursive function list_index1_15 (pred, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (index)
+    procedure(list_predicate15_t) :: pred
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    integer(sz) :: index
+
+    index = list_indexn_15 (pred, 1_sz, lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11, lst12, lst13, lst14, lst15)
+  end function list_index1_15
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -20987,6 +33037,736 @@ contains
     call lst10_root%discard
   end function fold10_subr
 
+  recursive function fold11_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (retval)
+    procedure(list_kons11_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: retval_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+
+    retval = knil
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          retval_root = retval
+          call kons (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, retval, new_retval)
+          retval = new_retval
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+  end function fold11_subr
+
+  recursive function fold12_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (retval)
+    procedure(list_kons12_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: retval_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+
+    retval = knil
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          retval_root = retval
+          call kons (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, retval, new_retval)
+          retval = new_retval
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+  end function fold12_subr
+
+  recursive function fold13_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (retval)
+    procedure(list_kons13_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: retval_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+
+    retval = knil
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          retval_root = retval
+          call kons (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, retval, new_retval)
+          retval = new_retval
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+  end function fold13_subr
+
+  recursive function fold14_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (retval)
+    procedure(list_kons14_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: retval_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+
+    retval = knil
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else if (is_not_pair (tail14)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          retval_root = retval
+          call kons (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14, retval, new_retval)
+          retval = new_retval
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+  end function fold14_subr
+
+  recursive function fold15_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (retval)
+    procedure(list_kons15_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+    type(gcroot_t) :: retval_root
+
+    class(*), allocatable :: head1, tail1
+    class(*), allocatable :: head2, tail2
+    class(*), allocatable :: head3, tail3
+    class(*), allocatable :: head4, tail4
+    class(*), allocatable :: head5, tail5
+    class(*), allocatable :: head6, tail6
+    class(*), allocatable :: head7, tail7
+    class(*), allocatable :: head8, tail8
+    class(*), allocatable :: head9, tail9
+    class(*), allocatable :: head10, tail10
+    class(*), allocatable :: head11, tail11
+    class(*), allocatable :: head12, tail12
+    class(*), allocatable :: head13, tail13
+    class(*), allocatable :: head14, tail14
+    class(*), allocatable :: head15, tail15
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+    lst15_root = lst15
+
+    retval = knil
+    tail1 = .autoval. lst1
+    tail2 = .autoval. lst2
+    tail3 = .autoval. lst3
+    tail4 = .autoval. lst4
+    tail5 = .autoval. lst5
+    tail6 = .autoval. lst6
+    tail7 = .autoval. lst7
+    tail8 = .autoval. lst8
+    tail9 = .autoval. lst9
+    tail10 = .autoval. lst10
+    tail11 = .autoval. lst11
+    tail12 = .autoval. lst12
+    tail13 = .autoval. lst13
+    tail14 = .autoval. lst14
+    tail15 = .autoval. lst15
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else if (is_not_pair (tail14)) then
+          done = .true.
+       else if (is_not_pair (tail15)) then
+          done = .true.
+       else
+          call uncons (tail1, head1, tail1)
+          call uncons (tail2, head2, tail2)
+          call uncons (tail3, head3, tail3)
+          call uncons (tail4, head4, tail4)
+          call uncons (tail5, head5, tail5)
+          call uncons (tail6, head6, tail6)
+          call uncons (tail7, head7, tail7)
+          call uncons (tail8, head8, tail8)
+          call uncons (tail9, head9, tail9)
+          call uncons (tail10, head10, tail10)
+          call uncons (tail11, head11, tail11)
+          call uncons (tail12, head12, tail12)
+          call uncons (tail13, head13, tail13)
+          call uncons (tail14, head14, tail14)
+          call uncons (tail15, head15, tail15)
+          retval_root = retval
+          call kons (head1, head2, head3, head4, head5, &
+               head6, head7, head8, head9, head10, &
+               head11, head12, head13, head14, head15, retval, new_retval)
+          retval = new_retval
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+    call lst15_root%discard
+  end function fold15_subr
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function fold1_right_subr (kons, knil, lst1) result (retval)
@@ -21840,6 +34620,745 @@ contains
     end function recursion
 
   end function fold10_right_subr
+  recursive function fold11_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(11) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons11_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6, &
+         .autoval. lst7, .autoval. lst8, .autoval. lst9, &
+         .autoval. lst10, .autoval. lst11)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), intent(in) :: lst7
+      class(*), intent(in) :: lst8
+      class(*), intent(in) :: lst9
+      class(*), intent(in) :: lst10
+      class(*), intent(in) :: lst11
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else if (is_not_pair (lst7)) then
+         retval = knil
+      else if (is_not_pair (lst8)) then
+         retval = knil
+      else if (is_not_pair (lst9)) then
+         retval = knil
+      else if (is_not_pair (lst10)) then
+         retval = knil
+      else if (is_not_pair (lst11)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6), &
+              cdr (lst7), cdr (lst8), cdr (lst9), &
+              cdr (lst10), cdr (lst11))
+         call kons (car (lst1), car (lst2), car (lst3), &
+              car (lst4), car (lst5), car (lst6), &
+              car (lst7), car (lst8), car (lst9), &
+              car (lst10), car (lst11), .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function fold11_right_subr
+  recursive function fold12_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(12) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons12_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6, &
+         .autoval. lst7, .autoval. lst8, .autoval. lst9, &
+         .autoval. lst10, .autoval. lst11, .autoval. lst12)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), intent(in) :: lst7
+      class(*), intent(in) :: lst8
+      class(*), intent(in) :: lst9
+      class(*), intent(in) :: lst10
+      class(*), intent(in) :: lst11
+      class(*), intent(in) :: lst12
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else if (is_not_pair (lst7)) then
+         retval = knil
+      else if (is_not_pair (lst8)) then
+         retval = knil
+      else if (is_not_pair (lst9)) then
+         retval = knil
+      else if (is_not_pair (lst10)) then
+         retval = knil
+      else if (is_not_pair (lst11)) then
+         retval = knil
+      else if (is_not_pair (lst12)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6), &
+              cdr (lst7), cdr (lst8), cdr (lst9), &
+              cdr (lst10), cdr (lst11), cdr (lst12))
+         call kons (car (lst1), car (lst2), car (lst3), &
+              car (lst4), car (lst5), car (lst6), &
+              car (lst7), car (lst8), car (lst9), &
+              car (lst10), car (lst11), car (lst12), .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function fold12_right_subr
+  recursive function fold13_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(13) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons13_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6, &
+         .autoval. lst7, .autoval. lst8, .autoval. lst9, &
+         .autoval. lst10, .autoval. lst11, .autoval. lst12, &
+         .autoval. lst13)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), intent(in) :: lst7
+      class(*), intent(in) :: lst8
+      class(*), intent(in) :: lst9
+      class(*), intent(in) :: lst10
+      class(*), intent(in) :: lst11
+      class(*), intent(in) :: lst12
+      class(*), intent(in) :: lst13
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else if (is_not_pair (lst7)) then
+         retval = knil
+      else if (is_not_pair (lst8)) then
+         retval = knil
+      else if (is_not_pair (lst9)) then
+         retval = knil
+      else if (is_not_pair (lst10)) then
+         retval = knil
+      else if (is_not_pair (lst11)) then
+         retval = knil
+      else if (is_not_pair (lst12)) then
+         retval = knil
+      else if (is_not_pair (lst13)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6), &
+              cdr (lst7), cdr (lst8), cdr (lst9), &
+              cdr (lst10), cdr (lst11), cdr (lst12), &
+              cdr (lst13))
+         call kons (car (lst1), car (lst2), car (lst3), &
+              car (lst4), car (lst5), car (lst6), &
+              car (lst7), car (lst8), car (lst9), &
+              car (lst10), car (lst11), car (lst12), &
+              car (lst13), .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function fold13_right_subr
+  recursive function fold14_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(14) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons14_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6, &
+         .autoval. lst7, .autoval. lst8, .autoval. lst9, &
+         .autoval. lst10, .autoval. lst11, .autoval. lst12, &
+         .autoval. lst13, .autoval. lst14)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), intent(in) :: lst7
+      class(*), intent(in) :: lst8
+      class(*), intent(in) :: lst9
+      class(*), intent(in) :: lst10
+      class(*), intent(in) :: lst11
+      class(*), intent(in) :: lst12
+      class(*), intent(in) :: lst13
+      class(*), intent(in) :: lst14
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else if (is_not_pair (lst7)) then
+         retval = knil
+      else if (is_not_pair (lst8)) then
+         retval = knil
+      else if (is_not_pair (lst9)) then
+         retval = knil
+      else if (is_not_pair (lst10)) then
+         retval = knil
+      else if (is_not_pair (lst11)) then
+         retval = knil
+      else if (is_not_pair (lst12)) then
+         retval = knil
+      else if (is_not_pair (lst13)) then
+         retval = knil
+      else if (is_not_pair (lst14)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6), &
+              cdr (lst7), cdr (lst8), cdr (lst9), &
+              cdr (lst10), cdr (lst11), cdr (lst12), &
+              cdr (lst13), cdr (lst14))
+         call kons (car (lst1), car (lst2), car (lst3), &
+              car (lst4), car (lst5), car (lst6), &
+              car (lst7), car (lst8), car (lst9), &
+              car (lst10), car (lst11), car (lst12), &
+              car (lst13), car (lst14), .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function fold14_right_subr
+  recursive function fold15_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(15) stack
+    !          space. If you need to do something like this
+    !          iteratively, you can use `fold' on the reverse of lst.
+    !
+    !          A recursive implementation tends to be faster, at least
+    !          in functional languages:
+    !
+    !             * the list need not be reversed,
+    !
+    !             * on most hardware, the stack puts values near each
+    !               other in memory.
+    !
+    !          In any case, a recursive implementation illustrates
+    !          the fundamental meaning of the operation.
+    !
+    procedure(list_kons15_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+    lst15_root = lst15
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6, &
+         .autoval. lst7, .autoval. lst8, .autoval. lst9, &
+         .autoval. lst10, .autoval. lst11, .autoval. lst12, &
+         .autoval. lst13, .autoval. lst14, .autoval. lst15)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+    call lst15_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), intent(in) :: lst7
+      class(*), intent(in) :: lst8
+      class(*), intent(in) :: lst9
+      class(*), intent(in) :: lst10
+      class(*), intent(in) :: lst11
+      class(*), intent(in) :: lst12
+      class(*), intent(in) :: lst13
+      class(*), intent(in) :: lst14
+      class(*), intent(in) :: lst15
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else if (is_not_pair (lst7)) then
+         retval = knil
+      else if (is_not_pair (lst8)) then
+         retval = knil
+      else if (is_not_pair (lst9)) then
+         retval = knil
+      else if (is_not_pair (lst10)) then
+         retval = knil
+      else if (is_not_pair (lst11)) then
+         retval = knil
+      else if (is_not_pair (lst12)) then
+         retval = knil
+      else if (is_not_pair (lst13)) then
+         retval = knil
+      else if (is_not_pair (lst14)) then
+         retval = knil
+      else if (is_not_pair (lst15)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6), &
+              cdr (lst7), cdr (lst8), cdr (lst9), &
+              cdr (lst10), cdr (lst11), cdr (lst12), &
+              cdr (lst13), cdr (lst14), cdr (lst15))
+         call kons (car (lst1), car (lst2), car (lst3), &
+              car (lst4), car (lst5), car (lst6), &
+              car (lst7), car (lst8), car (lst9), &
+              car (lst10), car (lst11), car (lst12), &
+              car (lst13), car (lst14), car (lst15), .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function fold15_right_subr
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function pair_fold1_subr (kons, knil, lst1) result (retval)
@@ -22649,6 +36168,804 @@ contains
     call lst10_root%discard
   end function pair_fold10_subr
 
+  recursive function pair_fold11_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (retval)
+    procedure(list_kons11_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    type(gcroot_t) :: tail2, new_tail2
+    type(gcroot_t) :: tail3, new_tail3
+    type(gcroot_t) :: tail4, new_tail4
+    type(gcroot_t) :: tail5, new_tail5
+    type(gcroot_t) :: tail6, new_tail6
+    type(gcroot_t) :: tail7, new_tail7
+    type(gcroot_t) :: tail8, new_tail8
+    type(gcroot_t) :: tail9, new_tail9
+    type(gcroot_t) :: tail10, new_tail10
+    type(gcroot_t) :: tail11, new_tail11
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+
+    retval = knil
+    tail1 = lst1_root
+    tail2 = lst2_root
+    tail3 = lst3_root
+    tail4 = lst4_root
+    tail5 = lst5_root
+    tail6 = lst6_root
+    tail7 = lst7_root
+    tail8 = lst8_root
+    tail9 = lst9_root
+    tail10 = lst10_root
+    tail11 = lst11_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          new_tail2 = cdr (tail2)
+          new_tail3 = cdr (tail3)
+          new_tail4 = cdr (tail4)
+          new_tail5 = cdr (tail5)
+          new_tail6 = cdr (tail6)
+          new_tail7 = cdr (tail7)
+          new_tail8 = cdr (tail8)
+          new_tail9 = cdr (tail9)
+          new_tail10 = cdr (tail10)
+          new_tail11 = cdr (tail11)
+          retval_root = retval
+          call kons (.val. tail1, .val. tail2, .val. tail3, &
+               .val. tail4, .val. tail5, .val. tail6, &
+               .val. tail7, .val. tail8, .val. tail9, &
+               .val. tail10, .val. tail11, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+          tail2 = new_tail2
+          tail3 = new_tail3
+          tail4 = new_tail4
+          tail5 = new_tail5
+          tail6 = new_tail6
+          tail7 = new_tail7
+          tail8 = new_tail8
+          tail9 = new_tail9
+          tail10 = new_tail10
+          tail11 = new_tail11
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+  end function pair_fold11_subr
+
+  recursive function pair_fold12_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (retval)
+    procedure(list_kons12_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    type(gcroot_t) :: tail2, new_tail2
+    type(gcroot_t) :: tail3, new_tail3
+    type(gcroot_t) :: tail4, new_tail4
+    type(gcroot_t) :: tail5, new_tail5
+    type(gcroot_t) :: tail6, new_tail6
+    type(gcroot_t) :: tail7, new_tail7
+    type(gcroot_t) :: tail8, new_tail8
+    type(gcroot_t) :: tail9, new_tail9
+    type(gcroot_t) :: tail10, new_tail10
+    type(gcroot_t) :: tail11, new_tail11
+    type(gcroot_t) :: tail12, new_tail12
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+
+    retval = knil
+    tail1 = lst1_root
+    tail2 = lst2_root
+    tail3 = lst3_root
+    tail4 = lst4_root
+    tail5 = lst5_root
+    tail6 = lst6_root
+    tail7 = lst7_root
+    tail8 = lst8_root
+    tail9 = lst9_root
+    tail10 = lst10_root
+    tail11 = lst11_root
+    tail12 = lst12_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          new_tail2 = cdr (tail2)
+          new_tail3 = cdr (tail3)
+          new_tail4 = cdr (tail4)
+          new_tail5 = cdr (tail5)
+          new_tail6 = cdr (tail6)
+          new_tail7 = cdr (tail7)
+          new_tail8 = cdr (tail8)
+          new_tail9 = cdr (tail9)
+          new_tail10 = cdr (tail10)
+          new_tail11 = cdr (tail11)
+          new_tail12 = cdr (tail12)
+          retval_root = retval
+          call kons (.val. tail1, .val. tail2, .val. tail3, &
+               .val. tail4, .val. tail5, .val. tail6, &
+               .val. tail7, .val. tail8, .val. tail9, &
+               .val. tail10, .val. tail11, .val. tail12, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+          tail2 = new_tail2
+          tail3 = new_tail3
+          tail4 = new_tail4
+          tail5 = new_tail5
+          tail6 = new_tail6
+          tail7 = new_tail7
+          tail8 = new_tail8
+          tail9 = new_tail9
+          tail10 = new_tail10
+          tail11 = new_tail11
+          tail12 = new_tail12
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+  end function pair_fold12_subr
+
+  recursive function pair_fold13_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (retval)
+    procedure(list_kons13_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    type(gcroot_t) :: tail2, new_tail2
+    type(gcroot_t) :: tail3, new_tail3
+    type(gcroot_t) :: tail4, new_tail4
+    type(gcroot_t) :: tail5, new_tail5
+    type(gcroot_t) :: tail6, new_tail6
+    type(gcroot_t) :: tail7, new_tail7
+    type(gcroot_t) :: tail8, new_tail8
+    type(gcroot_t) :: tail9, new_tail9
+    type(gcroot_t) :: tail10, new_tail10
+    type(gcroot_t) :: tail11, new_tail11
+    type(gcroot_t) :: tail12, new_tail12
+    type(gcroot_t) :: tail13, new_tail13
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+
+    retval = knil
+    tail1 = lst1_root
+    tail2 = lst2_root
+    tail3 = lst3_root
+    tail4 = lst4_root
+    tail5 = lst5_root
+    tail6 = lst6_root
+    tail7 = lst7_root
+    tail8 = lst8_root
+    tail9 = lst9_root
+    tail10 = lst10_root
+    tail11 = lst11_root
+    tail12 = lst12_root
+    tail13 = lst13_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          new_tail2 = cdr (tail2)
+          new_tail3 = cdr (tail3)
+          new_tail4 = cdr (tail4)
+          new_tail5 = cdr (tail5)
+          new_tail6 = cdr (tail6)
+          new_tail7 = cdr (tail7)
+          new_tail8 = cdr (tail8)
+          new_tail9 = cdr (tail9)
+          new_tail10 = cdr (tail10)
+          new_tail11 = cdr (tail11)
+          new_tail12 = cdr (tail12)
+          new_tail13 = cdr (tail13)
+          retval_root = retval
+          call kons (.val. tail1, .val. tail2, .val. tail3, &
+               .val. tail4, .val. tail5, .val. tail6, &
+               .val. tail7, .val. tail8, .val. tail9, &
+               .val. tail10, .val. tail11, .val. tail12, &
+               .val. tail13, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+          tail2 = new_tail2
+          tail3 = new_tail3
+          tail4 = new_tail4
+          tail5 = new_tail5
+          tail6 = new_tail6
+          tail7 = new_tail7
+          tail8 = new_tail8
+          tail9 = new_tail9
+          tail10 = new_tail10
+          tail11 = new_tail11
+          tail12 = new_tail12
+          tail13 = new_tail13
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+  end function pair_fold13_subr
+
+  recursive function pair_fold14_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (retval)
+    procedure(list_kons14_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    type(gcroot_t) :: tail2, new_tail2
+    type(gcroot_t) :: tail3, new_tail3
+    type(gcroot_t) :: tail4, new_tail4
+    type(gcroot_t) :: tail5, new_tail5
+    type(gcroot_t) :: tail6, new_tail6
+    type(gcroot_t) :: tail7, new_tail7
+    type(gcroot_t) :: tail8, new_tail8
+    type(gcroot_t) :: tail9, new_tail9
+    type(gcroot_t) :: tail10, new_tail10
+    type(gcroot_t) :: tail11, new_tail11
+    type(gcroot_t) :: tail12, new_tail12
+    type(gcroot_t) :: tail13, new_tail13
+    type(gcroot_t) :: tail14, new_tail14
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+
+    retval = knil
+    tail1 = lst1_root
+    tail2 = lst2_root
+    tail3 = lst3_root
+    tail4 = lst4_root
+    tail5 = lst5_root
+    tail6 = lst6_root
+    tail7 = lst7_root
+    tail8 = lst8_root
+    tail9 = lst9_root
+    tail10 = lst10_root
+    tail11 = lst11_root
+    tail12 = lst12_root
+    tail13 = lst13_root
+    tail14 = lst14_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else if (is_not_pair (tail14)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          new_tail2 = cdr (tail2)
+          new_tail3 = cdr (tail3)
+          new_tail4 = cdr (tail4)
+          new_tail5 = cdr (tail5)
+          new_tail6 = cdr (tail6)
+          new_tail7 = cdr (tail7)
+          new_tail8 = cdr (tail8)
+          new_tail9 = cdr (tail9)
+          new_tail10 = cdr (tail10)
+          new_tail11 = cdr (tail11)
+          new_tail12 = cdr (tail12)
+          new_tail13 = cdr (tail13)
+          new_tail14 = cdr (tail14)
+          retval_root = retval
+          call kons (.val. tail1, .val. tail2, .val. tail3, &
+               .val. tail4, .val. tail5, .val. tail6, &
+               .val. tail7, .val. tail8, .val. tail9, &
+               .val. tail10, .val. tail11, .val. tail12, &
+               .val. tail13, .val. tail14, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+          tail2 = new_tail2
+          tail3 = new_tail3
+          tail4 = new_tail4
+          tail5 = new_tail5
+          tail6 = new_tail6
+          tail7 = new_tail7
+          tail8 = new_tail8
+          tail9 = new_tail9
+          tail10 = new_tail10
+          tail11 = new_tail11
+          tail12 = new_tail12
+          tail13 = new_tail13
+          tail14 = new_tail14
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+  end function pair_fold14_subr
+
+  recursive function pair_fold15_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (retval)
+    procedure(list_kons15_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+    type(gcroot_t) :: retval_root
+    type(gcroot_t) :: tail1, new_tail1
+    type(gcroot_t) :: tail2, new_tail2
+    type(gcroot_t) :: tail3, new_tail3
+    type(gcroot_t) :: tail4, new_tail4
+    type(gcroot_t) :: tail5, new_tail5
+    type(gcroot_t) :: tail6, new_tail6
+    type(gcroot_t) :: tail7, new_tail7
+    type(gcroot_t) :: tail8, new_tail8
+    type(gcroot_t) :: tail9, new_tail9
+    type(gcroot_t) :: tail10, new_tail10
+    type(gcroot_t) :: tail11, new_tail11
+    type(gcroot_t) :: tail12, new_tail12
+    type(gcroot_t) :: tail13, new_tail13
+    type(gcroot_t) :: tail14, new_tail14
+    type(gcroot_t) :: tail15, new_tail15
+    class(*), allocatable :: new_retval
+    logical :: done
+
+    ! Protect against garbage collections performed by kons.
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+    lst15_root = lst15
+
+    retval = knil
+    tail1 = lst1_root
+    tail2 = lst2_root
+    tail3 = lst3_root
+    tail4 = lst4_root
+    tail5 = lst5_root
+    tail6 = lst6_root
+    tail7 = lst7_root
+    tail8 = lst8_root
+    tail9 = lst9_root
+    tail10 = lst10_root
+    tail11 = lst11_root
+    tail12 = lst12_root
+    tail13 = lst13_root
+    tail14 = lst14_root
+    tail15 = lst15_root
+    done = .false.
+    do while (.not. done)
+       if (is_not_pair (tail1)) then
+          done = .true.
+       else if (is_not_pair (tail2)) then
+          done = .true.
+       else if (is_not_pair (tail3)) then
+          done = .true.
+       else if (is_not_pair (tail4)) then
+          done = .true.
+       else if (is_not_pair (tail5)) then
+          done = .true.
+       else if (is_not_pair (tail6)) then
+          done = .true.
+       else if (is_not_pair (tail7)) then
+          done = .true.
+       else if (is_not_pair (tail8)) then
+          done = .true.
+       else if (is_not_pair (tail9)) then
+          done = .true.
+       else if (is_not_pair (tail10)) then
+          done = .true.
+       else if (is_not_pair (tail11)) then
+          done = .true.
+       else if (is_not_pair (tail12)) then
+          done = .true.
+       else if (is_not_pair (tail13)) then
+          done = .true.
+       else if (is_not_pair (tail14)) then
+          done = .true.
+       else if (is_not_pair (tail15)) then
+          done = .true.
+       else
+          new_tail1 = cdr (tail1)
+          new_tail2 = cdr (tail2)
+          new_tail3 = cdr (tail3)
+          new_tail4 = cdr (tail4)
+          new_tail5 = cdr (tail5)
+          new_tail6 = cdr (tail6)
+          new_tail7 = cdr (tail7)
+          new_tail8 = cdr (tail8)
+          new_tail9 = cdr (tail9)
+          new_tail10 = cdr (tail10)
+          new_tail11 = cdr (tail11)
+          new_tail12 = cdr (tail12)
+          new_tail13 = cdr (tail13)
+          new_tail14 = cdr (tail14)
+          new_tail15 = cdr (tail15)
+          retval_root = retval
+          call kons (.val. tail1, .val. tail2, .val. tail3, &
+               .val. tail4, .val. tail5, .val. tail6, &
+               .val. tail7, .val. tail8, .val. tail9, &
+               .val. tail10, .val. tail11, .val. tail12, &
+               .val. tail13, .val. tail14, .val. tail15, retval, new_retval)
+          retval = new_retval
+          tail1 = new_tail1
+          tail2 = new_tail2
+          tail3 = new_tail3
+          tail4 = new_tail4
+          tail5 = new_tail5
+          tail6 = new_tail6
+          tail7 = new_tail7
+          tail8 = new_tail8
+          tail9 = new_tail9
+          tail10 = new_tail10
+          tail11 = new_tail11
+          tail12 = new_tail12
+          tail13 = new_tail13
+          tail14 = new_tail14
+          tail15 = new_tail15
+       end if
+    end do
+
+    call retval_root%discard
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+    call lst15_root%discard
+  end function pair_fold15_subr
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function pair_fold1_right_subr (kons, knil, lst1) result (retval)
@@ -23391,6 +37708,690 @@ contains
     end function recursion
 
   end function pair_fold10_right_subr
+
+  recursive function pair_fold11_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(11) stack
+    !          space.
+    !
+    procedure(list_kons11_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6, &
+         .autoval. lst7, .autoval. lst8, .autoval. lst9, &
+         .autoval. lst10, .autoval. lst11)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), intent(in) :: lst7
+      class(*), intent(in) :: lst8
+      class(*), intent(in) :: lst9
+      class(*), intent(in) :: lst10
+      class(*), intent(in) :: lst11
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else if (is_not_pair (lst7)) then
+         retval = knil
+      else if (is_not_pair (lst8)) then
+         retval = knil
+      else if (is_not_pair (lst9)) then
+         retval = knil
+      else if (is_not_pair (lst10)) then
+         retval = knil
+      else if (is_not_pair (lst11)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6), &
+              cdr (lst7), cdr (lst8), cdr (lst9), &
+              cdr (lst10), cdr (lst11))
+         call kons (lst1, lst2, lst3, &
+              lst4, lst5, lst6, &
+              lst7, lst8, lst9, &
+              lst10, lst11, .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function pair_fold11_right_subr
+
+  recursive function pair_fold12_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(12) stack
+    !          space.
+    !
+    procedure(list_kons12_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6, &
+         .autoval. lst7, .autoval. lst8, .autoval. lst9, &
+         .autoval. lst10, .autoval. lst11, .autoval. lst12)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11, lst12) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), intent(in) :: lst7
+      class(*), intent(in) :: lst8
+      class(*), intent(in) :: lst9
+      class(*), intent(in) :: lst10
+      class(*), intent(in) :: lst11
+      class(*), intent(in) :: lst12
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else if (is_not_pair (lst7)) then
+         retval = knil
+      else if (is_not_pair (lst8)) then
+         retval = knil
+      else if (is_not_pair (lst9)) then
+         retval = knil
+      else if (is_not_pair (lst10)) then
+         retval = knil
+      else if (is_not_pair (lst11)) then
+         retval = knil
+      else if (is_not_pair (lst12)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6), &
+              cdr (lst7), cdr (lst8), cdr (lst9), &
+              cdr (lst10), cdr (lst11), cdr (lst12))
+         call kons (lst1, lst2, lst3, &
+              lst4, lst5, lst6, &
+              lst7, lst8, lst9, &
+              lst10, lst11, lst12, .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function pair_fold12_right_subr
+
+  recursive function pair_fold13_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(13) stack
+    !          space.
+    !
+    procedure(list_kons13_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6, &
+         .autoval. lst7, .autoval. lst8, .autoval. lst9, &
+         .autoval. lst10, .autoval. lst11, .autoval. lst12, &
+         .autoval. lst13)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11, lst12, lst13) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), intent(in) :: lst7
+      class(*), intent(in) :: lst8
+      class(*), intent(in) :: lst9
+      class(*), intent(in) :: lst10
+      class(*), intent(in) :: lst11
+      class(*), intent(in) :: lst12
+      class(*), intent(in) :: lst13
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else if (is_not_pair (lst7)) then
+         retval = knil
+      else if (is_not_pair (lst8)) then
+         retval = knil
+      else if (is_not_pair (lst9)) then
+         retval = knil
+      else if (is_not_pair (lst10)) then
+         retval = knil
+      else if (is_not_pair (lst11)) then
+         retval = knil
+      else if (is_not_pair (lst12)) then
+         retval = knil
+      else if (is_not_pair (lst13)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6), &
+              cdr (lst7), cdr (lst8), cdr (lst9), &
+              cdr (lst10), cdr (lst11), cdr (lst12), &
+              cdr (lst13))
+         call kons (lst1, lst2, lst3, &
+              lst4, lst5, lst6, &
+              lst7, lst8, lst9, &
+              lst10, lst11, lst12, &
+              lst13, .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function pair_fold13_right_subr
+
+  recursive function pair_fold14_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(14) stack
+    !          space.
+    !
+    procedure(list_kons14_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6, &
+         .autoval. lst7, .autoval. lst8, .autoval. lst9, &
+         .autoval. lst10, .autoval. lst11, .autoval. lst12, &
+         .autoval. lst13, .autoval. lst14)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11, lst12, lst13, lst14) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), intent(in) :: lst7
+      class(*), intent(in) :: lst8
+      class(*), intent(in) :: lst9
+      class(*), intent(in) :: lst10
+      class(*), intent(in) :: lst11
+      class(*), intent(in) :: lst12
+      class(*), intent(in) :: lst13
+      class(*), intent(in) :: lst14
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else if (is_not_pair (lst7)) then
+         retval = knil
+      else if (is_not_pair (lst8)) then
+         retval = knil
+      else if (is_not_pair (lst9)) then
+         retval = knil
+      else if (is_not_pair (lst10)) then
+         retval = knil
+      else if (is_not_pair (lst11)) then
+         retval = knil
+      else if (is_not_pair (lst12)) then
+         retval = knil
+      else if (is_not_pair (lst13)) then
+         retval = knil
+      else if (is_not_pair (lst14)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6), &
+              cdr (lst7), cdr (lst8), cdr (lst9), &
+              cdr (lst10), cdr (lst11), cdr (lst12), &
+              cdr (lst13), cdr (lst14))
+         call kons (lst1, lst2, lst3, &
+              lst4, lst5, lst6, &
+              lst7, lst8, lst9, &
+              lst10, lst11, lst12, &
+              lst13, lst14, .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function pair_fold14_right_subr
+
+  recursive function pair_fold15_right_subr (kons, knil, lst1, lst2, lst3, lst4, lst5, &
+       lst6, lst7, lst8, lst9, lst10, &
+       lst11, lst12, lst13, lst14, lst15) result (retval)
+    !
+    ! WARNING: This implementation is recursive and uses O(15) stack
+    !          space.
+    !
+    procedure(list_kons15_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: lst1_root
+    type(gcroot_t) :: lst2_root
+    type(gcroot_t) :: lst3_root
+    type(gcroot_t) :: lst4_root
+    type(gcroot_t) :: lst5_root
+    type(gcroot_t) :: lst6_root
+    type(gcroot_t) :: lst7_root
+    type(gcroot_t) :: lst8_root
+    type(gcroot_t) :: lst9_root
+    type(gcroot_t) :: lst10_root
+    type(gcroot_t) :: lst11_root
+    type(gcroot_t) :: lst12_root
+    type(gcroot_t) :: lst13_root
+    type(gcroot_t) :: lst14_root
+    type(gcroot_t) :: lst15_root
+
+    lst1_root = lst1
+    lst2_root = lst2
+    lst3_root = lst3
+    lst4_root = lst4
+    lst5_root = lst5
+    lst6_root = lst6
+    lst7_root = lst7
+    lst8_root = lst8
+    lst9_root = lst9
+    lst10_root = lst10
+    lst11_root = lst11
+    lst12_root = lst12
+    lst13_root = lst13
+    lst14_root = lst14
+    lst15_root = lst15
+
+    retval = &
+         recursion (.autoval. lst1, .autoval. lst2, .autoval. lst3, &
+         .autoval. lst4, .autoval. lst5, .autoval. lst6, &
+         .autoval. lst7, .autoval. lst8, .autoval. lst9, &
+         .autoval. lst10, .autoval. lst11, .autoval. lst12, &
+         .autoval. lst13, .autoval. lst14, .autoval. lst15)
+
+    call lst1_root%discard
+    call lst2_root%discard
+    call lst3_root%discard
+    call lst4_root%discard
+    call lst5_root%discard
+    call lst6_root%discard
+    call lst7_root%discard
+    call lst8_root%discard
+    call lst9_root%discard
+    call lst10_root%discard
+    call lst11_root%discard
+    call lst12_root%discard
+    call lst13_root%discard
+    call lst14_root%discard
+    call lst15_root%discard
+
+  contains
+
+    recursive function recursion (lst1, lst2, lst3, lst4, lst5, &
+         lst6, lst7, lst8, lst9, lst10, &
+         lst11, lst12, lst13, lst14, lst15) result (retval)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      class(*), intent(in) :: lst5
+      class(*), intent(in) :: lst6
+      class(*), intent(in) :: lst7
+      class(*), intent(in) :: lst8
+      class(*), intent(in) :: lst9
+      class(*), intent(in) :: lst10
+      class(*), intent(in) :: lst11
+      class(*), intent(in) :: lst12
+      class(*), intent(in) :: lst13
+      class(*), intent(in) :: lst14
+      class(*), intent(in) :: lst15
+      class(*), allocatable :: retval
+
+      type(gcroot_t) :: recursion_result
+
+      if (is_not_pair (lst1)) then
+         retval = knil
+      else if (is_not_pair (lst2)) then
+         retval = knil
+      else if (is_not_pair (lst3)) then
+         retval = knil
+      else if (is_not_pair (lst4)) then
+         retval = knil
+      else if (is_not_pair (lst5)) then
+         retval = knil
+      else if (is_not_pair (lst6)) then
+         retval = knil
+      else if (is_not_pair (lst7)) then
+         retval = knil
+      else if (is_not_pair (lst8)) then
+         retval = knil
+      else if (is_not_pair (lst9)) then
+         retval = knil
+      else if (is_not_pair (lst10)) then
+         retval = knil
+      else if (is_not_pair (lst11)) then
+         retval = knil
+      else if (is_not_pair (lst12)) then
+         retval = knil
+      else if (is_not_pair (lst13)) then
+         retval = knil
+      else if (is_not_pair (lst14)) then
+         retval = knil
+      else if (is_not_pair (lst15)) then
+         retval = knil
+      else
+         recursion_result = &
+              recursion (cdr (lst1), cdr (lst2), cdr (lst3), &
+              cdr (lst4), cdr (lst5), cdr (lst6), &
+              cdr (lst7), cdr (lst8), cdr (lst9), &
+              cdr (lst10), cdr (lst11), cdr (lst12), &
+              cdr (lst13), cdr (lst14), cdr (lst15))
+         call kons (lst1, lst2, lst3, &
+              lst4, lst5, lst6, &
+              lst7, lst8, lst9, &
+              lst10, lst11, lst12, &
+              lst13, lst14, lst15, .val. recursion_result, retval)
+      end if
+    end function recursion
+
+  end function pair_fold15_right_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

@@ -54,7 +54,7 @@ module lsets
   public :: lset_unionx         ! Union that can alter its inputs.
 
   ! Implementations of lset_adjoin.
-m4_forloop([n],[0],ZIP_MAX,[dnl
+m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: lset_adjoin[]n
 ])dnl
 
@@ -72,7 +72,7 @@ m4_forloop([n],[0],ZIP_MAX,[dnl
   integer, parameter :: sz = size_kind
 
   interface lset_adjoin
-m4_forloop([n],[0],ZIP_MAX,[dnl
+m4_forloop([n],[0],LISTN_MAX,[dnl
      module procedure lset_adjoin[]n
 ])dnl
   end interface lset_adjoin
@@ -117,7 +117,7 @@ contains
     lst_out = lst
   end function lset_adjoin0
 
-m4_forloop([n],[1],ZIP_MAX,[dnl
+m4_forloop([n],[1],LISTN_MAX,[dnl
   recursive function lset_adjoin[]n (equal, lst, element1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
        &                            ])element[]k])) result (lst_out)
     procedure(list_predicate2_t) :: equal
