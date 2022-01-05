@@ -38,13 +38,6 @@ module boxes
   ! https://srfi.schemers.org/srfi-111/srfi-111.html
   !
 
-  !
-  ! NOTE: Unless you know what you are doing, you should use
-  !       `type(gcroot_t)' from module `garbage_collector' to hold
-  !       values of type `box_t'. Otherwise the garbage collector
-  !       might collect your work unexpectedly.
-  !
-
   use, non_intrinsic :: garbage_collector
 
   implicit none

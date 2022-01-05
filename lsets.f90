@@ -32,13 +32,6 @@ module lsets
   ! SRFI-1 lsets does in Scheme.
   !
 
-  !
-  ! NOTE: Unless you know what you are doing, you should use
-  !       `type(gcroot_t)' from module `garbage_collector' to hold
-  !       values of type `cons_t'. Otherwise the garbage collector
-  !       might collect your work unexpectedly.
-  !
-
   use, non_intrinsic :: garbage_collector
   use, non_intrinsic :: cons_pairs
 
