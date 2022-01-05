@@ -141,7 +141,7 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
   public :: list_refn        ! Generic function: Return any one of the
                              ! nth, (n+1)th, (n+2)th, etc., elements.
 
-  ! Implementations for INTEGER(SIZE_KIND).
+  ! Implementations for INTEGER([SIZE_KIND]).
   public :: list_ref0_size_kind
   public :: list_ref1_size_kind
   public :: list_refn_size_kind
@@ -240,7 +240,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: split_at         ! Do both take and drop, at the same time. (Function version.)
   public :: split_atx        ! Like split_at, but allowed to destroy its inputs.
 
-  ! Implementations for INTEGER(SIZE_KIND).
+  ! Implementations for INTEGER([SIZE_KIND]).
   public :: take_size_kind
   public :: takex_size_kind
   public :: drop_size_kind
@@ -270,7 +270,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   ! Generic function: return a list of a single value, repeated.
   public :: make_list
 
-  ! An implementation for INTEGER(SIZE_KIND).
+  ! An implementation for INTEGER([SIZE_KIND]).
   public :: make_list_size_kind
 
   ! An implementation for INTEGER of the default kind.
@@ -295,7 +295,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: iota_of_length   ! Other generics.
   public :: iota_of_length_start
   public :: iota_of_length_start_step
-  public :: iota_of_length_size_kind ! Versions for INTEGER(SIZE_KIND).
+  public :: iota_of_length_size_kind ! Versions for INTEGER([SIZE_KIND]).
   public :: iota_of_length_start_size_kind
   public :: iota_of_length_start_step_size_kind
   public :: iota_of_length_int ! Versions for INTEGER of the default kind.
