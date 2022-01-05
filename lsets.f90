@@ -48,6 +48,7 @@ module lsets
   ! Generic functions.
   public :: lset_adjoin         ! Add elements to a set.
   public :: lset_union          ! Return the union of two sets.
+  public :: lset_unionx         ! Union that can alter its inputs.
 
   ! Implementations of lset_adjoin.
   public :: lset_adjoin0
@@ -74,6 +75,19 @@ module lsets
   public :: lset_union8
   public :: lset_union9
   public :: lset_union10
+
+  ! Implementations of lset_unionx.
+  public :: lset_unionx0
+  public :: lset_unionx1
+  public :: lset_unionx2
+  public :: lset_unionx3
+  public :: lset_unionx4
+  public :: lset_unionx5
+  public :: lset_unionx6
+  public :: lset_unionx7
+  public :: lset_unionx8
+  public :: lset_unionx9
+  public :: lset_unionx10
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
@@ -105,6 +119,20 @@ module lsets
      module procedure lset_union9
      module procedure lset_union10
   end interface lset_union
+
+  interface lset_unionx
+     module procedure lset_unionx0
+     module procedure lset_unionx1
+     module procedure lset_unionx2
+     module procedure lset_unionx3
+     module procedure lset_unionx4
+     module procedure lset_unionx5
+     module procedure lset_unionx6
+     module procedure lset_unionx7
+     module procedure lset_unionx8
+     module procedure lset_unionx9
+     module procedure lset_unionx10
+  end interface lset_unionx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -894,6 +922,576 @@ contains
     end subroutine kons
 
   end function lset_union10
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lset_unionx0 (equal) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    type(cons_t) :: lst_out
+
+    lst_out = nil
+  end function lset_unionx0
+
+  recursive function lset_unionx1 (equal, lst1) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    type(cons_t) :: lst_out
+
+    class(*), allocatable :: element
+
+    lst_out = reduce (make_unionx, nil, list (lst1))
+
+  contains
+
+    recursive subroutine make_unionx (lst1, lst2, lst_out)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (lst1)) then
+         lst_out = lst2
+      else if (is_nil (lst2)) then
+         lst_out = lst1
+      else if (cons_t_eq (lst1, lst2)) then
+         lst_out = lst2
+      else
+         lst_out = pair_fold (kons, lst2, lst1)
+      end if
+    end subroutine make_unionx
+
+    recursive subroutine kons (pair, lst, lst_out)
+      class(*), intent(in) :: pair
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      element = car (pair)
+      if (some (equals_element, lst)) then
+         lst_out = lst
+      else
+         call set_cdr (pair, lst)
+         lst_out = pair
+      end if
+    end subroutine kons
+
+    recursive function equals_element (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      bool = equal (x, element)
+    end function equals_element
+
+  end function lset_unionx1
+
+  recursive function lset_unionx2 (equal, lst1, lst2) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_out
+
+    class(*), allocatable :: element
+
+    lst_out = reduce (make_unionx, nil, list (lst1, lst2))
+
+  contains
+
+    recursive subroutine make_unionx (lst1, lst2, lst_out)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (lst1)) then
+         lst_out = lst2
+      else if (is_nil (lst2)) then
+         lst_out = lst1
+      else if (cons_t_eq (lst1, lst2)) then
+         lst_out = lst2
+      else
+         lst_out = pair_fold (kons, lst2, lst1)
+      end if
+    end subroutine make_unionx
+
+    recursive subroutine kons (pair, lst, lst_out)
+      class(*), intent(in) :: pair
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      element = car (pair)
+      if (some (equals_element, lst)) then
+         lst_out = lst
+      else
+         call set_cdr (pair, lst)
+         lst_out = pair
+      end if
+    end subroutine kons
+
+    recursive function equals_element (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      bool = equal (x, element)
+    end function equals_element
+
+  end function lset_unionx2
+
+  recursive function lset_unionx3 (equal, lst1, lst2, lst3) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    type(cons_t) :: lst_out
+
+    class(*), allocatable :: element
+
+    lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3))
+
+  contains
+
+    recursive subroutine make_unionx (lst1, lst2, lst_out)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (lst1)) then
+         lst_out = lst2
+      else if (is_nil (lst2)) then
+         lst_out = lst1
+      else if (cons_t_eq (lst1, lst2)) then
+         lst_out = lst2
+      else
+         lst_out = pair_fold (kons, lst2, lst1)
+      end if
+    end subroutine make_unionx
+
+    recursive subroutine kons (pair, lst, lst_out)
+      class(*), intent(in) :: pair
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      element = car (pair)
+      if (some (equals_element, lst)) then
+         lst_out = lst
+      else
+         call set_cdr (pair, lst)
+         lst_out = pair
+      end if
+    end subroutine kons
+
+    recursive function equals_element (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      bool = equal (x, element)
+    end function equals_element
+
+  end function lset_unionx3
+
+  recursive function lset_unionx4 (equal, lst1, lst2, lst3, lst4) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    type(cons_t) :: lst_out
+
+    class(*), allocatable :: element
+
+    lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4))
+
+  contains
+
+    recursive subroutine make_unionx (lst1, lst2, lst_out)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (lst1)) then
+         lst_out = lst2
+      else if (is_nil (lst2)) then
+         lst_out = lst1
+      else if (cons_t_eq (lst1, lst2)) then
+         lst_out = lst2
+      else
+         lst_out = pair_fold (kons, lst2, lst1)
+      end if
+    end subroutine make_unionx
+
+    recursive subroutine kons (pair, lst, lst_out)
+      class(*), intent(in) :: pair
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      element = car (pair)
+      if (some (equals_element, lst)) then
+         lst_out = lst
+      else
+         call set_cdr (pair, lst)
+         lst_out = pair
+      end if
+    end subroutine kons
+
+    recursive function equals_element (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      bool = equal (x, element)
+    end function equals_element
+
+  end function lset_unionx4
+
+  recursive function lset_unionx5 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    type(cons_t) :: lst_out
+
+    class(*), allocatable :: element
+
+    lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
+         &            lst5))
+
+  contains
+
+    recursive subroutine make_unionx (lst1, lst2, lst_out)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (lst1)) then
+         lst_out = lst2
+      else if (is_nil (lst2)) then
+         lst_out = lst1
+      else if (cons_t_eq (lst1, lst2)) then
+         lst_out = lst2
+      else
+         lst_out = pair_fold (kons, lst2, lst1)
+      end if
+    end subroutine make_unionx
+
+    recursive subroutine kons (pair, lst, lst_out)
+      class(*), intent(in) :: pair
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      element = car (pair)
+      if (some (equals_element, lst)) then
+         lst_out = lst
+      else
+         call set_cdr (pair, lst)
+         lst_out = pair
+      end if
+    end subroutine kons
+
+    recursive function equals_element (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      bool = equal (x, element)
+    end function equals_element
+
+  end function lset_unionx5
+
+  recursive function lset_unionx6 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    type(cons_t) :: lst_out
+
+    class(*), allocatable :: element
+
+    lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
+         &            lst5, lst6))
+
+  contains
+
+    recursive subroutine make_unionx (lst1, lst2, lst_out)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (lst1)) then
+         lst_out = lst2
+      else if (is_nil (lst2)) then
+         lst_out = lst1
+      else if (cons_t_eq (lst1, lst2)) then
+         lst_out = lst2
+      else
+         lst_out = pair_fold (kons, lst2, lst1)
+      end if
+    end subroutine make_unionx
+
+    recursive subroutine kons (pair, lst, lst_out)
+      class(*), intent(in) :: pair
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      element = car (pair)
+      if (some (equals_element, lst)) then
+         lst_out = lst
+      else
+         call set_cdr (pair, lst)
+         lst_out = pair
+      end if
+    end subroutine kons
+
+    recursive function equals_element (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      bool = equal (x, element)
+    end function equals_element
+
+  end function lset_unionx6
+
+  recursive function lset_unionx7 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    type(cons_t) :: lst_out
+
+    class(*), allocatable :: element
+
+    lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
+         &            lst5, lst6, lst7))
+
+  contains
+
+    recursive subroutine make_unionx (lst1, lst2, lst_out)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (lst1)) then
+         lst_out = lst2
+      else if (is_nil (lst2)) then
+         lst_out = lst1
+      else if (cons_t_eq (lst1, lst2)) then
+         lst_out = lst2
+      else
+         lst_out = pair_fold (kons, lst2, lst1)
+      end if
+    end subroutine make_unionx
+
+    recursive subroutine kons (pair, lst, lst_out)
+      class(*), intent(in) :: pair
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      element = car (pair)
+      if (some (equals_element, lst)) then
+         lst_out = lst
+      else
+         call set_cdr (pair, lst)
+         lst_out = pair
+      end if
+    end subroutine kons
+
+    recursive function equals_element (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      bool = equal (x, element)
+    end function equals_element
+
+  end function lset_unionx7
+
+  recursive function lset_unionx8 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    type(cons_t) :: lst_out
+
+    class(*), allocatable :: element
+
+    lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
+         &            lst5, lst6, lst7, lst8))
+
+  contains
+
+    recursive subroutine make_unionx (lst1, lst2, lst_out)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (lst1)) then
+         lst_out = lst2
+      else if (is_nil (lst2)) then
+         lst_out = lst1
+      else if (cons_t_eq (lst1, lst2)) then
+         lst_out = lst2
+      else
+         lst_out = pair_fold (kons, lst2, lst1)
+      end if
+    end subroutine make_unionx
+
+    recursive subroutine kons (pair, lst, lst_out)
+      class(*), intent(in) :: pair
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      element = car (pair)
+      if (some (equals_element, lst)) then
+         lst_out = lst
+      else
+         call set_cdr (pair, lst)
+         lst_out = pair
+      end if
+    end subroutine kons
+
+    recursive function equals_element (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      bool = equal (x, element)
+    end function equals_element
+
+  end function lset_unionx8
+
+  recursive function lset_unionx9 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    type(cons_t) :: lst_out
+
+    class(*), allocatable :: element
+
+    lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
+         &            lst5, lst6, lst7, lst8, &
+         &            lst9))
+
+  contains
+
+    recursive subroutine make_unionx (lst1, lst2, lst_out)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (lst1)) then
+         lst_out = lst2
+      else if (is_nil (lst2)) then
+         lst_out = lst1
+      else if (cons_t_eq (lst1, lst2)) then
+         lst_out = lst2
+      else
+         lst_out = pair_fold (kons, lst2, lst1)
+      end if
+    end subroutine make_unionx
+
+    recursive subroutine kons (pair, lst, lst_out)
+      class(*), intent(in) :: pair
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      element = car (pair)
+      if (some (equals_element, lst)) then
+         lst_out = lst
+      else
+         call set_cdr (pair, lst)
+         lst_out = pair
+      end if
+    end subroutine kons
+
+    recursive function equals_element (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      bool = equal (x, element)
+    end function equals_element
+
+  end function lset_unionx9
+
+  recursive function lset_unionx10 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    type(cons_t) :: lst_out
+
+    class(*), allocatable :: element
+
+    lst_out = reduce (make_unionx, nil, list (lst1, lst2, lst3, lst4, &
+         &            lst5, lst6, lst7, lst8, &
+         &            lst9, lst10))
+
+  contains
+
+    recursive subroutine make_unionx (lst1, lst2, lst_out)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (lst1)) then
+         lst_out = lst2
+      else if (is_nil (lst2)) then
+         lst_out = lst1
+      else if (cons_t_eq (lst1, lst2)) then
+         lst_out = lst2
+      else
+         lst_out = pair_fold (kons, lst2, lst1)
+      end if
+    end subroutine make_unionx
+
+    recursive subroutine kons (pair, lst, lst_out)
+      class(*), intent(in) :: pair
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      element = car (pair)
+      if (some (equals_element, lst)) then
+         lst_out = lst
+      else
+         call set_cdr (pair, lst)
+         lst_out = pair
+      end if
+    end subroutine kons
+
+    recursive function equals_element (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      bool = equal (x, element)
+    end function equals_element
+
+  end function lset_unionx10
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
