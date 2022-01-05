@@ -55,11 +55,18 @@ module lsets
   implicit none
   private
 
-  public :: lset_adjoin    ! Generic function: adds elements to a set.
+  ! Generic functions.
+  public :: lset_adjoin         ! Add elements to a set.
+  public :: lset_union          ! Return the union of two sets.
 
   ! Implementations of lset_adjoin.
 m4_forloop([n],[0],ZIP_MAX,[dnl
   public :: lset_adjoin[]n
+])dnl
+
+  ! Implementations of lset_union.
+m4_forloop([n],[0],ZIP_MAX,[dnl
+  public :: lset_union[]n
 ])dnl
 
   ! A private synonym for `size_kind'.
@@ -70,6 +77,12 @@ m4_forloop([n],[0],ZIP_MAX,[dnl
      module procedure lset_adjoin[]n
 ])dnl
   end interface lset_adjoin
+
+  interface lset_union
+m4_forloop([n],[0],ZIP_MAX,[dnl
+     module procedure lset_union[]n
+])dnl
+  end interface lset_union
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -127,6 +140,61 @@ m4_forloop([k],[1],n,[dnl
     end subroutine kons
 
   end function lset_adjoin[]n
+
+])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lset_union0 (equal) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    type(cons_t) :: lst_out
+
+    lst_out = nil
+  end function lset_union0
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function lset_union[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                          ])lst[]k])) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_out
+
+    lst_out = reduce (make_union, nil, list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &            ])lst[]k])))
+
+  contains
+
+    recursive subroutine make_union (lst1, lst2, lst_out)
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (lst1)) then
+         lst_out = lst2
+      else if (is_nil (lst2)) then
+         lst_out = lst1
+      else if (cons_t_eq (lst1, lst2)) then
+         lst_out = lst2
+      else
+         lst_out = fold (kons, lst2, lst1)
+      end if
+    end subroutine make_union
+
+    recursive subroutine kons (element, lst, lst_out)
+      class(*), intent(in) :: element
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (member (equal, element, lst))) then
+         lst_out = cons (element, lst)
+      else
+         lst_out = lst
+      end if
+    end subroutine kons
+
+  end function lset_union[]n
 
 ])dnl
 dnl
