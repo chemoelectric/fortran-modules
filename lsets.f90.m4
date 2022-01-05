@@ -38,6 +38,9 @@ module lsets
   ! SRFI-1.
   ! https://srfi.schemers.org/srfi-1/srfi-1.html
   !
+  ! The code here does in Fortran what the reference implementation of
+  ! SRFI-1 lsets does in Scheme.
+  !
 
   !
   ! NOTE: Unless you know what you are doing, you should use
@@ -52,8 +55,21 @@ module lsets
   implicit none
   private
 
+  public :: lset_adjoin    ! Generic function: adds elements to a set.
+
+  ! Implementations of lset_adjoin.
+m4_forloop([n],[0],ZIP_MAX,[dnl
+  public :: lset_adjoin[]n
+])dnl
+
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
+
+  interface lset_adjoin
+m4_forloop([n],[0],ZIP_MAX,[dnl
+     module procedure lset_adjoin[]n
+])dnl
+  end interface lset_adjoin
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -75,6 +91,45 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  recursive function lset_adjoin0 (equal, lst) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_out
+
+    lst_out = lst
+  end function lset_adjoin0
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function lset_adjoin[]n (equal, lst, element1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                            ])element[]k])) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: element[]k
+])dnl
+    type(cons_t) :: lst_out
+
+    lst_out = fold (kons, lst, list (element1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &                           ])element[]k])))
+
+  contains
+
+    recursive subroutine kons (element, lst, lst_out)
+      class(*), intent(in) :: element
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (member (equal, element, lst))) then
+         lst_out = cons (element, lst)
+      else
+         lst_out = lst
+      end if
+    end subroutine kons
+
+  end function lset_adjoin[]n
+
+])dnl
+dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module lsets

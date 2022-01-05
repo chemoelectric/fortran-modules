@@ -28,6 +28,9 @@ module lsets
   ! SRFI-1.
   ! https://srfi.schemers.org/srfi-1/srfi-1.html
   !
+  ! The code here does in Fortran what the reference implementation of
+  ! SRFI-1 lsets does in Scheme.
+  !
 
   !
   ! NOTE: Unless you know what you are doing, you should use
@@ -42,8 +45,37 @@ module lsets
   implicit none
   private
 
+  public :: lset_adjoin    ! Generic function: adds elements to a set.
+
+  ! Implementations of lset_adjoin.
+  public :: lset_adjoin0
+  public :: lset_adjoin1
+  public :: lset_adjoin2
+  public :: lset_adjoin3
+  public :: lset_adjoin4
+  public :: lset_adjoin5
+  public :: lset_adjoin6
+  public :: lset_adjoin7
+  public :: lset_adjoin8
+  public :: lset_adjoin9
+  public :: lset_adjoin10
+
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
+
+  interface lset_adjoin
+     module procedure lset_adjoin0
+     module procedure lset_adjoin1
+     module procedure lset_adjoin2
+     module procedure lset_adjoin3
+     module procedure lset_adjoin4
+     module procedure lset_adjoin5
+     module procedure lset_adjoin6
+     module procedure lset_adjoin7
+     module procedure lset_adjoin8
+     module procedure lset_adjoin9
+     module procedure lset_adjoin10
+  end interface lset_adjoin
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -64,6 +96,315 @@ contains
 !!$  end subroutine error_abort_1
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lset_adjoin0 (equal, lst) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst
+    type(cons_t) :: lst_out
+
+    lst_out = lst
+  end function lset_adjoin0
+
+  recursive function lset_adjoin1 (equal, lst, element1) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst
+    class(*), intent(in) :: element1
+    type(cons_t) :: lst_out
+
+    lst_out = fold (kons, lst, list (element1))
+
+  contains
+
+    recursive subroutine kons (element, lst, lst_out)
+      class(*), intent(in) :: element
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (member (equal, element, lst))) then
+         lst_out = cons (element, lst)
+      else
+         lst_out = lst
+      end if
+    end subroutine kons
+
+  end function lset_adjoin1
+
+  recursive function lset_adjoin2 (equal, lst, element1, element2) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst
+    class(*), intent(in) :: element1
+    class(*), intent(in) :: element2
+    type(cons_t) :: lst_out
+
+    lst_out = fold (kons, lst, list (element1, element2))
+
+  contains
+
+    recursive subroutine kons (element, lst, lst_out)
+      class(*), intent(in) :: element
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (member (equal, element, lst))) then
+         lst_out = cons (element, lst)
+      else
+         lst_out = lst
+      end if
+    end subroutine kons
+
+  end function lset_adjoin2
+
+  recursive function lset_adjoin3 (equal, lst, element1, element2, element3) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst
+    class(*), intent(in) :: element1
+    class(*), intent(in) :: element2
+    class(*), intent(in) :: element3
+    type(cons_t) :: lst_out
+
+    lst_out = fold (kons, lst, list (element1, element2, element3))
+
+  contains
+
+    recursive subroutine kons (element, lst, lst_out)
+      class(*), intent(in) :: element
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (member (equal, element, lst))) then
+         lst_out = cons (element, lst)
+      else
+         lst_out = lst
+      end if
+    end subroutine kons
+
+  end function lset_adjoin3
+
+  recursive function lset_adjoin4 (equal, lst, element1, element2, element3, element4) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst
+    class(*), intent(in) :: element1
+    class(*), intent(in) :: element2
+    class(*), intent(in) :: element3
+    class(*), intent(in) :: element4
+    type(cons_t) :: lst_out
+
+    lst_out = fold (kons, lst, list (element1, element2, element3, element4))
+
+  contains
+
+    recursive subroutine kons (element, lst, lst_out)
+      class(*), intent(in) :: element
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (member (equal, element, lst))) then
+         lst_out = cons (element, lst)
+      else
+         lst_out = lst
+      end if
+    end subroutine kons
+
+  end function lset_adjoin4
+
+  recursive function lset_adjoin5 (equal, lst, element1, element2, element3, element4, &
+       &                            element5) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst
+    class(*), intent(in) :: element1
+    class(*), intent(in) :: element2
+    class(*), intent(in) :: element3
+    class(*), intent(in) :: element4
+    class(*), intent(in) :: element5
+    type(cons_t) :: lst_out
+
+    lst_out = fold (kons, lst, list (element1, element2, element3, element4, &
+         &                           element5))
+
+  contains
+
+    recursive subroutine kons (element, lst, lst_out)
+      class(*), intent(in) :: element
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (member (equal, element, lst))) then
+         lst_out = cons (element, lst)
+      else
+         lst_out = lst
+      end if
+    end subroutine kons
+
+  end function lset_adjoin5
+
+  recursive function lset_adjoin6 (equal, lst, element1, element2, element3, element4, &
+       &                            element5, element6) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst
+    class(*), intent(in) :: element1
+    class(*), intent(in) :: element2
+    class(*), intent(in) :: element3
+    class(*), intent(in) :: element4
+    class(*), intent(in) :: element5
+    class(*), intent(in) :: element6
+    type(cons_t) :: lst_out
+
+    lst_out = fold (kons, lst, list (element1, element2, element3, element4, &
+         &                           element5, element6))
+
+  contains
+
+    recursive subroutine kons (element, lst, lst_out)
+      class(*), intent(in) :: element
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (member (equal, element, lst))) then
+         lst_out = cons (element, lst)
+      else
+         lst_out = lst
+      end if
+    end subroutine kons
+
+  end function lset_adjoin6
+
+  recursive function lset_adjoin7 (equal, lst, element1, element2, element3, element4, &
+       &                            element5, element6, element7) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst
+    class(*), intent(in) :: element1
+    class(*), intent(in) :: element2
+    class(*), intent(in) :: element3
+    class(*), intent(in) :: element4
+    class(*), intent(in) :: element5
+    class(*), intent(in) :: element6
+    class(*), intent(in) :: element7
+    type(cons_t) :: lst_out
+
+    lst_out = fold (kons, lst, list (element1, element2, element3, element4, &
+         &                           element5, element6, element7))
+
+  contains
+
+    recursive subroutine kons (element, lst, lst_out)
+      class(*), intent(in) :: element
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (member (equal, element, lst))) then
+         lst_out = cons (element, lst)
+      else
+         lst_out = lst
+      end if
+    end subroutine kons
+
+  end function lset_adjoin7
+
+  recursive function lset_adjoin8 (equal, lst, element1, element2, element3, element4, &
+       &                            element5, element6, element7, element8) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst
+    class(*), intent(in) :: element1
+    class(*), intent(in) :: element2
+    class(*), intent(in) :: element3
+    class(*), intent(in) :: element4
+    class(*), intent(in) :: element5
+    class(*), intent(in) :: element6
+    class(*), intent(in) :: element7
+    class(*), intent(in) :: element8
+    type(cons_t) :: lst_out
+
+    lst_out = fold (kons, lst, list (element1, element2, element3, element4, &
+         &                           element5, element6, element7, element8))
+
+  contains
+
+    recursive subroutine kons (element, lst, lst_out)
+      class(*), intent(in) :: element
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (member (equal, element, lst))) then
+         lst_out = cons (element, lst)
+      else
+         lst_out = lst
+      end if
+    end subroutine kons
+
+  end function lset_adjoin8
+
+  recursive function lset_adjoin9 (equal, lst, element1, element2, element3, element4, &
+       &                            element5, element6, element7, element8, &
+       &                            element9) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst
+    class(*), intent(in) :: element1
+    class(*), intent(in) :: element2
+    class(*), intent(in) :: element3
+    class(*), intent(in) :: element4
+    class(*), intent(in) :: element5
+    class(*), intent(in) :: element6
+    class(*), intent(in) :: element7
+    class(*), intent(in) :: element8
+    class(*), intent(in) :: element9
+    type(cons_t) :: lst_out
+
+    lst_out = fold (kons, lst, list (element1, element2, element3, element4, &
+         &                           element5, element6, element7, element8, &
+         &                           element9))
+
+  contains
+
+    recursive subroutine kons (element, lst, lst_out)
+      class(*), intent(in) :: element
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (member (equal, element, lst))) then
+         lst_out = cons (element, lst)
+      else
+         lst_out = lst
+      end if
+    end subroutine kons
+
+  end function lset_adjoin9
+
+  recursive function lset_adjoin10 (equal, lst, element1, element2, element3, element4, &
+       &                            element5, element6, element7, element8, &
+       &                            element9, element10) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst
+    class(*), intent(in) :: element1
+    class(*), intent(in) :: element2
+    class(*), intent(in) :: element3
+    class(*), intent(in) :: element4
+    class(*), intent(in) :: element5
+    class(*), intent(in) :: element6
+    class(*), intent(in) :: element7
+    class(*), intent(in) :: element8
+    class(*), intent(in) :: element9
+    class(*), intent(in) :: element10
+    type(cons_t) :: lst_out
+
+    lst_out = fold (kons, lst, list (element1, element2, element3, element4, &
+         &                           element5, element6, element7, element8, &
+         &                           element9, element10))
+
+  contains
+
+    recursive subroutine kons (element, lst, lst_out)
+      class(*), intent(in) :: element
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_nil (member (equal, element, lst))) then
+         lst_out = cons (element, lst)
+      else
+         lst_out = lst
+      end if
+    end subroutine kons
+
+  end function lset_adjoin10
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

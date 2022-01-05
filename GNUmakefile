@@ -128,7 +128,7 @@ test__boxes: $(addsuffix .$(OBJEXT), test__boxes boxes garbage_collector)
 test__cons_pairs: $(addsuffix .$(OBJEXT), test__cons_pairs cons_pairs garbage_collector)
 	$(COMPILE.f90) $(^) -o $(@)
 
-test__lsets: $(addsuffix .$(OBJEXT), test__lsets lsets garbage_collector)
+test__lsets: $(addsuffix .$(OBJEXT), test__lsets lsets cons_pairs garbage_collector)
 	$(COMPILE.f90) $(^) -o $(@)
 
 lsets.anchor: lsets.f90

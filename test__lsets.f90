@@ -165,6 +165,19 @@ contains
     bool = int_cast (obj1) == int_cast (obj2)
   end function int_eq
 
+  function int_eq_gc (obj1, obj2) result (bool)
+    class(*), intent(in) :: obj1, obj2
+    logical :: bool
+    call collect_garbage_now
+    bool = int_eq (obj1, obj2)
+  end function int_eq_gc
+
+  function int_lt (obj1, obj2) result (bool)
+    class(*), intent(in) :: obj1, obj2
+    logical :: bool
+    bool = int_cast (obj1) < int_cast (obj2)
+  end function int_lt
+
   function size_kind_eq (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1, obj2
     logical :: bool
@@ -198,9 +211,26 @@ contains
     end select
   end function num_same
 
+  subroutine test0010
+    type(cons_t) :: lst
+
+    call check (list_equal (int_eq, lset_adjoin (int_eq_gc, nil), nil), "test0010-0010 failed")
+    call check (list_equal (int_eq, lset_adjoin (int_eq_gc, list (123)), list (123)), "test0010-0020 failed")
+    call check (list_equal (int_eq, lset_adjoin (int_eq_gc, nil, 123), list (123)), "test0010-0030 failed")
+    call check (list_equal (int_eq, lset_adjoin (int_eq_gc, list (123), 123), list (123)), "test0010-0040 failed")
+    call check (list_equal (int_eq, lset_adjoin (int_eq_gc, list (1, 2), 3), list (3, 1, 2)), "test0010-0050 failed")
+
+    lst = lset_adjoin (int_eq_gc, nil, 1, 2, 3, 4, 5, 6, 7, 8)
+    call check (list_equal (int_eq, list_sort (int_lt, lst), iota (8, 1)), "test0010-0060 failed")
+
+    lst = lset_adjoin (int_eq_gc, iota (4, 1), 8, 7, 3, 3, 2, 1, 3, 5, 6, 6)
+    call check (list_equal (int_eq, list_sort (int_lt, lst), iota (8, 1)), "test0010-0070 failed")
+  end subroutine test0010
+
   subroutine run_tests
     heap_size_limit = 0
 
+    call test0010
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
