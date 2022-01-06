@@ -53,6 +53,8 @@ module lsets
   public :: lset_union          ! Return the union of sets.
   public :: lset_unionx         ! Union that can alter its inputs.
   public :: lset_intersection   ! Return the intersection of sets.
+  public :: lset_intersectionx  ! Intersection that can alter its
+                                ! inputs.
 
   ! Implementations of lset_adjoin.
 m4_forloop([n],[0],LISTN_MAX,[dnl
@@ -72,6 +74,11 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   ! Implementations of lset_intersection.
 m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: lset_intersection[]n
+])dnl
+
+  ! Implementations of lset_intersectionx.
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  public :: lset_intersectionx[]n
 ])dnl
 
   ! A private synonym for `size_kind'.
@@ -100,6 +107,12 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
      module procedure lset_intersection[]n
 ])dnl
   end interface lset_intersection
+
+  interface lset_intersectionx
+m4_forloop([n],[1],LISTN_MAX,[dnl
+     module procedure lset_intersectionx[]n
+])dnl
+  end interface lset_intersectionx
 
 contains
 
@@ -260,16 +273,8 @@ m4_forloop([k],[1],n,[dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function lset_intersection1 (equal, lst1) result (lst_out)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    type(cons_t) :: lst_out
-
-    lst_out = lst1
-  end function lset_intersection1
-
-m4_forloop([n],[2],LISTN_MAX,[dnl
-  recursive function lset_intersection[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+m4_define([m4_lset_intersection],[dnl
+  recursive function $1[]$2 (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
        &                                  ])lst[]k])) result (lst_out)
     procedure(list_predicate2_t) :: equal
 m4_forloop([k],[1],n,[dnl
@@ -287,7 +292,7 @@ m4_forloop([k],[1],n,[dnl
        ! The intersection of a set with a null set is a null set.
        lst_out = nil
     else
-       lst_out = filter (is_in_every_list, lst1)
+       lst_out = $3 (is_in_every_list, lst1)
     end if
 
   contains
@@ -307,9 +312,31 @@ m4_forloop([k],[1],n,[dnl
       bool = is_not_nil (member (equal, x, lst))
     end function x_is_in
 
-  end function lset_intersection[]n
+  end function $1[]n
 
 ])dnl
+dnl
+  recursive function lset_intersection1 (equal, lst1) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    type(cons_t) :: lst_out
+
+    lst_out = lst1
+  end function lset_intersection1
+
+m4_forloop([n],[2],LISTN_MAX,[m4_lset_intersection([lset_intersection],n,[filter])])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lset_intersectionx1 (equal, lst1) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    type(cons_t) :: lst_out
+
+    lst_out = lst1
+  end function lset_intersectionx1
+
+m4_forloop([n],[2],LISTN_MAX,[m4_lset_intersection([lset_intersectionx],n,[filterx])])dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
