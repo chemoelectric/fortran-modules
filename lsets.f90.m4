@@ -32,6 +32,20 @@ dnl size with the -B option.
 dnl
 dnl
 
+!!!!!! FIXME
+!!!!!! FIXME
+!!!!!! FIXME
+!!!!!! FIXME
+!!!!!! FIXME
+!!!!!! FIXME: I am repeating A LOT OF code that actually can be shared
+!!!!!! FIXME:    by implementations for different numbers of elements.
+!!!!!! FIXME
+!!!!!! FIXME
+!!!!!! FIXME
+!!!!!! FIXME
+!!!!!! FIXME
+!!!!!! FIXME
+
 module lsets
   !
   ! Lsets (sets implemented as CONS-pair lists) in the fashion of
@@ -58,6 +72,8 @@ module lsets
   public :: lset_difference     ! Return the difference of sets.
   public :: lset_differencex    ! Difference that can alter its
                                 ! inputs.
+  public :: lset_xor            ! Return the exclusive OR of sets.
+  !public :: lset_xorx           ! XOR that can alter its inputs.
 
   ! lset_diff_and_intersection and lset_diff_and_intersectionx return
   ! the equivalent of
@@ -106,6 +122,16 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
 m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: lset_differencex[]n
 ])dnl
+
+  ! Implementations of lset_xor.
+m4_forloop([n],[0],LISTN_MAX,[dnl
+  public :: lset_xor[]n
+])dnl
+
+!!$  ! Implementations of lset_xorx.
+!!$m4_forloop([n],[1],LISTN_MAX,[dnl
+!!$  public :: lset_xorx[]n
+!!$])dnl
 
   ! Implementations of lset_diff_and_intersection.
 m4_forloop([n],[1],LISTN_MAX,[dnl
@@ -158,6 +184,18 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
      module procedure lset_differencex[]n
 ])dnl
   end interface lset_differencex
+
+  interface lset_xor
+m4_forloop([n],[0],LISTN_MAX,[dnl
+     module procedure lset_xor[]n
+])dnl
+  end interface lset_xor
+
+!!$  interface lset_xorx
+!!$m4_forloop([n],[1],LISTN_MAX,[dnl
+!!$     module procedure lset_xorx[]n
+!!$])dnl
+!!$  end interface lset_xorx
 
   interface lset_diff_and_intersection
 m4_forloop([n],[1],LISTN_MAX,[dnl
@@ -369,7 +407,7 @@ m4_forloop([k],[1],n,[dnl
       bool = is_not_nil (member (equal, x, lst))
     end function x_is_in
 
-  end function $1[]n
+  end function $1[]$2
 
 ])dnl
 dnl
@@ -436,7 +474,7 @@ m4_forloop([k],[1],n,[dnl
       bool = is_nil (member (equal, x, lst))
     end function x_is_not_in
 
-  end function $1[]n
+  end function $1[]$2
 
 ])dnl
 dnl
@@ -503,7 +541,7 @@ m4_forloop([k],[1],n,[dnl
       bool = is_not_nil (member (equal, x, lst))
     end function x_is_in
 
-  end function $1[]n
+  end function $1[]$2
 
 ])dnl
 dnl
@@ -529,6 +567,71 @@ dnl
 
 m4_forloop([n],[2],LISTN_MAX,[m4_lset_diff_and_intersection([lset_diff_and_intersectionx],n,[partitionx])])dnl
 dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lset_xor0 (equal) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    type(cons_t) :: lst_out
+
+    lst_out = nil
+  end function lset_xor0
+
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  recursive function lset_xor[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                         ])lst[]k])) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
+                              ! procedures.
+
+    lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &       ])lst[]k]))
+    lst_out = reduce (xor, nil, lists)
+
+  contains
+
+    recursive subroutine xor (a, b, a_xor_b)
+      class(*), intent(in) :: a
+      class(*), intent(in) :: b
+      class(*), allocatable, intent(out) :: a_xor_b
+
+      type(cons_t) :: diff_and_xsect
+      type(cons_t) :: a_minus_b
+
+      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
+      a_minus_b = first (diff_and_xsect)
+      if (is_nil (a_minus_b)) then
+         a_xor_b = lset_difference (equal, b, a)
+      else
+         a_xsect_b = second (diff_and_xsect)
+         if (is_nil (a_xsect_b)) then
+            a_xor_b = append (b, a)
+         else
+            a_xor_b = fold (kons, a_minus_b, b)
+         end if
+      end if
+    end subroutine xor
+
+    recursive subroutine kons (x, lst, lst_out)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_not_nil (member (equal, x, a_xsect_b))) then
+         lst_out = lst
+      else
+         lst_out = cons (x, lst)
+      end if
+    end subroutine kons
+
+  end function lset_xor[]n
+
+])dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module lsets
