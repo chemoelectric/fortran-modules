@@ -424,6 +424,54 @@ contains
     call check (list_equal (int_eq, list_sort (int_lt, lst3), iota (150, 1)), "test0030-0080 failed")
   end subroutine test0030
 
+  subroutine test0035
+    type(cons_t) :: lst1, lst2, lst3, lst4
+
+    ! An example from SRFI-1.
+    lst1 = list (str_t ('a'), str_t ('b'), str_t ('c'), str_t ('d'), str_t ('e'))
+    lst2 = list (str_t ('a'), str_t ('e'), str_t ('i'), str_t ('o'), str_t ('u'))
+    lst3 = apply_lset_unionx (str_t_eq_gc, list (lst1, lst2))
+    lst4 = list (str_t ('u'), str_t ('o'), str_t ('i'), str_t ('a'), str_t ('b'), str_t ('c'), str_t ('d'), str_t ('e'))
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, lst3), list_sort (str_t_lt, lst4)), "test0035-0010 failed")
+
+    ! An example from SRFI-1. Repeated elements in the first list are
+    ! preserved.
+    lst1 = list (str_t ('a'), str_t ('a'), str_t ('c'))
+    lst2 = list (str_t ('x'), str_t ('a'), str_t ('x'))
+    lst3 = apply_lset_unionx (str_t_eq_gc, list (lst1, lst2))
+    lst4 = list (str_t ('x'), str_t ('a'), str_t ('a'), str_t ('c'))
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, lst3), list_sort (str_t_lt, lst4)), "test0035-0020 failed")
+
+    ! No lists given.
+    call check (is_nil (apply_lset_unionx (str_t_eq_gc, nil)), "test0035-0030 failed")
+
+    ! One list given.
+    call check (list_equal (int_eq, apply_lset_unionx (str_t_eq_gc, list (list (1, 2, 3))), list (1, 2, 3)), &
+         "test0035-0030 failed")
+
+    ! One list is nil.
+    call check (list_equal (int_eq, apply_lset_unionx (str_t_eq_gc, list (list (1, 2, 3), nil)), list (1, 2, 3)), &
+         "test0035-0040 failed")
+    call check (list_equal (int_eq, apply_lset_unionx (str_t_eq_gc, list (nil, list (1, 2, 3))), list (1, 2, 3)), &
+         "test0035-0050 failed")
+
+    ! If two lists are the same, for efficiency their union should be
+    ! the same.
+    lst1 = iota (100, 1)
+    lst3 = apply_lset_unionx (str_t_eq_gc, list (lst1, lst1))
+    call check (cons_t_eq (lst1, lst3), "test0035-0060 failed")
+
+    ! If more than two lists are the same, for efficiency their union
+    ! should be the same.
+    lst1 = iota (100, 1)
+    lst3 = apply_lset_unionx (str_t_eq_gc, list (lst1, lst1, lst1, lst1, lst1))
+    call check (cons_t_eq (lst1, lst3), "test0035-0070 failed")
+
+    ! Try multiple lists.
+    lst3 = apply_lset_unionx (int_eq_gc, list (nil, nil, iota (100, 1), iota (50, 1), nil, iota (100, 51, 1), nil, nil))
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), iota (150, 1)), "test0035-0080 failed")
+  end subroutine test0035
+
   subroutine test0040
     type(cons_t) :: lst1, lst2, lst3, lst4
     type(gcroot_t) :: lst1_copy, lst2_copy
@@ -1008,6 +1056,7 @@ contains
     call test0020
     call test0025
     call test0030
+    call test0035
     call test0040
     call test0050
     call test0060

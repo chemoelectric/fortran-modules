@@ -75,6 +75,7 @@ module lsets
   !    (apply lset-union equal list-of-lists))
   !
   public :: apply_lset_union    ! Return the union of the sets.
+  public :: apply_lset_unionx   ! Union that can alter its inputs.
   public :: apply_lset_xor      ! Return the exclusive OR of the sets.
 
   ! Generic functions, taking their arguments as the sets to operate
@@ -351,8 +352,21 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_unionx, nil, list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
-         &            ])lst[]k])))
+    type(cons_t) :: lists
+
+    lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &        ])lst[]k]))
+    lst_out = apply_lset_unionx (equal, lists)
+  end function lset_unionx[]n
+
+])dnl
+dnl
+  recursive function apply_lset_unionx (equal, lists) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    type(cons_t) :: lst_out
+
+    lst_out = reduce (make_unionx, nil, lists)
 
   contains
 
@@ -388,10 +402,8 @@ m4_forloop([k],[1],n,[dnl
       end if
     end subroutine kons
 
-  end function lset_unionx[]n
+  end function apply_lset_unionx
 
-])dnl
-dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 m4_define([m4_lset_intersection],[dnl
@@ -407,7 +419,7 @@ m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: x ! x is used by the nested procedures.
 
     lists = list (lst2[]m4_forloop([k],[3],n,[, m4_if(m4_eval(k % 4),[1],[&
-         &       ])lst[]k]))
+         &        ])lst[]k]))
     lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
     if (some (is_nil_list, lists)) then
        ! The intersection of a set with a null set is a null set.
@@ -474,7 +486,7 @@ m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: x ! x is used by the nested procedures.
 
     lists = list (lst2[]m4_forloop([k],[3],n,[, m4_if(m4_eval(k % 4),[1],[&
-         &       ])lst[]k]))
+         &        ])lst[]k]))
     lists = remove (is_not_pair, lists) ! Ignore null sets.
     if (is_not_nil (member (cons_t_eq, lst1, lists))) then
        ! The difference of a set and itself is a null set.
@@ -541,7 +553,7 @@ m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: x ! x is used by the nested procedures.
 
     lists = list (lst2[]m4_forloop([k],[3],n,[, m4_if(m4_eval(k % 4),[1],[&
-         &       ])lst[]k]))
+         &        ])lst[]k]))
     if (is_not_nil (member (cons_t_eq, lst1, lists))) then
        ! Difference and intersection of a set with a set containing
        ! it.
@@ -614,7 +626,7 @@ m4_forloop([k],[1],n,[dnl
     type(cons_t) :: lists
 
     lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
-         &       ])lst[]k]))
+         &        ])lst[]k]))
     lst_out = apply_lset_xor (equal, lists)
   end function lset_xor[]n
 
