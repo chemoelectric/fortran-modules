@@ -55,6 +55,9 @@ module lsets
   public :: lset_intersection   ! Return the intersection of sets.
   public :: lset_intersectionx  ! Intersection that can alter its
                                 ! inputs.
+  public :: lset_difference     ! Return the difference of sets.
+  public :: lset_differencex    ! Difference that can alter its
+                                ! inputs.
 
   ! Implementations of lset_adjoin.
 m4_forloop([n],[0],LISTN_MAX,[dnl
@@ -81,8 +84,15 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: lset_intersectionx[]n
 ])dnl
 
-  ! A private synonym for `size_kind'.
-  integer, parameter :: sz = size_kind
+  ! Implementations of lset_difference.
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  public :: lset_difference[]n
+])dnl
+
+  ! Implementations of lset_differencex.
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  public :: lset_differencex[]n
+])dnl
 
   interface lset_adjoin
 m4_forloop([n],[0],LISTN_MAX,[dnl
@@ -113,6 +123,18 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
      module procedure lset_intersectionx[]n
 ])dnl
   end interface lset_intersectionx
+
+  interface lset_difference
+m4_forloop([n],[1],LISTN_MAX,[dnl
+     module procedure lset_difference[]n
+])dnl
+  end interface lset_difference
+
+  interface lset_differencex
+m4_forloop([n],[1],LISTN_MAX,[dnl
+     module procedure lset_differencex[]n
+])dnl
+  end interface lset_differencex
 
 contains
 
@@ -337,6 +359,73 @@ dnl
   end function lset_intersectionx1
 
 m4_forloop([n],[2],LISTN_MAX,[m4_lset_intersection([lset_intersectionx],n,[filterx])])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+m4_define([m4_lset_difference],[dnl
+  recursive function $1[]$2 (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                                  ])lst[]k])) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2[]m4_forloop([k],[3],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &       ])lst[]k]))
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = $3 (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function $1[]n
+
+])dnl
+dnl
+  recursive function lset_difference1 (equal, lst1) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    type(cons_t) :: lst_out
+
+    lst_out = lst1
+  end function lset_difference1
+
+m4_forloop([n],[2],LISTN_MAX,[m4_lset_difference([lset_difference],n,[filter])])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lset_differencex1 (equal, lst1) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    type(cons_t) :: lst_out
+
+    lst_out = lst1
+  end function lset_differencex1
+
+m4_forloop([n],[2],LISTN_MAX,[m4_lset_difference([lset_differencex],n,[filterx])])dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

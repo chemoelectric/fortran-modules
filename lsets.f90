@@ -45,6 +45,9 @@ module lsets
   public :: lset_intersection   ! Return the intersection of sets.
   public :: lset_intersectionx  ! Intersection that can alter its
                                 ! inputs.
+  public :: lset_difference     ! Return the difference of sets.
+  public :: lset_differencex    ! Difference that can alter its
+                                ! inputs.
 
   ! Implementations of lset_adjoin.
   public :: lset_adjoin0
@@ -159,8 +162,49 @@ module lsets
   public :: lset_intersectionx19
   public :: lset_intersectionx20
 
-  ! A private synonym for `size_kind'.
-  integer, parameter :: sz = size_kind
+  ! Implementations of lset_difference.
+  public :: lset_difference1
+  public :: lset_difference2
+  public :: lset_difference3
+  public :: lset_difference4
+  public :: lset_difference5
+  public :: lset_difference6
+  public :: lset_difference7
+  public :: lset_difference8
+  public :: lset_difference9
+  public :: lset_difference10
+  public :: lset_difference11
+  public :: lset_difference12
+  public :: lset_difference13
+  public :: lset_difference14
+  public :: lset_difference15
+  public :: lset_difference16
+  public :: lset_difference17
+  public :: lset_difference18
+  public :: lset_difference19
+  public :: lset_difference20
+
+  ! Implementations of lset_differencex.
+  public :: lset_differencex1
+  public :: lset_differencex2
+  public :: lset_differencex3
+  public :: lset_differencex4
+  public :: lset_differencex5
+  public :: lset_differencex6
+  public :: lset_differencex7
+  public :: lset_differencex8
+  public :: lset_differencex9
+  public :: lset_differencex10
+  public :: lset_differencex11
+  public :: lset_differencex12
+  public :: lset_differencex13
+  public :: lset_differencex14
+  public :: lset_differencex15
+  public :: lset_differencex16
+  public :: lset_differencex17
+  public :: lset_differencex18
+  public :: lset_differencex19
+  public :: lset_differencex20
 
   interface lset_adjoin
      module procedure lset_adjoin0
@@ -279,6 +323,52 @@ module lsets
      module procedure lset_intersectionx19
      module procedure lset_intersectionx20
   end interface lset_intersectionx
+
+  interface lset_difference
+     module procedure lset_difference1
+     module procedure lset_difference2
+     module procedure lset_difference3
+     module procedure lset_difference4
+     module procedure lset_difference5
+     module procedure lset_difference6
+     module procedure lset_difference7
+     module procedure lset_difference8
+     module procedure lset_difference9
+     module procedure lset_difference10
+     module procedure lset_difference11
+     module procedure lset_difference12
+     module procedure lset_difference13
+     module procedure lset_difference14
+     module procedure lset_difference15
+     module procedure lset_difference16
+     module procedure lset_difference17
+     module procedure lset_difference18
+     module procedure lset_difference19
+     module procedure lset_difference20
+  end interface lset_difference
+
+  interface lset_differencex
+     module procedure lset_differencex1
+     module procedure lset_differencex2
+     module procedure lset_differencex3
+     module procedure lset_differencex4
+     module procedure lset_differencex5
+     module procedure lset_differencex6
+     module procedure lset_differencex7
+     module procedure lset_differencex8
+     module procedure lset_differencex9
+     module procedure lset_differencex10
+     module procedure lset_differencex11
+     module procedure lset_differencex12
+     module procedure lset_differencex13
+     module procedure lset_differencex14
+     module procedure lset_differencex15
+     module procedure lset_differencex16
+     module procedure lset_differencex17
+     module procedure lset_differencex18
+     module procedure lset_differencex19
+     module procedure lset_differencex20
+  end interface lset_differencex
 
 contains
 
@@ -5167,6 +5257,1934 @@ contains
     end function x_is_in
 
   end function lset_intersectionx20
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lset_difference1 (equal, lst1) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    type(cons_t) :: lst_out
+
+    lst_out = lst1
+  end function lset_difference1
+
+  recursive function lset_difference2 (equal, lst1, lst2) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference2
+
+  recursive function lset_difference3 (equal, lst1, lst2, lst3) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference3
+
+  recursive function lset_difference4 (equal, lst1, lst2, lst3, lst4) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference4
+
+  recursive function lset_difference5 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference5
+
+  recursive function lset_difference6 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference6
+
+  recursive function lset_difference7 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference7
+
+  recursive function lset_difference8 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference8
+
+  recursive function lset_difference9 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference9
+
+  recursive function lset_difference10 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference10
+
+  recursive function lset_difference11 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference11
+
+  recursive function lset_difference12 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference12
+
+  recursive function lset_difference13 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference13
+
+  recursive function lset_difference14 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference14
+
+  recursive function lset_difference15 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference15
+
+  recursive function lset_difference16 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference16
+
+  recursive function lset_difference17 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16, &
+       &                                  lst17) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference17
+
+  recursive function lset_difference18 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16, &
+       &                                  lst17, lst18) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17, lst18)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference18
+
+  recursive function lset_difference19 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16, &
+       &                                  lst17, lst18, lst19) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    class(*), intent(in) :: lst19
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17, lst18, lst19)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference19
+
+  recursive function lset_difference20 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16, &
+       &                                  lst17, lst18, lst19, lst20) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    class(*), intent(in) :: lst19
+    class(*), intent(in) :: lst20
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17, lst18, lst19, lst20)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_difference20
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lset_differencex1 (equal, lst1) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    type(cons_t) :: lst_out
+
+    lst_out = lst1
+  end function lset_differencex1
+
+  recursive function lset_differencex2 (equal, lst1, lst2) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex2
+
+  recursive function lset_differencex3 (equal, lst1, lst2, lst3) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex3
+
+  recursive function lset_differencex4 (equal, lst1, lst2, lst3, lst4) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex4
+
+  recursive function lset_differencex5 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex5
+
+  recursive function lset_differencex6 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex6
+
+  recursive function lset_differencex7 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex7
+
+  recursive function lset_differencex8 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex8
+
+  recursive function lset_differencex9 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex9
+
+  recursive function lset_differencex10 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex10
+
+  recursive function lset_differencex11 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex11
+
+  recursive function lset_differencex12 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex12
+
+  recursive function lset_differencex13 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex13
+
+  recursive function lset_differencex14 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex14
+
+  recursive function lset_differencex15 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex15
+
+  recursive function lset_differencex16 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex16
+
+  recursive function lset_differencex17 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16, &
+       &                                  lst17) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex17
+
+  recursive function lset_differencex18 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16, &
+       &                                  lst17, lst18) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17, lst18)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex18
+
+  recursive function lset_differencex19 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16, &
+       &                                  lst17, lst18, lst19) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    class(*), intent(in) :: lst19
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17, lst18, lst19)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex19
+
+  recursive function lset_differencex20 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16, &
+       &                                  lst17, lst18, lst19, lst20) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    class(*), intent(in) :: lst19
+    class(*), intent(in) :: lst20
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17, lst18, lst19, lst20)
+    lists = remove (is_not_pair, lists) ! Ignore null sets.
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = filterx (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, lists)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function lset_differencex20
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

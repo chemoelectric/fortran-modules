@@ -458,6 +458,83 @@ contains
     call check (list_equal (int_eq, list_sort (int_lt, lst3), iota (25, 51)), "test0050-0080 failed")
   end subroutine test0050
 
+  subroutine test0060
+    type(cons_t) :: lst1, lst2, lst3, lst4
+    type(gcroot_t) :: lst1_copy, lst2_copy
+
+    ! An example from SRFI-1.
+    lst1 = list (str_t ('a'), str_t ('b'), str_t ('c'), str_t ('d'), str_t ('e'))
+    lst2 = list (str_t ('a'), str_t ('e'), str_t ('i'), str_t ('o'), str_t ('u'))
+    lst1_copy = list_copy (lst1)
+    lst2_copy = list_copy (lst2)
+    lst3 = lset_difference (str_t_eq_gc, lst1, lst2)
+    call check (list_equal (str_t_eq, lst1, lst1_copy), "test0060-00010 failed")
+    call check (list_equal (str_t_eq, lst2, lst2_copy), "test0060-00020 failed")
+    lst4 = list (str_t ('b'), str_t ('c'), str_t ('d'))
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, lst3), list_sort (str_t_lt, lst4)), "test0060-0030 failed")
+
+    ! The difference of two equal sets is a null set.
+    lst1 = iota (100, 1)
+    lst2 = iota (100, 1)
+    lst1_copy = list_copy (lst1)
+    lst2_copy = list_copy (lst2)
+    lst3 = lset_difference (int_eq_gc, lst1, lst2)
+    call check (list_equal (int_eq, lst1, lst1_copy), "test0060-0040 failed")
+    call check (list_equal (int_eq, lst2, lst2_copy), "test0060-0050 failed")
+    lst4 = nil
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), list_sort (int_lt, lst4)), "test0060-0060 failed")
+
+    ! The difference of a set and itself is a null set.
+    lst1 = iota (100, 1)
+    lst1_copy = list_copy (lst1)
+    lst3 = lset_difference (int_eq_gc, lst1, lst1)
+    call check (list_equal (int_eq, lst1, lst1_copy), "test0060-0070 failed")
+    lst4 = nil
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), list_sort (int_lt, lst4)), "test0060-0080 failed")
+
+    ! Try multiple lists.
+    lst3 = lset_difference (int_eq_gc, iota (100, 1), iota (20, 1), iota (50, 1, 2))
+    call check (list_equal (int_eq, lst3, iota (40, 22, 2)), "test0060-0090 failed")
+
+    ! Try one list.
+    call check (list_equal (int_eq, lset_difference (int_eq_gc, nil), nil), "test0060-0100 failed")
+    call check (list_equal (int_eq, lset_difference (int_eq_gc, list (123)), list (123)), "test0060-0110 failed")
+    call check (list_equal (int_eq, lset_difference (int_eq_gc, list (1, 2, 3)), list (1, 2, 3)), "test0060-0120 failed")
+  end subroutine test0060
+
+  subroutine test0070
+    type(cons_t) :: lst1, lst2, lst3, lst4
+
+    ! An example from SRFI-1.
+    lst1 = list (str_t ('a'), str_t ('b'), str_t ('c'), str_t ('d'), str_t ('e'))
+    lst2 = list (str_t ('a'), str_t ('e'), str_t ('i'), str_t ('o'), str_t ('u'))
+    lst3 = lset_differencex (str_t_eq_gc, lst1, lst2)
+    lst4 = list (str_t ('b'), str_t ('c'), str_t ('d'))
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, lst3), list_sort (str_t_lt, lst4)), "test0070-0030 failed")
+
+    ! The difference of two equal sets is a null set.
+    lst1 = iota (100, 1)
+    lst2 = iota (100, 1)
+    lst3 = lset_differencex (int_eq_gc, lst1, lst2)
+    lst4 = nil
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), list_sort (int_lt, lst4)), "test0070-0070 failed")
+
+    ! The difference of a set and itself is a null set.
+    lst1 = iota (100, 1)
+    lst3 = lset_differencex (int_eq_gc, lst1, lst1)
+    lst4 = nil
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), list_sort (int_lt, lst4)), "test0070-0080 failed")
+
+    ! Try multiple lists.
+    lst3 = lset_differencex (int_eq_gc, iota (100, 1), iota (20, 1), iota (50, 1, 2))
+    call check (list_equal (int_eq, lst3, iota (40, 22, 2)), "test0070-0090 failed")
+
+    ! Try one list.
+    call check (list_equal (int_eq, lset_differencex (int_eq_gc, nil), nil), "test0070-0100 failed")
+    call check (list_equal (int_eq, lset_differencex (int_eq_gc, list (123)), list (123)), "test0070-0110 failed")
+    call check (list_equal (int_eq, lset_differencex (int_eq_gc, list (1, 2, 3)), list (1, 2, 3)), "test0070-0120 failed")
+  end subroutine test0070
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -466,6 +543,8 @@ contains
     call test0030
     call test0040
     call test0050
+    call test0060
+    call test0070
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
