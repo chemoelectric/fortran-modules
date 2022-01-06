@@ -52,14 +52,23 @@ module lsets
   implicit none
   private
 
+  ! A generic function for adding elements to a set.
+  public :: lset_adjoin
+
   ! Functions that take a list of lists as an argument. They resemble
-  ! using Scheme's `apply' procedure.
+  ! using Scheme's `apply' procedure; for example,
+  !
+  !    apply_lset_union (equal, list_of_lists)
+  !
+  ! is a Fortran equivalent to the Scheme code
+  !
+  !    (apply lset-union equal list-of-lists))
+  !
   public :: apply_lset_union    ! Return the union of the sets.
   public :: apply_lset_xor      ! Return the exclusive OR of the sets.
 
   ! Generic functions, taking their arguments as the sets to operate
   ! upon.
-  public :: lset_adjoin         ! Add elements to a set.
   public :: lset_union          ! Return the union of sets.
   public :: lset_unionx         ! Union that can alter its inputs.
   public :: lset_intersection   ! Return the intersection of sets.
