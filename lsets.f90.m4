@@ -59,6 +59,19 @@ module lsets
   public :: lset_differencex    ! Difference that can alter its
                                 ! inputs.
 
+  ! lset_diff_and_intersection and lset_diff_and_intersectionx return
+  ! the equivalent of
+  !
+  !    list (lset_difference (equal, lst1, lst2, ...),   &
+  !          lset_intersection (equal, lst1,             &
+  !                             lset_union (equal, lst2, ...)))
+  !
+  ! But they are more efficient at it.
+  !
+  public :: lset_diff_and_intersection  ! Not allowed to alter its
+                                        ! inputs.
+  public :: lset_diff_and_intersectionx ! Allowed to alter its inputs.
+
   ! Implementations of lset_adjoin.
 m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: lset_adjoin[]n
@@ -92,6 +105,16 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
   ! Implementations of lset_differencex.
 m4_forloop([n],[1],LISTN_MAX,[dnl
   public :: lset_differencex[]n
+])dnl
+
+  ! Implementations of lset_diff_and_intersection.
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  public :: lset_diff_and_intersection[]n
+])dnl
+
+  ! Implementations of lset_diff_and_intersectionx.
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  public :: lset_diff_and_intersectionx[]n
 ])dnl
 
   interface lset_adjoin
@@ -135,6 +158,18 @@ m4_forloop([n],[1],LISTN_MAX,[dnl
      module procedure lset_differencex[]n
 ])dnl
   end interface lset_differencex
+
+  interface lset_diff_and_intersection
+m4_forloop([n],[1],LISTN_MAX,[dnl
+     module procedure lset_diff_and_intersection[]n
+])dnl
+  end interface lset_diff_and_intersection
+
+  interface lset_diff_and_intersectionx
+m4_forloop([n],[1],LISTN_MAX,[dnl
+     module procedure lset_diff_and_intersectionx[]n
+])dnl
+  end interface lset_diff_and_intersectionx
 
 contains
 
@@ -426,6 +461,73 @@ dnl
   end function lset_differencex1
 
 m4_forloop([n],[2],LISTN_MAX,[m4_lset_difference([lset_differencex],n,[filterx])])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+m4_define([m4_lset_diff_and_intersection],[dnl
+  recursive function $1[]$2 (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                                  ])lst[]k])) result (diff_and_xsect)
+    procedure(list_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: diff_and_xsect
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2[]m4_forloop([k],[3],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &       ])lst[]k]))
+    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+       ! Difference and intersection of a set with a set containing
+       ! it.
+       diff_and_xsect = list (nil, lst1)
+    else
+       diff_and_xsect = $3 (is_not_in_any_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_not_in_any_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = .not. some (x_is_in, lists)
+    end function is_not_in_any_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function $1[]n
+
+])dnl
+dnl
+  recursive function lset_diff_and_intersection1 (equal, lst1) result (diff_and_xsect)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    type(cons_t) :: diff_and_xsect
+
+    diff_and_xsect = list (lst1, nil)
+  end function lset_diff_and_intersection1
+
+m4_forloop([n],[2],LISTN_MAX,[m4_lset_diff_and_intersection([lset_diff_and_intersection],n,[partition])])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lset_diff_and_intersectionx1 (equal, lst1) result (diff_and_xsect)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    type(cons_t) :: diff_and_xsect
+
+    diff_and_xsect = list (lst1, nil)
+  end function lset_diff_and_intersectionx1
+
+m4_forloop([n],[2],LISTN_MAX,[m4_lset_diff_and_intersection([lset_diff_and_intersectionx],n,[partitionx])])dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
