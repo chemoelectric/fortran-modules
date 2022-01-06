@@ -52,7 +52,13 @@ module lsets
   implicit none
   private
 
-  ! Generic functions.
+  ! Functions that take a list of lists as an argument. They resemble
+  ! using Scheme's `apply' procedure.
+  public :: apply_lset_union    ! Return the union of the sets.
+  public :: apply_lset_xor      ! Return the exclusive OR of the sets.
+
+  ! Generic functions, taking their arguments as the sets to operate
+  ! upon.
   public :: lset_adjoin         ! Add elements to a set.
   public :: lset_union          ! Return the union of sets.
   public :: lset_unionx         ! Union that can alter its inputs.
@@ -1357,38 +1363,10 @@ contains
     class(*), intent(in) :: lst1
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union1
 
   recursive function lset_union2 (equal, lst1, lst2) result (lst_out)
@@ -1397,38 +1375,10 @@ contains
     class(*), intent(in) :: lst2
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union2
 
   recursive function lset_union3 (equal, lst1, lst2, lst3) result (lst_out)
@@ -1438,38 +1388,10 @@ contains
     class(*), intent(in) :: lst3
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union3
 
   recursive function lset_union4 (equal, lst1, lst2, lst3, lst4) result (lst_out)
@@ -1480,38 +1402,10 @@ contains
     class(*), intent(in) :: lst4
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union4
 
   recursive function lset_union5 (equal, lst1, lst2, lst3, lst4, &
@@ -1524,39 +1418,11 @@ contains
     class(*), intent(in) :: lst5
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union5
 
   recursive function lset_union6 (equal, lst1, lst2, lst3, lst4, &
@@ -1570,39 +1436,11 @@ contains
     class(*), intent(in) :: lst6
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union6
 
   recursive function lset_union7 (equal, lst1, lst2, lst3, lst4, &
@@ -1617,39 +1455,11 @@ contains
     class(*), intent(in) :: lst7
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6, lst7))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6, lst7)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union7
 
   recursive function lset_union8 (equal, lst1, lst2, lst3, lst4, &
@@ -1665,39 +1475,11 @@ contains
     class(*), intent(in) :: lst8
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6, lst7, lst8))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union8
 
   recursive function lset_union9 (equal, lst1, lst2, lst3, lst4, &
@@ -1715,40 +1497,12 @@ contains
     class(*), intent(in) :: lst9
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6, lst7, lst8, &
-         &            lst9))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union9
 
   recursive function lset_union10 (equal, lst1, lst2, lst3, lst4, &
@@ -1767,40 +1521,12 @@ contains
     class(*), intent(in) :: lst10
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6, lst7, lst8, &
-         &            lst9, lst10))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union10
 
   recursive function lset_union11 (equal, lst1, lst2, lst3, lst4, &
@@ -1820,40 +1546,12 @@ contains
     class(*), intent(in) :: lst11
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6, lst7, lst8, &
-         &            lst9, lst10, lst11))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union11
 
   recursive function lset_union12 (equal, lst1, lst2, lst3, lst4, &
@@ -1874,40 +1572,12 @@ contains
     class(*), intent(in) :: lst12
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6, lst7, lst8, &
-         &            lst9, lst10, lst11, lst12))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union12
 
   recursive function lset_union13 (equal, lst1, lst2, lst3, lst4, &
@@ -1930,41 +1600,13 @@ contains
     class(*), intent(in) :: lst13
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6, lst7, lst8, &
-         &            lst9, lst10, lst11, lst12, &
-         &            lst13))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union13
 
   recursive function lset_union14 (equal, lst1, lst2, lst3, lst4, &
@@ -1988,41 +1630,13 @@ contains
     class(*), intent(in) :: lst14
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6, lst7, lst8, &
-         &            lst9, lst10, lst11, lst12, &
-         &            lst13, lst14))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union14
 
   recursive function lset_union15 (equal, lst1, lst2, lst3, lst4, &
@@ -2047,41 +1661,13 @@ contains
     class(*), intent(in) :: lst15
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6, lst7, lst8, &
-         &            lst9, lst10, lst11, lst12, &
-         &            lst13, lst14, lst15))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union15
 
   recursive function lset_union16 (equal, lst1, lst2, lst3, lst4, &
@@ -2107,41 +1693,13 @@ contains
     class(*), intent(in) :: lst16
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6, lst7, lst8, &
-         &            lst9, lst10, lst11, lst12, &
-         &            lst13, lst14, lst15, lst16))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union16
 
   recursive function lset_union17 (equal, lst1, lst2, lst3, lst4, &
@@ -2169,42 +1727,14 @@ contains
     class(*), intent(in) :: lst17
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6, lst7, lst8, &
-         &            lst9, lst10, lst11, lst12, &
-         &            lst13, lst14, lst15, lst16, &
-         &            lst17))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union17
 
   recursive function lset_union18 (equal, lst1, lst2, lst3, lst4, &
@@ -2233,42 +1763,14 @@ contains
     class(*), intent(in) :: lst18
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6, lst7, lst8, &
-         &            lst9, lst10, lst11, lst12, &
-         &            lst13, lst14, lst15, lst16, &
-         &            lst17, lst18))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17, lst18)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union18
 
   recursive function lset_union19 (equal, lst1, lst2, lst3, lst4, &
@@ -2298,42 +1800,14 @@ contains
     class(*), intent(in) :: lst19
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6, lst7, lst8, &
-         &            lst9, lst10, lst11, lst12, &
-         &            lst13, lst14, lst15, lst16, &
-         &            lst17, lst18, lst19))
+    type(cons_t) :: lists
 
-  contains
-
-    recursive subroutine make_union (lst1, lst2, lst_out)
-      class(*), intent(in) :: lst1
-      class(*), intent(in) :: lst2
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (lst1)) then
-         lst_out = lst2
-      else if (is_nil (lst2)) then
-         lst_out = lst1
-      else if (cons_t_eq (lst1, lst2)) then
-         lst_out = lst2
-      else
-         lst_out = fold (kons, lst2, lst1)
-      end if
-    end subroutine make_union
-
-    recursive subroutine kons (element, lst, lst_out)
-      class(*), intent(in) :: element
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_nil (member (equal, element, lst))) then
-         lst_out = cons (element, lst)
-      else
-         lst_out = lst
-      end if
-    end subroutine kons
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17, lst18, lst19)
+    lst_out = apply_lset_union (equal, lists)
   end function lset_union19
 
   recursive function lset_union20 (equal, lst1, lst2, lst3, lst4, &
@@ -2364,11 +1838,22 @@ contains
     class(*), intent(in) :: lst20
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1, lst2, lst3, lst4, &
-         &            lst5, lst6, lst7, lst8, &
-         &            lst9, lst10, lst11, lst12, &
-         &            lst13, lst14, lst15, lst16, &
-         &            lst17, lst18, lst19, lst20))
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17, lst18, lst19, lst20)
+    lst_out = apply_lset_union (equal, lists)
+  end function lset_union20
+
+  recursive function apply_lset_union (equal, lists) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    type(cons_t) :: lst_out
+
+    lst_out = reduce (make_union, nil, lists)
 
   contains
 
@@ -2400,7 +1885,7 @@ contains
       end if
     end subroutine kons
 
-  end function lset_union20
+  end function apply_lset_union
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2590,7 +2075,7 @@ contains
   end function lset_unionx4
 
   recursive function lset_unionx5 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5) result (lst_out)
+       &                            lst5) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -2639,7 +2124,7 @@ contains
   end function lset_unionx5
 
   recursive function lset_unionx6 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6) result (lst_out)
+       &                            lst5, lst6) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -2689,7 +2174,7 @@ contains
   end function lset_unionx6
 
   recursive function lset_unionx7 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6, lst7) result (lst_out)
+       &                            lst5, lst6, lst7) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -2740,7 +2225,7 @@ contains
   end function lset_unionx7
 
   recursive function lset_unionx8 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6, lst7, lst8) result (lst_out)
+       &                            lst5, lst6, lst7, lst8) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -2792,8 +2277,8 @@ contains
   end function lset_unionx8
 
   recursive function lset_unionx9 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6, lst7, lst8, &
-       &                           lst9) result (lst_out)
+       &                            lst5, lst6, lst7, lst8, &
+       &                            lst9) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -2847,8 +2332,8 @@ contains
   end function lset_unionx9
 
   recursive function lset_unionx10 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6, lst7, lst8, &
-       &                           lst9, lst10) result (lst_out)
+       &                            lst5, lst6, lst7, lst8, &
+       &                            lst9, lst10) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -2903,8 +2388,8 @@ contains
   end function lset_unionx10
 
   recursive function lset_unionx11 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6, lst7, lst8, &
-       &                           lst9, lst10, lst11) result (lst_out)
+       &                            lst5, lst6, lst7, lst8, &
+       &                            lst9, lst10, lst11) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -2960,8 +2445,8 @@ contains
   end function lset_unionx11
 
   recursive function lset_unionx12 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6, lst7, lst8, &
-       &                           lst9, lst10, lst11, lst12) result (lst_out)
+       &                            lst5, lst6, lst7, lst8, &
+       &                            lst9, lst10, lst11, lst12) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -3018,9 +2503,9 @@ contains
   end function lset_unionx12
 
   recursive function lset_unionx13 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6, lst7, lst8, &
-       &                           lst9, lst10, lst11, lst12, &
-       &                           lst13) result (lst_out)
+       &                            lst5, lst6, lst7, lst8, &
+       &                            lst9, lst10, lst11, lst12, &
+       &                            lst13) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -3079,9 +2564,9 @@ contains
   end function lset_unionx13
 
   recursive function lset_unionx14 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6, lst7, lst8, &
-       &                           lst9, lst10, lst11, lst12, &
-       &                           lst13, lst14) result (lst_out)
+       &                            lst5, lst6, lst7, lst8, &
+       &                            lst9, lst10, lst11, lst12, &
+       &                            lst13, lst14) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -3141,9 +2626,9 @@ contains
   end function lset_unionx14
 
   recursive function lset_unionx15 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6, lst7, lst8, &
-       &                           lst9, lst10, lst11, lst12, &
-       &                           lst13, lst14, lst15) result (lst_out)
+       &                            lst5, lst6, lst7, lst8, &
+       &                            lst9, lst10, lst11, lst12, &
+       &                            lst13, lst14, lst15) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -3204,9 +2689,9 @@ contains
   end function lset_unionx15
 
   recursive function lset_unionx16 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6, lst7, lst8, &
-       &                           lst9, lst10, lst11, lst12, &
-       &                           lst13, lst14, lst15, lst16) result (lst_out)
+       &                            lst5, lst6, lst7, lst8, &
+       &                            lst9, lst10, lst11, lst12, &
+       &                            lst13, lst14, lst15, lst16) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -3268,10 +2753,10 @@ contains
   end function lset_unionx16
 
   recursive function lset_unionx17 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6, lst7, lst8, &
-       &                           lst9, lst10, lst11, lst12, &
-       &                           lst13, lst14, lst15, lst16, &
-       &                           lst17) result (lst_out)
+       &                            lst5, lst6, lst7, lst8, &
+       &                            lst9, lst10, lst11, lst12, &
+       &                            lst13, lst14, lst15, lst16, &
+       &                            lst17) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -3335,10 +2820,10 @@ contains
   end function lset_unionx17
 
   recursive function lset_unionx18 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6, lst7, lst8, &
-       &                           lst9, lst10, lst11, lst12, &
-       &                           lst13, lst14, lst15, lst16, &
-       &                           lst17, lst18) result (lst_out)
+       &                            lst5, lst6, lst7, lst8, &
+       &                            lst9, lst10, lst11, lst12, &
+       &                            lst13, lst14, lst15, lst16, &
+       &                            lst17, lst18) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -3403,10 +2888,10 @@ contains
   end function lset_unionx18
 
   recursive function lset_unionx19 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6, lst7, lst8, &
-       &                           lst9, lst10, lst11, lst12, &
-       &                           lst13, lst14, lst15, lst16, &
-       &                           lst17, lst18, lst19) result (lst_out)
+       &                            lst5, lst6, lst7, lst8, &
+       &                            lst9, lst10, lst11, lst12, &
+       &                            lst13, lst14, lst15, lst16, &
+       &                            lst17, lst18, lst19) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -3472,10 +2957,10 @@ contains
   end function lset_unionx19
 
   recursive function lset_unionx20 (equal, lst1, lst2, lst3, lst4, &
-       &                           lst5, lst6, lst7, lst8, &
-       &                           lst9, lst10, lst11, lst12, &
-       &                           lst13, lst14, lst15, lst16, &
-       &                           lst17, lst18, lst19, lst20) result (lst_out)
+       &                            lst5, lst6, lst7, lst8, &
+       &                            lst9, lst10, lst11, lst12, &
+       &                            lst13, lst14, lst15, lst16, &
+       &                            lst17, lst18, lst19, lst20) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -9340,48 +8825,9 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor1
 
   recursive function lset_xor2 (equal, lst1, lst2) result (lst_out)
@@ -9391,48 +8837,9 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor2
 
   recursive function lset_xor3 (equal, lst1, lst2, lst3) result (lst_out)
@@ -9443,48 +8850,9 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor3
 
   recursive function lset_xor4 (equal, lst1, lst2, lst3, lst4) result (lst_out)
@@ -9496,48 +8864,9 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor4
 
   recursive function lset_xor5 (equal, lst1, lst2, lst3, lst4, &
@@ -9551,49 +8880,10 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor5
 
   recursive function lset_xor6 (equal, lst1, lst2, lst3, lst4, &
@@ -9608,49 +8898,10 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor6
 
   recursive function lset_xor7 (equal, lst1, lst2, lst3, lst4, &
@@ -9666,49 +8917,10 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6, lst7)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor7
 
   recursive function lset_xor8 (equal, lst1, lst2, lst3, lst4, &
@@ -9725,49 +8937,10 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6, lst7, lst8)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor8
 
   recursive function lset_xor9 (equal, lst1, lst2, lst3, lst4, &
@@ -9786,50 +8959,11 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6, lst7, lst8, &
          &       lst9)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor9
 
   recursive function lset_xor10 (equal, lst1, lst2, lst3, lst4, &
@@ -9849,50 +8983,11 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6, lst7, lst8, &
          &       lst9, lst10)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor10
 
   recursive function lset_xor11 (equal, lst1, lst2, lst3, lst4, &
@@ -9913,50 +9008,11 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6, lst7, lst8, &
          &       lst9, lst10, lst11)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor11
 
   recursive function lset_xor12 (equal, lst1, lst2, lst3, lst4, &
@@ -9978,50 +9034,11 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6, lst7, lst8, &
          &       lst9, lst10, lst11, lst12)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor12
 
   recursive function lset_xor13 (equal, lst1, lst2, lst3, lst4, &
@@ -10045,51 +9062,12 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6, lst7, lst8, &
          &       lst9, lst10, lst11, lst12, &
          &       lst13)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor13
 
   recursive function lset_xor14 (equal, lst1, lst2, lst3, lst4, &
@@ -10114,51 +9092,12 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6, lst7, lst8, &
          &       lst9, lst10, lst11, lst12, &
          &       lst13, lst14)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor14
 
   recursive function lset_xor15 (equal, lst1, lst2, lst3, lst4, &
@@ -10184,51 +9123,12 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6, lst7, lst8, &
          &       lst9, lst10, lst11, lst12, &
          &       lst13, lst14, lst15)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor15
 
   recursive function lset_xor16 (equal, lst1, lst2, lst3, lst4, &
@@ -10255,51 +9155,12 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6, lst7, lst8, &
          &       lst9, lst10, lst11, lst12, &
          &       lst13, lst14, lst15, lst16)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor16
 
   recursive function lset_xor17 (equal, lst1, lst2, lst3, lst4, &
@@ -10328,52 +9189,13 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6, lst7, lst8, &
          &       lst9, lst10, lst11, lst12, &
          &       lst13, lst14, lst15, lst16, &
          &       lst17)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor17
 
   recursive function lset_xor18 (equal, lst1, lst2, lst3, lst4, &
@@ -10403,52 +9225,13 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6, lst7, lst8, &
          &       lst9, lst10, lst11, lst12, &
          &       lst13, lst14, lst15, lst16, &
          &       lst17, lst18)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor18
 
   recursive function lset_xor19 (equal, lst1, lst2, lst3, lst4, &
@@ -10479,52 +9262,13 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6, lst7, lst8, &
          &       lst9, lst10, lst11, lst12, &
          &       lst13, lst14, lst15, lst16, &
          &       lst17, lst18, lst19)
-    lst_out = reduce (xor, nil, lists)
-
-  contains
-
-    recursive subroutine xor (a, b, a_xor_b)
-      class(*), intent(in) :: a
-      class(*), intent(in) :: b
-      class(*), allocatable, intent(out) :: a_xor_b
-
-      type(cons_t) :: diff_and_xsect
-      type(cons_t) :: a_minus_b
-
-      diff_and_xsect = lset_diff_and_intersection (equal, a, b)
-      a_minus_b = first (diff_and_xsect)
-      if (is_nil (a_minus_b)) then
-         a_xor_b = lset_difference (equal, b, a)
-      else
-         a_xsect_b = second (diff_and_xsect)
-         if (is_nil (a_xsect_b)) then
-            a_xor_b = append (b, a)
-         else
-            a_xor_b = fold (kons, a_minus_b, b)
-         end if
-      end if
-    end subroutine xor
-
-    recursive subroutine kons (x, lst, lst_out)
-      class(*), intent(in) :: x
-      class(*), intent(in) :: lst
-      class(*), allocatable, intent(out) :: lst_out
-
-      if (is_not_nil (member (equal, x, a_xsect_b))) then
-         lst_out = lst
-      else
-         lst_out = cons (x, lst)
-      end if
-    end subroutine kons
-
+    lst_out = apply_lset_xor (equal, lists)
   end function lset_xor19
 
   recursive function lset_xor20 (equal, lst1, lst2, lst3, lst4, &
@@ -10556,14 +9300,24 @@ contains
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1, lst2, lst3, lst4, &
          &       lst5, lst6, lst7, lst8, &
          &       lst9, lst10, lst11, lst12, &
          &       lst13, lst14, lst15, lst16, &
          &       lst17, lst18, lst19, lst20)
+    lst_out = apply_lset_xor (equal, lists)
+  end function lset_xor20
+
+
+  recursive function apply_lset_xor (equal, lists) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
+                              ! procedures.
+
     lst_out = reduce (xor, nil, lists)
 
   contains
@@ -10602,7 +9356,7 @@ contains
       end if
     end subroutine kons
 
-  end function lset_xor20
+  end function apply_lset_xor
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

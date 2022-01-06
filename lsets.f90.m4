@@ -62,7 +62,13 @@ module lsets
   implicit none
   private
 
-  ! Generic functions.
+  ! Functions that take a list of lists as an argument. They resemble
+  ! using Scheme's `apply' procedure.
+  public :: apply_lset_union    ! Return the union of the sets.
+  public :: apply_lset_xor      ! Return the exclusive OR of the sets.
+
+  ! Generic functions, taking their arguments as the sets to operate
+  ! upon.
   public :: lset_adjoin         ! Add elements to a set.
   public :: lset_union          ! Return the union of sets.
   public :: lset_unionx         ! Union that can alter its inputs.
@@ -270,8 +276,21 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
     type(cons_t) :: lst_out
 
-    lst_out = reduce (make_union, nil, list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
-         &            ])lst[]k])))
+    type(cons_t) :: lists
+
+    lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &       ])lst[]k]))
+    lst_out = apply_lset_union (equal, lists)
+  end function lset_union[]n
+
+])dnl
+dnl
+  recursive function apply_lset_union (equal, lists) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    type(cons_t) :: lst_out
+
+    lst_out = reduce (make_union, nil, lists)
 
   contains
 
@@ -303,10 +322,8 @@ m4_forloop([k],[1],n,[dnl
       end if
     end subroutine kons
 
-  end function lset_union[]n
+  end function apply_lset_union
 
-])dnl
-dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function lset_unionx0 (equal) result (lst_out)
@@ -318,7 +335,7 @@ dnl
 
 m4_forloop([n],[1],LISTN_MAX,[dnl
   recursive function lset_unionx[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
-       &                           ])lst[]k])) result (lst_out)
+       &                            ])lst[]k])) result (lst_out)
     procedure(list_predicate2_t) :: equal
 m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: lst[]k
@@ -586,11 +603,22 @@ m4_forloop([k],[1],n,[dnl
     type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
-                              ! procedures.
 
     lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
          &       ])lst[]k]))
+    lst_out = apply_lset_xor (equal, lists)
+  end function lset_xor[]n
+
+])dnl
+
+  recursive function apply_lset_xor (equal, lists) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
+                              ! procedures.
+
     lst_out = reduce (xor, nil, lists)
 
   contains
@@ -629,9 +657,8 @@ m4_forloop([k],[1],n,[dnl
       end if
     end subroutine kons
 
-  end function lset_xor[]n
+  end function apply_lset_xor
 
-])dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module lsets
