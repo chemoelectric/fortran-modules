@@ -40,8 +40,9 @@ module lsets
 
   ! Generic functions.
   public :: lset_adjoin         ! Add elements to a set.
-  public :: lset_union          ! Return the union of two sets.
+  public :: lset_union          ! Return the union of sets.
   public :: lset_unionx         ! Union that can alter its inputs.
+  public :: lset_intersection   ! Return the intersection of sets.
 
   ! Implementations of lset_adjoin.
   public :: lset_adjoin0
@@ -111,6 +112,28 @@ module lsets
   public :: lset_unionx18
   public :: lset_unionx19
   public :: lset_unionx20
+
+  ! Implementations of lset_intersection.
+  public :: lset_intersection1
+  public :: lset_intersection2
+  public :: lset_intersection3
+  public :: lset_intersection4
+  public :: lset_intersection5
+  public :: lset_intersection6
+  public :: lset_intersection7
+  public :: lset_intersection8
+  public :: lset_intersection9
+  public :: lset_intersection10
+  public :: lset_intersection11
+  public :: lset_intersection12
+  public :: lset_intersection13
+  public :: lset_intersection14
+  public :: lset_intersection15
+  public :: lset_intersection16
+  public :: lset_intersection17
+  public :: lset_intersection18
+  public :: lset_intersection19
+  public :: lset_intersection20
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
@@ -187,25 +210,32 @@ module lsets
      module procedure lset_unionx20
   end interface lset_unionx
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!!$  interface error_abort
-!!$     module procedure error_abort_1
-!!$  end interface error_abort
+  interface lset_intersection
+     module procedure lset_intersection1
+     module procedure lset_intersection2
+     module procedure lset_intersection3
+     module procedure lset_intersection4
+     module procedure lset_intersection5
+     module procedure lset_intersection6
+     module procedure lset_intersection7
+     module procedure lset_intersection8
+     module procedure lset_intersection9
+     module procedure lset_intersection10
+     module procedure lset_intersection11
+     module procedure lset_intersection12
+     module procedure lset_intersection13
+     module procedure lset_intersection14
+     module procedure lset_intersection15
+     module procedure lset_intersection16
+     module procedure lset_intersection17
+     module procedure lset_intersection18
+     module procedure lset_intersection19
+     module procedure lset_intersection20
+  end interface lset_intersection
 
 contains
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!!$  subroutine error_abort_1 (msg)
-!!$    use iso_fortran_env, only : error_unit
-!!$    character(*), intent(in) :: msg
-!!$    write (error_unit, '()')
-!!$    write (error_unit, '("module lsets error: ", a)') msg
-!!$    error stop
-!!$  end subroutine error_abort_1
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function lset_adjoin0 (equal, lst) result (lst_out)
     procedure(list_predicate2_t) :: equal
@@ -2048,10 +2078,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2089,10 +2122,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2131,10 +2167,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2174,10 +2213,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2220,10 +2262,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2267,10 +2312,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2315,10 +2363,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2364,10 +2415,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2416,10 +2470,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2469,10 +2526,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2523,10 +2583,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2578,10 +2641,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2636,10 +2702,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2695,10 +2764,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2755,10 +2827,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2816,10 +2891,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2880,10 +2958,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -2945,10 +3026,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -3011,10 +3095,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -3078,10 +3165,13 @@ contains
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -3102,6 +3192,970 @@ contains
     end subroutine kons
 
   end function lset_unionx20
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lset_intersection1 (equal, lst1) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    type(cons_t) :: lst_out
+
+    lst_out = lst1
+  end function lset_intersection1
+
+  recursive function lset_intersection2 (equal, lst1, lst2) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection2
+
+  recursive function lset_intersection3 (equal, lst1, lst2, lst3) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection3
+
+  recursive function lset_intersection4 (equal, lst1, lst2, lst3, lst4) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection4
+
+  recursive function lset_intersection5 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection5
+
+  recursive function lset_intersection6 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection6
+
+  recursive function lset_intersection7 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection7
+
+  recursive function lset_intersection8 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection8
+
+  recursive function lset_intersection9 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection9
+
+  recursive function lset_intersection10 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection10
+
+  recursive function lset_intersection11 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection11
+
+  recursive function lset_intersection12 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection12
+
+  recursive function lset_intersection13 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection13
+
+  recursive function lset_intersection14 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection14
+
+  recursive function lset_intersection15 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection15
+
+  recursive function lset_intersection16 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection16
+
+  recursive function lset_intersection17 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16, &
+       &                                  lst17) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection17
+
+  recursive function lset_intersection18 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16, &
+       &                                  lst17, lst18) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17, lst18)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection18
+
+  recursive function lset_intersection19 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16, &
+       &                                  lst17, lst18, lst19) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    class(*), intent(in) :: lst19
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17, lst18, lst19)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection19
+
+  recursive function lset_intersection20 (equal, lst1, lst2, lst3, lst4, &
+       &                                  lst5, lst6, lst7, lst8, &
+       &                                  lst9, lst10, lst11, lst12, &
+       &                                  lst13, lst14, lst15, lst16, &
+       &                                  lst17, lst18, lst19, lst20) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    class(*), intent(in) :: lst19
+    class(*), intent(in) :: lst20
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2, lst3, lst4, &
+         &       lst5, lst6, lst7, lst8, &
+         &       lst9, lst10, lst11, lst12, &
+         &       lst13, lst14, lst15, lst16, &
+         &       lst17, lst18, lst19, lst20)
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection20
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

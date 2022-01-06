@@ -50,8 +50,9 @@ module lsets
 
   ! Generic functions.
   public :: lset_adjoin         ! Add elements to a set.
-  public :: lset_union          ! Return the union of two sets.
+  public :: lset_union          ! Return the union of sets.
   public :: lset_unionx         ! Union that can alter its inputs.
+  public :: lset_intersection   ! Return the intersection of sets.
 
   ! Implementations of lset_adjoin.
 m4_forloop([n],[0],LISTN_MAX,[dnl
@@ -66,6 +67,11 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   ! Implementations of lset_unionx.
 m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: lset_unionx[]n
+])dnl
+
+  ! Implementations of lset_intersection.
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  public :: lset_intersection[]n
 ])dnl
 
   ! A private synonym for `size_kind'.
@@ -89,25 +95,15 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
 ])dnl
   end interface lset_unionx
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!!$  interface error_abort
-!!$     module procedure error_abort_1
-!!$  end interface error_abort
+  interface lset_intersection
+m4_forloop([n],[1],LISTN_MAX,[dnl
+     module procedure lset_intersection[]n
+])dnl
+  end interface lset_intersection
 
 contains
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!!$  subroutine error_abort_1 (msg)
-!!$    use iso_fortran_env, only : error_unit
-!!$    character(*), intent(in) :: msg
-!!$    write (error_unit, '()')
-!!$    write (error_unit, '("module lsets error: ", a)') msg
-!!$    error stop
-!!$  end subroutine error_abort_1
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function lset_adjoin0 (equal, lst) result (lst_out)
     procedure(list_predicate2_t) :: equal
@@ -232,10 +228,13 @@ m4_forloop([k],[1],n,[dnl
       class(*), allocatable, intent(out) :: lst_out
 
       if (is_nil (lst1)) then
+         ! The union of a null set and a set is the latter.
          lst_out = lst2
       else if (is_nil (lst2)) then
+         ! The union of a set and a null set is the former.
          lst_out = lst1
       else if (cons_t_eq (lst1, lst2)) then
+         ! The union of a set with itself is itself.
          lst_out = lst2
       else
          lst_out = pair_fold (kons, lst2, lst1)
@@ -256,6 +255,59 @@ m4_forloop([k],[1],n,[dnl
     end subroutine kons
 
   end function lset_unionx[]n
+
+])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lset_intersection1 (equal, lst1) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    type(cons_t) :: lst_out
+
+    lst_out = lst1
+  end function lset_intersection1
+
+m4_forloop([n],[2],LISTN_MAX,[dnl
+  recursive function lset_intersection[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                                  ])lst[]k])) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lists = list (lst2[]m4_forloop([k],[3],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &       ])lst[]k]))
+    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
+    if (some (is_nil_list, lists)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else
+       lst_out = filter (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, lists)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function lset_intersection[]n
 
 ])dnl
 dnl
