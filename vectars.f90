@@ -43,6 +43,9 @@ module vectars
   ! The name `vectar' (short for `vector array') is used instead of
   ! `vector', to avoid confusion with Gibbs vectors.
   !
+  ! Conversions between vectars and strings are not included in this
+  ! module, despite that they are included in SRFI-133.
+  !
 
   !
   ! WARNING: I reserve the right to turn most procedures into generic
@@ -119,6 +122,12 @@ module vectars
   public :: vectar_ref0_int
   public :: vectar_ref1_int
   public :: vectar_refn_int
+
+  ! Vectar-list conversions.
+  public :: vectar_to_list
+  public :: reverse_vectar_to_list
+  public :: list_to_vectar
+  public :: reverse_list_to_vectar
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -316,7 +325,7 @@ contains
 
     allocate (data)
     data%length = 1_sz
-    allocate (data%array(0_sz : 0_sz))
+    allocate (data%array(0_sz:0_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     allocate (new_element)
     new_element%data => data
@@ -334,7 +343,7 @@ contains
 
     allocate (data)
     data%length = 2_sz
-    allocate (data%array(0_sz : 1_sz))
+    allocate (data%array(0_sz:1_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     allocate (new_element)
@@ -354,7 +363,7 @@ contains
 
     allocate (data)
     data%length = 3_sz
-    allocate (data%array(0_sz : 2_sz))
+    allocate (data%array(0_sz:2_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -376,7 +385,7 @@ contains
 
     allocate (data)
     data%length = 4_sz
-    allocate (data%array(0_sz : 3_sz))
+    allocate (data%array(0_sz:3_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -400,7 +409,7 @@ contains
 
     allocate (data)
     data%length = 5_sz
-    allocate (data%array(0_sz : 4_sz))
+    allocate (data%array(0_sz:4_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -427,7 +436,7 @@ contains
 
     allocate (data)
     data%length = 6_sz
-    allocate (data%array(0_sz : 5_sz))
+    allocate (data%array(0_sz:5_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -456,7 +465,7 @@ contains
 
     allocate (data)
     data%length = 7_sz
-    allocate (data%array(0_sz : 6_sz))
+    allocate (data%array(0_sz:6_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -487,7 +496,7 @@ contains
 
     allocate (data)
     data%length = 8_sz
-    allocate (data%array(0_sz : 7_sz))
+    allocate (data%array(0_sz:7_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -520,7 +529,7 @@ contains
 
     allocate (data)
     data%length = 9_sz
-    allocate (data%array(0_sz : 8_sz))
+    allocate (data%array(0_sz:8_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -555,7 +564,7 @@ contains
 
     allocate (data)
     data%length = 10_sz
-    allocate (data%array(0_sz : 9_sz))
+    allocate (data%array(0_sz:9_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -593,7 +602,7 @@ contains
 
     allocate (data)
     data%length = 11_sz
-    allocate (data%array(0_sz : 10_sz))
+    allocate (data%array(0_sz:10_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -633,7 +642,7 @@ contains
 
     allocate (data)
     data%length = 12_sz
-    allocate (data%array(0_sz : 11_sz))
+    allocate (data%array(0_sz:11_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -675,7 +684,7 @@ contains
 
     allocate (data)
     data%length = 13_sz
-    allocate (data%array(0_sz : 12_sz))
+    allocate (data%array(0_sz:12_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -719,7 +728,7 @@ contains
 
     allocate (data)
     data%length = 14_sz
-    allocate (data%array(0_sz : 13_sz))
+    allocate (data%array(0_sz:13_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -765,7 +774,7 @@ contains
 
     allocate (data)
     data%length = 15_sz
-    allocate (data%array(0_sz : 14_sz))
+    allocate (data%array(0_sz:14_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -814,7 +823,7 @@ contains
 
     allocate (data)
     data%length = 16_sz
-    allocate (data%array(0_sz : 15_sz))
+    allocate (data%array(0_sz:15_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -865,7 +874,7 @@ contains
 
     allocate (data)
     data%length = 17_sz
-    allocate (data%array(0_sz : 16_sz))
+    allocate (data%array(0_sz:16_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -918,7 +927,7 @@ contains
 
     allocate (data)
     data%length = 18_sz
-    allocate (data%array(0_sz : 17_sz))
+    allocate (data%array(0_sz:17_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -973,7 +982,7 @@ contains
 
     allocate (data)
     data%length = 19_sz
-    allocate (data%array(0_sz : 18_sz))
+    allocate (data%array(0_sz:18_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -1030,7 +1039,7 @@ contains
 
     allocate (data)
     data%length = 20_sz
-    allocate (data%array(0_sz : 19_sz))
+    allocate (data%array(0_sz:19_sz))
     data%array(0_sz) = vectar_element_t (.autoval. obj1)
     data%array(1_sz) = vectar_element_t (.autoval. obj2)
     data%array(2_sz) = vectar_element_t (.autoval. obj3)
@@ -1072,7 +1081,7 @@ contains
        allocate (data)
        data%length = size
        if (0_sz < size) then
-          allocate (data%array(0_sz : size - 1_sz), source = vectar_element_t (.autoval. fill))
+          allocate (data%array(0_sz:(size - 1_sz)), source = vectar_element_t (.autoval. fill))
        end if
        allocate (new_element)
        new_element%data => data
@@ -1194,6 +1203,90 @@ contains
     nn = n
     element = vectar_refn_size_kind (vec, nn, ii)
   end function vectar_refn_int
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function vectar_to_list (vec) result (lst)
+    class(*), intent(in) :: vec
+    type(cons_t) :: lst
+
+    integer(sz) :: i
+
+    lst = nil
+    do i = vectar_length (vec) - 1, 0, -1
+       lst = vectar_ref0 (vec, i) ** lst
+    end do
+  end function vectar_to_list
+
+  function reverse_vectar_to_list (vec) result (lst)
+    class(*), intent(in) :: vec
+    type(cons_t) :: lst
+
+    integer(sz) :: i
+
+    lst = nil
+    do i = 0, vectar_length (vec) - 1
+       lst = vectar_ref0 (vec, i) ** lst
+    end do
+  end function reverse_vectar_to_list
+
+  function list_to_vectar (lst) result (vec)
+    class(*), intent(in) :: lst
+    type(vectar_t) :: vec
+
+    integer(sz) :: n
+    integer(sz) :: i
+    type(cons_t) :: p
+    type(heap_element_t), pointer :: new_element
+    type(vectar_data_t), pointer :: data
+
+    n = length (.autoval. lst)
+    allocate (data)
+    data%length = n
+    if (0_sz < n) then
+       allocate (data%array(0_sz:(n - 1_sz)))
+       i = 0
+       p = .autoval. lst
+       do while (is_pair (p))
+          data%array(i) = vectar_element_t (car (p))
+          i = i + 1
+          p = cdr (p)
+       end do
+    end if
+    allocate (new_element)
+    new_element%data => data
+    call heap_insert (new_element)
+    vec%heap_element => new_element
+  end function list_to_vectar
+
+  function reverse_list_to_vectar (lst) result (vec)
+    class(*), intent(in) :: lst
+    type(vectar_t) :: vec
+
+    integer(sz) :: n
+    integer(sz) :: i
+    type(cons_t) :: p
+    type(heap_element_t), pointer :: new_element
+    type(vectar_data_t), pointer :: data
+
+    n = length (.autoval. lst)
+    allocate (data)
+    data%length = n
+    if (0_sz < n) then
+       allocate (data%array(0_sz:(n - 1_sz)))
+       i = n - 1
+       p = .autoval. lst
+       do while (is_pair (p))
+          data%array(i) = vectar_element_t (car (p))
+          i = i - 1
+          p = cdr (p)
+       end do
+    end if
+    allocate (new_element)
+    new_element%data => data
+    call heap_insert (new_element)
+    vec%heap_element => new_element
+  end function reverse_list_to_vectar
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

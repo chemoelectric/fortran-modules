@@ -53,6 +53,9 @@ module vectars
   ! The name `vectar' (short for `vector array') is used instead of
   ! `vector', to avoid confusion with Gibbs vectors.
   !
+  ! Conversions between vectars and strings are not included in this
+  ! module, despite that they are included in SRFI-133.
+  !
 
   !
   ! WARNING: I reserve the right to turn most procedures into generic
@@ -111,6 +114,12 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: vectar_ref0_int
   public :: vectar_ref1_int
   public :: vectar_refn_int
+
+  ! Vectar-list conversions.
+  public :: vectar_to_list
+  public :: reverse_vectar_to_list
+  public :: list_to_vectar
+  public :: reverse_list_to_vectar
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -294,7 +303,7 @@ m4_forloop([k],[1],n,[dnl
 
     allocate (data)
     data%length = m4_eval(n)_sz
-    allocate (data%array(0_sz : m4_eval(n - 1)_sz))
+    allocate (data%array(0_sz:m4_eval(n - 1)_sz))
 m4_forloop([k],[1],n,[dnl
     data%array(m4_eval(k - 1)_sz) = vectar_element_t (.autoval. obj[]k)
 ])dnl
@@ -320,7 +329,7 @@ dnl
        allocate (data)
        data%length = size
        if (0_sz < size) then
-          allocate (data%array(0_sz : size - 1_sz), source = vectar_element_t (.autoval. fill))
+          allocate (data%array(0_sz:(size - 1_sz)), source = vectar_element_t (.autoval. fill))
        end if
        allocate (new_element)
        new_element%data => data
@@ -442,6 +451,90 @@ dnl
     nn = n
     element = vectar_refn_size_kind (vec, nn, ii)
   end function vectar_refn_int
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function vectar_to_list (vec) result (lst)
+    class(*), intent(in) :: vec
+    type(cons_t) :: lst
+
+    integer(sz) :: i
+
+    lst = nil
+    do i = vectar_length (vec) - 1, 0, -1
+       lst = vectar_ref0 (vec, i) ** lst
+    end do
+  end function vectar_to_list
+
+  function reverse_vectar_to_list (vec) result (lst)
+    class(*), intent(in) :: vec
+    type(cons_t) :: lst
+
+    integer(sz) :: i
+
+    lst = nil
+    do i = 0, vectar_length (vec) - 1
+       lst = vectar_ref0 (vec, i) ** lst
+    end do
+  end function reverse_vectar_to_list
+
+  function list_to_vectar (lst) result (vec)
+    class(*), intent(in) :: lst
+    type(vectar_t) :: vec
+
+    integer(sz) :: n
+    integer(sz) :: i
+    type(cons_t) :: p
+    type(heap_element_t), pointer :: new_element
+    type(vectar_data_t), pointer :: data
+
+    n = length (.autoval. lst)
+    allocate (data)
+    data%length = n
+    if (0_sz < n) then
+       allocate (data%array(0_sz:(n - 1_sz)))
+       i = 0
+       p = .autoval. lst
+       do while (is_pair (p))
+          data%array(i) = vectar_element_t (car (p))
+          i = i + 1
+          p = cdr (p)
+       end do
+    end if
+    allocate (new_element)
+    new_element%data => data
+    call heap_insert (new_element)
+    vec%heap_element => new_element
+  end function list_to_vectar
+
+  function reverse_list_to_vectar (lst) result (vec)
+    class(*), intent(in) :: lst
+    type(vectar_t) :: vec
+
+    integer(sz) :: n
+    integer(sz) :: i
+    type(cons_t) :: p
+    type(heap_element_t), pointer :: new_element
+    type(vectar_data_t), pointer :: data
+
+    n = length (.autoval. lst)
+    allocate (data)
+    data%length = n
+    if (0_sz < n) then
+       allocate (data%array(0_sz:(n - 1_sz)))
+       i = n - 1
+       p = .autoval. lst
+       do while (is_pair (p))
+          data%array(i) = vectar_element_t (car (p))
+          i = i - 1
+          p = cdr (p)
+       end do
+    end if
+    allocate (new_element)
+    new_element%data => data
+    call heap_insert (new_element)
+    vec%heap_element => new_element
+  end function reverse_list_to_vectar
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

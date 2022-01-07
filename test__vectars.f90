@@ -207,10 +207,27 @@ contains
     end do
   end subroutine test0010
 
+  subroutine test0020
+    call check (list_equal (int_eq, vectar_to_list (vectar ()), list ()), "test0010-0010 failed")
+    call check (list_equal (int_eq, vectar_to_list (vectar (1, 2, 3, 4, 5)), iota (5, 1)), "test0010-0020 failed")
+
+    call check (list_equal (int_eq, reverse_vectar_to_list (vectar ()), list ()), "test0010-0030 failed")
+    call check (list_equal (int_eq, reverse_vectar_to_list (vectar (5, 4, 3, 2, 1)), iota (5, 1)), "test0010-0040 failed")
+
+    call check (list_equal (int_eq, vectar_to_list (list_to_vectar (nil)), list ()), "test0010-0050 failed")
+    call check (list_equal (int_eq, vectar_to_list (list_to_vectar (iota (5, 1))), iota (5, 1)), "test0010-0060 failed")
+
+    call check (list_equal (int_eq, reverse_vectar_to_list (list_to_vectar (nil)), list ()), &
+         &      "test0010-0070 failed")
+    call check (list_equal (int_eq, reverse_vectar_to_list (list_to_vectar (iota (5, 5, -1))), iota (5, 1)), &
+         &      "test0010-0080 failed")
+  end subroutine test0020
+
   subroutine run_tests
     heap_size_limit = 0
 
     call test0010
+    call test0020
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
