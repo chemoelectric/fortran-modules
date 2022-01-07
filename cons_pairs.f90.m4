@@ -95,11 +95,11 @@ module cons_pairs
 
   ! is_false and is_not_false are useful for treating .false. the way
   ! Scheme treats #f.
-  public :: cons_t           ! The type for NIL-lists and garbage-collectible CONS-pairs.
-  public :: nil              ! The canonical NIL-list (commonly written '() in Scheme).
-
   public :: is_false         ! Is a class(*) or gcroot_t object a logical .false.?
   public :: is_not_false     ! Is a class(*) or gcroot_t object not a logical .false.?
+
+  public :: cons_t           ! The type for NIL-lists and garbage-collectible CONS-pairs.
+  public :: nil              ! The canonical NIL-list (commonly written '() in Scheme).
 
   public :: is_pair          ! Is the object either a CONS-pair or a gcroot_t containing a CONS-pair?
   public :: is_not_pair      ! Is the object neither a CONS-pair nor a gcroot_t containing a CONS-pair?
