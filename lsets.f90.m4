@@ -63,6 +63,7 @@ module lsets
   public :: apply_lset_union         ! Return the union of the sets.
   public :: apply_lset_unionx        ! Union that can alter its inputs.
   public :: apply_lset_intersection  ! Return the intersection of the sets.
+  public :: apply_lset_intersectionx ! Intersection that can alter its inputs.
   ! FIXME: MORE `apply' variants GO HERE
   public :: apply_lset_xor           ! Return the exclusive OR of the sets.
 
@@ -71,9 +72,9 @@ module lsets
   public :: lset_union          ! Return the union of sets.
   public :: lset_unionx         ! Union that can alter its inputs.
   public :: lset_intersection   ! Return the intersection of sets.
-  public :: lset_intersectionx  ! Intersection that can alter its ! inputs.
+  public :: lset_intersectionx  ! Intersection that can alter its inputs.
   public :: lset_difference     ! Return the difference of sets.
-  public :: lset_differencex    ! Difference that can alter its ! inputs.
+  public :: lset_differencex    ! Difference that can alter its inputs.
   public :: lset_xor            ! Return the exclusive OR of sets.
   !public :: lset_xorx           ! XOR that can alter its inputs.
 

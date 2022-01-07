@@ -522,6 +522,59 @@ contains
     call check (list_equal (int_eq, list_sort (int_lt, lst3), iota (25, 51)), "test0040-0080 failed")
   end subroutine test0040
 
+  subroutine test0045
+    type(cons_t) :: lst1, lst2, lst3, lst4
+    type(gcroot_t) :: lst1_copy, lst2_copy
+
+    ! An example from SRFI-1.
+    lst1 = list (str_t ('a'), str_t ('b'), str_t ('c'), str_t ('d'), str_t ('e'))
+    lst2 = list (str_t ('a'), str_t ('e'), str_t ('i'), str_t ('o'), str_t ('u'))
+    lst1_copy = list_copy (lst1)
+    lst2_copy = list_copy (lst2)
+    lst3 = apply_lset_intersection (str_t_eq_gc, list (lst1, lst2))
+    call check (list_equal (str_t_eq, lst1, lst1_copy), "test0045-0003 failed")
+    call check (list_equal (str_t_eq, lst2, lst2_copy), "test0045-0006 failed")
+    lst4 = list (str_t ('a'), str_t ('e'))
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, lst3), list_sort (str_t_lt, lst4)), "test0045-0010 failed")
+
+    ! An example from SRFI-1. Repeated elements in the first list are
+    ! preserved.
+    lst1 = list (str_t ('a'), str_t ('x'), str_t ('y'), str_t ('a'))
+    lst2 = list (str_t ('x'), str_t ('a'), str_t ('x'), str_t ('z'))
+    lst1_copy = list_copy (lst1)
+    lst2_copy = list_copy (lst2)
+    lst3 = apply_lset_intersection (str_t_eq_gc, list (lst1, lst2))
+    call check (list_equal (str_t_eq, lst1, lst1_copy), "test0045-0013 failed")
+    call check (list_equal (str_t_eq, lst2, lst2_copy), "test0045-0016 failed")
+    lst4 = list (str_t ('a'), str_t ('x'), str_t ('a'))
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, lst3), list_sort (str_t_lt, lst4)), "test0045-0040 failed")
+
+    call check (list_equal (int_eq, apply_lset_intersection (str_t_eq_gc, list (list (1, 2, 3))), &
+         list (1, 2, 3)), "test0045-0030 failed")
+
+    ! One list is nil.
+    call check (list_equal (int_eq, apply_lset_intersection (str_t_eq_gc, list (list (1, 2, 3), nil)), &
+         list ()), "test0045-0040 failed")
+    call check (list_equal (int_eq, apply_lset_intersection (str_t_eq_gc, list (nil, list (1, 2, 3))), &
+         list ()), "test0045-0050 failed")
+
+    ! If two lists are the same, for efficiency their intersection should be
+    ! the same.
+    lst1 = iota (100, 1)
+    lst3 = apply_lset_intersection (str_t_eq_gc, list (lst1, lst1))
+    call check (cons_t_eq (lst1, lst3), "test0045-0060 failed")
+
+    ! If more than two lists are the same, for efficiency their intersection
+    ! should be the same.
+    lst1 = iota (100, 1)
+    lst3 = apply_lset_intersection (str_t_eq_gc, list (lst1, lst1, lst1, lst1, lst1))
+    call check (cons_t_eq (lst1, lst3), "test0045-0070 failed")
+
+    ! Try multiple lists.
+    lst3 = apply_lset_intersection (int_eq_gc, list (iota (100, 1), iota (75, 1), iota (100, 51)))
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), iota (25, 51)), "test0045-0080 failed")
+  end subroutine test0045
+
   subroutine test0050
     type(cons_t) :: lst1, lst2, lst3, lst4
 
@@ -562,6 +615,50 @@ contains
     lst3 = lset_intersectionx (int_eq_gc, iota (100, 1), iota (75, 1), iota (100, 51))
     call check (list_equal (int_eq, list_sort (int_lt, lst3), iota (25, 51)), "test0050-0080 failed")
   end subroutine test0050
+
+  subroutine test0055
+    type(cons_t) :: lst1, lst2, lst3, lst4
+
+    ! An example from SRFI-1.
+    lst1 = list (str_t ('a'), str_t ('b'), str_t ('c'), str_t ('d'), str_t ('e'))
+    lst2 = list (str_t ('a'), str_t ('e'), str_t ('i'), str_t ('o'), str_t ('u'))
+    lst3 = apply_lset_intersectionx (str_t_eq_gc, list (lst1, lst2))
+    lst4 = list (str_t ('a'), str_t ('e'))
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, lst3), list_sort (str_t_lt, lst4)), "test0055-0010 failed")
+
+    ! An example from SRFI-1. Repeated elements in the first list are
+    ! preserved.
+    lst1 = list (str_t ('a'), str_t ('x'), str_t ('y'), str_t ('a'))
+    lst2 = list (str_t ('x'), str_t ('a'), str_t ('x'), str_t ('z'))
+    lst3 = apply_lset_intersectionx (str_t_eq_gc, list (lst1, lst2))
+    lst4 = list (str_t ('a'), str_t ('x'), str_t ('a'))
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, lst3), list_sort (str_t_lt, lst4)), "test0055-0050 failed")
+
+    call check (list_equal (int_eq, apply_lset_intersectionx (str_t_eq_gc, list (list (1, 2, 3))), &
+         list (1, 2, 3)), "test0055-0030 failed")
+
+    ! One list is nil.
+    call check (list_equal (int_eq, apply_lset_intersectionx (str_t_eq_gc, list (list (1, 2, 3), nil)), &
+         list ()), "test0055-0050 failed")
+    call check (list_equal (int_eq, apply_lset_intersectionx (str_t_eq_gc, list (nil, list (1, 2, 3))), &
+         list ()), "test0055-0050 failed")
+
+    ! If two lists are the same, for efficiency their intersection should be
+    ! the same.
+    lst1 = iota (100, 1)
+    lst3 = apply_lset_intersectionx (str_t_eq_gc, list (lst1, lst1))
+    call check (cons_t_eq (lst1, lst3), "test0055-0060 failed")
+
+    ! If more than two lists are the same, for efficiency their intersection
+    ! should be the same.
+    lst1 = iota (100, 1)
+    lst3 = apply_lset_intersectionx (str_t_eq_gc, list (lst1, lst1, lst1, lst1, lst1))
+    call check (cons_t_eq (lst1, lst3), "test0055-0070 failed")
+
+    ! Try multiple lists.
+    lst3 = apply_lset_intersectionx (int_eq_gc, list (iota (100, 1), iota (75, 1), iota (100, 51)))
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), iota (25, 51)), "test0055-0080 failed")
+  end subroutine test0055
 
   subroutine test0060
     type(cons_t) :: lst1, lst2, lst3, lst4
@@ -1058,7 +1155,9 @@ contains
     call test0030
     call test0035
     call test0040
+    call test0045
     call test0050
+    call test0055
     call test0060
     call test0070
     call test0080
