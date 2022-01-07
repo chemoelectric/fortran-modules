@@ -115,12 +115,12 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: vectar_ref1_int
   public :: vectar_refn_int
 
-  ! Generic functions: set a vectar element.
+  ! Generic subroutines: set a vectar element.
   public :: vectar_set0         ! Indices run 0, 1, 2, ...
   public :: vectar_set1         ! Indices run 1, 2, 3, ...
   public :: vectar_setn         ! Indices run n, n+1, n+2, ...
 
-  ! Implementations of the vectar_setX functions.
+  ! Implementations of the vectar_setX subroutines.
   public :: vectar_set0_size_kind
   public :: vectar_set1_size_kind
   public :: vectar_setn_size_kind
