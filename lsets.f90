@@ -52,7 +52,7 @@ module lsets
   public :: lset_adjoin
 
   ! Generic functions for set operations returning a logical value.
-  public :: lset_contained      ! The <= operation on sets.
+  public :: lset_subset         ! The transitive <= operation on sets.
 
   ! Generic functions for set operations returning a set.
   public :: lset_union          ! Return the union of sets.
@@ -85,7 +85,7 @@ module lsets
   !
   !    (apply lset-union equal list-of-lists))
   !
-  public :: apply_lset_contained     ! The <= operation on sets.d
+  public :: apply_lset_subset        ! The transitive <= operation on sets.
   public :: apply_lset_union         ! Return the union of the sets.
   public :: apply_lset_unionx        ! Union that can alter its inputs.
   public :: apply_lset_intersection  ! Return the intersection of the sets.
@@ -120,28 +120,28 @@ module lsets
   public :: lset_adjoin19
   public :: lset_adjoin20
 
-  ! Implementations of lset_contained.
-  public :: lset_contained0
-  public :: lset_contained1
-  public :: lset_contained2
-  public :: lset_contained3
-  public :: lset_contained4
-  public :: lset_contained5
-  public :: lset_contained6
-  public :: lset_contained7
-  public :: lset_contained8
-  public :: lset_contained9
-  public :: lset_contained10
-  public :: lset_contained11
-  public :: lset_contained12
-  public :: lset_contained13
-  public :: lset_contained14
-  public :: lset_contained15
-  public :: lset_contained16
-  public :: lset_contained17
-  public :: lset_contained18
-  public :: lset_contained19
-  public :: lset_contained20
+  ! Implementations of lset_subset.
+  public :: lset_subset0
+  public :: lset_subset1
+  public :: lset_subset2
+  public :: lset_subset3
+  public :: lset_subset4
+  public :: lset_subset5
+  public :: lset_subset6
+  public :: lset_subset7
+  public :: lset_subset8
+  public :: lset_subset9
+  public :: lset_subset10
+  public :: lset_subset11
+  public :: lset_subset12
+  public :: lset_subset13
+  public :: lset_subset14
+  public :: lset_subset15
+  public :: lset_subset16
+  public :: lset_subset17
+  public :: lset_subset18
+  public :: lset_subset19
+  public :: lset_subset20
 
   ! Implementations of lset_union.
   public :: lset_union0
@@ -391,29 +391,29 @@ module lsets
      module procedure lset_adjoin20
   end interface lset_adjoin
 
-  interface lset_contained
-     module procedure lset_contained0
-     module procedure lset_contained1
-     module procedure lset_contained2
-     module procedure lset_contained3
-     module procedure lset_contained4
-     module procedure lset_contained5
-     module procedure lset_contained6
-     module procedure lset_contained7
-     module procedure lset_contained8
-     module procedure lset_contained9
-     module procedure lset_contained10
-     module procedure lset_contained11
-     module procedure lset_contained12
-     module procedure lset_contained13
-     module procedure lset_contained14
-     module procedure lset_contained15
-     module procedure lset_contained16
-     module procedure lset_contained17
-     module procedure lset_contained18
-     module procedure lset_contained19
-     module procedure lset_contained20
-  end interface lset_contained
+  interface lset_subset
+     module procedure lset_subset0
+     module procedure lset_subset1
+     module procedure lset_subset2
+     module procedure lset_subset3
+     module procedure lset_subset4
+     module procedure lset_subset5
+     module procedure lset_subset6
+     module procedure lset_subset7
+     module procedure lset_subset8
+     module procedure lset_subset9
+     module procedure lset_subset10
+     module procedure lset_subset11
+     module procedure lset_subset12
+     module procedure lset_subset13
+     module procedure lset_subset14
+     module procedure lset_subset15
+     module procedure lset_subset16
+     module procedure lset_subset17
+     module procedure lset_subset18
+     module procedure lset_subset19
+     module procedure lset_subset20
+  end interface lset_subset
 
   interface lset_union
      module procedure lset_union0
@@ -6768,82 +6768,82 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function lset_contained0 (equal) result (contained)
+  recursive function lset_subset0 (equal) result (subset)
     procedure(list_predicate2_t) :: equal
-    logical :: contained
+    logical :: subset
 
-    contained = .true.
-  end function lset_contained0
+    subset = .true.
+  end function lset_subset0
 
-  recursive function lset_contained1 (equal, lst1) result (contained)
+  recursive function lset_subset1 (equal, lst1) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
-    logical :: contained
+    logical :: subset
 
-    contained = .true.
-  end function lset_contained1
+    subset = .true.
+  end function lset_subset1
 
-  recursive function lset_contained2 (equal, lst1, lst2) result (contained)
+  recursive function lset_subset2 (equal, lst1, lst2) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
-    logical :: contained
+    logical :: subset
 
     if (cons_t_eq (lst2, lst1)) then
-       contained = .true.
-    else if (lset_contained__ (equal, lst1, lst2)) then
-       contained = .true.
+       subset = .true.
+    else if (lset_subset__ (equal, lst1, lst2)) then
+       subset = .true.
     else
-       contained = .false.
+       subset = .false.
     end if
-  end function lset_contained2
+  end function lset_subset2
 
-  recursive function lset_contained3 (equal, lst1, lst2, lst3) result (contained)
+  recursive function lset_subset3 (equal, lst1, lst2, lst3) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
     lists = list (lst1, lst2, lst3)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained3
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset3
 
-  recursive function lset_contained4 (equal, lst1, lst2, lst3, lst4) result (contained)
+  recursive function lset_subset4 (equal, lst1, lst2, lst3, lst4) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
     class(*), intent(in) :: lst4
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
     lists = list (lst1, lst2, lst3, lst4)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained4
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset4
 
-  recursive function lset_contained5 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5) result (contained)
+  recursive function lset_subset5 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
     class(*), intent(in) :: lst4
     class(*), intent(in) :: lst5
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
     lists = list (lst1, lst2, lst3, lst4, &
          &        lst5)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained5
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset5
 
-  recursive function lset_contained6 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6) result (contained)
+  recursive function lset_subset6 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6851,17 +6851,17 @@ contains
     class(*), intent(in) :: lst4
     class(*), intent(in) :: lst5
     class(*), intent(in) :: lst6
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
     lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained6
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset6
 
-  recursive function lset_contained7 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6, lst7) result (contained)
+  recursive function lset_subset7 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6, lst7) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6870,17 +6870,17 @@ contains
     class(*), intent(in) :: lst5
     class(*), intent(in) :: lst6
     class(*), intent(in) :: lst7
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
     lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained7
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset7
 
-  recursive function lset_contained8 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6, lst7, lst8) result (contained)
+  recursive function lset_subset8 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6, lst7, lst8) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6890,18 +6890,18 @@ contains
     class(*), intent(in) :: lst6
     class(*), intent(in) :: lst7
     class(*), intent(in) :: lst8
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
     lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained8
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset8
 
-  recursive function lset_contained9 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6, lst7, lst8, &
-       &                              lst9) result (contained)
+  recursive function lset_subset9 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6, lst7, lst8, &
+       &                           lst9) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6912,19 +6912,19 @@ contains
     class(*), intent(in) :: lst7
     class(*), intent(in) :: lst8
     class(*), intent(in) :: lst9
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
     lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained9
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset9
 
-  recursive function lset_contained10 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6, lst7, lst8, &
-       &                              lst9, lst10) result (contained)
+  recursive function lset_subset10 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6, lst7, lst8, &
+       &                           lst9, lst10) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6936,19 +6936,19 @@ contains
     class(*), intent(in) :: lst8
     class(*), intent(in) :: lst9
     class(*), intent(in) :: lst10
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
     lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained10
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset10
 
-  recursive function lset_contained11 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6, lst7, lst8, &
-       &                              lst9, lst10, lst11) result (contained)
+  recursive function lset_subset11 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6, lst7, lst8, &
+       &                           lst9, lst10, lst11) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6961,19 +6961,19 @@ contains
     class(*), intent(in) :: lst9
     class(*), intent(in) :: lst10
     class(*), intent(in) :: lst11
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
     lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained11
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset11
 
-  recursive function lset_contained12 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6, lst7, lst8, &
-       &                              lst9, lst10, lst11, lst12) result (contained)
+  recursive function lset_subset12 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6, lst7, lst8, &
+       &                           lst9, lst10, lst11, lst12) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6987,20 +6987,20 @@ contains
     class(*), intent(in) :: lst10
     class(*), intent(in) :: lst11
     class(*), intent(in) :: lst12
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
     lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11, lst12)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained12
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset12
 
-  recursive function lset_contained13 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6, lst7, lst8, &
-       &                              lst9, lst10, lst11, lst12, &
-       &                              lst13) result (contained)
+  recursive function lset_subset13 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6, lst7, lst8, &
+       &                           lst9, lst10, lst11, lst12, &
+       &                           lst13) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -7015,7 +7015,7 @@ contains
     class(*), intent(in) :: lst11
     class(*), intent(in) :: lst12
     class(*), intent(in) :: lst13
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
@@ -7023,13 +7023,13 @@ contains
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11, lst12, &
          &        lst13)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained13
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset13
 
-  recursive function lset_contained14 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6, lst7, lst8, &
-       &                              lst9, lst10, lst11, lst12, &
-       &                              lst13, lst14) result (contained)
+  recursive function lset_subset14 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6, lst7, lst8, &
+       &                           lst9, lst10, lst11, lst12, &
+       &                           lst13, lst14) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -7045,7 +7045,7 @@ contains
     class(*), intent(in) :: lst12
     class(*), intent(in) :: lst13
     class(*), intent(in) :: lst14
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
@@ -7053,13 +7053,13 @@ contains
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11, lst12, &
          &        lst13, lst14)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained14
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset14
 
-  recursive function lset_contained15 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6, lst7, lst8, &
-       &                              lst9, lst10, lst11, lst12, &
-       &                              lst13, lst14, lst15) result (contained)
+  recursive function lset_subset15 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6, lst7, lst8, &
+       &                           lst9, lst10, lst11, lst12, &
+       &                           lst13, lst14, lst15) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -7076,7 +7076,7 @@ contains
     class(*), intent(in) :: lst13
     class(*), intent(in) :: lst14
     class(*), intent(in) :: lst15
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
@@ -7084,13 +7084,13 @@ contains
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11, lst12, &
          &        lst13, lst14, lst15)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained15
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset15
 
-  recursive function lset_contained16 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6, lst7, lst8, &
-       &                              lst9, lst10, lst11, lst12, &
-       &                              lst13, lst14, lst15, lst16) result (contained)
+  recursive function lset_subset16 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6, lst7, lst8, &
+       &                           lst9, lst10, lst11, lst12, &
+       &                           lst13, lst14, lst15, lst16) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -7108,7 +7108,7 @@ contains
     class(*), intent(in) :: lst14
     class(*), intent(in) :: lst15
     class(*), intent(in) :: lst16
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
@@ -7116,14 +7116,14 @@ contains
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11, lst12, &
          &        lst13, lst14, lst15, lst16)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained16
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset16
 
-  recursive function lset_contained17 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6, lst7, lst8, &
-       &                              lst9, lst10, lst11, lst12, &
-       &                              lst13, lst14, lst15, lst16, &
-       &                              lst17) result (contained)
+  recursive function lset_subset17 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6, lst7, lst8, &
+       &                           lst9, lst10, lst11, lst12, &
+       &                           lst13, lst14, lst15, lst16, &
+       &                           lst17) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -7142,7 +7142,7 @@ contains
     class(*), intent(in) :: lst15
     class(*), intent(in) :: lst16
     class(*), intent(in) :: lst17
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
@@ -7151,14 +7151,14 @@ contains
          &        lst9, lst10, lst11, lst12, &
          &        lst13, lst14, lst15, lst16, &
          &        lst17)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained17
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset17
 
-  recursive function lset_contained18 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6, lst7, lst8, &
-       &                              lst9, lst10, lst11, lst12, &
-       &                              lst13, lst14, lst15, lst16, &
-       &                              lst17, lst18) result (contained)
+  recursive function lset_subset18 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6, lst7, lst8, &
+       &                           lst9, lst10, lst11, lst12, &
+       &                           lst13, lst14, lst15, lst16, &
+       &                           lst17, lst18) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -7178,7 +7178,7 @@ contains
     class(*), intent(in) :: lst16
     class(*), intent(in) :: lst17
     class(*), intent(in) :: lst18
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
@@ -7187,14 +7187,14 @@ contains
          &        lst9, lst10, lst11, lst12, &
          &        lst13, lst14, lst15, lst16, &
          &        lst17, lst18)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained18
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset18
 
-  recursive function lset_contained19 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6, lst7, lst8, &
-       &                              lst9, lst10, lst11, lst12, &
-       &                              lst13, lst14, lst15, lst16, &
-       &                              lst17, lst18, lst19) result (contained)
+  recursive function lset_subset19 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6, lst7, lst8, &
+       &                           lst9, lst10, lst11, lst12, &
+       &                           lst13, lst14, lst15, lst16, &
+       &                           lst17, lst18, lst19) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -7215,7 +7215,7 @@ contains
     class(*), intent(in) :: lst17
     class(*), intent(in) :: lst18
     class(*), intent(in) :: lst19
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
@@ -7224,14 +7224,14 @@ contains
          &        lst9, lst10, lst11, lst12, &
          &        lst13, lst14, lst15, lst16, &
          &        lst17, lst18, lst19)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained19
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset19
 
-  recursive function lset_contained20 (equal, lst1, lst2, lst3, lst4, &
-       &                              lst5, lst6, lst7, lst8, &
-       &                              lst9, lst10, lst11, lst12, &
-       &                              lst13, lst14, lst15, lst16, &
-       &                              lst17, lst18, lst19, lst20) result (contained)
+  recursive function lset_subset20 (equal, lst1, lst2, lst3, lst4, &
+       &                           lst5, lst6, lst7, lst8, &
+       &                           lst9, lst10, lst11, lst12, &
+       &                           lst13, lst14, lst15, lst16, &
+       &                           lst17, lst18, lst19, lst20) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -7253,7 +7253,7 @@ contains
     class(*), intent(in) :: lst18
     class(*), intent(in) :: lst19
     class(*), intent(in) :: lst20
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
@@ -7262,13 +7262,13 @@ contains
          &        lst9, lst10, lst11, lst12, &
          &        lst13, lst14, lst15, lst16, &
          &        lst17, lst18, lst19, lst20)
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained20
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset20
 
-  recursive function apply_lset_contained (equal, lists) result (contained)
+  recursive function apply_lset_subset (equal, lists) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lists
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lst1
     type(cons_t) :: lst2
@@ -7276,46 +7276,46 @@ contains
     logical :: done
 
     if (is_nil_list (lists)) then
-       contained = .true.
+       subset = .true.
     else
        lst1 = car (lists)
        the_rest = cdr (lists)
        done = .false.
        do while (.not. done)
           if (is_nil_list (the_rest)) then
-             contained = .true.
+             subset = .true.
              done = .true.
           else
              lst2 = car (the_rest)
              the_rest = cdr (the_rest)
              if (cons_t_eq (lst2, lst1)) then
                 lst1 = lst2
-             else if (lset_contained__ (equal, lst1, lst2)) then
+             else if (lset_subset__ (equal, lst1, lst2)) then
                 lst1 = lst2
              else
-                contained = .false.
+                subset = .false.
                 done = .true.
              end if
           end if
        end do
     end if
-  end function apply_lset_contained
+  end function apply_lset_subset
 
-  recursive function lset_contained__ (equal, lst1, lst2) result (contained)
+  recursive function lset_subset__ (equal, lst1, lst2) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: p
 
-    contained = .true.
+    subset = .true.
     p = lst1
-    do while (contained .and. is_pair (p))
-       contained = is_not_nil (member (equal, car (p), lst2))
+    do while (subset .and. is_pair (p))
+       subset = is_not_nil (member (equal, car (p), lst2))
        p = cdr (p)
     end do
-  end function lset_contained__
+  end function lset_subset__
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

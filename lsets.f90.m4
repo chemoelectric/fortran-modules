@@ -62,7 +62,7 @@ module lsets
   public :: lset_adjoin
 
   ! Generic functions for set operations returning a logical value.
-  public :: lset_contained      ! The <= operation on sets.
+  public :: lset_subset         ! The transitive <= operation on sets.
 
   ! Generic functions for set operations returning a set.
   public :: lset_union          ! Return the union of sets.
@@ -95,7 +95,7 @@ module lsets
   !
   !    (apply lset-union equal list-of-lists))
   !
-  public :: apply_lset_contained     ! The <= operation on sets.d
+  public :: apply_lset_subset        ! The transitive <= operation on sets.
   public :: apply_lset_union         ! Return the union of the sets.
   public :: apply_lset_unionx        ! Union that can alter its inputs.
   public :: apply_lset_intersection  ! Return the intersection of the sets.
@@ -112,9 +112,9 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: lset_adjoin[]n
 ])dnl
 
-  ! Implementations of lset_contained.
+  ! Implementations of lset_subset.
 m4_forloop([n],[0],LISTN_MAX,[dnl
-  public :: lset_contained[]n
+  public :: lset_subset[]n
 ])dnl
 
   ! Implementations of lset_union.
@@ -173,11 +173,11 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
 ])dnl
   end interface lset_adjoin
 
-  interface lset_contained
+  interface lset_subset
 m4_forloop([n],[0],LISTN_MAX,[dnl
-     module procedure lset_contained[]n
+     module procedure lset_subset[]n
 ])dnl
-  end interface lset_contained
+  end interface lset_subset
 
   interface lset_union
 m4_forloop([n],[0],LISTN_MAX,[dnl
@@ -864,58 +864,58 @@ m4_forloop([k],[1],n,[dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive function lset_contained0 (equal) result (contained)
+  recursive function lset_subset0 (equal) result (subset)
     procedure(list_predicate2_t) :: equal
-    logical :: contained
+    logical :: subset
 
-    contained = .true.
-  end function lset_contained0
+    subset = .true.
+  end function lset_subset0
 
-  recursive function lset_contained1 (equal, lst1) result (contained)
+  recursive function lset_subset1 (equal, lst1) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
-    logical :: contained
+    logical :: subset
 
-    contained = .true.
-  end function lset_contained1
+    subset = .true.
+  end function lset_subset1
 
-  recursive function lset_contained2 (equal, lst1, lst2) result (contained)
+  recursive function lset_subset2 (equal, lst1, lst2) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
-    logical :: contained
+    logical :: subset
 
     if (cons_t_eq (lst2, lst1)) then
-       contained = .true.
-    else if (lset_contained__ (equal, lst1, lst2)) then
-       contained = .true.
+       subset = .true.
+    else if (lset_subset__ (equal, lst1, lst2)) then
+       subset = .true.
     else
-       contained = .false.
+       subset = .false.
     end if
-  end function lset_contained2
+  end function lset_subset2
 
 m4_forloop([n],[3],LISTN_MAX,[dnl
-  recursive function lset_contained[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
-       &                              ])lst[]k])) result (contained)
+  recursive function lset_subset[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                           ])lst[]k])) result (subset)
     procedure(list_predicate2_t) :: equal
 m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: lst[]k
 ])dnl
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lists
 
     lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
          &        ])lst[]k]))
-    contained = apply_lset_contained (equal, lists)
-  end function lset_contained[]n
+    subset = apply_lset_subset (equal, lists)
+  end function lset_subset[]n
 
 ])dnl
 dnl
-  recursive function apply_lset_contained (equal, lists) result (contained)
+  recursive function apply_lset_subset (equal, lists) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lists
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: lst1
     type(cons_t) :: lst2
@@ -923,46 +923,46 @@ dnl
     logical :: done
 
     if (is_nil_list (lists)) then
-       contained = .true.
+       subset = .true.
     else
        lst1 = car (lists)
        the_rest = cdr (lists)
        done = .false.
        do while (.not. done)
           if (is_nil_list (the_rest)) then
-             contained = .true.
+             subset = .true.
              done = .true.
           else
              lst2 = car (the_rest)
              the_rest = cdr (the_rest)
              if (cons_t_eq (lst2, lst1)) then
                 lst1 = lst2
-             else if (lset_contained__ (equal, lst1, lst2)) then
+             else if (lset_subset__ (equal, lst1, lst2)) then
                 lst1 = lst2
              else
-                contained = .false.
+                subset = .false.
                 done = .true.
              end if
           end if
        end do
     end if
-  end function apply_lset_contained
+  end function apply_lset_subset
 
-  recursive function lset_contained__ (equal, lst1, lst2) result (contained)
+  recursive function lset_subset__ (equal, lst1, lst2) result (subset)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
-    logical :: contained
+    logical :: subset
 
     type(cons_t) :: p
 
-    contained = .true.
+    subset = .true.
     p = lst1
-    do while (contained .and. is_pair (p))
-       contained = is_not_nil (member (equal, car (p), lst2))
+    do while (subset .and. is_pair (p))
+       subset = is_not_nil (member (equal, car (p), lst2))
        p = cdr (p)
     end do
-  end function lset_contained__
+  end function lset_subset__
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
