@@ -704,6 +704,51 @@ contains
     call check (list_equal (int_eq, lset_difference (int_eq_gc, list (1, 2, 3)), list (1, 2, 3)), "test0060-0120 failed")
   end subroutine test0060
 
+  subroutine test0065
+    type(cons_t) :: lst1, lst2, lst3, lst4
+    type(gcroot_t) :: lst1_copy, lst2_copy
+
+    ! An example from SRFI-1.
+    lst1 = list (str_t ('a'), str_t ('b'), str_t ('c'), str_t ('d'), str_t ('e'))
+    lst2 = list (str_t ('a'), str_t ('e'), str_t ('i'), str_t ('o'), str_t ('u'))
+    lst1_copy = list_copy (lst1)
+    lst2_copy = list_copy (lst2)
+    lst3 = apply_lset_difference (str_t_eq_gc, list (lst1, lst2))
+    call check (list_equal (str_t_eq, lst1, lst1_copy), "test0065-00010 failed")
+    call check (list_equal (str_t_eq, lst2, lst2_copy), "test0065-00020 failed")
+    lst4 = list (str_t ('b'), str_t ('c'), str_t ('d'))
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, lst3), list_sort (str_t_lt, lst4)), "test0065-0030 failed")
+
+    ! The difference of two equal sets is a null set.
+    lst1 = iota (100, 1)
+    lst2 = iota (100, 1)
+    lst1_copy = list_copy (lst1)
+    lst2_copy = list_copy (lst2)
+    lst3 = apply_lset_difference (int_eq_gc, list (lst1, lst2))
+    call check (list_equal (int_eq, lst1, lst1_copy), "test0065-0040 failed")
+    call check (list_equal (int_eq, lst2, lst2_copy), "test0065-0050 failed")
+    lst4 = nil
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), list_sort (int_lt, lst4)), "test0065-0060 failed")
+
+    ! The difference of a set and itself is a null set.
+    lst1 = iota (100, 1)
+    lst1_copy = list_copy (lst1)
+    lst3 = apply_lset_difference (int_eq_gc, list (lst1, lst1))
+    call check (list_equal (int_eq, lst1, lst1_copy), "test0065-0070 failed")
+    lst4 = nil
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), list_sort (int_lt, lst4)), "test0065-0080 failed")
+
+    ! Try multiple lists.
+    lst3 = apply_lset_difference (int_eq_gc, list (iota (100, 1), iota (20, 1), iota (50, 1, 2)))
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), iota (40, 22, 2)), "test0065-0090 failed")
+
+    ! Try one list.
+    call check (list_equal (int_eq, apply_lset_difference (int_eq_gc, list (nil)), nil), "test0065-0100 failed")
+    call check (list_equal (int_eq, apply_lset_difference (int_eq_gc, list (list (123))), list (123)), "test0065-0110 failed")
+    call check (list_equal (int_eq, apply_lset_difference (int_eq_gc, list (list (1, 2, 3))), list (1, 2, 3)), &
+         "test0065-0120 failed")
+  end subroutine test0065
+
   subroutine test0070
     type(cons_t) :: lst1, lst2, lst3, lst4
 
@@ -736,6 +781,40 @@ contains
     call check (list_equal (int_eq, lset_differencex (int_eq_gc, list (123)), list (123)), "test0070-0110 failed")
     call check (list_equal (int_eq, lset_differencex (int_eq_gc, list (1, 2, 3)), list (1, 2, 3)), "test0070-0120 failed")
   end subroutine test0070
+
+  subroutine test0075
+    type(cons_t) :: lst1, lst2, lst3, lst4
+
+    ! An example from SRFI-1.
+    lst1 = list (str_t ('a'), str_t ('b'), str_t ('c'), str_t ('d'), str_t ('e'))
+    lst2 = list (str_t ('a'), str_t ('e'), str_t ('i'), str_t ('o'), str_t ('u'))
+    lst3 = apply_lset_differencex (str_t_eq_gc, list (lst1, lst2))
+    lst4 = list (str_t ('b'), str_t ('c'), str_t ('d'))
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, lst3), list_sort (str_t_lt, lst4)), "test0075-0030 failed")
+
+    ! The difference of two equal sets is a null set.
+    lst1 = iota (100, 1)
+    lst2 = iota (100, 1)
+    lst3 = apply_lset_differencex (int_eq_gc, list (lst1, lst2))
+    lst4 = nil
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), list_sort (int_lt, lst4)), "test0075-0070 failed")
+
+    ! The difference of a set and itself is a null set.
+    lst1 = iota (100, 1)
+    lst3 = apply_lset_differencex (int_eq_gc, list (lst1, lst1))
+    lst4 = nil
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), list_sort (int_lt, lst4)), "test0075-0080 failed")
+
+    ! Try multiple lists.
+    lst3 = apply_lset_differencex (int_eq_gc, list (iota (100, 1), iota (20, 1), iota (50, 1, 2)))
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), iota (40, 22, 2)), "test0075-0090 failed")
+
+    ! Try one list.
+    call check (list_equal (int_eq, apply_lset_differencex (int_eq_gc, list (nil)), nil), "test0075-0100 failed")
+    call check (list_equal (int_eq, apply_lset_differencex (int_eq_gc, list (list (123))), list (123)), "test0075-0110 failed")
+    call check (list_equal (int_eq, apply_lset_differencex (int_eq_gc, list (list (1, 2, 3))), list (1, 2, 3)), &
+         "test0075-0120 failed")
+  end subroutine test0075
 
   subroutine test0080
     type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
@@ -1159,7 +1238,9 @@ contains
     call test0050
     call test0055
     call test0060
+    call test0065
     call test0070
+    call test0075
     call test0080
     call test0090
     call test0100

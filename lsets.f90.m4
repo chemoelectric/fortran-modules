@@ -64,6 +64,8 @@ module lsets
   public :: apply_lset_unionx        ! Union that can alter its inputs.
   public :: apply_lset_intersection  ! Return the intersection of the sets.
   public :: apply_lset_intersectionx ! Intersection that can alter its inputs.
+  public :: apply_lset_difference    ! Return the difference of the sets.
+  public :: apply_lset_differencex   ! Difference that can alter its inputs.
   ! FIXME: MORE `apply' variants GO HERE
   public :: apply_lset_xor           ! Return the exclusive OR of the sets.
 
@@ -491,49 +493,6 @@ m4_apply_lset_intersection([apply_lset_intersectionx],[filterx])
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-m4_define([m4_lset_difference],[dnl
-  recursive function $1[]$2 (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
-       &                                  ])lst[]k])) result (lst_out)
-    procedure(list_predicate2_t) :: equal
-m4_forloop([k],[1],n,[dnl
-    class(*), intent(in) :: lst[]k
-])dnl
-    type(cons_t) :: lst_out
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2[]m4_forloop([k],[3],n,[, m4_if(m4_eval(k % 4),[1],[&
-         &        ])lst[]k]))
-    lists = remove (is_not_pair, lists) ! Ignore null sets.
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! The difference of a set and itself is a null set.
-       lst_out = nil
-    else
-       lst_out = $3 (is_missing_from_every_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_missing_from_every_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = every (x_is_not_in, lists)
-    end function is_missing_from_every_list
-
-    recursive function x_is_not_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_nil (member (equal, x, lst))
-    end function x_is_not_in
-
-  end function $1[]$2
-
-])dnl
-dnl
   recursive function lset_difference1 (equal, lst1) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
@@ -541,10 +500,6 @@ dnl
 
     lst_out = lst1
   end function lset_difference1
-
-m4_forloop([n],[2],LISTN_MAX,[m4_lset_difference([lset_difference],n,[filter])])dnl
-dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function lset_differencex1 (equal, lst1) result (lst_out)
     procedure(list_predicate2_t) :: equal
@@ -554,7 +509,84 @@ dnl
     lst_out = lst1
   end function lset_differencex1
 
-m4_forloop([n],[2],LISTN_MAX,[m4_lset_difference([lset_differencex],n,[filterx])])dnl
+m4_forloop([n],[2],LISTN_MAX,[dnl
+  recursive function lset_difference[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                               ])lst[]k])) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &        ])lst[]k]))
+    lst_out = apply_lset_difference (equal, lists)
+  end function lset_difference[]n
+
+  recursive function lset_differencex[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                               ])lst[]k])) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &        ])lst[]k]))
+    lst_out = apply_lset_differencex (equal, lists)
+  end function lset_differencex[]n
+
+])dnl
+dnl
+m4_define([m4_apply_lset_difference],[dnl
+  recursive function $1 (equal, lists) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lst1
+    type(cons_t) :: the_rest
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lst1 = car (lists)
+    the_rest = cdr (lists)
+    the_rest = remove (is_not_pair, the_rest) ! Ignore null sets.
+    if (is_nil_list (the_rest)) then
+       lst_out = lst1
+    else if (is_not_nil (member (cons_t_eq, lst1, the_rest))) then
+       ! The difference of a set and itself is a null set.
+       lst_out = nil
+    else
+       lst_out = $2 (is_missing_from_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_missing_from_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_not_in, the_rest)
+    end function is_missing_from_every_list
+
+    recursive function x_is_not_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_nil (member (equal, x, lst))
+    end function x_is_not_in
+
+  end function $1
+
+])dnl
+dnl
+m4_apply_lset_difference([apply_lset_difference],[filter])
+m4_apply_lset_difference([apply_lset_differencex],[filterx])
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
