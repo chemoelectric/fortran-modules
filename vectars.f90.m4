@@ -81,12 +81,23 @@ module vectars
   public :: vectar_t_cast
   public :: operator(.tovectar.)
 
+  ! Generic function: make a vectar from elements passed as arguments.
+  public :: vectar
+
+  ! Implementations of vectar.
+m4_forloop([n],[0],LISTN_MAX,[dnl
+  public :: vectar[]n
+])dnl
+
   ! Generic function: make a vectar of one value repeated.
   public :: make_vectar
 
   ! Implementations of make_vectar.
   public :: make_vectar_size_kind
   public :: make_vectar_int
+
+  ! Return the length of a vectar, as an INTEGER([SIZE_KIND]).
+  public :: vectar_length
 
   ! Generic functions: return a vectar element.
   public :: vectar_ref0         ! Indices run 0, 1, 2, ...
@@ -103,8 +114,16 @@ module vectars
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  ! A private synonym for `size_kind'.
+  integer, parameter :: sz = size_kind
+
+  type :: vectar_element_t
+     class(*), allocatable :: element
+  end type vectar_element_t
+
   type :: vectar_data_t
-     class(*), allocatable :: array(:) ! Zero-indexed storage.
+     integer(sz) :: length
+     type(vectar_element_t), allocatable :: array(:) ! Zero-based.
   end type vectar_data_t
 
   type, extends (collectible_t) :: vectar_t
@@ -120,8 +139,11 @@ module vectars
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  ! A private synonym for `size_kind'.
-  integer, parameter :: sz = size_kind
+  interface vectar
+m4_forloop([n],[0],LISTN_MAX,[dnl
+     module procedure vectar[]n
+])dnl
+  end interface vectar
 
   interface make_vectar
      module procedure make_vectar_size_kind
@@ -148,6 +170,8 @@ module vectars
   interface error_abort
      module procedure error_abort_1
   end interface error_abort
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 contains
 
@@ -184,7 +208,7 @@ contains
           select type (data)
           class is (vectar_data_t)
              if (branch_number - 1_sz <= ubound (data%array, 1, sz)) then
-                branch = data%array(branch_number - 1_sz)
+                branch = data%array(branch_number - 1_sz)%element
                 branch_number_out_of_range = .false.
              end if
           end select
@@ -243,6 +267,45 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  function vectar0 () result (vec)
+    type(vectar_t) :: vec
+
+    type(heap_element_t), pointer :: new_element
+    type(vectar_data_t), pointer :: data
+
+    allocate (data)
+    data%length = 0_sz
+    allocate (new_element)
+    new_element%data => data
+    call heap_insert (new_element)
+    vec%heap_element => new_element
+  end function vectar0
+
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  function vectar[]n (obj1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       &            ])obj[]k])) result (vec)
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: obj[]k
+])dnl
+    type(vectar_t) :: vec
+
+    type(heap_element_t), pointer :: new_element
+    type(vectar_data_t), pointer :: data
+
+    allocate (data)
+    data%length = m4_eval(n)_sz
+    allocate (data%array(0_sz : m4_eval(n - 1)_sz))
+m4_forloop([k],[1],n,[dnl
+    data%array(m4_eval(k - 1)_sz) = vectar_element_t (.autoval. obj[]k)
+])dnl
+    allocate (new_element)
+    new_element%data => data
+    call heap_insert (new_element)
+    vec%heap_element => new_element
+  end function vectar[]n
+
+])
+dnl
   function make_vectar_size_kind (size, fill) result (vec)
     integer(sz), intent(in) :: size
     class(*), intent(in) :: fill
@@ -250,14 +313,20 @@ contains
 
     type(heap_element_t), pointer :: new_element
     type(vectar_data_t), pointer :: data
-    integer(sz) :: i
 
-    allocate (data)
-    allocate (data%array(0_sz : size - 1_sz), source = .autoval. fill)
-    allocate (new_element)
-    new_element%data => data
-    call heap_insert (new_element)
-    vec%heap_element => new_element
+    if (size < 0_sz) then
+       call error_abort ("vectar size must be at least zero")
+    else
+       allocate (data)
+       data%length = size
+       if (0_sz < size) then
+          allocate (data%array(0_sz : size - 1_sz), source = vectar_element_t (.autoval. fill))
+       end if
+       allocate (new_element)
+       new_element%data => data
+       call heap_insert (new_element)
+       vec%heap_element => new_element
+    end if
   end function make_vectar_size_kind
 
   function make_vectar_int (size, fill) result (vec)
@@ -273,6 +342,29 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  function vectar_length (vec) result (size)
+    class(*), intent(in) :: vec
+    integer(sz) :: size
+
+    select type (v => .autoval. vec)
+    class is (vectar_t)
+       if (associated (v%heap_element)) then
+          select type (data => v%heap_element%data)
+          class is (vectar_data_t)
+             size = data%length
+          class default
+             call strange_error
+          end select
+       else
+          call error_abort ("vectar_t not properly allocated")
+       end if
+    class default
+       call error_abort ("expected a vectar_t")
+    end select
+  end function vectar_length
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   function vectar_ref0_size_kind (vec, i) result (element)
     class(*), intent(in) :: vec
     integer(sz), intent(in) :: i
@@ -283,7 +375,10 @@ contains
        if (associated (v%heap_element)) then
           select type (data => v%heap_element%data)
           class is (vectar_data_t)
-             element = data%array(i)
+             if (i < 0_sz .or. data%length <= i) then
+                call error_abort ("vectar_t index out of range")
+             end if
+             element = data%array(i)%element
           class default
              call strange_error
           end select

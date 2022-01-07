@@ -176,6 +176,7 @@ contains
     integer :: j
 
     vec = make_vectar (100_sz, str_t ('fill'))
+    call check (vectar_length (vec) == 100_sz, "test0010-0000 failed")
     do i = 0_sz, 99_sz
        call check (vectar_ref0 (vec, i) .eqs. str_t ('fill'), "test0010-0010 failed")
        call check (vectar_ref1 (vec, i + 1) .eqs. str_t ('fill'), "test0010-0020 failed")
@@ -183,10 +184,26 @@ contains
     end do
 
     vec = make_vectar (100, str_t ('fill'))
+    call check (vectar_length (vec) == 100_sz, "test0010-0100 failed")
     do j = 0, 99
        call check (vectar_ref0 (vec, j) .eqs. str_t ('fill'), "test0010-0110 failed")
        call check (vectar_ref1 (vec, j + 1) .eqs. str_t ('fill'), "test0010-0120 failed")
        call check (vectar_refn (vec, -1, j - 1) .eqs. str_t ('fill'), "test0010-0130 failed")
+    end do
+
+    vec = vectar ()
+    call check (vectar_length (vec) == 0_sz, "test0010-0200 failed")
+
+    vec = vectar (1, 2, 3, 4, 5)
+    call check (vectar_length (vec) == 5_sz, "test0010-0300 failed")
+    do j = 0, 4
+       call check (vectar_ref0 (vec, j) .eqi. j + 1, "test0010-0310 failed")
+    end do
+    do j = 1, 5
+       call check (vectar_ref1 (vec, j) .eqi. j, "test0010-0320 failed")
+    end do
+    do j = -1, 3
+       call check (vectar_refn (vec, -1, j) .eqi. j + 2, "test0010-0330 failed")
     end do
   end subroutine test0010
 
