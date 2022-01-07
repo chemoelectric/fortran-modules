@@ -1507,6 +1507,67 @@ contains
     call check (list_equal (int_eq, lset_xorx (int_eq_gc, list (1, 2, 3)), list (1, 2, 3)), "test0110-0120 failed")
   end subroutine test0110
 
+  subroutine test0115
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5
+
+    ! An example from SRFI-1.
+    lst1 = list (str_t ('a'), str_t ('b'), str_t ('c'), str_t ('d'), str_t ('e'))
+    lst2 = list (str_t ('a'), str_t ('e'), str_t ('i'), str_t ('o'), str_t ('u'))
+    lst3 = apply_lset_xorx (str_t_eq_gc, list (lst1, lst2))
+    lst4 = list (str_t ('d'), str_t ('c'), str_t ('b'), str_t ('i'), str_t ('o'), str_t ('u'))
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, lst3), list_sort (str_t_lt, lst4)), "test0115-0030 failed")
+
+    ! The XOR of two equal sets is a null set.
+    lst1 = iota (100, 1)
+    lst2 = iota (100, 1)
+    lst3 = apply_lset_xorx (int_eq_gc, list (lst1, lst2))
+    lst4 = nil
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), list_sort (int_lt, lst4)), "test0115-0060 failed")
+
+    ! The XOR of a set and itself is a null set.
+    lst1 = iota (100, 1)
+    lst3 = apply_lset_xorx (int_eq_gc, list (lst1, lst1))
+    lst4 = nil
+    call check (list_equal (int_eq, list_sort (int_lt, lst3), list_sort (int_lt, lst4)), "test0115-0080 failed")
+
+    ! Try multiple lists and permutations of the arguments.
+    lst1 = iota (10, 1)
+    lst2 = iota (10, 6, 1)
+    lst3 = iota (10, 1, 2)
+    lst4 = list_sort (int_lt, apply_lset_xorx (int_eq, list (lst1, lst2, lst3)))
+    call check (list_equal (int_eq, lst4, list (2, 4, 7, 9, 12, 14, 17, 19)), "test0115-0100 failed")
+    lst1 = iota (10, 1)
+    lst2 = iota (10, 6, 1)
+    lst3 = iota (10, 1, 2)
+    lst5 = list_sort (int_lt, apply_lset_xorx (int_eq, list (lst1, lst3, lst2)))
+    call check (list_equal (int_eq, lst4, lst5), "test0115-0110 failed")
+    lst1 = iota (10, 1)
+    lst2 = iota (10, 6, 1)
+    lst3 = iota (10, 1, 2)
+    lst5 = list_sort (int_lt, apply_lset_xorx (int_eq, list (lst3, lst1, lst2)))
+    call check (list_equal (int_eq, lst4, lst5), "test0115-0120 failed")
+    lst1 = iota (10, 1)
+    lst2 = iota (10, 6, 1)
+    lst3 = iota (10, 1, 2)
+    lst5 = list_sort (int_lt, apply_lset_xorx (int_eq, list (lst3, lst2, lst1)))
+    call check (list_equal (int_eq, lst4, lst5), "test0115-0130 failed")
+    lst1 = iota (10, 1)
+    lst2 = iota (10, 6, 1)
+    lst3 = iota (10, 1, 2)
+    lst5 = list_sort (int_lt, apply_lset_xorx (int_eq, list (lst2, lst3, lst1)))
+    call check (list_equal (int_eq, lst4, lst5), "test0115-0140 failed")
+    lst1 = iota (10, 1)
+    lst2 = iota (10, 6, 1)
+    lst3 = iota (10, 1, 2)
+    lst5 = list_sort (int_lt, apply_lset_xorx (int_eq, list (lst2, lst1, lst3)))
+    call check (list_equal (int_eq, lst4, lst5), "test0115-0150 failed")
+
+    ! Try one list.
+    call check (list_equal (int_eq, apply_lset_xorx (int_eq_gc, list (nil)), nil), "test0115-0100 failed")
+    call check (list_equal (int_eq, apply_lset_xorx (int_eq_gc, list (list (123))), list (123)), "test0115-0110 failed")
+    call check (list_equal (int_eq, apply_lset_xorx (int_eq_gc, list (list (1, 2, 3))), list (1, 2, 3)), "test0115-0120 failed")
+  end subroutine test0115
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1530,6 +1591,7 @@ contains
     call test0100
     call test0105
     call test0110
+    call test0115
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
