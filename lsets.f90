@@ -59,7 +59,7 @@ module lsets
   public :: lset_difference     ! Return the difference of sets.
   public :: lset_differencex    ! Difference that can alter its inputs.
   public :: lset_xor            ! Return the exclusive OR of sets.
-  !public :: lset_xorx           ! XOR that can alter its inputs.
+  public :: lset_xorx           ! XOR that can alter its inputs.
 
   ! lset_diff_and_intersection and lset_diff_and_intersectionx return
   ! the equivalent of
@@ -89,6 +89,7 @@ module lsets
   public :: apply_lset_difference    ! Return the difference of the sets.
   public :: apply_lset_differencex   ! Difference that can alter its inputs.
   public :: apply_lset_xor           ! Return the exclusive OR of the sets.
+  public :: apply_lset_xorx          ! Exclusive OR that can alter its inputs.
   public :: apply_lset_diff_and_intersection  ! See lset_diff_and_intersection.
   public :: apply_lset_diff_and_intersectionx ! See lset_diff_and_intersectionx.
 
@@ -272,28 +273,29 @@ module lsets
   public :: lset_xor19
   public :: lset_xor20
 
-!!$  ! Implementations of lset_xorx.
-!!$!!$  public :: lset_xorx1
-!!$!!$  public :: lset_xorx2
-!!$!!$  public :: lset_xorx3
-!!$!!$  public :: lset_xorx4
-!!$!!$  public :: lset_xorx5
-!!$!!$  public :: lset_xorx6
-!!$!!$  public :: lset_xorx7
-!!$!!$  public :: lset_xorx8
-!!$!!$  public :: lset_xorx9
-!!$!!$  public :: lset_xorx10
-!!$!!$  public :: lset_xorx11
-!!$!!$  public :: lset_xorx12
-!!$!!$  public :: lset_xorx13
-!!$!!$  public :: lset_xorx14
-!!$!!$  public :: lset_xorx15
-!!$!!$  public :: lset_xorx16
-!!$!!$  public :: lset_xorx17
-!!$!!$  public :: lset_xorx18
-!!$!!$  public :: lset_xorx19
-!!$!!$  public :: lset_xorx20
-!!$
+  ! Implementations of lset_xorx.
+  public :: lset_xorx0
+  public :: lset_xorx1
+  public :: lset_xorx2
+  public :: lset_xorx3
+  public :: lset_xorx4
+  public :: lset_xorx5
+  public :: lset_xorx6
+  public :: lset_xorx7
+  public :: lset_xorx8
+  public :: lset_xorx9
+  public :: lset_xorx10
+  public :: lset_xorx11
+  public :: lset_xorx12
+  public :: lset_xorx13
+  public :: lset_xorx14
+  public :: lset_xorx15
+  public :: lset_xorx16
+  public :: lset_xorx17
+  public :: lset_xorx18
+  public :: lset_xorx19
+  public :: lset_xorx20
+
   ! Implementations of lset_diff_and_intersection.
   public :: lset_diff_and_intersection1
   public :: lset_diff_and_intersection2
@@ -526,28 +528,29 @@ module lsets
      module procedure lset_xor20
   end interface lset_xor
 
-!!$  interface lset_xorx
-!!$!!$     module procedure lset_xorx1
-!!$!!$     module procedure lset_xorx2
-!!$!!$     module procedure lset_xorx3
-!!$!!$     module procedure lset_xorx4
-!!$!!$     module procedure lset_xorx5
-!!$!!$     module procedure lset_xorx6
-!!$!!$     module procedure lset_xorx7
-!!$!!$     module procedure lset_xorx8
-!!$!!$     module procedure lset_xorx9
-!!$!!$     module procedure lset_xorx10
-!!$!!$     module procedure lset_xorx11
-!!$!!$     module procedure lset_xorx12
-!!$!!$     module procedure lset_xorx13
-!!$!!$     module procedure lset_xorx14
-!!$!!$     module procedure lset_xorx15
-!!$!!$     module procedure lset_xorx16
-!!$!!$     module procedure lset_xorx17
-!!$!!$     module procedure lset_xorx18
-!!$!!$     module procedure lset_xorx19
-!!$!!$     module procedure lset_xorx20
-!!$!!$  end interface lset_xorx
+  interface lset_xorx
+     module procedure lset_xorx0
+     module procedure lset_xorx1
+     module procedure lset_xorx2
+     module procedure lset_xorx3
+     module procedure lset_xorx4
+     module procedure lset_xorx5
+     module procedure lset_xorx6
+     module procedure lset_xorx7
+     module procedure lset_xorx8
+     module procedure lset_xorx9
+     module procedure lset_xorx10
+     module procedure lset_xorx11
+     module procedure lset_xorx12
+     module procedure lset_xorx13
+     module procedure lset_xorx14
+     module procedure lset_xorx15
+     module procedure lset_xorx16
+     module procedure lset_xorx17
+     module procedure lset_xorx18
+     module procedure lset_xorx19
+     module procedure lset_xorx20
+  end interface lset_xorx
 
   interface lset_diff_and_intersection
      module procedure lset_diff_and_intersection1
@@ -6162,6 +6165,555 @@ contains
     end subroutine kons
 
   end function apply_lset_xor
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lset_xorx0 (equal) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    type(cons_t) :: lst_out
+
+    lst_out = nil
+  end function lset_xorx0
+
+  recursive function lset_xorx1 (equal, lst1) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx1
+
+  recursive function lset_xorx2 (equal, lst1, lst2) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx2
+
+  recursive function lset_xorx3 (equal, lst1, lst2, lst3) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx3
+
+  recursive function lset_xorx4 (equal, lst1, lst2, lst3, lst4) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx4
+
+  recursive function lset_xorx5 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx5
+
+  recursive function lset_xorx6 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx6
+
+  recursive function lset_xorx7 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx7
+
+  recursive function lset_xorx8 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx8
+
+  recursive function lset_xorx9 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx9
+
+  recursive function lset_xorx10 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx10
+
+  recursive function lset_xorx11 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx11
+
+  recursive function lset_xorx12 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx12
+
+  recursive function lset_xorx13 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx13
+
+  recursive function lset_xorx14 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13, lst14) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx14
+
+  recursive function lset_xorx15 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13, lst14, lst15) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx15
+
+  recursive function lset_xorx16 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13, lst14, lst15, lst16) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx16
+
+  recursive function lset_xorx17 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13, lst14, lst15, lst16, &
+       &                          lst17) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16, &
+         &        lst17)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx17
+
+  recursive function lset_xorx18 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13, lst14, lst15, lst16, &
+       &                          lst17, lst18) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16, &
+         &        lst17, lst18)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx18
+
+  recursive function lset_xorx19 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13, lst14, lst15, lst16, &
+       &                          lst17, lst18, lst19) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    class(*), intent(in) :: lst19
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16, &
+         &        lst17, lst18, lst19)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx19
+
+  recursive function lset_xorx20 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13, lst14, lst15, lst16, &
+       &                          lst17, lst18, lst19, lst20) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    class(*), intent(in) :: lst19
+    class(*), intent(in) :: lst20
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16, &
+         &        lst17, lst18, lst19, lst20)
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx20
+
+
+  recursive function apply_lset_xorx (equal, lists) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
+                              ! procedures.
+
+    lst_out = reduce (xorx, nil, lists)
+
+  contains
+
+    recursive subroutine xorx (a, b, a_xorx_b)
+      class(*), intent(in) :: a
+      class(*), intent(in) :: b
+      class(*), allocatable, intent(out) :: a_xorx_b
+
+      type(cons_t) :: diff_and_xsect
+      type(cons_t) :: a_minus_b
+
+      diff_and_xsect = lset_diff_and_intersectionx (equal, a, b)
+      a_minus_b = first (diff_and_xsect)
+      if (is_nil (a_minus_b)) then
+         a_xorx_b = lset_differencex (equal, b, a)
+      else
+         a_xsect_b = second (diff_and_xsect)
+         if (is_nil (a_xsect_b)) then
+            a_xorx_b = appendx (b, a)
+         else
+            a_xorx_b = pair_fold (kons, a_minus_b, b)
+         end if
+      end if
+    end subroutine xorx
+
+    recursive subroutine kons (pair, lst, lst_out)
+      class(*), intent(in) :: pair
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_not_nil (member (equal, car (pair), a_xsect_b))) then
+         lst_out = lst
+      else
+         call set_cdr (pair, lst)
+         lst_out = pair
+      end if
+    end subroutine kons
+
+  end function apply_lset_xorx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

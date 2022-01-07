@@ -69,7 +69,7 @@ module lsets
   public :: lset_difference     ! Return the difference of sets.
   public :: lset_differencex    ! Difference that can alter its inputs.
   public :: lset_xor            ! Return the exclusive OR of sets.
-  !public :: lset_xorx           ! XOR that can alter its inputs.
+  public :: lset_xorx           ! XOR that can alter its inputs.
 
   ! lset_diff_and_intersection and lset_diff_and_intersectionx return
   ! the equivalent of
@@ -99,6 +99,7 @@ module lsets
   public :: apply_lset_difference    ! Return the difference of the sets.
   public :: apply_lset_differencex   ! Difference that can alter its inputs.
   public :: apply_lset_xor           ! Return the exclusive OR of the sets.
+  public :: apply_lset_xorx          ! Exclusive OR that can alter its inputs.
   public :: apply_lset_diff_and_intersection  ! See lset_diff_and_intersection.
   public :: apply_lset_diff_and_intersectionx ! See lset_diff_and_intersectionx.
 
@@ -142,10 +143,10 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: lset_xor[]n
 ])dnl
 
-!!$  ! Implementations of lset_xorx.
-!!$m4_forloop([n],[1],LISTN_MAX,[dnl
-!!$  public :: lset_xorx[]n
-!!$])dnl
+  ! Implementations of lset_xorx.
+m4_forloop([n],[0],LISTN_MAX,[dnl
+  public :: lset_xorx[]n
+])dnl
 
   ! Implementations of lset_diff_and_intersection.
 m4_forloop([n],[1],LISTN_MAX,[dnl
@@ -205,11 +206,11 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
 ])dnl
   end interface lset_xor
 
-!!$  interface lset_xorx
-!!$m4_forloop([n],[1],LISTN_MAX,[dnl
-!!$     module procedure lset_xorx[]n
-!!$])dnl
-!!$  end interface lset_xorx
+  interface lset_xorx
+m4_forloop([n],[0],LISTN_MAX,[dnl
+     module procedure lset_xorx[]n
+])dnl
+  end interface lset_xorx
 
   interface lset_diff_and_intersection
 m4_forloop([n],[1],LISTN_MAX,[dnl
@@ -769,6 +770,82 @@ m4_forloop([k],[1],n,[dnl
     end subroutine kons
 
   end function apply_lset_xor
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lset_xorx0 (equal) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    type(cons_t) :: lst_out
+
+    lst_out = nil
+  end function lset_xorx0
+
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  recursive function lset_xorx[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                          ])lst[]k])) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &        ])lst[]k]))
+    lst_out = apply_lset_xorx (equal, lists)
+  end function lset_xorx[]n
+
+])dnl
+
+  recursive function apply_lset_xorx (equal, lists) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: a_xsect_b ! a_xsect_b is used by the nested
+                              ! procedures.
+
+    lst_out = reduce (xorx, nil, lists)
+
+  contains
+
+    recursive subroutine xorx (a, b, a_xorx_b)
+      class(*), intent(in) :: a
+      class(*), intent(in) :: b
+      class(*), allocatable, intent(out) :: a_xorx_b
+
+      type(cons_t) :: diff_and_xsect
+      type(cons_t) :: a_minus_b
+
+      diff_and_xsect = lset_diff_and_intersectionx (equal, a, b)
+      a_minus_b = first (diff_and_xsect)
+      if (is_nil (a_minus_b)) then
+         a_xorx_b = lset_differencex (equal, b, a)
+      else
+         a_xsect_b = second (diff_and_xsect)
+         if (is_nil (a_xsect_b)) then
+            a_xorx_b = appendx (b, a)
+         else
+            a_xorx_b = pair_fold (kons, a_minus_b, b)
+         end if
+      end if
+    end subroutine xorx
+
+    recursive subroutine kons (pair, lst, lst_out)
+      class(*), intent(in) :: pair
+      class(*), intent(in) :: lst
+      class(*), allocatable, intent(out) :: lst_out
+
+      if (is_not_nil (member (equal, car (pair), a_xsect_b))) then
+         lst_out = lst
+      else
+         call set_cdr (pair, lst)
+         lst_out = pair
+      end if
+    end subroutine kons
+
+  end function apply_lset_xorx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
