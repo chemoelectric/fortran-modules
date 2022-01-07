@@ -172,6 +172,7 @@ contains
 
   subroutine test0010
     type(vectar_t) :: vec
+    type(cons_t) :: lst
     integer(sz) :: i
     integer :: j
 
@@ -211,7 +212,65 @@ contains
     call check (list_equal (int_eq, vectar_ref1 (vec, 1), list (1, 2, 3)), "test0010-0410 failed")
     call check (list_equal (int_eq, vectar_ref1 (vec, 2), list (4, 5, 6)), "test0010-0420 failed")
     call check (list_equal (int_eq, vectar_ref1 (vec, 3), list (7, 8, 9)), "test0010-0430 failed")
+
+    lst = list (vectar (1, 2, 3), vectar (4, 5, 6), vectar (7, 8, 9))
+    call check (vectar_length (list_ref1 (lst, 1)) == 3, "test0010-1010 failed")
+    call check (vectar_length (list_ref1 (lst, 2)) == 3, "test0010-1020 failed")
+    call check (vectar_length (list_ref1 (lst, 3)) == 3, "test0010-1030 failed")
+    call check (vectar_ref1 (list_ref1 (lst, 1), 1) .eqi. 1, "test0010-1040 failed")
+    call check (vectar_ref1 (list_ref1 (lst, 1), 2) .eqi. 2, "test0010-1050 failed")
+    call check (vectar_ref1 (list_ref1 (lst, 1), 3) .eqi. 3, "test0010-1060 failed")
+    call check (vectar_ref1 (list_ref1 (lst, 2), 1) .eqi. 4, "test0010-1070 failed")
+    call check (vectar_ref1 (list_ref1 (lst, 2), 2) .eqi. 5, "test0010-1080 failed")
+    call check (vectar_ref1 (list_ref1 (lst, 2), 3) .eqi. 6, "test0010-1090 failed")
+    call check (vectar_ref1 (list_ref1 (lst, 3), 1) .eqi. 7, "test0010-1100 failed")
+    call check (vectar_ref1 (list_ref1 (lst, 3), 2) .eqi. 8, "test0010-1110 failed")
+    call check (vectar_ref1 (list_ref1 (lst, 3), 3) .eqi. 9, "test0010-1120 failed")
   end subroutine test0010
+
+  subroutine test0015
+
+    ! Check that mutator roots work.
+
+    type(gcroot_t) :: vec
+    type(gcroot_t) :: lst
+
+    vec = vectar (list (1, 2, 3), list (4, 5, 6), list (7, 8, 9))
+    call collect_garbage_now
+    call check (vectar_length (vec) == 3, "test0015-0400 failed")
+    call collect_garbage_now
+    call check (list_equal (int_eq, vectar_ref1 (vec, 1), list (1, 2, 3)), "test0015-0410 failed")
+    call collect_garbage_now
+    call check (list_equal (int_eq, vectar_ref1 (vec, 2), list (4, 5, 6)), "test0015-0420 failed")
+    call collect_garbage_now
+    call check (list_equal (int_eq, vectar_ref1 (vec, 3), list (7, 8, 9)), "test0015-0430 failed")
+
+    lst = list (vectar (1, 2, 3), vectar (4, 5, 6), vectar (7, 8, 9))
+    call collect_garbage_now
+    call check (vectar_length (list_ref1 (lst, 1)) == 3, "test0015-1010 failed")
+    call collect_garbage_now
+    call check (vectar_length (list_ref1 (lst, 2)) == 3, "test0015-1020 failed")
+    call collect_garbage_now
+    call check (vectar_length (list_ref1 (lst, 3)) == 3, "test0015-1030 failed")
+    call collect_garbage_now
+    call check (vectar_ref1 (list_ref1 (lst, 1), 1) .eqi. 1, "test0015-1040 failed")
+    call collect_garbage_now
+    call check (vectar_ref1 (list_ref1 (lst, 1), 2) .eqi. 2, "test0015-1050 failed")
+    call collect_garbage_now
+    call check (vectar_ref1 (list_ref1 (lst, 1), 3) .eqi. 3, "test0015-1060 failed")
+    call collect_garbage_now
+    call check (vectar_ref1 (list_ref1 (lst, 2), 1) .eqi. 4, "test0015-1070 failed")
+    call collect_garbage_now
+    call check (vectar_ref1 (list_ref1 (lst, 2), 2) .eqi. 5, "test0015-1080 failed")
+    call collect_garbage_now
+    call check (vectar_ref1 (list_ref1 (lst, 2), 3) .eqi. 6, "test0015-1090 failed")
+    call collect_garbage_now
+    call check (vectar_ref1 (list_ref1 (lst, 3), 1) .eqi. 7, "test0015-1100 failed")
+    call collect_garbage_now
+    call check (vectar_ref1 (list_ref1 (lst, 3), 2) .eqi. 8, "test0015-1110 failed")
+    call collect_garbage_now
+    call check (vectar_ref1 (list_ref1 (lst, 3), 3) .eqi. 9, "test0015-1120 failed")
+  end subroutine test0015
 
   subroutine test0020
     call check (list_equal (int_eq, vectar_to_list (vectar ()), list ()), "test0010-0010 failed")
@@ -256,6 +315,7 @@ contains
     heap_size_limit = 0
 
     call test0010
+    call test0015
     call test0020
     call test0030
 
