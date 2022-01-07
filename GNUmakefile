@@ -89,11 +89,13 @@ MODULE_BASENAMES += garbage_collector
 MODULE_BASENAMES += boxes
 MODULE_BASENAMES += cons_pairs
 MODULE_BASENAMES += lsets
+MODULE_BASENAMES += vectars
 
 TEST_PROGRAM_BASENAMES =
 TEST_PROGRAM_BASENAMES += test__boxes
 TEST_PROGRAM_BASENAMES += test__cons_pairs
 TEST_PROGRAM_BASENAMES += test__lsets
+TEST_PROGRAM_BASENAMES += test__vectars
 
 .PHONY: all default
 default: all
@@ -109,6 +111,7 @@ tests: $(TEST_PROGRAM_BASENAMES)
 check: check-boxes
 check: check-cons_pairs
 check: check-lsets
+check: check-vectars
 
 .PHONY: check-boxes
 check-boxes: test__boxes
@@ -122,6 +125,10 @@ check-cons_pairs: test__cons_pairs
 check-lsets: test__lsets
 	./test__lsets
 
+.PHONY: check-vectars
+check-vectars: test__vectars
+	./test__vectars
+
 test__boxes: $(addsuffix .$(OBJEXT), test__boxes boxes garbage_collector)
 	$(COMPILE.f90) $(^) -o $(@)
 
@@ -129,6 +136,9 @@ test__cons_pairs: $(addsuffix .$(OBJEXT), test__cons_pairs cons_pairs garbage_co
 	$(COMPILE.f90) $(^) -o $(@)
 
 test__lsets: $(addsuffix .$(OBJEXT), test__lsets lsets cons_pairs garbage_collector)
+	$(COMPILE.f90) $(^) -o $(@)
+
+test__vectars: $(addsuffix .$(OBJEXT), test__vectars vectars cons_pairs garbage_collector)
 	$(COMPILE.f90) $(^) -o $(@)
 
 lsets.anchor: lsets.f90
@@ -144,6 +154,11 @@ test__cons_pairs.$(OBJEXT): test__cons_pairs.anchor
 test__lsets.anchor: test__lsets.f90
 	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c -fsyntax-only $(<) && touch $(@)
 test__lsets.$(OBJEXT): test__lsets.anchor
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c $(<:.anchor=.f90) -o $(@)
+
+test__vectars.anchor: test__vectars.f90
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c -fsyntax-only $(<) && touch $(@)
+test__vectars.$(OBJEXT): test__vectars.anchor
 	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c $(<:.anchor=.f90) -o $(@)
 
 cons_lists.f90: cadadr.m4
@@ -165,6 +180,11 @@ lsets.anchor: cons_pairs.anchor
 lsets.anchor: lsets.mod
 lsets.mod:
 
+vectars.anchor: garbage_collector.anchor
+vectars.anchor: cons_pairs.anchor
+vectars.anchor: vectars.mod
+vectars.mod:
+
 test__boxes.anchor: boxes.anchor
 test__boxes.anchor: test__boxes.mod
 test__boxes.mod:
@@ -180,6 +200,12 @@ test__lsets.anchor: cons_pairs.anchor
 test__lsets.anchor: lsets.anchor
 test__lsets.anchor: test__lsets.mod
 test__lsets.mod:
+
+test__vectars.anchor: garbage_collector.anchor
+test__vectars.anchor: cons_pairs.anchor
+test__vectars.anchor: vectars.anchor
+test__vectars.anchor: test__vectars.mod
+test__vectars.mod:
 
 suffixed-all-basenames = $(addsuffix $(shell printf "%s" $(1)),$(MODULE_BASENAMES) $(TEST_PROGRAM_BASENAMES))
 
