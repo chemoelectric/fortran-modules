@@ -228,6 +228,29 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  function vectar_data_ptr (vec) result (data_ptr)
+    class(*), intent(in) :: vec
+    type(vectar_data_t), pointer :: data_ptr
+
+    select type (v => .autoval. vec)
+    class is (vectar_t)
+       if (associated (v%heap_element)) then
+          select type (data => v%heap_element%data)
+          class is (vectar_data_t)
+             data_ptr => data
+          class default
+             call strange_error
+          end select
+       else
+          call error_abort ("vectar_t not properly allocated")
+       end if
+    class default
+       call error_abort ("expected a vectar_t")
+    end select
+  end function vectar_data_ptr
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   subroutine vectar_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
     class(vectar_t), intent(in) :: this
     integer(sz), intent(in) :: branch_number
@@ -379,25 +402,14 @@ dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function vectar_length (vec) result (size)
+  function vectar_length (vec) result (len)
     class(*), intent(in) :: vec
-    integer(sz) :: size
+    integer(sz) :: len
 
-    select type (v => .autoval. vec)
-    class is (vectar_t)
-       if (associated (v%heap_element)) then
-          select type (data => v%heap_element%data)
-          class is (vectar_data_t)
-             size = data%length
-          class default
-             call strange_error
-          end select
-       else
-          call error_abort ("vectar_t not properly allocated")
-       end if
-    class default
-       call error_abort ("expected a vectar_t")
-    end select
+    type(vectar_data_t), pointer :: data
+
+    data => vectar_data_ptr (vec)
+    len = data%length
   end function vectar_length
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -407,24 +419,13 @@ dnl
     integer(sz), intent(in) :: i
     class(*), allocatable :: element
 
-    select type (v => .autoval. vec)
-    class is (vectar_t)
-       if (associated (v%heap_element)) then
-          select type (data => v%heap_element%data)
-          class is (vectar_data_t)
-             if (i < 0_sz .or. data%length <= i) then
-                call error_abort ("vectar_t index out of range")
-             end if
-             element = data%array(i)%element
-          class default
-             call strange_error
-          end select
-       else
-          call error_abort ("vectar_t not properly allocated")
-       end if
-    class default
-       call error_abort ("expected a vectar_t")
-    end select
+    type(vectar_data_t), pointer :: data
+
+    data => vectar_data_ptr (vec)
+    if (i < 0_sz .or. data%length <= i) then
+       call error_abort ("vectar_t index out of range")
+    end if
+    element = data%array(i)%element
   end function vectar_ref0_size_kind
 
   function vectar_ref1_size_kind (vec, i) result (element)
@@ -489,25 +490,11 @@ dnl
 
     type(vectar_data_t), pointer :: data
 
-    select type (v => .autoval. vec)
-    class is (vectar_t)
-       if (associated (v%heap_element)) then
-          select type (data_ => v%heap_element%data)
-          class is (vectar_data_t)
-             data => data_
-             if (i < 0_sz .or. data%length <= i) then
-                call error_abort ("vectar_t index out of range")
-             end if
-             data%array(i)%element = element
-          class default
-             call strange_error
-          end select
-       else
-          call error_abort ("vectar_t not properly allocated")
-       end if
-    class default
-       call error_abort ("expected a vectar_t")
-    end select
+    data => vectar_data_ptr (vec)
+    if (i < 0_sz .or. data%length <= i) then
+       call error_abort ("vectar_t index out of range")
+    end if
+    data%array(i)%element = element
   end subroutine vectar_set0_size_kind
 
   subroutine vectar_set1_size_kind (vec, i, element)
