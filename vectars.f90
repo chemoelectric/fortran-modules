@@ -123,6 +123,19 @@ module vectars
   public :: vectar_ref1_int
   public :: vectar_refn_int
 
+  ! Generic functions: set a vectar element.
+  public :: vectar_set0         ! Indices run 0, 1, 2, ...
+  public :: vectar_set1         ! Indices run 1, 2, 3, ...
+  public :: vectar_setn         ! Indices run n, n+1, n+2, ...
+
+  ! Implementations of the vectar_setX functions.
+  public :: vectar_set0_size_kind
+  public :: vectar_set1_size_kind
+  public :: vectar_setn_size_kind
+  public :: vectar_set0_int
+  public :: vectar_set1_int
+  public :: vectar_setn_int
+
   ! Vectar-list conversions.
   public :: vectar_to_list
   public :: reverse_vectar_to_list
@@ -199,6 +212,21 @@ module vectars
      module procedure vectar_refn_size_kind
      module procedure vectar_refn_int
   end interface vectar_refn
+
+  interface vectar_set0
+     module procedure vectar_set0_size_kind
+     module procedure vectar_set0_int
+  end interface vectar_set0
+
+  interface vectar_set1
+     module procedure vectar_set1_size_kind
+     module procedure vectar_set1_int
+  end interface vectar_set1
+
+  interface vectar_setn
+     module procedure vectar_setn_size_kind
+     module procedure vectar_setn_int
+  end interface vectar_setn
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1203,6 +1231,89 @@ contains
     nn = n
     element = vectar_refn_size_kind (vec, nn, ii)
   end function vectar_refn_int
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine vectar_set0_size_kind (vec, i, element)
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: i
+    class(*), intent(in) :: element
+
+    type(vectar_data_t), pointer :: data
+
+    select type (v => .autoval. vec)
+    class is (vectar_t)
+       if (associated (v%heap_element)) then
+          select type (data_ => v%heap_element%data)
+          class is (vectar_data_t)
+             data => data_
+             if (i < 0_sz .or. data%length <= i) then
+                call error_abort ("vectar_t index out of range")
+             end if
+             data%array(i)%element = element
+          class default
+             call strange_error
+          end select
+       else
+          call error_abort ("vectar_t not properly allocated")
+       end if
+    class default
+       call error_abort ("expected a vectar_t")
+    end select
+  end subroutine vectar_set0_size_kind
+
+  subroutine vectar_set1_size_kind (vec, i, element)
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: i
+    class(*), intent(in) :: element
+
+    call vectar_set0_size_kind (vec, i - 1, element)
+  end subroutine vectar_set1_size_kind
+
+  subroutine vectar_setn_size_kind (vec, n, i, element)
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: n
+    integer(sz), intent(in) :: i
+    class(*), intent(in) :: element
+
+    call vectar_set0_size_kind (vec, i - n, element)
+  end subroutine vectar_setn_size_kind
+
+  subroutine vectar_set0_int (vec, i, element)
+    class(*), intent(in) :: vec
+    integer, intent(in) :: i
+    class(*), intent(in) :: element
+
+    integer(sz) :: ii
+
+    ii = i
+    call vectar_set0_size_kind (vec, ii, element)
+  end subroutine vectar_set0_int
+
+  subroutine vectar_set1_int (vec, i, element)
+    class(*), intent(in) :: vec
+    integer, intent(in) :: i
+    class(*), intent(in) :: element
+
+    integer(sz) :: ii
+
+    ii = i
+    call vectar_set1_size_kind (vec, ii, element)
+  end subroutine vectar_set1_int
+
+  subroutine vectar_setn_int (vec, n, i, element)
+    class(*), intent(in) :: vec
+    integer, intent(in) :: n
+    integer, intent(in) :: i
+    class(*), intent(in) :: element
+
+    integer(sz) :: ii
+    integer(sz) :: nn
+
+    ii = i
+    nn = n
+    call vectar_setn_size_kind (vec, nn, ii, element)
+  end subroutine vectar_setn_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

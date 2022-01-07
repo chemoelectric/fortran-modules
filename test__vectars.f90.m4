@@ -137,11 +137,11 @@ contains
     bool = int_cast (obj1) == int_cast (obj2)
   end function int_eq
 
-  function int_lt (obj1, obj2) result (bool)
-    class(*), intent(in) :: obj1, obj2
-    logical :: bool
-    bool = int_cast (obj1) < int_cast (obj2)
-  end function int_lt
+!!$  function int_lt (obj1, obj2) result (bool)
+!!$    class(*), intent(in) :: obj1, obj2
+!!$    logical :: bool
+!!$    bool = int_cast (obj1) < int_cast (obj2)
+!!$  end function int_lt
 
   function str_t_eq (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1, obj2
@@ -149,26 +149,26 @@ contains
     bool = str_t_cast (obj1) == str_t_cast (obj2)
   end function str_t_eq
 
-  function str_t_lt (obj1, obj2) result (bool)
-    class(*), intent(in) :: obj1, obj2
-    logical :: bool
-    bool = str_t_cast (obj1) < str_t_cast (obj2)
-  end function str_t_lt
+!!$  function str_t_lt (obj1, obj2) result (bool)
+!!$    class(*), intent(in) :: obj1, obj2
+!!$    logical :: bool
+!!$    bool = str_t_cast (obj1) < str_t_cast (obj2)
+!!$  end function str_t_lt
 
-  function int_eq_gc (obj1, obj2) result (bool)
-    class(*), intent(in) :: obj1, obj2
-    logical :: bool
-    call collect_garbage_now
-    bool = int_eq (obj1, obj2)
-  end function int_eq_gc
+!!$  function int_eq_gc (obj1, obj2) result (bool)
+!!$    class(*), intent(in) :: obj1, obj2
+!!$    logical :: bool
+!!$    call collect_garbage_now
+!!$    bool = int_eq (obj1, obj2)
+!!$  end function int_eq_gc
 
-  function str_t_eq_gc (str1, str2) result (bool)
-    class(*), intent(in) :: str1
-    class(*), intent(in) :: str2
-    logical :: bool
-    call collect_garbage_now
-    bool = (str_t_cast (str1) == str_t_cast (str2))
-  end function str_t_eq_gc
+!!$  function str_t_eq_gc (str1, str2) result (bool)
+!!$    class(*), intent(in) :: str1
+!!$    class(*), intent(in) :: str2
+!!$    logical :: bool
+!!$    call collect_garbage_now
+!!$    bool = (str_t_cast (str1) == str_t_cast (str2))
+!!$  end function str_t_eq_gc
 
   subroutine test0010
     type(vectar_t) :: vec
@@ -223,11 +223,35 @@ contains
          &      "test0010-0080 failed")
   end subroutine test0020
 
+  subroutine test0030
+    type(vectar_t) :: vec
+    integer :: i
+
+    vec = make_vectar (5, .false.)
+    do i = 0, 4
+       call vectar_set0 (vec, i, i)
+    end do
+    call check (list_equal (int_eq, vectar_to_list (vec), iota (5)), "test0030-0010 failed")
+
+    vec = make_vectar (5, .false.)
+    do i = 1, 5
+       call vectar_set1 (vec, i, i)
+    end do
+    call check (list_equal (int_eq, vectar_to_list (vec), iota (5, 1)), "test0030-0020 failed")
+
+    vec = make_vectar (5, .false.)
+    do i = -1, 3
+       call vectar_setn (vec, -1, i, i)
+    end do
+    call check (list_equal (int_eq, vectar_to_list (vec), iota (5, -1)), "test0030-0030 failed")
+  end subroutine test0030
+
   subroutine run_tests
     heap_size_limit = 0
 
     call test0010
     call test0020
+    call test0030
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
