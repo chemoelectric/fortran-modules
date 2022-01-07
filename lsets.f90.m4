@@ -32,20 +32,6 @@ dnl size with the -B option.
 dnl
 dnl
 
-!!!!!! FIXME
-!!!!!! FIXME
-!!!!!! FIXME
-!!!!!! FIXME
-!!!!!! FIXME
-!!!!!! FIXME: I am repeating A LOT OF code that actually can be shared
-!!!!!! FIXME:    by implementations for different numbers of elements.
-!!!!!! FIXME
-!!!!!! FIXME
-!!!!!! FIXME
-!!!!!! FIXME
-!!!!!! FIXME
-!!!!!! FIXME
-
 module lsets
   !
   ! Lsets (sets implemented as CONS-pair lists) in the fashion of
@@ -74,20 +60,20 @@ module lsets
   !
   !    (apply lset-union equal list-of-lists))
   !
-  public :: apply_lset_union    ! Return the union of the sets.
-  public :: apply_lset_unionx   ! Union that can alter its inputs.
-  public :: apply_lset_xor      ! Return the exclusive OR of the sets.
+  public :: apply_lset_union         ! Return the union of the sets.
+  public :: apply_lset_unionx        ! Union that can alter its inputs.
+  public :: apply_lset_intersection  ! Return the intersection of the sets.
+  ! FIXME: MORE `apply' variants GO HERE
+  public :: apply_lset_xor           ! Return the exclusive OR of the sets.
 
   ! Generic functions, taking their arguments as the sets to operate
   ! upon.
   public :: lset_union          ! Return the union of sets.
   public :: lset_unionx         ! Union that can alter its inputs.
   public :: lset_intersection   ! Return the intersection of sets.
-  public :: lset_intersectionx  ! Intersection that can alter its
-                                ! inputs.
+  public :: lset_intersectionx  ! Intersection that can alter its ! inputs.
   public :: lset_difference     ! Return the difference of sets.
-  public :: lset_differencex    ! Difference that can alter its
-                                ! inputs.
+  public :: lset_differencex    ! Difference that can alter its ! inputs.
   public :: lset_xor            ! Return the exclusive OR of sets.
   !public :: lset_xorx           ! XOR that can alter its inputs.
 
@@ -100,8 +86,7 @@ module lsets
   !
   ! But they are more efficient at it.
   !
-  public :: lset_diff_and_intersection  ! Not allowed to alter its
-                                        ! inputs.
+  public :: lset_diff_and_intersection  ! Not allowed to alter its inputs. ! FIXME: THESE NEED `apply' variants
   public :: lset_diff_and_intersectionx ! Allowed to alter its inputs.
 
   ! Implementations of lset_adjoin.
@@ -406,49 +391,6 @@ dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-m4_define([m4_lset_intersection],[dnl
-  recursive function $1[]$2 (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
-       &                                  ])lst[]k])) result (lst_out)
-    procedure(list_predicate2_t) :: equal
-m4_forloop([k],[1],n,[dnl
-    class(*), intent(in) :: lst[]k
-])dnl
-    type(cons_t) :: lst_out
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2[]m4_forloop([k],[3],n,[, m4_if(m4_eval(k % 4),[1],[&
-         &        ])lst[]k]))
-    lists = delete (cons_t_eq, lst1, lists) ! Remove any references to lst1.
-    if (some (is_nil_list, lists)) then
-       ! The intersection of a set with a null set is a null set.
-       lst_out = nil
-    else
-       lst_out = $3 (is_in_every_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_in_every_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = every (x_is_in, lists)
-    end function is_in_every_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function $1[]$2
-
-])dnl
-dnl
   recursive function lset_intersection1 (equal, lst1) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
@@ -456,10 +398,6 @@ dnl
 
     lst_out = lst1
   end function lset_intersection1
-
-m4_forloop([n],[2],LISTN_MAX,[m4_lset_intersection([lset_intersection],n,[filter])])dnl
-dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function lset_intersectionx1 (equal, lst1) result (lst_out)
     procedure(list_predicate2_t) :: equal
@@ -469,7 +407,86 @@ dnl
     lst_out = lst1
   end function lset_intersectionx1
 
-m4_forloop([n],[2],LISTN_MAX,[m4_lset_intersection([lset_intersectionx],n,[filterx])])dnl
+m4_forloop([n],[2],LISTN_MAX,[dnl
+  recursive function lset_intersection[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                                 ])lst[]k])) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &        ])lst[]k]))
+    lst_out = apply_lset_intersection (equal, lists)
+  end function lset_intersection[]n
+
+  recursive function lset_intersectionx[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                                 ])lst[]k])) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &        ])lst[]k]))
+    lst_out = apply_lset_intersectionx (equal, lists)
+  end function lset_intersectionx[]n
+
+])dnl
+dnl
+m4_define([m4_apply_lset_intersection],[dnl
+  recursive function $1 (equal, lists) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    type(cons_t) :: lst_out
+
+    class(*), allocatable :: x ! x is used by the nested procedures.
+    type(cons_t) :: lst1
+    type(cons_t) :: the_rest
+
+    lst1 = car (lists)
+    the_rest = cdr (lists)
+
+    ! Remove any references to lst1.
+    the_rest = delete (cons_t_eq, lst1, the_rest)
+
+    if (some (is_nil_list, the_rest)) then
+       ! The intersection of a set with a null set is a null set.
+       lst_out = nil
+    else if (is_nil_list (the_rest)) then
+       lst_out = lst1
+    else
+       lst_out = $2 (is_in_every_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_in_every_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = every (x_is_in, the_rest)
+    end function is_in_every_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function $1
+])dnl
+dnl
+m4_apply_lset_intersection([apply_lset_intersection],[filter])
+m4_apply_lset_intersection([apply_lset_intersectionx],[filterx])
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
