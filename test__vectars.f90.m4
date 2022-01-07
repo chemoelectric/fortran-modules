@@ -205,6 +205,12 @@ contains
     do j = -1, 3
        call check (vectar_refn (vec, -1, j) .eqi. j + 2, "test0010-0330 failed")
     end do
+
+    vec = vectar (list (1, 2, 3), list (4, 5, 6), list (7, 8, 9))
+    call check (vectar_length (vec) == 3, "test0010-0400 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec, 1), list (1, 2, 3)), "test0010-0410 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec, 2), list (4, 5, 6)), "test0010-0420 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec, 3), list (7, 8, 9)), "test0010-0430 failed")
   end subroutine test0010
 
   subroutine test0020
