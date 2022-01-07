@@ -1627,6 +1627,71 @@ contains
     call check (apply_lset_subset (int_eq, list (list (1, 2, 3))), "test0120-0630 failed")
   end subroutine test0120
 
+  subroutine test0130
+    type(cons_t) :: lst1, lst2, lst3
+
+    ! An example from SRFI-1.
+    lst1 = list (str_t ('b'), str_t ('e'), str_t ('a'))
+    lst2 = list (str_t ('a'), str_t ('e'), str_t ('b'))
+    lst3 = list (str_t ('e'), str_t ('e'), str_t ('b'), str_t ('a'))
+    call check (lset_equal (str_t_eq, lst1, lst2, lst3), "test0120-0010 failed")
+    call check (apply_lset_equal (str_t_eq, list (lst1, lst2, lst3)), "test0120-0020 failed")
+    call check (lset_equal (str_t_eq, lst3, lst2, lst1), "test0120-0030 failed")
+    call check (apply_lset_equal (str_t_eq, list (lst3, lst2, lst1)), "test0120-0040 failed")
+    call check (lset_equal (str_t_eq, lst3, lst1, lst2), "test0120-0050 failed")
+    call check (apply_lset_equal (str_t_eq, list (lst3, lst1, lst2)), "test0120-0060 failed")
+
+    ! No lists.
+    call check (lset_equal (str_t_eq), "test0120-0110 failed")
+    call check (apply_lset_equal (str_t_eq, nil), "test0120-0120 failed")
+
+    ! One list.
+    call check (lset_equal (str_t_eq, nil), "test0120-0210 failed")
+    call check (apply_lset_equal (str_t_eq, list (nil)), "test0120-0220 failed")
+    call check (lset_equal (int_eq, list (1, 2, 3)), "test0120-0230 failed")
+    call check (apply_lset_equal (int_eq, list (list (1, 2, 3))), "test0120-0240 failed")
+
+    ! Two lists.
+    lst1 = list (str_t ('b'), str_t ('e'), str_t ('a'))
+    lst2 = list (str_t ('b'), str_t ('e'), str_t ('x'))
+    call check (lset_equal (str_t_eq, nil, nil), "test0120-1010 failed")
+    call check (apply_lset_equal (str_t_eq, list (nil, nil)), "test0120-1020 failed")
+    call check (lset_equal (str_t_eq, lst1, lst1), "test0120-1030 failed")
+    call check (apply_lset_equal (str_t_eq, list (lst1, lst1)), "test0120-1040 failed")
+    call check (lset_equal (str_t_eq, lst1, list_copy (lst1)), "test0120-1050 failed")
+    call check (apply_lset_equal (str_t_eq, list (lst1, list_copy (lst1))), "test0120-1060 failed")
+    call check (.not. lset_equal (str_t_eq, lst1, lst2), "test0120-1070 failed")
+    call check (.not. apply_lset_equal (str_t_eq, list (lst1, lst2)), "test0120-1080 failed")
+    call check (.not. lset_equal (str_t_eq, lst2, lst1), "test0120-1090 failed")
+    call check (.not. apply_lset_equal (str_t_eq, list (lst2, lst1)), "test0120-1100 failed")
+
+    ! Lsets the same or equal.
+    lst1 = list (str_t ('b'), str_t ('e'), str_t ('a'))
+    lst2 = list (str_t ('a'), str_t ('e'), str_t ('b'))
+    lst3 = list (str_t ('e'), str_t ('e'), str_t ('b'), str_t ('a'))
+    call check (lset_equal (str_t_eq, lst1, lst1, lst1), "test0120-2010 failed")
+    call check (apply_lset_equal (str_t_eq, list (lst1, lst1, lst1)), "test0120-2020 failed")
+    call check (lset_equal (str_t_eq, lst2, lst2, lst2, lst2, lst2, lst2), "test0120-2030 failed")
+    call check (apply_lset_equal (str_t_eq, list (lst2, lst2, lst2, lst2, lst2, lst2)), "test0120-2040 failed")
+    call check (lset_equal (str_t_eq, lst1, lst2, lst1), "test0120-2050 failed")
+    call check (apply_lset_equal (str_t_eq, list (lst1, lst2, lst1)), "test0120-2060 failed")
+    call check (lset_equal (str_t_eq, lst2, lst1, lst2, lst2, lst3, lst2), "test0120-2070 failed")
+    call check (apply_lset_equal (str_t_eq, list (lst2, lst1, lst2, lst2, lst3, lst2)), "test0120-2080 failed")
+
+    ! Lsets unequal.
+    lst1 = list (str_t ('b'), str_t ('e'), str_t ('a'))
+    lst2 = list (str_t ('a'), str_t ('e'), str_t ('b'))
+    lst3 = list (str_t ('e'), str_t ('e'), str_t ('b'), str_t ('x'))
+    call check (.not. lset_equal (str_t_eq, lst1, lst3), "test0120-3010 failed")
+    call check (.not. apply_lset_equal (str_t_eq, list (lst1, lst3)), "test0120-3020 failed")
+    call check (.not. lset_equal (str_t_eq, lst3, lst2), "test0120-3030 failed")
+    call check (.not. apply_lset_equal (str_t_eq, list (lst3, lst2)), "test0120-3040 failed")
+    call check (.not. lset_equal (str_t_eq, lst1, lst3, lst2), "test0120-3050 failed")
+    call check (.not. apply_lset_equal (str_t_eq, list (lst1, lst3, lst2)), "test0120-3060 failed")
+    call check (.not. lset_equal (str_t_eq, lst3, lst3, lst2), "test0120-3070 failed")
+    call check (.not. apply_lset_equal (str_t_eq, list (lst3, lst3, lst2)), "test0120-3080 failed")
+  end subroutine test0130
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1652,6 +1717,7 @@ contains
     call test0110
     call test0115
     call test0120
+    call test0130
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

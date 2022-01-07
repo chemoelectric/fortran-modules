@@ -53,6 +53,7 @@ module lsets
 
   ! Generic functions for set operations returning a logical value.
   public :: lset_subset         ! The transitive <= operation on sets.
+  public :: lset_equal          ! The transitive = operation on sets.
 
   ! Generic functions for set operations returning a set.
   public :: lset_union          ! Return the union of sets.
@@ -86,6 +87,7 @@ module lsets
   !    (apply lset-union equal list-of-lists))
   !
   public :: apply_lset_subset        ! The transitive <= operation on sets.
+  public :: apply_lset_equal         ! The transitive = operation on sets.
   public :: apply_lset_union         ! Return the union of the sets.
   public :: apply_lset_unionx        ! Union that can alter its inputs.
   public :: apply_lset_intersection  ! Return the intersection of the sets.
@@ -142,6 +144,29 @@ module lsets
   public :: lset_subset18
   public :: lset_subset19
   public :: lset_subset20
+
+  ! Implementations of lset_equal.
+  public :: lset_equal0
+  public :: lset_equal1
+  public :: lset_equal2
+  public :: lset_equal3
+  public :: lset_equal4
+  public :: lset_equal5
+  public :: lset_equal6
+  public :: lset_equal7
+  public :: lset_equal8
+  public :: lset_equal9
+  public :: lset_equal10
+  public :: lset_equal11
+  public :: lset_equal12
+  public :: lset_equal13
+  public :: lset_equal14
+  public :: lset_equal15
+  public :: lset_equal16
+  public :: lset_equal17
+  public :: lset_equal18
+  public :: lset_equal19
+  public :: lset_equal20
 
   ! Implementations of lset_union.
   public :: lset_union0
@@ -414,6 +439,30 @@ module lsets
      module procedure lset_subset19
      module procedure lset_subset20
   end interface lset_subset
+
+  interface lset_equal
+     module procedure lset_equal0
+     module procedure lset_equal1
+     module procedure lset_equal2
+     module procedure lset_equal3
+     module procedure lset_equal4
+     module procedure lset_equal5
+     module procedure lset_equal6
+     module procedure lset_equal7
+     module procedure lset_equal8
+     module procedure lset_equal9
+     module procedure lset_equal10
+     module procedure lset_equal11
+     module procedure lset_equal12
+     module procedure lset_equal13
+     module procedure lset_equal14
+     module procedure lset_equal15
+     module procedure lset_equal16
+     module procedure lset_equal17
+     module procedure lset_equal18
+     module procedure lset_equal19
+     module procedure lset_equal20
+  end interface lset_equal
 
   interface lset_union
      module procedure lset_union0
@@ -7300,6 +7349,580 @@ contains
        end do
     end if
   end function apply_lset_subset
+
+  recursive function lset_equal0 (equal) result (eq)
+    procedure(list_predicate2_t) :: equal
+    logical :: eq
+
+    eq = .true.
+  end function lset_equal0
+
+  recursive function lset_equal1 (equal, lst1) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    logical :: eq
+
+    eq = .true.
+  end function lset_equal1
+
+  recursive function lset_equal2 (equal, lst1, lst2) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    logical :: eq
+
+    if (cons_t_eq (lst1, lst2)) then
+       eq = .true.
+    else if (.not. lset_subset__ (equal, lst1, lst2)) then
+       eq = .false.
+    else if (.not. lset_subset__ (flip_equal, lst2, lst1)) then
+       eq = .false.
+    else
+       eq = .true.
+    end if
+
+  contains
+
+    recursive function flip_equal (x, y) result (bool)
+      !
+      ! `equal' with its arguments reversed.
+      !
+      ! This is needed so `equal' is always run with the element from
+      ! lst1 first and the element from lst2 second, and (if there are
+      ! more lists) so on like that.
+      !
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      bool = equal (y, x)
+    end function flip_equal
+
+  end function lset_equal2
+
+  recursive function lset_equal3 (equal, lst1, lst2, lst3) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal3
+
+  recursive function lset_equal4 (equal, lst1, lst2, lst3, lst4) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal4
+
+  recursive function lset_equal5 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal5
+
+  recursive function lset_equal6 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal6
+
+  recursive function lset_equal7 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal7
+
+  recursive function lset_equal8 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal8
+
+  recursive function lset_equal9 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal9
+
+  recursive function lset_equal10 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal10
+
+  recursive function lset_equal11 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal11
+
+  recursive function lset_equal12 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal12
+
+  recursive function lset_equal13 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal13
+
+  recursive function lset_equal14 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13, lst14) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal14
+
+  recursive function lset_equal15 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13, lst14, lst15) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal15
+
+  recursive function lset_equal16 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13, lst14, lst15, lst16) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal16
+
+  recursive function lset_equal17 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13, lst14, lst15, lst16, &
+       &                          lst17) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16, &
+         &        lst17)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal17
+
+  recursive function lset_equal18 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13, lst14, lst15, lst16, &
+       &                          lst17, lst18) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16, &
+         &        lst17, lst18)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal18
+
+  recursive function lset_equal19 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13, lst14, lst15, lst16, &
+       &                          lst17, lst18, lst19) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    class(*), intent(in) :: lst19
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16, &
+         &        lst17, lst18, lst19)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal19
+
+  recursive function lset_equal20 (equal, lst1, lst2, lst3, lst4, &
+       &                          lst5, lst6, lst7, lst8, &
+       &                          lst9, lst10, lst11, lst12, &
+       &                          lst13, lst14, lst15, lst16, &
+       &                          lst17, lst18, lst19, lst20) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    class(*), intent(in) :: lst19
+    class(*), intent(in) :: lst20
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16, &
+         &        lst17, lst18, lst19, lst20)
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal20
+
+  recursive function apply_lset_equal (equal, lists) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    logical :: eq
+
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+    type(cons_t) :: the_rest
+    logical :: done
+
+    if (is_nil_list (lists)) then
+       eq = .true.
+    else
+       lst1 = car (lists)
+       the_rest = cdr (lists)
+       done = .false.
+       do while (.not. done)
+          if (is_nil_list (the_rest)) then
+             eq = .true.
+             done = .true.
+          else
+             lst2 = car (the_rest)
+             the_rest = cdr (the_rest)
+             if (cons_t_eq (lst1, lst2)) then
+                lst1 = lst2
+             else if (.not. lset_subset__ (equal, lst1, lst2)) then
+                eq = .false.
+                done = .true.
+             else if (.not. lset_subset__ (flip_equal, lst2, lst1)) then
+                eq = .false.
+                done = .true.
+             else
+                lst1 = lst2
+             end if
+          end if
+       end do
+    end if
+
+  contains
+
+    recursive function flip_equal (x, y) result (bool)
+      !
+      ! `equal' with its arguments reversed.
+      !
+      ! This is needed so `equal' is always run with the element from
+      ! lst1 first and the element from lst2 second, and (if there are
+      ! more lists) so on like that.
+      !
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      bool = equal (y, x)
+    end function flip_equal
+
+  end function apply_lset_equal
 
   recursive function lset_subset__ (equal, lst1, lst2) result (subset)
     procedure(list_predicate2_t) :: equal

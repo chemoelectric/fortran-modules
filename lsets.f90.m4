@@ -63,6 +63,7 @@ module lsets
 
   ! Generic functions for set operations returning a logical value.
   public :: lset_subset         ! The transitive <= operation on sets.
+  public :: lset_equal          ! The transitive = operation on sets.
 
   ! Generic functions for set operations returning a set.
   public :: lset_union          ! Return the union of sets.
@@ -96,6 +97,7 @@ module lsets
   !    (apply lset-union equal list-of-lists))
   !
   public :: apply_lset_subset        ! The transitive <= operation on sets.
+  public :: apply_lset_equal         ! The transitive = operation on sets.
   public :: apply_lset_union         ! Return the union of the sets.
   public :: apply_lset_unionx        ! Union that can alter its inputs.
   public :: apply_lset_intersection  ! Return the intersection of the sets.
@@ -115,6 +117,11 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   ! Implementations of lset_subset.
 m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: lset_subset[]n
+])dnl
+
+  ! Implementations of lset_equal.
+m4_forloop([n],[0],LISTN_MAX,[dnl
+  public :: lset_equal[]n
 ])dnl
 
   ! Implementations of lset_union.
@@ -178,6 +185,12 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
      module procedure lset_subset[]n
 ])dnl
   end interface lset_subset
+
+  interface lset_equal
+m4_forloop([n],[0],LISTN_MAX,[dnl
+     module procedure lset_equal[]n
+])dnl
+  end interface lset_equal
 
   interface lset_union
 m4_forloop([n],[0],LISTN_MAX,[dnl
@@ -947,6 +960,131 @@ dnl
        end do
     end if
   end function apply_lset_subset
+
+  recursive function lset_equal0 (equal) result (eq)
+    procedure(list_predicate2_t) :: equal
+    logical :: eq
+
+    eq = .true.
+  end function lset_equal0
+
+  recursive function lset_equal1 (equal, lst1) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    logical :: eq
+
+    eq = .true.
+  end function lset_equal1
+
+  recursive function lset_equal2 (equal, lst1, lst2) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    logical :: eq
+
+    if (cons_t_eq (lst1, lst2)) then
+       eq = .true.
+    else if (.not. lset_subset__ (equal, lst1, lst2)) then
+       eq = .false.
+    else if (.not. lset_subset__ (flip_equal, lst2, lst1)) then
+       eq = .false.
+    else
+       eq = .true.
+    end if
+
+  contains
+
+    recursive function flip_equal (x, y) result (bool)
+      !
+      ! `equal' with its arguments reversed.
+      !
+      ! This is needed so `equal' is always run with the element from
+      ! lst1 first and the element from lst2 second, and (if there are
+      ! more lists) so on like that.
+      !
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      bool = equal (y, x)
+    end function flip_equal
+
+  end function lset_equal2
+
+m4_forloop([n],[3],LISTN_MAX,[dnl
+  recursive function lset_equal[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                          ])lst[]k])) result (eq)
+    procedure(list_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    logical :: eq
+
+    type(cons_t) :: lists
+
+    lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &        ])lst[]k]))
+    eq = apply_lset_equal (equal, lists)
+  end function lset_equal[]n
+
+])dnl
+dnl
+  recursive function apply_lset_equal (equal, lists) result (eq)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    logical :: eq
+
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+    type(cons_t) :: the_rest
+    logical :: done
+
+    if (is_nil_list (lists)) then
+       eq = .true.
+    else
+       lst1 = car (lists)
+       the_rest = cdr (lists)
+       done = .false.
+       do while (.not. done)
+          if (is_nil_list (the_rest)) then
+             eq = .true.
+             done = .true.
+          else
+             lst2 = car (the_rest)
+             the_rest = cdr (the_rest)
+             if (cons_t_eq (lst1, lst2)) then
+                lst1 = lst2
+             else if (.not. lset_subset__ (equal, lst1, lst2)) then
+                eq = .false.
+                done = .true.
+             else if (.not. lset_subset__ (flip_equal, lst2, lst1)) then
+                eq = .false.
+                done = .true.
+             else
+                lst1 = lst2
+             end if
+          end if
+       end do
+    end if
+
+  contains
+
+    recursive function flip_equal (x, y) result (bool)
+      !
+      ! `equal' with its arguments reversed.
+      !
+      ! This is needed so `equal' is always run with the element from
+      ! lst1 first and the element from lst2 second, and (if there are
+      ! more lists) so on like that.
+      !
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      bool = equal (y, x)
+    end function flip_equal
+
+  end function apply_lset_equal
 
   recursive function lset_subset__ (equal, lst1, lst2) result (subset)
     procedure(list_predicate2_t) :: equal
