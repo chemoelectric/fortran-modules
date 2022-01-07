@@ -41,26 +41,7 @@ module lsets
   ! A generic function for adding elements to a set.
   public :: lset_adjoin
 
-  ! Functions that take a list of lists as an argument. They resemble
-  ! using Scheme's `apply' procedure; for example,
-  !
-  !    apply_lset_union (equal, list_of_lists)
-  !
-  ! is a Fortran equivalent to the Scheme code
-  !
-  !    (apply lset-union equal list-of-lists))
-  !
-  public :: apply_lset_union         ! Return the union of the sets.
-  public :: apply_lset_unionx        ! Union that can alter its inputs.
-  public :: apply_lset_intersection  ! Return the intersection of the sets.
-  public :: apply_lset_intersectionx ! Intersection that can alter its inputs.
-  public :: apply_lset_difference    ! Return the difference of the sets.
-  public :: apply_lset_differencex   ! Difference that can alter its inputs.
-  ! FIXME: MORE `apply' variants GO HERE
-  public :: apply_lset_xor           ! Return the exclusive OR of the sets.
-
-  ! Generic functions, taking their arguments as the sets to operate
-  ! upon.
+  ! Generic functions for set operations.
   public :: lset_union          ! Return the union of sets.
   public :: lset_unionx         ! Union that can alter its inputs.
   public :: lset_intersection   ! Return the intersection of sets.
@@ -79,8 +60,27 @@ module lsets
   !
   ! But they are more efficient at it.
   !
-  public :: lset_diff_and_intersection  ! Not allowed to alter its inputs. ! FIXME: THESE NEED `apply' variants
+  public :: lset_diff_and_intersection  ! Not allowed to alter its inputs.
   public :: lset_diff_and_intersectionx ! Allowed to alter its inputs.
+
+  ! Functions that take a list of lists as an argument. They resemble
+  ! using Scheme's `apply' procedure; for example,
+  !
+  !    apply_lset_union (equal, list_of_lists)
+  !
+  ! is a Fortran equivalent to the Scheme code
+  !
+  !    (apply lset-union equal list-of-lists))
+  !
+  public :: apply_lset_union         ! Return the union of the sets.
+  public :: apply_lset_unionx        ! Union that can alter its inputs.
+  public :: apply_lset_intersection  ! Return the intersection of the sets.
+  public :: apply_lset_intersectionx ! Intersection that can alter its inputs.
+  public :: apply_lset_difference    ! Return the difference of the sets.
+  public :: apply_lset_differencex   ! Difference that can alter its inputs.
+  public :: apply_lset_xor           ! Return the exclusive OR of the sets.
+  public :: apply_lset_diff_and_intersection  ! See lset_diff_and_intersection.
+  public :: apply_lset_diff_and_intersectionx ! See lset_diff_and_intersectionx.
 
   ! Implementations of lset_adjoin.
   public :: lset_adjoin0
@@ -4557,962 +4557,6 @@ contains
     diff_and_xsect = list (lst1, nil)
   end function lset_diff_and_intersection1
 
-  recursive function lset_diff_and_intersection2 (equal, lst1, lst2) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection2
-
-  recursive function lset_diff_and_intersection3 (equal, lst1, lst2, lst3) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection3
-
-  recursive function lset_diff_and_intersection4 (equal, lst1, lst2, lst3, lst4) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection4
-
-  recursive function lset_diff_and_intersection5 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection5
-
-  recursive function lset_diff_and_intersection6 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection6
-
-  recursive function lset_diff_and_intersection7 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6, lst7)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection7
-
-  recursive function lset_diff_and_intersection8 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6, lst7, lst8)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection8
-
-  recursive function lset_diff_and_intersection9 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    class(*), intent(in) :: lst9
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6, lst7, lst8, &
-         &        lst9)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection9
-
-  recursive function lset_diff_and_intersection10 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    class(*), intent(in) :: lst9
-    class(*), intent(in) :: lst10
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6, lst7, lst8, &
-         &        lst9, lst10)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection10
-
-  recursive function lset_diff_and_intersection11 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    class(*), intent(in) :: lst9
-    class(*), intent(in) :: lst10
-    class(*), intent(in) :: lst11
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6, lst7, lst8, &
-         &        lst9, lst10, lst11)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection11
-
-  recursive function lset_diff_and_intersection12 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    class(*), intent(in) :: lst9
-    class(*), intent(in) :: lst10
-    class(*), intent(in) :: lst11
-    class(*), intent(in) :: lst12
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6, lst7, lst8, &
-         &        lst9, lst10, lst11, lst12)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection12
-
-  recursive function lset_diff_and_intersection13 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    class(*), intent(in) :: lst9
-    class(*), intent(in) :: lst10
-    class(*), intent(in) :: lst11
-    class(*), intent(in) :: lst12
-    class(*), intent(in) :: lst13
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6, lst7, lst8, &
-         &        lst9, lst10, lst11, lst12, &
-         &        lst13)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection13
-
-  recursive function lset_diff_and_intersection14 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13, lst14) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    class(*), intent(in) :: lst9
-    class(*), intent(in) :: lst10
-    class(*), intent(in) :: lst11
-    class(*), intent(in) :: lst12
-    class(*), intent(in) :: lst13
-    class(*), intent(in) :: lst14
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6, lst7, lst8, &
-         &        lst9, lst10, lst11, lst12, &
-         &        lst13, lst14)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection14
-
-  recursive function lset_diff_and_intersection15 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13, lst14, lst15) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    class(*), intent(in) :: lst9
-    class(*), intent(in) :: lst10
-    class(*), intent(in) :: lst11
-    class(*), intent(in) :: lst12
-    class(*), intent(in) :: lst13
-    class(*), intent(in) :: lst14
-    class(*), intent(in) :: lst15
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6, lst7, lst8, &
-         &        lst9, lst10, lst11, lst12, &
-         &        lst13, lst14, lst15)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection15
-
-  recursive function lset_diff_and_intersection16 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13, lst14, lst15, lst16) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    class(*), intent(in) :: lst9
-    class(*), intent(in) :: lst10
-    class(*), intent(in) :: lst11
-    class(*), intent(in) :: lst12
-    class(*), intent(in) :: lst13
-    class(*), intent(in) :: lst14
-    class(*), intent(in) :: lst15
-    class(*), intent(in) :: lst16
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6, lst7, lst8, &
-         &        lst9, lst10, lst11, lst12, &
-         &        lst13, lst14, lst15, lst16)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection16
-
-  recursive function lset_diff_and_intersection17 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13, lst14, lst15, lst16, &
-       &                                  lst17) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    class(*), intent(in) :: lst9
-    class(*), intent(in) :: lst10
-    class(*), intent(in) :: lst11
-    class(*), intent(in) :: lst12
-    class(*), intent(in) :: lst13
-    class(*), intent(in) :: lst14
-    class(*), intent(in) :: lst15
-    class(*), intent(in) :: lst16
-    class(*), intent(in) :: lst17
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6, lst7, lst8, &
-         &        lst9, lst10, lst11, lst12, &
-         &        lst13, lst14, lst15, lst16, &
-         &        lst17)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection17
-
-  recursive function lset_diff_and_intersection18 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13, lst14, lst15, lst16, &
-       &                                  lst17, lst18) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    class(*), intent(in) :: lst9
-    class(*), intent(in) :: lst10
-    class(*), intent(in) :: lst11
-    class(*), intent(in) :: lst12
-    class(*), intent(in) :: lst13
-    class(*), intent(in) :: lst14
-    class(*), intent(in) :: lst15
-    class(*), intent(in) :: lst16
-    class(*), intent(in) :: lst17
-    class(*), intent(in) :: lst18
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6, lst7, lst8, &
-         &        lst9, lst10, lst11, lst12, &
-         &        lst13, lst14, lst15, lst16, &
-         &        lst17, lst18)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection18
-
-  recursive function lset_diff_and_intersection19 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13, lst14, lst15, lst16, &
-       &                                  lst17, lst18, lst19) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    class(*), intent(in) :: lst9
-    class(*), intent(in) :: lst10
-    class(*), intent(in) :: lst11
-    class(*), intent(in) :: lst12
-    class(*), intent(in) :: lst13
-    class(*), intent(in) :: lst14
-    class(*), intent(in) :: lst15
-    class(*), intent(in) :: lst16
-    class(*), intent(in) :: lst17
-    class(*), intent(in) :: lst18
-    class(*), intent(in) :: lst19
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6, lst7, lst8, &
-         &        lst9, lst10, lst11, lst12, &
-         &        lst13, lst14, lst15, lst16, &
-         &        lst17, lst18, lst19)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection19
-
-  recursive function lset_diff_and_intersection20 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13, lst14, lst15, lst16, &
-       &                                  lst17, lst18, lst19, lst20) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    class(*), intent(in) :: lst3
-    class(*), intent(in) :: lst4
-    class(*), intent(in) :: lst5
-    class(*), intent(in) :: lst6
-    class(*), intent(in) :: lst7
-    class(*), intent(in) :: lst8
-    class(*), intent(in) :: lst9
-    class(*), intent(in) :: lst10
-    class(*), intent(in) :: lst11
-    class(*), intent(in) :: lst12
-    class(*), intent(in) :: lst13
-    class(*), intent(in) :: lst14
-    class(*), intent(in) :: lst15
-    class(*), intent(in) :: lst16
-    class(*), intent(in) :: lst17
-    class(*), intent(in) :: lst18
-    class(*), intent(in) :: lst19
-    class(*), intent(in) :: lst20
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2, lst3, lst4, &
-         &        lst5, lst6, lst7, lst8, &
-         &        lst9, lst10, lst11, lst12, &
-         &        lst13, lst14, lst15, lst16, &
-         &        lst17, lst18, lst19, lst20)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partition (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function lset_diff_and_intersection20
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
   recursive function lset_diff_and_intersectionx1 (equal, lst1) result (diff_and_xsect)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
@@ -5521,164 +4565,120 @@ contains
     diff_and_xsect = list (lst1, nil)
   end function lset_diff_and_intersectionx1
 
-  recursive function lset_diff_and_intersectionx2 (equal, lst1, lst2) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection2 (equal, lst1, lst2) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lists = list (lst1, lst2)
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection2
 
-  contains
+  recursive function lset_diff_and_intersectionx2 (equal, lst1, lst2) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx2
 
-  recursive function lset_diff_and_intersectionx3 (equal, lst1, lst2, lst3) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection3 (equal, lst1, lst2, lst3) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lists = list (lst1, lst2, lst3)
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection3
 
-  contains
+  recursive function lset_diff_and_intersectionx3 (equal, lst1, lst2, lst3) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx3
 
-  recursive function lset_diff_and_intersectionx4 (equal, lst1, lst2, lst3, lst4) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection4 (equal, lst1, lst2, lst3, lst4) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
     class(*), intent(in) :: lst4
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lists = list (lst1, lst2, lst3, lst4)
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection4
 
-  contains
+  recursive function lset_diff_and_intersectionx4 (equal, lst1, lst2, lst3, lst4) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx4
 
-  recursive function lset_diff_and_intersectionx5 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection5 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     class(*), intent(in) :: lst3
     class(*), intent(in) :: lst4
     class(*), intent(in) :: lst5
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection5
 
-  contains
+  recursive function lset_diff_and_intersectionx5 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx5
 
-  recursive function lset_diff_and_intersectionx6 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection6 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -5686,42 +4686,35 @@ contains
     class(*), intent(in) :: lst4
     class(*), intent(in) :: lst5
     class(*), intent(in) :: lst6
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection6
 
-  contains
+  recursive function lset_diff_and_intersectionx6 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx6
 
-  recursive function lset_diff_and_intersectionx7 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection7 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6, lst7) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -5730,42 +4723,36 @@ contains
     class(*), intent(in) :: lst5
     class(*), intent(in) :: lst6
     class(*), intent(in) :: lst7
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection7
 
-  contains
+  recursive function lset_diff_and_intersectionx7 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6, lst7) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx7
 
-  recursive function lset_diff_and_intersectionx8 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection8 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6, lst7, lst8) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -5775,43 +4762,38 @@ contains
     class(*), intent(in) :: lst6
     class(*), intent(in) :: lst7
     class(*), intent(in) :: lst8
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection8
 
-  contains
+  recursive function lset_diff_and_intersectionx8 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6, lst7, lst8) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx8
 
-  recursive function lset_diff_and_intersectionx9 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection9 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6, lst7, lst8, &
+       &                                          lst9) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -5822,44 +4804,42 @@ contains
     class(*), intent(in) :: lst7
     class(*), intent(in) :: lst8
     class(*), intent(in) :: lst9
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection9
 
-  contains
+  recursive function lset_diff_and_intersectionx9 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6, lst7, lst8, &
+       &                                           lst9) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx9
 
-  recursive function lset_diff_and_intersectionx10 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection10 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6, lst7, lst8, &
+       &                                          lst9, lst10) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -5871,44 +4851,43 @@ contains
     class(*), intent(in) :: lst8
     class(*), intent(in) :: lst9
     class(*), intent(in) :: lst10
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection10
 
-  contains
+  recursive function lset_diff_and_intersectionx10 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6, lst7, lst8, &
+       &                                           lst9, lst10) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx10
 
-  recursive function lset_diff_and_intersectionx11 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection11 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6, lst7, lst8, &
+       &                                          lst9, lst10, lst11) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -5921,44 +4900,44 @@ contains
     class(*), intent(in) :: lst9
     class(*), intent(in) :: lst10
     class(*), intent(in) :: lst11
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection11
 
-  contains
+  recursive function lset_diff_and_intersectionx11 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6, lst7, lst8, &
+       &                                           lst9, lst10, lst11) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx11
 
-  recursive function lset_diff_and_intersectionx12 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection12 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6, lst7, lst8, &
+       &                                          lst9, lst10, lst11, lst12) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -5972,45 +4951,46 @@ contains
     class(*), intent(in) :: lst10
     class(*), intent(in) :: lst11
     class(*), intent(in) :: lst12
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11, lst12)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection12
 
-  contains
+  recursive function lset_diff_and_intersectionx12 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6, lst7, lst8, &
+       &                                           lst9, lst10, lst11, lst12) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx12
 
-  recursive function lset_diff_and_intersectionx13 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection13 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6, lst7, lst8, &
+       &                                          lst9, lst10, lst11, lst12, &
+       &                                          lst13) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6025,46 +5005,50 @@ contains
     class(*), intent(in) :: lst11
     class(*), intent(in) :: lst12
     class(*), intent(in) :: lst13
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11, lst12, &
          &        lst13)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection13
 
-  contains
+  recursive function lset_diff_and_intersectionx13 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6, lst7, lst8, &
+       &                                           lst9, lst10, lst11, lst12, &
+       &                                           lst13) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx13
 
-  recursive function lset_diff_and_intersectionx14 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13, lst14) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection14 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6, lst7, lst8, &
+       &                                          lst9, lst10, lst11, lst12, &
+       &                                          lst13, lst14) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6080,46 +5064,51 @@ contains
     class(*), intent(in) :: lst12
     class(*), intent(in) :: lst13
     class(*), intent(in) :: lst14
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11, lst12, &
          &        lst13, lst14)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection14
 
-  contains
+  recursive function lset_diff_and_intersectionx14 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6, lst7, lst8, &
+       &                                           lst9, lst10, lst11, lst12, &
+       &                                           lst13, lst14) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx14
 
-  recursive function lset_diff_and_intersectionx15 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13, lst14, lst15) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection15 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6, lst7, lst8, &
+       &                                          lst9, lst10, lst11, lst12, &
+       &                                          lst13, lst14, lst15) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6136,46 +5125,52 @@ contains
     class(*), intent(in) :: lst13
     class(*), intent(in) :: lst14
     class(*), intent(in) :: lst15
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11, lst12, &
          &        lst13, lst14, lst15)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection15
 
-  contains
+  recursive function lset_diff_and_intersectionx15 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6, lst7, lst8, &
+       &                                           lst9, lst10, lst11, lst12, &
+       &                                           lst13, lst14, lst15) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx15
 
-  recursive function lset_diff_and_intersectionx16 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13, lst14, lst15, lst16) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection16 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6, lst7, lst8, &
+       &                                          lst9, lst10, lst11, lst12, &
+       &                                          lst13, lst14, lst15, lst16) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6193,47 +5188,54 @@ contains
     class(*), intent(in) :: lst14
     class(*), intent(in) :: lst15
     class(*), intent(in) :: lst16
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11, lst12, &
          &        lst13, lst14, lst15, lst16)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection16
 
-  contains
+  recursive function lset_diff_and_intersectionx16 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6, lst7, lst8, &
+       &                                           lst9, lst10, lst11, lst12, &
+       &                                           lst13, lst14, lst15, lst16) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx16
 
-  recursive function lset_diff_and_intersectionx17 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13, lst14, lst15, lst16, &
-       &                                  lst17) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection17 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6, lst7, lst8, &
+       &                                          lst9, lst10, lst11, lst12, &
+       &                                          lst13, lst14, lst15, lst16, &
+       &                                          lst17) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6252,48 +5254,58 @@ contains
     class(*), intent(in) :: lst15
     class(*), intent(in) :: lst16
     class(*), intent(in) :: lst17
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11, lst12, &
          &        lst13, lst14, lst15, lst16, &
          &        lst17)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection17
 
-  contains
+  recursive function lset_diff_and_intersectionx17 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6, lst7, lst8, &
+       &                                           lst9, lst10, lst11, lst12, &
+       &                                           lst13, lst14, lst15, lst16, &
+       &                                           lst17) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16, &
+         &        lst17)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx17
 
-  recursive function lset_diff_and_intersectionx18 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13, lst14, lst15, lst16, &
-       &                                  lst17, lst18) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection18 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6, lst7, lst8, &
+       &                                          lst9, lst10, lst11, lst12, &
+       &                                          lst13, lst14, lst15, lst16, &
+       &                                          lst17, lst18) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6313,48 +5325,59 @@ contains
     class(*), intent(in) :: lst16
     class(*), intent(in) :: lst17
     class(*), intent(in) :: lst18
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11, lst12, &
          &        lst13, lst14, lst15, lst16, &
          &        lst17, lst18)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection18
 
-  contains
+  recursive function lset_diff_and_intersectionx18 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6, lst7, lst8, &
+       &                                           lst9, lst10, lst11, lst12, &
+       &                                           lst13, lst14, lst15, lst16, &
+       &                                           lst17, lst18) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16, &
+         &        lst17, lst18)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx18
 
-  recursive function lset_diff_and_intersectionx19 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13, lst14, lst15, lst16, &
-       &                                  lst17, lst18, lst19) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection19 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6, lst7, lst8, &
+       &                                          lst9, lst10, lst11, lst12, &
+       &                                          lst13, lst14, lst15, lst16, &
+       &                                          lst17, lst18, lst19) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6375,48 +5398,60 @@ contains
     class(*), intent(in) :: lst17
     class(*), intent(in) :: lst18
     class(*), intent(in) :: lst19
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11, lst12, &
          &        lst13, lst14, lst15, lst16, &
          &        lst17, lst18, lst19)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = partitionx (is_not_in_any_list, lst1)
-    end if
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection19
 
-  contains
+  recursive function lset_diff_and_intersectionx19 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6, lst7, lst8, &
+       &                                           lst9, lst10, lst11, lst12, &
+       &                                           lst13, lst14, lst15, lst16, &
+       &                                           lst17, lst18, lst19) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    class(*), intent(in) :: lst19
+    type(cons_t) :: lst_out
 
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
+    type(cons_t) :: lists
 
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16, &
+         &        lst17, lst18, lst19)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
   end function lset_diff_and_intersectionx19
 
-  recursive function lset_diff_and_intersectionx20 (equal, lst1, lst2, lst3, lst4, &
-       &                                  lst5, lst6, lst7, lst8, &
-       &                                  lst9, lst10, lst11, lst12, &
-       &                                  lst13, lst14, lst15, lst16, &
-       &                                  lst17, lst18, lst19, lst20) result (diff_and_xsect)
+  recursive function lset_diff_and_intersection20 (equal, lst1, lst2, lst3, lst4, &
+       &                                          lst5, lst6, lst7, lst8, &
+       &                                          lst9, lst10, lst11, lst12, &
+       &                                          lst13, lst14, lst15, lst16, &
+       &                                          lst17, lst18, lst19, lst20) result (lst_out)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
@@ -6438,17 +5473,111 @@ contains
     class(*), intent(in) :: lst18
     class(*), intent(in) :: lst19
     class(*), intent(in) :: lst20
-    type(cons_t) :: diff_and_xsect
+    type(cons_t) :: lst_out
 
     type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
 
-    lists = list (lst2, lst3, lst4, &
+    lists = list (lst1, lst2, lst3, lst4, &
          &        lst5, lst6, lst7, lst8, &
          &        lst9, lst10, lst11, lst12, &
          &        lst13, lst14, lst15, lst16, &
          &        lst17, lst18, lst19, lst20)
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection20
+
+  recursive function lset_diff_and_intersectionx20 (equal, lst1, lst2, lst3, lst4, &
+       &                                           lst5, lst6, lst7, lst8, &
+       &                                           lst9, lst10, lst11, lst12, &
+       &                                           lst13, lst14, lst15, lst16, &
+       &                                           lst17, lst18, lst19, lst20) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    class(*), intent(in) :: lst3
+    class(*), intent(in) :: lst4
+    class(*), intent(in) :: lst5
+    class(*), intent(in) :: lst6
+    class(*), intent(in) :: lst7
+    class(*), intent(in) :: lst8
+    class(*), intent(in) :: lst9
+    class(*), intent(in) :: lst10
+    class(*), intent(in) :: lst11
+    class(*), intent(in) :: lst12
+    class(*), intent(in) :: lst13
+    class(*), intent(in) :: lst14
+    class(*), intent(in) :: lst15
+    class(*), intent(in) :: lst16
+    class(*), intent(in) :: lst17
+    class(*), intent(in) :: lst18
+    class(*), intent(in) :: lst19
+    class(*), intent(in) :: lst20
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1, lst2, lst3, lst4, &
+         &        lst5, lst6, lst7, lst8, &
+         &        lst9, lst10, lst11, lst12, &
+         &        lst13, lst14, lst15, lst16, &
+         &        lst17, lst18, lst19, lst20)
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
+  end function lset_diff_and_intersectionx20
+
+  recursive function apply_lset_diff_and_intersection (equal, lists) result (diff_and_xsect)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    type(cons_t) :: diff_and_xsect
+
+    type(cons_t) :: lst1
+    type(cons_t) :: the_rest
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lst1 = car (lists)
+    the_rest = cdr (lists)
+    if (every (is_nil_list, lists)) then
+       diff_and_xsect = list (lst1, nil)
+    else if (is_not_nil (member (cons_t_eq, lst1, the_rest))) then
+       ! Difference and intersection of a set with a set containing
+       ! it.
+       diff_and_xsect = list (nil, lst1)
+    else
+       diff_and_xsect = partition (is_not_in_any_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_not_in_any_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = .not. some (x_is_in, the_rest)
+    end function is_not_in_any_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function apply_lset_diff_and_intersection
+
+
+  recursive function apply_lset_diff_and_intersectionx (equal, lists) result (diff_and_xsect)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    type(cons_t) :: diff_and_xsect
+
+    type(cons_t) :: lst1
+    type(cons_t) :: the_rest
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lst1 = car (lists)
+    the_rest = cdr (lists)
+    if (every (is_nil_list, lists)) then
+       diff_and_xsect = list (lst1, nil)
+    else if (is_not_nil (member (cons_t_eq, lst1, the_rest))) then
        ! Difference and intersection of a set with a set containing
        ! it.
        diff_and_xsect = list (nil, lst1)
@@ -6463,7 +5592,7 @@ contains
       logical :: bool
 
       x = x_value
-      bool = .not. some (x_is_in, lists)
+      bool = .not. some (x_is_in, the_rest)
     end function is_not_in_any_list
 
     recursive function x_is_in (lst) result (bool)
@@ -6473,7 +5602,8 @@ contains
       bool = is_not_nil (member (equal, x, lst))
     end function x_is_in
 
-  end function lset_diff_and_intersectionx20
+  end function apply_lset_diff_and_intersectionx
+
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

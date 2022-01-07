@@ -51,26 +51,7 @@ module lsets
   ! A generic function for adding elements to a set.
   public :: lset_adjoin
 
-  ! Functions that take a list of lists as an argument. They resemble
-  ! using Scheme's `apply' procedure; for example,
-  !
-  !    apply_lset_union (equal, list_of_lists)
-  !
-  ! is a Fortran equivalent to the Scheme code
-  !
-  !    (apply lset-union equal list-of-lists))
-  !
-  public :: apply_lset_union         ! Return the union of the sets.
-  public :: apply_lset_unionx        ! Union that can alter its inputs.
-  public :: apply_lset_intersection  ! Return the intersection of the sets.
-  public :: apply_lset_intersectionx ! Intersection that can alter its inputs.
-  public :: apply_lset_difference    ! Return the difference of the sets.
-  public :: apply_lset_differencex   ! Difference that can alter its inputs.
-  ! FIXME: MORE `apply' variants GO HERE
-  public :: apply_lset_xor           ! Return the exclusive OR of the sets.
-
-  ! Generic functions, taking their arguments as the sets to operate
-  ! upon.
+  ! Generic functions for set operations.
   public :: lset_union          ! Return the union of sets.
   public :: lset_unionx         ! Union that can alter its inputs.
   public :: lset_intersection   ! Return the intersection of sets.
@@ -89,8 +70,27 @@ module lsets
   !
   ! But they are more efficient at it.
   !
-  public :: lset_diff_and_intersection  ! Not allowed to alter its inputs. ! FIXME: THESE NEED `apply' variants
+  public :: lset_diff_and_intersection  ! Not allowed to alter its inputs.
   public :: lset_diff_and_intersectionx ! Allowed to alter its inputs.
+
+  ! Functions that take a list of lists as an argument. They resemble
+  ! using Scheme's `apply' procedure; for example,
+  !
+  !    apply_lset_union (equal, list_of_lists)
+  !
+  ! is a Fortran equivalent to the Scheme code
+  !
+  !    (apply lset-union equal list-of-lists))
+  !
+  public :: apply_lset_union         ! Return the union of the sets.
+  public :: apply_lset_unionx        ! Union that can alter its inputs.
+  public :: apply_lset_intersection  ! Return the intersection of the sets.
+  public :: apply_lset_intersectionx ! Intersection that can alter its inputs.
+  public :: apply_lset_difference    ! Return the difference of the sets.
+  public :: apply_lset_differencex   ! Difference that can alter its inputs.
+  public :: apply_lset_xor           ! Return the exclusive OR of the sets.
+  public :: apply_lset_diff_and_intersection  ! See lset_diff_and_intersection.
+  public :: apply_lset_diff_and_intersectionx ! See lset_diff_and_intersectionx.
 
   ! Implementations of lset_adjoin.
 m4_forloop([n],[0],LISTN_MAX,[dnl
@@ -590,49 +590,6 @@ m4_apply_lset_difference([apply_lset_differencex],[filterx])
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-m4_define([m4_lset_diff_and_intersection],[dnl
-  recursive function $1[]$2 (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
-       &                                  ])lst[]k])) result (diff_and_xsect)
-    procedure(list_predicate2_t) :: equal
-m4_forloop([k],[1],n,[dnl
-    class(*), intent(in) :: lst[]k
-])dnl
-    type(cons_t) :: diff_and_xsect
-
-    type(cons_t) :: lists
-    class(*), allocatable :: x ! x is used by the nested procedures.
-
-    lists = list (lst2[]m4_forloop([k],[3],n,[, m4_if(m4_eval(k % 4),[1],[&
-         &        ])lst[]k]))
-    if (is_not_nil (member (cons_t_eq, lst1, lists))) then
-       ! Difference and intersection of a set with a set containing
-       ! it.
-       diff_and_xsect = list (nil, lst1)
-    else
-       diff_and_xsect = $3 (is_not_in_any_list, lst1)
-    end if
-
-  contains
-
-    recursive function is_not_in_any_list (x_value) result (bool)
-      class(*), intent(in) :: x_value
-      logical :: bool
-
-      x = x_value
-      bool = .not. some (x_is_in, lists)
-    end function is_not_in_any_list
-
-    recursive function x_is_in (lst) result (bool)
-      class(*), intent(in) :: lst
-      logical :: bool
-
-      bool = is_not_nil (member (equal, x, lst))
-    end function x_is_in
-
-  end function $1[]$2
-
-])dnl
-dnl
   recursive function lset_diff_and_intersection1 (equal, lst1) result (diff_and_xsect)
     procedure(list_predicate2_t) :: equal
     class(*), intent(in) :: lst1
@@ -640,10 +597,6 @@ dnl
 
     diff_and_xsect = list (lst1, nil)
   end function lset_diff_and_intersection1
-
-m4_forloop([n],[2],LISTN_MAX,[m4_lset_diff_and_intersection([lset_diff_and_intersection],n,[partition])])dnl
-dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive function lset_diff_and_intersectionx1 (equal, lst1) result (diff_and_xsect)
     procedure(list_predicate2_t) :: equal
@@ -653,7 +606,84 @@ dnl
     diff_and_xsect = list (lst1, nil)
   end function lset_diff_and_intersectionx1
 
-m4_forloop([n],[2],LISTN_MAX,[m4_lset_diff_and_intersection([lset_diff_and_intersectionx],n,[partitionx])])dnl
+m4_forloop([n],[2],LISTN_MAX,[dnl
+  recursive function lset_diff_and_intersection[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                                          ])lst[]k])) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &        ])lst[]k]))
+    lst_out = apply_lset_diff_and_intersection (equal, lists)
+  end function lset_diff_and_intersection[]n
+
+  recursive function lset_diff_and_intersectionx[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                                           ])lst[]k])) result (lst_out)
+    procedure(list_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    type(cons_t) :: lst_out
+
+    type(cons_t) :: lists
+
+    lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &        ])lst[]k]))
+    lst_out = apply_lset_diff_and_intersectionx (equal, lists)
+  end function lset_diff_and_intersectionx[]n
+
+])dnl
+dnl
+m4_define([m4_apply_lset_diff_and_intersection],[dnl
+  recursive function $1 (equal, lists) result (diff_and_xsect)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    type(cons_t) :: diff_and_xsect
+
+    type(cons_t) :: lst1
+    type(cons_t) :: the_rest
+    class(*), allocatable :: x ! x is used by the nested procedures.
+
+    lst1 = car (lists)
+    the_rest = cdr (lists)
+    if (every (is_nil_list, lists)) then
+       diff_and_xsect = list (lst1, nil)
+    else if (is_not_nil (member (cons_t_eq, lst1, the_rest))) then
+       ! Difference and intersection of a set with a set containing
+       ! it.
+       diff_and_xsect = list (nil, lst1)
+    else
+       diff_and_xsect = $2 (is_not_in_any_list, lst1)
+    end if
+
+  contains
+
+    recursive function is_not_in_any_list (x_value) result (bool)
+      class(*), intent(in) :: x_value
+      logical :: bool
+
+      x = x_value
+      bool = .not. some (x_is_in, the_rest)
+    end function is_not_in_any_list
+
+    recursive function x_is_in (lst) result (bool)
+      class(*), intent(in) :: lst
+      logical :: bool
+
+      bool = is_not_nil (member (equal, x, lst))
+    end function x_is_in
+
+  end function $1
+
+])dnl
+dnl
+m4_apply_lset_diff_and_intersection([apply_lset_diff_and_intersection],[partition])
+m4_apply_lset_diff_and_intersection([apply_lset_diff_and_intersectionx],[partitionx])
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

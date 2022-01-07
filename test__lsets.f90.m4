@@ -52,14 +52,6 @@ module test__lsets
      module procedure int_eq
   end interface operator(.eqi.)
 
-!!$  interface operator(.eqsz.)
-!!$     module procedure size_kind_eq
-!!$  end interface operator(.eqsz.)
-!!$
-!!$  interface operator(.eqr.)
-!!$     module procedure real_eq
-!!$  end interface operator(.eqr.)
-
 contains
 
   subroutine error_abort (msg)
@@ -124,39 +116,6 @@ contains
     end select
   end function int_cast
 
-!!$  function size_kind_cast (obj) result (int)
-!!$    class(*), intent(in) :: obj
-!!$    integer(size_kind) :: int
-!!$    select type (obj)
-!!$    type is (integer(size_kind))
-!!$       int = obj
-!!$    class default
-!!$       call error_abort ("size_kind_cast of an incompatible object")
-!!$    end select
-!!$  end function size_kind_cast
-!!$
-!!$  function real_cast (obj) result (r)
-!!$    class(*), intent(in) :: obj
-!!$    real :: r
-!!$    select type (obj)
-!!$    type is (real)
-!!$       r = obj
-!!$    class default
-!!$       call error_abort ("real_cast of an incompatible object")
-!!$    end select
-!!$  end function real_cast
-!!$
-!!$  function logical_cast (obj) result (b)
-!!$    class(*), intent(in) :: obj
-!!$    logical :: b
-!!$    select type (obj)
-!!$    type is (logical)
-!!$       b = obj
-!!$    class default
-!!$       call error_abort ("logical_cast of an incompatible object")
-!!$    end select
-!!$  end function logical_cast
-
   function str_t_cast (obj) result (s)
     class(*), intent(in) :: obj
     type(str_t) :: s
@@ -192,39 +151,6 @@ contains
     bool = str_t_cast (obj1) < str_t_cast (obj2)
   end function str_t_lt
 
-!!$  function size_kind_eq (obj1, obj2) result (bool)
-!!$    class(*), intent(in) :: obj1, obj2
-!!$    logical :: bool
-!!$    bool = size_kind_cast (obj1) == size_kind_cast (obj2)
-!!$  end function size_kind_eq
-!!$
-!!$  function real_eq (obj1, obj2) result (bool)
-!!$    class(*), intent(in) :: obj1, obj2
-!!$    logical :: bool
-!!$    bool = real_cast (obj1) == real_cast (obj2)
-!!$  end function real_eq
-!!$
-!!$  function num_same (obj1, obj2) result (bool)
-!!$    !
-!!$    ! Are obj1 and obj2 either equal integers or equal reals?
-!!$    !
-!!$    class(*), intent(in) :: obj1, obj2
-!!$    logical :: bool
-!!$    bool = .false.
-!!$    select type (obj1)
-!!$    type is (integer)
-!!$       select type (obj2)
-!!$       type is (integer)
-!!$          bool = obj1 == obj2
-!!$       end select
-!!$    type is (real)
-!!$       select type (obj2)
-!!$       type is (real)
-!!$          bool = obj1 == obj2
-!!$       end select
-!!$    end select
-!!$  end function num_same
-
   function int_eq_gc (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1, obj2
     logical :: bool
@@ -239,14 +165,6 @@ contains
     call collect_garbage_now
     bool = (str_t_cast (str1) == str_t_cast (str2))
   end function str_t_eq_gc
-
-!!$  function str_t_lt_gc (str1, str2) result (bool)
-!!$    class(*), intent(in) :: str1
-!!$    class(*), intent(in) :: str2
-!!$    logical :: bool
-!!$    call collect_garbage_now
-!!$    bool = (str_t_cast (str1) < str_t_cast (str2))
-!!$  end function str_t_lt_gc
 
   subroutine test0010
     type(cons_t) :: lst, lst1
@@ -825,17 +743,17 @@ contains
     lst1_copy = list_copy (lst1)
     lst2_copy = list_copy (lst2)
     lst3 = lset_diff_and_intersection (str_t_eq_gc, lst1, lst2)
-    call check (list_equal (str_t_eq, lst1, lst1_copy), "0080-00010 failed")
-    call check (list_equal (str_t_eq, lst2, lst2_copy), "0080-00020 failed")
+    call check (list_equal (str_t_eq, lst1, lst1_copy), "test0080-00010 failed")
+    call check (list_equal (str_t_eq, lst2, lst2_copy), "test0080-00020 failed")
     lst4 = list (str_t ('b'), str_t ('c'), str_t ('d'))
     lst5 = list (str_t ('a'), str_t ('e'))
-    call check (length (lst3) == 2, "0080-0030 failed")
-    call check (list_equal (str_t_eq, list_sort (str_t_lt, first (lst3)), list_sort (str_t_lt, lst4)), "0080-0040 failed")
-    call check (list_equal (str_t_eq, list_sort (str_t_lt, second (lst3)), list_sort (str_t_lt, lst5)), "0080-0050 failed")
+    call check (length (lst3) == 2, "test0080-0030 failed")
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, first (lst3)), list_sort (str_t_lt, lst4)), "test0080-0040 failed")
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, second (lst3)), list_sort (str_t_lt, lst5)), "test0080-0050 failed")
     call check (list_equal (str_t_eq, list_sort (str_t_lt, first (lst3)), &
-         &                  list_sort (str_t_lt, first (reference_result2 (str_t_eq, lst1, lst2)))), "0080-0060 failed")
+         &                  list_sort (str_t_lt, first (reference_result2 (str_t_eq, lst1, lst2)))), "test0080-0060 failed")
     call check (list_equal (str_t_eq, list_sort (str_t_lt, second (lst3)), &
-         &                  list_sort (str_t_lt, second (reference_result2 (str_t_eq, lst1, lst2)))), "0080-0070 failed")
+         &                  list_sort (str_t_lt, second (reference_result2 (str_t_eq, lst1, lst2)))), "test0080-0070 failed")
 
 
     ! The difference of two equal sets is a null set. Their
@@ -845,44 +763,44 @@ contains
     lst1_copy = list_copy (lst1)
     lst2_copy = list_copy (lst2)
     lst3 = lset_diff_and_intersection (int_eq_gc, lst1, lst2)
-    call check (list_equal (int_eq, lst1, lst1_copy), "0080-0110 failed")
-    call check (list_equal (int_eq, lst2, lst2_copy), "0080-0120 failed")
+    call check (list_equal (int_eq, lst1, lst1_copy), "test0080-0110 failed")
+    call check (list_equal (int_eq, lst2, lst2_copy), "test0080-0120 failed")
     lst4 = nil
     lst5 = iota (100, 1)
-    call check (length (lst3) == 2, "0080-0130 failed")
-    call check (list_equal (int_eq, list_sort (int_lt, first (lst3)), list_sort (int_lt, lst4)), "0080-0140 failed")
-    call check (list_equal (int_eq, list_sort (int_lt, second (lst3)), list_sort (int_lt, lst5)), "0080-0150 failed")
+    call check (length (lst3) == 2, "test0080-0130 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, first (lst3)), list_sort (int_lt, lst4)), "test0080-0140 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, second (lst3)), list_sort (int_lt, lst5)), "test0080-0150 failed")
     call check (list_equal (int_eq, list_sort (int_lt, first (lst3)), &
-         &                  list_sort (int_lt, first (reference_result2 (int_eq, lst1, lst2)))), "0080-0160 failed")
+         &                  list_sort (int_lt, first (reference_result2 (int_eq, lst1, lst2)))), "test0080-0160 failed")
     call check (list_equal (int_eq, list_sort (int_lt, second (lst3)), &
-         &                  list_sort (int_lt, second (reference_result2 (int_eq, lst1, lst2)))), "0080-0170 failed")
+         &                  list_sort (int_lt, second (reference_result2 (int_eq, lst1, lst2)))), "test0080-0170 failed")
 
     ! The difference of a set and itself is a null set. The
     ! intersection is itself.
     lst1 = iota (100, 1)
     lst1_copy = list_copy (lst1)
     lst3 = lset_diff_and_intersection (int_eq_gc, lst1, lst1)
-    call check (list_equal (int_eq, lst1, lst1_copy), "0080-0210 failed")
-    call check (length (lst3) == 2, "0080-0230 failed")
-    call check (list_equal (int_eq, is_nil (first (lst3))), "0080-0240 failed")
-    call check (list_equal (int_eq, cons_t_eq (second (lst3), lst1)), "0080-0250 failed")
+    call check (list_equal (int_eq, lst1, lst1_copy), "test0080-0210 failed")
+    call check (length (lst3) == 2, "test0080-0230 failed")
+    call check (list_equal (int_eq, is_nil (first (lst3))), "test0080-0240 failed")
+    call check (list_equal (int_eq, cons_t_eq (second (lst3), lst1)), "test0080-0250 failed")
 
     ! Try three lists.
     lst1 = iota (100, 1)
     lst2 = iota (20, 1)
     lst3 = iota (50, 1, 2)
     lst4 = lset_diff_and_intersection (int_eq_gc, lst1, lst2, lst3)
-    call check (length (lst4) == 2, "0080-0330 failed")
-    call check (list_equal (int_eq, list_sort (int_lt, first (lst4)), iota (40, 22, 2)), "0080-0340 failed")
+    call check (length (lst4) == 2, "test0080-0330 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, first (lst4)), iota (40, 22, 2)), "test0080-0340 failed")
     call check (list_equal (int_eq, list_sort (int_lt, second (lst4)), &
          &                  list_sort (int_lt, lset_union (int_eq, iota (20, 1), iota (40, 21, 2)))), &
-         &      "0080-0350 failed")
+         &      "test0080-0350 failed")
     call check (list_equal (int_eq, list_sort (int_lt, first (lst4)), &
          &                  list_sort (int_lt, first (reference_result3 (int_eq, lst1, lst2, lst3)))), &
-         &      "0080-0360 failed")
+         &      "test0080-0360 failed")
     call check (list_equal (int_eq, list_sort (int_lt, second (lst4)), &
          &                  list_sort (int_lt, second (reference_result3 (int_eq, lst1, lst2, lst3)))), &
-         &      "0080-0370 failed")
+         &      "test0080-0370 failed")
 
     ! Try four lists.
     lst1 = iota (100, 1)
@@ -891,28 +809,30 @@ contains
     lst4 = iota (50, 75)
     lst5 = lset_diff_and_intersection (int_eq_gc, lst1, lst2, lst3, lst4)
     lst6 = reference_result4 (int_eq, lst1, lst2, lst3, lst4)
-    call check (length (lst5) == 2, "0080-0430 failed")
+    call check (length (lst5) == 2, "test0080-0430 failed")
     call check (list_equal (int_eq, &
          &                  list_sort (int_lt, first (lst5)), &
-         &                  list_sort (int_lt, first (lst6))), "0080-0460 failed")
+         &                  list_sort (int_lt, first (lst6))), "test0080-0460 failed")
     call check (list_equal (int_eq, &
          &                  list_sort (int_lt, second (lst5)), &
-         &                  list_sort (int_lt, second (lst6))), "0080-0470 failed")
+         &                  list_sort (int_lt, second (lst6))), "test0080-0470 failed")
 
 
     ! Try a null set, alone.
-    call check (list_equal (int_eq, first (lset_diff_and_intersection (int_eq_gc, nil)), nil), "0080-0500 failed")
-    call check (list_equal (int_eq, second (lset_diff_and_intersection (int_eq_gc, nil)), nil), "0080-0510 failed")
+    call check (list_equal (int_eq, first (lset_diff_and_intersection (int_eq_gc, nil)), nil), "test0080-0500 failed")
+    call check (list_equal (int_eq, second (lset_diff_and_intersection (int_eq_gc, nil)), nil), "test0080-0510 failed")
 
     ! Try a singleton set, alone.
-    call check (list_equal (int_eq, first (lset_diff_and_intersection (int_eq_gc, list (123))), list (123)), "0080-0600 failed")
-    call check (list_equal (int_eq, second (lset_diff_and_intersection (int_eq_gc, list (123))), nil), "0080-0610 failed")
+    call check (list_equal (int_eq, first (lset_diff_and_intersection (int_eq_gc, list (123))), list (123)), &
+         &      "test0080-0600 failed")
+    call check (list_equal (int_eq, second (lset_diff_and_intersection (int_eq_gc, list (123))), nil), &
+         &      "test0080-0610 failed")
     call check (list_equal (int_eq, first (lset_diff_and_intersection (int_eq_gc, list (123))), &
          &                  first (reference_result1 (int_eq, list (123)))), &
-         &      "0080-0620 failed")
+         &      "test0080-0620 failed")
     call check (list_equal (int_eq, second (lset_diff_and_intersection (int_eq_gc, list (123))), &
          &                  second (reference_result1 (int_eq, list (123)))), &
-         &      "0080-0640 failed")
+         &      "test0080-0640 failed")
 
   contains
 
@@ -962,6 +882,156 @@ contains
 
   end subroutine test0080
 
+  subroutine test0085
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
+    type(gcroot_t) :: lst1_copy, lst2_copy
+
+    lst1 = list (str_t ('a'), str_t ('b'), str_t ('c'), str_t ('d'), str_t ('e'))
+    lst2 = list (str_t ('a'), str_t ('e'), str_t ('i'), str_t ('o'), str_t ('u'))
+    lst1_copy = list_copy (lst1)
+    lst2_copy = list_copy (lst2)
+    lst3 = apply_lset_diff_and_intersection (str_t_eq_gc, list (lst1, lst2))
+    call check (list_equal (str_t_eq, lst1, lst1_copy), "test0085-00010 failed")
+    call check (list_equal (str_t_eq, lst2, lst2_copy), "test0085-00020 failed")
+    lst4 = list (str_t ('b'), str_t ('c'), str_t ('d'))
+    lst5 = list (str_t ('a'), str_t ('e'))
+    call check (length (lst3) == 2, "test0085-0030 failed")
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, first (lst3)), list_sort (str_t_lt, lst4)), "test0085-0040 failed")
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, second (lst3)), list_sort (str_t_lt, lst5)), "test0085-0050 failed")
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, first (lst3)), &
+         &                  list_sort (str_t_lt, first (reference_result2 (str_t_eq, lst1, lst2)))), "test0085-0060 failed")
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, second (lst3)), &
+         &                  list_sort (str_t_lt, second (reference_result2 (str_t_eq, lst1, lst2)))), "test0085-0070 failed")
+
+
+    ! The difference of two equal sets is a null set. Their
+    ! intersection is an equal set.
+    lst1 = iota (100, 1)
+    lst2 = iota (100, 1)
+    lst1_copy = list_copy (lst1)
+    lst2_copy = list_copy (lst2)
+    lst3 = apply_lset_diff_and_intersection (int_eq_gc, list (lst1, lst2))
+    call check (list_equal (int_eq, lst1, lst1_copy), "test0085-0110 failed")
+    call check (list_equal (int_eq, lst2, lst2_copy), "test0085-0120 failed")
+    lst4 = nil
+    lst5 = iota (100, 1)
+    call check (length (lst3) == 2, "test0085-0130 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, first (lst3)), list_sort (int_lt, lst4)), "test0085-0140 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, second (lst3)), list_sort (int_lt, lst5)), "test0085-0150 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, first (lst3)), &
+         &                  list_sort (int_lt, first (reference_result2 (int_eq, lst1, lst2)))), "test0085-0160 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, second (lst3)), &
+         &                  list_sort (int_lt, second (reference_result2 (int_eq, lst1, lst2)))), "test0085-0170 failed")
+
+    ! The difference of a set and itself is a null set. The
+    ! intersection is itself.
+    lst1 = iota (100, 1)
+    lst1_copy = list_copy (lst1)
+    lst3 = apply_lset_diff_and_intersection (int_eq_gc, list (lst1, lst1))
+    call check (list_equal (int_eq, lst1, lst1_copy), "test0085-0210 failed")
+    call check (length (lst3) == 2, "test0085-0230 failed")
+    call check (list_equal (int_eq, is_nil (first (lst3))), "test0085-0240 failed")
+    call check (list_equal (int_eq, cons_t_eq (second (lst3), lst1)), "test0085-0250 failed")
+
+    ! Try three lists.
+    lst1 = iota (100, 1)
+    lst2 = iota (20, 1)
+    lst3 = iota (50, 1, 2)
+    lst4 = apply_lset_diff_and_intersection (int_eq_gc, list (lst1, lst2, lst3))
+    call check (length (lst4) == 2, "test0085-0330 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, first (lst4)), iota (40, 22, 2)), "test0085-0340 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, second (lst4)), &
+         &                  list_sort (int_lt, lset_union (int_eq, iota (20, 1), iota (40, 21, 2)))), &
+         &      "test0085-0350 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, first (lst4)), &
+         &                  list_sort (int_lt, first (reference_result3 (int_eq, lst1, lst2, lst3)))), &
+         &      "test0085-0360 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, second (lst4)), &
+         &                  list_sort (int_lt, second (reference_result3 (int_eq, lst1, lst2, lst3)))), &
+         &      "test0085-0370 failed")
+
+    ! Try four lists.
+    lst1 = iota (100, 1)
+    lst2 = iota (20, 37, 3)
+    lst3 = iota (100, 51)
+    lst4 = iota (50, 75)
+    lst5 = apply_lset_diff_and_intersection (int_eq_gc, list (lst1, lst2, lst3, lst4))
+    lst6 = reference_result4 (int_eq, lst1, lst2, lst3, lst4)
+    call check (length (lst5) == 2, "test0085-0430 failed")
+    call check (list_equal (int_eq, &
+         &                  list_sort (int_lt, first (lst5)), &
+         &                  list_sort (int_lt, first (lst6))), "test0085-0460 failed")
+    call check (list_equal (int_eq, &
+         &                  list_sort (int_lt, second (lst5)), &
+         &                  list_sort (int_lt, second (lst6))), "test0085-0470 failed")
+
+
+    ! Try a null set, alone.
+    call check (list_equal (int_eq, first (apply_lset_diff_and_intersection (int_eq_gc, list (nil))), nil), &
+         &      "test0085-0500 failed")
+    call check (list_equal (int_eq, second (apply_lset_diff_and_intersection (int_eq_gc, list (nil))), nil), &
+         &      "test0085-0510 failed")
+
+    ! Try a singleton set, alone.
+    call check (list_equal (int_eq, first (apply_lset_diff_and_intersection (int_eq_gc, list (list (123)))), list (123)), &
+         &      "test0085-0600 failed")
+    call check (list_equal (int_eq, second (apply_lset_diff_and_intersection (int_eq_gc, list (list (123)))), nil), &
+         &      "test0085-0610 failed")
+    call check (list_equal (int_eq, first (apply_lset_diff_and_intersection (int_eq_gc, list (list (123)))), &
+         &                  first (reference_result1 (int_eq, list (123)))), &
+         &      "test0085-0620 failed")
+    call check (list_equal (int_eq, second (apply_lset_diff_and_intersection (int_eq_gc, list (list (123)))), &
+         &                  second (reference_result1 (int_eq, list (123)))), &
+         &      "test0085-0640 failed")
+
+  contains
+
+    recursive function reference_result1 (equal, lst1) result (diff_and_xsect)
+      procedure(list_predicate2_t) :: equal
+      class(*), intent(in) :: lst1
+      type(cons_t) :: diff_and_xsect
+
+      diff_and_xsect = list (lset_difference (equal, lst1), lset_intersection (equal, lst1, lset_union (equal)))
+    end function reference_result1
+
+    recursive function reference_result2 (equal, lst1, lst2) result (diff_and_xsect)
+      procedure(list_predicate2_t) :: equal
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      type(cons_t) :: diff_and_xsect
+
+      diff_and_xsect = list (lset_difference (equal, lst1, lst2), lset_intersection (equal, lst1, lst2))
+    end function reference_result2
+
+    recursive function reference_result3 (equal, lst1, lst2, lst3) result (diff_and_xsect)
+      procedure(list_predicate2_t) :: equal
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      type(cons_t) :: diff_and_xsect
+
+      class(*), allocatable :: union
+
+      union = lset_union (equal, lst2, lst3)
+      diff_and_xsect = list (lset_difference (equal, lst1, lst2, lst3), lset_intersection (equal, lst1, union))
+    end function reference_result3
+
+    recursive function reference_result4 (equal, lst1, lst2, lst3, lst4) result (diff_and_xsect)
+      procedure(list_predicate2_t) :: equal
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      type(cons_t) :: diff_and_xsect
+
+      class(*), allocatable :: union
+
+      union = lset_union (equal, lst2, lst3, lst4)
+      diff_and_xsect = list (lset_difference (equal, lst1, lst2, lst3, lst4), lset_intersection (equal, lst1, union))
+    end function reference_result4
+
+  end subroutine test0085
+
   subroutine test0090
     type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
     type(gcroot_t) :: lst1a, lst2a, lst3a, lst4a
@@ -973,13 +1043,13 @@ contains
     lst3 = lset_diff_and_intersectionx (str_t_eq_gc, lst1, lst2)
     lst4 = list (str_t ('b'), str_t ('c'), str_t ('d'))
     lst5 = list (str_t ('a'), str_t ('e'))
-    call check (length (lst3) == 2, "0090-0030 failed")
-    call check (list_equal (str_t_eq, list_sort (str_t_lt, first (lst3)), list_sort (str_t_lt, lst4)), "0090-0040 failed")
-    call check (list_equal (str_t_eq, list_sort (str_t_lt, second (lst3)), list_sort (str_t_lt, lst5)), "0090-0050 failed")
+    call check (length (lst3) == 2, "test0090-0030 failed")
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, first (lst3)), list_sort (str_t_lt, lst4)), "test0090-0040 failed")
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, second (lst3)), list_sort (str_t_lt, lst5)), "test0090-0050 failed")
     call check (list_equal (str_t_eq, list_sort (str_t_lt, first (lst3)), &
-         &                  list_sort (str_t_lt, first (reference_result2 (str_t_eq, lst1a, lst2a)))), "0090-0060 failed")
+         &                  list_sort (str_t_lt, first (reference_result2 (str_t_eq, lst1a, lst2a)))), "test0090-0060 failed")
     call check (list_equal (str_t_eq, list_sort (str_t_lt, second (lst3)), &
-         &                  list_sort (str_t_lt, second (reference_result2 (str_t_eq, lst1a, lst2a)))), "0090-0070 failed")
+         &                  list_sort (str_t_lt, second (reference_result2 (str_t_eq, lst1a, lst2a)))), "test0090-0070 failed")
 
 
     ! The difference of two equal sets is a null set. Their
@@ -991,21 +1061,21 @@ contains
     lst3 = lset_diff_and_intersectionx (int_eq_gc, lst1, lst2)
     lst4 = nil
     lst5 = iota (100, 1)
-    call check (length (lst3) == 2, "0090-0130 failed")
-    call check (list_equal (int_eq, list_sort (int_lt, first (lst3)), list_sort (int_lt, lst4)), "0090-0140 failed")
-    call check (list_equal (int_eq, list_sort (int_lt, second (lst3)), list_sort (int_lt, lst5)), "0090-0150 failed")
+    call check (length (lst3) == 2, "test0090-0130 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, first (lst3)), list_sort (int_lt, lst4)), "test0090-0140 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, second (lst3)), list_sort (int_lt, lst5)), "test0090-0150 failed")
     call check (list_equal (int_eq, list_sort (int_lt, first (lst3)), &
-         &                  list_sort (int_lt, first (reference_result2 (int_eq, lst1a, lst2a)))), "0090-0160 failed")
+         &                  list_sort (int_lt, first (reference_result2 (int_eq, lst1a, lst2a)))), "test0090-0160 failed")
     call check (list_equal (int_eq, list_sort (int_lt, second (lst3)), &
-         &                  list_sort (int_lt, second (reference_result2 (int_eq, lst1a, lst2a)))), "0090-0170 failed")
+         &                  list_sort (int_lt, second (reference_result2 (int_eq, lst1a, lst2a)))), "test0090-0170 failed")
 
     ! The difference of a set and itself is a null set. The
     ! intersection is itself.
     lst1 = iota (100, 1)
     lst3 = lset_diff_and_intersectionx (int_eq_gc, lst1, lst1)
-    call check (length (lst3) == 2, "0090-0230 failed")
-    call check (list_equal (int_eq, is_nil (first (lst3))), "0090-0240 failed")
-    call check (list_equal (int_eq, cons_t_eq (second (lst3), lst1)), "0090-0250 failed")
+    call check (length (lst3) == 2, "test0090-0230 failed")
+    call check (list_equal (int_eq, is_nil (first (lst3))), "test0090-0240 failed")
+    call check (list_equal (int_eq, cons_t_eq (second (lst3), lst1)), "test0090-0250 failed")
 
     ! Try three lists.
     lst1 = iota (100, 1)
@@ -1015,17 +1085,17 @@ contains
     lst2a = list_copy (lst2)
     lst3a = list_copy (lst3)
     lst4 = lset_diff_and_intersectionx (int_eq_gc, lst1, lst2, lst3)
-    call check (length (lst4) == 2, "0090-0330 failed")
-    call check (list_equal (int_eq, list_sort (int_lt, first (lst4)), iota (40, 22, 2)), "0090-0340 failed")
+    call check (length (lst4) == 2, "test0090-0330 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, first (lst4)), iota (40, 22, 2)), "test0090-0340 failed")
     call check (list_equal (int_eq, list_sort (int_lt, second (lst4)), &
          &                  list_sort (int_lt, lset_union (int_eq, iota (20, 1), iota (40, 21, 2)))), &
-         &      "0090-0350 failed")
+         &      "test0090-0350 failed")
     call check (list_equal (int_eq, list_sort (int_lt, first (lst4)), &
          &                  list_sort (int_lt, first (reference_result3 (int_eq, lst1a, lst2a, lst3a)))), &
-         &      "0090-0360 failed")
+         &      "test0090-0360 failed")
     call check (list_equal (int_eq, list_sort (int_lt, second (lst4)), &
          &                  list_sort (int_lt, second (reference_result3 (int_eq, lst1a, lst2a, lst3a)))), &
-         &      "0090-0370 failed")
+         &      "test0090-0370 failed")
 
     ! Try four lists.
     lst1 = iota (100, 1)
@@ -1038,30 +1108,30 @@ contains
     lst4a = list_copy (lst4)
     lst5 = lset_diff_and_intersectionx (int_eq_gc, lst1, lst2, lst3, lst4)
     lst6 = reference_result4 (int_eq, lst1a, lst2a, lst3a, lst4a)
-    call check (length (lst5) == 2, "0090-0430 failed")
+    call check (length (lst5) == 2, "test0090-0430 failed")
     call check (list_equal (int_eq, &
          &                  list_sort (int_lt, first (lst5)), &
-         &                  list_sort (int_lt, first (lst6))), "0090-0460 failed")
+         &                  list_sort (int_lt, first (lst6))), "test0090-0460 failed")
     call check (list_equal (int_eq, &
          &                  list_sort (int_lt, second (lst5)), &
-         &                  list_sort (int_lt, second (lst6))), "0090-0470 failed")
+         &                  list_sort (int_lt, second (lst6))), "test0090-0470 failed")
 
 
     ! Try a null set, alone.
-    call check (list_equal (int_eq, first (lset_diff_and_intersectionx (int_eq_gc, nil)), nil), "0090-0500 failed")
-    call check (list_equal (int_eq, second (lset_diff_and_intersectionx (int_eq_gc, nil)), nil), "0090-0510 failed")
+    call check (list_equal (int_eq, first (lset_diff_and_intersectionx (int_eq_gc, nil)), nil), "test0090-0500 failed")
+    call check (list_equal (int_eq, second (lset_diff_and_intersectionx (int_eq_gc, nil)), nil), "test0090-0510 failed")
 
     ! Try a singleton set, alone.
     call check (list_equal (int_eq, first (lset_diff_and_intersectionx (int_eq_gc, list (123))), list (123)), &
-         &      "0090-0600 failed")
+         &      "test0090-0600 failed")
     call check (list_equal (int_eq, second (lset_diff_and_intersectionx (int_eq_gc, list (123))), nil), &
-         &      "0090-0610 failed")
+         &      "test0090-0610 failed")
     call check (list_equal (int_eq, first (lset_diff_and_intersectionx (int_eq_gc, list (123))), &
          &                  first (reference_result1 (int_eq, list (123)))), &
-         &      "0090-0620 failed")
+         &      "test0090-0620 failed")
     call check (list_equal (int_eq, second (lset_diff_and_intersectionx (int_eq_gc, list (123))), &
          &                  second (reference_result1 (int_eq, list (123)))), &
-         &      "0090-0640 failed")
+         &      "test0090-0640 failed")
 
   contains
 
@@ -1110,6 +1180,157 @@ contains
     end function reference_result4
 
   end subroutine test0090
+
+  subroutine test0095
+    type(cons_t) :: lst1, lst2, lst3, lst4, lst5, lst6
+    type(gcroot_t) :: lst1a, lst2a, lst3a, lst4a
+
+    lst1 = list (str_t ('a'), str_t ('b'), str_t ('c'), str_t ('d'), str_t ('e'))
+    lst2 = list (str_t ('a'), str_t ('e'), str_t ('i'), str_t ('o'), str_t ('u'))
+    lst1a = list_copy (lst1)
+    lst2a = list_copy (lst2)
+    lst3 = apply_lset_diff_and_intersectionx (str_t_eq_gc, list (lst1, lst2))
+    lst4 = list (str_t ('b'), str_t ('c'), str_t ('d'))
+    lst5 = list (str_t ('a'), str_t ('e'))
+    call check (length (lst3) == 2, "test0095-0030 failed")
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, first (lst3)), list_sort (str_t_lt, lst4)), "test0095-0040 failed")
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, second (lst3)), list_sort (str_t_lt, lst5)), "test0095-0050 failed")
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, first (lst3)), &
+         &                  list_sort (str_t_lt, first (reference_result2 (str_t_eq, lst1a, lst2a)))), "test0095-0060 failed")
+    call check (list_equal (str_t_eq, list_sort (str_t_lt, second (lst3)), &
+         &                  list_sort (str_t_lt, second (reference_result2 (str_t_eq, lst1a, lst2a)))), "test0095-0070 failed")
+
+
+    ! The difference of two equal sets is a null set. Their
+    ! intersection is an equal set.
+    lst1 = iota (100, 1)
+    lst2 = iota (100, 1)
+    lst1a = list_copy (lst1)
+    lst2a = list_copy (lst2)
+    lst3 = apply_lset_diff_and_intersectionx (int_eq_gc, list (lst1, lst2))
+    lst4 = nil
+    lst5 = iota (100, 1)
+    call check (length (lst3) == 2, "test0095-0130 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, first (lst3)), list_sort (int_lt, lst4)), "test0095-0140 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, second (lst3)), list_sort (int_lt, lst5)), "test0095-0150 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, first (lst3)), &
+         &                  list_sort (int_lt, first (reference_result2 (int_eq, lst1a, lst2a)))), "test0095-0160 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, second (lst3)), &
+         &                  list_sort (int_lt, second (reference_result2 (int_eq, lst1a, lst2a)))), "test0095-0170 failed")
+
+    ! The difference of a set and itself is a null set. The
+    ! intersection is itself.
+    lst1 = iota (100, 1)
+    lst3 = apply_lset_diff_and_intersectionx (int_eq_gc, list (lst1, lst1))
+    call check (length (lst3) == 2, "test0095-0230 failed")
+    call check (list_equal (int_eq, is_nil (first (lst3))), "test0095-0240 failed")
+    call check (list_equal (int_eq, cons_t_eq (second (lst3), lst1)), "test0095-0250 failed")
+
+    ! Try three lists.
+    lst1 = iota (100, 1)
+    lst2 = iota (20, 1)
+    lst3 = iota (50, 1, 2)
+    lst1a = list_copy (lst1)
+    lst2a = list_copy (lst2)
+    lst3a = list_copy (lst3)
+    lst4 = apply_lset_diff_and_intersectionx (int_eq_gc, list (lst1, lst2, lst3))
+    call check (length (lst4) == 2, "test0095-0330 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, first (lst4)), iota (40, 22, 2)), "test0095-0340 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, second (lst4)), &
+         &                  list_sort (int_lt, lset_union (int_eq, iota (20, 1), iota (40, 21, 2)))), &
+         &      "test0095-0350 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, first (lst4)), &
+         &                  list_sort (int_lt, first (reference_result3 (int_eq, lst1a, lst2a, lst3a)))), &
+         &      "test0095-0360 failed")
+    call check (list_equal (int_eq, list_sort (int_lt, second (lst4)), &
+         &                  list_sort (int_lt, second (reference_result3 (int_eq, lst1a, lst2a, lst3a)))), &
+         &      "test0095-0370 failed")
+
+    ! Try four lists.
+    lst1 = iota (100, 1)
+    lst2 = iota (20, 37, 3)
+    lst3 = iota (100, 51)
+    lst4 = iota (50, 75)
+    lst1a = list_copy (lst1)
+    lst2a = list_copy (lst2)
+    lst3a = list_copy (lst3)
+    lst4a = list_copy (lst4)
+    lst5 = apply_lset_diff_and_intersectionx (int_eq_gc, list (lst1, lst2, lst3, lst4))
+    lst6 = reference_result4 (int_eq, lst1a, lst2a, lst3a, lst4a)
+    call check (length (lst5) == 2, "test0095-0430 failed")
+    call check (list_equal (int_eq, &
+         &                  list_sort (int_lt, first (lst5)), &
+         &                  list_sort (int_lt, first (lst6))), "test0095-0460 failed")
+    call check (list_equal (int_eq, &
+         &                  list_sort (int_lt, second (lst5)), &
+         &                  list_sort (int_lt, second (lst6))), "test0095-0470 failed")
+
+
+    ! Try a null set, alone.
+    call check (list_equal (int_eq, first (apply_lset_diff_and_intersectionx (int_eq_gc, list (nil))), nil), &
+         &      "test0095-0500 failed")
+    call check (list_equal (int_eq, second (apply_lset_diff_and_intersectionx (int_eq_gc, list (nil))), nil), &
+         &      "test0095-0510 failed")
+
+    ! Try a singleton set, alone.
+    call check (list_equal (int_eq, first (apply_lset_diff_and_intersectionx (int_eq_gc, list (list (123)))), list (123)), &
+         &      "test0095-0600 failed")
+    call check (list_equal (int_eq, second (apply_lset_diff_and_intersectionx (int_eq_gc, list (list (123)))), nil), &
+         &      "test0095-0610 failed")
+    call check (list_equal (int_eq, first (apply_lset_diff_and_intersectionx (int_eq_gc, list (list (123)))), &
+         &                  first (reference_result1 (int_eq, list (123)))), &
+         &      "test0095-0620 failed")
+    call check (list_equal (int_eq, second (apply_lset_diff_and_intersectionx (int_eq_gc, list (list (123)))), &
+         &                  second (reference_result1 (int_eq, list (123)))), &
+         &      "test0095-0640 failed")
+
+  contains
+
+    recursive function reference_result1 (equal, lst1) result (diff_and_xsect)
+      procedure(list_predicate2_t) :: equal
+      class(*), intent(in) :: lst1
+      type(cons_t) :: diff_and_xsect
+
+      diff_and_xsect = list (lset_difference (equal, lst1), lset_intersection (equal, lst1, lset_union (equal)))
+    end function reference_result1
+
+    recursive function reference_result2 (equal, lst1, lst2) result (diff_and_xsect)
+      procedure(list_predicate2_t) :: equal
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      type(cons_t) :: diff_and_xsect
+
+      diff_and_xsect = list (lset_difference (equal, lst1, lst2), lset_intersection (equal, lst1, lst2))
+    end function reference_result2
+
+    recursive function reference_result3 (equal, lst1, lst2, lst3) result (diff_and_xsect)
+      procedure(list_predicate2_t) :: equal
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      type(cons_t) :: diff_and_xsect
+
+      class(*), allocatable :: union
+
+      union = lset_union (equal, lst2, lst3)
+      diff_and_xsect = list (lset_difference (equal, lst1, lst2, lst3), lset_intersection (equal, lst1, union))
+    end function reference_result3
+
+    recursive function reference_result4 (equal, lst1, lst2, lst3, lst4) result (diff_and_xsect)
+      procedure(list_predicate2_t) :: equal
+      class(*), intent(in) :: lst1
+      class(*), intent(in) :: lst2
+      class(*), intent(in) :: lst3
+      class(*), intent(in) :: lst4
+      type(cons_t) :: diff_and_xsect
+
+      class(*), allocatable :: union
+
+      union = lset_union (equal, lst2, lst3, lst4)
+      diff_and_xsect = list (lset_difference (equal, lst1, lst2, lst3, lst4), lset_intersection (equal, lst1, union))
+    end function reference_result4
+
+  end subroutine test0095
 
   subroutine test0100
     type(cons_t) :: lst1, lst2, lst3, lst4, lst5
@@ -1242,7 +1463,9 @@ contains
     call test0070
     call test0075
     call test0080
+    call test0085
     call test0090
+    call test0095
     call test0100
     call test0105
 
