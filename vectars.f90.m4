@@ -81,6 +81,26 @@ module vectars
   public :: vectar_t_cast
   public :: operator(.tovectar.)
 
+  ! Generic function: make a vectar of one value repeated.
+  public :: make_vectar
+
+  ! Implementations of make_vectar.
+  public :: make_vectar_size_kind
+  public :: make_vectar_int
+
+  ! Generic functions: return a vectar element.
+  public :: vectar_ref0         ! Indices run 0, 1, 2, ...
+  public :: vectar_ref1         ! Indices run 1, 2, 3, ...
+  public :: vectar_refn         ! Indices run n, n+1, n+2, ...
+
+  ! Implementations of the vectar_refX functions.
+  public :: vectar_ref0_size_kind
+  public :: vectar_ref1_size_kind
+  public :: vectar_refn_size_kind
+  public :: vectar_ref0_int
+  public :: vectar_ref1_int
+  public :: vectar_refn_int
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   type :: vectar_data_t
@@ -103,6 +123,26 @@ module vectars
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
 
+  interface make_vectar
+     module procedure make_vectar_size_kind
+     module procedure make_vectar_int
+  end interface make_vectar
+
+  interface vectar_ref0
+     module procedure vectar_ref0_size_kind
+     module procedure vectar_ref0_int
+  end interface vectar_ref0
+
+  interface vectar_ref1
+     module procedure vectar_ref1_size_kind
+     module procedure vectar_ref1_int
+  end interface vectar_ref1
+
+  interface vectar_refn
+     module procedure vectar_refn_size_kind
+     module procedure vectar_refn_int
+  end interface vectar_refn
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   interface error_abort
@@ -121,9 +161,9 @@ contains
     error stop
   end subroutine error_abort_1
 
-!!$  subroutine strange_error
-!!$    call error_abort ("a strange error, possibly use of an object already garbage-collected")
-!!$  end subroutine strange_error
+  subroutine strange_error
+    call error_abort ("a strange error, possibly use of an object already garbage-collected")
+  end subroutine strange_error
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -200,6 +240,113 @@ contains
        bool = .not. associated (o2%heap_element)
     end if
   end function vectar_t_eq
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function make_vectar_size_kind (size, fill) result (vec)
+    integer(sz), intent(in) :: size
+    class(*), intent(in) :: fill
+    type(vectar_t) :: vec
+
+    type(heap_element_t), pointer :: new_element
+    type(vectar_data_t), pointer :: data
+    integer(sz) :: i
+
+    allocate (data)
+    allocate (data%array(0_sz : size - 1_sz), source = .autoval. fill)
+    allocate (new_element)
+    new_element%data => data
+    call heap_insert (new_element)
+    vec%heap_element => new_element
+  end function make_vectar_size_kind
+
+  function make_vectar_int (size, fill) result (vec)
+    integer, intent(in) :: size
+    class(*), intent(in) :: fill
+    type(vectar_t) :: vec
+
+    integer(sz) :: size1
+
+    size1 = size
+    vec = make_vectar_size_kind (size1, fill)
+  end function make_vectar_int
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function vectar_ref0_size_kind (vec, i) result (element)
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: i
+    class(*), allocatable :: element
+
+    select type (v => .autoval. vec)
+    class is (vectar_t)
+       if (associated (v%heap_element)) then
+          select type (data => v%heap_element%data)
+          class is (vectar_data_t)
+             element = data%array(i)
+          class default
+             call strange_error
+          end select
+       else
+          call error_abort ("vectar_t not properly allocated")
+       end if
+    class default
+       call error_abort ("expected a vectar_t")
+    end select
+  end function vectar_ref0_size_kind
+
+  function vectar_ref1_size_kind (vec, i) result (element)
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: i
+    class(*), allocatable :: element
+
+    element = vectar_ref0_size_kind (vec, i - 1)
+  end function vectar_ref1_size_kind
+
+  function vectar_refn_size_kind (vec, n, i) result (element)
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: n
+    integer(sz), intent(in) :: i
+    class(*), allocatable :: element
+
+    element = vectar_ref0_size_kind (vec, i - n)
+  end function vectar_refn_size_kind
+
+  function vectar_ref0_int (vec, i) result (element)
+    class(*), intent(in) :: vec
+    integer, intent(in) :: i
+    class(*), allocatable :: element
+
+    integer(sz) :: ii
+
+    ii = i
+    element = vectar_ref0_size_kind (vec, ii)
+  end function vectar_ref0_int
+
+  function vectar_ref1_int (vec, i) result (element)
+    class(*), intent(in) :: vec
+    integer, intent(in) :: i
+    class(*), allocatable :: element
+
+    integer(sz) :: ii
+
+    ii = i
+    element = vectar_ref1_size_kind (vec, ii)
+  end function vectar_ref1_int
+
+  function vectar_refn_int (vec, n, i) result (element)
+    class(*), intent(in) :: vec
+    integer, intent(in) :: n
+    integer, intent(in) :: i
+    class(*), allocatable :: element
+
+    integer(sz) :: ii
+    integer(sz) :: nn
+
+    ii = i
+    nn = n
+    element = vectar_refn_size_kind (vec, nn, ii)
+  end function vectar_refn_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

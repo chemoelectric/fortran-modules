@@ -52,6 +52,10 @@ module test__vectars
      module procedure int_eq
   end interface operator(.eqi.)
 
+  interface operator(.eqs.)
+     module procedure str_t_eq
+  end interface operator(.eqs.)
+
 contains
 
   subroutine error_abort (msg)
@@ -166,8 +170,30 @@ contains
     bool = (str_t_cast (str1) == str_t_cast (str2))
   end function str_t_eq_gc
 
+  subroutine test0010
+    type(vectar_t) :: vec
+    integer(sz) :: i
+    integer :: j
+
+    vec = make_vectar (100_sz, str_t ('fill'))
+    do i = 0_sz, 99_sz
+       call check (vectar_ref0 (vec, i) .eqs. str_t ('fill'), "test0010-0010 failed")
+       call check (vectar_ref1 (vec, i + 1) .eqs. str_t ('fill'), "test0010-0020 failed")
+       call check (vectar_refn (vec, -1_sz, i - 1) .eqs. str_t ('fill'), "test0010-0030 failed")
+    end do
+
+    vec = make_vectar (100, str_t ('fill'))
+    do j = 0, 99
+       call check (vectar_ref0 (vec, j) .eqs. str_t ('fill'), "test0010-0110 failed")
+       call check (vectar_ref1 (vec, j + 1) .eqs. str_t ('fill'), "test0010-0120 failed")
+       call check (vectar_refn (vec, -1, j - 1) .eqs. str_t ('fill'), "test0010-0130 failed")
+    end do
+  end subroutine test0010
+
   subroutine run_tests
     heap_size_limit = 0
+
+    call test0010
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
