@@ -1568,6 +1568,65 @@ contains
     call check (list_equal (int_eq, apply_lset_xorx (int_eq_gc, list (list (1, 2, 3))), list (1, 2, 3)), "test0115-0120 failed")
   end subroutine test0115
 
+  subroutine test0120
+    type(cons_t) :: lst1, lst2, lst3
+
+    ! An example from SRFI-1.
+    lst1 = list (str_t ('a'))
+    lst2 = list (str_t ('a'), str_t ('b'), str_t ('a'))
+    lst3 = list (str_t ('a'), str_t ('b'), str_t ('c'), str_t ('c'))
+    call check (lset_contained (str_t_eq, lst1, lst2, lst3), "test0120-0010 failed")
+    call check (apply_lset_contained (str_t_eq, list (lst1, lst2, lst3)), "test0120-0020 failed")
+
+    ! Test using the same set more than once
+    lst1 = list (str_t ('a'), str_t ('b'), str_t ('a'))
+    lst2 = list (str_t ('a'), str_t ('b'), str_t ('c'), str_t ('c'))
+    call check (lset_contained (str_t_eq, lst2, lst2), "test0120-0030 failed")
+    call check (apply_lset_contained (str_t_eq, list (lst1, lst2, lst2)), "test0120-0040 failed")
+    call check (lset_contained (str_t_eq, lst1, lst1, lst1), "test0120-0050 failed")
+    call check (apply_lset_contained (str_t_eq, list (lst1, lst1, lst1)), "test0120-0060 failed")
+    call check (lset_contained (str_t_eq, lst1, lst1, lst1), "test0120-0070 failed")
+    call check (apply_lset_contained (str_t_eq, list (lst1, lst1, lst2)), "test0120-0080 failed")
+
+    ! Equal sets.
+    call check (lset_contained (int_eq, iota (10), iota (10)), "test0120-0100 failed")
+    call check (apply_lset_contained (int_eq, list (iota (10), iota (10))), "test0120-0110 failed")
+    call check (lset_contained (int_eq, iota (10), iota (10), iota (10)), "test0120-0120 failed")
+    call check (apply_lset_contained (int_eq, list (iota (10), iota (10), iota (10))), "test0120-0130 failed")
+    call check (lset_contained (int_eq, iota (10), iota (10), iota (10), iota (10)), "test0120-0140 failed")
+    call check (lset_contained (int_eq, list (iota (10), iota (10), iota (10), iota (10))), "test0120-0150 failed")
+
+    ! Some tests with two sets.
+    call check (lset_contained (int_eq, iota (5), iota (10)), "test0120-0200 failed")
+    call check (apply_lset_contained (int_eq, list (iota (5), iota (10))), "test0120-0210 failed")
+    call check (.not. lset_contained (int_eq, iota (10), iota (5)), "test0120-0220 failed")
+    call check (.not. apply_lset_contained (int_eq, list (iota (10), iota (5))), "test0120-0230 failed")
+
+    ! Some tests with three sets.
+    call check (lset_contained (int_eq, iota (5), iota (10), iota (20)), "test0120-0300 failed")
+    call check (apply_lset_contained (int_eq, list (iota (5), iota (10), iota (20))), "test0120-0310 failed")
+    call check (.not. lset_contained (int_eq, iota (10), iota (5), iota (20)), "test0120-0320 failed")
+    call check (.not. apply_lset_contained (int_eq, list (iota (10), iota (5), iota (20))), "test0120-0330 failed")
+    call check (.not. lset_contained (int_eq, iota (5), iota (20), iota (10)), "test0120-0340 failed")
+    call check (.not. apply_lset_contained (int_eq, list (iota (5), iota (20), iota (10))), "test0120-0350 failed")
+
+    ! Some tests with four sets.
+    call check (lset_contained (int_eq, iota (5), iota (10), iota (20), iota (21)), "test0120-0400 failed")
+    call check (apply_lset_contained (int_eq, list (iota (5), iota (10), iota (20), iota (21))), "test0120-0410 failed")
+    call check (.not. lset_contained (int_eq, iota (5), iota (10), iota (21), iota (20)), "test0120-0420 failed")
+    call check (.not. apply_lset_contained (int_eq, list (iota (10), iota (5), iota (20), iota (21))), "test0120-0430 failed")
+
+    ! No sets.
+    call check (lset_contained (int_eq), "test0120-0500 failed")
+    call check (apply_lset_contained (int_eq, nil), "test0120-0510 failed")
+
+    ! One set.
+    call check (lset_contained (int_eq, nil), "test0120-0600 failed")
+    call check (apply_lset_contained (int_eq, list (nil)), "test0120-0610 failed")
+    call check (lset_contained (int_eq, list (1, 2, 3)), "test0120-0620 failed")
+    call check (apply_lset_contained (int_eq, list (list (1, 2, 3))), "test0120-0630 failed")
+  end subroutine test0120
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1592,6 +1651,7 @@ contains
     call test0105
     call test0110
     call test0115
+    call test0120
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

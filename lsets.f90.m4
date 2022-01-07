@@ -61,7 +61,10 @@ module lsets
   ! A generic function for adding elements to a set.
   public :: lset_adjoin
 
-  ! Generic functions for set operations.
+  ! Generic functions for set operations returning a logical value.
+  public :: lset_contained      ! The <= operation on sets.
+
+  ! Generic functions for set operations returning a set.
   public :: lset_union          ! Return the union of sets.
   public :: lset_unionx         ! Union that can alter its inputs.
   public :: lset_intersection   ! Return the intersection of sets.
@@ -92,6 +95,7 @@ module lsets
   !
   !    (apply lset-union equal list-of-lists))
   !
+  public :: apply_lset_contained     ! The <= operation on sets.d
   public :: apply_lset_union         ! Return the union of the sets.
   public :: apply_lset_unionx        ! Union that can alter its inputs.
   public :: apply_lset_intersection  ! Return the intersection of the sets.
@@ -106,6 +110,11 @@ module lsets
   ! Implementations of lset_adjoin.
 m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: lset_adjoin[]n
+])dnl
+
+  ! Implementations of lset_contained.
+m4_forloop([n],[0],LISTN_MAX,[dnl
+  public :: lset_contained[]n
 ])dnl
 
   ! Implementations of lset_union.
@@ -163,6 +172,12 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
      module procedure lset_adjoin[]n
 ])dnl
   end interface lset_adjoin
+
+  interface lset_contained
+m4_forloop([n],[0],LISTN_MAX,[dnl
+     module procedure lset_contained[]n
+])dnl
+  end interface lset_contained
 
   interface lset_union
 m4_forloop([n],[0],LISTN_MAX,[dnl
@@ -846,6 +861,108 @@ m4_forloop([k],[1],n,[dnl
     end subroutine kons
 
   end function apply_lset_xorx
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function lset_contained0 (equal) result (contained)
+    procedure(list_predicate2_t) :: equal
+    logical :: contained
+
+    contained = .true.
+  end function lset_contained0
+
+  recursive function lset_contained1 (equal, lst1) result (contained)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    logical :: contained
+
+    contained = .true.
+  end function lset_contained1
+
+  recursive function lset_contained2 (equal, lst1, lst2) result (contained)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    logical :: contained
+
+    if (cons_t_eq (lst2, lst1)) then
+       contained = .true.
+    else if (lset_contained__ (equal, lst1, lst2)) then
+       contained = .true.
+    else
+       contained = .false.
+    end if
+  end function lset_contained2
+
+m4_forloop([n],[3],LISTN_MAX,[dnl
+  recursive function lset_contained[]n (equal, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+       &                              ])lst[]k])) result (contained)
+    procedure(list_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: lst[]k
+])dnl
+    logical :: contained
+
+    type(cons_t) :: lists
+
+    lists = list (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &        ])lst[]k]))
+    contained = apply_lset_contained (equal, lists)
+  end function lset_contained[]n
+
+])dnl
+dnl
+  recursive function apply_lset_contained (equal, lists) result (contained)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lists
+    logical :: contained
+
+    type(cons_t) :: lst1
+    type(cons_t) :: lst2
+    type(cons_t) :: the_rest
+    logical :: done
+
+    if (is_nil_list (lists)) then
+       contained = .true.
+    else
+       lst1 = car (lists)
+       the_rest = cdr (lists)
+       done = .false.
+       do while (.not. done)
+          if (is_nil_list (the_rest)) then
+             contained = .true.
+             done = .true.
+          else
+             lst2 = car (the_rest)
+             the_rest = cdr (the_rest)
+             if (cons_t_eq (lst2, lst1)) then
+                lst1 = lst2
+             else if (lset_contained__ (equal, lst1, lst2)) then
+                lst1 = lst2
+             else
+                contained = .false.
+                done = .true.
+             end if
+          end if
+       end do
+    end if
+  end function apply_lset_contained
+
+  recursive function lset_contained__ (equal, lst1, lst2) result (contained)
+    procedure(list_predicate2_t) :: equal
+    class(*), intent(in) :: lst1
+    class(*), intent(in) :: lst2
+    logical :: contained
+
+    type(cons_t) :: p
+
+    contained = .true.
+    p = lst1
+    do while (contained .and. is_pair (p))
+       contained = is_not_nil (member (equal, car (p), lst2))
+       p = cdr (p)
+    end do
+  end function lset_contained__
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
