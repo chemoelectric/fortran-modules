@@ -128,6 +128,15 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: vectar_set1_int
   public :: vectar_setn_int
 
+  ! Vector equality.
+  public :: vectar_equal        ! A generic function.
+  public :: apply_vectar_equal  ! Compare a list of vectars.
+
+  ! Implementations of vectar_equal.
+m4_forloop([n],[0],LISTN_MAX,[dnl
+  public :: vectar_equal[]n
+])dnl
+
   ! Vectar-list conversions.
   public :: vectar_to_list
   public :: reverse_vectar_to_list
@@ -202,16 +211,48 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
      module procedure vectar_setn_int
   end interface vectar_setn
 
+  interface vectar_equal
+m4_forloop([n],[0],LISTN_MAX,[dnl
+     module procedure vectar_equal[]n
+])dnl
+  end interface vectar_equal
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  ! Types for predicates.
+  public :: vectar_predicate1_t ! A predicate taking 1 argument.
+m4_forloop([n],[2],ZIP_MAX,[dnl
+  public :: vectar_predicate[]n[]_t ! A predicate taking n arguments.
+])dnl
+
+  abstract interface
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     recursive function vectar_predicate[]n[]_t (x1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+          ])x[]k])) result (bool)
+m4_forloop([k],[1],n,[dnl
+       class(*), intent(in) :: [x]k
+])dnl
+       logical :: bool
+     end function vectar_predicate[]n[]_t
+])dnl
+  end interface
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   interface error_abort
      module procedure error_abort_1
   end interface error_abort
 
+  type :: vectar_data_p_t
+     type(vectar_data_t), pointer :: data
+  end type vectar_data_p_t
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 contains
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   subroutine error_abort_1 (msg)
@@ -225,8 +266,6 @@ contains
   subroutine strange_error
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
   end subroutine strange_error
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   function vectar_data_ptr (vec) result (data_ptr)
     class(*), intent(in) :: vec
@@ -248,6 +287,13 @@ contains
        call error_abort ("expected a vectar_t")
     end select
   end function vectar_data_ptr
+
+  function vectar_data_p (vec) result (p)
+    class(*), intent(in) :: vec
+    type(vectar_data_p_t) :: p
+
+    p%data => vectar_data_ptr (vec)
+  end function vectar_data_p
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -633,6 +679,131 @@ dnl
     call heap_insert (new_element)
     vec%heap_element => new_element
   end function reverse_list_to_vectar
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function vectar_equal0 (pred) result (bool)
+    procedure(vectar_predicate2_t) :: pred
+    logical :: bool
+
+    bool = .true.
+  end function vectar_equal0
+
+  recursive function vectar_equal1 (pred, vec1) result (bool)
+    procedure(vectar_predicate2_t) :: pred
+    class(*), intent(in) :: vec1
+    logical :: bool
+
+    select type (vec1)
+    class is (vectar_t)
+       bool = .true.
+    class default
+       call error_abort ("expected a vectar_t")
+    end select
+  end function vectar_equal1
+
+m4_forloop([n],[2],LISTN_MAX,[dnl
+  recursive function vectar_equal[]n (equal, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       &                            ])vec[]k])) result (bool)
+    procedure(vectar_predicate2_t) :: equal
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: vec[]k
+])dnl
+    logical :: bool
+
+    type(cons_t) :: vectars
+
+    vectars = list (vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
+         &          ])vec[]k]))
+    bool = apply_vectar_equal (equal, vectars)
+  end function vectar_equal[]n
+])dnl
+dnl
+  recursive function apply_vectar_equal (equal, vectars) result (bool)
+    procedure(vectar_predicate2_t) :: equal
+    class(*), intent(in) :: vectars
+    logical :: bool
+
+    integer(sz) :: n
+    type(vectar_t), allocatable :: v(:)
+    type(vectar_data_p_t), allocatable :: p(:)
+
+    n = length (vectars)
+    if (n == 0_sz) then
+       ! No vectars were given.
+       bool = .true.
+    else if (n == 1_sz) then
+       ! Only one vectar was given.
+       bool = .true.
+    else
+       allocate (v(1_sz:n))
+       allocate (p(1_sz:n))
+       call fill_v_and_p
+       if (.not. lengths_are_equal ()) then
+          bool = .false.
+       else
+          bool = check_elements ()
+       end if
+    end if
+
+  contains
+
+    subroutine fill_v_and_p
+      integer(sz) :: i
+      type(cons_t) :: lst
+
+      lst = vectars
+      do i = 1_sz, n
+         v(i) = car (lst)
+         p(i) = vectar_data_p (v(i))
+         lst = cdr (lst)
+      end do
+    end subroutine fill_v_and_p
+
+    function lengths_are_equal () result (bool)
+      integer(sz) :: i
+      integer(sz) :: len
+      logical :: bool
+
+      bool = .true.
+      len = p(1)%data%length
+      i = 2_sz
+      do while (bool .and. i <= n)
+         bool = (p(i)%data%length == len)
+         i = i + 1
+      end do
+    end function lengths_are_equal
+
+    recursive function check_elements () result (bool)
+      integer(sz) :: len
+      integer(sz) :: i_vec
+      integer(sz) :: i_elem
+      logical :: bool
+
+      len = p(1)%data%length
+      bool = .true.
+      i_vec = 1_sz
+      do while (bool .and. i_vec < n)
+         !
+         ! NOTE: One could check vectar_t_eq (v(i_vec), v(i_vec + 1)))
+         !       here, but SRFI-133 does not, because of how IEEE
+         !       floating point behaves.
+         !
+         ! Specifically: a NaN is unequal with itself, by the usual
+         ! reckoning of equality. Therefore a list of NaN would not
+         ! should be regarded as unequal with itself.
+         !
+         i_elem = 0_sz
+         do while (bool .and. i_elem < len)
+            bool = equal (p(i_vec)%data%array(i_elem)%element, &
+                 &        p(i_vec + 1)%data%array(i_elem)%element)
+            i_elem = i_elem + 1
+         end do
+         i_vec = i_vec + 1
+      end do
+    end function check_elements
+
+  end function apply_vectar_equal
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
