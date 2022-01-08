@@ -358,8 +358,28 @@ contains
   subroutine test0050
     call check (vectar_is_empty (vectar ()), "test0050-0010 failed")
     call check (.not. vectar_is_empty (vectar (123)), "test0050-0020 failed")
-    call check (.not. vectar_is_empty (vectar (1, 2.0, str_t ('3'))), "test0050-0020 failed")
+    call check (.not. vectar_is_empty (vectar (1, 2.0, str_t ('3'))), "test0050-0030 failed")
   end subroutine test0050
+
+  subroutine test0060
+    call check (is_vectar (vectar ()), "test0060-0010 failed")
+    call check (is_vectar (vectar (123)), "test0060-0020 failed")
+    call check (is_vectar (vectar (1, 2.0, str_t ('3'))), "test0060-0030 failed")
+
+    call check (.not. is_not_vectar (vectar ()), "test0060-0110 failed")
+    call check (.not. is_not_vectar (vectar (123)), "test0060-0120 failed")
+    call check (.not. is_not_vectar (vectar (1, 2.0, str_t ('3'))), "test0060-0130 failed")
+
+    call check (.not. is_vectar (list (vectar (), vectar ())), "test0060-0210 failed")
+    call check (.not. is_vectar (123), "test0060-0220 failed")
+    call check (.not. is_vectar (3.1415926535), "test0060-0230 failed")
+    call check (.not. is_vectar (str_t ('3.1415926535')), "test0060-0240 failed")
+
+    call check (is_not_vectar (list (vectar (), vectar ())), "test0060-0310 failed")
+    call check (is_not_vectar (123), "test0060-0320 failed")
+    call check (is_not_vectar (3.1415926535), "test0060-0330 failed")
+    call check (is_not_vectar (str_t ('3.1415926535')), "test0060-0340 failed")
+  end subroutine test0060
 
   subroutine run_tests
     heap_size_limit = 0
@@ -370,6 +390,7 @@ contains
     call test0030
     call test0040
     call test0050
+    call test0060
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

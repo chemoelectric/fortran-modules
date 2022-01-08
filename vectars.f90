@@ -66,6 +66,10 @@ module vectars
   ! The type for a vectar.
   public :: vectar_t
 
+  ! Tests for the vectar_t type.
+  public :: is_vectar          ! Is the given object a vectar_t?
+  public :: is_not_vectar      ! Is the given object *not* a vectar_t?
+
   ! Do two objects refer to the same vectar in the garbage collector's
   ! heap?
   public :: vectar_t_eq
@@ -501,6 +505,30 @@ contains
 
     vec = obj
   end function vectar_t_cast
+
+  pure function is_vectar (obj) result (bool)
+    class(*), intent(in) :: obj
+    logical :: bool
+
+    select type (obj)
+    class is (vectar_t)
+       bool = .true.
+    class default
+       bool = .false.
+    end select
+  end function is_vectar
+
+  pure function is_not_vectar (obj) result (bool)
+    class(*), intent(in) :: obj
+    logical :: bool
+
+    select type (obj)
+    class is (vectar_t)
+       bool = .false.
+    class default
+       bool = .true.
+    end select
+  end function is_not_vectar
 
   recursive function vectar_t_eq (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1
