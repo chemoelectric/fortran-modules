@@ -381,6 +381,35 @@ contains
     call check (is_not_vectar (str_t ('3.1415926535')), "test0060-0340 failed")
   end subroutine test0060
 
+  subroutine test0070
+    type(vectar_t) :: vec
+
+    vec = vectar (1, 2, 3, 4)
+    call vectar_swap0 (vec, 1_sz, 2_sz)
+    call check (vectar_equal (int_eq, vec, vectar (1, 3, 2, 4)), "test0070-0010 failed")
+
+    vec = vectar (1, 2, 3, 4)
+    call vectar_swap1 (vec, 1_sz, 2_sz)
+    call check (vectar_equal (int_eq, vec, vectar (2, 1, 3, 4)), "test0070-0020 failed")
+
+    vec = vectar (1, 2, 3, 4)
+    call vectar_swapn (vec, -10_sz, -10_sz, -7_sz)
+    call check (vectar_equal (int_eq, vec, vectar (4, 2, 3, 1)), "test0070-0030 failed")
+
+
+    vec = vectar (1, 2, 3, 4)
+    call vectar_swap0 (vec, 1, 2)
+    call check (vectar_equal (int_eq, vec, vectar (1, 3, 2, 4)), "test0070-0010 failed")
+
+    vec = vectar (1, 2, 3, 4)
+    call vectar_swap1 (vec, 1, 2)
+    call check (vectar_equal (int_eq, vec, vectar (2, 1, 3, 4)), "test0070-0020 failed")
+
+    vec = vectar (1, 2, 3, 4)
+    call vectar_swapn (vec, -10, -10, -7)
+    call check (vectar_equal (int_eq, vec, vectar (4, 2, 3, 1)), "test0070-0030 failed")
+  end subroutine test0070
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -391,6 +420,7 @@ contains
     call test0040
     call test0050
     call test0060
+    call test0070
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

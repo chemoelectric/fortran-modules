@@ -143,6 +143,19 @@ module vectars
   public :: vectar_set1_int
   public :: vectar_setn_int
 
+  ! Generic subroutines: swap vectar elements.
+  public :: vectar_swap0        ! Indices run 0, 1, 2, ...
+  public :: vectar_swap1        ! Indices run 1, 2, 3, ...
+  public :: vectar_swapn        ! Indices run n, n+1, n+2, ...
+
+  ! Implementations of the vectar_swapX subroutines.
+  public :: vectar_swap0_size_kind
+  public :: vectar_swap1_size_kind
+  public :: vectar_swapn_size_kind
+  public :: vectar_swap0_int
+  public :: vectar_swap1_int
+  public :: vectar_swapn_int
+
   ! Vector equality.
   public :: vectar_equal        ! A generic function.
   public :: apply_vectar_equal  ! Compare a list of vectars.
@@ -261,6 +274,21 @@ module vectars
      module procedure vectar_setn_size_kind
      module procedure vectar_setn_int
   end interface vectar_setn
+
+  interface vectar_swap0
+     module procedure vectar_swap0_size_kind
+     module procedure vectar_swap0_int
+  end interface vectar_swap0
+
+  interface vectar_swap1
+     module procedure vectar_swap1_size_kind
+     module procedure vectar_swap1_int
+  end interface vectar_swap1
+
+  interface vectar_swapn
+     module procedure vectar_swapn_size_kind
+     module procedure vectar_swapn_int
+  end interface vectar_swapn
 
   interface vectar_equal
      module procedure vectar_equal0
@@ -1511,6 +1539,77 @@ contains
     nn = n
     call vectar_setn_size_kind (vec, nn, ii, element)
   end subroutine vectar_setn_int
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine vectar_swap0_size_kind (vec, i, j)
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: i, j
+
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: tmp
+
+    data => vectar_data_ptr (vec)
+    if (i < 0_sz .or. j < 0_sz .or. data%length <= i .or. data%length <= j) then
+       call error_abort ("vectar_t index out of range")
+    end if
+    if (i /= j) then
+       tmp = data%array(i)%element
+       data%array(i)%element = data%array(j)%element
+       data%array(j)%element = tmp
+    end if
+  end subroutine vectar_swap0_size_kind
+
+  subroutine vectar_swap1_size_kind (vec, i, j)
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: i, j
+
+    call vectar_swap0_size_kind (vec, i - 1, j - 1)
+  end subroutine vectar_swap1_size_kind
+
+  subroutine vectar_swapn_size_kind (vec, n, i, j)
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: n
+    integer(sz), intent(in) :: i, j
+
+    call vectar_swap0_size_kind (vec, i - n, j - n)
+  end subroutine vectar_swapn_size_kind
+
+  subroutine vectar_swap0_int (vec, i, j)
+    class(*), intent(in) :: vec
+    integer, intent(in) :: i, j
+
+    integer(sz) :: ii, jj
+
+    ii = i
+    jj = j
+    call vectar_swap0_size_kind (vec, ii, jj)
+  end subroutine vectar_swap0_int
+
+  subroutine vectar_swap1_int (vec, i, j)
+    class(*), intent(in) :: vec
+    integer, intent(in) :: i, j
+
+    integer(sz) :: ii, jj
+
+    ii = i
+    jj = j
+    call vectar_swap1_size_kind (vec, ii, jj)
+  end subroutine vectar_swap1_int
+
+  subroutine vectar_swapn_int (vec, n, i, j)
+    class(*), intent(in) :: vec
+    integer, intent(in) :: n
+    integer, intent(in) :: i, j
+
+    integer(sz) :: ii, jj
+    integer(sz) :: nn
+
+    ii = i
+    jj = j
+    nn = n
+    call vectar_swapn_size_kind (vec, nn, ii, jj)
+  end subroutine vectar_swapn_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
