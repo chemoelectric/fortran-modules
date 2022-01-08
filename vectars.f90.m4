@@ -22,16 +22,6 @@
 ! CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ! SOFTWARE.
 !
-!
-! The cons_pairs module is based in part on the SRFI-1 reference
-! implementation in Scheme, which was released as follows:
-!
-!   "Copyright (c) 1998, 1999 by Olin Shivers. You may do as you
-!    please with this code as long as you do not remove this copyright
-!    notice or hold me liable for its use."
-!
-! The cons_pairs module is written entirely in Fortran.
-!
 
 dnl
 dnl
