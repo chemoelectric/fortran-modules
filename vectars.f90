@@ -1804,13 +1804,15 @@ contains
     class(*), intent(in) :: vec
     type(cons_t) :: lst
 
+    type(vectar_t) :: v
     type(vectar_range_t) :: range
     integer(sz) :: i
 
     range = .tovecrange. vec
+    v = range%vec()
     lst = nil
     do i = range%iend0(), range%istart0(), -1
-       lst = vectar_ref0 (vec, i) ** lst
+       lst = vectar_ref0 (v, i) ** lst
     end do
   end function vectar_to_list
 
@@ -1818,13 +1820,15 @@ contains
     class(*), intent(in) :: vec
     type(cons_t) :: lst
 
+    type(vectar_t) :: v
     type(vectar_range_t) :: range
     integer(sz) :: i
 
     range = .tovecrange. vec
+    v = range%vec()
     lst = nil
     do i = range%istart0(), range%iend0()
-       lst = vectar_ref0 (vec, i) ** lst
+       lst = vectar_ref0 (v, i) ** lst
     end do
   end function reverse_vectar_to_list
 

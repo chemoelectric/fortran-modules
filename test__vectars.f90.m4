@@ -410,6 +410,42 @@ contains
     call check (vectar_equal (int_eq, vec, vectar (4, 2, 3, 1)), "test0070-0030 failed")
   end subroutine test0070
 
+  subroutine test0080
+    type(vectar_t) :: vec
+    type(vectar_range_t) :: range
+
+    vec = list_to_vectar (iota (100, 1))
+
+    call check (list_equal (int_eq, vectar_to_list(vec%range0(9_sz, 18_sz)), iota (10, 10)), "test0080-0010 failed")
+    call check (list_equal (int_eq, vectar_to_list(vec%range1(10_sz, 19_sz)), iota (10, 10)), "test0080-0020 failed")
+    call check (list_equal (int_eq, vectar_to_list(vec%rangen(2_sz, 11_sz, 20_sz)), iota (10, 10)), "test0080-0030 failed")
+    call check (list_equal (int_eq, vectar_to_list(vec%range1(1_sz, 100_sz)), iota (100, 1)), "test0080-0040 failed")
+
+    call check (list_equal (int_eq, vectar_to_list(vec%range0(9, 18)), iota (10, 10)), "test0080-0110 failed")
+    call check (list_equal (int_eq, vectar_to_list(vec%range1(10, 19)), iota (10, 10)), "test0080-0120 failed")
+    call check (list_equal (int_eq, vectar_to_list(vec%rangen(2, 11, 20)), iota (10, 10)), "test0080-0130 failed")
+    call check (list_equal (int_eq, vectar_to_list(vec%range1(1, 100)), iota (100, 1)), "test0080-0140 failed")
+
+    call check (list_equal (int_eq, reverse_vectar_to_list(vec%range0(9_sz, 18_sz)), iota (10, 19, -1)), &
+         &      "test0080-0210 failed")
+    call check (list_equal (int_eq, reverse_vectar_to_list(vec%range1(10_sz, 19_sz)), iota (10, 19, -1)), &
+         &      "test0080-0220 failed")
+    call check (list_equal (int_eq, reverse_vectar_to_list(vec%rangen(2_sz, 11_sz, 20_sz)), iota (10, 19, -1)), &
+         &      "test0080-0230 failed")
+    call check (list_equal (int_eq, reverse_vectar_to_list(vec%range1(1_sz, 100_sz)), iota (100, 100, -1)), &
+         &      "test0080-0240 failed")
+
+    range = vec%range1(20, 39)
+    call check (range%istart0() == 19, "test0080-0310 failed")
+    call check (range%istart1() == 20, "test0080-0320 failed")
+    call check (range%istartn(2_sz) == 21, "test0080-0330 failed")
+    call check (range%istartn(2) == 21, "test0080-0340 failed")
+    call check (range%iend0() == 38, "test0080-0350 failed")
+    call check (range%iend1() == 39, "test0080-0360 failed")
+    call check (range%iendn(2_sz) == 40, "test0080-0370 failed")
+    call check (range%iendn(2) == 40, "test0080-0380 failed")
+  end subroutine test0080
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -421,6 +457,7 @@ contains
     call test0050
     call test0060
     call test0070
+    call test0080
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
