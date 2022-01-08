@@ -411,6 +411,11 @@ contains
   end subroutine test0070
 
   subroutine test0080
+
+    !
+    ! Test vectar_range_t.
+    !
+
     type(vectar_t) :: vec
     type(vectar_range_t) :: range
 
