@@ -64,8 +64,8 @@ module cons_pairs
   ! regarded as degenerate `dotted lists' -- as a sort of generalized
   ! nil. \footnote{The term `dotted list' is Scheme-talk for a linked
   ! list that ends in something other than a nil or back-reference. A
-  ! list that ends in a nil is called  proper  and a list that ends in
-  ! a back-reference is called  circular .}
+  ! list that ends in a nil is called ‘proper’ and a list that ends in
+  ! a back-reference is called ‘circular’.}
   !
 
   !
@@ -9733,10 +9733,20 @@ contains
           ! lst2 comes to an end (even though lst1 does not).
           bool = .false.
           done = .true.
-       else if (cons_t_eq (p, q)) then
-          ! The two lists share a tail.
-          bool = .true.
-          done = .true.
+!!!
+!!! Do not do the short circuit test for equality, for reasons
+!!! explained in a `Post-finalization note' in
+!!! https://srfi.schemers.org/srfi-133/srfi-133.html
+!!!
+!!! Specifically: a NaN is unequal with itself, by the usual reckoning
+!!! of equality. Therefore a list of NaN would not should be regarded
+!!! as unequal with itself.
+!!!
+!!!    else if (cons_t_eq (p, q)) then
+!!!       ! The two lists share a tail.
+!!!       bool = .true.
+!!!       done = .true.
+!!!
        else
           call uncons (p, p_hd, p_tl)
           call uncons (q, q_hd, q_tl)
