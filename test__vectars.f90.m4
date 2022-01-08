@@ -273,19 +273,19 @@ contains
   end subroutine test0015
 
   subroutine test0020
-    call check (list_equal (int_eq, vectar_to_list (vectar ()), list ()), "test0010-0010 failed")
-    call check (list_equal (int_eq, vectar_to_list (vectar (1, 2, 3, 4, 5)), iota (5, 1)), "test0010-0020 failed")
+    call check (list_equal (int_eq, vectar_to_list (vectar ()), list ()), "test0020-0010 failed")
+    call check (list_equal (int_eq, vectar_to_list (vectar (1, 2, 3, 4, 5)), iota (5, 1)), "test0020-0020 failed")
 
-    call check (list_equal (int_eq, reverse_vectar_to_list (vectar ()), list ()), "test0010-0030 failed")
-    call check (list_equal (int_eq, reverse_vectar_to_list (vectar (5, 4, 3, 2, 1)), iota (5, 1)), "test0010-0040 failed")
+    call check (list_equal (int_eq, reverse_vectar_to_list (vectar ()), list ()), "test0020-0030 failed")
+    call check (list_equal (int_eq, reverse_vectar_to_list (vectar (5, 4, 3, 2, 1)), iota (5, 1)), "test0020-0040 failed")
 
-    call check (list_equal (int_eq, vectar_to_list (list_to_vectar (nil)), list ()), "test0010-0050 failed")
-    call check (list_equal (int_eq, vectar_to_list (list_to_vectar (iota (5, 1))), iota (5, 1)), "test0010-0060 failed")
+    call check (list_equal (int_eq, vectar_to_list (list_to_vectar (nil)), list ()), "test0020-0050 failed")
+    call check (list_equal (int_eq, vectar_to_list (list_to_vectar (iota (5, 1))), iota (5, 1)), "test0020-0060 failed")
 
     call check (list_equal (int_eq, reverse_vectar_to_list (list_to_vectar (nil)), list ()), &
-         &      "test0010-0070 failed")
+         &      "test0020-0070 failed")
     call check (list_equal (int_eq, reverse_vectar_to_list (list_to_vectar (iota (5, 5, -1))), iota (5, 1)), &
-         &      "test0010-0080 failed")
+         &      "test0020-0080 failed")
   end subroutine test0020
 
   subroutine test0030

@@ -30,9 +30,12 @@ module vectars
   ! Request for Implementation 133 (SRFI-133).
   ! https://srfi.schemers.org/srfi-133/srfi-133.html
   !
-  ! An important difference from SRFI-133 is that we use a
-  ! `vectar_slice_t' object in place of optional `start' and `end'
-  ! parameters.
+  ! An important difference from SRFI-133 is that we use `ranges' --
+  ! with inclusive end index -- in place of optional `start' and `end'
+  ! parameters (with exclusive end index). Inclusive end indices are
+  ! more Fortranish; also, this approach reduces the number of
+  ! different implementations of procedures needed. (FUTURE PROJECT:
+  ! objects with Icon-style indexing.)
   !
   ! The name `vectar' (short for `vector array') is used instead of
   ! `vector', to avoid confusion with Gibbs vectors.
@@ -60,6 +63,10 @@ module vectars
   ! The type for a vectar.
   public :: vectar_t
 
+  ! The type for a `range' of a vectar (which is a thing used by some
+  ! procedures).
+  public :: vectar_range_t
+
   ! Tests for the vectar_t type.
   public :: is_vectar          ! Is the given object a vectar_t?
   public :: is_not_vectar      ! Is the given object *not* a vectar_t?
@@ -71,6 +78,10 @@ module vectars
   ! Convert an object to a vectar, if possible.
   public :: vectar_t_cast
   public :: operator(.tovectar.)
+
+  ! Convert an object to a vectar range, if possible.
+  public :: vectar_range_t_cast
+  public :: operator(.tovecrange.)
 
   ! Generic function: make a vectar from elements passed as arguments.
   public :: vectar
@@ -204,14 +215,57 @@ module vectars
 
   type, extends (collectible_t) :: vectar_t
    contains
+     procedure, pass :: range0_size_kind => vectar_t_range0_size_kind
+     procedure, pass :: range0_int => vectar_t_range0_int
+     generic :: range0 => range0_size_kind
+     generic :: range0 => range0_int
+
+     procedure, pass :: range1_size_kind => vectar_t_range1_size_kind
+     procedure, pass :: range1_int => vectar_t_range1_int
+     generic :: range1 => range1_size_kind
+     generic :: range1 => range1_int
+
+     procedure, pass :: rangen_size_kind => vectar_t_rangen_size_kind
+     procedure, pass :: rangen_int => vectar_t_rangen_int
+     generic :: rangen => rangen_size_kind
+     generic :: rangen => rangen_int
+
      procedure, pass :: get_branch => vectar_t_get_branch
      procedure, pass :: assign => vectar_t_assign
      generic :: assignment(=) => assign
   end type vectar_t
 
+  type :: vectar_range_t
+     type(vectar_t), private :: vec_
+     integer(sz), private :: index_
+     integer(sz), private :: length_
+   contains
+     procedure, pass :: vec => vectar_range_t_vec
+
+     procedure, pass :: istart0 => vectar_range_t_istart0
+     procedure, pass :: iend0 => vectar_range_t_iend0
+
+     procedure, pass :: istart1 => vectar_range_t_istart1
+     procedure, pass :: iend1 => vectar_range_t_iend1
+
+     procedure, pass :: istartn_size_kind => vectar_range_t_istartn_size_kind
+     procedure, pass :: istartn_int => vectar_range_t_istartn_int
+     generic :: istartn => istartn_size_kind
+     generic :: istartn => istartn_int
+
+     procedure, pass :: iendn_size_kind => vectar_range_t_iendn_size_kind
+     procedure, pass :: iendn_int => vectar_range_t_iendn_int
+     generic :: iendn => iendn_size_kind
+     generic :: iendn => iendn_int
+  end type vectar_range_t
+
   interface operator(.tovectar.)
      module procedure vectar_t_cast
   end interface operator(.tovectar.)
+
+  interface operator(.tovecrange.)
+     module procedure vectar_range_t_cast
+  end interface operator(.tovecrange.)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -518,6 +572,162 @@ contains
        end if
     end if
   end subroutine vectar_t_get_branch
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function vectar_t_range0_size_kind (vec, istart, iend) result (range)
+    class(vectar_t), intent(in) :: vec
+    integer(sz), intent(in) :: istart, iend
+    type(vectar_range_t) :: range
+
+    integer(sz) :: len
+
+    range%vec_ = vec
+    range%index_ = istart
+
+    len = vectar_length (vec)
+
+    if (istart < 0_sz .or. len < istart) then
+       call error_abort ("vectar_t range start out of range")
+    end if
+
+    if (iend < istart) then
+       range%length_ = 0
+    else
+       range%length_ = (iend - istart) + 1
+    end if
+
+    ! Any value of iend less than istart is legal.
+    if (len <= iend) then
+       call error_abort ("vectar_t range end out of range")
+    end if
+  end function vectar_t_range0_size_kind
+
+  function vectar_t_range0_int (vec, istart, iend) result (range)
+    class(vectar_t), intent(in) :: vec
+    integer, intent(in) :: istart, iend
+    type(vectar_range_t) :: range
+
+    range = vectar_t_range0_size_kind (vec, .sz. istart, .sz. iend)
+  end function vectar_t_range0_int
+
+  function vectar_t_range1_size_kind (vec, istart, iend) result (range)
+    class(vectar_t), intent(in) :: vec
+    integer(sz), intent(in) :: istart, iend
+    type(vectar_range_t) :: range
+
+    range = vectar_t_range0_size_kind (vec, istart - 1, iend - 1)
+  end function vectar_t_range1_size_kind
+
+  function vectar_t_range1_int (vec, istart, iend) result (range)
+    class(vectar_t), intent(in) :: vec
+    integer, intent(in) :: istart, iend
+    type(vectar_range_t) :: range
+
+    range = vectar_t_range0_size_kind (vec, (.sz. istart) - 1, (.sz. iend) - 1)
+  end function vectar_t_range1_int
+
+  function vectar_t_rangen_size_kind (vec, n, istart, iend) result (range)
+    class(vectar_t), intent(in) :: vec
+    integer(sz), intent(in) :: n, istart, iend
+    type(vectar_range_t) :: range
+
+    range = vectar_t_range0_size_kind (vec, istart - n, iend - n)
+  end function vectar_t_rangen_size_kind
+
+  function vectar_t_rangen_int (vec, n, istart, iend) result (range)
+    class(vectar_t), intent(in) :: vec
+    integer, intent(in) :: n, istart, iend
+    type(vectar_range_t) :: range
+
+    range = vectar_t_range0_size_kind (vec, (.sz. istart) - (.sz. n), (.sz. iend) - (.sz. n))
+  end function vectar_t_rangen_int
+
+  function vectar_range_t_vec (range) result (vec)
+    class(vectar_range_t), intent(in) :: range
+    type(vectar_t) :: vec
+
+    vec = range%vec_
+  end function vectar_range_t_vec
+     
+  pure function vectar_range_t_istart0 (range) result (istart0)
+    class(vectar_range_t), intent(in) :: range
+    integer(sz) :: istart0
+
+    istart0 = range%index_
+  end function vectar_range_t_istart0
+     
+  pure function vectar_range_t_iend0 (range) result (iend0)
+    class(vectar_range_t), intent(in) :: range
+    integer(sz) :: iend0
+
+    iend0 = range%index_ + (range%length_ - 1)
+  end function vectar_range_t_iend0
+
+  pure function vectar_range_t_istart1 (range) result (istart1)
+    class(vectar_range_t), intent(in) :: range
+    integer(sz) :: istart1
+
+    istart1 = range%index_ + 1
+  end function vectar_range_t_istart1
+     
+  pure function vectar_range_t_iend1 (range) result (iend1)
+    class(vectar_range_t), intent(in) :: range
+    integer(sz) :: iend1
+
+    iend1 = range%index_ + range%length_
+  end function vectar_range_t_iend1
+
+  pure function vectar_range_t_istartn_size_kind (range, n) result (istartn)
+    class(vectar_range_t), intent(in) :: range
+    integer(sz), intent(in) :: n
+    integer(sz) :: istartn
+
+    istartn = range%index_ + n
+  end function vectar_range_t_istartn_size_kind
+     
+  pure function vectar_range_t_iendn_size_kind (range, n) result (iendn)
+    class(vectar_range_t), intent(in) :: range
+    integer(sz), intent(in) :: n
+    integer(sz) :: iendn
+
+    iendn = range%index_ + (range%length_ - 1) + n
+  end function vectar_range_t_iendn_size_kind
+
+  pure function vectar_range_t_istartn_int (range, n) result (istartn)
+    class(vectar_range_t), intent(in) :: range
+    integer, intent(in) :: n
+    integer(sz) :: istartn
+
+    istartn = range%index_ + (.sz. n)
+  end function vectar_range_t_istartn_int
+     
+  pure function vectar_range_t_iendn_int (range, n) result (iendn)
+    class(vectar_range_t), intent(in) :: range
+    integer, intent(in) :: n
+    integer(sz) :: iendn
+
+    iendn = range%index_ + (range%length_ - 1) + (.sz. n)
+  end function vectar_range_t_iendn_int
+
+  recursive function vectar_range_t_cast (obj) result (range)
+    class(*), intent(in) :: obj
+    type(vectar_range_t) :: range
+
+    type(vectar_data_t), pointer :: data
+
+    select type (obj)
+    class is (vectar_range_t)
+       range = obj
+    class is (vectar_t)
+       data => vectar_data_ptr (obj)
+       range = obj%range1 (1_sz, data%length)
+    class is (gcroot_t)
+       range = vectar_range_t_cast (.val. obj)
+    class default
+       call error_abort ("vectar_range_t_cast of an incompatible object")
+    end select
+  end function vectar_range_t_cast
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1594,10 +1804,12 @@ contains
     class(*), intent(in) :: vec
     type(cons_t) :: lst
 
+    type(vectar_range_t) :: range
     integer(sz) :: i
 
+    range = .tovecrange. vec
     lst = nil
-    do i = vectar_length (vec) - 1, 0, -1
+    do i = range%iend0(), range%istart0(), -1
        lst = vectar_ref0 (vec, i) ** lst
     end do
   end function vectar_to_list
@@ -1606,10 +1818,12 @@ contains
     class(*), intent(in) :: vec
     type(cons_t) :: lst
 
+    type(vectar_range_t) :: range
     integer(sz) :: i
 
+    range = .tovecrange. vec
     lst = nil
-    do i = 0, vectar_length (vec) - 1
+    do i = range%istart0(), range%iend0()
        lst = vectar_ref0 (vec, i) ** lst
     end do
   end function reverse_vectar_to_list
