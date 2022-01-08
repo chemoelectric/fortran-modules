@@ -30,6 +30,10 @@ module vectars
   ! Request for Implementation 133 (SRFI-133).
   ! https://srfi.schemers.org/srfi-133/srfi-133.html
   !
+  ! An important difference from SRFI-133 is that we use a
+  ! `vectar_slice_t' object in place of optional `start' and `end'
+  ! parameters.
+  !
   ! The name `vectar' (short for `vector array') is used instead of
   ! `vector', to avoid confusion with Gibbs vectors.
   !
@@ -183,6 +187,11 @@ module vectars
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
+
+  ! Private conversion to `size_kind'.
+  interface operator(.sz.)
+     module procedure int2sz
+  end interface operator(.sz.)
 
   type :: vectar_element_t
      class(*), allocatable :: element
@@ -440,6 +449,20 @@ contains
   subroutine strange_error
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
   end subroutine strange_error
+
+!!$  elemental function sz2sz (i) result (j)
+!!$    integer(sz), intent(in) :: i
+!!$    integer(sz) :: j
+!!$
+!!$    j = i
+!!$  end function sz2sz
+
+  elemental function int2sz (i) result (j)
+    integer, intent(in) :: i
+    integer(sz) :: j
+
+    j = i
+  end function int2sz
 
   function vectar_data_ptr (vec) result (data_ptr)
     class(*), intent(in) :: vec
@@ -1430,10 +1453,7 @@ contains
     integer, intent(in) :: i
     class(*), allocatable :: element
 
-    integer(sz) :: ii
-
-    ii = i
-    element = vectar_ref0_size_kind (vec, ii)
+    element = vectar_ref0_size_kind (vec, .sz. i)
   end function vectar_ref0_int
 
   function vectar_ref1_int (vec, i) result (element)
@@ -1441,10 +1461,7 @@ contains
     integer, intent(in) :: i
     class(*), allocatable :: element
 
-    integer(sz) :: ii
-
-    ii = i
-    element = vectar_ref1_size_kind (vec, ii)
+    element = vectar_ref1_size_kind (vec, .sz. i)
   end function vectar_ref1_int
 
   function vectar_refn_int (vec, n, i) result (element)
@@ -1453,12 +1470,7 @@ contains
     integer, intent(in) :: i
     class(*), allocatable :: element
 
-    integer(sz) :: ii
-    integer(sz) :: nn
-
-    ii = i
-    nn = n
-    element = vectar_refn_size_kind (vec, nn, ii)
+    element = vectar_refn_size_kind (vec, .sz. n, .sz. i)
   end function vectar_refn_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1499,10 +1511,7 @@ contains
     integer, intent(in) :: i
     class(*), intent(in) :: element
 
-    integer(sz) :: ii
-
-    ii = i
-    call vectar_set0_size_kind (vec, ii, element)
+    call vectar_set0_size_kind (vec, .sz. i, element)
   end subroutine vectar_set0_int
 
   subroutine vectar_set1_int (vec, i, element)
@@ -1510,10 +1519,7 @@ contains
     integer, intent(in) :: i
     class(*), intent(in) :: element
 
-    integer(sz) :: ii
-
-    ii = i
-    call vectar_set1_size_kind (vec, ii, element)
+    call vectar_set1_size_kind (vec, .sz. i, element)
   end subroutine vectar_set1_int
 
   subroutine vectar_setn_int (vec, n, i, element)
@@ -1522,12 +1528,7 @@ contains
     integer, intent(in) :: i
     class(*), intent(in) :: element
 
-    integer(sz) :: ii
-    integer(sz) :: nn
-
-    ii = i
-    nn = n
-    call vectar_setn_size_kind (vec, nn, ii, element)
+    call vectar_setn_size_kind (vec, .sz. n, .sz. i, element)
   end subroutine vectar_setn_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1569,22 +1570,14 @@ contains
     class(*), intent(in) :: vec
     integer, intent(in) :: i, j
 
-    integer(sz) :: ii, jj
-
-    ii = i
-    jj = j
-    call vectar_swap0_size_kind (vec, ii, jj)
+    call vectar_swap0_size_kind (vec, .sz. i, .sz. j)
   end subroutine vectar_swap0_int
 
   subroutine vectar_swap1_int (vec, i, j)
     class(*), intent(in) :: vec
     integer, intent(in) :: i, j
 
-    integer(sz) :: ii, jj
-
-    ii = i
-    jj = j
-    call vectar_swap1_size_kind (vec, ii, jj)
+    call vectar_swap1_size_kind (vec, .sz. i, .sz. j)
   end subroutine vectar_swap1_int
 
   subroutine vectar_swapn_int (vec, n, i, j)
@@ -1592,13 +1585,7 @@ contains
     integer, intent(in) :: n
     integer, intent(in) :: i, j
 
-    integer(sz) :: ii, jj
-    integer(sz) :: nn
-
-    ii = i
-    jj = j
-    nn = n
-    call vectar_swapn_size_kind (vec, nn, ii, jj)
+    call vectar_swapn_size_kind (vec, .sz. n, .sz. i, .sz. j)
   end subroutine vectar_swapn_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
