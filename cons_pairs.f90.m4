@@ -129,7 +129,7 @@ m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_public_declarations(n)])dnl
 
   ! Return one of the first ten elements of a list.
   public :: first
-  public :: second
+  public :: second           ! NOTE: `SECOND' shadows a GNU extension.
   public :: third
   public :: fourth
   public :: fifth

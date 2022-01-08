@@ -146,7 +146,7 @@ module cons_pairs
 
   ! Return one of the first ten elements of a list.
   public :: first
-  public :: second
+  public :: second           ! NOTE: `SECOND' shadows a GNU extension.
   public :: third
   public :: fourth
   public :: fifth
