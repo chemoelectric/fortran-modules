@@ -355,6 +355,12 @@ contains
     call check (.not. vectar_equal (str_t_eq, vec3, vec4), "test0040-1100 failed")
   end subroutine test0040
 
+  subroutine test0050
+    call check (vectar_is_empty (vectar ()), "test0050-0010 failed")
+    call check (.not. vectar_is_empty (vectar (123)), "test0050-0020 failed")
+    call check (.not. vectar_is_empty (vectar (1, 2.0, str_t ('3'))), "test0050-0020 failed")
+  end subroutine test0050
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -363,6 +369,7 @@ contains
     call test0020
     call test0030
     call test0040
+    call test0050
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

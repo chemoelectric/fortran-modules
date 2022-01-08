@@ -102,6 +102,9 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   ! Return the length of a vectar, as an INTEGER([SIZE_KIND]).
   public :: vectar_length
 
+  ! Is a vectar empty? That is, is its length equal to zero?
+  public :: vectar_is_empty
+
   ! Generic functions: return a vectar element.
   public :: vectar_ref0         ! Indices run 0, 1, 2, ...
   public :: vectar_ref1         ! Indices run 1, 2, 3, ...
@@ -457,6 +460,16 @@ dnl
     data => vectar_data_ptr (vec)
     len = data%length
   end function vectar_length
+
+  function vectar_is_empty (vec) result (bool)
+    class(*), intent(in) :: vec
+    logical :: bool
+
+    type(vectar_data_t), pointer :: data
+
+    data => vectar_data_ptr (vec)
+    bool = (data%length == 0_sz)
+  end function vectar_is_empty
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
