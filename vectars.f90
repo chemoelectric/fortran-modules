@@ -109,12 +109,18 @@ module vectars
   public :: vectar19
   public :: vectar20
 
-  ! Generic function: make a vectar of one value repeated.
+  ! Generic function: make a vectar of one value repeated (or with
+  ! unspecified values).
   public :: make_vectar
 
   ! Implementations of make_vectar.
-  public :: make_vectar_size_kind
-  public :: make_vectar_int
+  public :: make_vectar_unspecified_fill_size_kind
+  public :: make_vectar_unspecified_fill_int
+  public :: make_vectar_fill_size_kind
+  public :: make_vectar_fill_int
+
+  ! Copy all or part of a vectar, to a new vectar.
+  public :: vectar_copy
 
   ! Return the length of a vectar, as an INTEGER(SIZE_KIND).
   public :: vectar_length
@@ -284,6 +290,10 @@ module vectars
      module procedure vectar_range_t_cast
   end interface operator(.tovecrange.)
 
+  ! A private type for `unspecified' values.
+  type :: unspecified_t
+  end type unspecified_t
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   interface vectar_range0
@@ -341,8 +351,10 @@ module vectars
   end interface vectar
 
   interface make_vectar
-     module procedure make_vectar_size_kind
-     module procedure make_vectar_int
+     module procedure make_vectar_unspecified_fill_size_kind
+     module procedure make_vectar_unspecified_fill_int
+     module procedure make_vectar_fill_size_kind
+     module procedure make_vectar_fill_int
   end interface make_vectar
 
   interface vectar_ref0
@@ -1664,7 +1676,21 @@ contains
   end function vectar20
 
 
-  function make_vectar_size_kind (size, fill) result (vec)
+  function make_vectar_unspecified_fill_size_kind (size) result (vec)
+    integer(sz), intent(in) :: size
+    type(vectar_t) :: vec
+
+    vec = make_vectar_fill_size_kind (size, unspecified_t ())
+  end function make_vectar_unspecified_fill_size_kind
+
+  function make_vectar_unspecified_fill_int (size) result (vec)
+    integer, intent(in) :: size
+    type(vectar_t) :: vec
+
+    vec = make_vectar_fill_size_kind (.sz. size, unspecified_t ())
+  end function make_vectar_unspecified_fill_int
+
+  function make_vectar_fill_size_kind (size, fill) result (vec)
     integer(sz), intent(in) :: size
     class(*), intent(in) :: fill
     type(vectar_t) :: vec
@@ -1685,18 +1711,15 @@ contains
        call heap_insert (new_element)
        vec%heap_element => new_element
     end if
-  end function make_vectar_size_kind
+  end function make_vectar_fill_size_kind
 
-  function make_vectar_int (size, fill) result (vec)
+  function make_vectar_fill_int (size, fill) result (vec)
     integer, intent(in) :: size
     class(*), intent(in) :: fill
     type(vectar_t) :: vec
 
-    integer(sz) :: size1
-
-    size1 = size
-    vec = make_vectar_size_kind (size1, fill)
-  end function make_vectar_int
+    vec = make_vectar_fill_size_kind (.sz. size, fill)
+  end function make_vectar_fill_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1984,6 +2007,45 @@ contains
     call heap_insert (new_element)
     vec%heap_element => new_element
   end function reverse_list_to_vectar
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function vectar_copy (vec) result (vec_copy)
+
+    !
+    ! DESIGN NOTE: I had considered supporting SRFI-43-style vector
+    ! copy, wherein it is possible to extend the length of the
+    ! destination vector. Then, however, I remembered I was using
+    ! vectar_range_t instead of `start' and `end' parameters. It is
+    ! not legal for the end of a vectar_range_t to extend past the end
+    ! of the source vector. Therefore SRFI-43-style vector copy is not
+    ! possible.
+    !
+
+    class(*), intent(in) :: vec
+    type(vectar_t) :: vec_copy
+
+    type(vectar_t) :: v
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: src, dst
+    integer(sz) :: istart, iend, size, i
+
+    range = .tovecrange. vec
+
+    v = range%vec()
+    istart = range%istart0()
+    iend = range%iend0()
+    size = (iend - istart) + 1_sz
+
+    vec_copy = make_vectar (size)
+
+    src => vectar_data_ptr (v)
+    dst => vectar_data_ptr (vec_copy)
+
+    do i = 0_sz, size - 1_sz
+       dst%array(i) = src%array(istart + i)
+    end do
+  end function vectar_copy
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
