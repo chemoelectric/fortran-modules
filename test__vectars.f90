@@ -573,6 +573,10 @@ contains
          &      "test0110-1020 failed")
     call check (vectar_equal (int_eq, vectar_concatenate (list (vectar (1, 2), vectar (3, 4))), vectar (1, 2, 3, 4)), &
          &      "test0110-1020 failed")
+    call check (vectar_equal (int_eq, vectar_concatenate (list (range1 (vectar (1, 2, 3, 4), 3, 4), &
+         &                                                      range1 (vectar (1, 2, 3, 4), 1, 3))), &
+         &                    vectar (3, 4, 1, 2, 3)), &
+         &      "test0110-1030 failed")
 
     do n = 0, 20 + 5
        vectars = nil
