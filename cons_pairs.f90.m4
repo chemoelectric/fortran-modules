@@ -272,14 +272,15 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: last_pair        ! Return the last pair of a list.
   public :: last             ! Return the last CAR of a list.
 
-  ! Generic function: return a list of a single value, repeated.
+  ! Generic function: return a list of a single value, repeated, or
+  ! with unspecified contents.
   public :: make_list
 
-  ! An implementation for INTEGER([SIZE_KIND]).
-  public :: make_list_size_kind
-
-  ! An implementation for INTEGER of the default kind.
-  public :: make_list_int
+  ! Implementations of make_list.
+  public :: make_list_unspecified_fill_size_kind
+  public :: make_list_unspecified_fill_int
+  public :: make_list_fill_size_kind
+  public :: make_list_fill_int
 
   ! Return a list of values determined by a procedure.
   public :: list_tabulate_init_proc_t ! The type for the initialization procedure.
@@ -825,8 +826,10 @@ m4_forloop([k],[1],n,[dnl
   end interface split_atx
 
   interface make_list
-     module procedure make_list_size_kind
-     module procedure make_list_int
+     module procedure make_list_unspecified_fill_size_kind
+     module procedure make_list_unspecified_fill_int
+     module procedure make_list_fill_size_kind
+     module procedure make_list_fill_int
   end interface make_list
 
   interface iota
@@ -1035,6 +1038,10 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
+
+  ! A private type for `unspecified' values.
+  type :: unspecified_t
+  end type unspecified_t
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2380,7 +2387,21 @@ dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  function make_list_size_kind (length, fill_value) result (lst)
+  function make_list_unspecified_fill_size_kind (length) result (lst)
+    integer(sz), intent(in) :: length
+    type(cons_t) :: lst
+
+    lst = make_list_fill_size_kind (length, unspecified_t ())
+  end function make_list_unspecified_fill_size_kind
+
+  function make_list_unspecified_fill_int (length) result (lst)
+    integer, intent(in) :: length
+    type(cons_t) :: lst
+
+    lst = make_list_fill_int (length, unspecified_t ())
+  end function make_list_unspecified_fill_int
+
+  function make_list_fill_size_kind (length, fill_value) result (lst)
     integer(sz), intent(in) :: length
     class(*), intent(in) :: fill_value
     type(cons_t) :: lst
@@ -2391,9 +2412,9 @@ dnl
     do i = 1_sz, length
        lst = fill_value ** lst
     end do
-  end function make_list_size_kind
+  end function make_list_fill_size_kind
 
-  function make_list_int (length, fill_value) result (lst)
+  function make_list_fill_int (length, fill_value) result (lst)
     integer, intent(in) :: length
     class(*), intent(in) :: fill_value
     type(cons_t) :: lst
@@ -2401,8 +2422,8 @@ dnl
     integer(sz) :: len
 
     len = length
-    lst = make_list_size_kind (len, fill_value)
-  end function make_list_int
+    lst = make_list_fill_size_kind (len, fill_value)
+  end function make_list_fill_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
