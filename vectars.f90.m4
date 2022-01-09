@@ -1461,8 +1461,8 @@ dnl
       do while (bool .and. i_vec < n)
          !
          ! NOTE: One could check vectar_t_eq (v(i_vec), v(i_vec + 1)))
-         !       here, but SRFI-133 does not, because of how IEEE
-         !       floating point behaves.
+         ! here, but SRFI-133 does not, because of how IEEE floating
+         ! point behaves.
          !
          ! Specifically: a NaN is unequal with itself, by the usual
          ! reckoning of equality. Therefore a list of NaN would not
