@@ -118,6 +118,22 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   ! of elements reversed.
   public :: vectar_reverse_copy
 
+  ! Generic function: return a new vector, appending the contents of
+  ! vectars or vectar ranges to each other. This function does both
+  ! what `vector-append' and `vector-append-subvectors' do in
+  ! SRFI-133.
+  public :: vectar_append
+
+  ! Implementations of vectar_append.
+m4_forloop([n],[0],LISTN_MAX,[dnl
+  public :: vectar_append[]n
+])dnl
+
+  ! Return a new vector, appending the contents of the vectars and
+  ! vectar ranges given by a list. (In SRFI-133, `vector-concatenate'
+  ! cannot append subvectors, the way our function here can.)
+  public :: vectar_concatenate
+
   ! Return the length of a vectar, as an INTEGER([SIZE_KIND]).
   public :: vectar_length
 
@@ -241,6 +257,9 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
      integer(sz), private :: index_
      integer(sz), private :: length_
    contains
+     procedure, pass :: assign => vectar_range_t_assign
+     generic :: assignment(=) => assign
+
      procedure, pass :: vec => vectar_range_t_vec
 
      procedure, pass :: istart0 => vectar_range_t_istart0
@@ -361,6 +380,12 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
      module procedure vectar_swapn_size_kind
      module procedure vectar_swapn_int
   end interface vectar_swapn
+
+  interface vectar_append
+m4_forloop([n],[0],LISTN_MAX,[dnl
+     module procedure vectar_append[]n
+])dnl
+  end interface vectar_append
 
   interface vectar_equal
 m4_forloop([n],[0],LISTN_MAX,[dnl
@@ -672,23 +697,34 @@ contains
     iendn = range%index_ + (range%length_ - 1) + (.sz. n)
   end function vectar_range_t_iendn_int
 
+  recursive subroutine vectar_range_t_assign (dst, src)
+    class(vectar_range_t), intent(inout) :: dst
+    class(*), intent(in) :: src
+
+    type(vectar_data_t), pointer :: data
+
+    select type (src)
+    class is (vectar_range_t)
+       dst%vec_ = src%vec_
+       dst%index_ = src%index_
+       dst%length_ = src%length_
+    class is (vectar_t)
+       data => vectar_data_ptr (src)
+       dst%vec_ = src
+       dst%index_ = 0_sz
+       dst%length_ = data%length
+    class is (gcroot_t)
+       call vectar_range_t_assign (dst, .val. src)
+    class default
+       call error_abort ("assignment to vectar_range_t from an incompatible object")
+    end select
+  end subroutine vectar_range_t_assign
+
   recursive function vectar_range_t_cast (obj) result (range)
     class(*), intent(in) :: obj
     type(vectar_range_t) :: range
 
-    type(vectar_data_t), pointer :: data
-
-    select type (obj)
-    class is (vectar_range_t)
-       range = obj
-    class is (vectar_t)
-       data => vectar_data_ptr (obj)
-       range = obj%range1 (1_sz, data%length)
-    class is (gcroot_t)
-       range = vectar_range_t_cast (.val. obj)
-    class default
-       call error_abort ("vectar_range_t_cast of an incompatible object")
-    end select
+    range = obj
   end function vectar_range_t_cast
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1055,7 +1091,7 @@ dnl
     type(vectar_range_t) :: range
     integer(sz) :: i
 
-    range = .tovecrange. vec
+    range = vec
     v = range%vec()
     lst = nil
     do i = range%iend0(), range%istart0(), -1
@@ -1071,7 +1107,7 @@ dnl
     type(vectar_range_t) :: range
     integer(sz) :: i
 
-    range = .tovecrange. vec
+    range = vec
     v = range%vec()
     lst = nil
     do i = range%istart0(), range%iend0()
@@ -1159,7 +1195,7 @@ dnl
     type(vectar_data_t), pointer :: src, dst
     integer(sz) :: istart, iend, size, i
 
-    range = .tovecrange. vec
+    range = vec
 
     v = range%vec()
     istart = range%istart0()
@@ -1187,7 +1223,7 @@ dnl
     type(vectar_data_t), pointer :: src, dst
     integer(sz) :: istart, iend, size, i
 
-    range = .tovecrange. vec
+    range = vec
 
     v = range%vec()
     istart = range%istart0()
@@ -1206,6 +1242,117 @@ dnl
        end do
     end if
   end function vectar_reverse_copy
+
+  function vectar_append0 () result (vec_a)
+    type(vectar_t) :: vec_a
+
+    vec_a = vectar ()
+  end function vectar_append0
+
+m4_forloop([n],[1],LISTN_MAX,[dnl
+  function vectar_append[]n (vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       &                   ])vec[]k])) result (vec_a)
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: vec[]k
+])dnl
+    type(vectar_t) :: vec_a
+
+m4_forloop([k],[1],n,[dnl
+    type(vectar_range_t) :: range[]k
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(vectar_t) :: v[]k
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(vectar_data_t), pointer :: src[]k
+])dnl
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+m4_forloop([k],[1],n,[dnl
+    range[]k = vec[]k
+    v[]k = range[]k%vec()
+    src[]k => vectar_data_ptr (v[]k)
+    len_vec_a = len_vec_a + (range[]k%iend0() - range[]k%istart0()) + 1_sz
+])dnl
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+m4_forloop([k],[1],n,[dnl
+    do i = range[]k%istart0(), range[]k%iend0()
+       dst%array(j) = src[]k%array(i)
+       j = j + 1_sz
+    end do
+])dnl
+
+  end function vectar_append[]n
+])dnl
+dnl
+  function vectar_concatenate (vectars) result (vec_c)
+    class(*), intent(in) :: vectars
+    type(vectar_t) :: vec_c
+
+    integer(sz) :: num_vectars
+
+    num_vectars = length (vectars)
+
+    select case (num_vectars)
+    case (0)
+       vec_c = vectar ()
+m4_forloop([n],[1],LISTN_MAX,[dnl
+    case (n)
+       block
+m4_forloop([k],[1],n,[dnl
+         class(*), allocatable :: vec[]k
+])dnl
+         call unlist (vectars, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+              &       ])vec[]k]))
+         vec_c = vectar_append (vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+              &                 ])vec[]k]))
+       end block
+])dnl
+    case default
+       block
+         type(cons_t) :: p
+         type(cons_t) :: vecs_reversed
+         type(vectar_range_t) :: range
+         integer(sz) :: len_vec_c
+         integer(sz) :: i, j
+         type(vectar_data_t), pointer :: src, dst
+
+         vecs_reversed = nil
+         len_vec_c = 0_sz
+         p = vectars
+         do i = 1_sz, num_vectars
+            range = car (p)
+            vecs_reversed = range ** vecs_reversed
+            len_vec_c = len_vec_c + (range%iend0() - range%istart0()) + 1_sz
+            p = cdr (p)
+         end do
+
+         vec_c = make_vectar (len_vec_c)
+
+         dst => vectar_data_ptr (vec_c)
+
+         j = len_vec_c
+         p = vecs_reversed
+         do while (is_pair (p))
+            range = car (p)
+            src => vectar_data_ptr (range%vec())
+            do i = range%iend0(), range%istart0(), -1
+               j = j - 1
+               dst%array(j) = src%array(i)
+            end do
+            p = cdr (p)
+         end do
+       end block
+    end select
+  end function vectar_concatenate
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1244,6 +1391,7 @@ m4_forloop([k],[1],n,[dnl
          &          ])vec[]k]))
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal[]n
+
 ])dnl
 dnl
   recursive function apply_vectar_equal (equal, vectars) result (bool)

@@ -548,6 +548,41 @@ contains
     call check (vectar_equal (int_eq, vec2, list_to_vectar (nil)), "test0100-0070 failed")
   end subroutine test0100
 
+  subroutine test0110
+    type(cons_t) :: vectars
+    integer :: n, i
+
+    call check (vectar_equal (int_eq, vectar_append (), vectar ()), &
+         &      "test0110-0010 failed")
+    call check (vectar_equal (int_eq, vectar_append (vectar (1, 2)), vectar (1, 2)), &
+         &      "test0110-0020 failed")
+    call check (vectar_equal (int_eq, vectar_append (vectar (1, 2), vectar (3, 4)), vectar (1, 2, 3, 4)), &
+         &      "test0110-0030 failed")
+    call check (vectar_equal (int_eq, vectar_append (vectar (1), vectar (2), vectar (3), vectar (4)), vectar (1, 2, 3, 4)), &
+         &      "test0110-0040 failed")
+    call check (vectar_equal (int_eq, vectar_append (range1 (vectar (1, 2, 3, 4), 2, 3)), vectar (2, 3)), &
+         &      "test0110-0050 failed")
+    call check (vectar_equal (int_eq, vectar_append (range1 (vectar (1, 2, 3, 4), 1, 1), &
+         &                                           range1 (vectar (1, 2, 3, 4), 2, 3)), &
+         &                    vectar (1, 2, 3)), &
+         &      "test0110-0060 failed")
+
+    call check (vectar_equal (int_eq, vectar_concatenate (nil), vectar ()), &
+         &      "test0110-1010 failed")
+    call check (vectar_equal (int_eq, vectar_concatenate (list (vectar (1, 2))), vectar (1, 2)), &
+         &      "test0110-1020 failed")
+    call check (vectar_equal (int_eq, vectar_concatenate (list (vectar (1, 2), vectar (3, 4))), vectar (1, 2, 3, 4)), &
+         &      "test0110-1020 failed")
+
+    do n = 0, 20 + 5
+       vectars = nil
+       do i = n, 1, -1
+          vectars = vectar (i) ** vectars
+       end do
+       call check (vectar_equal (int_eq, vectar_concatenate (vectars), list_to_vectar (iota (n, 1))), "test0110-2030 failed")
+    end do
+  end subroutine test0110
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -562,6 +597,7 @@ contains
     call test0080
     call test0090
     call test0100
+    call test0110
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

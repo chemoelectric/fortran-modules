@@ -126,6 +126,40 @@ module vectars
   ! of elements reversed.
   public :: vectar_reverse_copy
 
+  ! Generic function: return a new vector, appending the contents of
+  ! vectars or vectar ranges to each other. This function does both
+  ! what `vector-append' and `vector-append-subvectors' do in
+  ! SRFI-133.
+  public :: vectar_append
+
+  ! Implementations of vectar_append.
+  public :: vectar_append0
+  public :: vectar_append1
+  public :: vectar_append2
+  public :: vectar_append3
+  public :: vectar_append4
+  public :: vectar_append5
+  public :: vectar_append6
+  public :: vectar_append7
+  public :: vectar_append8
+  public :: vectar_append9
+  public :: vectar_append10
+  public :: vectar_append11
+  public :: vectar_append12
+  public :: vectar_append13
+  public :: vectar_append14
+  public :: vectar_append15
+  public :: vectar_append16
+  public :: vectar_append17
+  public :: vectar_append18
+  public :: vectar_append19
+  public :: vectar_append20
+
+  ! Return a new vector, appending the contents of the vectars and
+  ! vectar ranges given by a list. (In SRFI-133, `vector-concatenate'
+  ! cannot append subvectors, the way our function here can.)
+  public :: vectar_concatenate
+
   ! Return the length of a vectar, as an INTEGER(SIZE_KIND).
   public :: vectar_length
 
@@ -267,6 +301,9 @@ module vectars
      integer(sz), private :: index_
      integer(sz), private :: length_
    contains
+     procedure, pass :: assign => vectar_range_t_assign
+     generic :: assignment(=) => assign
+
      procedure, pass :: vec => vectar_range_t_vec
 
      procedure, pass :: istart0 => vectar_range_t_istart0
@@ -405,6 +442,30 @@ module vectars
      module procedure vectar_swapn_size_kind
      module procedure vectar_swapn_int
   end interface vectar_swapn
+
+  interface vectar_append
+     module procedure vectar_append0
+     module procedure vectar_append1
+     module procedure vectar_append2
+     module procedure vectar_append3
+     module procedure vectar_append4
+     module procedure vectar_append5
+     module procedure vectar_append6
+     module procedure vectar_append7
+     module procedure vectar_append8
+     module procedure vectar_append9
+     module procedure vectar_append10
+     module procedure vectar_append11
+     module procedure vectar_append12
+     module procedure vectar_append13
+     module procedure vectar_append14
+     module procedure vectar_append15
+     module procedure vectar_append16
+     module procedure vectar_append17
+     module procedure vectar_append18
+     module procedure vectar_append19
+     module procedure vectar_append20
+  end interface vectar_append
 
   interface vectar_equal
      module procedure vectar_equal0
@@ -821,23 +882,34 @@ contains
     iendn = range%index_ + (range%length_ - 1) + (.sz. n)
   end function vectar_range_t_iendn_int
 
+  recursive subroutine vectar_range_t_assign (dst, src)
+    class(vectar_range_t), intent(inout) :: dst
+    class(*), intent(in) :: src
+
+    type(vectar_data_t), pointer :: data
+
+    select type (src)
+    class is (vectar_range_t)
+       dst%vec_ = src%vec_
+       dst%index_ = src%index_
+       dst%length_ = src%length_
+    class is (vectar_t)
+       data => vectar_data_ptr (src)
+       dst%vec_ = src
+       dst%index_ = 0_sz
+       dst%length_ = data%length
+    class is (gcroot_t)
+       call vectar_range_t_assign (dst, .val. src)
+    class default
+       call error_abort ("assignment to vectar_range_t from an incompatible object")
+    end select
+  end subroutine vectar_range_t_assign
+
   recursive function vectar_range_t_cast (obj) result (range)
     class(*), intent(in) :: obj
     type(vectar_range_t) :: range
 
-    type(vectar_data_t), pointer :: data
-
-    select type (obj)
-    class is (vectar_range_t)
-       range = obj
-    class is (vectar_t)
-       data => vectar_data_ptr (obj)
-       range = obj%range1 (1_sz, data%length)
-    class is (gcroot_t)
-       range = vectar_range_t_cast (.val. obj)
-    class default
-       call error_abort ("vectar_range_t_cast of an incompatible object")
-    end select
+    range = obj
   end function vectar_range_t_cast
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1930,7 +2002,7 @@ contains
     type(vectar_range_t) :: range
     integer(sz) :: i
 
-    range = .tovecrange. vec
+    range = vec
     v = range%vec()
     lst = nil
     do i = range%iend0(), range%istart0(), -1
@@ -1946,7 +2018,7 @@ contains
     type(vectar_range_t) :: range
     integer(sz) :: i
 
-    range = .tovecrange. vec
+    range = vec
     v = range%vec()
     lst = nil
     do i = range%istart0(), range%iend0()
@@ -2034,7 +2106,7 @@ contains
     type(vectar_data_t), pointer :: src, dst
     integer(sz) :: istart, iend, size, i
 
-    range = .tovecrange. vec
+    range = vec
 
     v = range%vec()
     istart = range%istart0()
@@ -2062,7 +2134,7 @@ contains
     type(vectar_data_t), pointer :: src, dst
     integer(sz) :: istart, iend, size, i
 
-    range = .tovecrange. vec
+    range = vec
 
     v = range%vec()
     istart = range%istart0()
@@ -2081,6 +2153,3301 @@ contains
        end do
     end if
   end function vectar_reverse_copy
+
+  function vectar_append0 () result (vec_a)
+    type(vectar_t) :: vec_a
+
+    vec_a = vectar ()
+  end function vectar_append0
+
+  function vectar_append1 (vec1) result (vec_a)
+    class(*), intent(in) :: vec1
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_t) :: v1
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append1
+  function vectar_append2 (vec1, vec2) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append2
+  function vectar_append3 (vec1, vec2, vec3) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append3
+  function vectar_append4 (vec1, vec2, vec3, vec4) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append4
+  function vectar_append5 (vec1, vec2, vec3, vec4, vec5) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append5
+  function vectar_append6 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append6
+  function vectar_append7 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6, vec7) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_t) :: v7
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: src7
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+    range7 = vec7
+    v7 = range7%vec()
+    src7 => vectar_data_ptr (v7)
+    len_vec_a = len_vec_a + (range7%iend0() - range7%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+    do i = range7%istart0(), range7%iend0()
+       dst%array(j) = src7%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append7
+  function vectar_append8 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6, vec7, vec8) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_t) :: v7
+    type(vectar_t) :: v8
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: src7
+    type(vectar_data_t), pointer :: src8
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+    range7 = vec7
+    v7 = range7%vec()
+    src7 => vectar_data_ptr (v7)
+    len_vec_a = len_vec_a + (range7%iend0() - range7%istart0()) + 1_sz
+    range8 = vec8
+    v8 = range8%vec()
+    src8 => vectar_data_ptr (v8)
+    len_vec_a = len_vec_a + (range8%iend0() - range8%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+    do i = range7%istart0(), range7%iend0()
+       dst%array(j) = src7%array(i)
+       j = j + 1_sz
+    end do
+    do i = range8%istart0(), range8%iend0()
+       dst%array(j) = src8%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append8
+  function vectar_append9 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6, vec7, vec8, vec9) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_t) :: v7
+    type(vectar_t) :: v8
+    type(vectar_t) :: v9
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: src7
+    type(vectar_data_t), pointer :: src8
+    type(vectar_data_t), pointer :: src9
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+    range7 = vec7
+    v7 = range7%vec()
+    src7 => vectar_data_ptr (v7)
+    len_vec_a = len_vec_a + (range7%iend0() - range7%istart0()) + 1_sz
+    range8 = vec8
+    v8 = range8%vec()
+    src8 => vectar_data_ptr (v8)
+    len_vec_a = len_vec_a + (range8%iend0() - range8%istart0()) + 1_sz
+    range9 = vec9
+    v9 = range9%vec()
+    src9 => vectar_data_ptr (v9)
+    len_vec_a = len_vec_a + (range9%iend0() - range9%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+    do i = range7%istart0(), range7%iend0()
+       dst%array(j) = src7%array(i)
+       j = j + 1_sz
+    end do
+    do i = range8%istart0(), range8%iend0()
+       dst%array(j) = src8%array(i)
+       j = j + 1_sz
+    end do
+    do i = range9%istart0(), range9%iend0()
+       dst%array(j) = src9%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append9
+  function vectar_append10 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6, vec7, vec8, vec9, vec10) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_t) :: v7
+    type(vectar_t) :: v8
+    type(vectar_t) :: v9
+    type(vectar_t) :: v10
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: src7
+    type(vectar_data_t), pointer :: src8
+    type(vectar_data_t), pointer :: src9
+    type(vectar_data_t), pointer :: src10
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+    range7 = vec7
+    v7 = range7%vec()
+    src7 => vectar_data_ptr (v7)
+    len_vec_a = len_vec_a + (range7%iend0() - range7%istart0()) + 1_sz
+    range8 = vec8
+    v8 = range8%vec()
+    src8 => vectar_data_ptr (v8)
+    len_vec_a = len_vec_a + (range8%iend0() - range8%istart0()) + 1_sz
+    range9 = vec9
+    v9 = range9%vec()
+    src9 => vectar_data_ptr (v9)
+    len_vec_a = len_vec_a + (range9%iend0() - range9%istart0()) + 1_sz
+    range10 = vec10
+    v10 = range10%vec()
+    src10 => vectar_data_ptr (v10)
+    len_vec_a = len_vec_a + (range10%iend0() - range10%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+    do i = range7%istart0(), range7%iend0()
+       dst%array(j) = src7%array(i)
+       j = j + 1_sz
+    end do
+    do i = range8%istart0(), range8%iend0()
+       dst%array(j) = src8%array(i)
+       j = j + 1_sz
+    end do
+    do i = range9%istart0(), range9%iend0()
+       dst%array(j) = src9%array(i)
+       j = j + 1_sz
+    end do
+    do i = range10%istart0(), range10%iend0()
+       dst%array(j) = src10%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append10
+  function vectar_append11 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6, vec7, vec8, vec9, vec10, &
+       &                   vec11) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    class(*), intent(in) :: vec11
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_range_t) :: range11
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_t) :: v7
+    type(vectar_t) :: v8
+    type(vectar_t) :: v9
+    type(vectar_t) :: v10
+    type(vectar_t) :: v11
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: src7
+    type(vectar_data_t), pointer :: src8
+    type(vectar_data_t), pointer :: src9
+    type(vectar_data_t), pointer :: src10
+    type(vectar_data_t), pointer :: src11
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+    range7 = vec7
+    v7 = range7%vec()
+    src7 => vectar_data_ptr (v7)
+    len_vec_a = len_vec_a + (range7%iend0() - range7%istart0()) + 1_sz
+    range8 = vec8
+    v8 = range8%vec()
+    src8 => vectar_data_ptr (v8)
+    len_vec_a = len_vec_a + (range8%iend0() - range8%istart0()) + 1_sz
+    range9 = vec9
+    v9 = range9%vec()
+    src9 => vectar_data_ptr (v9)
+    len_vec_a = len_vec_a + (range9%iend0() - range9%istart0()) + 1_sz
+    range10 = vec10
+    v10 = range10%vec()
+    src10 => vectar_data_ptr (v10)
+    len_vec_a = len_vec_a + (range10%iend0() - range10%istart0()) + 1_sz
+    range11 = vec11
+    v11 = range11%vec()
+    src11 => vectar_data_ptr (v11)
+    len_vec_a = len_vec_a + (range11%iend0() - range11%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+    do i = range7%istart0(), range7%iend0()
+       dst%array(j) = src7%array(i)
+       j = j + 1_sz
+    end do
+    do i = range8%istart0(), range8%iend0()
+       dst%array(j) = src8%array(i)
+       j = j + 1_sz
+    end do
+    do i = range9%istart0(), range9%iend0()
+       dst%array(j) = src9%array(i)
+       j = j + 1_sz
+    end do
+    do i = range10%istart0(), range10%iend0()
+       dst%array(j) = src10%array(i)
+       j = j + 1_sz
+    end do
+    do i = range11%istart0(), range11%iend0()
+       dst%array(j) = src11%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append11
+  function vectar_append12 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6, vec7, vec8, vec9, vec10, &
+       &                   vec11, vec12) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    class(*), intent(in) :: vec11
+    class(*), intent(in) :: vec12
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_range_t) :: range11
+    type(vectar_range_t) :: range12
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_t) :: v7
+    type(vectar_t) :: v8
+    type(vectar_t) :: v9
+    type(vectar_t) :: v10
+    type(vectar_t) :: v11
+    type(vectar_t) :: v12
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: src7
+    type(vectar_data_t), pointer :: src8
+    type(vectar_data_t), pointer :: src9
+    type(vectar_data_t), pointer :: src10
+    type(vectar_data_t), pointer :: src11
+    type(vectar_data_t), pointer :: src12
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+    range7 = vec7
+    v7 = range7%vec()
+    src7 => vectar_data_ptr (v7)
+    len_vec_a = len_vec_a + (range7%iend0() - range7%istart0()) + 1_sz
+    range8 = vec8
+    v8 = range8%vec()
+    src8 => vectar_data_ptr (v8)
+    len_vec_a = len_vec_a + (range8%iend0() - range8%istart0()) + 1_sz
+    range9 = vec9
+    v9 = range9%vec()
+    src9 => vectar_data_ptr (v9)
+    len_vec_a = len_vec_a + (range9%iend0() - range9%istart0()) + 1_sz
+    range10 = vec10
+    v10 = range10%vec()
+    src10 => vectar_data_ptr (v10)
+    len_vec_a = len_vec_a + (range10%iend0() - range10%istart0()) + 1_sz
+    range11 = vec11
+    v11 = range11%vec()
+    src11 => vectar_data_ptr (v11)
+    len_vec_a = len_vec_a + (range11%iend0() - range11%istart0()) + 1_sz
+    range12 = vec12
+    v12 = range12%vec()
+    src12 => vectar_data_ptr (v12)
+    len_vec_a = len_vec_a + (range12%iend0() - range12%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+    do i = range7%istart0(), range7%iend0()
+       dst%array(j) = src7%array(i)
+       j = j + 1_sz
+    end do
+    do i = range8%istart0(), range8%iend0()
+       dst%array(j) = src8%array(i)
+       j = j + 1_sz
+    end do
+    do i = range9%istart0(), range9%iend0()
+       dst%array(j) = src9%array(i)
+       j = j + 1_sz
+    end do
+    do i = range10%istart0(), range10%iend0()
+       dst%array(j) = src10%array(i)
+       j = j + 1_sz
+    end do
+    do i = range11%istart0(), range11%iend0()
+       dst%array(j) = src11%array(i)
+       j = j + 1_sz
+    end do
+    do i = range12%istart0(), range12%iend0()
+       dst%array(j) = src12%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append12
+  function vectar_append13 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6, vec7, vec8, vec9, vec10, &
+       &                   vec11, vec12, vec13) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    class(*), intent(in) :: vec11
+    class(*), intent(in) :: vec12
+    class(*), intent(in) :: vec13
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_range_t) :: range11
+    type(vectar_range_t) :: range12
+    type(vectar_range_t) :: range13
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_t) :: v7
+    type(vectar_t) :: v8
+    type(vectar_t) :: v9
+    type(vectar_t) :: v10
+    type(vectar_t) :: v11
+    type(vectar_t) :: v12
+    type(vectar_t) :: v13
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: src7
+    type(vectar_data_t), pointer :: src8
+    type(vectar_data_t), pointer :: src9
+    type(vectar_data_t), pointer :: src10
+    type(vectar_data_t), pointer :: src11
+    type(vectar_data_t), pointer :: src12
+    type(vectar_data_t), pointer :: src13
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+    range7 = vec7
+    v7 = range7%vec()
+    src7 => vectar_data_ptr (v7)
+    len_vec_a = len_vec_a + (range7%iend0() - range7%istart0()) + 1_sz
+    range8 = vec8
+    v8 = range8%vec()
+    src8 => vectar_data_ptr (v8)
+    len_vec_a = len_vec_a + (range8%iend0() - range8%istart0()) + 1_sz
+    range9 = vec9
+    v9 = range9%vec()
+    src9 => vectar_data_ptr (v9)
+    len_vec_a = len_vec_a + (range9%iend0() - range9%istart0()) + 1_sz
+    range10 = vec10
+    v10 = range10%vec()
+    src10 => vectar_data_ptr (v10)
+    len_vec_a = len_vec_a + (range10%iend0() - range10%istart0()) + 1_sz
+    range11 = vec11
+    v11 = range11%vec()
+    src11 => vectar_data_ptr (v11)
+    len_vec_a = len_vec_a + (range11%iend0() - range11%istart0()) + 1_sz
+    range12 = vec12
+    v12 = range12%vec()
+    src12 => vectar_data_ptr (v12)
+    len_vec_a = len_vec_a + (range12%iend0() - range12%istart0()) + 1_sz
+    range13 = vec13
+    v13 = range13%vec()
+    src13 => vectar_data_ptr (v13)
+    len_vec_a = len_vec_a + (range13%iend0() - range13%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+    do i = range7%istart0(), range7%iend0()
+       dst%array(j) = src7%array(i)
+       j = j + 1_sz
+    end do
+    do i = range8%istart0(), range8%iend0()
+       dst%array(j) = src8%array(i)
+       j = j + 1_sz
+    end do
+    do i = range9%istart0(), range9%iend0()
+       dst%array(j) = src9%array(i)
+       j = j + 1_sz
+    end do
+    do i = range10%istart0(), range10%iend0()
+       dst%array(j) = src10%array(i)
+       j = j + 1_sz
+    end do
+    do i = range11%istart0(), range11%iend0()
+       dst%array(j) = src11%array(i)
+       j = j + 1_sz
+    end do
+    do i = range12%istart0(), range12%iend0()
+       dst%array(j) = src12%array(i)
+       j = j + 1_sz
+    end do
+    do i = range13%istart0(), range13%iend0()
+       dst%array(j) = src13%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append13
+  function vectar_append14 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6, vec7, vec8, vec9, vec10, &
+       &                   vec11, vec12, vec13, vec14) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    class(*), intent(in) :: vec11
+    class(*), intent(in) :: vec12
+    class(*), intent(in) :: vec13
+    class(*), intent(in) :: vec14
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_range_t) :: range11
+    type(vectar_range_t) :: range12
+    type(vectar_range_t) :: range13
+    type(vectar_range_t) :: range14
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_t) :: v7
+    type(vectar_t) :: v8
+    type(vectar_t) :: v9
+    type(vectar_t) :: v10
+    type(vectar_t) :: v11
+    type(vectar_t) :: v12
+    type(vectar_t) :: v13
+    type(vectar_t) :: v14
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: src7
+    type(vectar_data_t), pointer :: src8
+    type(vectar_data_t), pointer :: src9
+    type(vectar_data_t), pointer :: src10
+    type(vectar_data_t), pointer :: src11
+    type(vectar_data_t), pointer :: src12
+    type(vectar_data_t), pointer :: src13
+    type(vectar_data_t), pointer :: src14
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+    range7 = vec7
+    v7 = range7%vec()
+    src7 => vectar_data_ptr (v7)
+    len_vec_a = len_vec_a + (range7%iend0() - range7%istart0()) + 1_sz
+    range8 = vec8
+    v8 = range8%vec()
+    src8 => vectar_data_ptr (v8)
+    len_vec_a = len_vec_a + (range8%iend0() - range8%istart0()) + 1_sz
+    range9 = vec9
+    v9 = range9%vec()
+    src9 => vectar_data_ptr (v9)
+    len_vec_a = len_vec_a + (range9%iend0() - range9%istart0()) + 1_sz
+    range10 = vec10
+    v10 = range10%vec()
+    src10 => vectar_data_ptr (v10)
+    len_vec_a = len_vec_a + (range10%iend0() - range10%istart0()) + 1_sz
+    range11 = vec11
+    v11 = range11%vec()
+    src11 => vectar_data_ptr (v11)
+    len_vec_a = len_vec_a + (range11%iend0() - range11%istart0()) + 1_sz
+    range12 = vec12
+    v12 = range12%vec()
+    src12 => vectar_data_ptr (v12)
+    len_vec_a = len_vec_a + (range12%iend0() - range12%istart0()) + 1_sz
+    range13 = vec13
+    v13 = range13%vec()
+    src13 => vectar_data_ptr (v13)
+    len_vec_a = len_vec_a + (range13%iend0() - range13%istart0()) + 1_sz
+    range14 = vec14
+    v14 = range14%vec()
+    src14 => vectar_data_ptr (v14)
+    len_vec_a = len_vec_a + (range14%iend0() - range14%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+    do i = range7%istart0(), range7%iend0()
+       dst%array(j) = src7%array(i)
+       j = j + 1_sz
+    end do
+    do i = range8%istart0(), range8%iend0()
+       dst%array(j) = src8%array(i)
+       j = j + 1_sz
+    end do
+    do i = range9%istart0(), range9%iend0()
+       dst%array(j) = src9%array(i)
+       j = j + 1_sz
+    end do
+    do i = range10%istart0(), range10%iend0()
+       dst%array(j) = src10%array(i)
+       j = j + 1_sz
+    end do
+    do i = range11%istart0(), range11%iend0()
+       dst%array(j) = src11%array(i)
+       j = j + 1_sz
+    end do
+    do i = range12%istart0(), range12%iend0()
+       dst%array(j) = src12%array(i)
+       j = j + 1_sz
+    end do
+    do i = range13%istart0(), range13%iend0()
+       dst%array(j) = src13%array(i)
+       j = j + 1_sz
+    end do
+    do i = range14%istart0(), range14%iend0()
+       dst%array(j) = src14%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append14
+  function vectar_append15 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6, vec7, vec8, vec9, vec10, &
+       &                   vec11, vec12, vec13, vec14, vec15) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    class(*), intent(in) :: vec11
+    class(*), intent(in) :: vec12
+    class(*), intent(in) :: vec13
+    class(*), intent(in) :: vec14
+    class(*), intent(in) :: vec15
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_range_t) :: range11
+    type(vectar_range_t) :: range12
+    type(vectar_range_t) :: range13
+    type(vectar_range_t) :: range14
+    type(vectar_range_t) :: range15
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_t) :: v7
+    type(vectar_t) :: v8
+    type(vectar_t) :: v9
+    type(vectar_t) :: v10
+    type(vectar_t) :: v11
+    type(vectar_t) :: v12
+    type(vectar_t) :: v13
+    type(vectar_t) :: v14
+    type(vectar_t) :: v15
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: src7
+    type(vectar_data_t), pointer :: src8
+    type(vectar_data_t), pointer :: src9
+    type(vectar_data_t), pointer :: src10
+    type(vectar_data_t), pointer :: src11
+    type(vectar_data_t), pointer :: src12
+    type(vectar_data_t), pointer :: src13
+    type(vectar_data_t), pointer :: src14
+    type(vectar_data_t), pointer :: src15
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+    range7 = vec7
+    v7 = range7%vec()
+    src7 => vectar_data_ptr (v7)
+    len_vec_a = len_vec_a + (range7%iend0() - range7%istart0()) + 1_sz
+    range8 = vec8
+    v8 = range8%vec()
+    src8 => vectar_data_ptr (v8)
+    len_vec_a = len_vec_a + (range8%iend0() - range8%istart0()) + 1_sz
+    range9 = vec9
+    v9 = range9%vec()
+    src9 => vectar_data_ptr (v9)
+    len_vec_a = len_vec_a + (range9%iend0() - range9%istart0()) + 1_sz
+    range10 = vec10
+    v10 = range10%vec()
+    src10 => vectar_data_ptr (v10)
+    len_vec_a = len_vec_a + (range10%iend0() - range10%istart0()) + 1_sz
+    range11 = vec11
+    v11 = range11%vec()
+    src11 => vectar_data_ptr (v11)
+    len_vec_a = len_vec_a + (range11%iend0() - range11%istart0()) + 1_sz
+    range12 = vec12
+    v12 = range12%vec()
+    src12 => vectar_data_ptr (v12)
+    len_vec_a = len_vec_a + (range12%iend0() - range12%istart0()) + 1_sz
+    range13 = vec13
+    v13 = range13%vec()
+    src13 => vectar_data_ptr (v13)
+    len_vec_a = len_vec_a + (range13%iend0() - range13%istart0()) + 1_sz
+    range14 = vec14
+    v14 = range14%vec()
+    src14 => vectar_data_ptr (v14)
+    len_vec_a = len_vec_a + (range14%iend0() - range14%istart0()) + 1_sz
+    range15 = vec15
+    v15 = range15%vec()
+    src15 => vectar_data_ptr (v15)
+    len_vec_a = len_vec_a + (range15%iend0() - range15%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+    do i = range7%istart0(), range7%iend0()
+       dst%array(j) = src7%array(i)
+       j = j + 1_sz
+    end do
+    do i = range8%istart0(), range8%iend0()
+       dst%array(j) = src8%array(i)
+       j = j + 1_sz
+    end do
+    do i = range9%istart0(), range9%iend0()
+       dst%array(j) = src9%array(i)
+       j = j + 1_sz
+    end do
+    do i = range10%istart0(), range10%iend0()
+       dst%array(j) = src10%array(i)
+       j = j + 1_sz
+    end do
+    do i = range11%istart0(), range11%iend0()
+       dst%array(j) = src11%array(i)
+       j = j + 1_sz
+    end do
+    do i = range12%istart0(), range12%iend0()
+       dst%array(j) = src12%array(i)
+       j = j + 1_sz
+    end do
+    do i = range13%istart0(), range13%iend0()
+       dst%array(j) = src13%array(i)
+       j = j + 1_sz
+    end do
+    do i = range14%istart0(), range14%iend0()
+       dst%array(j) = src14%array(i)
+       j = j + 1_sz
+    end do
+    do i = range15%istart0(), range15%iend0()
+       dst%array(j) = src15%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append15
+  function vectar_append16 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6, vec7, vec8, vec9, vec10, &
+       &                   vec11, vec12, vec13, vec14, vec15, &
+       &                   vec16) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    class(*), intent(in) :: vec11
+    class(*), intent(in) :: vec12
+    class(*), intent(in) :: vec13
+    class(*), intent(in) :: vec14
+    class(*), intent(in) :: vec15
+    class(*), intent(in) :: vec16
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_range_t) :: range11
+    type(vectar_range_t) :: range12
+    type(vectar_range_t) :: range13
+    type(vectar_range_t) :: range14
+    type(vectar_range_t) :: range15
+    type(vectar_range_t) :: range16
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_t) :: v7
+    type(vectar_t) :: v8
+    type(vectar_t) :: v9
+    type(vectar_t) :: v10
+    type(vectar_t) :: v11
+    type(vectar_t) :: v12
+    type(vectar_t) :: v13
+    type(vectar_t) :: v14
+    type(vectar_t) :: v15
+    type(vectar_t) :: v16
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: src7
+    type(vectar_data_t), pointer :: src8
+    type(vectar_data_t), pointer :: src9
+    type(vectar_data_t), pointer :: src10
+    type(vectar_data_t), pointer :: src11
+    type(vectar_data_t), pointer :: src12
+    type(vectar_data_t), pointer :: src13
+    type(vectar_data_t), pointer :: src14
+    type(vectar_data_t), pointer :: src15
+    type(vectar_data_t), pointer :: src16
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+    range7 = vec7
+    v7 = range7%vec()
+    src7 => vectar_data_ptr (v7)
+    len_vec_a = len_vec_a + (range7%iend0() - range7%istart0()) + 1_sz
+    range8 = vec8
+    v8 = range8%vec()
+    src8 => vectar_data_ptr (v8)
+    len_vec_a = len_vec_a + (range8%iend0() - range8%istart0()) + 1_sz
+    range9 = vec9
+    v9 = range9%vec()
+    src9 => vectar_data_ptr (v9)
+    len_vec_a = len_vec_a + (range9%iend0() - range9%istart0()) + 1_sz
+    range10 = vec10
+    v10 = range10%vec()
+    src10 => vectar_data_ptr (v10)
+    len_vec_a = len_vec_a + (range10%iend0() - range10%istart0()) + 1_sz
+    range11 = vec11
+    v11 = range11%vec()
+    src11 => vectar_data_ptr (v11)
+    len_vec_a = len_vec_a + (range11%iend0() - range11%istart0()) + 1_sz
+    range12 = vec12
+    v12 = range12%vec()
+    src12 => vectar_data_ptr (v12)
+    len_vec_a = len_vec_a + (range12%iend0() - range12%istart0()) + 1_sz
+    range13 = vec13
+    v13 = range13%vec()
+    src13 => vectar_data_ptr (v13)
+    len_vec_a = len_vec_a + (range13%iend0() - range13%istart0()) + 1_sz
+    range14 = vec14
+    v14 = range14%vec()
+    src14 => vectar_data_ptr (v14)
+    len_vec_a = len_vec_a + (range14%iend0() - range14%istart0()) + 1_sz
+    range15 = vec15
+    v15 = range15%vec()
+    src15 => vectar_data_ptr (v15)
+    len_vec_a = len_vec_a + (range15%iend0() - range15%istart0()) + 1_sz
+    range16 = vec16
+    v16 = range16%vec()
+    src16 => vectar_data_ptr (v16)
+    len_vec_a = len_vec_a + (range16%iend0() - range16%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+    do i = range7%istart0(), range7%iend0()
+       dst%array(j) = src7%array(i)
+       j = j + 1_sz
+    end do
+    do i = range8%istart0(), range8%iend0()
+       dst%array(j) = src8%array(i)
+       j = j + 1_sz
+    end do
+    do i = range9%istart0(), range9%iend0()
+       dst%array(j) = src9%array(i)
+       j = j + 1_sz
+    end do
+    do i = range10%istart0(), range10%iend0()
+       dst%array(j) = src10%array(i)
+       j = j + 1_sz
+    end do
+    do i = range11%istart0(), range11%iend0()
+       dst%array(j) = src11%array(i)
+       j = j + 1_sz
+    end do
+    do i = range12%istart0(), range12%iend0()
+       dst%array(j) = src12%array(i)
+       j = j + 1_sz
+    end do
+    do i = range13%istart0(), range13%iend0()
+       dst%array(j) = src13%array(i)
+       j = j + 1_sz
+    end do
+    do i = range14%istart0(), range14%iend0()
+       dst%array(j) = src14%array(i)
+       j = j + 1_sz
+    end do
+    do i = range15%istart0(), range15%iend0()
+       dst%array(j) = src15%array(i)
+       j = j + 1_sz
+    end do
+    do i = range16%istart0(), range16%iend0()
+       dst%array(j) = src16%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append16
+  function vectar_append17 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6, vec7, vec8, vec9, vec10, &
+       &                   vec11, vec12, vec13, vec14, vec15, &
+       &                   vec16, vec17) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    class(*), intent(in) :: vec11
+    class(*), intent(in) :: vec12
+    class(*), intent(in) :: vec13
+    class(*), intent(in) :: vec14
+    class(*), intent(in) :: vec15
+    class(*), intent(in) :: vec16
+    class(*), intent(in) :: vec17
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_range_t) :: range11
+    type(vectar_range_t) :: range12
+    type(vectar_range_t) :: range13
+    type(vectar_range_t) :: range14
+    type(vectar_range_t) :: range15
+    type(vectar_range_t) :: range16
+    type(vectar_range_t) :: range17
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_t) :: v7
+    type(vectar_t) :: v8
+    type(vectar_t) :: v9
+    type(vectar_t) :: v10
+    type(vectar_t) :: v11
+    type(vectar_t) :: v12
+    type(vectar_t) :: v13
+    type(vectar_t) :: v14
+    type(vectar_t) :: v15
+    type(vectar_t) :: v16
+    type(vectar_t) :: v17
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: src7
+    type(vectar_data_t), pointer :: src8
+    type(vectar_data_t), pointer :: src9
+    type(vectar_data_t), pointer :: src10
+    type(vectar_data_t), pointer :: src11
+    type(vectar_data_t), pointer :: src12
+    type(vectar_data_t), pointer :: src13
+    type(vectar_data_t), pointer :: src14
+    type(vectar_data_t), pointer :: src15
+    type(vectar_data_t), pointer :: src16
+    type(vectar_data_t), pointer :: src17
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+    range7 = vec7
+    v7 = range7%vec()
+    src7 => vectar_data_ptr (v7)
+    len_vec_a = len_vec_a + (range7%iend0() - range7%istart0()) + 1_sz
+    range8 = vec8
+    v8 = range8%vec()
+    src8 => vectar_data_ptr (v8)
+    len_vec_a = len_vec_a + (range8%iend0() - range8%istart0()) + 1_sz
+    range9 = vec9
+    v9 = range9%vec()
+    src9 => vectar_data_ptr (v9)
+    len_vec_a = len_vec_a + (range9%iend0() - range9%istart0()) + 1_sz
+    range10 = vec10
+    v10 = range10%vec()
+    src10 => vectar_data_ptr (v10)
+    len_vec_a = len_vec_a + (range10%iend0() - range10%istart0()) + 1_sz
+    range11 = vec11
+    v11 = range11%vec()
+    src11 => vectar_data_ptr (v11)
+    len_vec_a = len_vec_a + (range11%iend0() - range11%istart0()) + 1_sz
+    range12 = vec12
+    v12 = range12%vec()
+    src12 => vectar_data_ptr (v12)
+    len_vec_a = len_vec_a + (range12%iend0() - range12%istart0()) + 1_sz
+    range13 = vec13
+    v13 = range13%vec()
+    src13 => vectar_data_ptr (v13)
+    len_vec_a = len_vec_a + (range13%iend0() - range13%istart0()) + 1_sz
+    range14 = vec14
+    v14 = range14%vec()
+    src14 => vectar_data_ptr (v14)
+    len_vec_a = len_vec_a + (range14%iend0() - range14%istart0()) + 1_sz
+    range15 = vec15
+    v15 = range15%vec()
+    src15 => vectar_data_ptr (v15)
+    len_vec_a = len_vec_a + (range15%iend0() - range15%istart0()) + 1_sz
+    range16 = vec16
+    v16 = range16%vec()
+    src16 => vectar_data_ptr (v16)
+    len_vec_a = len_vec_a + (range16%iend0() - range16%istart0()) + 1_sz
+    range17 = vec17
+    v17 = range17%vec()
+    src17 => vectar_data_ptr (v17)
+    len_vec_a = len_vec_a + (range17%iend0() - range17%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+    do i = range7%istart0(), range7%iend0()
+       dst%array(j) = src7%array(i)
+       j = j + 1_sz
+    end do
+    do i = range8%istart0(), range8%iend0()
+       dst%array(j) = src8%array(i)
+       j = j + 1_sz
+    end do
+    do i = range9%istart0(), range9%iend0()
+       dst%array(j) = src9%array(i)
+       j = j + 1_sz
+    end do
+    do i = range10%istart0(), range10%iend0()
+       dst%array(j) = src10%array(i)
+       j = j + 1_sz
+    end do
+    do i = range11%istart0(), range11%iend0()
+       dst%array(j) = src11%array(i)
+       j = j + 1_sz
+    end do
+    do i = range12%istart0(), range12%iend0()
+       dst%array(j) = src12%array(i)
+       j = j + 1_sz
+    end do
+    do i = range13%istart0(), range13%iend0()
+       dst%array(j) = src13%array(i)
+       j = j + 1_sz
+    end do
+    do i = range14%istart0(), range14%iend0()
+       dst%array(j) = src14%array(i)
+       j = j + 1_sz
+    end do
+    do i = range15%istart0(), range15%iend0()
+       dst%array(j) = src15%array(i)
+       j = j + 1_sz
+    end do
+    do i = range16%istart0(), range16%iend0()
+       dst%array(j) = src16%array(i)
+       j = j + 1_sz
+    end do
+    do i = range17%istart0(), range17%iend0()
+       dst%array(j) = src17%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append17
+  function vectar_append18 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6, vec7, vec8, vec9, vec10, &
+       &                   vec11, vec12, vec13, vec14, vec15, &
+       &                   vec16, vec17, vec18) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    class(*), intent(in) :: vec11
+    class(*), intent(in) :: vec12
+    class(*), intent(in) :: vec13
+    class(*), intent(in) :: vec14
+    class(*), intent(in) :: vec15
+    class(*), intent(in) :: vec16
+    class(*), intent(in) :: vec17
+    class(*), intent(in) :: vec18
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_range_t) :: range11
+    type(vectar_range_t) :: range12
+    type(vectar_range_t) :: range13
+    type(vectar_range_t) :: range14
+    type(vectar_range_t) :: range15
+    type(vectar_range_t) :: range16
+    type(vectar_range_t) :: range17
+    type(vectar_range_t) :: range18
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_t) :: v7
+    type(vectar_t) :: v8
+    type(vectar_t) :: v9
+    type(vectar_t) :: v10
+    type(vectar_t) :: v11
+    type(vectar_t) :: v12
+    type(vectar_t) :: v13
+    type(vectar_t) :: v14
+    type(vectar_t) :: v15
+    type(vectar_t) :: v16
+    type(vectar_t) :: v17
+    type(vectar_t) :: v18
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: src7
+    type(vectar_data_t), pointer :: src8
+    type(vectar_data_t), pointer :: src9
+    type(vectar_data_t), pointer :: src10
+    type(vectar_data_t), pointer :: src11
+    type(vectar_data_t), pointer :: src12
+    type(vectar_data_t), pointer :: src13
+    type(vectar_data_t), pointer :: src14
+    type(vectar_data_t), pointer :: src15
+    type(vectar_data_t), pointer :: src16
+    type(vectar_data_t), pointer :: src17
+    type(vectar_data_t), pointer :: src18
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+    range7 = vec7
+    v7 = range7%vec()
+    src7 => vectar_data_ptr (v7)
+    len_vec_a = len_vec_a + (range7%iend0() - range7%istart0()) + 1_sz
+    range8 = vec8
+    v8 = range8%vec()
+    src8 => vectar_data_ptr (v8)
+    len_vec_a = len_vec_a + (range8%iend0() - range8%istart0()) + 1_sz
+    range9 = vec9
+    v9 = range9%vec()
+    src9 => vectar_data_ptr (v9)
+    len_vec_a = len_vec_a + (range9%iend0() - range9%istart0()) + 1_sz
+    range10 = vec10
+    v10 = range10%vec()
+    src10 => vectar_data_ptr (v10)
+    len_vec_a = len_vec_a + (range10%iend0() - range10%istart0()) + 1_sz
+    range11 = vec11
+    v11 = range11%vec()
+    src11 => vectar_data_ptr (v11)
+    len_vec_a = len_vec_a + (range11%iend0() - range11%istart0()) + 1_sz
+    range12 = vec12
+    v12 = range12%vec()
+    src12 => vectar_data_ptr (v12)
+    len_vec_a = len_vec_a + (range12%iend0() - range12%istart0()) + 1_sz
+    range13 = vec13
+    v13 = range13%vec()
+    src13 => vectar_data_ptr (v13)
+    len_vec_a = len_vec_a + (range13%iend0() - range13%istart0()) + 1_sz
+    range14 = vec14
+    v14 = range14%vec()
+    src14 => vectar_data_ptr (v14)
+    len_vec_a = len_vec_a + (range14%iend0() - range14%istart0()) + 1_sz
+    range15 = vec15
+    v15 = range15%vec()
+    src15 => vectar_data_ptr (v15)
+    len_vec_a = len_vec_a + (range15%iend0() - range15%istart0()) + 1_sz
+    range16 = vec16
+    v16 = range16%vec()
+    src16 => vectar_data_ptr (v16)
+    len_vec_a = len_vec_a + (range16%iend0() - range16%istart0()) + 1_sz
+    range17 = vec17
+    v17 = range17%vec()
+    src17 => vectar_data_ptr (v17)
+    len_vec_a = len_vec_a + (range17%iend0() - range17%istart0()) + 1_sz
+    range18 = vec18
+    v18 = range18%vec()
+    src18 => vectar_data_ptr (v18)
+    len_vec_a = len_vec_a + (range18%iend0() - range18%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+    do i = range7%istart0(), range7%iend0()
+       dst%array(j) = src7%array(i)
+       j = j + 1_sz
+    end do
+    do i = range8%istart0(), range8%iend0()
+       dst%array(j) = src8%array(i)
+       j = j + 1_sz
+    end do
+    do i = range9%istart0(), range9%iend0()
+       dst%array(j) = src9%array(i)
+       j = j + 1_sz
+    end do
+    do i = range10%istart0(), range10%iend0()
+       dst%array(j) = src10%array(i)
+       j = j + 1_sz
+    end do
+    do i = range11%istart0(), range11%iend0()
+       dst%array(j) = src11%array(i)
+       j = j + 1_sz
+    end do
+    do i = range12%istart0(), range12%iend0()
+       dst%array(j) = src12%array(i)
+       j = j + 1_sz
+    end do
+    do i = range13%istart0(), range13%iend0()
+       dst%array(j) = src13%array(i)
+       j = j + 1_sz
+    end do
+    do i = range14%istart0(), range14%iend0()
+       dst%array(j) = src14%array(i)
+       j = j + 1_sz
+    end do
+    do i = range15%istart0(), range15%iend0()
+       dst%array(j) = src15%array(i)
+       j = j + 1_sz
+    end do
+    do i = range16%istart0(), range16%iend0()
+       dst%array(j) = src16%array(i)
+       j = j + 1_sz
+    end do
+    do i = range17%istart0(), range17%iend0()
+       dst%array(j) = src17%array(i)
+       j = j + 1_sz
+    end do
+    do i = range18%istart0(), range18%iend0()
+       dst%array(j) = src18%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append18
+  function vectar_append19 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6, vec7, vec8, vec9, vec10, &
+       &                   vec11, vec12, vec13, vec14, vec15, &
+       &                   vec16, vec17, vec18, vec19) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    class(*), intent(in) :: vec11
+    class(*), intent(in) :: vec12
+    class(*), intent(in) :: vec13
+    class(*), intent(in) :: vec14
+    class(*), intent(in) :: vec15
+    class(*), intent(in) :: vec16
+    class(*), intent(in) :: vec17
+    class(*), intent(in) :: vec18
+    class(*), intent(in) :: vec19
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_range_t) :: range11
+    type(vectar_range_t) :: range12
+    type(vectar_range_t) :: range13
+    type(vectar_range_t) :: range14
+    type(vectar_range_t) :: range15
+    type(vectar_range_t) :: range16
+    type(vectar_range_t) :: range17
+    type(vectar_range_t) :: range18
+    type(vectar_range_t) :: range19
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_t) :: v7
+    type(vectar_t) :: v8
+    type(vectar_t) :: v9
+    type(vectar_t) :: v10
+    type(vectar_t) :: v11
+    type(vectar_t) :: v12
+    type(vectar_t) :: v13
+    type(vectar_t) :: v14
+    type(vectar_t) :: v15
+    type(vectar_t) :: v16
+    type(vectar_t) :: v17
+    type(vectar_t) :: v18
+    type(vectar_t) :: v19
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: src7
+    type(vectar_data_t), pointer :: src8
+    type(vectar_data_t), pointer :: src9
+    type(vectar_data_t), pointer :: src10
+    type(vectar_data_t), pointer :: src11
+    type(vectar_data_t), pointer :: src12
+    type(vectar_data_t), pointer :: src13
+    type(vectar_data_t), pointer :: src14
+    type(vectar_data_t), pointer :: src15
+    type(vectar_data_t), pointer :: src16
+    type(vectar_data_t), pointer :: src17
+    type(vectar_data_t), pointer :: src18
+    type(vectar_data_t), pointer :: src19
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+    range7 = vec7
+    v7 = range7%vec()
+    src7 => vectar_data_ptr (v7)
+    len_vec_a = len_vec_a + (range7%iend0() - range7%istart0()) + 1_sz
+    range8 = vec8
+    v8 = range8%vec()
+    src8 => vectar_data_ptr (v8)
+    len_vec_a = len_vec_a + (range8%iend0() - range8%istart0()) + 1_sz
+    range9 = vec9
+    v9 = range9%vec()
+    src9 => vectar_data_ptr (v9)
+    len_vec_a = len_vec_a + (range9%iend0() - range9%istart0()) + 1_sz
+    range10 = vec10
+    v10 = range10%vec()
+    src10 => vectar_data_ptr (v10)
+    len_vec_a = len_vec_a + (range10%iend0() - range10%istart0()) + 1_sz
+    range11 = vec11
+    v11 = range11%vec()
+    src11 => vectar_data_ptr (v11)
+    len_vec_a = len_vec_a + (range11%iend0() - range11%istart0()) + 1_sz
+    range12 = vec12
+    v12 = range12%vec()
+    src12 => vectar_data_ptr (v12)
+    len_vec_a = len_vec_a + (range12%iend0() - range12%istart0()) + 1_sz
+    range13 = vec13
+    v13 = range13%vec()
+    src13 => vectar_data_ptr (v13)
+    len_vec_a = len_vec_a + (range13%iend0() - range13%istart0()) + 1_sz
+    range14 = vec14
+    v14 = range14%vec()
+    src14 => vectar_data_ptr (v14)
+    len_vec_a = len_vec_a + (range14%iend0() - range14%istart0()) + 1_sz
+    range15 = vec15
+    v15 = range15%vec()
+    src15 => vectar_data_ptr (v15)
+    len_vec_a = len_vec_a + (range15%iend0() - range15%istart0()) + 1_sz
+    range16 = vec16
+    v16 = range16%vec()
+    src16 => vectar_data_ptr (v16)
+    len_vec_a = len_vec_a + (range16%iend0() - range16%istart0()) + 1_sz
+    range17 = vec17
+    v17 = range17%vec()
+    src17 => vectar_data_ptr (v17)
+    len_vec_a = len_vec_a + (range17%iend0() - range17%istart0()) + 1_sz
+    range18 = vec18
+    v18 = range18%vec()
+    src18 => vectar_data_ptr (v18)
+    len_vec_a = len_vec_a + (range18%iend0() - range18%istart0()) + 1_sz
+    range19 = vec19
+    v19 = range19%vec()
+    src19 => vectar_data_ptr (v19)
+    len_vec_a = len_vec_a + (range19%iend0() - range19%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+    do i = range7%istart0(), range7%iend0()
+       dst%array(j) = src7%array(i)
+       j = j + 1_sz
+    end do
+    do i = range8%istart0(), range8%iend0()
+       dst%array(j) = src8%array(i)
+       j = j + 1_sz
+    end do
+    do i = range9%istart0(), range9%iend0()
+       dst%array(j) = src9%array(i)
+       j = j + 1_sz
+    end do
+    do i = range10%istart0(), range10%iend0()
+       dst%array(j) = src10%array(i)
+       j = j + 1_sz
+    end do
+    do i = range11%istart0(), range11%iend0()
+       dst%array(j) = src11%array(i)
+       j = j + 1_sz
+    end do
+    do i = range12%istart0(), range12%iend0()
+       dst%array(j) = src12%array(i)
+       j = j + 1_sz
+    end do
+    do i = range13%istart0(), range13%iend0()
+       dst%array(j) = src13%array(i)
+       j = j + 1_sz
+    end do
+    do i = range14%istart0(), range14%iend0()
+       dst%array(j) = src14%array(i)
+       j = j + 1_sz
+    end do
+    do i = range15%istart0(), range15%iend0()
+       dst%array(j) = src15%array(i)
+       j = j + 1_sz
+    end do
+    do i = range16%istart0(), range16%iend0()
+       dst%array(j) = src16%array(i)
+       j = j + 1_sz
+    end do
+    do i = range17%istart0(), range17%iend0()
+       dst%array(j) = src17%array(i)
+       j = j + 1_sz
+    end do
+    do i = range18%istart0(), range18%iend0()
+       dst%array(j) = src18%array(i)
+       j = j + 1_sz
+    end do
+    do i = range19%istart0(), range19%iend0()
+       dst%array(j) = src19%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append19
+  function vectar_append20 (vec1, vec2, vec3, vec4, vec5, &
+       &                   vec6, vec7, vec8, vec9, vec10, &
+       &                   vec11, vec12, vec13, vec14, vec15, &
+       &                   vec16, vec17, vec18, vec19, vec20) result (vec_a)
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    class(*), intent(in) :: vec11
+    class(*), intent(in) :: vec12
+    class(*), intent(in) :: vec13
+    class(*), intent(in) :: vec14
+    class(*), intent(in) :: vec15
+    class(*), intent(in) :: vec16
+    class(*), intent(in) :: vec17
+    class(*), intent(in) :: vec18
+    class(*), intent(in) :: vec19
+    class(*), intent(in) :: vec20
+    type(vectar_t) :: vec_a
+
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_range_t) :: range11
+    type(vectar_range_t) :: range12
+    type(vectar_range_t) :: range13
+    type(vectar_range_t) :: range14
+    type(vectar_range_t) :: range15
+    type(vectar_range_t) :: range16
+    type(vectar_range_t) :: range17
+    type(vectar_range_t) :: range18
+    type(vectar_range_t) :: range19
+    type(vectar_range_t) :: range20
+    type(vectar_t) :: v1
+    type(vectar_t) :: v2
+    type(vectar_t) :: v3
+    type(vectar_t) :: v4
+    type(vectar_t) :: v5
+    type(vectar_t) :: v6
+    type(vectar_t) :: v7
+    type(vectar_t) :: v8
+    type(vectar_t) :: v9
+    type(vectar_t) :: v10
+    type(vectar_t) :: v11
+    type(vectar_t) :: v12
+    type(vectar_t) :: v13
+    type(vectar_t) :: v14
+    type(vectar_t) :: v15
+    type(vectar_t) :: v16
+    type(vectar_t) :: v17
+    type(vectar_t) :: v18
+    type(vectar_t) :: v19
+    type(vectar_t) :: v20
+    type(vectar_data_t), pointer :: src1
+    type(vectar_data_t), pointer :: src2
+    type(vectar_data_t), pointer :: src3
+    type(vectar_data_t), pointer :: src4
+    type(vectar_data_t), pointer :: src5
+    type(vectar_data_t), pointer :: src6
+    type(vectar_data_t), pointer :: src7
+    type(vectar_data_t), pointer :: src8
+    type(vectar_data_t), pointer :: src9
+    type(vectar_data_t), pointer :: src10
+    type(vectar_data_t), pointer :: src11
+    type(vectar_data_t), pointer :: src12
+    type(vectar_data_t), pointer :: src13
+    type(vectar_data_t), pointer :: src14
+    type(vectar_data_t), pointer :: src15
+    type(vectar_data_t), pointer :: src16
+    type(vectar_data_t), pointer :: src17
+    type(vectar_data_t), pointer :: src18
+    type(vectar_data_t), pointer :: src19
+    type(vectar_data_t), pointer :: src20
+    type(vectar_data_t), pointer :: dst
+    integer(sz) :: len_vec_a
+    integer(sz) :: i, j
+
+    len_vec_a = 0_sz
+    range1 = vec1
+    v1 = range1%vec()
+    src1 => vectar_data_ptr (v1)
+    len_vec_a = len_vec_a + (range1%iend0() - range1%istart0()) + 1_sz
+    range2 = vec2
+    v2 = range2%vec()
+    src2 => vectar_data_ptr (v2)
+    len_vec_a = len_vec_a + (range2%iend0() - range2%istart0()) + 1_sz
+    range3 = vec3
+    v3 = range3%vec()
+    src3 => vectar_data_ptr (v3)
+    len_vec_a = len_vec_a + (range3%iend0() - range3%istart0()) + 1_sz
+    range4 = vec4
+    v4 = range4%vec()
+    src4 => vectar_data_ptr (v4)
+    len_vec_a = len_vec_a + (range4%iend0() - range4%istart0()) + 1_sz
+    range5 = vec5
+    v5 = range5%vec()
+    src5 => vectar_data_ptr (v5)
+    len_vec_a = len_vec_a + (range5%iend0() - range5%istart0()) + 1_sz
+    range6 = vec6
+    v6 = range6%vec()
+    src6 => vectar_data_ptr (v6)
+    len_vec_a = len_vec_a + (range6%iend0() - range6%istart0()) + 1_sz
+    range7 = vec7
+    v7 = range7%vec()
+    src7 => vectar_data_ptr (v7)
+    len_vec_a = len_vec_a + (range7%iend0() - range7%istart0()) + 1_sz
+    range8 = vec8
+    v8 = range8%vec()
+    src8 => vectar_data_ptr (v8)
+    len_vec_a = len_vec_a + (range8%iend0() - range8%istart0()) + 1_sz
+    range9 = vec9
+    v9 = range9%vec()
+    src9 => vectar_data_ptr (v9)
+    len_vec_a = len_vec_a + (range9%iend0() - range9%istart0()) + 1_sz
+    range10 = vec10
+    v10 = range10%vec()
+    src10 => vectar_data_ptr (v10)
+    len_vec_a = len_vec_a + (range10%iend0() - range10%istart0()) + 1_sz
+    range11 = vec11
+    v11 = range11%vec()
+    src11 => vectar_data_ptr (v11)
+    len_vec_a = len_vec_a + (range11%iend0() - range11%istart0()) + 1_sz
+    range12 = vec12
+    v12 = range12%vec()
+    src12 => vectar_data_ptr (v12)
+    len_vec_a = len_vec_a + (range12%iend0() - range12%istart0()) + 1_sz
+    range13 = vec13
+    v13 = range13%vec()
+    src13 => vectar_data_ptr (v13)
+    len_vec_a = len_vec_a + (range13%iend0() - range13%istart0()) + 1_sz
+    range14 = vec14
+    v14 = range14%vec()
+    src14 => vectar_data_ptr (v14)
+    len_vec_a = len_vec_a + (range14%iend0() - range14%istart0()) + 1_sz
+    range15 = vec15
+    v15 = range15%vec()
+    src15 => vectar_data_ptr (v15)
+    len_vec_a = len_vec_a + (range15%iend0() - range15%istart0()) + 1_sz
+    range16 = vec16
+    v16 = range16%vec()
+    src16 => vectar_data_ptr (v16)
+    len_vec_a = len_vec_a + (range16%iend0() - range16%istart0()) + 1_sz
+    range17 = vec17
+    v17 = range17%vec()
+    src17 => vectar_data_ptr (v17)
+    len_vec_a = len_vec_a + (range17%iend0() - range17%istart0()) + 1_sz
+    range18 = vec18
+    v18 = range18%vec()
+    src18 => vectar_data_ptr (v18)
+    len_vec_a = len_vec_a + (range18%iend0() - range18%istart0()) + 1_sz
+    range19 = vec19
+    v19 = range19%vec()
+    src19 => vectar_data_ptr (v19)
+    len_vec_a = len_vec_a + (range19%iend0() - range19%istart0()) + 1_sz
+    range20 = vec20
+    v20 = range20%vec()
+    src20 => vectar_data_ptr (v20)
+    len_vec_a = len_vec_a + (range20%iend0() - range20%istart0()) + 1_sz
+
+    vec_a = make_vectar (len_vec_a)
+
+    dst => vectar_data_ptr (vec_a)
+
+    j = 0_sz
+    do i = range1%istart0(), range1%iend0()
+       dst%array(j) = src1%array(i)
+       j = j + 1_sz
+    end do
+    do i = range2%istart0(), range2%iend0()
+       dst%array(j) = src2%array(i)
+       j = j + 1_sz
+    end do
+    do i = range3%istart0(), range3%iend0()
+       dst%array(j) = src3%array(i)
+       j = j + 1_sz
+    end do
+    do i = range4%istart0(), range4%iend0()
+       dst%array(j) = src4%array(i)
+       j = j + 1_sz
+    end do
+    do i = range5%istart0(), range5%iend0()
+       dst%array(j) = src5%array(i)
+       j = j + 1_sz
+    end do
+    do i = range6%istart0(), range6%iend0()
+       dst%array(j) = src6%array(i)
+       j = j + 1_sz
+    end do
+    do i = range7%istart0(), range7%iend0()
+       dst%array(j) = src7%array(i)
+       j = j + 1_sz
+    end do
+    do i = range8%istart0(), range8%iend0()
+       dst%array(j) = src8%array(i)
+       j = j + 1_sz
+    end do
+    do i = range9%istart0(), range9%iend0()
+       dst%array(j) = src9%array(i)
+       j = j + 1_sz
+    end do
+    do i = range10%istart0(), range10%iend0()
+       dst%array(j) = src10%array(i)
+       j = j + 1_sz
+    end do
+    do i = range11%istart0(), range11%iend0()
+       dst%array(j) = src11%array(i)
+       j = j + 1_sz
+    end do
+    do i = range12%istart0(), range12%iend0()
+       dst%array(j) = src12%array(i)
+       j = j + 1_sz
+    end do
+    do i = range13%istart0(), range13%iend0()
+       dst%array(j) = src13%array(i)
+       j = j + 1_sz
+    end do
+    do i = range14%istart0(), range14%iend0()
+       dst%array(j) = src14%array(i)
+       j = j + 1_sz
+    end do
+    do i = range15%istart0(), range15%iend0()
+       dst%array(j) = src15%array(i)
+       j = j + 1_sz
+    end do
+    do i = range16%istart0(), range16%iend0()
+       dst%array(j) = src16%array(i)
+       j = j + 1_sz
+    end do
+    do i = range17%istart0(), range17%iend0()
+       dst%array(j) = src17%array(i)
+       j = j + 1_sz
+    end do
+    do i = range18%istart0(), range18%iend0()
+       dst%array(j) = src18%array(i)
+       j = j + 1_sz
+    end do
+    do i = range19%istart0(), range19%iend0()
+       dst%array(j) = src19%array(i)
+       j = j + 1_sz
+    end do
+    do i = range20%istart0(), range20%iend0()
+       dst%array(j) = src20%array(i)
+       j = j + 1_sz
+    end do
+
+  end function vectar_append20
+  function vectar_concatenate (vectars) result (vec_c)
+    class(*), intent(in) :: vectars
+    type(vectar_t) :: vec_c
+
+    integer(sz) :: num_vectars
+
+    num_vectars = length (vectars)
+
+    select case (num_vectars)
+    case (0)
+       vec_c = vectar ()
+    case (1)
+       block
+         class(*), allocatable :: vec1
+         call unlist (vectars, vec1)
+         vec_c = vectar_append (vec1)
+       end block
+    case (2)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         call unlist (vectars, vec1, vec2)
+         vec_c = vectar_append (vec1, vec2)
+       end block
+    case (3)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         call unlist (vectars, vec1, vec2, vec3)
+         vec_c = vectar_append (vec1, vec2, vec3)
+       end block
+    case (4)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         call unlist (vectars, vec1, vec2, vec3, vec4)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4)
+       end block
+    case (5)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5)
+       end block
+    case (6)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6)
+       end block
+    case (7)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         class(*), allocatable :: vec7
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6, vec7)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6, vec7)
+       end block
+    case (8)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         class(*), allocatable :: vec7
+         class(*), allocatable :: vec8
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6, vec7, vec8)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6, vec7, vec8)
+       end block
+    case (9)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         class(*), allocatable :: vec7
+         class(*), allocatable :: vec8
+         class(*), allocatable :: vec9
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6, vec7, vec8, vec9)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6, vec7, vec8, vec9)
+       end block
+    case (10)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         class(*), allocatable :: vec7
+         class(*), allocatable :: vec8
+         class(*), allocatable :: vec9
+         class(*), allocatable :: vec10
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6, vec7, vec8, vec9, vec10)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6, vec7, vec8, vec9, vec10)
+       end block
+    case (11)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         class(*), allocatable :: vec7
+         class(*), allocatable :: vec8
+         class(*), allocatable :: vec9
+         class(*), allocatable :: vec10
+         class(*), allocatable :: vec11
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6, vec7, vec8, vec9, vec10, &
+              &       vec11)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6, vec7, vec8, vec9, vec10, &
+              &                 vec11)
+       end block
+    case (12)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         class(*), allocatable :: vec7
+         class(*), allocatable :: vec8
+         class(*), allocatable :: vec9
+         class(*), allocatable :: vec10
+         class(*), allocatable :: vec11
+         class(*), allocatable :: vec12
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6, vec7, vec8, vec9, vec10, &
+              &       vec11, vec12)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6, vec7, vec8, vec9, vec10, &
+              &                 vec11, vec12)
+       end block
+    case (13)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         class(*), allocatable :: vec7
+         class(*), allocatable :: vec8
+         class(*), allocatable :: vec9
+         class(*), allocatable :: vec10
+         class(*), allocatable :: vec11
+         class(*), allocatable :: vec12
+         class(*), allocatable :: vec13
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6, vec7, vec8, vec9, vec10, &
+              &       vec11, vec12, vec13)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6, vec7, vec8, vec9, vec10, &
+              &                 vec11, vec12, vec13)
+       end block
+    case (14)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         class(*), allocatable :: vec7
+         class(*), allocatable :: vec8
+         class(*), allocatable :: vec9
+         class(*), allocatable :: vec10
+         class(*), allocatable :: vec11
+         class(*), allocatable :: vec12
+         class(*), allocatable :: vec13
+         class(*), allocatable :: vec14
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6, vec7, vec8, vec9, vec10, &
+              &       vec11, vec12, vec13, vec14)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6, vec7, vec8, vec9, vec10, &
+              &                 vec11, vec12, vec13, vec14)
+       end block
+    case (15)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         class(*), allocatable :: vec7
+         class(*), allocatable :: vec8
+         class(*), allocatable :: vec9
+         class(*), allocatable :: vec10
+         class(*), allocatable :: vec11
+         class(*), allocatable :: vec12
+         class(*), allocatable :: vec13
+         class(*), allocatable :: vec14
+         class(*), allocatable :: vec15
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6, vec7, vec8, vec9, vec10, &
+              &       vec11, vec12, vec13, vec14, vec15)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6, vec7, vec8, vec9, vec10, &
+              &                 vec11, vec12, vec13, vec14, vec15)
+       end block
+    case (16)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         class(*), allocatable :: vec7
+         class(*), allocatable :: vec8
+         class(*), allocatable :: vec9
+         class(*), allocatable :: vec10
+         class(*), allocatable :: vec11
+         class(*), allocatable :: vec12
+         class(*), allocatable :: vec13
+         class(*), allocatable :: vec14
+         class(*), allocatable :: vec15
+         class(*), allocatable :: vec16
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6, vec7, vec8, vec9, vec10, &
+              &       vec11, vec12, vec13, vec14, vec15, &
+              &       vec16)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6, vec7, vec8, vec9, vec10, &
+              &                 vec11, vec12, vec13, vec14, vec15, &
+              &                 vec16)
+       end block
+    case (17)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         class(*), allocatable :: vec7
+         class(*), allocatable :: vec8
+         class(*), allocatable :: vec9
+         class(*), allocatable :: vec10
+         class(*), allocatable :: vec11
+         class(*), allocatable :: vec12
+         class(*), allocatable :: vec13
+         class(*), allocatable :: vec14
+         class(*), allocatable :: vec15
+         class(*), allocatable :: vec16
+         class(*), allocatable :: vec17
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6, vec7, vec8, vec9, vec10, &
+              &       vec11, vec12, vec13, vec14, vec15, &
+              &       vec16, vec17)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6, vec7, vec8, vec9, vec10, &
+              &                 vec11, vec12, vec13, vec14, vec15, &
+              &                 vec16, vec17)
+       end block
+    case (18)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         class(*), allocatable :: vec7
+         class(*), allocatable :: vec8
+         class(*), allocatable :: vec9
+         class(*), allocatable :: vec10
+         class(*), allocatable :: vec11
+         class(*), allocatable :: vec12
+         class(*), allocatable :: vec13
+         class(*), allocatable :: vec14
+         class(*), allocatable :: vec15
+         class(*), allocatable :: vec16
+         class(*), allocatable :: vec17
+         class(*), allocatable :: vec18
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6, vec7, vec8, vec9, vec10, &
+              &       vec11, vec12, vec13, vec14, vec15, &
+              &       vec16, vec17, vec18)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6, vec7, vec8, vec9, vec10, &
+              &                 vec11, vec12, vec13, vec14, vec15, &
+              &                 vec16, vec17, vec18)
+       end block
+    case (19)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         class(*), allocatable :: vec7
+         class(*), allocatable :: vec8
+         class(*), allocatable :: vec9
+         class(*), allocatable :: vec10
+         class(*), allocatable :: vec11
+         class(*), allocatable :: vec12
+         class(*), allocatable :: vec13
+         class(*), allocatable :: vec14
+         class(*), allocatable :: vec15
+         class(*), allocatable :: vec16
+         class(*), allocatable :: vec17
+         class(*), allocatable :: vec18
+         class(*), allocatable :: vec19
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6, vec7, vec8, vec9, vec10, &
+              &       vec11, vec12, vec13, vec14, vec15, &
+              &       vec16, vec17, vec18, vec19)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6, vec7, vec8, vec9, vec10, &
+              &                 vec11, vec12, vec13, vec14, vec15, &
+              &                 vec16, vec17, vec18, vec19)
+       end block
+    case (20)
+       block
+         class(*), allocatable :: vec1
+         class(*), allocatable :: vec2
+         class(*), allocatable :: vec3
+         class(*), allocatable :: vec4
+         class(*), allocatable :: vec5
+         class(*), allocatable :: vec6
+         class(*), allocatable :: vec7
+         class(*), allocatable :: vec8
+         class(*), allocatable :: vec9
+         class(*), allocatable :: vec10
+         class(*), allocatable :: vec11
+         class(*), allocatable :: vec12
+         class(*), allocatable :: vec13
+         class(*), allocatable :: vec14
+         class(*), allocatable :: vec15
+         class(*), allocatable :: vec16
+         class(*), allocatable :: vec17
+         class(*), allocatable :: vec18
+         class(*), allocatable :: vec19
+         class(*), allocatable :: vec20
+         call unlist (vectars, vec1, vec2, vec3, vec4, vec5, &
+              &       vec6, vec7, vec8, vec9, vec10, &
+              &       vec11, vec12, vec13, vec14, vec15, &
+              &       vec16, vec17, vec18, vec19, vec20)
+         vec_c = vectar_append (vec1, vec2, vec3, vec4, vec5, &
+              &                 vec6, vec7, vec8, vec9, vec10, &
+              &                 vec11, vec12, vec13, vec14, vec15, &
+              &                 vec16, vec17, vec18, vec19, vec20)
+       end block
+    case default
+       block
+         type(cons_t) :: p
+         type(cons_t) :: vecs_reversed
+         type(vectar_range_t) :: range
+         integer(sz) :: len_vec_c
+         integer(sz) :: i, j
+         type(vectar_data_t), pointer :: src, dst
+
+         vecs_reversed = nil
+         len_vec_c = 0_sz
+         p = vectars
+         do i = 1_sz, num_vectars
+            range = car (p)
+            vecs_reversed = range ** vecs_reversed
+            len_vec_c = len_vec_c + (range%iend0() - range%istart0()) + 1_sz
+            p = cdr (p)
+         end do
+
+         vec_c = make_vectar (len_vec_c)
+
+         dst => vectar_data_ptr (vec_c)
+
+         j = len_vec_c
+         p = vecs_reversed
+         do while (is_pair (p))
+            range = car (p)
+            src => vectar_data_ptr (range%vec())
+            do i = range%iend0(), range%istart0(), -1
+               j = j - 1
+               dst%array(j) = src%array(i)
+            end do
+            p = cdr (p)
+         end do
+       end block
+    end select
+  end function vectar_concatenate
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2115,6 +5482,7 @@ contains
     vectars = list (vec1, vec2)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal2
+
   recursive function vectar_equal3 (equal, vec1, vec2, vec3) result (bool)
     procedure(vectar_predicate2_t) :: equal
     class(*), intent(in) :: vec1
@@ -2127,6 +5495,7 @@ contains
     vectars = list (vec1, vec2, vec3)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal3
+
   recursive function vectar_equal4 (equal, vec1, vec2, vec3, vec4) result (bool)
     procedure(vectar_predicate2_t) :: equal
     class(*), intent(in) :: vec1
@@ -2140,6 +5509,7 @@ contains
     vectars = list (vec1, vec2, vec3, vec4)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal4
+
   recursive function vectar_equal5 (equal, vec1, vec2, vec3, vec4, vec5) result (bool)
     procedure(vectar_predicate2_t) :: equal
     class(*), intent(in) :: vec1
@@ -2155,6 +5525,7 @@ contains
          &          vec5)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal5
+
   recursive function vectar_equal6 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6) result (bool)
     procedure(vectar_predicate2_t) :: equal
@@ -2172,6 +5543,7 @@ contains
          &          vec5, vec6)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal6
+
   recursive function vectar_equal7 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6, vec7) result (bool)
     procedure(vectar_predicate2_t) :: equal
@@ -2190,6 +5562,7 @@ contains
          &          vec5, vec6, vec7)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal7
+
   recursive function vectar_equal8 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6, vec7, vec8) result (bool)
     procedure(vectar_predicate2_t) :: equal
@@ -2209,6 +5582,7 @@ contains
          &          vec5, vec6, vec7, vec8)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal8
+
   recursive function vectar_equal9 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6, vec7, vec8, vec9) result (bool)
     procedure(vectar_predicate2_t) :: equal
@@ -2230,6 +5604,7 @@ contains
          &          vec9)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal9
+
   recursive function vectar_equal10 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6, vec7, vec8, vec9, vec10) result (bool)
     procedure(vectar_predicate2_t) :: equal
@@ -2252,6 +5627,7 @@ contains
          &          vec9, vec10)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal10
+
   recursive function vectar_equal11 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6, vec7, vec8, vec9, vec10, &
        &                            vec11) result (bool)
@@ -2276,6 +5652,7 @@ contains
          &          vec9, vec10, vec11)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal11
+
   recursive function vectar_equal12 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6, vec7, vec8, vec9, vec10, &
        &                            vec11, vec12) result (bool)
@@ -2301,6 +5678,7 @@ contains
          &          vec9, vec10, vec11, vec12)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal12
+
   recursive function vectar_equal13 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6, vec7, vec8, vec9, vec10, &
        &                            vec11, vec12, vec13) result (bool)
@@ -2328,6 +5706,7 @@ contains
          &          vec13)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal13
+
   recursive function vectar_equal14 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6, vec7, vec8, vec9, vec10, &
        &                            vec11, vec12, vec13, vec14) result (bool)
@@ -2356,6 +5735,7 @@ contains
          &          vec13, vec14)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal14
+
   recursive function vectar_equal15 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6, vec7, vec8, vec9, vec10, &
        &                            vec11, vec12, vec13, vec14, vec15) result (bool)
@@ -2385,6 +5765,7 @@ contains
          &          vec13, vec14, vec15)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal15
+
   recursive function vectar_equal16 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6, vec7, vec8, vec9, vec10, &
        &                            vec11, vec12, vec13, vec14, vec15, &
@@ -2416,6 +5797,7 @@ contains
          &          vec13, vec14, vec15, vec16)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal16
+
   recursive function vectar_equal17 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6, vec7, vec8, vec9, vec10, &
        &                            vec11, vec12, vec13, vec14, vec15, &
@@ -2449,6 +5831,7 @@ contains
          &          vec17)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal17
+
   recursive function vectar_equal18 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6, vec7, vec8, vec9, vec10, &
        &                            vec11, vec12, vec13, vec14, vec15, &
@@ -2483,6 +5866,7 @@ contains
          &          vec17, vec18)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal18
+
   recursive function vectar_equal19 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6, vec7, vec8, vec9, vec10, &
        &                            vec11, vec12, vec13, vec14, vec15, &
@@ -2518,6 +5902,7 @@ contains
          &          vec17, vec18, vec19)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal19
+
   recursive function vectar_equal20 (equal, vec1, vec2, vec3, vec4, vec5, &
        &                            vec6, vec7, vec8, vec9, vec10, &
        &                            vec11, vec12, vec13, vec14, vec15, &
@@ -2554,6 +5939,7 @@ contains
          &          vec17, vec18, vec19, vec20)
     bool = apply_vectar_equal (equal, vectars)
   end function vectar_equal20
+
   recursive function apply_vectar_equal (equal, vectars) result (bool)
     procedure(vectar_predicate2_t) :: equal
     class(*), intent(in) :: vectars
