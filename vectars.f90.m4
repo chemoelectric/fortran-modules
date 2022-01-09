@@ -168,6 +168,23 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: list_to_vectar
   public :: reverse_list_to_vectar
 
+  ! Type-unbound generic versions of the `range' type-bound
+  ! procedures.
+  public :: vectar_range0
+  public :: vectar_range1
+  public :: vectar_rangen
+  public :: range0              ! Synonym for vectar_range0.
+  public :: range1              ! Synonym for vectar_range1.
+  public :: rangen              ! Synonym for vectar_rangen.
+
+  ! Implementations of the `range' functions.
+  public :: vectar_range0_size_kind
+  public :: vectar_range0_int
+  public :: vectar_range1_size_kind
+  public :: vectar_range1_int
+  public :: vectar_rangen_size_kind
+  public :: vectar_rangen_int
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   ! A private synonym for `size_kind'.
@@ -189,6 +206,10 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
 
   type, extends (collectible_t) :: vectar_t
    contains
+     procedure, pass :: get_branch => vectar_t_get_branch
+     procedure, pass :: assign => vectar_t_assign
+     generic :: assignment(=) => assign
+
      procedure, pass :: range0_size_kind => vectar_t_range0_size_kind
      procedure, pass :: range0_int => vectar_t_range0_int
      generic :: range0 => range0_size_kind
@@ -203,10 +224,6 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
      procedure, pass :: rangen_int => vectar_t_rangen_int
      generic :: rangen => rangen_size_kind
      generic :: rangen => rangen_int
-
-     procedure, pass :: get_branch => vectar_t_get_branch
-     procedure, pass :: assign => vectar_t_assign
-     generic :: assignment(=) => assign
   end type vectar_t
 
   type :: vectar_range_t
@@ -242,6 +259,36 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   end interface operator(.tovecrange.)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  interface vectar_range0
+     module procedure vectar_range0_size_kind
+     module procedure vectar_range0_int
+  end interface vectar_range0
+
+  interface range0
+     module procedure vectar_range0_size_kind
+     module procedure vectar_range0_int
+  end interface range0
+
+  interface vectar_range1
+     module procedure vectar_range1_size_kind
+     module procedure vectar_range1_int
+  end interface vectar_range1
+
+  interface range1
+     module procedure vectar_range1_size_kind
+     module procedure vectar_range1_int
+  end interface range1
+
+  interface vectar_rangen
+     module procedure vectar_rangen_size_kind
+     module procedure vectar_rangen_int
+  end interface vectar_rangen
+
+  interface rangen
+     module procedure vectar_rangen_size_kind
+     module procedure vectar_rangen_int
+  end interface rangen
 
   interface vectar
 m4_forloop([n],[0],LISTN_MAX,[dnl
@@ -425,6 +472,54 @@ contains
   end subroutine vectar_t_get_branch
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function vectar_range0_size_kind (vec, istart, iend) result (range)
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: istart, iend
+    type(vectar_range_t) :: range
+
+    range = vectar_t_range0_size_kind (.tovectar. vec, istart, iend)
+  end function vectar_range0_size_kind
+
+  function vectar_range0_int (vec, istart, iend) result (range)
+    class(*), intent(in) :: vec
+    integer, intent(in) :: istart, iend
+    type(vectar_range_t) :: range
+
+    range = vectar_t_range0_int (.tovectar. vec, istart, iend)
+  end function vectar_range0_int
+
+  function vectar_range1_size_kind (vec, istart, iend) result (range)
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: istart, iend
+    type(vectar_range_t) :: range
+
+    range = vectar_t_range1_size_kind (.tovectar. vec, istart, iend)
+  end function vectar_range1_size_kind
+
+  function vectar_range1_int (vec, istart, iend) result (range)
+    class(*), intent(in) :: vec
+    integer, intent(in) :: istart, iend
+    type(vectar_range_t) :: range
+
+    range = vectar_t_range1_int (.tovectar. vec, istart, iend)
+  end function vectar_range1_int
+
+  function vectar_rangen_size_kind (vec, n, istart, iend) result (range)
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: n, istart, iend
+    type(vectar_range_t) :: range
+
+    range = vectar_t_rangen_size_kind (.tovectar. vec, n, istart, iend)
+  end function vectar_rangen_size_kind
+
+  function vectar_rangen_int (vec, n, istart, iend) result (range)
+    class(*), intent(in) :: vec
+    integer, intent(in) :: n, istart, iend
+    type(vectar_range_t) :: range
+
+    range = vectar_t_rangen_int (.tovectar. vec, n, istart, iend)
+  end function vectar_rangen_int
 
   function vectar_t_range0_size_kind (vec, istart, iend) result (range)
     class(vectar_t), intent(in) :: vec

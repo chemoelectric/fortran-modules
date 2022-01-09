@@ -421,23 +421,23 @@ contains
 
     vec = list_to_vectar (iota (100, 1))
 
-    call check (list_equal (int_eq, vectar_to_list(vec%range0(9_sz, 18_sz)), iota (10, 10)), "test0080-0010 failed")
-    call check (list_equal (int_eq, vectar_to_list(vec%range1(10_sz, 19_sz)), iota (10, 10)), "test0080-0020 failed")
-    call check (list_equal (int_eq, vectar_to_list(vec%rangen(2_sz, 11_sz, 20_sz)), iota (10, 10)), "test0080-0030 failed")
-    call check (list_equal (int_eq, vectar_to_list(vec%range1(1_sz, 100_sz)), iota (100, 1)), "test0080-0040 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec%range0(9_sz, 18_sz)), iota (10, 10)), "test0080-0010 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec%range1(10_sz, 19_sz)), iota (10, 10)), "test0080-0020 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec%rangen(2_sz, 11_sz, 20_sz)), iota (10, 10)), "test0080-0030 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec%range1(1_sz, 100_sz)), iota (100, 1)), "test0080-0040 failed")
 
-    call check (list_equal (int_eq, vectar_to_list(vec%range0(9, 18)), iota (10, 10)), "test0080-0110 failed")
-    call check (list_equal (int_eq, vectar_to_list(vec%range1(10, 19)), iota (10, 10)), "test0080-0120 failed")
-    call check (list_equal (int_eq, vectar_to_list(vec%rangen(2, 11, 20)), iota (10, 10)), "test0080-0130 failed")
-    call check (list_equal (int_eq, vectar_to_list(vec%range1(1, 100)), iota (100, 1)), "test0080-0140 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec%range0(9, 18)), iota (10, 10)), "test0080-0110 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec%range1(10, 19)), iota (10, 10)), "test0080-0120 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec%rangen(2, 11, 20)), iota (10, 10)), "test0080-0130 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec%range1(1, 100)), iota (100, 1)), "test0080-0140 failed")
 
-    call check (list_equal (int_eq, reverse_vectar_to_list(vec%range0(9_sz, 18_sz)), iota (10, 19, -1)), &
+    call check (list_equal (int_eq, reverse_vectar_to_list (vec%range0(9_sz, 18_sz)), iota (10, 19, -1)), &
          &      "test0080-0210 failed")
-    call check (list_equal (int_eq, reverse_vectar_to_list(vec%range1(10_sz, 19_sz)), iota (10, 19, -1)), &
+    call check (list_equal (int_eq, reverse_vectar_to_list (vec%range1(10_sz, 19_sz)), iota (10, 19, -1)), &
          &      "test0080-0220 failed")
-    call check (list_equal (int_eq, reverse_vectar_to_list(vec%rangen(2_sz, 11_sz, 20_sz)), iota (10, 19, -1)), &
+    call check (list_equal (int_eq, reverse_vectar_to_list (vec%rangen(2_sz, 11_sz, 20_sz)), iota (10, 19, -1)), &
          &      "test0080-0230 failed")
-    call check (list_equal (int_eq, reverse_vectar_to_list(vec%range1(1_sz, 100_sz)), iota (100, 100, -1)), &
+    call check (list_equal (int_eq, reverse_vectar_to_list (vec%range1(1_sz, 100_sz)), iota (100, 100, -1)), &
          &      "test0080-0240 failed")
 
     range = vec%range1(20, 39)
@@ -449,6 +449,49 @@ contains
     call check (range%iend1() == 39, "test0080-0360 failed")
     call check (range%iendn(2_sz) == 40, "test0080-0370 failed")
     call check (range%iendn(2) == 40, "test0080-0380 failed")
+
+    vec = list_to_vectar (iota (100, 1))
+
+    call check (list_equal (int_eq, vectar_to_list (vectar_range0 (vec, 9_sz, 18_sz)), iota (10, 10)), "test0080-1010 failed")
+    call check (list_equal (int_eq, vectar_to_list (vectar_range1 (vec, 10_sz, 19_sz)), iota (10, 10)), "test0080-1020 failed")
+    call check (list_equal (int_eq, vectar_to_list (vectar_rangen (vec, 2_sz, 11_sz, 20_sz)), iota (10, 10)), &
+         &      "test0080-1030 failed")
+    call check (list_equal (int_eq, vectar_to_list (vectar_range1 (vec, 1_sz, 100_sz)), iota (100, 1)), "test0080-1040 failed")
+
+    call check (list_equal (int_eq, vectar_to_list (vectar_range0 (vec, 9, 18)), iota (10, 10)), "test0080-1110 failed")
+    call check (list_equal (int_eq, vectar_to_list (vectar_range1 (vec, 10, 19)), iota (10, 10)), "test0080-1120 failed")
+    call check (list_equal (int_eq, vectar_to_list (vectar_rangen (vec, 2, 11, 20)), iota (10, 10)), "test0080-1130 failed")
+    call check (list_equal (int_eq, vectar_to_list (vectar_range1 (vec, 1, 100)), iota (100, 1)), "test0080-1140 failed")
+
+    call check (list_equal (int_eq, reverse_vectar_to_list (vectar_range0 (vec, 9_sz, 18_sz)), iota (10, 19, -1)), &
+         &      "test0080-1210 failed")
+    call check (list_equal (int_eq, reverse_vectar_to_list (vectar_range1 (vec, 10_sz, 19_sz)), iota (10, 19, -1)), &
+         &      "test0080-1220 failed")
+    call check (list_equal (int_eq, reverse_vectar_to_list (vectar_rangen (vec, 2_sz, 11_sz, 20_sz)), iota (10, 19, -1)), &
+         &      "test0080-1230 failed")
+    call check (list_equal (int_eq, reverse_vectar_to_list (vectar_range1 (vec, 1_sz, 100_sz)), iota (100, 100, -1)), &
+         &      "test0080-1240 failed")
+
+    vec = list_to_vectar (iota (100, 1))
+
+    call check (list_equal (int_eq, vectar_to_list (range0 (vec, 9_sz, 18_sz)), iota (10, 10)), "test0080-2010 failed")
+    call check (list_equal (int_eq, vectar_to_list (range1 (vec, 10_sz, 19_sz)), iota (10, 10)), "test0080-2020 failed")
+    call check (list_equal (int_eq, vectar_to_list (rangen (vec, 2_sz, 11_sz, 20_sz)), iota (10, 10)), "test0080-2030 failed")
+    call check (list_equal (int_eq, vectar_to_list (range1 (vec, 1_sz, 100_sz)), iota (100, 1)), "test0080-2040 failed")
+
+    call check (list_equal (int_eq, vectar_to_list (range0 (vec, 9, 18)), iota (10, 10)), "test0080-2110 failed")
+    call check (list_equal (int_eq, vectar_to_list (range1 (vec, 10, 19)), iota (10, 10)), "test0080-2120 failed")
+    call check (list_equal (int_eq, vectar_to_list (rangen (vec, 2, 11, 20)), iota (10, 10)), "test0080-2130 failed")
+    call check (list_equal (int_eq, vectar_to_list (range1 (vec, 1, 100)), iota (100, 1)), "test0080-2140 failed")
+
+    call check (list_equal (int_eq, reverse_vectar_to_list (range0 (vec, 9_sz, 18_sz)), iota (10, 19, -1)), &
+         &      "test0080-2210 failed")
+    call check (list_equal (int_eq, reverse_vectar_to_list (range1 (vec, 10_sz, 19_sz)), iota (10, 19, -1)), &
+         &      "test0080-2220 failed")
+    call check (list_equal (int_eq, reverse_vectar_to_list (rangen (vec, 2_sz, 11_sz, 20_sz)), iota (10, 19, -1)), &
+         &      "test0080-2230 failed")
+    call check (list_equal (int_eq, reverse_vectar_to_list (range1 (vec, 1_sz, 100_sz)), iota (100, 100, -1)), &
+         &      "test0080-2240 failed")
   end subroutine test0080
 
   subroutine run_tests
