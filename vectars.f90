@@ -122,6 +122,10 @@ module vectars
   ! Copy all or part of a vectar, to a new vectar.
   public :: vectar_copy
 
+  ! Copy all or part of a vectar, to a new vectar, but with the order
+  ! of elements reversed.
+  public :: vectar_reverse_copy
+
   ! Return the length of a vectar, as an INTEGER(SIZE_KIND).
   public :: vectar_length
 
@@ -2039,13 +2043,44 @@ contains
 
     vec_copy = make_vectar (size)
 
-    src => vectar_data_ptr (v)
-    dst => vectar_data_ptr (vec_copy)
+    if (0_sz < size) then
+       src => vectar_data_ptr (v)
+       dst => vectar_data_ptr (vec_copy)
 
-    do i = 0_sz, size - 1_sz
-       dst%array(i) = src%array(istart + i)
-    end do
+       do i = 0_sz, size - 1_sz
+          dst%array(i) = src%array(istart + i)
+       end do
+    end if
   end function vectar_copy
+
+  function vectar_reverse_copy (vec) result (vec_copy)
+    class(*), intent(in) :: vec
+    type(vectar_t) :: vec_copy
+
+    type(vectar_t) :: v
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: src, dst
+    integer(sz) :: istart, iend, size, i
+
+    range = .tovecrange. vec
+
+    v = range%vec()
+    istart = range%istart0()
+    iend = range%iend0()
+
+    size = (iend - istart) + 1_sz
+
+    vec_copy = make_vectar (size)
+
+    if (0_sz < size) then
+       src => vectar_data_ptr (v)
+       dst => vectar_data_ptr (vec_copy)
+
+       do i = 0_sz, size - 1_sz
+          dst%array(i) = src%array(iend - i)
+       end do
+    end if
+  end function vectar_reverse_copy
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

@@ -506,7 +506,7 @@ contains
 
     vec1 = list_to_vectar (iota (100, 1))
     vec2 = vectar_copy (vec1)
-    call check (vectar_equal (int_eq, vec1, vec2), "test0090-0010 failed")
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (100, 1))), "test0090-0010 failed")
     do i = 1, 100
        call vectar_set1 (vec1, i, 101 - i)
     end do
@@ -524,6 +524,30 @@ contains
     call check (vectar_equal (int_eq, vec2, list_to_vectar (nil)), "test0090-0070 failed")
   end subroutine test0090
 
+  subroutine test0100
+    type(vectar_t) :: vec1, vec2
+    integer :: i
+
+    vec1 = list_to_vectar (iota (100, 1))
+    vec2 = vectar_reverse_copy (vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (100, 100, -1))), "test0100-0010 failed")
+    do i = 1, 100
+       call vectar_set1 (vec1, i, -i)
+    end do
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (100, -1, -1))), "test0100-0020 failed")
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (100, 100, -1))), "test0100-0030 failed")
+
+    vec1 = list_to_vectar (iota (100, 1))
+    vec2 = vectar_reverse_copy (range1 (vec1, 25, 74))
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (100, 1))), "test0100-0040 failed")
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (50, 74, -1))), "test0100-0050 failed")
+
+    vec1 = list_to_vectar (iota (100, 1))
+    vec2 = vectar_reverse_copy (range1 (vec1, 25, -1))
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (100, 1))), "test0100-0060 failed")
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (nil)), "test0100-0070 failed")
+  end subroutine test0100
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -537,6 +561,7 @@ contains
     call test0070
     call test0080
     call test0090
+    call test0100
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
