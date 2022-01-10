@@ -195,6 +195,18 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: vectar_copyxn       ! Generic function: copy data,
                                 ! n-based indexing. Source and
                                 ! destination are allowed to overlap.
+  public :: vectar_reverse_copyx0 ! Generic function: copy data,
+                                  ! zero-based indexing. Source and
+                                  ! destination are allowed to
+                                  ! overlap.
+  public :: vectar_reverse_copyx1 ! Generic function: copy data,
+                                  ! one-based indexing. Source and
+                                  ! destination are allowed to
+                                  ! overlap.
+  public :: vectar_reverse_copyxn ! Generic function: copy data,
+                                  ! n-based indexing. Source and
+                                  ! destination are allowed to
+                                  ! overlap.
 
   ! Implementations of vectar_copyx0.
   public :: vectar_copyx0_size_kind
@@ -207,6 +219,18 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   ! Implementations of vectar_copyxn.
   public :: vectar_copyxn_size_kind
   public :: vectar_copyxn_int
+
+  ! Implementations of vectar_reverse_copyx0.
+  public :: vectar_reverse_copyx0_size_kind
+  public :: vectar_reverse_copyx0_int
+
+  ! Implementations of vectar_reverse_copyx1.
+  public :: vectar_reverse_copyx1_size_kind
+  public :: vectar_reverse_copyx1_int
+
+  ! Implementations of vectar_reverse_copyxn.
+  public :: vectar_reverse_copyxn_size_kind
+  public :: vectar_reverse_copyxn_int
 
   ! Vector equality. These accept vectar ranges and so are, in that
   ! respect, more general than their SRFI-133 equivalents.
@@ -427,6 +451,21 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
      module procedure vectar_copyxn_size_kind
      module procedure vectar_copyxn_int
   end interface vectar_copyxn
+
+  interface vectar_reverse_copyx0
+     module procedure vectar_reverse_copyx0_size_kind
+     module procedure vectar_reverse_copyx0_int
+  end interface vectar_reverse_copyx0
+
+  interface vectar_reverse_copyx1
+     module procedure vectar_reverse_copyx1_size_kind
+     module procedure vectar_reverse_copyx1_int
+  end interface vectar_reverse_copyx1
+
+  interface vectar_reverse_copyxn
+     module procedure vectar_reverse_copyxn_size_kind
+     module procedure vectar_reverse_copyxn_int
+  end interface vectar_reverse_copyxn
 
   interface vectar_append
 m4_forloop([n],[0],LISTN_MAX,[dnl
@@ -1176,6 +1215,8 @@ dnl
     end do
   end subroutine vectar_reversex
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   subroutine vectar_copyx0_size_kind (dst, i, src)
     !
     ! Copy from the source (which may be a range) to the destination,
@@ -1214,12 +1255,12 @@ dnl
           k = k + 1
        end do
     else
-       j = src_range%istart0() + copy_len
+       j = src_range%iend0()
        k = i + copy_len
        do while (i < k)
-          j = j - 1
           k = k - 1
           dst_data%array(k)%element = src_data%array(j)%element
+          j = j - 1
        end do
     end if
   end subroutine vectar_copyx0_size_kind
@@ -1285,6 +1326,174 @@ dnl
 
     call vectar_copyx0_size_kind (dst, (.sz. i) - (.sz. n), src)
   end subroutine vectar_copyxn_int
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine vectar_reverse_copyx0_size_kind (dst, i, src)
+    !
+    ! Copy from the source (which may be a range) to the destination,
+    ! starting at destination index i.
+    !
+    class(*), intent(in) :: dst
+    integer(sz) :: i
+    class(*), intent(in) :: src
+
+    type(vectar_range_t) :: src_range
+    type(vectar_data_t), pointer :: src_data, dst_data
+    integer(sz) :: n_full
+    integer(sz) :: n_copy
+    integer(sz) :: n_reverse
+
+    src_range = src
+
+    src_data => vectar_data_ptr (src_range%vec())
+    dst_data => vectar_data_ptr (dst)
+
+    if (i < 0_sz .or. dst_data%length <= i) then
+       call error_abort ("vectar_reverse_copyx0 destination index is out of range")
+    end if
+
+    n_full = src_range%length()
+
+    if (dst_data%length - i < n_full) then
+       call error_abort ("vectar_reverse_copyx0 destination is shorter than the source")
+    end if
+
+    if (.not. associated (src_data, dst_data)) then
+       ! The source and destination are in different vectors and so do
+       ! not overlap. No special handling is needed.
+       call reverse_copy_full
+    else if (i + n_full < src_range%istart0()) then
+       ! The destination is entirely left of the source. No special
+       ! handling is needed.
+       call reverse_copy_full
+    else if (src_range%iend0() < i) then
+       ! The destination is entirely right of the source. No special
+       ! handling is needed.
+       call reverse_copy_full
+    else if (i < src_range%istart0()) then
+       ! There is overlap. Reverse-copy some of the data, and reverse
+       ! the rest of it in place.
+       n_copy = src_range%istart0() - i
+       n_reverse = n_full - n_copy
+       call reverse_copy (i, src_range%istart0(), n_copy)
+       call reverse_in_place (src_range%istart0(), n_reverse)
+    else if (i == src_range%istart0()) then
+       ! The overlap is total. Simply reverse in place.
+       call reverse_in_place (i, n_full)
+    else
+       ! There is overlap. Reverse-copy some of the data, and reverse
+       ! the rest of it in place.
+       n_copy = i - src_range%istart0()
+       n_reverse = n_full - n_copy
+       call reverse_copy (src_range%iend0() + 1_sz, src_range%istart0(), n_copy)
+       call reverse_in_place (i, n_reverse)
+    end if
+
+  contains
+
+    subroutine reverse_copy_full
+      call reverse_copy (i, src_range%istart0(), n_full)
+    end subroutine reverse_copy_full
+
+    subroutine reverse_copy (idst, isrc, len)
+      integer(sz), intent(in) :: idst
+      integer(sz), intent(in) :: isrc
+      integer(sz), intent(in) :: len
+
+      integer(sz) :: j, k
+      integer(sz) :: count
+
+      j = isrc + len - 1_sz
+      k = idst
+      do count = 1, len
+         dst_data%array(k)%element = src_data%array(j)%element
+         j = j - 1
+         k = k + 1
+      end do
+    end subroutine reverse_copy
+
+    subroutine reverse_in_place (istart, len)
+      integer(sz), intent(in) :: istart
+      integer(sz), intent(in) :: len
+
+      integer(sz) :: j, k
+      class(*), allocatable :: tmp
+
+      j = istart + len - 1_sz
+      k = istart
+      do while (k < j)
+         tmp = src_data%array(k)%element
+         dst_data%array(k)%element = src_data%array(j)%element
+         src_data%array(j)%element = tmp
+         j = j - 1
+         k = k + 1
+      end do
+    end subroutine reverse_in_place
+
+  end subroutine vectar_reverse_copyx0_size_kind
+
+  subroutine vectar_reverse_copyx0_int (dst, i, src)
+    !
+    ! Copy from the source (which may be a range) to the destination,
+    ! starting at destination index i.
+    !
+    class(*), intent(in) :: dst
+    integer :: i
+    class(*), intent(in) :: src
+
+    call vectar_reverse_copyx0_size_kind (dst, .sz. i, src)
+  end subroutine vectar_reverse_copyx0_int
+
+  subroutine vectar_reverse_copyx1_size_kind (dst, i, src)
+    !
+    ! Copy from the source (which may be a range) to the destination,
+    ! starting at destination index i.
+    !
+    class(*), intent(in) :: dst
+    integer(sz) :: i
+    class(*), intent(in) :: src
+
+    call vectar_reverse_copyx0_size_kind (dst, i - 1_sz, src)
+  end subroutine vectar_reverse_copyx1_size_kind
+
+  subroutine vectar_reverse_copyx1_int (dst, i, src)
+    !
+    ! Copy from the source (which may be a range) to the destination,
+    ! starting at destination index i.
+    !
+    class(*), intent(in) :: dst
+    integer :: i
+    class(*), intent(in) :: src
+
+    call vectar_reverse_copyx0_size_kind (dst, (.sz. i) - 1_sz, src)
+  end subroutine vectar_reverse_copyx1_int
+
+  subroutine vectar_reverse_copyxn_size_kind (dst, n, i, src)
+    !
+    ! Copy from the source (which may be a range) to the destination,
+    ! starting at destination index i.
+    !
+    class(*), intent(in) :: dst
+    integer(sz) :: n
+    integer(sz) :: i
+    class(*), intent(in) :: src
+
+    call vectar_reverse_copyx0_size_kind (dst, i - n, src)
+  end subroutine vectar_reverse_copyxn_size_kind
+
+  subroutine vectar_reverse_copyxn_int (dst, n, i, src)
+    !
+    ! Copy from the source (which may be a range) to the destination,
+    ! starting at destination index i.
+    !
+    class(*), intent(in) :: dst
+    integer :: n
+    integer :: i
+    class(*), intent(in) :: src
+
+    call vectar_reverse_copyx0_size_kind (dst, (.sz. i) - (.sz. n), src)
+  end subroutine vectar_reverse_copyxn_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

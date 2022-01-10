@@ -889,7 +889,106 @@ contains
     call vectar_copyxn (vec1, 2, 3, range0 (vec2, 0, 2))
     call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 5)), "test0140-0110 failed")
     call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0120 failed")
+
+    ! Overlap, moving data rightwards.
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_copyx1 (vec1, 2, range1 (vec1, 1, 3))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 1, 2, 3, 5, 6, 7, 8)), "test0140-0130 failed")
+
+    ! Overlap, moving data leftwards.
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_copyx1 (vec1, 2, range1 (vec1, 4, 7))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 4, 5, 6, 7, 6, 7, 8)), "test0140-0140 failed")
+
+    ! Overlap, moving data where it started.
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_copyx1 (vec1, 4, range1 (vec1, 4, 7))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0140-0150 failed")
   end subroutine test0140
+
+  subroutine test0150
+    type(vectar_t) :: vec1, vec2
+
+    ! Complete overlap, the entire vector. Simply reversal in place.
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_reverse_copyx1 (vec1, 1, vec1)
+    call check (vectar_equal (int_eq, vec1, vectar (8, 7, 6, 5, 4, 3, 2, 1)), "test0150-0010 failed")
+
+    ! Complete overlap, part of the vector. Reversal in place of that
+    ! part of the vector.
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_reverse_copyx1 (vec1, 2, range1 (vec1, 2, 5))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 5, 4, 3, 2, 6, 7, 8)), "test0150-0020 failed")
+
+    ! Overlap, moving data to the left.
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_reverse_copyx1 (vec1, 2, range1 (vec1, 5, 7))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 7, 6, 5, 5, 6, 7, 8)), "test0150-0030 failed")
+
+    ! Overlap, moving data to the right.
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_reverse_copyx1 (vec1, 4, range1 (vec1, 2, 5))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 5, 4, 3, 2, 8)), "test0150-0040 failed")
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_reverse_copyx1 (vec1, 5, range1 (vec1, 2, 5))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 5, 4, 3, 2)), "test0150-0050 failed")
+
+    ! No overlap, moving data around in a single vectar.
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_reverse_copyx1 (vec1, 5, range1 (vec1, 1, 4))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 4, 3, 2, 1)), "test0150-0060 failed")
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_reverse_copyx1 (vec1, 1, range1 (vec1, 5, 8))
+    call check (vectar_equal (int_eq, vec1, vectar (8, 7, 6, 5, 5, 6, 7, 8)), "test0150-0070 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar (10, 20, 30, 40)
+    call vectar_reverse_copyx0 (vec1, 2_sz, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 40, 30, 20, 10, 7, 8)), "test0150-1010 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar (10, 20, 30, 40)
+    call vectar_reverse_copyx0 (vec1, 2, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 40, 30, 20, 10, 7, 8)), "test0150-1020 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar (10, 20, 30, 40)
+    call vectar_reverse_copyx1 (vec1, 2_sz, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 40, 30, 20, 10, 6, 7, 8)), "test0150-1030 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar (10, 20, 30, 40)
+    call vectar_reverse_copyx1 (vec1, 2, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 40, 30, 20, 10, 6, 7, 8)), "test0150-1040 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar (10, 20, 30, 40)
+    call vectar_reverse_copyxn (vec1, 2_sz, 2_sz, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (40, 30, 20, 10, 5, 6, 7, 8)), "test0150-1050 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar (10, 20, 30, 40)
+    call vectar_reverse_copyxn (vec1, 2, 2, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (40, 30, 20, 10, 5, 6, 7, 8)), "test0150-1060 failed")
+
+    ! Copy from a range.
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar (10, 20, 30, 40)
+    call vectar_reverse_copyx1 (vec1, 2, range1 (vec2, 2, 3))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 30, 20, 4, 5, 6, 7, 8)), "test0150-1070 failed")
+
+    ! Copy length zero.
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar (10, 20, 30, 40)
+    call vectar_reverse_copyx1 (vec1, 2, range1 (vec2, 1, 0))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0150-1080 failed")
+
+    ! Copy length zero.
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar ()
+    call vectar_reverse_copyx1 (vec1, 2, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0150-1090 failed")
+  end subroutine test0150
 
   subroutine run_tests
     heap_size_limit = 0
@@ -909,6 +1008,7 @@ contains
     call test0120
     call test0130
     call test0140
+    call test0150
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
