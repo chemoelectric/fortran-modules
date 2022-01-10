@@ -9759,9 +9759,8 @@ contains
 !!! explained in a `Post-finalization note' in
 !!! https://srfi.schemers.org/srfi-133/srfi-133.html
 !!!
-!!! Specifically: a NaN is unequal with itself, by the usual reckoning
-!!! of equality. Therefore a list of NaN would not should be regarded
-!!! as unequal with itself.
+!!! Specifically: a NaN is unequal to itself, and therefore a shared
+!!! tail containing NaN should be unequal to itself.
 !!!
 !!!    else if (cons_t_eq (p, q)) then
 !!!       ! The two lists share a tail.

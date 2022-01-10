@@ -5996,6 +5996,14 @@ contains
     end function lengths_are_equal
 
     recursive function check_elements () result (bool)
+      !
+      ! NOTE: One could check for shared storage here, and conclude
+      ! that it is equal to itself, but SRFI-133 does not, because of
+      ! how IEEE floating point behaves.
+      !
+      ! Specifically: a NaN is unequal to itself. Therefore a list of
+      ! NaN should be regarded as unequal to itself.
+      !
       integer(sz) :: len
       integer(sz) :: i_vec
       integer(sz) :: i_elem
@@ -6005,15 +6013,6 @@ contains
       bool = .true.
       i_vec = 1_sz
       do while (bool .and. i_vec < n)
-         !
-         ! NOTE: One could check vectar_t_eq (v(i_vec), v(i_vec + 1)))
-         ! here, but SRFI-133 does not, because of how IEEE floating
-         ! point behaves.
-         !
-         ! Specifically: a NaN is unequal with itself, by the usual
-         ! reckoning of equality. Therefore a list of NaN would not
-         ! should be regarded as unequal with itself.
-         !
          i_elem = 0_sz
          do while (bool .and. i_elem < len)
             bool = equal (p(i_vec)%data%array(i_elem)%element, &
