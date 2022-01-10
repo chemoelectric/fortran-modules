@@ -359,6 +359,20 @@ contains
     call check (.not. vectar_equal (str_t_eq, vec1, vec4, vec2), "test0040-1080 failed")
     call check (.not. vectar_equal (str_t_eq, vec4, vec2, vec1), "test0040-1090 failed")
     call check (.not. vectar_equal (str_t_eq, vec3, vec4), "test0040-1100 failed")
+
+    ! Test vectar ranges.
+    call check (vectar_equal (int_eq, range1 (vectar (1, 2, 3, 4, 5), 2, 4), &
+         &                            range1 (vectar (10, 20, 30, 1, 2, 3, 4), 5, 7), &
+         &                            vectar (2, 3, 4)), &
+         &      "test0040-2010 failed")
+    call check (.not. vectar_equal (int_eq, range1 (vectar (1, 2, 3, 4, 5), 2, 5), &
+         &                                  range1 (vectar (10, 20, 30, 1, 2, 3, 4), 5, 7), &
+         &                                  vectar (2, 3, 4)), &
+         &      "test0040-2020 failed")
+    call check (.not. vectar_equal (int_eq, range1 (vectar (1, 2, 3, 4, 5), 2, 4), &
+         &                                  range1 (vectar (10, 20, 30, 1, 2, 3, 4), 5, 7), &
+         &                                  vectar (2, 30, 4)), &
+         &      "test0040-2030 failed")
   end subroutine test0040
 
   subroutine test0050

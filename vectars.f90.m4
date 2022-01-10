@@ -1400,7 +1400,7 @@ dnl
     logical :: bool
 
     integer(sz) :: n
-    type(vectar_t), allocatable :: v(:)
+    type(vectar_range_t), allocatable :: vr(:)
     type(vectar_data_p_t), allocatable :: p(:)
 
     n = length (vectars)
@@ -1411,9 +1411,9 @@ dnl
        ! Only one vectar was given.
        bool = .true.
     else
-       allocate (v(1_sz:n))
+       allocate (vr(1_sz:n))
        allocate (p(1_sz:n))
-       call fill_v_and_p
+       call fill_vr_and_p
        if (.not. lengths_are_equal ()) then
           bool = .false.
        else
@@ -1423,28 +1423,28 @@ dnl
 
   contains
 
-    subroutine fill_v_and_p
+    subroutine fill_vr_and_p
       integer(sz) :: i
       type(cons_t) :: lst
 
       lst = vectars
       do i = 1_sz, n
-         v(i) = car (lst)
-         p(i) = vectar_data_p (v(i))
+         vr(i) = car (lst)
+         p(i) = vectar_data_p (vr(i)%vec())
          lst = cdr (lst)
       end do
-    end subroutine fill_v_and_p
+    end subroutine fill_vr_and_p
 
     function lengths_are_equal () result (bool)
       integer(sz) :: i
-      integer(sz) :: len
+      integer(sz) :: len_minus_1
       logical :: bool
 
       bool = .true.
-      len = p(1)%data%length
+      len_minus_1 = vr(1)%iend0() - vr(1)%istart0()
       i = 2_sz
       do while (bool .and. i <= n)
-         bool = (p(i)%data%length == len)
+         bool = (vr(i)%iend0() - vr(i)%istart0() == len_minus_1)
          i = i + 1
       end do
     end function lengths_are_equal
@@ -1458,20 +1458,22 @@ dnl
       ! Specifically: a NaN is unequal to itself. Therefore a list of
       ! NaN should be regarded as unequal to itself.
       !
-      integer(sz) :: len
       integer(sz) :: i_vec
-      integer(sz) :: i_elem
+      integer(sz) :: i_elem1, i_elem2
+      integer(sz) :: i_last1
       logical :: bool
 
-      len = p(1)%data%length
       bool = .true.
       i_vec = 1_sz
       do while (bool .and. i_vec < n)
-         i_elem = 0_sz
-         do while (bool .and. i_elem < len)
-            bool = equal (p(i_vec)%data%array(i_elem)%element, &
-                 &        p(i_vec + 1)%data%array(i_elem)%element)
-            i_elem = i_elem + 1
+         i_elem2 = vr(i_vec + 1)%istart0()
+         i_elem1 = vr(i_vec)%istart0()
+         i_last1 = vr(i_vec)%iend0()
+         do while (bool .and. i_elem1 <= i_last1)
+            bool = equal (p(i_vec)%data%array(i_elem1)%element, &
+                 &        p(i_vec + 1)%data%array(i_elem2)%element)
+            i_elem2 = i_elem2 + 1
+            i_elem1 = i_elem1 + 1
          end do
          i_vec = i_vec + 1
       end do
