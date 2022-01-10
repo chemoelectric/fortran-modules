@@ -185,6 +185,7 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   ! SRFI-133 procedures have a `!' in their names. We have not used
   ! `x' in the names of vectar set and swap subroutines, however.)
   public :: vectar_fillx        ! Fill with a repeated value.
+  public :: vectar_reversex     ! Reversal in place.
 
   ! Vector equality. These accept vectar ranges and so are, in that
   ! respect, more general than their SRFI-133 equivalents.
@@ -577,6 +578,15 @@ contains
     integer(sz), intent(in) :: istart, iend
     type(vectar_range_t) :: range
 
+    !
+    ! NOTES:
+    !
+    !   * Any value of iend less than istart is legal, and indicates a
+    !     range of length zero.
+    !
+    !   * If iend is less than istart, then istart may hold any value.
+    !
+
     integer(sz) :: len
 
     range%vec_ = vec
@@ -584,19 +594,13 @@ contains
 
     len = vectar_length (vec)
 
-    if (istart < 0_sz .or. len < istart) then
-       call error_abort ("vectar_t range start out of range")
-    end if
-
     if (iend < istart) then
        range%length_ = 0
     else
+       if (istart < 0_sz .or. len <= iend) then
+          call error_abort ("vectar_t range indices are out of range")
+       end if
        range%length_ = (iend - istart) + 1
-    end if
-
-    ! Any value of iend less than istart is legal.
-    if (len <= iend) then
-       call error_abort ("vectar_t range end out of range")
     end if
   end function vectar_t_range0_size_kind
 
@@ -1114,6 +1118,27 @@ dnl
        data%array(i)%element = fill
     end do
   end subroutine vectar_fillx
+
+  subroutine vectar_reversex (vec)
+    class(*), intent(in) :: vec
+
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    integer(sz) :: i, j
+    class(*), allocatable :: tmp
+
+    range = vec
+    data => vectar_data_ptr (range%vec())
+    i = range%istart0()
+    j = range%iend0()
+    do while (i < j)
+       tmp = data%array(i)%element
+       data%array(i)%element = data%array(j)%element
+       data%array(j)%element = tmp
+       i = i + 1
+       j = j - 1
+    end do
+  end subroutine vectar_reversex
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

@@ -618,6 +618,59 @@ contains
     call check (vectar_ref1 (vec, 5) .eqi. 5, "test0120-0060 failed")
   end subroutine test0120
 
+  subroutine test0130
+    type(vectar_t) :: vec
+    integer :: i
+
+    vec = vectar ()
+    call vectar_reversex (vec)
+    call check (vectar_equal (int_eq, vec, vectar ()), "test0130-0010 failed")
+
+    vec = vectar (123)
+    call vectar_reversex (vec)
+    call check (vectar_equal (int_eq, vec, vectar (123)), "test0130-0020 failed")
+
+    vec = vectar (123, 456)
+    call vectar_reversex (vec)
+    call check (vectar_equal (int_eq, vec, vectar (456, 123)), "test0130-0030 failed")
+
+    vec = vectar (123, 456, 789)
+    call vectar_reversex (vec)
+    call check (vectar_equal (int_eq, vec, vectar (789, 456, 123)), "test0130-0040 failed")
+
+    vec = vectar (1, 2, 3, 4)
+    call vectar_reversex (vec)
+    call check (vectar_equal (int_eq, vec, vectar (4, 3, 2, 1)), "test0130-0050 failed")
+
+    vec = vectar (1, 2, 3, 4, 5)
+    call vectar_reversex (vec)
+    call check (vectar_equal (int_eq, vec, vectar (5, 4, 3, 2, 1)), "test0130-0060 failed")
+
+    vec = vectar (1, 2, 3, 4, 5)
+    call vectar_reversex (range1 (vec, 1, 3))
+    call check (vectar_equal (int_eq, vec, vectar (3, 2, 1, 4, 5)), "test0130-0070 failed")
+
+    vec = vectar (1, 2, 3, 4, 5)
+    call vectar_reversex (range1 (vec, 2, 4))
+    call check (vectar_equal (int_eq, vec, vectar (1, 4, 3, 2, 5)), "test0130-0080 failed")
+
+    vec = vectar (1, 2, 3, 4, 5)
+    call vectar_reversex (range1 (vec, 2, 5))
+    call check (vectar_equal (int_eq, vec, vectar (1, 5, 4, 3, 2)), "test0130-0090 failed")
+
+    vec = vectar (1, 2, 3, 4, 5)
+    do i = 1, 5
+       call vectar_reversex (range1 (vec, i, i))
+       call check (vectar_equal (int_eq, vec, vectar (1, 2, 3, 4, 5)), "test0130-0100 failed")
+    end do
+
+    vec = vectar (1, 2, 3, 4, 5)
+    do i = -60, 60        ! A range of length zero may start anywhere.
+       call vectar_reversex (range1 (vec, i, -huge(1)))
+       call check (vectar_equal (int_eq, vec, vectar (1, 2, 3, 4, 5)), "test0130-0110 failed")
+    end do
+  end subroutine test0130
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -634,6 +687,7 @@ contains
     call test0100
     call test0110
     call test0120
+    call test0130
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
