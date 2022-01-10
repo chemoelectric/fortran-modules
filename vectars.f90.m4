@@ -186,6 +186,27 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   ! `x' in the names of vectar set and swap subroutines, however.)
   public :: vectar_fillx        ! Fill with a repeated value.
   public :: vectar_reversex     ! Reversal in place.
+  public :: vectar_copyx0       ! Generic function: copy data,
+                                ! zero-based indexing. Source and
+                                ! destination are allowed to overlap.
+  public :: vectar_copyx1       ! Generic function: copy data,
+                                ! one-based indexing. Source and
+                                ! destination are allowed to overlap.
+  public :: vectar_copyxn       ! Generic function: copy data,
+                                ! n-based indexing. Source and
+                                ! destination are allowed to overlap.
+
+  ! Implementations of vectar_copyx0.
+  public :: vectar_copyx0_size_kind
+  public :: vectar_copyx0_int
+
+  ! Implementations of vectar_copyx1.
+  public :: vectar_copyx1_size_kind
+  public :: vectar_copyx1_int
+
+  ! Implementations of vectar_copyxn.
+  public :: vectar_copyxn_size_kind
+  public :: vectar_copyxn_int
 
   ! Vector equality. These accept vectar ranges and so are, in that
   ! respect, more general than their SRFI-133 equivalents.
@@ -391,6 +412,21 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
      module procedure vectar_swapn_size_kind
      module procedure vectar_swapn_int
   end interface vectar_swapn
+
+  interface vectar_copyx0
+     module procedure vectar_copyx0_size_kind
+     module procedure vectar_copyx0_int
+  end interface vectar_copyx0
+
+  interface vectar_copyx1
+     module procedure vectar_copyx1_size_kind
+     module procedure vectar_copyx1_int
+  end interface vectar_copyx1
+
+  interface vectar_copyxn
+     module procedure vectar_copyxn_size_kind
+     module procedure vectar_copyxn_int
+  end interface vectar_copyxn
 
   interface vectar_append
 m4_forloop([n],[0],LISTN_MAX,[dnl
@@ -1139,6 +1175,116 @@ dnl
        j = j - 1
     end do
   end subroutine vectar_reversex
+
+  subroutine vectar_copyx0_size_kind (dst, i, src)
+    !
+    ! Copy from the source (which may be a range) to the destination,
+    ! starting at destination index i.
+    !
+    class(*), intent(in) :: dst
+    integer(sz) :: i
+    class(*), intent(in) :: src
+
+    type(vectar_range_t) :: src_range
+    type(vectar_data_t), pointer :: src_data, dst_data
+    integer(sz) :: copy_len
+    integer(sz) :: j, k
+
+    src_range = src
+
+    src_data => vectar_data_ptr (src_range%vec())
+    dst_data => vectar_data_ptr (dst)
+
+    if (i < 0_sz .or. dst_data%length <= i) then
+       call error_abort ("vectar_copyx0 destination index is out of range")
+    end if
+
+    copy_len = src_range%length()
+
+    if (dst_data%length - i < copy_len) then
+       call error_abort ("vectar_copyx0 destination is shorter than the source")
+    end if
+
+    if (i <= src_range%istart0()) then
+       j = src_range%istart0()
+       k = i
+       do while (k < i + copy_len)
+          dst_data%array(k)%element = src_data%array(j)%element
+          j = j + 1
+          k = k + 1
+       end do
+    else
+       j = src_range%istart0() + copy_len
+       k = i + copy_len
+       do while (i < k)
+          j = j - 1
+          k = k - 1
+          dst_data%array(k)%element = src_data%array(j)%element
+       end do
+    end if
+  end subroutine vectar_copyx0_size_kind
+
+  subroutine vectar_copyx0_int (dst, i, src)
+    !
+    ! Copy from the source (which may be a range) to the destination,
+    ! starting at destination index i.
+    !
+    class(*), intent(in) :: dst
+    integer :: i
+    class(*), intent(in) :: src
+
+    call vectar_copyx0_size_kind (dst, .sz. i, src)
+  end subroutine vectar_copyx0_int
+
+  subroutine vectar_copyx1_size_kind (dst, i, src)
+    !
+    ! Copy from the source (which may be a range) to the destination,
+    ! starting at destination index i.
+    !
+    class(*), intent(in) :: dst
+    integer(sz) :: i
+    class(*), intent(in) :: src
+
+    call vectar_copyx0_size_kind (dst, i - 1_sz, src)
+  end subroutine vectar_copyx1_size_kind
+
+  subroutine vectar_copyx1_int (dst, i, src)
+    !
+    ! Copy from the source (which may be a range) to the destination,
+    ! starting at destination index i.
+    !
+    class(*), intent(in) :: dst
+    integer :: i
+    class(*), intent(in) :: src
+
+    call vectar_copyx0_size_kind (dst, (.sz. i) - 1_sz, src)
+  end subroutine vectar_copyx1_int
+
+  subroutine vectar_copyxn_size_kind (dst, n, i, src)
+    !
+    ! Copy from the source (which may be a range) to the destination,
+    ! starting at destination index i.
+    !
+    class(*), intent(in) :: dst
+    integer(sz) :: n
+    integer(sz) :: i
+    class(*), intent(in) :: src
+
+    call vectar_copyx0_size_kind (dst, i - n, src)
+  end subroutine vectar_copyxn_size_kind
+
+  subroutine vectar_copyxn_int (dst, n, i, src)
+    !
+    ! Copy from the source (which may be a range) to the destination,
+    ! starting at destination index i.
+    !
+    class(*), intent(in) :: dst
+    integer :: n
+    integer :: i
+    class(*), intent(in) :: src
+
+    call vectar_copyx0_size_kind (dst, (.sz. i) - (.sz. n), src)
+  end subroutine vectar_copyxn_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

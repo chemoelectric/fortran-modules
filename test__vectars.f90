@@ -671,6 +671,226 @@ contains
     end do
   end subroutine test0130
 
+  subroutine test0140
+    type(vectar_t) :: vec1, vec2
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyx0 (vec1, 0_sz, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (10, 20, 30, 4, 5)), "test0140-0010 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0020 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyx0 (vec1, 1_sz, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 5)), "test0140-0030 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0040 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyx0 (vec1, 2_sz, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 10, 20, 30)), "test0140-0050 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0060 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyx0 (vec1, 0_sz, range0 (vec2, 0, 3))
+    call check (vectar_equal (int_eq, vec1, vectar (10, 20, 30, 40, 5)), "test0140-0070 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0080 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyx0 (vec1, 1_sz, range0 (vec2, 0, 3))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 40)), "test0140-0090 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0100 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyx0 (vec1, 1_sz, range0 (vec2, 0, 2))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 5)), "test0140-0110 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0120 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyx1 (vec1, 1_sz, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (10, 20, 30, 4, 5)), "test0140-0010 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0020 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyx1 (vec1, 2_sz, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 5)), "test0140-0030 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0040 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyx1 (vec1, 3_sz, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 10, 20, 30)), "test0140-0050 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0060 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyx1 (vec1, 1_sz, range0 (vec2, 0, 3))
+    call check (vectar_equal (int_eq, vec1, vectar (10, 20, 30, 40, 5)), "test0140-0070 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0080 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyx1 (vec1, 2_sz, range0 (vec2, 0, 3))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 40)), "test0140-0090 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0100 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyx1 (vec1, 2_sz, range0 (vec2, 0, 2))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 5)), "test0140-0110 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0120 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyxn (vec1, 2_sz, 2_sz, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (10, 20, 30, 4, 5)), "test0140-0010 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0020 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyxn (vec1, 2_sz, 3_sz, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 5)), "test0140-0030 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0040 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyxn (vec1, 2_sz, 4_sz, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 10, 20, 30)), "test0140-0050 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0060 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyxn (vec1, 2_sz, 2_sz, range0 (vec2, 0, 3))
+    call check (vectar_equal (int_eq, vec1, vectar (10, 20, 30, 40, 5)), "test0140-0070 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0080 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyxn (vec1, 2_sz, 3_sz, range0 (vec2, 0, 3))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 40)), "test0140-0090 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0100 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyxn (vec1, 2_sz, 3_sz, range0 (vec2, 0, 2))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 5)), "test0140-0110 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0120 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyx0 (vec1, 0, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (10, 20, 30, 4, 5)), "test0140-0010 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0020 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyx0 (vec1, 1, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 5)), "test0140-0030 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0040 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyx0 (vec1, 2, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 10, 20, 30)), "test0140-0050 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0060 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyx0 (vec1, 0, range0 (vec2, 0, 3))
+    call check (vectar_equal (int_eq, vec1, vectar (10, 20, 30, 40, 5)), "test0140-0070 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0080 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyx0 (vec1, 1, range0 (vec2, 0, 3))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 40)), "test0140-0090 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0100 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyx0 (vec1, 1, range0 (vec2, 0, 2))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 5)), "test0140-0110 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0120 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyx1 (vec1, 1, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (10, 20, 30, 4, 5)), "test0140-0010 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0020 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyx1 (vec1, 2, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 5)), "test0140-0030 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0040 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyx1 (vec1, 3, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 10, 20, 30)), "test0140-0050 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0060 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyx1 (vec1, 1, range0 (vec2, 0, 3))
+    call check (vectar_equal (int_eq, vec1, vectar (10, 20, 30, 40, 5)), "test0140-0070 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0080 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyx1 (vec1, 2, range0 (vec2, 0, 3))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 40)), "test0140-0090 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0100 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyx1 (vec1, 2, range0 (vec2, 0, 2))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 5)), "test0140-0110 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0120 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyxn (vec1, 2, 2, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (10, 20, 30, 4, 5)), "test0140-0010 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0020 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyxn (vec1, 2, 3, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 5)), "test0140-0030 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0040 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30)
+    call vectar_copyxn (vec1, 2, 4, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 10, 20, 30)), "test0140-0050 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30)), "test0140-0060 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyxn (vec1, 2, 2, range0 (vec2, 0, 3))
+    call check (vectar_equal (int_eq, vec1, vectar (10, 20, 30, 40, 5)), "test0140-0070 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0080 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyxn (vec1, 2, 3, range0 (vec2, 0, 3))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 40)), "test0140-0090 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0100 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5)
+    vec2 = vectar (10, 20, 30, 40, 50, 60, 70, 80)
+    call vectar_copyxn (vec1, 2, 3, range0 (vec2, 0, 2))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 10, 20, 30, 5)), "test0140-0110 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50, 60, 70, 80)), "test0140-0120 failed")
+  end subroutine test0140
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -688,6 +908,7 @@ contains
     call test0110
     call test0120
     call test0130
+    call test0140
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
