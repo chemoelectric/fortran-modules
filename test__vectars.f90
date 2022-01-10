@@ -601,6 +601,23 @@ contains
     end do
   end subroutine test0110
 
+  subroutine test0120
+    type(vectar_t) :: vec
+
+    vec = vectar (1, 2, 3, 4, 5)
+    call vectar_fillx (vec, str_t ("X"))
+    call check (vectar_equal (str_t_eq, vec, vectar (str_t ("X"), str_t ("X"),  str_t ("X"),  str_t ("X"),  str_t ("X"))), &
+         &      "test0120-0010 failed")
+
+    vec = vectar (1, 2, 3, 4, 5)
+    call vectar_fillx (range1 (vec, 2, 4), str_t ("X"))
+    call check (vectar_ref1 (vec, 1) .eqi. 1, "test0120-0020 failed")
+    call check (vectar_ref1 (vec, 2) .eqs. str_t ("X"), "test0120-0030 failed")
+    call check (vectar_ref1 (vec, 3) .eqs. str_t ("X"), "test0120-0040 failed")
+    call check (vectar_ref1 (vec, 4) .eqs. str_t ("X"), "test0120-0050 failed")
+    call check (vectar_ref1 (vec, 5) .eqi. 5, "test0120-0060 failed")
+  end subroutine test0120
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -616,6 +633,7 @@ contains
     call test0090
     call test0100
     call test0110
+    call test0120
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

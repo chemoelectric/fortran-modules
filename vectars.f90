@@ -205,6 +205,13 @@ module vectars
   public :: vectar_swap1_int
   public :: vectar_swapn_int
 
+  ! Some subroutines that (like the vectar sets and vectar swaps)
+  ! alter the contents of a vectar. These accept vectar ranges, as
+  ! well. (The `x' in the names is to remind us that the corresponding
+  ! SRFI-133 procedures have a `!' in their names. We have not used
+  ! `x' in the names of vectar set and swap subroutines, however.)
+  public :: vectar_fillx        ! Fill with a repeated value.
+
   ! Vector equality. These accept vectar ranges and so are, in that
   ! respect, more general than their SRFI-133 equivalents.
   public :: vectar_equal        ! A generic function.
@@ -2001,6 +2008,23 @@ contains
 
     call vectar_swapn_size_kind (vec, .sz. n, .sz. i, .sz. j)
   end subroutine vectar_swapn_int
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine vectar_fillx (vec, fill)
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: fill
+
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    integer(sz) :: i
+
+    range = vec
+    data => vectar_data_ptr (range%vec())
+    do i = range%istart0(), range%iend0()
+       data%array(i)%element = fill
+    end do
+  end subroutine vectar_fillx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
