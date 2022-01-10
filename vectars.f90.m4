@@ -179,7 +179,8 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: vectar_swap1_int
   public :: vectar_swapn_int
 
-  ! Vector equality.
+  ! Vector equality. These accept vectar ranges and so are, in that
+  ! respect, more general than their SRFI-133 equivalents.
   public :: vectar_equal        ! A generic function.
   public :: apply_vectar_equal  ! Compare a list of vectars.
 
@@ -277,6 +278,8 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
      procedure, pass :: iendn_int => vectar_range_t_iendn_int
      generic :: iendn => iendn_size_kind
      generic :: iendn => iendn_int
+
+     procedure, pass :: length => vectar_range_t_length
   end type vectar_range_t
 
   interface operator(.tovectar.)
@@ -696,6 +699,13 @@ contains
 
     iendn = range%index_ + (range%length_ - 1) + (.sz. n)
   end function vectar_range_t_iendn_int
+
+  pure function vectar_range_t_length (range) result (len)
+    class(vectar_range_t), intent(in) :: range
+    integer(sz) :: len
+
+    len = range%length_
+  end function vectar_range_t_length
 
   recursive subroutine vectar_range_t_assign (dst, src)
     class(vectar_range_t), intent(inout) :: dst
@@ -1275,7 +1285,7 @@ m4_forloop([k],[1],n,[dnl
     range[]k = vec[]k
     v[]k = range[]k%vec()
     src[]k => vectar_data_ptr (v[]k)
-    len_vec_a = len_vec_a + (range[]k%iend0() - range[]k%istart0()) + 1_sz
+    len_vec_a = len_vec_a + range[]k%length()
 ])dnl
 
     vec_a = make_vectar (len_vec_a)
@@ -1331,7 +1341,7 @@ m4_forloop([k],[1],n,[dnl
          do i = 1_sz, num_vectars
             range = car (p)
             vecs_reversed = range ** vecs_reversed
-            len_vec_c = len_vec_c + (range%iend0() - range%istart0()) + 1_sz
+            len_vec_c = len_vec_c + range%length()
             p = cdr (p)
          end do
 
@@ -1437,14 +1447,14 @@ dnl
 
     function lengths_are_equal () result (bool)
       integer(sz) :: i
-      integer(sz) :: len_minus_1
+      integer(sz) :: len
       logical :: bool
 
       bool = .true.
-      len_minus_1 = vr(1)%iend0() - vr(1)%istart0()
+      len = vr(1)%length()
       i = 2_sz
       do while (bool .and. i <= n)
-         bool = (vr(i)%iend0() - vr(i)%istart0() == len_minus_1)
+         bool = (vr(i)%length() == len)
          i = i + 1
       end do
     end function lengths_are_equal
