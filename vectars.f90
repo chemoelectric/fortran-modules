@@ -349,15 +349,13 @@ module vectars
      generic :: rangen => rangen_int
   end type vectar_t
 
-  type :: vectar_range_t
-     type(vectar_t), private :: vec_
+  type, extends (vectar_t) :: vectar_range_t
      integer(sz), private :: index_
      integer(sz), private :: length_
    contains
      procedure, pass :: assign => vectar_range_t_assign
-     generic :: assignment(=) => assign
 
-     procedure, pass :: vec => vectar_range_t_vec
+     procedure, pass :: vec => vectar_range_t_vec ! Cast to vectar_t.
 
      procedure, pass :: istart0 => vectar_range_t_istart0
      procedure, pass :: iend0 => vectar_range_t_iend0
@@ -945,7 +943,7 @@ contains
 
     integer(sz) :: len
 
-    range%vec_ = vec
+    range = vec
     range%index_ = istart
 
     len = vectar_length (vec)
@@ -1004,9 +1002,9 @@ contains
     class(vectar_range_t), intent(in) :: range
     type(vectar_t) :: vec
 
-    vec = range%vec_
+    vec = range
   end function vectar_range_t_vec
-     
+
   pure function vectar_range_t_istart0 (range) result (istart0)
     class(vectar_range_t), intent(in) :: range
     integer(sz) :: istart0
@@ -1082,12 +1080,12 @@ contains
 
     select type (src)
     class is (vectar_range_t)
-       dst%vec_ = src%vec_
+       call vectar_t_assign (dst, src)
        dst%index_ = src%index_
        dst%length_ = src%length_
     class is (vectar_t)
        data => vectar_data_ptr (src)
-       dst%vec_ = src
+       call vectar_t_assign (dst, src)
        dst%index_ = 0_sz
        dst%length_ = data%length
     class is (gcroot_t)
@@ -1096,6 +1094,29 @@ contains
        call error_abort ("assignment to vectar_range_t from an incompatible object")
     end select
   end subroutine vectar_range_t_assign
+
+!!$  recursive subroutine vectar_range_t_assign (dst, src)
+!!$    class(vectar_range_t), intent(inout) :: dst
+!!$    class(*), intent(in) :: src
+!!$
+!!$    type(vectar_data_t), pointer :: data
+!!$
+!!$    select type (src)
+!!$    class is (vectar_range_t)
+!!$       dst%vec_ = src%vec_
+!!$       dst%index_ = src%index_
+!!$       dst%length_ = src%length_
+!!$    class is (vectar_t)
+!!$       data => vectar_data_ptr (src)
+!!$       dst%vec_ = src
+!!$       dst%index_ = 0_sz
+!!$       dst%length_ = data%length
+!!$    class is (gcroot_t)
+!!$       call vectar_range_t_assign (dst, .val. src)
+!!$    class default
+!!$       call error_abort ("assignment to vectar_range_t from an incompatible object")
+!!$    end select
+!!$  end subroutine vectar_range_t_assign
 
   recursive function vectar_range_t_cast (obj) result (range)
     class(*), intent(in) :: obj
