@@ -235,7 +235,6 @@ m4_forloop([n],[0],ZIP_MAX,[dnl
   ! Vector equality. These accept vectar ranges and so are, in that
   ! respect, more general than their SRFI-133 equivalents.
   public :: vectar_equal        ! A generic function.
-  public :: apply_vectar_equal  ! Compare a list of vectars.
 
   ! Implementations of vectar_equal.
 m4_forloop([n],[0],ZIP_MAX,[dnl
@@ -547,9 +546,9 @@ m4_forloop([k],[1],n,[dnl
      module procedure error_abort_1
   end interface error_abort
 
-  type :: vectar_data_p_t
-     type(vectar_data_t), pointer :: data
-  end type vectar_data_p_t
+!!$  type :: vectar_data_p_t
+!!$     type(vectar_data_t), pointer :: data
+!!$  end type vectar_data_p_t
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -599,12 +598,12 @@ contains
     end select
   end function vectar_data_ptr
 
-  function vectar_data_p (vec) result (p)
-    class(*), intent(in) :: vec
-    type(vectar_data_p_t) :: p
-
-    p%data => vectar_data_ptr (vec)
-  end function vectar_data_p
+!!$  function vectar_data_p (vec) result (p)
+!!$    class(*), intent(in) :: vec
+!!$    type(vectar_data_p_t) :: p
+!!$
+!!$    p%data => vectar_data_ptr (vec)
+!!$  end function vectar_data_p
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1815,12 +1814,11 @@ m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: vec1
     logical :: bool
 
-    select type (vec1)
-    class is (vectar_t)
-       bool = .true.
-    class default
-       call error_abort ("expected a vectar_t")
-    end select
+    type(vectar_range_t) :: range1
+
+    range1 = vec1               ! Check the type of vec1.
+
+    bool = .true.
   end function vectar_equal1
 
 m4_forloop([n],[2],ZIP_MAX,[dnl
@@ -1832,101 +1830,62 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
     logical :: bool
 
-    type(cons_t) :: vectars
+m4_forloop([k],[1],n,[dnl
+    type(vectar_range_t) :: range[]k
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(vectar_data_t), pointer :: data[]k
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: vec[]k[]_root
+])dnl
+m4_forloop([k],[1],n,[dnl
+    integer(sz) :: i0_[]k
+])dnl
+    integer(sz) :: range1_length
+    integer(sz) :: i
 
-    vectars = list (vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 4),[1],[&
-         &          ])vec[]k]))
-    bool = apply_vectar_equal (equal, vectars)
+m4_forloop([k],[1],n,[dnl
+    range[]k = vec[]k
+])dnl
+
+    ! Protection from the garbage collector.
+m4_forloop([k],[1],n,[dnl
+    vec[]k[]_root = range[]k%vec()
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    data[]k => vectar_data_ptr (.val. vec[]k[]_root)
+    i0_[]k = range[]k%istart0()
+])dnl
+
+    range1_length = range1%length()
+    if (range2%length() /= range1_length) then
+       bool = .false.
+m4_forloop([k],[3],n,[dnl
+    else if (range[]k%length() /= range1_length) then
+       bool = .false.
+])dnl
+    else
+       bool = .true.
+m4_forloop([k],[1],m4_eval(n - 1),[dnl
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data[]k%array(i0_[]k + i)%element, data[]m4_eval(k + 1)%array(i0_[]m4_eval(k + 1) + i)%element)
+             i = i + 1
+          end do
+       end if
+])dnl
+    end if
+
+m4_forloop([k],[1],n,[dnl
+    call vec[]k[]_root%discard
+])dnl
   end function vectar_equal[]n
 
 ])dnl
 dnl
-  recursive function apply_vectar_equal (equal, vectars) result (bool)
-    procedure(vectar_predicate2_t) :: equal
-    class(*), intent(in) :: vectars
-    logical :: bool
-
-    integer(sz) :: n
-    type(vectar_range_t), allocatable :: vr(:)
-    type(vectar_data_p_t), allocatable :: p(:)
-
-    n = length (vectars)
-    if (n == 0_sz) then
-       ! No vectars were given.
-       bool = .true.
-    else if (n == 1_sz) then
-       ! Only one vectar was given.
-       bool = .true.
-    else
-       allocate (vr(1_sz:n))
-       allocate (p(1_sz:n))
-       call fill_vr_and_p
-       if (.not. lengths_are_equal ()) then
-          bool = .false.
-       else
-          bool = check_elements ()
-       end if
-    end if
-
-  contains
-
-    subroutine fill_vr_and_p
-      integer(sz) :: i
-      type(cons_t) :: lst
-
-      lst = vectars
-      do i = 1_sz, n
-         vr(i) = car (lst)
-         p(i) = vectar_data_p (vr(i)%vec())
-         lst = cdr (lst)
-      end do
-    end subroutine fill_vr_and_p
-
-    function lengths_are_equal () result (bool)
-      integer(sz) :: i
-      integer(sz) :: len
-      logical :: bool
-
-      bool = .true.
-      len = vr(1)%length()
-      i = 2_sz
-      do while (bool .and. i <= n)
-         bool = (vr(i)%length() == len)
-         i = i + 1
-      end do
-    end function lengths_are_equal
-
-    recursive function check_elements () result (bool)
-      !
-      ! NOTE: One could check for shared storage here, and conclude
-      ! that it is equal to itself, but SRFI-133 does not, because of
-      ! how IEEE floating point behaves.
-      !
-      ! Specifically: a NaN is unequal to itself. Therefore a list of
-      ! NaN should be regarded as unequal to itself.
-      !
-      integer(sz) :: i_vec
-      integer(sz) :: i_elem1, i_elem2
-      integer(sz) :: i_last1
-      logical :: bool
-
-      bool = .true.
-      i_vec = 1_sz
-      do while (bool .and. i_vec < n)
-         i_elem2 = vr(i_vec + 1)%istart0()
-         i_elem1 = vr(i_vec)%istart0()
-         i_last1 = vr(i_vec)%iend0()
-         do while (bool .and. i_elem1 <= i_last1)
-            bool = equal (p(i_vec)%data%array(i_elem1)%element, &
-                 &        p(i_vec + 1)%data%array(i_elem2)%element)
-            i_elem2 = i_elem2 + 1
-            i_elem1 = i_elem1 + 1
-         end do
-         i_vec = i_vec + 1
-      end do
-    end function check_elements
-
-  end function apply_vectar_equal
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

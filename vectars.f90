@@ -251,7 +251,6 @@ module vectars
   ! Vector equality. These accept vectar ranges and so are, in that
   ! respect, more general than their SRFI-133 equivalents.
   public :: vectar_equal        ! A generic function.
-  public :: apply_vectar_equal  ! Compare a list of vectars.
 
   ! Implementations of vectar_equal.
   public :: vectar_equal0
@@ -796,9 +795,9 @@ module vectars
      module procedure error_abort_1
   end interface error_abort
 
-  type :: vectar_data_p_t
-     type(vectar_data_t), pointer :: data
-  end type vectar_data_p_t
+!!$  type :: vectar_data_p_t
+!!$     type(vectar_data_t), pointer :: data
+!!$  end type vectar_data_p_t
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -848,12 +847,12 @@ contains
     end select
   end function vectar_data_ptr
 
-  function vectar_data_p (vec) result (p)
-    class(*), intent(in) :: vec
-    type(vectar_data_p_t) :: p
-
-    p%data => vectar_data_ptr (vec)
-  end function vectar_data_p
+!!$  function vectar_data_p (vec) result (p)
+!!$    class(*), intent(in) :: vec
+!!$    type(vectar_data_p_t) :: p
+!!$
+!!$    p%data => vectar_data_ptr (vec)
+!!$  end function vectar_data_p
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -3674,12 +3673,11 @@ contains
     class(*), intent(in) :: vec1
     logical :: bool
 
-    select type (vec1)
-    class is (vectar_t)
-       bool = .true.
-    class default
-       call error_abort ("expected a vectar_t")
-    end select
+    type(vectar_range_t) :: range1
+
+    range1 = vec1               ! Check the type of vec1.
+
+    bool = .true.
   end function vectar_equal1
 
   recursive function vectar_equal2 (equal, vec1, vec2) result (bool)
@@ -3688,10 +3686,45 @@ contains
     class(*), intent(in) :: vec2
     logical :: bool
 
-    type(cons_t) :: vectars
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    integer(sz) :: i0_1
+    integer(sz) :: i0_2
+    integer(sz) :: range1_length
+    integer(sz) :: i
 
-    vectars = list (vec1, vec2)
-    bool = apply_vectar_equal (equal, vectars)
+    range1 = vec1
+    range2 = vec2
+
+    ! Protection from the garbage collector.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+
+    data1 => vectar_data_ptr (.val. vec1_root)
+    i0_1 = range1%istart0()
+    data2 => vectar_data_ptr (.val. vec2_root)
+    i0_2 = range2%istart0()
+
+    range1_length = range1%length()
+    if (range2%length() /= range1_length) then
+       bool = .false.
+    else
+       bool = .true.
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data1%array(i0_1 + i)%element, data2%array(i0_2 + i)%element)
+             i = i + 1
+          end do
+       end if
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
   end function vectar_equal2
 
   recursive function vectar_equal3 (equal, vec1, vec2, vec3) result (bool)
@@ -3701,10 +3734,63 @@ contains
     class(*), intent(in) :: vec3
     logical :: bool
 
-    type(cons_t) :: vectars
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    integer(sz) :: i0_1
+    integer(sz) :: i0_2
+    integer(sz) :: i0_3
+    integer(sz) :: range1_length
+    integer(sz) :: i
 
-    vectars = list (vec1, vec2, vec3)
-    bool = apply_vectar_equal (equal, vectars)
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+
+    ! Protection from the garbage collector.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+
+    data1 => vectar_data_ptr (.val. vec1_root)
+    i0_1 = range1%istart0()
+    data2 => vectar_data_ptr (.val. vec2_root)
+    i0_2 = range2%istart0()
+    data3 => vectar_data_ptr (.val. vec3_root)
+    i0_3 = range3%istart0()
+
+    range1_length = range1%length()
+    if (range2%length() /= range1_length) then
+       bool = .false.
+    else if (range3%length() /= range1_length) then
+       bool = .false.
+    else
+       bool = .true.
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data1%array(i0_1 + i)%element, data2%array(i0_2 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data2%array(i0_2 + i)%element, data3%array(i0_3 + i)%element)
+             i = i + 1
+          end do
+       end if
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
   end function vectar_equal3
 
   recursive function vectar_equal4 (equal, vec1, vec2, vec3, vec4) result (bool)
@@ -3715,10 +3801,81 @@ contains
     class(*), intent(in) :: vec4
     logical :: bool
 
-    type(cons_t) :: vectars
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    integer(sz) :: i0_1
+    integer(sz) :: i0_2
+    integer(sz) :: i0_3
+    integer(sz) :: i0_4
+    integer(sz) :: range1_length
+    integer(sz) :: i
 
-    vectars = list (vec1, vec2, vec3, vec4)
-    bool = apply_vectar_equal (equal, vectars)
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+
+    ! Protection from the garbage collector.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+    vec4_root = range4%vec()
+
+    data1 => vectar_data_ptr (.val. vec1_root)
+    i0_1 = range1%istart0()
+    data2 => vectar_data_ptr (.val. vec2_root)
+    i0_2 = range2%istart0()
+    data3 => vectar_data_ptr (.val. vec3_root)
+    i0_3 = range3%istart0()
+    data4 => vectar_data_ptr (.val. vec4_root)
+    i0_4 = range4%istart0()
+
+    range1_length = range1%length()
+    if (range2%length() /= range1_length) then
+       bool = .false.
+    else if (range3%length() /= range1_length) then
+       bool = .false.
+    else if (range4%length() /= range1_length) then
+       bool = .false.
+    else
+       bool = .true.
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data1%array(i0_1 + i)%element, data2%array(i0_2 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data2%array(i0_2 + i)%element, data3%array(i0_3 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data3%array(i0_3 + i)%element, data4%array(i0_4 + i)%element)
+             i = i + 1
+          end do
+       end if
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
   end function vectar_equal4
 
   recursive function vectar_equal5 (equal, vec1, vec2, vec3, vec4, vec5) result (bool)
@@ -3730,11 +3887,99 @@ contains
     class(*), intent(in) :: vec5
     logical :: bool
 
-    type(cons_t) :: vectars
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    integer(sz) :: i0_1
+    integer(sz) :: i0_2
+    integer(sz) :: i0_3
+    integer(sz) :: i0_4
+    integer(sz) :: i0_5
+    integer(sz) :: range1_length
+    integer(sz) :: i
 
-    vectars = list (vec1, vec2, vec3, vec4, &
-         &          vec5)
-    bool = apply_vectar_equal (equal, vectars)
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+
+    ! Protection from the garbage collector.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+    vec4_root = range4%vec()
+    vec5_root = range5%vec()
+
+    data1 => vectar_data_ptr (.val. vec1_root)
+    i0_1 = range1%istart0()
+    data2 => vectar_data_ptr (.val. vec2_root)
+    i0_2 = range2%istart0()
+    data3 => vectar_data_ptr (.val. vec3_root)
+    i0_3 = range3%istart0()
+    data4 => vectar_data_ptr (.val. vec4_root)
+    i0_4 = range4%istart0()
+    data5 => vectar_data_ptr (.val. vec5_root)
+    i0_5 = range5%istart0()
+
+    range1_length = range1%length()
+    if (range2%length() /= range1_length) then
+       bool = .false.
+    else if (range3%length() /= range1_length) then
+       bool = .false.
+    else if (range4%length() /= range1_length) then
+       bool = .false.
+    else if (range5%length() /= range1_length) then
+       bool = .false.
+    else
+       bool = .true.
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data1%array(i0_1 + i)%element, data2%array(i0_2 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data2%array(i0_2 + i)%element, data3%array(i0_3 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data3%array(i0_3 + i)%element, data4%array(i0_4 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data4%array(i0_4 + i)%element, data5%array(i0_5 + i)%element)
+             i = i + 1
+          end do
+       end if
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
   end function vectar_equal5
 
   recursive function vectar_equal6 (equal, vec1, vec2, vec3, vec4, vec5, &
@@ -3748,11 +3993,117 @@ contains
     class(*), intent(in) :: vec6
     logical :: bool
 
-    type(cons_t) :: vectars
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    integer(sz) :: i0_1
+    integer(sz) :: i0_2
+    integer(sz) :: i0_3
+    integer(sz) :: i0_4
+    integer(sz) :: i0_5
+    integer(sz) :: i0_6
+    integer(sz) :: range1_length
+    integer(sz) :: i
 
-    vectars = list (vec1, vec2, vec3, vec4, &
-         &          vec5, vec6)
-    bool = apply_vectar_equal (equal, vectars)
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+
+    ! Protection from the garbage collector.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+    vec4_root = range4%vec()
+    vec5_root = range5%vec()
+    vec6_root = range6%vec()
+
+    data1 => vectar_data_ptr (.val. vec1_root)
+    i0_1 = range1%istart0()
+    data2 => vectar_data_ptr (.val. vec2_root)
+    i0_2 = range2%istart0()
+    data3 => vectar_data_ptr (.val. vec3_root)
+    i0_3 = range3%istart0()
+    data4 => vectar_data_ptr (.val. vec4_root)
+    i0_4 = range4%istart0()
+    data5 => vectar_data_ptr (.val. vec5_root)
+    i0_5 = range5%istart0()
+    data6 => vectar_data_ptr (.val. vec6_root)
+    i0_6 = range6%istart0()
+
+    range1_length = range1%length()
+    if (range2%length() /= range1_length) then
+       bool = .false.
+    else if (range3%length() /= range1_length) then
+       bool = .false.
+    else if (range4%length() /= range1_length) then
+       bool = .false.
+    else if (range5%length() /= range1_length) then
+       bool = .false.
+    else if (range6%length() /= range1_length) then
+       bool = .false.
+    else
+       bool = .true.
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data1%array(i0_1 + i)%element, data2%array(i0_2 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data2%array(i0_2 + i)%element, data3%array(i0_3 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data3%array(i0_3 + i)%element, data4%array(i0_4 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data4%array(i0_4 + i)%element, data5%array(i0_5 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data5%array(i0_5 + i)%element, data6%array(i0_6 + i)%element)
+             i = i + 1
+          end do
+       end if
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
   end function vectar_equal6
 
   recursive function vectar_equal7 (equal, vec1, vec2, vec3, vec4, vec5, &
@@ -3767,11 +4118,135 @@ contains
     class(*), intent(in) :: vec7
     logical :: bool
 
-    type(cons_t) :: vectars
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    integer(sz) :: i0_1
+    integer(sz) :: i0_2
+    integer(sz) :: i0_3
+    integer(sz) :: i0_4
+    integer(sz) :: i0_5
+    integer(sz) :: i0_6
+    integer(sz) :: i0_7
+    integer(sz) :: range1_length
+    integer(sz) :: i
 
-    vectars = list (vec1, vec2, vec3, vec4, &
-         &          vec5, vec6, vec7)
-    bool = apply_vectar_equal (equal, vectars)
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+
+    ! Protection from the garbage collector.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+    vec4_root = range4%vec()
+    vec5_root = range5%vec()
+    vec6_root = range6%vec()
+    vec7_root = range7%vec()
+
+    data1 => vectar_data_ptr (.val. vec1_root)
+    i0_1 = range1%istart0()
+    data2 => vectar_data_ptr (.val. vec2_root)
+    i0_2 = range2%istart0()
+    data3 => vectar_data_ptr (.val. vec3_root)
+    i0_3 = range3%istart0()
+    data4 => vectar_data_ptr (.val. vec4_root)
+    i0_4 = range4%istart0()
+    data5 => vectar_data_ptr (.val. vec5_root)
+    i0_5 = range5%istart0()
+    data6 => vectar_data_ptr (.val. vec6_root)
+    i0_6 = range6%istart0()
+    data7 => vectar_data_ptr (.val. vec7_root)
+    i0_7 = range7%istart0()
+
+    range1_length = range1%length()
+    if (range2%length() /= range1_length) then
+       bool = .false.
+    else if (range3%length() /= range1_length) then
+       bool = .false.
+    else if (range4%length() /= range1_length) then
+       bool = .false.
+    else if (range5%length() /= range1_length) then
+       bool = .false.
+    else if (range6%length() /= range1_length) then
+       bool = .false.
+    else if (range7%length() /= range1_length) then
+       bool = .false.
+    else
+       bool = .true.
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data1%array(i0_1 + i)%element, data2%array(i0_2 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data2%array(i0_2 + i)%element, data3%array(i0_3 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data3%array(i0_3 + i)%element, data4%array(i0_4 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data4%array(i0_4 + i)%element, data5%array(i0_5 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data5%array(i0_5 + i)%element, data6%array(i0_6 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data6%array(i0_6 + i)%element, data7%array(i0_7 + i)%element)
+             i = i + 1
+          end do
+       end if
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
   end function vectar_equal7
 
   recursive function vectar_equal8 (equal, vec1, vec2, vec3, vec4, vec5, &
@@ -3787,11 +4262,153 @@ contains
     class(*), intent(in) :: vec8
     logical :: bool
 
-    type(cons_t) :: vectars
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    integer(sz) :: i0_1
+    integer(sz) :: i0_2
+    integer(sz) :: i0_3
+    integer(sz) :: i0_4
+    integer(sz) :: i0_5
+    integer(sz) :: i0_6
+    integer(sz) :: i0_7
+    integer(sz) :: i0_8
+    integer(sz) :: range1_length
+    integer(sz) :: i
 
-    vectars = list (vec1, vec2, vec3, vec4, &
-         &          vec5, vec6, vec7, vec8)
-    bool = apply_vectar_equal (equal, vectars)
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+
+    ! Protection from the garbage collector.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+    vec4_root = range4%vec()
+    vec5_root = range5%vec()
+    vec6_root = range6%vec()
+    vec7_root = range7%vec()
+    vec8_root = range8%vec()
+
+    data1 => vectar_data_ptr (.val. vec1_root)
+    i0_1 = range1%istart0()
+    data2 => vectar_data_ptr (.val. vec2_root)
+    i0_2 = range2%istart0()
+    data3 => vectar_data_ptr (.val. vec3_root)
+    i0_3 = range3%istart0()
+    data4 => vectar_data_ptr (.val. vec4_root)
+    i0_4 = range4%istart0()
+    data5 => vectar_data_ptr (.val. vec5_root)
+    i0_5 = range5%istart0()
+    data6 => vectar_data_ptr (.val. vec6_root)
+    i0_6 = range6%istart0()
+    data7 => vectar_data_ptr (.val. vec7_root)
+    i0_7 = range7%istart0()
+    data8 => vectar_data_ptr (.val. vec8_root)
+    i0_8 = range8%istart0()
+
+    range1_length = range1%length()
+    if (range2%length() /= range1_length) then
+       bool = .false.
+    else if (range3%length() /= range1_length) then
+       bool = .false.
+    else if (range4%length() /= range1_length) then
+       bool = .false.
+    else if (range5%length() /= range1_length) then
+       bool = .false.
+    else if (range6%length() /= range1_length) then
+       bool = .false.
+    else if (range7%length() /= range1_length) then
+       bool = .false.
+    else if (range8%length() /= range1_length) then
+       bool = .false.
+    else
+       bool = .true.
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data1%array(i0_1 + i)%element, data2%array(i0_2 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data2%array(i0_2 + i)%element, data3%array(i0_3 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data3%array(i0_3 + i)%element, data4%array(i0_4 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data4%array(i0_4 + i)%element, data5%array(i0_5 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data5%array(i0_5 + i)%element, data6%array(i0_6 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data6%array(i0_6 + i)%element, data7%array(i0_7 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data7%array(i0_7 + i)%element, data8%array(i0_8 + i)%element)
+             i = i + 1
+          end do
+       end if
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
   end function vectar_equal8
 
   recursive function vectar_equal9 (equal, vec1, vec2, vec3, vec4, vec5, &
@@ -3808,12 +4425,171 @@ contains
     class(*), intent(in) :: vec9
     logical :: bool
 
-    type(cons_t) :: vectars
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    integer(sz) :: i0_1
+    integer(sz) :: i0_2
+    integer(sz) :: i0_3
+    integer(sz) :: i0_4
+    integer(sz) :: i0_5
+    integer(sz) :: i0_6
+    integer(sz) :: i0_7
+    integer(sz) :: i0_8
+    integer(sz) :: i0_9
+    integer(sz) :: range1_length
+    integer(sz) :: i
 
-    vectars = list (vec1, vec2, vec3, vec4, &
-         &          vec5, vec6, vec7, vec8, &
-         &          vec9)
-    bool = apply_vectar_equal (equal, vectars)
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+
+    ! Protection from the garbage collector.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+    vec4_root = range4%vec()
+    vec5_root = range5%vec()
+    vec6_root = range6%vec()
+    vec7_root = range7%vec()
+    vec8_root = range8%vec()
+    vec9_root = range9%vec()
+
+    data1 => vectar_data_ptr (.val. vec1_root)
+    i0_1 = range1%istart0()
+    data2 => vectar_data_ptr (.val. vec2_root)
+    i0_2 = range2%istart0()
+    data3 => vectar_data_ptr (.val. vec3_root)
+    i0_3 = range3%istart0()
+    data4 => vectar_data_ptr (.val. vec4_root)
+    i0_4 = range4%istart0()
+    data5 => vectar_data_ptr (.val. vec5_root)
+    i0_5 = range5%istart0()
+    data6 => vectar_data_ptr (.val. vec6_root)
+    i0_6 = range6%istart0()
+    data7 => vectar_data_ptr (.val. vec7_root)
+    i0_7 = range7%istart0()
+    data8 => vectar_data_ptr (.val. vec8_root)
+    i0_8 = range8%istart0()
+    data9 => vectar_data_ptr (.val. vec9_root)
+    i0_9 = range9%istart0()
+
+    range1_length = range1%length()
+    if (range2%length() /= range1_length) then
+       bool = .false.
+    else if (range3%length() /= range1_length) then
+       bool = .false.
+    else if (range4%length() /= range1_length) then
+       bool = .false.
+    else if (range5%length() /= range1_length) then
+       bool = .false.
+    else if (range6%length() /= range1_length) then
+       bool = .false.
+    else if (range7%length() /= range1_length) then
+       bool = .false.
+    else if (range8%length() /= range1_length) then
+       bool = .false.
+    else if (range9%length() /= range1_length) then
+       bool = .false.
+    else
+       bool = .true.
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data1%array(i0_1 + i)%element, data2%array(i0_2 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data2%array(i0_2 + i)%element, data3%array(i0_3 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data3%array(i0_3 + i)%element, data4%array(i0_4 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data4%array(i0_4 + i)%element, data5%array(i0_5 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data5%array(i0_5 + i)%element, data6%array(i0_6 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data6%array(i0_6 + i)%element, data7%array(i0_7 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data7%array(i0_7 + i)%element, data8%array(i0_8 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data8%array(i0_8 + i)%element, data9%array(i0_9 + i)%element)
+             i = i + 1
+          end do
+       end if
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
   end function vectar_equal9
 
   recursive function vectar_equal10 (equal, vec1, vec2, vec3, vec4, vec5, &
@@ -3831,100 +4607,191 @@ contains
     class(*), intent(in) :: vec10
     logical :: bool
 
-    type(cons_t) :: vectars
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    type(vectar_data_t), pointer :: data10
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(gcroot_t) :: vec10_root
+    integer(sz) :: i0_1
+    integer(sz) :: i0_2
+    integer(sz) :: i0_3
+    integer(sz) :: i0_4
+    integer(sz) :: i0_5
+    integer(sz) :: i0_6
+    integer(sz) :: i0_7
+    integer(sz) :: i0_8
+    integer(sz) :: i0_9
+    integer(sz) :: i0_10
+    integer(sz) :: range1_length
+    integer(sz) :: i
 
-    vectars = list (vec1, vec2, vec3, vec4, &
-         &          vec5, vec6, vec7, vec8, &
-         &          vec9, vec10)
-    bool = apply_vectar_equal (equal, vectars)
-  end function vectar_equal10
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+    range10 = vec10
 
-  recursive function apply_vectar_equal (equal, vectars) result (bool)
-    procedure(vectar_predicate2_t) :: equal
-    class(*), intent(in) :: vectars
-    logical :: bool
+    ! Protection from the garbage collector.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+    vec4_root = range4%vec()
+    vec5_root = range5%vec()
+    vec6_root = range6%vec()
+    vec7_root = range7%vec()
+    vec8_root = range8%vec()
+    vec9_root = range9%vec()
+    vec10_root = range10%vec()
 
-    integer(sz) :: n
-    type(vectar_range_t), allocatable :: vr(:)
-    type(vectar_data_p_t), allocatable :: p(:)
+    data1 => vectar_data_ptr (.val. vec1_root)
+    i0_1 = range1%istart0()
+    data2 => vectar_data_ptr (.val. vec2_root)
+    i0_2 = range2%istart0()
+    data3 => vectar_data_ptr (.val. vec3_root)
+    i0_3 = range3%istart0()
+    data4 => vectar_data_ptr (.val. vec4_root)
+    i0_4 = range4%istart0()
+    data5 => vectar_data_ptr (.val. vec5_root)
+    i0_5 = range5%istart0()
+    data6 => vectar_data_ptr (.val. vec6_root)
+    i0_6 = range6%istart0()
+    data7 => vectar_data_ptr (.val. vec7_root)
+    i0_7 = range7%istart0()
+    data8 => vectar_data_ptr (.val. vec8_root)
+    i0_8 = range8%istart0()
+    data9 => vectar_data_ptr (.val. vec9_root)
+    i0_9 = range9%istart0()
+    data10 => vectar_data_ptr (.val. vec10_root)
+    i0_10 = range10%istart0()
 
-    n = length (vectars)
-    if (n == 0_sz) then
-       ! No vectars were given.
-       bool = .true.
-    else if (n == 1_sz) then
-       ! Only one vectar was given.
-       bool = .true.
+    range1_length = range1%length()
+    if (range2%length() /= range1_length) then
+       bool = .false.
+    else if (range3%length() /= range1_length) then
+       bool = .false.
+    else if (range4%length() /= range1_length) then
+       bool = .false.
+    else if (range5%length() /= range1_length) then
+       bool = .false.
+    else if (range6%length() /= range1_length) then
+       bool = .false.
+    else if (range7%length() /= range1_length) then
+       bool = .false.
+    else if (range8%length() /= range1_length) then
+       bool = .false.
+    else if (range9%length() /= range1_length) then
+       bool = .false.
+    else if (range10%length() /= range1_length) then
+       bool = .false.
     else
-       allocate (vr(1_sz:n))
-       allocate (p(1_sz:n))
-       call fill_vr_and_p
-       if (.not. lengths_are_equal ()) then
-          bool = .false.
-       else
-          bool = check_elements ()
+       bool = .true.
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data1%array(i0_1 + i)%element, data2%array(i0_2 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data2%array(i0_2 + i)%element, data3%array(i0_3 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data3%array(i0_3 + i)%element, data4%array(i0_4 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data4%array(i0_4 + i)%element, data5%array(i0_5 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data5%array(i0_5 + i)%element, data6%array(i0_6 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data6%array(i0_6 + i)%element, data7%array(i0_7 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data7%array(i0_7 + i)%element, data8%array(i0_8 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data8%array(i0_8 + i)%element, data9%array(i0_9 + i)%element)
+             i = i + 1
+          end do
+       end if
+       if (bool) then
+          i = 0
+          do while (bool .and. i < range1_length)
+             bool = equal (data9%array(i0_9 + i)%element, data10%array(i0_10 + i)%element)
+             i = i + 1
+          end do
        end if
     end if
 
-  contains
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+    call vec10_root%discard
+  end function vectar_equal10
 
-    subroutine fill_vr_and_p
-      integer(sz) :: i
-      type(cons_t) :: lst
-
-      lst = vectars
-      do i = 1_sz, n
-         vr(i) = car (lst)
-         p(i) = vectar_data_p (vr(i)%vec())
-         lst = cdr (lst)
-      end do
-    end subroutine fill_vr_and_p
-
-    function lengths_are_equal () result (bool)
-      integer(sz) :: i
-      integer(sz) :: len
-      logical :: bool
-
-      bool = .true.
-      len = vr(1)%length()
-      i = 2_sz
-      do while (bool .and. i <= n)
-         bool = (vr(i)%length() == len)
-         i = i + 1
-      end do
-    end function lengths_are_equal
-
-    recursive function check_elements () result (bool)
-      !
-      ! NOTE: One could check for shared storage here, and conclude
-      ! that it is equal to itself, but SRFI-133 does not, because of
-      ! how IEEE floating point behaves.
-      !
-      ! Specifically: a NaN is unequal to itself. Therefore a list of
-      ! NaN should be regarded as unequal to itself.
-      !
-      integer(sz) :: i_vec
-      integer(sz) :: i_elem1, i_elem2
-      integer(sz) :: i_last1
-      logical :: bool
-
-      bool = .true.
-      i_vec = 1_sz
-      do while (bool .and. i_vec < n)
-         i_elem2 = vr(i_vec + 1)%istart0()
-         i_elem1 = vr(i_vec)%istart0()
-         i_last1 = vr(i_vec)%iend0()
-         do while (bool .and. i_elem1 <= i_last1)
-            bool = equal (p(i_vec)%data%array(i_elem1)%element, &
-                 &        p(i_vec + 1)%data%array(i_elem2)%element)
-            i_elem2 = i_elem2 + 1
-            i_elem1 = i_elem1 + 1
-         end do
-         i_vec = i_vec + 1
-      end do
-    end function check_elements
-
-  end function apply_vectar_equal
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
