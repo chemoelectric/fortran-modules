@@ -125,7 +125,7 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: vectar_append
 
   ! Implementations of vectar_append.
-m4_forloop([n],[0],LISTN_MAX,[dnl
+m4_forloop([n],[0],ZIP_MAX,[dnl
   public :: vectar_append[]n
 ])dnl
 
@@ -238,9 +238,21 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   public :: apply_vectar_equal  ! Compare a list of vectars.
 
   ! Implementations of vectar_equal.
-m4_forloop([n],[0],LISTN_MAX,[dnl
+m4_forloop([n],[0],ZIP_MAX,[dnl
   public :: vectar_equal[]n
 ])dnl
+
+  ! Generic functions for per-element mapping. These accept vectar
+  ! ranges and so are, in that respect, more general than their
+  ! SRFI-133 equivalents.
+  public :: vectar_map          ! Create a new vectar with mapped
+                                ! values.
+  !public :: vectar_mapx         ! Map the elements in place.
+
+  ! Implementations of vectar_map.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_map[]n[]_subr
+])
 
   ! Vectar-list conversions.
   public :: vectar_to_list
@@ -468,20 +480,28 @@ m4_forloop([n],[0],LISTN_MAX,[dnl
   end interface vectar_reverse_copyxn
 
   interface vectar_append
-m4_forloop([n],[0],LISTN_MAX,[dnl
+m4_forloop([n],[0],ZIP_MAX,[dnl
      module procedure vectar_append[]n
 ])dnl
   end interface vectar_append
 
+  interface vectar_map
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure vectar_map[]n[]_subr
+])
+  end interface vectar_map
+
   interface vectar_equal
-m4_forloop([n],[0],LISTN_MAX,[dnl
+m4_forloop([n],[0],ZIP_MAX,[dnl
      module procedure vectar_equal[]n
 ])dnl
   end interface vectar_equal
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!
+!!! Types for predicates.
+!!!
 
-  ! Types for predicates.
   public :: vectar_predicate1_t ! A predicate taking 1 argument.
 m4_forloop([n],[2],ZIP_MAX,[dnl
   public :: vectar_predicate[]n[]_t ! A predicate taking n arguments.
@@ -496,6 +516,28 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
        logical :: bool
      end function vectar_predicate[]n[]_t
+])dnl
+  end interface
+
+!!! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!!!
+!!! Types for the per-element-mapping argument to a map procedure,
+!!! an unfold, etc.
+!!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_map[]n[]_subr_t
+])dnl
+
+  abstract interface
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     recursive subroutine vectar_map[]n[]_subr_t (input1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+          ])input[]k]), output)
+m4_forloop([k],[1],n,[dnl
+       class(*), intent(in) :: input[]k
+])dnl
+       class(*), allocatable, intent(out) :: output
+     end subroutine vectar_map[]n[]_subr_t
 ])dnl
   end interface
 
@@ -1663,7 +1705,7 @@ dnl
     vec_a = vectar ()
   end function vectar_append0
 
-m4_forloop([n],[1],LISTN_MAX,[dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
   function vectar_append[]n (vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        &                   ])vec[]k])) result (vec_a)
 m4_forloop([k],[1],n,[dnl
@@ -1718,7 +1760,7 @@ dnl
     select case (num_vectars)
     case (0)
        vec_c = vectar ()
-m4_forloop([n],[1],LISTN_MAX,[dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
     case (n)
        block
 m4_forloop([k],[1],n,[dnl
@@ -1790,7 +1832,7 @@ m4_forloop([k],[1],n,[dnl
     end select
   end function vectar_equal1
 
-m4_forloop([n],[2],LISTN_MAX,[dnl
+m4_forloop([n],[2],ZIP_MAX,[dnl
   recursive function vectar_equal[]n (equal, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        &                            ])vec[]k])) result (bool)
     procedure(vectar_predicate2_t) :: equal
@@ -1895,6 +1937,71 @@ dnl
 
   end function apply_vectar_equal
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function vectar_map[]n[]_subr (subr, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       &                               ])vec[]k])) result (vec_m)
+    procedure(vectar_map[]n[]_subr_t) :: subr
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: vec[]k
+])dnl
+    type(vectar_t) :: vec_m
+
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: vec[]k[]_root
+])dnl
+    type(gcroot_t) :: vec_m_root
+m4_forloop([k],[1],n,[dnl
+    type(vectar_range_t) :: range[]k
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(vectar_data_t), pointer :: data[]k
+])dnl
+    type(vectar_data_t), pointer :: result_data
+    integer(sz) :: result_length
+    integer(sz) :: i
+
+    ! Protect against garbage collections instigated by subr.
+m4_forloop([k],[1],n,[dnl
+    vec[]k[]_root = vec[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    range[]k = vec[]k
+])dnl
+
+m4_if(n,[1],[dnl
+    result_length = range1%length()
+],[dnl
+    result_length = min (range1%length()[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+         &               ])range[]k%length()]))
+])dnl
+
+    vec_m = make_vectar (result_length)
+
+    ! Protect the result vector against garbage collections.
+    vec_m_root = vec_m
+
+    result_data => vectar_data_ptr (vec_m)
+m4_forloop([k],[1],n,[dnl
+    data[]k => vectar_data_ptr (range[]k%vec())
+])dnl
+
+    do i = 0_sz, result_length - 1_sz
+       call subr (data1%array(range1%istart0() + i)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
+         &        ])data[]k%array(range[]k%istart0() + i)%element]), &
+         &        result_data%array(i)%element)
+    end do
+
+m4_forloop([k],[1],n,[dnl
+    call vec[]k[]_root%discard
+])dnl
+    call vec_m_root%discard
+  end function vectar_map[]n[]_subr
+
+])dnl
+dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module vectars

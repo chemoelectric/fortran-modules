@@ -990,6 +990,32 @@ contains
     call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0150-1090 failed")
   end subroutine test0150
 
+  subroutine test0160
+    type(vectar_t) :: vec1, vec2
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar_map (int_negate, vec1)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0160-0010 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (-1, -2, -3, -4, -5, -6, -7, -8)), "test0160-0020 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar_map (int_negate, range1 (vec1, 2, 5))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0160-0030 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (-2, -3, -4, -5)), "test0160-0040 failed")
+
+  contains
+
+    subroutine int_negate (x, y)
+      class(*), intent(in) :: x
+      class(*), allocatable, intent(out) :: y
+
+      call collect_garbage_now
+
+      y = -(int_cast (x))
+    end subroutine int_negate
+
+  end subroutine test0160
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1009,6 +1035,7 @@ contains
     call test0130
     call test0140
     call test0150
+    call test0160
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
