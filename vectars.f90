@@ -820,13 +820,6 @@ contains
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
   end subroutine strange_error
 
-!!$  elemental function sz2sz (i) result (j)
-!!$    integer(sz), intent(in) :: i
-!!$    integer(sz) :: j
-!!$
-!!$    j = i
-!!$  end function sz2sz
-
   elemental function int2sz (i) result (j)
     integer, intent(in) :: i
     integer(sz) :: j
@@ -1081,19 +1074,6 @@ contains
 
     len = range%length_
   end function vectar_range_t_length
-
-!!$  subroutine vectar_range_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
-!!$    class(vectar_range_t), intent(in) :: this
-!!$    integer(sz), intent(in) :: branch_number
-!!$    logical, intent(out) :: branch_number_out_of_range
-!!$    class(*), allocatable, intent(out) :: branch
-!!$
-!!$    branch_number_out_of_range = .true.
-!!$    if (branch_number == 1) then
-!!$       branch = this%vec_
-!!$       branch_number_out_of_range = .false.
-!!$    end if
-!!$  end subroutine vectar_range_t_get_branch
 
   recursive subroutine vectar_range_t_assign (dst, src)
     class(vectar_range_t), intent(inout) :: dst
@@ -3961,19 +3941,16 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = vec1
-
     range1 = vec1
+
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = range1%vec()
 
     result_length = range1%length()
 
-    vec_m = make_vectar (result_length)
+    vec_m_root = make_vectar (result_length)
 
-    ! Protect the result vector against garbage collections.
-    vec_m_root = vec_m
-
-    result_data => vectar_data_ptr (vec_m)
+    result_data => vectar_data_ptr (vec_m_root)
     data1 => vectar_data_ptr (range1%vec())
 
     do i = 0_sz, result_length - 1_sz
@@ -3981,8 +3958,9 @@ contains
          &        result_data%array(i)%element)
     end do
 
+    vec_m = .val. vec_m_root
+
     call vec1_root%discard
-    call vec_m_root%discard
   end function vectar_map1_subr
 
   recursive function vectar_map2_subr (subr, vec1, vec2) result (vec_m)
@@ -4002,21 +3980,18 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = vec1
-    vec2_root = vec2
-
     range1 = vec1
     range2 = vec2
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+
     result_length = min (range1%length(), range2%length())
 
-    vec_m = make_vectar (result_length)
+    vec_m_root = make_vectar (result_length)
 
-    ! Protect the result vector against garbage collections.
-    vec_m_root = vec_m
-
-    result_data => vectar_data_ptr (vec_m)
+    result_data => vectar_data_ptr (vec_m_root)
     data1 => vectar_data_ptr (range1%vec())
     data2 => vectar_data_ptr (range2%vec())
 
@@ -4025,9 +4000,10 @@ contains
          &        result_data%array(i)%element)
     end do
 
+    vec_m = .val. vec_m_root
+
     call vec1_root%discard
     call vec2_root%discard
-    call vec_m_root%discard
   end function vectar_map2_subr
 
   recursive function vectar_map3_subr (subr, vec1, vec2, vec3) result (vec_m)
@@ -4051,23 +4027,20 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = vec1
-    vec2_root = vec2
-    vec3_root = vec3
-
     range1 = vec1
     range2 = vec2
     range3 = vec3
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+
     result_length = min (range1%length(), range2%length(), range3%length())
 
-    vec_m = make_vectar (result_length)
+    vec_m_root = make_vectar (result_length)
 
-    ! Protect the result vector against garbage collections.
-    vec_m_root = vec_m
-
-    result_data => vectar_data_ptr (vec_m)
+    result_data => vectar_data_ptr (vec_m_root)
     data1 => vectar_data_ptr (range1%vec())
     data2 => vectar_data_ptr (range2%vec())
     data3 => vectar_data_ptr (range3%vec())
@@ -4078,10 +4051,11 @@ contains
          &        result_data%array(i)%element)
     end do
 
+    vec_m = .val. vec_m_root
+
     call vec1_root%discard
     call vec2_root%discard
     call vec3_root%discard
-    call vec_m_root%discard
   end function vectar_map3_subr
 
   recursive function vectar_map4_subr (subr, vec1, vec2, vec3, vec4) result (vec_m)
@@ -4109,25 +4083,22 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = vec1
-    vec2_root = vec2
-    vec3_root = vec3
-    vec4_root = vec4
-
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+    vec4_root = range4%vec()
+
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length())
 
-    vec_m = make_vectar (result_length)
+    vec_m_root = make_vectar (result_length)
 
-    ! Protect the result vector against garbage collections.
-    vec_m_root = vec_m
-
-    result_data => vectar_data_ptr (vec_m)
+    result_data => vectar_data_ptr (vec_m_root)
     data1 => vectar_data_ptr (range1%vec())
     data2 => vectar_data_ptr (range2%vec())
     data3 => vectar_data_ptr (range3%vec())
@@ -4139,11 +4110,12 @@ contains
          &        result_data%array(i)%element)
     end do
 
+    vec_m = .val. vec_m_root
+
     call vec1_root%discard
     call vec2_root%discard
     call vec3_root%discard
     call vec4_root%discard
-    call vec_m_root%discard
   end function vectar_map4_subr
 
   recursive function vectar_map5_subr (subr, vec1, vec2, vec3, vec4, vec5) result (vec_m)
@@ -4175,27 +4147,24 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = vec1
-    vec2_root = vec2
-    vec3_root = vec3
-    vec4_root = vec4
-    vec5_root = vec5
-
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+    vec4_root = range4%vec()
+    vec5_root = range5%vec()
+
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
 
-    vec_m = make_vectar (result_length)
+    vec_m_root = make_vectar (result_length)
 
-    ! Protect the result vector against garbage collections.
-    vec_m_root = vec_m
-
-    result_data => vectar_data_ptr (vec_m)
+    result_data => vectar_data_ptr (vec_m_root)
     data1 => vectar_data_ptr (range1%vec())
     data2 => vectar_data_ptr (range2%vec())
     data3 => vectar_data_ptr (range3%vec())
@@ -4209,12 +4178,13 @@ contains
          &        result_data%array(i)%element)
     end do
 
+    vec_m = .val. vec_m_root
+
     call vec1_root%discard
     call vec2_root%discard
     call vec3_root%discard
     call vec4_root%discard
     call vec5_root%discard
-    call vec_m_root%discard
   end function vectar_map5_subr
 
   recursive function vectar_map6_subr (subr, vec1, vec2, vec3, vec4, vec5, &
@@ -4251,14 +4221,6 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = vec1
-    vec2_root = vec2
-    vec3_root = vec3
-    vec4_root = vec4
-    vec5_root = vec5
-    vec6_root = vec6
-
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -4266,15 +4228,20 @@ contains
     range5 = vec5
     range6 = vec6
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+    vec4_root = range4%vec()
+    vec5_root = range5%vec()
+    vec6_root = range6%vec()
+
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length())
 
-    vec_m = make_vectar (result_length)
+    vec_m_root = make_vectar (result_length)
 
-    ! Protect the result vector against garbage collections.
-    vec_m_root = vec_m
-
-    result_data => vectar_data_ptr (vec_m)
+    result_data => vectar_data_ptr (vec_m_root)
     data1 => vectar_data_ptr (range1%vec())
     data2 => vectar_data_ptr (range2%vec())
     data3 => vectar_data_ptr (range3%vec())
@@ -4289,13 +4256,14 @@ contains
          &        result_data%array(i)%element)
     end do
 
+    vec_m = .val. vec_m_root
+
     call vec1_root%discard
     call vec2_root%discard
     call vec3_root%discard
     call vec4_root%discard
     call vec5_root%discard
     call vec6_root%discard
-    call vec_m_root%discard
   end function vectar_map6_subr
 
   recursive function vectar_map7_subr (subr, vec1, vec2, vec3, vec4, vec5, &
@@ -4336,15 +4304,6 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = vec1
-    vec2_root = vec2
-    vec3_root = vec3
-    vec4_root = vec4
-    vec5_root = vec5
-    vec6_root = vec6
-    vec7_root = vec7
-
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -4353,15 +4312,21 @@ contains
     range6 = vec6
     range7 = vec7
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+    vec4_root = range4%vec()
+    vec5_root = range5%vec()
+    vec6_root = range6%vec()
+    vec7_root = range7%vec()
+
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length())
 
-    vec_m = make_vectar (result_length)
+    vec_m_root = make_vectar (result_length)
 
-    ! Protect the result vector against garbage collections.
-    vec_m_root = vec_m
-
-    result_data => vectar_data_ptr (vec_m)
+    result_data => vectar_data_ptr (vec_m_root)
     data1 => vectar_data_ptr (range1%vec())
     data2 => vectar_data_ptr (range2%vec())
     data3 => vectar_data_ptr (range3%vec())
@@ -4378,6 +4343,8 @@ contains
          &        result_data%array(i)%element)
     end do
 
+    vec_m = .val. vec_m_root
+
     call vec1_root%discard
     call vec2_root%discard
     call vec3_root%discard
@@ -4385,7 +4352,6 @@ contains
     call vec5_root%discard
     call vec6_root%discard
     call vec7_root%discard
-    call vec_m_root%discard
   end function vectar_map7_subr
 
   recursive function vectar_map8_subr (subr, vec1, vec2, vec3, vec4, vec5, &
@@ -4430,16 +4396,6 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = vec1
-    vec2_root = vec2
-    vec3_root = vec3
-    vec4_root = vec4
-    vec5_root = vec5
-    vec6_root = vec6
-    vec7_root = vec7
-    vec8_root = vec8
-
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -4449,15 +4405,22 @@ contains
     range7 = vec7
     range8 = vec8
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+    vec4_root = range4%vec()
+    vec5_root = range5%vec()
+    vec6_root = range6%vec()
+    vec7_root = range7%vec()
+    vec8_root = range8%vec()
+
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length(), range8%length())
 
-    vec_m = make_vectar (result_length)
+    vec_m_root = make_vectar (result_length)
 
-    ! Protect the result vector against garbage collections.
-    vec_m_root = vec_m
-
-    result_data => vectar_data_ptr (vec_m)
+    result_data => vectar_data_ptr (vec_m_root)
     data1 => vectar_data_ptr (range1%vec())
     data2 => vectar_data_ptr (range2%vec())
     data3 => vectar_data_ptr (range3%vec())
@@ -4475,6 +4438,8 @@ contains
          &        result_data%array(i)%element)
     end do
 
+    vec_m = .val. vec_m_root
+
     call vec1_root%discard
     call vec2_root%discard
     call vec3_root%discard
@@ -4483,7 +4448,6 @@ contains
     call vec6_root%discard
     call vec7_root%discard
     call vec8_root%discard
-    call vec_m_root%discard
   end function vectar_map8_subr
 
   recursive function vectar_map9_subr (subr, vec1, vec2, vec3, vec4, vec5, &
@@ -4532,17 +4496,6 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = vec1
-    vec2_root = vec2
-    vec3_root = vec3
-    vec4_root = vec4
-    vec5_root = vec5
-    vec6_root = vec6
-    vec7_root = vec7
-    vec8_root = vec8
-    vec9_root = vec9
-
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -4553,15 +4506,23 @@ contains
     range8 = vec8
     range9 = vec9
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+    vec4_root = range4%vec()
+    vec5_root = range5%vec()
+    vec6_root = range6%vec()
+    vec7_root = range7%vec()
+    vec8_root = range8%vec()
+    vec9_root = range9%vec()
+
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length(), range8%length(), range9%length())
 
-    vec_m = make_vectar (result_length)
+    vec_m_root = make_vectar (result_length)
 
-    ! Protect the result vector against garbage collections.
-    vec_m_root = vec_m
-
-    result_data => vectar_data_ptr (vec_m)
+    result_data => vectar_data_ptr (vec_m_root)
     data1 => vectar_data_ptr (range1%vec())
     data2 => vectar_data_ptr (range2%vec())
     data3 => vectar_data_ptr (range3%vec())
@@ -4581,6 +4542,8 @@ contains
          &        result_data%array(i)%element)
     end do
 
+    vec_m = .val. vec_m_root
+
     call vec1_root%discard
     call vec2_root%discard
     call vec3_root%discard
@@ -4590,7 +4553,6 @@ contains
     call vec7_root%discard
     call vec8_root%discard
     call vec9_root%discard
-    call vec_m_root%discard
   end function vectar_map9_subr
 
   recursive function vectar_map10_subr (subr, vec1, vec2, vec3, vec4, vec5, &
@@ -4643,18 +4605,6 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = vec1
-    vec2_root = vec2
-    vec3_root = vec3
-    vec4_root = vec4
-    vec5_root = vec5
-    vec6_root = vec6
-    vec7_root = vec7
-    vec8_root = vec8
-    vec9_root = vec9
-    vec10_root = vec10
-
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -4666,15 +4616,24 @@ contains
     range9 = vec9
     range10 = vec10
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = range1%vec()
+    vec2_root = range2%vec()
+    vec3_root = range3%vec()
+    vec4_root = range4%vec()
+    vec5_root = range5%vec()
+    vec6_root = range6%vec()
+    vec7_root = range7%vec()
+    vec8_root = range8%vec()
+    vec9_root = range9%vec()
+    vec10_root = range10%vec()
+
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
 
-    vec_m = make_vectar (result_length)
+    vec_m_root = make_vectar (result_length)
 
-    ! Protect the result vector against garbage collections.
-    vec_m_root = vec_m
-
-    result_data => vectar_data_ptr (vec_m)
+    result_data => vectar_data_ptr (vec_m_root)
     data1 => vectar_data_ptr (range1%vec())
     data2 => vectar_data_ptr (range2%vec())
     data3 => vectar_data_ptr (range3%vec())
@@ -4695,6 +4654,8 @@ contains
          &        result_data%array(i)%element)
     end do
 
+    vec_m = .val. vec_m_root
+
     call vec1_root%discard
     call vec2_root%discard
     call vec3_root%discard
@@ -4705,7 +4666,6 @@ contains
     call vec8_root%discard
     call vec9_root%discard
     call vec10_root%discard
-    call vec_m_root%discard
   end function vectar_map10_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

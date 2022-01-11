@@ -320,59 +320,80 @@ contains
   subroutine test0040
     type(vectar_t) :: vec1, vec2, vec3, vec4
 
-    call check (apply_vectar_equal (str_t_eq, list ()), "test0040-0010 failed")
-    call check (apply_vectar_equal (str_t_eq, list (vectar ())), "test0040-0020 failed")
-    call check (apply_vectar_equal (str_t_eq, list (vectar (), vectar ())), "test0040-0030 failed")
-    call check (apply_vectar_equal (str_t_eq, list (vectar (), vectar (), vectar ())), "test0040-0040 failed")
+    call check (apply_vectar_equal (str_t_eq_gc, list ()), "test0040-0010 failed")
+    call check (apply_vectar_equal (str_t_eq_gc, list (vectar ())), "test0040-0020 failed")
+    call check (apply_vectar_equal (str_t_eq_gc, list (vectar (), vectar ())), "test0040-0030 failed")
+    call check (apply_vectar_equal (str_t_eq_gc, list (vectar (), vectar (), vectar ())), "test0040-0040 failed")
 
-    call check (vectar_equal (str_t_eq), "test0040-0110 failed")
-    call check (vectar_equal (str_t_eq, vectar ()), "test0040-0120 failed")
-    call check (vectar_equal (str_t_eq, vectar (), vectar ()), "test0040-0130 failed")
-    call check (vectar_equal (str_t_eq, vectar (), vectar (), vectar ()), "test0040-0140 failed")
+    call check (vectar_equal (str_t_eq_gc), "test0040-0110 failed")
+    call check (vectar_equal (str_t_eq_gc, vectar ()), "test0040-0120 failed")
+    call check (vectar_equal (str_t_eq_gc, vectar (), vectar ()), "test0040-0130 failed")
+    call check (vectar_equal (str_t_eq_gc, vectar (), vectar (), vectar ()), "test0040-0140 failed")
 
     vec1 = list_to_vectar (iota (100, 1))
     vec2 = vec1
     vec3 = list_to_vectar (iota (100, 1))
     vec4 = list_to_vectar (iota (100, 100, -1))
-    call check (vectar_equal (int_eq, vec1, vec2, vec3), "test0040-0200 failed")
-    call check (.not. vectar_equal (int_eq, vec1, vec2, vec3, vec4), "test0040-0210 failed")
-    call check (.not. vectar_equal (int_eq, vec1, vec2, vec3, vectar ()), "test0040-0220 failed")
-    call check (.not. vectar_equal (int_eq, vec1, vec2, vec3, vec4, vec2, vec3), "test0040-0230 failed")
-    call check (.not. vectar_equal (int_eq, vec1, vectar (), vec2, vec3), "test0040-0240 failed")
-    call check (.not. apply_vectar_equal (int_eq, list (vec1, vec2, vec3, vec4, vec2, vec3)), "test0040-0250 failed")
-    call check (apply_vectar_equal (int_eq, list (vec1, vec2, vec3, vec2, vec3)), "test0040-0260 failed")
-    call check (vectar_equal (int_eq, vec1, vec2, vec3, vec2, vec3), "test0040-0270 failed")
-    call check (vectar_equal (int_eq, vec1), "test0040-0280 failed")
+    call check (vectar_equal (int_eq_gc, vec1, vec2, vec3), "test0040-0200 failed")
+    call check (.not. vectar_equal (int_eq_gc, vec1, vec2, vec3, vec4), "test0040-0210 failed")
+    call check (.not. vectar_equal (int_eq_gc, vec1, vec2, vec3, vectar ()), "test0040-0220 failed")
+    call check (.not. vectar_equal (int_eq_gc, vec1, vec2, vec3, vec4, vec2, vec3), "test0040-0230 failed")
+    call check (.not. vectar_equal (int_eq_gc, vec1, vectar (), vec2, vec3), "test0040-0240 failed")
+    call check (.not. apply_vectar_equal (int_eq_gc, list (vec1, vec2, vec3, vec4, vec2, vec3)), "test0040-0250 failed")
+    call check (apply_vectar_equal (int_eq_gc, list (vec1, vec2, vec3, vec2, vec3)), "test0040-0260 failed")
+    call check (vectar_equal (int_eq_gc, vec1, vec2, vec3, vec2, vec3), "test0040-0270 failed")
+    call check (vectar_equal (int_eq_gc, vec1), "test0040-0280 failed")
 
     vec1 = vectar (str_t ('a'), str_t ('b'), str_t ('c'))
     vec2 = vectar (str_t ('a'), str_t ('b'), str_t ('c'))
     vec3 = vectar (str_t ('a'), str_t ('b'), str_t ('x'))
     vec4 = vectar (str_t ('a'), str_t ('b'), str_t ('c'), str_t ('d'))
-    call check (apply_vectar_equal (str_t_eq, list (vec1)), "test0040-1000 failed")
-    call check (apply_vectar_equal (str_t_eq, list (vec1, vec2)), "test0040-1010 failed")
-    call check (vectar_equal (str_t_eq, vec1, vec2), "test0040-1020 failed")
-    call check (.not. vectar_equal (str_t_eq, vec1, vec3), "test0040-1030 failed")
-    call check (.not. vectar_equal (str_t_eq, vec1, vec2, vec3), "test0040-1040 failed")
-    call check (.not. vectar_equal (str_t_eq, vec1, vec3, vec2), "test0040-1050 failed")
-    call check (.not. vectar_equal (str_t_eq, vec3, vec2, vec1), "test0040-1060 failed")
-    call check (.not. vectar_equal (str_t_eq, vec1, vec2, vec4), "test0040-1070 failed")
-    call check (.not. vectar_equal (str_t_eq, vec1, vec4, vec2), "test0040-1080 failed")
-    call check (.not. vectar_equal (str_t_eq, vec4, vec2, vec1), "test0040-1090 failed")
-    call check (.not. vectar_equal (str_t_eq, vec3, vec4), "test0040-1100 failed")
+    call check (apply_vectar_equal (str_t_eq_gc, list (vec1)), "test0040-1000 failed")
+    call check (apply_vectar_equal (str_t_eq_gc, list (vec1, vec2)), "test0040-1010 failed")
+    call check (vectar_equal (str_t_eq_gc, vec1, vec2), "test0040-1020 failed")
+    call check (.not. vectar_equal (str_t_eq_gc, vec1, vec3), "test0040-1030 failed")
+    call check (.not. vectar_equal (str_t_eq_gc, vec1, vec2, vec3), "test0040-1040 failed")
+    call check (.not. vectar_equal (str_t_eq_gc, vec1, vec3, vec2), "test0040-1050 failed")
+    call check (.not. vectar_equal (str_t_eq_gc, vec3, vec2, vec1), "test0040-1060 failed")
+    call check (.not. vectar_equal (str_t_eq_gc, vec1, vec2, vec4), "test0040-1070 failed")
+    call check (.not. vectar_equal (str_t_eq_gc, vec1, vec4, vec2), "test0040-1080 failed")
+    call check (.not. vectar_equal (str_t_eq_gc, vec4, vec2, vec1), "test0040-1090 failed")
+    call check (.not. vectar_equal (str_t_eq_gc, vec3, vec4), "test0040-1100 failed")
 
     ! Test vectar ranges.
-    call check (vectar_equal (int_eq, range1 (vectar (1, 2, 3, 4, 5), 2, 4), &
-         &                            range1 (vectar (10, 20, 30, 1, 2, 3, 4), 5, 7), &
-         &                            vectar (2, 3, 4)), &
+    call check (vectar_equal (int_eq_gc, range1 (vectar (1, 2, 3, 4, 5), 2, 4), &
+         &                               range1 (vectar (10, 20, 30, 1, 2, 3, 4), 5, 7), &
+         &                               vectar (2, 3, 4)), &
          &      "test0040-2010 failed")
-    call check (.not. vectar_equal (int_eq, range1 (vectar (1, 2, 3, 4, 5), 2, 5), &
-         &                                  range1 (vectar (10, 20, 30, 1, 2, 3, 4), 5, 7), &
-         &                                  vectar (2, 3, 4)), &
+    call check (.not. vectar_equal (int_eq_gc, range1 (vectar (1, 2, 3, 4, 5), 2, 5), &
+         &                                     range1 (vectar (10, 20, 30, 1, 2, 3, 4), 5, 7), &
+         &                                     vectar (2, 3, 4)), &
          &      "test0040-2020 failed")
-    call check (.not. vectar_equal (int_eq, range1 (vectar (1, 2, 3, 4, 5), 2, 4), &
-         &                                  range1 (vectar (10, 20, 30, 1, 2, 3, 4), 5, 7), &
-         &                                  vectar (2, 30, 4)), &
+    call check (.not. vectar_equal (int_eq_gc, range1 (vectar (1, 2, 3, 4, 5), 2, 4), &
+         &                                     range1 (vectar (10, 20, 30, 1, 2, 3, 4), 5, 7), &
+         &                                     vectar (2, 30, 4)), &
          &      "test0040-2030 failed")
+
+  contains
+
+    function str_t_eq_gc (obj1, obj2) result (bool)
+      class(*), intent(in) :: obj1, obj2
+      logical :: bool
+
+!      call collect_garbage_now
+
+      bool = str_t_eq (obj1, obj2)
+    end function str_t_eq_gc
+
+    function int_eq_gc (obj1, obj2) result (bool)
+      class(*), intent(in) :: obj1, obj2
+      logical :: bool
+
+!      call collect_garbage_now
+
+      bool = int_eq (obj1, obj2)
+    end function int_eq_gc
+
   end subroutine test0040
 
   subroutine test0050
@@ -991,7 +1012,7 @@ contains
   end subroutine test0150
 
   subroutine test0160
-    type(vectar_t) :: vec1, vec2
+    type(vectar_t) :: vec1, vec2, vec3, vec4
 
     vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
     vec2 = vectar_map (int_negate, vec1)
@@ -1003,16 +1024,46 @@ contains
     call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0160-0030 failed")
     call check (vectar_equal (int_eq, vec2, vectar (-2, -3, -4, -5)), "test0160-0040 failed")
 
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar (10, 20, 30, 40, 50)
+    vec3 = vectar (100, 200, 300, 400, 500, 600)
+    vec4 = vectar_map (add3, vec1, vec2, vec3)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0160-1010 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50)), "test0160-1020 failed")
+    call check (vectar_equal (int_eq, vec3, vectar (100, 200, 300, 400, 500, 600)), "test0160-1030 failed")
+    call check (vectar_equal (int_eq, vec4, vectar (111, 222, 333, 444, 555)), "test0160-1040 failed")
+
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar (10, 20, 30, 40, 50)
+    vec3 = vectar (100, 200, 300, 400, 500, 600)
+    vec4 = vectar_map (add3, range1 (vec1, 2, 5), range1 (vec2, 1, 4), range1 (vec3, 3, 6))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0160-1050 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50)), "test0160-1060 failed")
+    call check (vectar_equal (int_eq, vec3, vectar (100, 200, 300, 400, 500, 600)), "test0160-1070 failed")
+    call check (vectar_equal (int_eq, vec4, vectar (312, 423, 534, 645)), "test0160-1080 failed")
+
   contains
 
     subroutine int_negate (x, y)
       class(*), intent(in) :: x
       class(*), allocatable, intent(out) :: y
 
-!      call collect_garbage_now
+      call collect_garbage_now
 
       y = -(int_cast (x))
     end subroutine int_negate
+
+    subroutine add3 (x, y, z, sum)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      class(*), intent(in) :: z
+      class(*), allocatable, intent(out) :: sum
+
+      call collect_garbage_now
+
+      sum = int_cast (x) + int_cast (y) + int_cast (z)
+    end subroutine add3
 
   end subroutine test0160
 

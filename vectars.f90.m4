@@ -571,13 +571,6 @@ contains
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
   end subroutine strange_error
 
-!!$  elemental function sz2sz (i) result (j)
-!!$    integer(sz), intent(in) :: i
-!!$    integer(sz) :: j
-!!$
-!!$    j = i
-!!$  end function sz2sz
-
   elemental function int2sz (i) result (j)
     integer, intent(in) :: i
     integer(sz) :: j
@@ -832,19 +825,6 @@ contains
 
     len = range%length_
   end function vectar_range_t_length
-
-!!$  subroutine vectar_range_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
-!!$    class(vectar_range_t), intent(in) :: this
-!!$    integer(sz), intent(in) :: branch_number
-!!$    logical, intent(out) :: branch_number_out_of_range
-!!$    class(*), allocatable, intent(out) :: branch
-!!$
-!!$    branch_number_out_of_range = .true.
-!!$    if (branch_number == 1) then
-!!$       branch = this%vec_
-!!$       branch_number_out_of_range = .false.
-!!$    end if
-!!$  end subroutine vectar_range_t_get_branch
 
   recursive subroutine vectar_range_t_assign (dst, src)
     class(vectar_range_t), intent(inout) :: dst
@@ -1973,13 +1953,13 @@ m4_forloop([k],[1],n,[dnl
     integer(sz) :: result_length
     integer(sz) :: i
 
-    ! Protect against garbage collections instigated by subr.
-m4_forloop([k],[1],n,[dnl
-    vec[]k[]_root = vec[]k
-])dnl
-
 m4_forloop([k],[1],n,[dnl
     range[]k = vec[]k
+])dnl
+
+    ! Protect against garbage collections instigated by subr.
+m4_forloop([k],[1],n,[dnl
+    vec[]k[]_root = range[]k%vec()
 ])dnl
 
 m4_if(n,[1],[dnl
@@ -1989,12 +1969,9 @@ m4_if(n,[1],[dnl
          &               ])range[]k%length()]))
 ])dnl
 
-    vec_m = make_vectar (result_length)
+    vec_m_root = make_vectar (result_length)
 
-    ! Protect the result vector against garbage collections.
-    vec_m_root = vec_m
-
-    result_data => vectar_data_ptr (vec_m)
+    result_data => vectar_data_ptr (vec_m_root)
 m4_forloop([k],[1],n,[dnl
     data[]k => vectar_data_ptr (range[]k%vec())
 ])dnl
@@ -2005,10 +1982,11 @@ m4_forloop([k],[1],n,[dnl
          &        result_data%array(i)%element)
     end do
 
+    vec_m = .val. vec_m_root
+
 m4_forloop([k],[1],n,[dnl
     call vec[]k[]_root%discard
 ])dnl
-    call vec_m_root%discard
   end function vectar_map[]n[]_subr
 
 ])dnl
