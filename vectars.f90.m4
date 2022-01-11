@@ -618,12 +618,10 @@ contains
   subroutine vectar_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
     class(vectar_t), intent(in) :: this
     integer(sz), intent(in) :: branch_number
-    class(*), allocatable :: branch
+    logical, intent(out) :: branch_number_out_of_range
+    class(*), allocatable, intent(out) :: branch
 
     class(*), pointer :: data
-    logical :: branch_number_out_of_range
-
-    ! A NIL-list has zero branches. A pair has two branches.
 
     branch_number_out_of_range = .true.
     if (associated (this%heap_element)) then
@@ -834,6 +832,19 @@ contains
 
     len = range%length_
   end function vectar_range_t_length
+
+!!$  subroutine vectar_range_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
+!!$    class(vectar_range_t), intent(in) :: this
+!!$    integer(sz), intent(in) :: branch_number
+!!$    logical, intent(out) :: branch_number_out_of_range
+!!$    class(*), allocatable, intent(out) :: branch
+!!$
+!!$    branch_number_out_of_range = .true.
+!!$    if (branch_number == 1) then
+!!$       branch = this%vec_
+!!$       branch_number_out_of_range = .false.
+!!$    end if
+!!$  end subroutine vectar_range_t_get_branch
 
   recursive subroutine vectar_range_t_assign (dst, src)
     class(vectar_range_t), intent(inout) :: dst

@@ -1070,10 +1070,10 @@ contains
   subroutine cons_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
     class(cons_t), intent(in) :: this
     integer(sz), intent(in) :: branch_number
-    class(*), allocatable :: branch
+    logical, intent(out) :: branch_number_out_of_range
+    class(*), allocatable, intent(out) :: branch
 
     class(*), pointer :: data
-    logical :: branch_number_out_of_range
 
     ! A NIL-list has zero branches. A pair has two branches.
 

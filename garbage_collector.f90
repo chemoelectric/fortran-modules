@@ -244,8 +244,8 @@ contains
     !
     class(collectible_t), intent(in) :: this
     integer(size_kind), intent(in) :: branch_number
-    logical :: branch_number_out_of_range
-    class(*), allocatable :: branch
+    logical, intent(out) :: branch_number_out_of_range
+    class(*), allocatable, intent(out) :: branch
 
     branch_number_out_of_range = .true.
   end subroutine collectible_t_get_branch

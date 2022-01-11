@@ -1009,7 +1009,7 @@ contains
       class(*), intent(in) :: x
       class(*), allocatable, intent(out) :: y
 
-      call collect_garbage_now
+!      call collect_garbage_now
 
       y = -(int_cast (x))
     end subroutine int_negate
