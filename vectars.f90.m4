@@ -272,6 +272,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_for_each[]n[]_subr
 ])
 
+  ! Generic function. See SRFI-133. This accepts vectar ranges.
+  public :: vectar_cumulate
+
+  ! Implementations of vectar_cumulate.
+  public :: vectar_cumulate_subr
+
   ! Vectar-list conversions.
   public :: vectar_to_list
   public :: reverse_vectar_to_list
@@ -519,6 +525,10 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 ])dnl
   end interface vectar_for_each
 
+  interface vectar_cumulate
+     module procedure vectar_cumulate_subr
+  end interface vectar_cumulate
+
   interface vectar_equal
 m4_forloop([n],[0],ZIP_MAX,[dnl
      module procedure vectar_equal[]n
@@ -586,6 +596,28 @@ m4_forloop([k],[1],n,[dnl
        class(*), intent(in) :: input[]k
 ])dnl
      end subroutine vectar_side_effects[]n[]_t
+])dnl
+  end interface
+
+!!! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!!!
+!!! Types for the kons subroutine in folds, vectar_cumulate, etc.
+!!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_kons[]n[]_subr_t
+])dnl
+
+  abstract interface
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     recursive subroutine vectar_kons[]n[]_subr_t (kar1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+          &                                    ])kar[]k]), kdr, kons_result)
+m4_forloop([k],[1],n,[dnl
+       class(*), intent(in) :: kar[]k
+])dnl
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine vectar_kons[]n[]_subr_t
 ])dnl
   end interface
 
@@ -2178,6 +2210,45 @@ m4_forloop([k],[1],n,[dnl
 
 ])dnl
 dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function vectar_cumulate_subr (subr, knil, vec) result (vec_c)
+    procedure(vectar_kons1_subr_t) :: subr
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: vec
+    type(vectar_t) :: vec_c
+
+    type(gcroot_t) :: vec_root
+    type(gcroot_t) :: vec_c_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    type(vectar_data_t), pointer :: result_data
+    class(*), allocatable :: seed
+    class(*), allocatable :: new_seed
+    integer(sz) :: i
+
+    ! Protect against garbage collections instigated by subr.
+    vec_root = vec
+
+    range = vec
+
+    vec_c_root = make_vectar (range%length())
+
+    result_data => vectar_data_ptr (vec_c_root)
+    data => vectar_data_ptr (range%vec())
+
+    seed = knil
+    do i = 0_sz, range%length() - 1_sz
+       call subr (seed, data%array(range%istart0() + i)%element, new_seed)
+       result_data%array(i)%element = new_seed
+       seed = new_seed
+    end do
+
+    vec_c = .val. vec_c_root
+
+    call vec_root%discard
+  end function vectar_cumulate_subr
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module vectars

@@ -320,6 +320,12 @@ module vectars
   public :: vectar_for_each10_subr
 
 
+  ! Generic function. See SRFI-133. This accepts vectar ranges.
+  public :: vectar_cumulate
+
+  ! Implementations of vectar_cumulate.
+  public :: vectar_cumulate_subr
+
   ! Vectar-list conversions.
   public :: vectar_to_list
   public :: reverse_vectar_to_list
@@ -613,6 +619,10 @@ module vectars
      module procedure vectar_for_each9_subr
      module procedure vectar_for_each10_subr
   end interface vectar_for_each
+
+  interface vectar_cumulate
+     module procedure vectar_cumulate_subr
+  end interface vectar_cumulate
 
   interface vectar_equal
      module procedure vectar_equal0
@@ -944,6 +954,125 @@ module vectars
        class(*), intent(in) :: input9
        class(*), intent(in) :: input10
      end subroutine vectar_side_effects10_t
+  end interface
+
+!!! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!!!
+!!! Types for the kons subroutine in folds, vectar_cumulate, etc.
+!!!
+
+  public :: vectar_kons1_subr_t
+  public :: vectar_kons2_subr_t
+  public :: vectar_kons3_subr_t
+  public :: vectar_kons4_subr_t
+  public :: vectar_kons5_subr_t
+  public :: vectar_kons6_subr_t
+  public :: vectar_kons7_subr_t
+  public :: vectar_kons8_subr_t
+  public :: vectar_kons9_subr_t
+  public :: vectar_kons10_subr_t
+
+  abstract interface
+     recursive subroutine vectar_kons1_subr_t (kar1, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine vectar_kons1_subr_t
+     recursive subroutine vectar_kons2_subr_t (kar1, kar2, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kar2
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine vectar_kons2_subr_t
+     recursive subroutine vectar_kons3_subr_t (kar1, kar2, kar3, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kar2
+       class(*), intent(in) :: kar3
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine vectar_kons3_subr_t
+     recursive subroutine vectar_kons4_subr_t (kar1, kar2, kar3, kar4, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kar2
+       class(*), intent(in) :: kar3
+       class(*), intent(in) :: kar4
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine vectar_kons4_subr_t
+     recursive subroutine vectar_kons5_subr_t (kar1, kar2, kar3, kar4, kar5, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kar2
+       class(*), intent(in) :: kar3
+       class(*), intent(in) :: kar4
+       class(*), intent(in) :: kar5
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine vectar_kons5_subr_t
+     recursive subroutine vectar_kons6_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          &                                    kar6, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kar2
+       class(*), intent(in) :: kar3
+       class(*), intent(in) :: kar4
+       class(*), intent(in) :: kar5
+       class(*), intent(in) :: kar6
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine vectar_kons6_subr_t
+     recursive subroutine vectar_kons7_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          &                                    kar6, kar7, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kar2
+       class(*), intent(in) :: kar3
+       class(*), intent(in) :: kar4
+       class(*), intent(in) :: kar5
+       class(*), intent(in) :: kar6
+       class(*), intent(in) :: kar7
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine vectar_kons7_subr_t
+     recursive subroutine vectar_kons8_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          &                                    kar6, kar7, kar8, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kar2
+       class(*), intent(in) :: kar3
+       class(*), intent(in) :: kar4
+       class(*), intent(in) :: kar5
+       class(*), intent(in) :: kar6
+       class(*), intent(in) :: kar7
+       class(*), intent(in) :: kar8
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine vectar_kons8_subr_t
+     recursive subroutine vectar_kons9_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          &                                    kar6, kar7, kar8, kar9, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kar2
+       class(*), intent(in) :: kar3
+       class(*), intent(in) :: kar4
+       class(*), intent(in) :: kar5
+       class(*), intent(in) :: kar6
+       class(*), intent(in) :: kar7
+       class(*), intent(in) :: kar8
+       class(*), intent(in) :: kar9
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine vectar_kons9_subr_t
+     recursive subroutine vectar_kons10_subr_t (kar1, kar2, kar3, kar4, kar5, &
+          &                                    kar6, kar7, kar8, kar9, kar10, kdr, kons_result)
+       class(*), intent(in) :: kar1
+       class(*), intent(in) :: kar2
+       class(*), intent(in) :: kar3
+       class(*), intent(in) :: kar4
+       class(*), intent(in) :: kar5
+       class(*), intent(in) :: kar6
+       class(*), intent(in) :: kar7
+       class(*), intent(in) :: kar8
+       class(*), intent(in) :: kar9
+       class(*), intent(in) :: kar10
+       class(*), intent(in) :: kdr
+       class(*), allocatable, intent(out) :: kons_result
+     end subroutine vectar_kons10_subr_t
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -7301,6 +7430,45 @@ contains
     call vec9_root%discard
     call vec10_root%discard
   end subroutine vectar_for_each10_subr
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function vectar_cumulate_subr (subr, knil, vec) result (vec_c)
+    procedure(vectar_kons1_subr_t) :: subr
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: vec
+    type(vectar_t) :: vec_c
+
+    type(gcroot_t) :: vec_root
+    type(gcroot_t) :: vec_c_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    type(vectar_data_t), pointer :: result_data
+    class(*), allocatable :: seed
+    class(*), allocatable :: new_seed
+    integer(sz) :: i
+
+    ! Protect against garbage collections instigated by subr.
+    vec_root = vec
+
+    range = vec
+
+    vec_c_root = make_vectar (range%length())
+
+    result_data => vectar_data_ptr (vec_c_root)
+    data => vectar_data_ptr (range%vec())
+
+    seed = knil
+    do i = 0_sz, range%length() - 1_sz
+       call subr (seed, data%array(range%istart0() + i)%element, new_seed)
+       result_data%array(i)%element = new_seed
+       seed = new_seed
+    end do
+
+    vec_c = .val. vec_c_root
+
+    call vec_root%discard
+  end function vectar_cumulate_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

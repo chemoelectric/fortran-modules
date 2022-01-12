@@ -1199,6 +1199,52 @@ contains
 
   end subroutine test0190
 
+  subroutine test0200
+    type(vectar_t) :: vec1, vec2
+
+    ! An example from SRFI-133.
+    vec1 = vectar (3, 1, 4, 1, 5, 9, 2, 5, 6)
+    vec2 = vectar_cumulate (add2, 0, vec1)
+    call check (vectar_equal (int_eq, vec1, vectar (3, 1, 4, 1, 5, 9, 2, 5, 6)), "test0200-0010 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (3, 4, 8, 9, 14, 23, 25, 30, 36)), "test0200-0020 failed")
+
+    ! These results were produced with vector-cumulate on CHICKEN
+    ! Scheme 5.
+    vec1 = vectar (3, 1, 4, 1, 5, 9)
+    vec2 = vectar_cumulate (flip_kons, nil, vec1)
+    call check (vectar_equal (int_eq, vec1, vectar (3, 1, 4, 1, 5, 9)), "test0200-0030 failed")
+    call check (vectar_length (vec2) == 6, "test0200-0040 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec2, 1), list (3)), "test0200-0050 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec2, 2), list (1, 3)), "test0200-0060 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec2, 3), list (4, 1, 3)), "test0200-0070 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec2, 4), list (1, 4, 1, 3)), "test0200-0080 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec2, 5), list (5, 1, 4, 1, 3)), "test0200-0090 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec2, 6), list (9, 5, 1, 4, 1, 3)), "test0200-0100 failed")
+
+  contains
+
+    subroutine add2 (x, y, sum)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      class(*), allocatable, intent(out) :: sum
+
+      call collect_garbage_now
+
+      sum = int_cast (x) + int_cast (y)
+    end subroutine add2
+
+    subroutine flip_kons (kdr, kar, kons_value)
+      class(*), intent(in) :: kdr
+      class(*), intent(in) :: kar
+      class(*), allocatable, intent(out) :: kons_value
+
+      call collect_garbage_now
+
+      kons_value = cons (kar, kdr)
+    end subroutine flip_kons
+
+  end subroutine test0200
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1222,6 +1268,7 @@ contains
     call test0170
     call test0180
     call test0190
+    call test0200
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
