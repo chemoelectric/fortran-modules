@@ -304,6 +304,22 @@ module vectars
   public :: vectar_mapx10_subr
 
 
+  ! Generic side effects iterator. This accepts vectar ranges.
+  public :: vectar_for_each
+
+  ! Implementations of vectar_for_each.
+  public :: vectar_for_each1_subr
+  public :: vectar_for_each2_subr
+  public :: vectar_for_each3_subr
+  public :: vectar_for_each4_subr
+  public :: vectar_for_each5_subr
+  public :: vectar_for_each6_subr
+  public :: vectar_for_each7_subr
+  public :: vectar_for_each8_subr
+  public :: vectar_for_each9_subr
+  public :: vectar_for_each10_subr
+
+
   ! Vectar-list conversions.
   public :: vectar_to_list
   public :: reverse_vectar_to_list
@@ -585,6 +601,19 @@ module vectars
      module procedure vectar_mapx10_subr
   end interface vectar_mapx
 
+  interface vectar_for_each
+     module procedure vectar_for_each1_subr
+     module procedure vectar_for_each2_subr
+     module procedure vectar_for_each3_subr
+     module procedure vectar_for_each4_subr
+     module procedure vectar_for_each5_subr
+     module procedure vectar_for_each6_subr
+     module procedure vectar_for_each7_subr
+     module procedure vectar_for_each8_subr
+     module procedure vectar_for_each9_subr
+     module procedure vectar_for_each10_subr
+  end interface vectar_for_each
+
   interface vectar_equal
      module procedure vectar_equal0
      module procedure vectar_equal1
@@ -647,7 +676,7 @@ module vectars
        logical :: bool
      end function vectar_predicate5_t
      recursive function vectar_predicate6_t (x1, x2, x3, x4, x5, &
-          x6) result (bool)
+          &                                  x6) result (bool)
        class(*), intent(in) :: x1
        class(*), intent(in) :: x2
        class(*), intent(in) :: x3
@@ -657,7 +686,7 @@ module vectars
        logical :: bool
      end function vectar_predicate6_t
      recursive function vectar_predicate7_t (x1, x2, x3, x4, x5, &
-          x6, x7) result (bool)
+          &                                  x6, x7) result (bool)
        class(*), intent(in) :: x1
        class(*), intent(in) :: x2
        class(*), intent(in) :: x3
@@ -668,7 +697,7 @@ module vectars
        logical :: bool
      end function vectar_predicate7_t
      recursive function vectar_predicate8_t (x1, x2, x3, x4, x5, &
-          x6, x7, x8) result (bool)
+          &                                  x6, x7, x8) result (bool)
        class(*), intent(in) :: x1
        class(*), intent(in) :: x2
        class(*), intent(in) :: x3
@@ -680,7 +709,7 @@ module vectars
        logical :: bool
      end function vectar_predicate8_t
      recursive function vectar_predicate9_t (x1, x2, x3, x4, x5, &
-          x6, x7, x8, x9) result (bool)
+          &                                  x6, x7, x8, x9) result (bool)
        class(*), intent(in) :: x1
        class(*), intent(in) :: x2
        class(*), intent(in) :: x3
@@ -693,7 +722,7 @@ module vectars
        logical :: bool
      end function vectar_predicate9_t
      recursive function vectar_predicate10_t (x1, x2, x3, x4, x5, &
-          x6, x7, x8, x9, x10) result (bool)
+          &                                  x6, x7, x8, x9, x10) result (bool)
        class(*), intent(in) :: x1
        class(*), intent(in) :: x2
        class(*), intent(in) :: x3
@@ -757,7 +786,7 @@ module vectars
        class(*), allocatable, intent(out) :: output
      end subroutine vectar_map5_subr_t
      recursive subroutine vectar_map6_subr_t (input1, input2, input3, input4, input5, &
-          input6, output)
+          &                                   input6, output)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
        class(*), intent(in) :: input3
@@ -767,7 +796,7 @@ module vectars
        class(*), allocatable, intent(out) :: output
      end subroutine vectar_map6_subr_t
      recursive subroutine vectar_map7_subr_t (input1, input2, input3, input4, input5, &
-          input6, input7, output)
+          &                                   input6, input7, output)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
        class(*), intent(in) :: input3
@@ -778,7 +807,7 @@ module vectars
        class(*), allocatable, intent(out) :: output
      end subroutine vectar_map7_subr_t
      recursive subroutine vectar_map8_subr_t (input1, input2, input3, input4, input5, &
-          input6, input7, input8, output)
+          &                                   input6, input7, input8, output)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
        class(*), intent(in) :: input3
@@ -790,7 +819,7 @@ module vectars
        class(*), allocatable, intent(out) :: output
      end subroutine vectar_map8_subr_t
      recursive subroutine vectar_map9_subr_t (input1, input2, input3, input4, input5, &
-          input6, input7, input8, input9, output)
+          &                                   input6, input7, input8, input9, output)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
        class(*), intent(in) :: input3
@@ -803,7 +832,7 @@ module vectars
        class(*), allocatable, intent(out) :: output
      end subroutine vectar_map9_subr_t
      recursive subroutine vectar_map10_subr_t (input1, input2, input3, input4, input5, &
-          input6, input7, input8, input9, input10, output)
+          &                                   input6, input7, input8, input9, input10, output)
        class(*), intent(in) :: input1
        class(*), intent(in) :: input2
        class(*), intent(in) :: input3
@@ -816,6 +845,105 @@ module vectars
        class(*), intent(in) :: input10
        class(*), allocatable, intent(out) :: output
      end subroutine vectar_map10_subr_t
+  end interface
+
+!!! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!!!
+!!! Types for the side-effects subroutine to a for-each procedure.
+!!!
+
+  public :: vectar_side_effects1_t
+  public :: vectar_side_effects2_t
+  public :: vectar_side_effects3_t
+  public :: vectar_side_effects4_t
+  public :: vectar_side_effects5_t
+  public :: vectar_side_effects6_t
+  public :: vectar_side_effects7_t
+  public :: vectar_side_effects8_t
+  public :: vectar_side_effects9_t
+  public :: vectar_side_effects10_t
+
+  abstract interface
+     recursive subroutine vectar_side_effects1_t (input1)
+       class(*), intent(in) :: input1
+     end subroutine vectar_side_effects1_t
+     recursive subroutine vectar_side_effects2_t (input1, input2)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+     end subroutine vectar_side_effects2_t
+     recursive subroutine vectar_side_effects3_t (input1, input2, input3)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+     end subroutine vectar_side_effects3_t
+     recursive subroutine vectar_side_effects4_t (input1, input2, input3, input4)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+     end subroutine vectar_side_effects4_t
+     recursive subroutine vectar_side_effects5_t (input1, input2, input3, input4, input5)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+     end subroutine vectar_side_effects5_t
+     recursive subroutine vectar_side_effects6_t (input1, input2, input3, input4, input5, &
+          &                                       input6)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+     end subroutine vectar_side_effects6_t
+     recursive subroutine vectar_side_effects7_t (input1, input2, input3, input4, input5, &
+          &                                       input6, input7)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+     end subroutine vectar_side_effects7_t
+     recursive subroutine vectar_side_effects8_t (input1, input2, input3, input4, input5, &
+          &                                       input6, input7, input8)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+     end subroutine vectar_side_effects8_t
+     recursive subroutine vectar_side_effects9_t (input1, input2, input3, input4, input5, &
+          &                                       input6, input7, input8, input9)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+     end subroutine vectar_side_effects9_t
+     recursive subroutine vectar_side_effects10_t (input1, input2, input3, input4, input5, &
+          &                                       input6, input7, input8, input9, input10)
+       class(*), intent(in) :: input1
+       class(*), intent(in) :: input2
+       class(*), intent(in) :: input3
+       class(*), intent(in) :: input4
+       class(*), intent(in) :: input5
+       class(*), intent(in) :: input6
+       class(*), intent(in) :: input7
+       class(*), intent(in) :: input8
+       class(*), intent(in) :: input9
+       class(*), intent(in) :: input10
+     end subroutine vectar_side_effects10_t
   end interface
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -6411,6 +6539,768 @@ contains
     call vec9_root%discard
     call vec10_root%discard
   end subroutine vectar_mapx10_subr
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive subroutine vectar_for_each1_subr (subr, vec1)
+    procedure(vectar_side_effects1_t) :: subr
+    class(*), intent(in) :: vec1
+
+    type(gcroot_t) :: vec1_root
+    type(vectar_range_t) :: range1
+    type(vectar_data_t), pointer :: data1
+    integer(sz) :: result_length
+    integer(sz) :: i
+    integer(sz) :: i1
+
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+
+    range1 = vec1
+
+    result_length = range1%length()
+
+    data1 => vectar_data_ptr (range1%vec())
+
+    do i = 0_sz, result_length - 1_sz
+       i1 = range1%istart0() + i
+       call subr (data1%array(i1)%element)
+    end do
+
+    call vec1_root%discard
+  end subroutine vectar_for_each1_subr
+
+  recursive subroutine vectar_for_each2_subr (subr, vec1, vec2)
+    procedure(vectar_side_effects2_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    integer(sz) :: result_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+
+    range1 = vec1
+    range2 = vec2
+
+    result_length = min (range1%length(), range2%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+
+    do i = 0_sz, result_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element)
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+  end subroutine vectar_for_each2_subr
+
+  recursive subroutine vectar_for_each3_subr (subr, vec1, vec2, vec3)
+    procedure(vectar_side_effects3_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    integer(sz) :: result_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+
+    result_length = min (range1%length(), range2%length(), range3%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+
+    do i = 0_sz, result_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+         &        data3%array(i3)%element)
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+  end subroutine vectar_for_each3_subr
+
+  recursive subroutine vectar_for_each4_subr (subr, vec1, vec2, vec3, vec4)
+    procedure(vectar_side_effects4_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    integer(sz) :: result_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+
+    result_length = min (range1%length(), range2%length(), range3%length(), range4%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+    data4 => vectar_data_ptr (range4%vec())
+
+    do i = 0_sz, result_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+         &        data3%array(i3)%element, data4%array(i4)%element)
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+  end subroutine vectar_for_each4_subr
+
+  recursive subroutine vectar_for_each5_subr (subr, vec1, vec2, vec3, vec4, vec5)
+    procedure(vectar_side_effects5_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    integer(sz) :: result_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+
+    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+    data4 => vectar_data_ptr (range4%vec())
+    data5 => vectar_data_ptr (range5%vec())
+
+    do i = 0_sz, result_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+         &        data3%array(i3)%element, data4%array(i4)%element, &
+         &        data5%array(i5)%element)
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+  end subroutine vectar_for_each5_subr
+
+  recursive subroutine vectar_for_each6_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                                      vec6)
+    procedure(vectar_side_effects6_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    integer(sz) :: result_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+
+    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
+         &               range6%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+    data4 => vectar_data_ptr (range4%vec())
+    data5 => vectar_data_ptr (range5%vec())
+    data6 => vectar_data_ptr (range6%vec())
+
+    do i = 0_sz, result_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+         &        data3%array(i3)%element, data4%array(i4)%element, &
+         &        data5%array(i5)%element, data6%array(i6)%element)
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+  end subroutine vectar_for_each6_subr
+
+  recursive subroutine vectar_for_each7_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                                      vec6, vec7)
+    procedure(vectar_side_effects7_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    integer(sz) :: result_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+
+    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
+         &               range6%length(), range7%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+    data4 => vectar_data_ptr (range4%vec())
+    data5 => vectar_data_ptr (range5%vec())
+    data6 => vectar_data_ptr (range6%vec())
+    data7 => vectar_data_ptr (range7%vec())
+
+    do i = 0_sz, result_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+         &        data3%array(i3)%element, data4%array(i4)%element, &
+         &        data5%array(i5)%element, data6%array(i6)%element, &
+         &        data7%array(i7)%element)
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+  end subroutine vectar_for_each7_subr
+
+  recursive subroutine vectar_for_each8_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                                      vec6, vec7, vec8)
+    procedure(vectar_side_effects8_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    integer(sz) :: result_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+
+    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
+         &               range6%length(), range7%length(), range8%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+    data4 => vectar_data_ptr (range4%vec())
+    data5 => vectar_data_ptr (range5%vec())
+    data6 => vectar_data_ptr (range6%vec())
+    data7 => vectar_data_ptr (range7%vec())
+    data8 => vectar_data_ptr (range8%vec())
+
+    do i = 0_sz, result_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+         &        data3%array(i3)%element, data4%array(i4)%element, &
+         &        data5%array(i5)%element, data6%array(i6)%element, &
+         &        data7%array(i7)%element, data8%array(i8)%element)
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+  end subroutine vectar_for_each8_subr
+
+  recursive subroutine vectar_for_each9_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                                      vec6, vec7, vec8, vec9)
+    procedure(vectar_side_effects9_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    integer(sz) :: result_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    integer(sz) :: i9
+
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+
+    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
+         &               range6%length(), range7%length(), range8%length(), range9%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+    data4 => vectar_data_ptr (range4%vec())
+    data5 => vectar_data_ptr (range5%vec())
+    data6 => vectar_data_ptr (range6%vec())
+    data7 => vectar_data_ptr (range7%vec())
+    data8 => vectar_data_ptr (range8%vec())
+    data9 => vectar_data_ptr (range9%vec())
+
+    do i = 0_sz, result_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       i9 = range9%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+         &        data3%array(i3)%element, data4%array(i4)%element, &
+         &        data5%array(i5)%element, data6%array(i6)%element, &
+         &        data7%array(i7)%element, data8%array(i8)%element, &
+         &        data9%array(i9)%element)
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+  end subroutine vectar_for_each9_subr
+
+  recursive subroutine vectar_for_each10_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                                      vec6, vec7, vec8, vec9, vec10)
+    procedure(vectar_side_effects10_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(gcroot_t) :: vec10_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    type(vectar_data_t), pointer :: data10
+    integer(sz) :: result_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    integer(sz) :: i9
+    integer(sz) :: i10
+
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+    range10 = vec10
+
+    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
+         &               range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+    data4 => vectar_data_ptr (range4%vec())
+    data5 => vectar_data_ptr (range5%vec())
+    data6 => vectar_data_ptr (range6%vec())
+    data7 => vectar_data_ptr (range7%vec())
+    data8 => vectar_data_ptr (range8%vec())
+    data9 => vectar_data_ptr (range9%vec())
+    data10 => vectar_data_ptr (range10%vec())
+
+    do i = 0_sz, result_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       i9 = range9%istart0() + i
+       i10 = range10%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+         &        data3%array(i3)%element, data4%array(i4)%element, &
+         &        data5%array(i5)%element, data6%array(i6)%element, &
+         &        data7%array(i7)%element, data8%array(i8)%element, &
+         &        data9%array(i9)%element, data10%array(i10)%element)
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+    call vec10_root%discard
+  end subroutine vectar_for_each10_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

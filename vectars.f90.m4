@@ -264,6 +264,14 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_mapx[]n[]_subr
 ])
 
+  ! Generic side effects iterator. This accepts vectar ranges.
+  public :: vectar_for_each
+
+  ! Implementations of vectar_for_each.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_for_each[]n[]_subr
+])
+
   ! Vectar-list conversions.
   public :: vectar_to_list
   public :: reverse_vectar_to_list
@@ -505,6 +513,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 ])dnl
   end interface vectar_mapx
 
+  interface vectar_for_each
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure vectar_for_each[]n[]_subr
+])dnl
+  end interface vectar_for_each
+
   interface vectar_equal
 m4_forloop([n],[0],ZIP_MAX,[dnl
      module procedure vectar_equal[]n
@@ -524,7 +538,7 @@ m4_forloop([n],[2],ZIP_MAX,[dnl
   abstract interface
 m4_forloop([n],[1],ZIP_MAX,[dnl
      recursive function vectar_predicate[]n[]_t (x1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
-          ])x[]k])) result (bool)
+          &                                  ])x[]k])) result (bool)
 m4_forloop([k],[1],n,[dnl
        class(*), intent(in) :: [x]k
 ])dnl
@@ -546,12 +560,32 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   abstract interface
 m4_forloop([n],[1],ZIP_MAX,[dnl
      recursive subroutine vectar_map[]n[]_subr_t (input1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
-          ])input[]k]), output)
+          &                                   ])input[]k]), output)
 m4_forloop([k],[1],n,[dnl
        class(*), intent(in) :: input[]k
 ])dnl
        class(*), allocatable, intent(out) :: output
      end subroutine vectar_map[]n[]_subr_t
+])dnl
+  end interface
+
+!!! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!!!
+!!! Types for the side-effects subroutine to a for-each procedure.
+!!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_side_effects[]n[]_t
+])dnl
+
+  abstract interface
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     recursive subroutine vectar_side_effects[]n[]_t (input1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+          &                                       ])input[]k]))
+m4_forloop([k],[1],n,[dnl
+       class(*), intent(in) :: input[]k
+])dnl
+     end subroutine vectar_side_effects[]n[]_t
 ])dnl
   end interface
 
@@ -2081,6 +2115,66 @@ m4_forloop([k],[1],n,[dnl
     call vec[]k[]_root%discard
 ])dnl
   end subroutine vectar_mapx[]n[]_subr
+
+])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive subroutine vectar_for_each[]n[]_subr (subr, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       &                                      ])vec[]k]))
+    procedure(vectar_side_effects[]n[]_t) :: subr
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: vec[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: vec[]k[]_root
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(vectar_range_t) :: range[]k
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(vectar_data_t), pointer :: data[]k
+])dnl
+    integer(sz) :: result_length
+    integer(sz) :: i
+m4_forloop([k],[1],n,[dnl
+    integer(sz) :: i[]k
+])dnl
+
+    ! Protect against garbage collections instigated by subr.
+m4_forloop([k],[1],n,[dnl
+    vec[]k[]_root = vec[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    range[]k = vec[]k
+])dnl
+
+m4_if(n,[1],[dnl
+    result_length = range1%length()
+],[dnl
+    result_length = min (range1%length()[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+         &               ])range[]k%length()]))
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    data[]k => vectar_data_ptr (range[]k%vec())
+])dnl
+
+    do i = 0_sz, result_length - 1_sz
+m4_forloop([k],[1],n,[dnl
+       i[]k = range[]k%istart0() + i
+])dnl
+       call subr (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
+         &        ])data[]k%array(i[]k)%element]))
+    end do
+
+m4_forloop([k],[1],n,[dnl
+    call vec[]k[]_root%discard
+])dnl
+  end subroutine vectar_for_each[]n[]_subr
 
 ])dnl
 dnl

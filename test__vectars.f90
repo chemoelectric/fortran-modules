@@ -1140,6 +1140,65 @@ contains
     call check (vectar_equal (int_eq, vec, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0170-0070 failed")
   end subroutine test0180
 
+  subroutine test0190
+    type(vectar_t) :: vec1, vec2, vec3
+    integer :: accumulator
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    accumulator = 100
+    call vectar_for_each (accumulate, vec1)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0190-0010 failed")
+    call check (accumulator == 100 + 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8, "test0190-0020 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    accumulator = 100
+    call vectar_for_each (accumulate, range1 (vec1, 2, 5))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0190-0030 failed")
+    call check (accumulator == 100 + 2 + 3 + 4 + 5, "test0190-0040 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar (10, 20, 30, 40, 50)
+    vec3 = vectar (100, 200, 300, 400, 500, 600)
+    accumulator = -100
+    call vectar_for_each (accumulate3, vec1, vec2, vec3)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0190-1010 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50)), "test0190-1020 failed")
+    call check (vectar_equal (int_eq, vec3, vectar (100, 200, 300, 400, 500, 600)), "test0190-1030 failed")
+    call check (accumulator == -100 + 1 + 2 + 3 + 4 + 5 + 10 + 20 + 30 + 40 + 50 + 100 + 200 + 300 + 400 + 500, &
+                "test0190-1040 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar (10, 20, 30, 40, 50)
+    vec3 = vectar (100, 200, 300, 400, 500, 600)
+    accumulator = -100
+    call vectar_for_each (accumulate3, range1 (vec1, 2, 5), range1 (vec2, 1, 4), range1 (vec3, 3, 6))
+    call check (vectar_equal (int_eq, vec1, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0190-1050 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50)), "test0190-1060 failed")
+    call check (vectar_equal (int_eq, vec3, vectar (100, 200, 300, 400, 500, 600)), "test0190-1070 failed")
+    call check (accumulator == -100 + 2 + 3 + 4 + 5 + 10 + 20 + 30 + 40 + 300 + 400 + 500 + 600, "test0190-1080 failed")
+
+  contains
+
+    subroutine accumulate (x)
+      class(*), intent(in) :: x
+
+      call collect_garbage_now
+
+      accumulator = accumulator + (int_cast (x))
+    end subroutine accumulate
+
+    subroutine accumulate3 (x, y, z)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      class(*), intent(in) :: z
+
+      call collect_garbage_now
+
+      accumulator = accumulator + int_cast (x) + int_cast (y) + int_cast (z)
+    end subroutine accumulate3
+
+  end subroutine test0190
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1162,6 +1221,7 @@ contains
     call test0160
     call test0170
     call test0180
+    call test0190
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
