@@ -63,8 +63,17 @@ module vectars
   ! The type for a vectar.
   public :: vectar_t
 
-  ! The type for a `range' of a vectar (which is a thing used by some
-  ! procedures).
+  !
+  ! vectar_range_t: the type for a `range' of a vectar.
+  !
+  ! Vectar ranges exist to solve the problem of how to handle the
+  ! `start [end]' parameters of SRFI-133, without multiplying the
+  ! implementations of generic functions.
+  !
+  ! They are not meant to take the place of `slices', `views', etc.,
+  ! although they do let many procedures effectively have `start
+  ! [end]' parameters that they do not have in SRFI-133.
+  !
   public :: vectar_range_t
 
   ! Tests for the vectar_t type.
@@ -150,13 +159,18 @@ module vectars
   ! cannot append subvectors, the way our function here can.)
   public :: vectar_concatenate
 
-  ! Return the length of a vectar, as an INTEGER(SIZE_KIND).
+  ! Return the length of a vectar as an INTEGER(SIZE_KIND); if the
+  ! vectar is a vectar_range_t, the length of the range is returned,
+  ! instead.
   public :: vectar_length
 
-  ! Is a vectar empty? That is, is its length equal to zero?
+  ! Is a vectar empty? That is, is its length equal to zero? If the
+  ! vectar is a vectar_range_t, the length of the range is queried,
+  ! instead.
   public :: vectar_is_empty
 
-  ! Generic functions: return a vectar element.
+  ! Generic functions: return a vectar element, or an element from a
+  ! vectar range.
   public :: vectar_ref0         ! Indices run 0, 1, 2, ...
   public :: vectar_ref1         ! Indices run 1, 2, 3, ...
   public :: vectar_refn         ! Indices run n, n+1, n+2, ...
@@ -169,7 +183,8 @@ module vectars
   public :: vectar_ref1_int
   public :: vectar_refn_int
 
-  ! Generic subroutines: set a vectar element.
+  ! Generic subroutines: set a vectar element, or an element of a
+  ! vectar range.
   public :: vectar_set0         ! Indices run 0, 1, 2, ...
   public :: vectar_set1         ! Indices run 1, 2, 3, ...
   public :: vectar_setn         ! Indices run n, n+1, n+2, ...
@@ -182,7 +197,8 @@ module vectars
   public :: vectar_set1_int
   public :: vectar_setn_int
 
-  ! Generic subroutines: swap vectar elements.
+  ! Generic subroutines: swap vectar elements, or elements of a vectar
+  ! range.
   public :: vectar_swap0        ! Indices run 0, 1, 2, ...
   public :: vectar_swap1        ! Indices run 1, 2, 3, ...
   public :: vectar_swapn        ! Indices run n, n+1, n+2, ...
@@ -1002,7 +1018,7 @@ contains
     class(vectar_range_t), intent(in) :: range
     type(vectar_t) :: vec
 
-    vec = range
+    vec = .tovectar. range
   end function vectar_range_t_vec
 
   pure function vectar_range_t_istart0 (range) result (istart0)
@@ -1078,79 +1094,67 @@ contains
 
     type(vectar_data_t), pointer :: data
 
-    select type (src)
-    class is (vectar_range_t)
-       call vectar_t_assign (dst, src)
-       dst%index_ = src%index_
-       dst%length_ = src%length_
-    class is (vectar_t)
-       data => vectar_data_ptr (src)
-       call vectar_t_assign (dst, src)
-       dst%index_ = 0_sz
+    select type (src1 => .autoval. src)
+    type is (vectar_range_t)
+       call vectar_t_assign (dst, .tovectar. src1)
+       dst%index_ = src1%index_
+       dst%length_ = src1%length_
+    type is (vectar_t)
+       ! Set the entire vector as the range.
+       call vectar_t_assign (dst, .tovectar. src1)
+       data => vectar_data_ptr (src1)
        dst%length_ = data%length
-    class is (gcroot_t)
-       call vectar_range_t_assign (dst, .val. src)
+       dst%index_ = 0_sz
     class default
        call error_abort ("assignment to vectar_range_t from an incompatible object")
     end select
   end subroutine vectar_range_t_assign
 
-!!$  recursive subroutine vectar_range_t_assign (dst, src)
-!!$    class(vectar_range_t), intent(inout) :: dst
-!!$    class(*), intent(in) :: src
-!!$
-!!$    type(vectar_data_t), pointer :: data
-!!$
-!!$    select type (src)
-!!$    class is (vectar_range_t)
-!!$       dst%vec_ = src%vec_
-!!$       dst%index_ = src%index_
-!!$       dst%length_ = src%length_
-!!$    class is (vectar_t)
-!!$       data => vectar_data_ptr (src)
-!!$       dst%vec_ = src
-!!$       dst%index_ = 0_sz
-!!$       dst%length_ = data%length
-!!$    class is (gcroot_t)
-!!$       call vectar_range_t_assign (dst, .val. src)
-!!$    class default
-!!$       call error_abort ("assignment to vectar_range_t from an incompatible object")
-!!$    end select
-!!$  end subroutine vectar_range_t_assign
-
   recursive function vectar_range_t_cast (obj) result (range)
     class(*), intent(in) :: obj
     type(vectar_range_t) :: range
 
-    range = obj
+    type(vectar_data_t), pointer :: data
+
+    select type (src => .autoval. obj)
+    type is (vectar_range_t)
+       call vectar_t_assign (range, .tovectar. src)
+       range%index_ = src%index_
+       range%length_ = src%length_
+    type is (vectar_t)
+       call vectar_t_assign (range, .tovectar. src)
+       data => vectar_data_ptr (src)
+       range%length_ = data%length
+       range%index_ = 0_sz
+    class default
+       call error_abort ("vectar_range_t_cast of an incompatible object")
+    end select
   end function vectar_range_t_cast
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine vectar_t_assign (dst, src)
+  recursive subroutine vectar_t_assign (dst, src)
     class(vectar_t), intent(inout) :: dst
     class(*), intent(in) :: src
 
-    select type (src)
-    class is (vectar_t)
-       dst%heap_element => src%heap_element
-    class is (gcroot_t)
-       select type (val => .val. src)
-       class is (vectar_t)
-          dst%heap_element => val%heap_element
-       class default
-          call error_abort ("assignment to vectar_t of an incompatible gcroot_t object")
-       end select
+    select type (obj => .autoval. src)
+    type is (vectar_t)
+       dst%heap_element => obj%heap_element
     class default
        call error_abort ("assignment to vectar_t of an incompatible object")
     end select
   end subroutine vectar_t_assign
 
-  function vectar_t_cast (obj) result (vec)
+  recursive function vectar_t_cast (obj) result (vec)
     class(*), intent(in) :: obj
     type(vectar_t) :: vec
 
-    vec = obj
+    select type (object => .autoval. obj)
+    class is (vectar_t)
+       vec%heap_element => object%heap_element
+    class default
+       call error_abort ("vectar_t_cast of an incompatible object")
+    end select
   end function vectar_t_cast
 
   pure function is_vectar (obj) result (bool)
@@ -2016,20 +2020,25 @@ contains
     class(*), intent(in) :: vec
     integer(sz) :: len
 
-    type(vectar_data_t), pointer :: data
-
-    data => vectar_data_ptr (vec)
-    len = data%length
+    select type (v => .autoval. vec)
+    type is (vectar_t)
+       block
+         type(vectar_data_t), pointer :: data
+         data => vectar_data_ptr (v)
+         len = data%length
+       end block
+    class is (vectar_range_t)
+       len = v%length()
+    class default
+       call error_abort ("vectar_length of an incompatible object")
+    end select
   end function vectar_length
 
   function vectar_is_empty (vec) result (bool)
     class(*), intent(in) :: vec
     logical :: bool
 
-    type(vectar_data_t), pointer :: data
-
-    data => vectar_data_ptr (vec)
-    bool = (data%length == 0_sz)
+    bool = (vectar_length (vec) == 0_sz)
   end function vectar_is_empty
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2041,11 +2050,22 @@ contains
 
     type(vectar_data_t), pointer :: data
 
-    data => vectar_data_ptr (vec)
-    if (i < 0_sz .or. data%length <= i) then
-       call error_abort ("vectar_t index out of range")
-    end if
-    element = data%array(i)%element
+    select type (v => .autoval. vec)
+    type is (vectar_t)
+       data => vectar_data_ptr (v)
+       if (i < 0_sz .or. data%length <= i) then
+          call error_abort ("vectar_t index out of range")
+       end if
+       element = data%array(i)%element
+    class is (vectar_range_t)
+       data => vectar_data_ptr (v)
+       if (i < 0_sz .or. v%length() <= i) then
+          call error_abort ("vectar_range_t index out of range")
+       end if
+       element = data%array(v%istart0() + i)%element
+    class default
+       call error_abort ("vectar_ref0 of an incompatible object")
+    end select
   end function vectar_ref0_size_kind
 
   function vectar_ref1_size_kind (vec, i) result (element)
@@ -2099,11 +2119,22 @@ contains
 
     type(vectar_data_t), pointer :: data
 
-    data => vectar_data_ptr (vec)
-    if (i < 0_sz .or. data%length <= i) then
-       call error_abort ("vectar_t index out of range")
-    end if
-    data%array(i)%element = element
+    select type (v => .autoval. vec)
+    type is (vectar_t)
+       data => vectar_data_ptr (v)
+       if (i < 0_sz .or. data%length <= i) then
+          call error_abort ("vectar_t index out of range")
+       end if
+       data%array(i)%element = element
+    class is (vectar_range_t)
+       data => vectar_data_ptr (v)
+       if (i < 0_sz .or. v%length() <= i) then
+          call error_abort ("vectar_range_t index out of range")
+       end if
+       data%array(v%istart0() + i)%element = element
+    class default
+       call error_abort ("vectar_set0 of an incompatible object")
+    end select
   end subroutine vectar_set0_size_kind
 
   subroutine vectar_set1_size_kind (vec, i, element)
@@ -2156,16 +2187,34 @@ contains
 
     type(vectar_data_t), pointer :: data
     class(*), allocatable :: tmp
+    integer(sz) :: i1, j1
 
-    data => vectar_data_ptr (vec)
-    if (i < 0_sz .or. j < 0_sz .or. data%length <= i .or. data%length <= j) then
-       call error_abort ("vectar_t index out of range")
-    end if
-    if (i /= j) then
-       tmp = data%array(i)%element
-       data%array(i)%element = data%array(j)%element
-       data%array(j)%element = tmp
-    end if
+    select type (v => .autoval. vec)
+    type is (vectar_t)
+       data => vectar_data_ptr (v)
+       if (i < 0_sz .or. j < 0_sz .or. data%length <= min (i, j)) then
+          call error_abort ("vectar_t index out of range")
+       end if
+       if (i /= j) then
+          tmp = data%array(i)%element
+          data%array(i)%element = data%array(j)%element
+          data%array(j)%element = tmp
+       end if
+    class is (vectar_range_t)
+       data => vectar_data_ptr (vec)
+       if (i < 0_sz .or. j < 0_sz .or. v%length() <= min (i, j)) then
+          call error_abort ("vectar_range_t index out of range")
+       end if
+       if (i /= j) then
+          i1 = v%istart0() + i
+          j1 = v%istart0() + j
+          tmp = data%array(i1)%element
+          data%array(i1)%element = data%array(j1)%element
+          data%array(j1)%element = tmp
+       end if
+    class default
+       call error_abort ("vectar_swap0 of an incompatible object")
+    end select
   end subroutine vectar_swap0_size_kind
 
   subroutine vectar_swap1_size_kind (vec, i, j)
@@ -3718,12 +3767,12 @@ contains
     integer(sz) :: range1_length
     integer(sz) :: i
 
+    ! Protection from the garbage collector.
+    vec1_root = vec1
+    vec2_root = vec2
+
     range1 = vec1
     range2 = vec2
-
-    ! Protection from the garbage collector.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
 
     data1 => vectar_data_ptr (.val. vec1_root)
     i0_1 = range1%istart0()
@@ -3770,14 +3819,14 @@ contains
     integer(sz) :: range1_length
     integer(sz) :: i
 
+    ! Protection from the garbage collector.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
-
-    ! Protection from the garbage collector.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
 
     data1 => vectar_data_ptr (.val. vec1_root)
     i0_1 = range1%istart0()
@@ -3841,16 +3890,16 @@ contains
     integer(sz) :: range1_length
     integer(sz) :: i
 
+    ! Protection from the garbage collector.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
-
-    ! Protection from the garbage collector.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
-    vec4_root = range4%vec()
 
     data1 => vectar_data_ptr (.val. vec1_root)
     i0_1 = range1%istart0()
@@ -3931,18 +3980,18 @@ contains
     integer(sz) :: range1_length
     integer(sz) :: i
 
+    ! Protection from the garbage collector.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
-
-    ! Protection from the garbage collector.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
-    vec4_root = range4%vec()
-    vec5_root = range5%vec()
 
     data1 => vectar_data_ptr (.val. vec1_root)
     i0_1 = range1%istart0()
@@ -4041,20 +4090,20 @@ contains
     integer(sz) :: range1_length
     integer(sz) :: i
 
+    ! Protection from the garbage collector.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
     range6 = vec6
-
-    ! Protection from the garbage collector.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
-    vec4_root = range4%vec()
-    vec5_root = range5%vec()
-    vec6_root = range6%vec()
 
     data1 => vectar_data_ptr (.val. vec1_root)
     i0_1 = range1%istart0()
@@ -4170,6 +4219,15 @@ contains
     integer(sz) :: range1_length
     integer(sz) :: i
 
+    ! Protection from the garbage collector.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -4177,15 +4235,6 @@ contains
     range5 = vec5
     range6 = vec6
     range7 = vec7
-
-    ! Protection from the garbage collector.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
-    vec4_root = range4%vec()
-    vec5_root = range5%vec()
-    vec6_root = range6%vec()
-    vec7_root = range7%vec()
 
     data1 => vectar_data_ptr (.val. vec1_root)
     i0_1 = range1%istart0()
@@ -4318,6 +4367,16 @@ contains
     integer(sz) :: range1_length
     integer(sz) :: i
 
+    ! Protection from the garbage collector.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -4326,16 +4385,6 @@ contains
     range6 = vec6
     range7 = vec7
     range8 = vec8
-
-    ! Protection from the garbage collector.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
-    vec4_root = range4%vec()
-    vec5_root = range5%vec()
-    vec6_root = range6%vec()
-    vec7_root = range7%vec()
-    vec8_root = range8%vec()
 
     data1 => vectar_data_ptr (.val. vec1_root)
     i0_1 = range1%istart0()
@@ -4485,6 +4534,17 @@ contains
     integer(sz) :: range1_length
     integer(sz) :: i
 
+    ! Protection from the garbage collector.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -4494,17 +4554,6 @@ contains
     range7 = vec7
     range8 = vec8
     range9 = vec9
-
-    ! Protection from the garbage collector.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
-    vec4_root = range4%vec()
-    vec5_root = range5%vec()
-    vec6_root = range6%vec()
-    vec7_root = range7%vec()
-    vec8_root = range8%vec()
-    vec9_root = range9%vec()
 
     data1 => vectar_data_ptr (.val. vec1_root)
     i0_1 = range1%istart0()
@@ -4671,6 +4720,18 @@ contains
     integer(sz) :: range1_length
     integer(sz) :: i
 
+    ! Protection from the garbage collector.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -4681,18 +4742,6 @@ contains
     range8 = vec8
     range9 = vec9
     range10 = vec10
-
-    ! Protection from the garbage collector.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
-    vec4_root = range4%vec()
-    vec5_root = range5%vec()
-    vec6_root = range6%vec()
-    vec7_root = range7%vec()
-    vec8_root = range8%vec()
-    vec9_root = range9%vec()
-    vec10_root = range10%vec()
 
     data1 => vectar_data_ptr (.val. vec1_root)
     i0_1 = range1%istart0()
@@ -4829,10 +4878,10 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
-    range1 = vec1
-
     ! Protect against garbage collections instigated by subr.
-    vec1_root = range1%vec()
+    vec1_root = vec1
+
+    range1 = vec1
 
     result_length = range1%length()
 
@@ -4868,12 +4917,12 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+
     range1 = vec1
     range2 = vec2
-
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
 
     result_length = min (range1%length(), range2%length())
 
@@ -4915,14 +4964,14 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
-
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
 
     result_length = min (range1%length(), range2%length(), range3%length())
 
@@ -4971,16 +5020,16 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
-
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
-    vec4_root = range4%vec()
 
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length())
 
@@ -5035,18 +5084,18 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
-
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
-    vec4_root = range4%vec()
-    vec5_root = range5%vec()
 
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
 
@@ -5109,20 +5158,20 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
     range6 = vec6
-
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
-    vec4_root = range4%vec()
-    vec5_root = range5%vec()
-    vec6_root = range6%vec()
 
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length())
@@ -5192,6 +5241,15 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -5199,15 +5257,6 @@ contains
     range5 = vec5
     range6 = vec6
     range7 = vec7
-
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
-    vec4_root = range4%vec()
-    vec5_root = range5%vec()
-    vec6_root = range6%vec()
-    vec7_root = range7%vec()
 
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length())
@@ -5284,6 +5333,16 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -5292,16 +5351,6 @@ contains
     range6 = vec6
     range7 = vec7
     range8 = vec8
-
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
-    vec4_root = range4%vec()
-    vec5_root = range5%vec()
-    vec6_root = range6%vec()
-    vec7_root = range7%vec()
-    vec8_root = range8%vec()
 
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length(), range8%length())
@@ -5384,6 +5433,17 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -5393,17 +5453,6 @@ contains
     range7 = vec7
     range8 = vec8
     range9 = vec9
-
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
-    vec4_root = range4%vec()
-    vec5_root = range5%vec()
-    vec6_root = range6%vec()
-    vec7_root = range7%vec()
-    vec8_root = range8%vec()
-    vec9_root = range9%vec()
 
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length(), range8%length(), range9%length())
@@ -5493,6 +5542,18 @@ contains
     integer(sz) :: result_length
     integer(sz) :: i
 
+    ! Protect against garbage collections instigated by subr.
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
+
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -5503,18 +5564,6 @@ contains
     range8 = vec8
     range9 = vec9
     range10 = vec10
-
-    ! Protect against garbage collections instigated by subr.
-    vec1_root = range1%vec()
-    vec2_root = range2%vec()
-    vec3_root = range3%vec()
-    vec4_root = range4%vec()
-    vec5_root = range5%vec()
-    vec6_root = range6%vec()
-    vec7_root = range7%vec()
-    vec8_root = range8%vec()
-    vec9_root = range9%vec()
-    vec10_root = range10%vec()
 
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length(), range8%length(), range9%length(), range10%length())

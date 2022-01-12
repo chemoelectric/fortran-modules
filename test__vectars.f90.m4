@@ -1058,6 +1058,36 @@ contains
 
   end subroutine test0160
 
+  subroutine test0170
+    type(vectar_t) :: vec
+
+    ! Check vectar_length applied to a range.
+    vec = make_vectar (100_sz, 123)
+    call check (vectar_length (range1 (vec, 10, 19)) == 10, "test0170-0010 failed")
+
+    ! Check vectar_is_empty applied to a range.
+    vec = make_vectar (100_sz, 123)
+    call check (.not. vectar_is_empty (range1 (vec, 10, 19)), "test0170-0020 failed")
+    call check (vectar_is_empty (range1 (vec, 10, 9)), "test0170-0030 failed")
+
+    ! Check vectar_refX on a range.
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call check (vectar_ref1 (range1 (vec, 3, 7), 2) .eqi. 4, "test0170-0040 failed")
+
+    ! Check vectar_setX on a range.
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_set1 (range1 (vec, 3, 7), 5, -200)
+    call check (vectar_equal (int_eq, vec, vectar (1, 2, 3, 4, 5, 6, -200, 8)), "test0170-0050 failed")
+
+    ! Check vectar_swapX on a range.
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_swap1 (range1 (vec, 3, 7), 2, 4)
+    call check (vectar_equal (int_eq, vec, vectar (1, 2, 3, 6, 5, 4, 7, 8)), "test0170-0060 failed")
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_swap1 (range1 (vec, 3, 7), 2, 2)
+    call check (vectar_equal (int_eq, vec, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0170-0070 failed")
+  end subroutine test0170
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1078,6 +1108,7 @@ contains
     call test0140
     call test0150
     call test0160
+    call test0170
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
