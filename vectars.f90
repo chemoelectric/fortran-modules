@@ -1106,7 +1106,7 @@ contains
        dst%length_ = data%length
        dst%index_ = 0_sz
     class default
-       call error_abort ("assignment to vectar_range_t from an incompatible object")
+       call error_abort ("assignment to vectar_range_t of an incompatible object")
     end select
   end subroutine vectar_range_t_assign
 

@@ -2040,30 +2040,28 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine cons_t_assign (dst, src)
+  recursive subroutine cons_t_assign (dst, src)
     class(cons_t), intent(inout) :: dst
     class(*), intent(in) :: src
 
-    select type (src)
-    class is (cons_t)
-       dst%heap_element => src%heap_element
-    class is (gcroot_t)
-       select type (val => .val. src)
-       class is (cons_t)
-          dst%heap_element => val%heap_element
-       class default
-          call error_abort ("assignment to cons_t of an incompatible gcroot_t object")
-       end select
+    select type (obj => .autoval. src)
+    type is (cons_t)
+       dst%heap_element => obj%heap_element
     class default
        call error_abort ("assignment to cons_t of an incompatible object")
     end select
   end subroutine cons_t_assign
 
-  function cons_t_cast (obj) result (lst)
+  recursive function cons_t_cast (obj) result (lst)
     class(*), intent(in) :: obj
     type(cons_t) :: lst
 
-    lst = obj
+    select type (src => .autoval. obj)
+    class is (cons_t)
+       lst%heap_element => src%heap_element
+    class default
+       call error_abort ("cons_t_cast of an incompatible object")
+    end select
   end function cons_t_cast
 
   recursive function cons_t_eq (obj1, obj2) result (bool)

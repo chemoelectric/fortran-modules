@@ -115,30 +115,28 @@ contains
     end select
   end function is_box
 
-  subroutine box_t_assign (dst, src)
+  recursive subroutine box_t_assign (dst, src)
     class(box_t), intent(inout) :: dst
     class(*), intent(in) :: src
 
-    select type (src)
-    class is (box_t)
-       dst%heap_element => src%heap_element
-    class is (gcroot_t)
-       select type (val => .val. src)
-       class is (box_t)
-          dst%heap_element => val%heap_element
-       class default
-          call error_abort ("assignment to box_t of an incompatible gcroot_t object")
-       end select
+    select type (obj => src)
+    type is (box_t)
+       dst%heap_element => obj%heap_element
     class default
        call error_abort ("assignment to box_t of an incompatible object")
     end select
   end subroutine box_t_assign
 
-  function box_t_cast (obj) result (the_box)
+  recursive function box_t_cast (obj) result (the_box)
     class(*), intent(in) :: obj
     type(box_t) :: the_box
 
-    the_box = obj
+    select type (src => .autoval. obj)
+    class is (box_t)
+       the_box%heap_element => src%heap_element
+    class default
+       call error_abort ("assignment to box_t of an incompatible object")
+    end select
   end function box_t_cast
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
