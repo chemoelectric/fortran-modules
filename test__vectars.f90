@@ -52,6 +52,10 @@ module test__vectars
      module procedure int_eq
   end interface operator(.eqi.)
 
+  interface operator(.eqsz.)
+     module procedure size_kind_eq
+  end interface operator(.eqsz.)
+
   interface operator(.eqs.)
      module procedure str_t_eq
   end interface operator(.eqs.)
@@ -120,6 +124,17 @@ contains
     end select
   end function int_cast
 
+  function size_kind_cast (obj) result (int)
+    class(*), intent(in) :: obj
+    integer(sz) :: int
+    select type (obj)
+    type is (integer(sz))
+       int = obj
+    class default
+       call error_abort ("size_kind_cast of an incompatible object")
+    end select
+  end function size_kind_cast
+
   function str_t_cast (obj) result (s)
     class(*), intent(in) :: obj
     type(str_t) :: s
@@ -142,6 +157,12 @@ contains
     logical :: bool
     bool = int_cast (obj1) < int_cast (obj2)
   end function int_lt
+
+  function size_kind_eq (obj1, obj2) result (bool)
+    class(*), intent(in) :: obj1, obj2
+    logical :: bool
+    bool = size_kind_cast (obj1) == size_kind_cast (obj2)
+  end function size_kind_eq
 
   function str_t_eq (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1, obj2
@@ -1303,6 +1324,90 @@ contains
 
   end subroutine test0210
 
+  subroutine test0220
+    type(vectar_t) :: vec1
+    integer :: sum
+
+    ! An example from SRFI-133: find the longest string's length.
+    vec1 = vectar (str_t ("This"), str_t ("string"), str_t ("has"), str_t ("no"), &
+         &         str_t ("spaces,"), str_t ("does"), str_t ("it?"))
+    call check (vectar_fold (max_strlen, 0_sz, vec1) .eqsz. 7_sz, "test0220-0010 failed")
+    call check (vectar_equal (str_t_eq, vec1, &
+         &                    vectar (str_t ("This"), str_t ("string"), str_t ("has"), str_t ("no"), &
+         &                            str_t ("spaces,"), str_t ("does"), str_t ("it?"))), &
+         &      "test0220-0020 failed")
+
+    ! An example from SRFI-133: produce a list of the vectar's
+    ! elements, reversed.
+    vec1 = vectar (str_t ("This"), str_t ("string"), str_t ("has"), str_t ("no"), &
+         &         str_t ("spaces,"), str_t ("does"), str_t ("it?"))
+    call check (list_equal (str_t_eq, vectar_fold (kons_list, nil, vec1), &
+                            reverse (list (str_t ("This"), str_t ("string"), str_t ("has"), str_t ("no"), &
+         &                                 str_t ("spaces,"), str_t ("does"), str_t ("it?")))), &
+         &      "test0220-0030 failed")
+    call check (vectar_equal (str_t_eq, vec1, &
+         &                    vectar (str_t ("This"), str_t ("string"), str_t ("has"), str_t ("no"), &
+         &                            str_t ("spaces,"), str_t ("does"), str_t ("it?"))), &
+         &      "test0220-0040 failed")
+
+    ! An example from SRFI-133: count the even numbers in a vectar.
+    vec1 = vectar (3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5)
+    call check (vectar_fold (count_even, 0_sz, vec1) .eqsz. 3_sz, "test0220-0050 failed")
+    call check (vectar_equal (int_eq, vec1, vectar (3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5)), "test0220-0060 failed")
+
+    ! Use three ranges of the same vector.
+    vec1 = vectar (3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5)
+    sum = int_cast (vectar_fold (add3, 100, range1 (vec1, 1, 5), range1 (vec1, 4, 7), range1 (vec1, 8, 11)))
+    call check (sum == 100 + 3 + 1 + 4 + 1 + 1 + 5 + 9 + 2 + 6 + 5 + 3 + 5, "test0220-0070 failed")
+    call check (vectar_equal (int_eq, vec1, vectar (3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5)), "test0220-0080 failed")
+
+  contains
+
+    subroutine max_strlen (len, str, the_greater)
+      class(*), intent(in) :: len
+      class(*), intent(in) :: str
+      class(*), allocatable, intent(out) :: the_greater
+
+      type(str_t) :: s
+      integer(sz) :: len_s
+
+      s = str_t_cast (str)
+      len_s = s%length()
+      the_greater = max (len_s, size_kind_cast (len))
+    end subroutine max_strlen
+
+    subroutine kons_list (tail, element, output)
+      class(*), intent(in) :: tail
+      class(*), intent(in) :: element
+      class(*), allocatable, intent(out) :: output
+
+      output = cons (element, tail)
+    end subroutine kons_list
+
+    subroutine count_even (state, number, next_state)
+      class(*), intent(in) :: state
+      class(*), intent(in) :: number
+      class(*), allocatable, intent(out) :: next_state
+
+      if (mod (int_cast (number), 2) == 0) then
+         next_state = size_kind_cast (state) + 1_sz
+      else
+         next_state = size_kind_cast (state)
+      end if
+    end subroutine count_even
+
+    subroutine add3 (old_sum, x, y, z, sum)
+      class(*), intent(in) :: old_sum
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      class(*), intent(in) :: z
+      class(*), allocatable, intent(out) :: sum
+
+      sum = int_cast (old_sum) + int_cast (x) + int_cast (y) + int_cast (z)
+    end subroutine add3
+
+  end subroutine test0220
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1328,6 +1433,7 @@ contains
     call test0190
     call test0200
     call test0210
+    call test0220
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

@@ -290,7 +290,6 @@ module vectars
   public :: vectar_map9_subr
   public :: vectar_map10_subr
 
-
   ! Implementations of vectar_mapx.
   public :: vectar_mapx1_subr
   public :: vectar_mapx2_subr
@@ -302,7 +301,6 @@ module vectars
   public :: vectar_mapx8_subr
   public :: vectar_mapx9_subr
   public :: vectar_mapx10_subr
-
 
   ! Generic side effects iterator. This accepts vectar ranges.
   public :: vectar_for_each
@@ -318,7 +316,6 @@ module vectars
   public :: vectar_for_each8_subr
   public :: vectar_for_each9_subr
   public :: vectar_for_each10_subr
-
 
   ! Generic function. See SRFI-133. This accepts vectar ranges.
   public :: vectar_cumulate
@@ -342,6 +339,20 @@ module vectars
   public :: vectar_count9
   public :: vectar_count10
 
+  ! Generic function: left-to-right fold. This accepts vectar ranges.
+  public :: vectar_fold
+
+  ! Implementations of vectar_fold.
+  public :: vectar_fold1_subr
+  public :: vectar_fold2_subr
+  public :: vectar_fold3_subr
+  public :: vectar_fold4_subr
+  public :: vectar_fold5_subr
+  public :: vectar_fold6_subr
+  public :: vectar_fold7_subr
+  public :: vectar_fold8_subr
+  public :: vectar_fold9_subr
+  public :: vectar_fold10_subr
 
   ! Vectar-list conversions.
   public :: vectar_to_list
@@ -653,6 +664,19 @@ module vectars
      module procedure vectar_count9
      module procedure vectar_count10
   end interface vectar_count
+
+  interface vectar_fold
+     module procedure vectar_fold1_subr
+     module procedure vectar_fold2_subr
+     module procedure vectar_fold3_subr
+     module procedure vectar_fold4_subr
+     module procedure vectar_fold5_subr
+     module procedure vectar_fold6_subr
+     module procedure vectar_fold7_subr
+     module procedure vectar_fold8_subr
+     module procedure vectar_fold9_subr
+     module procedure vectar_fold10_subr
+  end interface vectar_fold
 
   interface vectar_equal
      module procedure vectar_equal0
@@ -1003,104 +1027,104 @@ module vectars
   public :: vectar_kons10_subr_t
 
   abstract interface
-     recursive subroutine vectar_kons1_subr_t (kar1, kdr, kons_result)
-       class(*), intent(in) :: kar1
-       class(*), intent(in) :: kdr
+     recursive subroutine vectar_kons1_subr_t (state, val1, kons_result)
+       class(*), intent(in) :: state
+       class(*), intent(in) :: val1
        class(*), allocatable, intent(out) :: kons_result
      end subroutine vectar_kons1_subr_t
-     recursive subroutine vectar_kons2_subr_t (kar1, kar2, kdr, kons_result)
-       class(*), intent(in) :: kar1
-       class(*), intent(in) :: kar2
-       class(*), intent(in) :: kdr
+     recursive subroutine vectar_kons2_subr_t (state, val1, val2, kons_result)
+       class(*), intent(in) :: state
+       class(*), intent(in) :: val1
+       class(*), intent(in) :: val2
        class(*), allocatable, intent(out) :: kons_result
      end subroutine vectar_kons2_subr_t
-     recursive subroutine vectar_kons3_subr_t (kar1, kar2, kar3, kdr, kons_result)
-       class(*), intent(in) :: kar1
-       class(*), intent(in) :: kar2
-       class(*), intent(in) :: kar3
-       class(*), intent(in) :: kdr
+     recursive subroutine vectar_kons3_subr_t (state, val1, val2, val3, kons_result)
+       class(*), intent(in) :: state
+       class(*), intent(in) :: val1
+       class(*), intent(in) :: val2
+       class(*), intent(in) :: val3
        class(*), allocatable, intent(out) :: kons_result
      end subroutine vectar_kons3_subr_t
-     recursive subroutine vectar_kons4_subr_t (kar1, kar2, kar3, kar4, kdr, kons_result)
-       class(*), intent(in) :: kar1
-       class(*), intent(in) :: kar2
-       class(*), intent(in) :: kar3
-       class(*), intent(in) :: kar4
-       class(*), intent(in) :: kdr
+     recursive subroutine vectar_kons4_subr_t (state, val1, val2, val3, val4, kons_result)
+       class(*), intent(in) :: state
+       class(*), intent(in) :: val1
+       class(*), intent(in) :: val2
+       class(*), intent(in) :: val3
+       class(*), intent(in) :: val4
        class(*), allocatable, intent(out) :: kons_result
      end subroutine vectar_kons4_subr_t
-     recursive subroutine vectar_kons5_subr_t (kar1, kar2, kar3, kar4, kar5, kdr, kons_result)
-       class(*), intent(in) :: kar1
-       class(*), intent(in) :: kar2
-       class(*), intent(in) :: kar3
-       class(*), intent(in) :: kar4
-       class(*), intent(in) :: kar5
-       class(*), intent(in) :: kdr
+     recursive subroutine vectar_kons5_subr_t (state, val1, val2, val3, val4, val5, kons_result)
+       class(*), intent(in) :: state
+       class(*), intent(in) :: val1
+       class(*), intent(in) :: val2
+       class(*), intent(in) :: val3
+       class(*), intent(in) :: val4
+       class(*), intent(in) :: val5
        class(*), allocatable, intent(out) :: kons_result
      end subroutine vectar_kons5_subr_t
-     recursive subroutine vectar_kons6_subr_t (kar1, kar2, kar3, kar4, kar5, &
-          &                                    kar6, kdr, kons_result)
-       class(*), intent(in) :: kar1
-       class(*), intent(in) :: kar2
-       class(*), intent(in) :: kar3
-       class(*), intent(in) :: kar4
-       class(*), intent(in) :: kar5
-       class(*), intent(in) :: kar6
-       class(*), intent(in) :: kdr
+     recursive subroutine vectar_kons6_subr_t (state, val1, val2, val3, val4, val5, &
+          &                                    val6, kons_result)
+       class(*), intent(in) :: state
+       class(*), intent(in) :: val1
+       class(*), intent(in) :: val2
+       class(*), intent(in) :: val3
+       class(*), intent(in) :: val4
+       class(*), intent(in) :: val5
+       class(*), intent(in) :: val6
        class(*), allocatable, intent(out) :: kons_result
      end subroutine vectar_kons6_subr_t
-     recursive subroutine vectar_kons7_subr_t (kar1, kar2, kar3, kar4, kar5, &
-          &                                    kar6, kar7, kdr, kons_result)
-       class(*), intent(in) :: kar1
-       class(*), intent(in) :: kar2
-       class(*), intent(in) :: kar3
-       class(*), intent(in) :: kar4
-       class(*), intent(in) :: kar5
-       class(*), intent(in) :: kar6
-       class(*), intent(in) :: kar7
-       class(*), intent(in) :: kdr
+     recursive subroutine vectar_kons7_subr_t (state, val1, val2, val3, val4, val5, &
+          &                                    val6, val7, kons_result)
+       class(*), intent(in) :: state
+       class(*), intent(in) :: val1
+       class(*), intent(in) :: val2
+       class(*), intent(in) :: val3
+       class(*), intent(in) :: val4
+       class(*), intent(in) :: val5
+       class(*), intent(in) :: val6
+       class(*), intent(in) :: val7
        class(*), allocatable, intent(out) :: kons_result
      end subroutine vectar_kons7_subr_t
-     recursive subroutine vectar_kons8_subr_t (kar1, kar2, kar3, kar4, kar5, &
-          &                                    kar6, kar7, kar8, kdr, kons_result)
-       class(*), intent(in) :: kar1
-       class(*), intent(in) :: kar2
-       class(*), intent(in) :: kar3
-       class(*), intent(in) :: kar4
-       class(*), intent(in) :: kar5
-       class(*), intent(in) :: kar6
-       class(*), intent(in) :: kar7
-       class(*), intent(in) :: kar8
-       class(*), intent(in) :: kdr
+     recursive subroutine vectar_kons8_subr_t (state, val1, val2, val3, val4, val5, &
+          &                                    val6, val7, val8, kons_result)
+       class(*), intent(in) :: state
+       class(*), intent(in) :: val1
+       class(*), intent(in) :: val2
+       class(*), intent(in) :: val3
+       class(*), intent(in) :: val4
+       class(*), intent(in) :: val5
+       class(*), intent(in) :: val6
+       class(*), intent(in) :: val7
+       class(*), intent(in) :: val8
        class(*), allocatable, intent(out) :: kons_result
      end subroutine vectar_kons8_subr_t
-     recursive subroutine vectar_kons9_subr_t (kar1, kar2, kar3, kar4, kar5, &
-          &                                    kar6, kar7, kar8, kar9, kdr, kons_result)
-       class(*), intent(in) :: kar1
-       class(*), intent(in) :: kar2
-       class(*), intent(in) :: kar3
-       class(*), intent(in) :: kar4
-       class(*), intent(in) :: kar5
-       class(*), intent(in) :: kar6
-       class(*), intent(in) :: kar7
-       class(*), intent(in) :: kar8
-       class(*), intent(in) :: kar9
-       class(*), intent(in) :: kdr
+     recursive subroutine vectar_kons9_subr_t (state, val1, val2, val3, val4, val5, &
+          &                                    val6, val7, val8, val9, kons_result)
+       class(*), intent(in) :: state
+       class(*), intent(in) :: val1
+       class(*), intent(in) :: val2
+       class(*), intent(in) :: val3
+       class(*), intent(in) :: val4
+       class(*), intent(in) :: val5
+       class(*), intent(in) :: val6
+       class(*), intent(in) :: val7
+       class(*), intent(in) :: val8
+       class(*), intent(in) :: val9
        class(*), allocatable, intent(out) :: kons_result
      end subroutine vectar_kons9_subr_t
-     recursive subroutine vectar_kons10_subr_t (kar1, kar2, kar3, kar4, kar5, &
-          &                                    kar6, kar7, kar8, kar9, kar10, kdr, kons_result)
-       class(*), intent(in) :: kar1
-       class(*), intent(in) :: kar2
-       class(*), intent(in) :: kar3
-       class(*), intent(in) :: kar4
-       class(*), intent(in) :: kar5
-       class(*), intent(in) :: kar6
-       class(*), intent(in) :: kar7
-       class(*), intent(in) :: kar8
-       class(*), intent(in) :: kar9
-       class(*), intent(in) :: kar10
-       class(*), intent(in) :: kdr
+     recursive subroutine vectar_kons10_subr_t (state, val1, val2, val3, val4, val5, &
+          &                                    val6, val7, val8, val9, val10, kons_result)
+       class(*), intent(in) :: state
+       class(*), intent(in) :: val1
+       class(*), intent(in) :: val2
+       class(*), intent(in) :: val3
+       class(*), intent(in) :: val4
+       class(*), intent(in) :: val5
+       class(*), intent(in) :: val6
+       class(*), intent(in) :: val7
+       class(*), intent(in) :: val8
+       class(*), intent(in) :: val9
+       class(*), intent(in) :: val10
        class(*), allocatable, intent(out) :: kons_result
      end subroutine vectar_kons10_subr_t
   end interface
@@ -7620,9 +7644,9 @@ contains
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: range1
     type(vectar_data_t), pointer :: data1
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
-    integer(sz) :: min_length
 
     ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
@@ -7656,10 +7680,10 @@ contains
     type(vectar_range_t) :: range2
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
-    integer(sz) :: min_length
 
     ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
@@ -7702,11 +7726,11 @@ contains
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
     integer(sz) :: i3
-    integer(sz) :: min_length
 
     ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
@@ -7759,12 +7783,12 @@ contains
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
     type(vectar_data_t), pointer :: data4
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
     integer(sz) :: i3
     integer(sz) :: i4
-    integer(sz) :: min_length
 
     ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
@@ -7826,13 +7850,13 @@ contains
     type(vectar_data_t), pointer :: data3
     type(vectar_data_t), pointer :: data4
     type(vectar_data_t), pointer :: data5
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
     integer(sz) :: i3
     integer(sz) :: i4
     integer(sz) :: i5
-    integer(sz) :: min_length
 
     ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
@@ -7905,6 +7929,7 @@ contains
     type(vectar_data_t), pointer :: data4
     type(vectar_data_t), pointer :: data5
     type(vectar_data_t), pointer :: data6
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -7912,7 +7937,6 @@ contains
     integer(sz) :: i4
     integer(sz) :: i5
     integer(sz) :: i6
-    integer(sz) :: min_length
 
     ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
@@ -7995,6 +8019,7 @@ contains
     type(vectar_data_t), pointer :: data5
     type(vectar_data_t), pointer :: data6
     type(vectar_data_t), pointer :: data7
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -8003,7 +8028,6 @@ contains
     integer(sz) :: i5
     integer(sz) :: i6
     integer(sz) :: i7
-    integer(sz) :: min_length
 
     ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
@@ -8096,6 +8120,7 @@ contains
     type(vectar_data_t), pointer :: data6
     type(vectar_data_t), pointer :: data7
     type(vectar_data_t), pointer :: data8
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -8105,7 +8130,6 @@ contains
     integer(sz) :: i6
     integer(sz) :: i7
     integer(sz) :: i8
-    integer(sz) :: min_length
 
     ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
@@ -8207,6 +8231,7 @@ contains
     type(vectar_data_t), pointer :: data7
     type(vectar_data_t), pointer :: data8
     type(vectar_data_t), pointer :: data9
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -8217,7 +8242,6 @@ contains
     integer(sz) :: i7
     integer(sz) :: i8
     integer(sz) :: i9
-    integer(sz) :: min_length
 
     ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
@@ -8329,6 +8353,7 @@ contains
     type(vectar_data_t), pointer :: data8
     type(vectar_data_t), pointer :: data9
     type(vectar_data_t), pointer :: data10
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -8340,7 +8365,6 @@ contains
     integer(sz) :: i8
     integer(sz) :: i9
     integer(sz) :: i10
-    integer(sz) :: min_length
 
     ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
@@ -8411,6 +8435,828 @@ contains
     call vec9_root%discard
     call vec10_root%discard
   end function vectar_count10
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function vectar_fold1_subr (kons, knil, vec1) result (vec_f)
+    procedure(vectar_kons1_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: vec1
+    class(*), allocatable :: vec_f
+
+    type(gcroot_t) :: vec1_root
+    type(vectar_range_t) :: range1
+    type(vectar_data_t), pointer :: data1
+    type(gcroot_t) :: state
+    class(*), allocatable :: next_state
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+
+    vec1_root = vec1
+
+    range1 = vec1
+
+    min_length = range1%length()
+
+    data1 => vectar_data_ptr (range1%vec())
+
+    state = knil
+    do i = 0_sz, min_length - 1_sz
+       i1 = range1%istart0() + i
+       call kons (.val. state, data1%array(i1)%element, next_state)
+       state = next_state
+    end do
+    vec_f = .val. state
+
+    call vec1_root%discard
+  end function vectar_fold1_subr
+
+  recursive function vectar_fold2_subr (kons, knil, vec1, vec2) result (vec_f)
+    procedure(vectar_kons2_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), allocatable :: vec_f
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(gcroot_t) :: state
+    class(*), allocatable :: next_state
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+
+    vec1_root = vec1
+    vec2_root = vec2
+
+    range1 = vec1
+    range2 = vec2
+
+    min_length = min (range1%length(), range2%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+
+    state = knil
+    do i = 0_sz, min_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       call kons (.val. state, data1%array(i1)%element, data2%array(i2)%element, next_state)
+       state = next_state
+    end do
+    vec_f = .val. state
+
+    call vec1_root%discard
+    call vec2_root%discard
+  end function vectar_fold2_subr
+
+  recursive function vectar_fold3_subr (kons, knil, vec1, vec2, vec3) result (vec_f)
+    procedure(vectar_kons3_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), allocatable :: vec_f
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(gcroot_t) :: state
+    class(*), allocatable :: next_state
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+
+    min_length = min (range1%length(), range2%length(), range3%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+
+    state = knil
+    do i = 0_sz, min_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       call kons (.val. state, data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, next_state)
+       state = next_state
+    end do
+    vec_f = .val. state
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+  end function vectar_fold3_subr
+
+  recursive function vectar_fold4_subr (kons, knil, vec1, vec2, vec3, vec4) result (vec_f)
+    procedure(vectar_kons4_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), allocatable :: vec_f
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(gcroot_t) :: state
+    class(*), allocatable :: next_state
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+
+    min_length = min (range1%length(), range2%length(), range3%length(), range4%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+    data4 => vectar_data_ptr (range4%vec())
+
+    state = knil
+    do i = 0_sz, min_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       call kons (.val. state, data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, next_state)
+       state = next_state
+    end do
+    vec_f = .val. state
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+  end function vectar_fold4_subr
+
+  recursive function vectar_fold5_subr (kons, knil, vec1, vec2, vec3, vec4, vec5) result (vec_f)
+    procedure(vectar_kons5_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), allocatable :: vec_f
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(gcroot_t) :: state
+    class(*), allocatable :: next_state
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+
+    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+    data4 => vectar_data_ptr (range4%vec())
+    data5 => vectar_data_ptr (range5%vec())
+
+    state = knil
+    do i = 0_sz, min_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       call kons (.val. state, data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, next_state)
+       state = next_state
+    end do
+    vec_f = .val. state
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+  end function vectar_fold5_subr
+
+  recursive function vectar_fold6_subr (kons, knil, vec1, vec2, vec3, vec4, vec5, &
+       &                                vec6) result (vec_f)
+    procedure(vectar_kons6_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), allocatable :: vec_f
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(gcroot_t) :: state
+    class(*), allocatable :: next_state
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+
+    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
+         &            range6%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+    data4 => vectar_data_ptr (range4%vec())
+    data5 => vectar_data_ptr (range5%vec())
+    data6 => vectar_data_ptr (range6%vec())
+
+    state = knil
+    do i = 0_sz, min_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       call kons (.val. state, data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, next_state)
+       state = next_state
+    end do
+    vec_f = .val. state
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+  end function vectar_fold6_subr
+
+  recursive function vectar_fold7_subr (kons, knil, vec1, vec2, vec3, vec4, vec5, &
+       &                                vec6, vec7) result (vec_f)
+    procedure(vectar_kons7_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), allocatable :: vec_f
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(gcroot_t) :: state
+    class(*), allocatable :: next_state
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+
+    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
+         &            range6%length(), range7%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+    data4 => vectar_data_ptr (range4%vec())
+    data5 => vectar_data_ptr (range5%vec())
+    data6 => vectar_data_ptr (range6%vec())
+    data7 => vectar_data_ptr (range7%vec())
+
+    state = knil
+    do i = 0_sz, min_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       call kons (.val. state, data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, next_state)
+       state = next_state
+    end do
+    vec_f = .val. state
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+  end function vectar_fold7_subr
+
+  recursive function vectar_fold8_subr (kons, knil, vec1, vec2, vec3, vec4, vec5, &
+       &                                vec6, vec7, vec8) result (vec_f)
+    procedure(vectar_kons8_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), allocatable :: vec_f
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(gcroot_t) :: state
+    class(*), allocatable :: next_state
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+
+    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
+         &            range6%length(), range7%length(), range8%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+    data4 => vectar_data_ptr (range4%vec())
+    data5 => vectar_data_ptr (range5%vec())
+    data6 => vectar_data_ptr (range6%vec())
+    data7 => vectar_data_ptr (range7%vec())
+    data8 => vectar_data_ptr (range8%vec())
+
+    state = knil
+    do i = 0_sz, min_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       call kons (.val. state, data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element, next_state)
+       state = next_state
+    end do
+    vec_f = .val. state
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+  end function vectar_fold8_subr
+
+  recursive function vectar_fold9_subr (kons, knil, vec1, vec2, vec3, vec4, vec5, &
+       &                                vec6, vec7, vec8, vec9) result (vec_f)
+    procedure(vectar_kons9_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), allocatable :: vec_f
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    type(gcroot_t) :: state
+    class(*), allocatable :: next_state
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    integer(sz) :: i9
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+
+    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
+         &            range6%length(), range7%length(), range8%length(), range9%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+    data4 => vectar_data_ptr (range4%vec())
+    data5 => vectar_data_ptr (range5%vec())
+    data6 => vectar_data_ptr (range6%vec())
+    data7 => vectar_data_ptr (range7%vec())
+    data8 => vectar_data_ptr (range8%vec())
+    data9 => vectar_data_ptr (range9%vec())
+
+    state = knil
+    do i = 0_sz, min_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       i9 = range9%istart0() + i
+       call kons (.val. state, data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element, &
+            &     data9%array(i9)%element, next_state)
+       state = next_state
+    end do
+    vec_f = .val. state
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+  end function vectar_fold9_subr
+
+  recursive function vectar_fold10_subr (kons, knil, vec1, vec2, vec3, vec4, vec5, &
+       &                                vec6, vec7, vec8, vec9, vec10) result (vec_f)
+    procedure(vectar_kons10_subr_t) :: kons
+    class(*), intent(in) :: knil
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    class(*), allocatable :: vec_f
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(gcroot_t) :: vec10_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    type(vectar_data_t), pointer :: data10
+    type(gcroot_t) :: state
+    class(*), allocatable :: next_state
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    integer(sz) :: i9
+    integer(sz) :: i10
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+    range10 = vec10
+
+    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
+         &            range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
+
+    data1 => vectar_data_ptr (range1%vec())
+    data2 => vectar_data_ptr (range2%vec())
+    data3 => vectar_data_ptr (range3%vec())
+    data4 => vectar_data_ptr (range4%vec())
+    data5 => vectar_data_ptr (range5%vec())
+    data6 => vectar_data_ptr (range6%vec())
+    data7 => vectar_data_ptr (range7%vec())
+    data8 => vectar_data_ptr (range8%vec())
+    data9 => vectar_data_ptr (range9%vec())
+    data10 => vectar_data_ptr (range10%vec())
+
+    state = knil
+    do i = 0_sz, min_length - 1_sz
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       i9 = range9%istart0() + i
+       i10 = range10%istart0() + i
+       call kons (.val. state, data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element, &
+            &     data9%array(i9)%element, data10%array(i10)%element, next_state)
+       state = next_state
+    end do
+    vec_f = .val. state
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+    call vec10_root%discard
+  end function vectar_fold10_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

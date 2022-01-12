@@ -257,12 +257,12 @@ m4_forloop([n],[0],ZIP_MAX,[dnl
   ! Implementations of vectar_map.
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_map[]n[]_subr
-])
+])dnl
 
   ! Implementations of vectar_mapx.
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_mapx[]n[]_subr
-])
+])dnl
 
   ! Generic side effects iterator. This accepts vectar ranges.
   public :: vectar_for_each
@@ -270,7 +270,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   ! Implementations of vectar_for_each.
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_for_each[]n[]_subr
-])
+])dnl
 
   ! Generic function. See SRFI-133. This accepts vectar ranges.
   public :: vectar_cumulate
@@ -285,7 +285,15 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   ! Implementations of vectar_count.
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_count[]n
-])
+])dnl
+
+  ! Generic function: left-to-right fold. This accepts vectar ranges.
+  public :: vectar_fold
+
+  ! Implementations of vectar_fold.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_fold[]n[]_subr
+])dnl
 
   ! Vectar-list conversions.
   public :: vectar_to_list
@@ -544,6 +552,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 ])dnl
   end interface vectar_count
 
+  interface vectar_fold
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure vectar_fold[]n[]_subr
+])dnl
+  end interface vectar_fold
+
   interface vectar_equal
 m4_forloop([n],[0],ZIP_MAX,[dnl
      module procedure vectar_equal[]n
@@ -625,12 +639,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 
   abstract interface
 m4_forloop([n],[1],ZIP_MAX,[dnl
-     recursive subroutine vectar_kons[]n[]_subr_t (kar1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
-          &                                    ])kar[]k]), kdr, kons_result)
+     recursive subroutine vectar_kons[]n[]_subr_t (state, val1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+          &                                    ])val[]k]), kons_result)
+       class(*), intent(in) :: state
 m4_forloop([k],[1],n,[dnl
-       class(*), intent(in) :: kar[]k
+       class(*), intent(in) :: val[]k
 ])dnl
-       class(*), intent(in) :: kdr
        class(*), allocatable, intent(out) :: kons_result
      end subroutine vectar_kons[]n[]_subr_t
 ])dnl
@@ -2290,11 +2304,11 @@ m4_forloop([k],[1],n,[dnl
 m4_forloop([k],[1],n,[dnl
     type(vectar_data_t), pointer :: data[]k
 ])dnl
+    integer(sz) :: min_length
     integer(sz) :: i
 m4_forloop([k],[1],n,[dnl
     integer(sz) :: i[]k
 ])dnl
-    integer(sz) :: min_length
 
     ! Protect against garbage collections instigated by subr.
 m4_forloop([k],[1],n,[dnl
@@ -2331,6 +2345,72 @@ m4_forloop([k],[1],n,[dnl
     call vec[]k[]_root%discard
 ])dnl
   end function vectar_count[]n
+
+])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function vectar_fold[]n[]_subr (kons, knil, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       &                                ])vec[]k])) result (vec_f)
+    procedure(vectar_kons[]n[]_subr_t) :: kons
+    class(*), intent(in) :: knil
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: vec[]k
+])dnl
+    class(*), allocatable :: vec_f
+
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: vec[]k[]_root
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(vectar_range_t) :: range[]k
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(vectar_data_t), pointer :: data[]k
+])dnl
+    type(gcroot_t) :: state
+    class(*), allocatable :: next_state
+    integer(sz) :: min_length
+    integer(sz) :: i
+m4_forloop([k],[1],n,[dnl
+    integer(sz) :: i[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    vec[]k[]_root = vec[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    range[]k = vec[]k
+])dnl
+
+m4_if(n,[1],[dnl
+    min_length = range1%length()
+],[dnl
+    min_length = min (range1%length()[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+         &            ])range[]k%length()]))
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    data[]k => vectar_data_ptr (range[]k%vec())
+])dnl
+
+    state = knil
+    do i = 0_sz, min_length - 1_sz
+m4_forloop([k],[1],n,[dnl
+       i[]k = range[]k%istart0() + i
+])dnl
+       call kons (.val. state, data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
+            &     ])data[]k%array(i[]k)%element]), next_state)
+       state = next_state
+    end do
+    vec_f = .val. state
+
+m4_forloop([k],[1],n,[dnl
+    call vec[]k[]_root%discard
+])dnl
+  end function vectar_fold[]n[]_subr
 
 ])dnl
 dnl
