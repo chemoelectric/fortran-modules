@@ -278,6 +278,15 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   ! Implementations of vectar_cumulate.
   public :: vectar_cumulate_subr
 
+  ! Generic function: count how many times the predicate is
+  ! satisfied. This accepts vectar ranges.
+  public :: vectar_count
+
+  ! Implementations of vectar_count.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_count[]n
+])
+
   ! Vectar-list conversions.
   public :: vectar_to_list
   public :: reverse_vectar_to_list
@@ -528,6 +537,12 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   interface vectar_cumulate
      module procedure vectar_cumulate_subr
   end interface vectar_cumulate
+
+  interface vectar_count
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure vectar_count[]n
+])dnl
+  end interface vectar_count
 
   interface vectar_equal
 m4_forloop([n],[0],ZIP_MAX,[dnl
@@ -2048,6 +2063,9 @@ m4_forloop([k],[1],n,[dnl
     type(vectar_data_t), pointer :: result_data
     integer(sz) :: result_length
     integer(sz) :: i
+m4_forloop([k],[1],n,[dnl
+    integer(sz) :: i[]k
+])dnl
 
     ! Protect against garbage collections instigated by subr.
 m4_forloop([k],[1],n,[dnl
@@ -2073,8 +2091,11 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
 
     do i = 0_sz, result_length - 1_sz
-       call subr (data1%array(range1%istart0() + i)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
-         &        ])data[]k%array(range[]k%istart0() + i)%element]), &
+m4_forloop([k],[1],n,[dnl
+       i[]k = range[]k%istart0() + i
+])dnl
+       call subr (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
+         &        ])data[]k%array(i[]k)%element]), &
          &        result_data%array(i)%element)
     end do
 
@@ -2249,6 +2270,70 @@ dnl
     call vec_root%discard
   end function vectar_cumulate_subr
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function vectar_count[]n (pred, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       &                            ])vec[]k])) result (count)
+    procedure(vectar_predicate[]n[]_t) :: pred
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: vec[]k
+])dnl
+    integer(sz) :: count
+
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: vec[]k[]_root
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(vectar_range_t) :: range[]k
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(vectar_data_t), pointer :: data[]k
+])dnl
+    integer(sz) :: i
+m4_forloop([k],[1],n,[dnl
+    integer(sz) :: i[]k
+])dnl
+    integer(sz) :: min_length
+
+    ! Protect against garbage collections instigated by subr.
+m4_forloop([k],[1],n,[dnl
+    vec[]k[]_root = vec[]k
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    range[]k = vec[]k
+])dnl
+
+m4_if(n,[1],[dnl
+    min_length = range1%length()
+],[dnl
+    min_length = min (range1%length()[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+         &            ])range[]k%length()]))
+])dnl
+
+m4_forloop([k],[1],n,[dnl
+    data[]k => vectar_data_ptr (range[]k%vec())
+])dnl
+
+    count = 0_sz
+    do i = 0_sz, min_length - 1_sz
+m4_forloop([k],[1],n,[dnl
+       i[]k = range[]k%istart0() + i
+])dnl
+       if (pred (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
+            &        ])data[]k%array(i[]k)%element]))) then
+          count = count + 1
+       end if
+    end do
+
+m4_forloop([k],[1],n,[dnl
+    call vec[]k[]_root%discard
+])dnl
+  end function vectar_count[]n
+
+])dnl
+dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module vectars

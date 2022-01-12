@@ -137,11 +137,11 @@ contains
     bool = int_cast (obj1) == int_cast (obj2)
   end function int_eq
 
-!!$  function int_lt (obj1, obj2) result (bool)
-!!$    class(*), intent(in) :: obj1, obj2
-!!$    logical :: bool
-!!$    bool = int_cast (obj1) < int_cast (obj2)
-!!$  end function int_lt
+  function int_lt (obj1, obj2) result (bool)
+    class(*), intent(in) :: obj1, obj2
+    logical :: bool
+    bool = int_cast (obj1) < int_cast (obj2)
+  end function int_lt
 
   function str_t_eq (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1, obj2
@@ -1221,6 +1221,17 @@ contains
     call check (list_equal (int_eq, vectar_ref1 (vec2, 5), list (5, 1, 4, 1, 3)), "test0200-0090 failed")
     call check (list_equal (int_eq, vectar_ref1 (vec2, 6), list (9, 5, 1, 4, 1, 3)), "test0200-0100 failed")
 
+    vec1 = vectar (100, 100, 3, 1, 4, 1, 5, 9, 100)
+    vec2 = vectar_cumulate (flip_kons, nil, range1 (vec1, 3, 8))
+    call check (vectar_equal (int_eq, vec1, vectar (100, 100, 3, 1, 4, 1, 5, 9, 100)), "test0200-1030 failed")
+    call check (vectar_length (vec2) == 6, "test0200-1040 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec2, 1), list (3)), "test0200-1050 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec2, 2), list (1, 3)), "test0200-1060 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec2, 3), list (4, 1, 3)), "test0200-1070 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec2, 4), list (1, 4, 1, 3)), "test0200-1080 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec2, 5), list (5, 1, 4, 1, 3)), "test0200-1090 failed")
+    call check (list_equal (int_eq, vectar_ref1 (vec2, 6), list (9, 5, 1, 4, 1, 3)), "test0200-1100 failed")
+
   contains
 
     subroutine add2 (x, y, sum)
@@ -1244,6 +1255,53 @@ contains
     end subroutine flip_kons
 
   end subroutine test0200
+
+  subroutine test0210
+    type(vectar_t) :: vec1, vec2
+    integer(sz) :: count
+
+    ! An example from SRFI-133.
+    vec1 = vectar (3, 1, 4, 1, 5, 9, 2, 5, 6)
+    count = vectar_count (is_even, vec1)
+    call check (vectar_equal (int_eq, vec1, vectar (3, 1, 4, 1, 5, 9, 2, 5, 6)), "test0210-0010 failed")
+    call check (count == 3_sz, "test0210-0020 failed")
+
+    ! An example from SRFI-133.
+    vec1 = vectar (1, 3, 6, 9)
+    vec2 = vectar (2, 4, 6, 8, 10, 12)
+    count = vectar_count (less_than, vec1, vec2)
+    call check (vectar_equal (int_eq, vec1, vectar (1, 3, 6, 9)), "test0210-0030 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (2, 4, 6, 8, 10, 12)), "test0210-0040 failed")
+    call check (count == 2_sz, "test0210-0050 failed")
+
+    vec1 = vectar (100, 100, 1, 3, 6, 9)
+    vec2 = vectar (100, 100, 100, 2, 4, 6, 8, 10, 12)
+    count = vectar_count (less_than, range1 (vec1, 3, 6), range1 (vec2, 4, 8))
+    call check (vectar_equal (int_eq, vec1, vectar (100, 100, 1, 3, 6, 9)), "test0210-0060 failed")
+    call check (vectar_equal (int_eq, vec2, vectar (100, 100, 100, 2, 4, 6, 8, 10, 12)), "test0210-0070 failed")
+    call check (count == 2_sz, "test0210-0080 failed")
+
+  contains
+
+    function is_even (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (mod (int_cast (x), 2) == 0)
+    end function is_even
+
+    function less_than (x, y) result (bool)
+      class(*), intent(in) :: x, y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = int_lt (x, y)
+    end function less_than
+
+  end subroutine test0210
 
   subroutine run_tests
     heap_size_limit = 0
@@ -1269,6 +1327,7 @@ contains
     call test0180
     call test0190
     call test0200
+    call test0210
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
