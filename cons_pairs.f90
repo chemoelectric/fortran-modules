@@ -68,16 +68,6 @@ module cons_pairs
   ! a back-reference is called ‘circular’.}
   !
 
-  !
-  ! WARNING: I reserve the right to turn most procedures into generic
-  !          procedures. This may affect your code if you try to pass
-  !          this module's procedures directly to other procedures;
-  !          that is, the name of the actual, non-generic
-  !          implementation may change. (Something such as is_nil or
-  !          is_pair or is_not_nil or is_not_pair is quite unlikely to
-  !          be made generic, however.)
-  !
-
   use, non_intrinsic :: garbage_collector
 
   implicit none
