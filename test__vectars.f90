@@ -1059,6 +1059,58 @@ contains
   end subroutine test0160
 
   subroutine test0170
+    type(vectar_t) :: vec1, vec2, vec3
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_mapx (int_negate, vec1)
+    call check (vectar_equal (int_eq, vec1, vectar (-1, -2, -3, -4, -5, -6, -7, -8)), "test0170-0020 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    call vectar_mapx (int_negate, range1 (vec1, 2, 5))
+    call check (vectar_equal (int_eq, vec1, vectar (1, -2, -3, -4, -5, 6, 7, 8)), "test0170-0030 failed")
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar (10, 20, 30, 40, 50)
+    vec3 = vectar (100, 200, 300, 400, 500, 600)
+    call vectar_mapx (add3, vec1, vec2, vec3)
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50)), "test0170-1020 failed")
+    call check (vectar_equal (int_eq, vec3, vectar (100, 200, 300, 400, 500, 600)), "test0170-1030 failed")
+    call check (vectar_equal (int_eq, vec1, vectar (111, 222, 333, 444, 555, 6, 7, 8)), "test0170-1040 failed")
+
+
+    vec1 = vectar (1, 2, 3, 4, 5, 6, 7, 8)
+    vec2 = vectar (10, 20, 30, 40, 50)
+    vec3 = vectar (100, 200, 300, 400, 500, 600)
+    call vectar_mapx (add3, range1 (vec1, 2, 5), range1 (vec2, 1, 4), range1 (vec3, 3, 6))
+    call check (vectar_equal (int_eq, vec2, vectar (10, 20, 30, 40, 50)), "test0170-1060 failed")
+    call check (vectar_equal (int_eq, vec3, vectar (100, 200, 300, 400, 500, 600)), "test0170-1070 failed")
+    call check (vectar_equal (int_eq, vec1, vectar (1, 312, 423, 534, 645, 6, 7, 8)), "test0170-1050 failed")
+
+  contains
+
+    subroutine int_negate (x, y)
+      class(*), intent(in) :: x
+      class(*), allocatable, intent(out) :: y
+
+      call collect_garbage_now
+
+      y = -(int_cast (x))
+    end subroutine int_negate
+
+    subroutine add3 (x, y, z, sum)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      class(*), intent(in) :: z
+      class(*), allocatable, intent(out) :: sum
+
+      call collect_garbage_now
+
+      sum = int_cast (x) + int_cast (y) + int_cast (z)
+    end subroutine add3
+
+  end subroutine test0170
+
+  subroutine test0180
     type(vectar_t) :: vec
 
     ! Check vectar_length applied to a range.
@@ -1086,7 +1138,7 @@ contains
     vec = vectar (1, 2, 3, 4, 5, 6, 7, 8)
     call vectar_swap1 (range1 (vec, 3, 7), 2, 2)
     call check (vectar_equal (int_eq, vec, vectar (1, 2, 3, 4, 5, 6, 7, 8)), "test0170-0070 failed")
-  end subroutine test0170
+  end subroutine test0180
 
   subroutine run_tests
     heap_size_limit = 0
@@ -1109,6 +1161,7 @@ contains
     call test0150
     call test0160
     call test0170
+    call test0180
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
