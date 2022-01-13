@@ -397,22 +397,54 @@ module vectars
   public :: vectar_unfold10_subr_size_kind
   public :: vectar_unfold10_subr_int
 
-  ! Generic subroutine: unfold into an existing vectar or vectar
-  ! range.
+  ! Generic subroutine: unfold left-to-right into an existing vectar
+  ! or vectar range.
   public :: vectar_unfoldx
 
+  ! Generic subroutine: create a new vectar by unfolding
+  ! right-to-left.
+  public :: vectar_unfold_right
+
+  ! Implementations of vectar_unfold.
+  public :: vectar_unfold_right0_subr_size_kind
+  public :: vectar_unfold_right0_subr_int
+  public :: vectar_unfold_right1_subr_size_kind
+  public :: vectar_unfold_right1_subr_int
+  public :: vectar_unfold_right2_subr_size_kind
+  public :: vectar_unfold_right2_subr_int
+  public :: vectar_unfold_right3_subr_size_kind
+  public :: vectar_unfold_right3_subr_int
+  public :: vectar_unfold_right4_subr_size_kind
+  public :: vectar_unfold_right4_subr_int
+  public :: vectar_unfold_right5_subr_size_kind
+  public :: vectar_unfold_right5_subr_int
+  public :: vectar_unfold_right6_subr_size_kind
+  public :: vectar_unfold_right6_subr_int
+  public :: vectar_unfold_right7_subr_size_kind
+  public :: vectar_unfold_right7_subr_int
+  public :: vectar_unfold_right8_subr_size_kind
+  public :: vectar_unfold_right8_subr_int
+  public :: vectar_unfold_right9_subr_size_kind
+  public :: vectar_unfold_right9_subr_int
+  public :: vectar_unfold_right10_subr_size_kind
+  public :: vectar_unfold_right10_subr_int
+
+  ! Generic subroutine: unfold right-to-left into an existing vectar
+  ! or vectar range.
+  public :: vectar_unfold_rightx
+
   ! Implementations of vectar_unfoldx.
-  public :: vectar_unfoldx0_subr
-  public :: vectar_unfoldx1_subr
-  public :: vectar_unfoldx2_subr
-  public :: vectar_unfoldx3_subr
-  public :: vectar_unfoldx4_subr
-  public :: vectar_unfoldx5_subr
-  public :: vectar_unfoldx6_subr
-  public :: vectar_unfoldx7_subr
-  public :: vectar_unfoldx8_subr
-  public :: vectar_unfoldx9_subr
-  public :: vectar_unfoldx10_subr
+  public :: vectar_unfold_rightx0_subr
+  public :: vectar_unfold_rightx1_subr
+  public :: vectar_unfold_rightx2_subr
+  public :: vectar_unfold_rightx3_subr
+  public :: vectar_unfold_rightx4_subr
+  public :: vectar_unfold_rightx5_subr
+  public :: vectar_unfold_rightx6_subr
+  public :: vectar_unfold_rightx7_subr
+  public :: vectar_unfold_rightx8_subr
+  public :: vectar_unfold_rightx9_subr
+  public :: vectar_unfold_rightx10_subr
 
   ! Vectar-list conversions.
   public :: vectar_to_list
@@ -790,6 +822,45 @@ module vectars
      module procedure vectar_unfoldx9_subr
      module procedure vectar_unfoldx10_subr
   end interface vectar_unfoldx
+
+  interface vectar_unfold_right
+     module procedure vectar_unfold_right0_subr_size_kind
+     module procedure vectar_unfold_right0_subr_int
+     module procedure vectar_unfold_right1_subr_size_kind
+     module procedure vectar_unfold_right1_subr_int
+     module procedure vectar_unfold_right2_subr_size_kind
+     module procedure vectar_unfold_right2_subr_int
+     module procedure vectar_unfold_right3_subr_size_kind
+     module procedure vectar_unfold_right3_subr_int
+     module procedure vectar_unfold_right4_subr_size_kind
+     module procedure vectar_unfold_right4_subr_int
+     module procedure vectar_unfold_right5_subr_size_kind
+     module procedure vectar_unfold_right5_subr_int
+     module procedure vectar_unfold_right6_subr_size_kind
+     module procedure vectar_unfold_right6_subr_int
+     module procedure vectar_unfold_right7_subr_size_kind
+     module procedure vectar_unfold_right7_subr_int
+     module procedure vectar_unfold_right8_subr_size_kind
+     module procedure vectar_unfold_right8_subr_int
+     module procedure vectar_unfold_right9_subr_size_kind
+     module procedure vectar_unfold_right9_subr_int
+     module procedure vectar_unfold_right10_subr_size_kind
+     module procedure vectar_unfold_right10_subr_int
+  end interface vectar_unfold_right
+
+  interface vectar_unfold_rightx
+     module procedure vectar_unfold_rightx0_subr
+     module procedure vectar_unfold_rightx1_subr
+     module procedure vectar_unfold_rightx2_subr
+     module procedure vectar_unfold_rightx3_subr
+     module procedure vectar_unfold_rightx4_subr
+     module procedure vectar_unfold_rightx5_subr
+     module procedure vectar_unfold_rightx6_subr
+     module procedure vectar_unfold_rightx7_subr
+     module procedure vectar_unfold_rightx8_subr
+     module procedure vectar_unfold_rightx9_subr
+     module procedure vectar_unfold_rightx10_subr
+  end interface vectar_unfold_rightx
 
   interface vectar_equal
      module procedure vectar_equal0
@@ -11251,6 +11322,1022 @@ contains
          &                               initial_seed7, initial_seed8, &
          &                               initial_seed9, initial_seed10)
   end function vectar_unfold10_subr_int
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive subroutine vectar_unfold_rightx0_subr (f, vec)
+    procedure(vectar_unfold0_f_subr_t) :: f
+    class(*), intent(in) :: vec
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    do index = range%length() - 1_sz, 0_sz, -1_sz
+       call f (index, element)
+       data%array(i0 + index)%element = element
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfold_rightx0_subr
+
+  recursive subroutine vectar_unfold_rightx1_subr (f, vec, &
+       initial_seed1)
+    procedure(vectar_unfold1_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    type(gcroot_t) :: seed1_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    do index = range%length() - 1_sz, 0_sz, -1_sz
+       seed1 = .val. seed1_root
+       call f (index, seed1, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfold_rightx1_subr
+
+  recursive subroutine vectar_unfold_rightx2_subr (f, vec, &
+       initial_seed1, initial_seed2)
+    procedure(vectar_unfold2_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    do index = range%length() - 1_sz, 0_sz, -1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       call f (index, seed1, seed2, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfold_rightx2_subr
+
+  recursive subroutine vectar_unfold_rightx3_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3)
+    procedure(vectar_unfold3_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    do index = range%length() - 1_sz, 0_sz, -1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       call f (index, seed1, seed2, seed3, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfold_rightx3_subr
+
+  recursive subroutine vectar_unfold_rightx4_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3, initial_seed4)
+    procedure(vectar_unfold4_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    class(*), allocatable :: seed4
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    type(gcroot_t) :: seed4_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    seed4_root = initial_seed4
+    do index = range%length() - 1_sz, 0_sz, -1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       seed4 = .val. seed4_root
+       call f (index, seed1, seed2, seed3, seed4, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+       seed4_root = seed4
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfold_rightx4_subr
+
+  recursive subroutine vectar_unfold_rightx5_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3, initial_seed4, &
+       initial_seed5)
+    procedure(vectar_unfold5_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    class(*), allocatable :: seed4
+    class(*), allocatable :: seed5
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    type(gcroot_t) :: seed4_root
+    type(gcroot_t) :: seed5_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    seed4_root = initial_seed4
+    seed5_root = initial_seed5
+    do index = range%length() - 1_sz, 0_sz, -1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       seed4 = .val. seed4_root
+       seed5 = .val. seed5_root
+       call f (index, seed1, seed2, seed3, seed4, seed5, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+       seed4_root = seed4
+       seed5_root = seed5
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfold_rightx5_subr
+
+  recursive subroutine vectar_unfold_rightx6_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3, initial_seed4, &
+       initial_seed5, initial_seed6)
+    procedure(vectar_unfold6_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    class(*), allocatable :: seed4
+    class(*), allocatable :: seed5
+    class(*), allocatable :: seed6
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    type(gcroot_t) :: seed4_root
+    type(gcroot_t) :: seed5_root
+    type(gcroot_t) :: seed6_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    seed4_root = initial_seed4
+    seed5_root = initial_seed5
+    seed6_root = initial_seed6
+    do index = range%length() - 1_sz, 0_sz, -1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       seed4 = .val. seed4_root
+       seed5 = .val. seed5_root
+       seed6 = .val. seed6_root
+       call f (index, seed1, seed2, seed3, seed4, seed5, &
+            &  seed6, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+       seed4_root = seed4
+       seed5_root = seed5
+       seed6_root = seed6
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfold_rightx6_subr
+
+  recursive subroutine vectar_unfold_rightx7_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3, initial_seed4, &
+       initial_seed5, initial_seed6, &
+       initial_seed7)
+    procedure(vectar_unfold7_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    class(*), allocatable :: seed4
+    class(*), allocatable :: seed5
+    class(*), allocatable :: seed6
+    class(*), allocatable :: seed7
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    type(gcroot_t) :: seed4_root
+    type(gcroot_t) :: seed5_root
+    type(gcroot_t) :: seed6_root
+    type(gcroot_t) :: seed7_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    seed4_root = initial_seed4
+    seed5_root = initial_seed5
+    seed6_root = initial_seed6
+    seed7_root = initial_seed7
+    do index = range%length() - 1_sz, 0_sz, -1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       seed4 = .val. seed4_root
+       seed5 = .val. seed5_root
+       seed6 = .val. seed6_root
+       seed7 = .val. seed7_root
+       call f (index, seed1, seed2, seed3, seed4, seed5, &
+            &  seed6, seed7, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+       seed4_root = seed4
+       seed5_root = seed5
+       seed6_root = seed6
+       seed7_root = seed7
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfold_rightx7_subr
+
+  recursive subroutine vectar_unfold_rightx8_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3, initial_seed4, &
+       initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8)
+    procedure(vectar_unfold8_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    class(*), allocatable :: seed4
+    class(*), allocatable :: seed5
+    class(*), allocatable :: seed6
+    class(*), allocatable :: seed7
+    class(*), allocatable :: seed8
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    type(gcroot_t) :: seed4_root
+    type(gcroot_t) :: seed5_root
+    type(gcroot_t) :: seed6_root
+    type(gcroot_t) :: seed7_root
+    type(gcroot_t) :: seed8_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    seed4_root = initial_seed4
+    seed5_root = initial_seed5
+    seed6_root = initial_seed6
+    seed7_root = initial_seed7
+    seed8_root = initial_seed8
+    do index = range%length() - 1_sz, 0_sz, -1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       seed4 = .val. seed4_root
+       seed5 = .val. seed5_root
+       seed6 = .val. seed6_root
+       seed7 = .val. seed7_root
+       seed8 = .val. seed8_root
+       call f (index, seed1, seed2, seed3, seed4, seed5, &
+            &  seed6, seed7, seed8, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+       seed4_root = seed4
+       seed5_root = seed5
+       seed6_root = seed6
+       seed7_root = seed7
+       seed8_root = seed8
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfold_rightx8_subr
+
+  recursive subroutine vectar_unfold_rightx9_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3, initial_seed4, &
+       initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8, &
+       initial_seed9)
+    procedure(vectar_unfold9_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    class(*), intent(in) :: initial_seed9
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    class(*), allocatable :: seed4
+    class(*), allocatable :: seed5
+    class(*), allocatable :: seed6
+    class(*), allocatable :: seed7
+    class(*), allocatable :: seed8
+    class(*), allocatable :: seed9
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    type(gcroot_t) :: seed4_root
+    type(gcroot_t) :: seed5_root
+    type(gcroot_t) :: seed6_root
+    type(gcroot_t) :: seed7_root
+    type(gcroot_t) :: seed8_root
+    type(gcroot_t) :: seed9_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    seed4_root = initial_seed4
+    seed5_root = initial_seed5
+    seed6_root = initial_seed6
+    seed7_root = initial_seed7
+    seed8_root = initial_seed8
+    seed9_root = initial_seed9
+    do index = range%length() - 1_sz, 0_sz, -1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       seed4 = .val. seed4_root
+       seed5 = .val. seed5_root
+       seed6 = .val. seed6_root
+       seed7 = .val. seed7_root
+       seed8 = .val. seed8_root
+       seed9 = .val. seed9_root
+       call f (index, seed1, seed2, seed3, seed4, seed5, &
+            &  seed6, seed7, seed8, seed9, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+       seed4_root = seed4
+       seed5_root = seed5
+       seed6_root = seed6
+       seed7_root = seed7
+       seed8_root = seed8
+       seed9_root = seed9
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfold_rightx9_subr
+
+  recursive subroutine vectar_unfold_rightx10_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3, initial_seed4, &
+       initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8, &
+       initial_seed9, initial_seed10)
+    procedure(vectar_unfold10_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    class(*), intent(in) :: initial_seed9
+    class(*), intent(in) :: initial_seed10
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    class(*), allocatable :: seed4
+    class(*), allocatable :: seed5
+    class(*), allocatable :: seed6
+    class(*), allocatable :: seed7
+    class(*), allocatable :: seed8
+    class(*), allocatable :: seed9
+    class(*), allocatable :: seed10
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    type(gcroot_t) :: seed4_root
+    type(gcroot_t) :: seed5_root
+    type(gcroot_t) :: seed6_root
+    type(gcroot_t) :: seed7_root
+    type(gcroot_t) :: seed8_root
+    type(gcroot_t) :: seed9_root
+    type(gcroot_t) :: seed10_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    seed4_root = initial_seed4
+    seed5_root = initial_seed5
+    seed6_root = initial_seed6
+    seed7_root = initial_seed7
+    seed8_root = initial_seed8
+    seed9_root = initial_seed9
+    seed10_root = initial_seed10
+    do index = range%length() - 1_sz, 0_sz, -1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       seed4 = .val. seed4_root
+       seed5 = .val. seed5_root
+       seed6 = .val. seed6_root
+       seed7 = .val. seed7_root
+       seed8 = .val. seed8_root
+       seed9 = .val. seed9_root
+       seed10 = .val. seed10_root
+       call f (index, seed1, seed2, seed3, seed4, seed5, &
+            &  seed6, seed7, seed8, seed9, seed10, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+       seed4_root = seed4
+       seed5_root = seed5
+       seed6_root = seed6
+       seed7_root = seed7
+       seed8_root = seed8
+       seed9_root = seed9
+       seed10_root = seed10
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfold_rightx10_subr
+
+  recursive function vectar_unfold_right0_subr_size_kind (f, length) result (vec)
+    procedure(vectar_unfold0_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfold_rightx0_subr (f, vec)
+  end function vectar_unfold_right0_subr_size_kind
+
+  recursive function vectar_unfold_right0_subr_int (f, length) result (vec)
+    procedure(vectar_unfold0_f_subr_t) :: f
+    integer, intent(in) :: length
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold_right0_subr_size_kind (f, .sz. length)
+  end function vectar_unfold_right0_subr_int
+
+  recursive function vectar_unfold_right1_subr_size_kind (f, length, &
+       initial_seed1) result (vec)
+    procedure(vectar_unfold1_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfold_rightx1_subr (f, vec, &
+         initial_seed1)
+  end function vectar_unfold_right1_subr_size_kind
+
+  recursive function vectar_unfold_right1_subr_int (f, length, &
+       initial_seed1) result (vec)
+    procedure(vectar_unfold1_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold_right1_subr_size_kind (f, .sz. length, &
+         initial_seed1)
+  end function vectar_unfold_right1_subr_int
+
+  recursive function vectar_unfold_right2_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2) result (vec)
+    procedure(vectar_unfold2_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfold_rightx2_subr (f, vec, &
+         initial_seed1, initial_seed2)
+  end function vectar_unfold_right2_subr_size_kind
+
+  recursive function vectar_unfold_right2_subr_int (f, length, &
+       initial_seed1, initial_seed2) result (vec)
+    procedure(vectar_unfold2_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold_right2_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2)
+  end function vectar_unfold_right2_subr_int
+
+  recursive function vectar_unfold_right3_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3) result (vec)
+    procedure(vectar_unfold3_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfold_rightx3_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3)
+  end function vectar_unfold_right3_subr_size_kind
+
+  recursive function vectar_unfold_right3_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3) result (vec)
+    procedure(vectar_unfold3_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold_right3_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3)
+  end function vectar_unfold_right3_subr_int
+
+  recursive function vectar_unfold_right4_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4) result (vec)
+    procedure(vectar_unfold4_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfold_rightx4_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4)
+  end function vectar_unfold_right4_subr_size_kind
+
+  recursive function vectar_unfold_right4_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4) result (vec)
+    procedure(vectar_unfold4_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold_right4_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4)
+  end function vectar_unfold_right4_subr_int
+
+  recursive function vectar_unfold_right5_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5) result (vec)
+    procedure(vectar_unfold5_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfold_rightx5_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5)
+  end function vectar_unfold_right5_subr_size_kind
+
+  recursive function vectar_unfold_right5_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5) result (vec)
+    procedure(vectar_unfold5_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold_right5_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5)
+  end function vectar_unfold_right5_subr_int
+
+  recursive function vectar_unfold_right6_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6) result (vec)
+    procedure(vectar_unfold6_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfold_rightx6_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6)
+  end function vectar_unfold_right6_subr_size_kind
+
+  recursive function vectar_unfold_right6_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6) result (vec)
+    procedure(vectar_unfold6_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold_right6_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6)
+  end function vectar_unfold_right6_subr_int
+
+  recursive function vectar_unfold_right7_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7) result (vec)
+    procedure(vectar_unfold7_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfold_rightx7_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7)
+  end function vectar_unfold_right7_subr_size_kind
+
+  recursive function vectar_unfold_right7_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7) result (vec)
+    procedure(vectar_unfold7_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold_right7_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7)
+  end function vectar_unfold_right7_subr_int
+
+  recursive function vectar_unfold_right8_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8) result (vec)
+    procedure(vectar_unfold8_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfold_rightx8_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7, initial_seed8)
+  end function vectar_unfold_right8_subr_size_kind
+
+  recursive function vectar_unfold_right8_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8) result (vec)
+    procedure(vectar_unfold8_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold_right8_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7, initial_seed8)
+  end function vectar_unfold_right8_subr_int
+
+  recursive function vectar_unfold_right9_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8, initial_seed9) result (vec)
+    procedure(vectar_unfold9_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    class(*), intent(in) :: initial_seed9
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfold_rightx9_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7, initial_seed8, initial_seed9)
+  end function vectar_unfold_right9_subr_size_kind
+
+  recursive function vectar_unfold_right9_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8, initial_seed9) result (vec)
+    procedure(vectar_unfold9_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    class(*), intent(in) :: initial_seed9
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold_right9_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7, initial_seed8, initial_seed9)
+  end function vectar_unfold_right9_subr_int
+
+  recursive function vectar_unfold_right10_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8, initial_seed9, &
+       initial_seed10) result (vec)
+    procedure(vectar_unfold10_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    class(*), intent(in) :: initial_seed9
+    class(*), intent(in) :: initial_seed10
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfold_rightx10_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7, initial_seed8, initial_seed9, &
+         initial_seed10)
+  end function vectar_unfold_right10_subr_size_kind
+
+  recursive function vectar_unfold_right10_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8, initial_seed9, &
+       initial_seed10) result (vec)
+    procedure(vectar_unfold10_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    class(*), intent(in) :: initial_seed9
+    class(*), intent(in) :: initial_seed10
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold_right10_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7, initial_seed8, initial_seed9, &
+         initial_seed10)
+  end function vectar_unfold_right10_subr_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

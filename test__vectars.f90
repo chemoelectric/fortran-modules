@@ -158,6 +158,13 @@ contains
     bool = int_cast (obj1) < int_cast (obj2)
   end function int_lt
 
+  function int_pair_eq (obj1, obj2) result (bool)
+    class(*), intent(in) :: obj1, obj2
+    logical :: bool
+    bool = (int_cast (car (obj1)) == int_cast (car (obj2))) .and. &
+         & (int_cast (cdr (obj1)) == int_cast (cdr (obj2)))
+  end function int_pair_eq
+
   function size_kind_eq (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1, obj2
     logical :: bool
@@ -1580,6 +1587,42 @@ contains
 
   end subroutine test0240
 
+  subroutine test0250
+    type(vectar_t) :: vec
+
+    ! An example from SRFI-133: construct a vector of pairs of
+    ! non-negative integers that add up to 4.
+    vec = vectar_unfold_right (f1, 5_sz, 0)
+    call check (vectar_equal (int_pair_eq, vec, vectar (cons (0, 4), cons (1, 3), cons (2, 2), cons (3, 1), cons (4, 0))), &
+         &      "test0250-0010 failed")
+    vec = vectar_unfold_right (f1, 5, 0)
+    call check (vectar_equal (int_pair_eq, vec, vectar (cons (0, 4), cons (1, 3), cons (2, 2), cons (3, 1), cons (4, 0))), &
+         &      "test0250-0020 failed")
+    vec = make_vectar (5)
+    call vectar_unfold_rightx (f1, vec, 0)
+    call check (vectar_equal (int_pair_eq, vec, vectar (cons (0, 4), cons (1, 3), cons (2, 2), cons (3, 1), cons (4, 0))), &
+         &      "test0250-0030 failed")
+    vec = make_vectar (7, cons (10, 10))
+    call vectar_unfold_rightx (f1, range1 (vec, 2, 6), 0)
+    call check (vectar_equal (int_pair_eq, vec, vectar (cons (10, 10), cons (0, 4), cons (1, 3), cons (2, 2), &
+         &                                              cons (3, 1), cons (4, 0), cons (10, 10))), &
+         &      "test0250-0040 failed")
+
+  contains
+
+    subroutine f1 (i, x, element)
+      integer(sz), intent(in) :: i
+      class(*), allocatable, intent(inout) :: x
+      class(*), allocatable, intent(out) :: element
+
+      call collect_garbage_now
+
+      element = cons (int (i), x)
+      x = int_cast (x) + 1
+    end subroutine f1
+
+  end subroutine test0250
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1608,6 +1651,7 @@ contains
     call test0220
     call test0230
     call test0240
+    call test0250
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
