@@ -64,8 +64,8 @@ module cons_pairs
   ! regarded as degenerate `dotted lists' -- as a sort of generalized
   ! nil. \footnote{The term `dotted list' is Scheme-talk for a linked
   ! list that ends in something other than a nil or back-reference. A
-  ! list that ends in a nil is called ‘proper’ and a list that ends in
-  ! a back-reference is called ‘circular’.}
+  ! list that ends in a nil is called  proper  and a list that ends in
+  ! a back-reference is called  circular .}
   !
 
   use, non_intrinsic :: garbage_collector

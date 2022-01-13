@@ -10347,7 +10347,8 @@ contains
     call vec_root%discard
   end subroutine vectar_unfoldx0_subr
 
-  recursive subroutine vectar_unfoldx1_subr (f, vec, initial_seed1)
+  recursive subroutine vectar_unfoldx1_subr (f, vec, &
+       initial_seed1)
     procedure(vectar_unfold1_f_subr_t) :: f
     class(*), intent(in) :: vec
     class(*), intent(in) :: initial_seed1
@@ -10377,7 +10378,8 @@ contains
     call vec_root%discard
   end subroutine vectar_unfoldx1_subr
 
-  recursive subroutine vectar_unfoldx2_subr (f, vec, initial_seed1, initial_seed2)
+  recursive subroutine vectar_unfoldx2_subr (f, vec, &
+       initial_seed1, initial_seed2)
     procedure(vectar_unfold2_f_subr_t) :: f
     class(*), intent(in) :: vec
     class(*), intent(in) :: initial_seed1
@@ -10413,8 +10415,9 @@ contains
     call vec_root%discard
   end subroutine vectar_unfoldx2_subr
 
-  recursive subroutine vectar_unfoldx3_subr (f, vec, initial_seed1, initial_seed2, &
-        &                                    initial_seed3)
+  recursive subroutine vectar_unfoldx3_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3)
     procedure(vectar_unfold3_f_subr_t) :: f
     class(*), intent(in) :: vec
     class(*), intent(in) :: initial_seed1
@@ -10456,8 +10459,9 @@ contains
     call vec_root%discard
   end subroutine vectar_unfoldx3_subr
 
-  recursive subroutine vectar_unfoldx4_subr (f, vec, initial_seed1, initial_seed2, &
-        &                                    initial_seed3, initial_seed4)
+  recursive subroutine vectar_unfoldx4_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3, initial_seed4)
     procedure(vectar_unfold4_f_subr_t) :: f
     class(*), intent(in) :: vec
     class(*), intent(in) :: initial_seed1
@@ -10505,9 +10509,10 @@ contains
     call vec_root%discard
   end subroutine vectar_unfoldx4_subr
 
-  recursive subroutine vectar_unfoldx5_subr (f, vec, initial_seed1, initial_seed2, &
-        &                                    initial_seed3, initial_seed4, &
-        &                                    initial_seed5)
+  recursive subroutine vectar_unfoldx5_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3, initial_seed4, &
+       initial_seed5)
     procedure(vectar_unfold5_f_subr_t) :: f
     class(*), intent(in) :: vec
     class(*), intent(in) :: initial_seed1
@@ -10561,9 +10566,10 @@ contains
     call vec_root%discard
   end subroutine vectar_unfoldx5_subr
 
-  recursive subroutine vectar_unfoldx6_subr (f, vec, initial_seed1, initial_seed2, &
-        &                                    initial_seed3, initial_seed4, &
-        &                                    initial_seed5, initial_seed6)
+  recursive subroutine vectar_unfoldx6_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3, initial_seed4, &
+       initial_seed5, initial_seed6)
     procedure(vectar_unfold6_f_subr_t) :: f
     class(*), intent(in) :: vec
     class(*), intent(in) :: initial_seed1
@@ -10624,10 +10630,11 @@ contains
     call vec_root%discard
   end subroutine vectar_unfoldx6_subr
 
-  recursive subroutine vectar_unfoldx7_subr (f, vec, initial_seed1, initial_seed2, &
-        &                                    initial_seed3, initial_seed4, &
-        &                                    initial_seed5, initial_seed6, &
-        &                                    initial_seed7)
+  recursive subroutine vectar_unfoldx7_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3, initial_seed4, &
+       initial_seed5, initial_seed6, &
+       initial_seed7)
     procedure(vectar_unfold7_f_subr_t) :: f
     class(*), intent(in) :: vec
     class(*), intent(in) :: initial_seed1
@@ -10694,10 +10701,11 @@ contains
     call vec_root%discard
   end subroutine vectar_unfoldx7_subr
 
-  recursive subroutine vectar_unfoldx8_subr (f, vec, initial_seed1, initial_seed2, &
-        &                                    initial_seed3, initial_seed4, &
-        &                                    initial_seed5, initial_seed6, &
-        &                                    initial_seed7, initial_seed8)
+  recursive subroutine vectar_unfoldx8_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3, initial_seed4, &
+       initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8)
     procedure(vectar_unfold8_f_subr_t) :: f
     class(*), intent(in) :: vec
     class(*), intent(in) :: initial_seed1
@@ -10770,11 +10778,12 @@ contains
     call vec_root%discard
   end subroutine vectar_unfoldx8_subr
 
-  recursive subroutine vectar_unfoldx9_subr (f, vec, initial_seed1, initial_seed2, &
-        &                                    initial_seed3, initial_seed4, &
-        &                                    initial_seed5, initial_seed6, &
-        &                                    initial_seed7, initial_seed8, &
-        &                                    initial_seed9)
+  recursive subroutine vectar_unfoldx9_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3, initial_seed4, &
+       initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8, &
+       initial_seed9)
     procedure(vectar_unfold9_f_subr_t) :: f
     class(*), intent(in) :: vec
     class(*), intent(in) :: initial_seed1
@@ -10853,11 +10862,12 @@ contains
     call vec_root%discard
   end subroutine vectar_unfoldx9_subr
 
-  recursive subroutine vectar_unfoldx10_subr (f, vec, initial_seed1, initial_seed2, &
-        &                                    initial_seed3, initial_seed4, &
-        &                                    initial_seed5, initial_seed6, &
-        &                                    initial_seed7, initial_seed8, &
-        &                                    initial_seed9, initial_seed10)
+  recursive subroutine vectar_unfoldx10_subr (f, vec, &
+       initial_seed1, initial_seed2, &
+       initial_seed3, initial_seed4, &
+       initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8, &
+       initial_seed9, initial_seed10)
     procedure(vectar_unfold10_f_subr_t) :: f
     class(*), intent(in) :: vec
     class(*), intent(in) :: initial_seed1
@@ -10967,7 +10977,8 @@ contains
     type(vectar_t) :: vec
 
     vec = make_vectar (length)
-    call vectar_unfoldx1_subr (f, vec, initial_seed1)
+    call vectar_unfoldx1_subr (f, vec, &
+         initial_seed1)
   end function vectar_unfold1_subr_size_kind
 
   recursive function vectar_unfold1_subr_int (f, length, &
@@ -10977,7 +10988,8 @@ contains
     class(*), intent(in) :: initial_seed1
     type(vectar_t) :: vec
 
-    vec = vectar_unfold1_subr_size_kind (f, .sz. length, initial_seed1)
+    vec = vectar_unfold1_subr_size_kind (f, .sz. length, &
+         initial_seed1)
   end function vectar_unfold1_subr_int
 
   recursive function vectar_unfold2_subr_size_kind (f, length, &
@@ -10989,7 +11001,8 @@ contains
     type(vectar_t) :: vec
 
     vec = make_vectar (length)
-    call vectar_unfoldx2_subr (f, vec, initial_seed1, initial_seed2)
+    call vectar_unfoldx2_subr (f, vec, &
+         initial_seed1, initial_seed2)
   end function vectar_unfold2_subr_size_kind
 
   recursive function vectar_unfold2_subr_int (f, length, &
@@ -11000,7 +11013,8 @@ contains
     class(*), intent(in) :: initial_seed2
     type(vectar_t) :: vec
 
-    vec = vectar_unfold2_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2)
+    vec = vectar_unfold2_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2)
   end function vectar_unfold2_subr_int
 
   recursive function vectar_unfold3_subr_size_kind (f, length, &
@@ -11013,8 +11027,8 @@ contains
     type(vectar_t) :: vec
 
     vec = make_vectar (length)
-    call vectar_unfoldx3_subr (f, vec, initial_seed1, initial_seed2, &
-         &                     initial_seed3)
+    call vectar_unfoldx3_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3)
   end function vectar_unfold3_subr_size_kind
 
   recursive function vectar_unfold3_subr_int (f, length, &
@@ -11026,8 +11040,8 @@ contains
     class(*), intent(in) :: initial_seed3
     type(vectar_t) :: vec
 
-    vec = vectar_unfold3_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
-         &                               initial_seed3)
+    vec = vectar_unfold3_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3)
   end function vectar_unfold3_subr_int
 
   recursive function vectar_unfold4_subr_size_kind (f, length, &
@@ -11042,8 +11056,9 @@ contains
     type(vectar_t) :: vec
 
     vec = make_vectar (length)
-    call vectar_unfoldx4_subr (f, vec, initial_seed1, initial_seed2, &
-         &                     initial_seed3, initial_seed4)
+    call vectar_unfoldx4_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4)
   end function vectar_unfold4_subr_size_kind
 
   recursive function vectar_unfold4_subr_int (f, length, &
@@ -11057,8 +11072,9 @@ contains
     class(*), intent(in) :: initial_seed4
     type(vectar_t) :: vec
 
-    vec = vectar_unfold4_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
-         &                               initial_seed3, initial_seed4)
+    vec = vectar_unfold4_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4)
   end function vectar_unfold4_subr_int
 
   recursive function vectar_unfold5_subr_size_kind (f, length, &
@@ -11074,9 +11090,9 @@ contains
     type(vectar_t) :: vec
 
     vec = make_vectar (length)
-    call vectar_unfoldx5_subr (f, vec, initial_seed1, initial_seed2, &
-         &                     initial_seed3, initial_seed4, &
-         &                     initial_seed5)
+    call vectar_unfoldx5_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5)
   end function vectar_unfold5_subr_size_kind
 
   recursive function vectar_unfold5_subr_int (f, length, &
@@ -11091,9 +11107,9 @@ contains
     class(*), intent(in) :: initial_seed5
     type(vectar_t) :: vec
 
-    vec = vectar_unfold5_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
-         &                               initial_seed3, initial_seed4, &
-         &                               initial_seed5)
+    vec = vectar_unfold5_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5)
   end function vectar_unfold5_subr_int
 
   recursive function vectar_unfold6_subr_size_kind (f, length, &
@@ -11110,9 +11126,9 @@ contains
     type(vectar_t) :: vec
 
     vec = make_vectar (length)
-    call vectar_unfoldx6_subr (f, vec, initial_seed1, initial_seed2, &
-         &                     initial_seed3, initial_seed4, &
-         &                     initial_seed5, initial_seed6)
+    call vectar_unfoldx6_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6)
   end function vectar_unfold6_subr_size_kind
 
   recursive function vectar_unfold6_subr_int (f, length, &
@@ -11128,9 +11144,9 @@ contains
     class(*), intent(in) :: initial_seed6
     type(vectar_t) :: vec
 
-    vec = vectar_unfold6_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
-         &                               initial_seed3, initial_seed4, &
-         &                               initial_seed5, initial_seed6)
+    vec = vectar_unfold6_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6)
   end function vectar_unfold6_subr_int
 
   recursive function vectar_unfold7_subr_size_kind (f, length, &
@@ -11149,10 +11165,10 @@ contains
     type(vectar_t) :: vec
 
     vec = make_vectar (length)
-    call vectar_unfoldx7_subr (f, vec, initial_seed1, initial_seed2, &
-         &                     initial_seed3, initial_seed4, &
-         &                     initial_seed5, initial_seed6, &
-         &                     initial_seed7)
+    call vectar_unfoldx7_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7)
   end function vectar_unfold7_subr_size_kind
 
   recursive function vectar_unfold7_subr_int (f, length, &
@@ -11170,10 +11186,10 @@ contains
     class(*), intent(in) :: initial_seed7
     type(vectar_t) :: vec
 
-    vec = vectar_unfold7_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
-         &                               initial_seed3, initial_seed4, &
-         &                               initial_seed5, initial_seed6, &
-         &                               initial_seed7)
+    vec = vectar_unfold7_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7)
   end function vectar_unfold7_subr_int
 
   recursive function vectar_unfold8_subr_size_kind (f, length, &
@@ -11193,10 +11209,10 @@ contains
     type(vectar_t) :: vec
 
     vec = make_vectar (length)
-    call vectar_unfoldx8_subr (f, vec, initial_seed1, initial_seed2, &
-         &                     initial_seed3, initial_seed4, &
-         &                     initial_seed5, initial_seed6, &
-         &                     initial_seed7, initial_seed8)
+    call vectar_unfoldx8_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7, initial_seed8)
   end function vectar_unfold8_subr_size_kind
 
   recursive function vectar_unfold8_subr_int (f, length, &
@@ -11215,10 +11231,10 @@ contains
     class(*), intent(in) :: initial_seed8
     type(vectar_t) :: vec
 
-    vec = vectar_unfold8_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
-         &                               initial_seed3, initial_seed4, &
-         &                               initial_seed5, initial_seed6, &
-         &                               initial_seed7, initial_seed8)
+    vec = vectar_unfold8_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7, initial_seed8)
   end function vectar_unfold8_subr_int
 
   recursive function vectar_unfold9_subr_size_kind (f, length, &
@@ -11239,11 +11255,10 @@ contains
     type(vectar_t) :: vec
 
     vec = make_vectar (length)
-    call vectar_unfoldx9_subr (f, vec, initial_seed1, initial_seed2, &
-         &                     initial_seed3, initial_seed4, &
-         &                     initial_seed5, initial_seed6, &
-         &                     initial_seed7, initial_seed8, &
-         &                     initial_seed9)
+    call vectar_unfoldx9_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7, initial_seed8, initial_seed9)
   end function vectar_unfold9_subr_size_kind
 
   recursive function vectar_unfold9_subr_int (f, length, &
@@ -11263,11 +11278,10 @@ contains
     class(*), intent(in) :: initial_seed9
     type(vectar_t) :: vec
 
-    vec = vectar_unfold9_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
-         &                               initial_seed3, initial_seed4, &
-         &                               initial_seed5, initial_seed6, &
-         &                               initial_seed7, initial_seed8, &
-         &                               initial_seed9)
+    vec = vectar_unfold9_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7, initial_seed8, initial_seed9)
   end function vectar_unfold9_subr_int
 
   recursive function vectar_unfold10_subr_size_kind (f, length, &
@@ -11290,11 +11304,11 @@ contains
     type(vectar_t) :: vec
 
     vec = make_vectar (length)
-    call vectar_unfoldx10_subr (f, vec, initial_seed1, initial_seed2, &
-         &                     initial_seed3, initial_seed4, &
-         &                     initial_seed5, initial_seed6, &
-         &                     initial_seed7, initial_seed8, &
-         &                     initial_seed9, initial_seed10)
+    call vectar_unfoldx10_subr (f, vec, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7, initial_seed8, initial_seed9, &
+         initial_seed10)
   end function vectar_unfold10_subr_size_kind
 
   recursive function vectar_unfold10_subr_int (f, length, &
@@ -11316,14 +11330,12 @@ contains
     class(*), intent(in) :: initial_seed10
     type(vectar_t) :: vec
 
-    vec = vectar_unfold10_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
-         &                               initial_seed3, initial_seed4, &
-         &                               initial_seed5, initial_seed6, &
-         &                               initial_seed7, initial_seed8, &
-         &                               initial_seed9, initial_seed10)
+    vec = vectar_unfold10_subr_size_kind (f, .sz. length, &
+         initial_seed1, initial_seed2, initial_seed3, &
+         initial_seed4, initial_seed5, initial_seed6, &
+         initial_seed7, initial_seed8, initial_seed9, &
+         initial_seed10)
   end function vectar_unfold10_subr_int
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   recursive subroutine vectar_unfold_rightx0_subr (f, vec)
     procedure(vectar_unfold0_f_subr_t) :: f

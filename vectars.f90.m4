@@ -2576,7 +2576,8 @@ m4_forloop([k],[1],n,[dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive subroutine vectar_unfoldx0_subr (f, vec)
+m4_define([m4_vectar_unfold_procedures],[dnl
+  recursive subroutine vectar_unfold[]$1[]x0_subr (f, vec)
     procedure(vectar_unfold0_f_subr_t) :: f
     class(*), intent(in) :: vec
 
@@ -2592,138 +2593,16 @@ dnl
     range = vec
     i0 = range%istart0()
     data => vectar_data_ptr (range)
-    do index = 0_sz, range%length() - 1_sz
+    do index = $2
        call f (index, element)
        data%array(i0 + index)%element = element
     end do
 
     call vec_root%discard
-  end subroutine vectar_unfoldx0_subr
+  end subroutine vectar_unfold[]$1[]x0_subr
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  recursive subroutine vectar_unfoldx[]n[]_subr (f, vec, initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
-        &                                    ])initial_seed[]k]))
-    procedure(vectar_unfold[]n[]_f_subr_t) :: f
-    class(*), intent(in) :: vec
-m4_forloop([k],[1],n,[dnl
-    class(*), intent(in) :: initial_seed[]k
-])dnl
-
-    type(gcroot_t) :: vec_root
-    type(vectar_range_t) :: range
-    type(vectar_data_t), pointer :: data
-m4_forloop([k],[1],n,[dnl
-    class(*), allocatable :: seed[]k
-])dnl
-m4_forloop([k],[1],n,[dnl
-    type(gcroot_t) :: seed[]k[]_root
-])dnl
-    class(*), allocatable :: element
-    integer(sz) :: index
-    integer(sz) :: i0
-
-    vec_root = vec
-
-    range = vec
-    i0 = range%istart0()
-    data => vectar_data_ptr (range)
-m4_forloop([k],[1],n,[dnl
-    seed[]k[]_root = initial_seed[]k
-])dnl
-    do index = 0_sz, range%length() - 1_sz
-m4_forloop([k],[1],n,[dnl
-       seed[]k = .val. seed[]k[]_root
-])dnl
-       call f (index, seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
-            &  ])seed[]k]), element)
-       data%array(i0 + index)%element = element
-m4_forloop([k],[1],n,[dnl
-       seed[]k[]_root = seed[]k
-])dnl
-    end do
-
-    call vec_root%discard
-  end subroutine vectar_unfoldx[]n[]_subr
-
-])dnl
-dnl
-  recursive function vectar_unfold0_subr_size_kind (f, length) result (vec)
-    procedure(vectar_unfold0_f_subr_t) :: f
-    integer(sz), intent(in) :: length
-    type(vectar_t) :: vec
-
-    vec = make_vectar (length)
-    call vectar_unfoldx0_subr (f, vec)
-  end function vectar_unfold0_subr_size_kind
-
-  recursive function vectar_unfold0_subr_int (f, length) result (vec)
-    procedure(vectar_unfold0_f_subr_t) :: f
-    integer, intent(in) :: length
-    type(vectar_t) :: vec
-
-    vec = vectar_unfold0_subr_size_kind (f, .sz. length)
-  end function vectar_unfold0_subr_int
-
-m4_forloop([n],[1],ZIP_MAX,[dnl
-  recursive function vectar_unfold[]n[]_subr_size_kind (f, length, &
-       initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
-       ])initial_seed[]k])) result (vec)
-    procedure(vectar_unfold[]n[]_f_subr_t) :: f
-    integer(sz), intent(in) :: length
-m4_forloop([k],[1],n,[dnl
-    class(*), intent(in) :: initial_seed[]k
-])dnl
-    type(vectar_t) :: vec
-
-    vec = make_vectar (length)
-    call vectar_unfoldx[]n[]_subr (f, vec, initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
-         &                     ])initial_seed[]k]))
-  end function vectar_unfold[]n[]_subr_size_kind
-
-  recursive function vectar_unfold[]n[]_subr_int (f, length, &
-       initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
-       ])initial_seed[]k])) result (vec)
-    procedure(vectar_unfold[]n[]_f_subr_t) :: f
-    integer, intent(in) :: length
-m4_forloop([k],[1],n,[dnl
-    class(*), intent(in) :: initial_seed[]k
-])dnl
-    type(vectar_t) :: vec
-
-    vec = vectar_unfold[]n[]_subr_size_kind (f, .sz. length, initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
-         &                               ])initial_seed[]k]))
-  end function vectar_unfold[]n[]_subr_int
-
-])dnl
-dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  recursive subroutine vectar_unfold_rightx0_subr (f, vec)
-    procedure(vectar_unfold0_f_subr_t) :: f
-    class(*), intent(in) :: vec
-
-    type(gcroot_t) :: vec_root
-    type(vectar_range_t) :: range
-    type(vectar_data_t), pointer :: data
-    class(*), allocatable :: element
-    integer(sz) :: index
-    integer(sz) :: i0
-
-    vec_root = vec
-
-    range = vec
-    i0 = range%istart0()
-    data => vectar_data_ptr (range)
-    do index = range%length() - 1_sz, 0_sz, -1_sz
-       call f (index, element)
-       data%array(i0 + index)%element = element
-    end do
-
-    call vec_root%discard
-  end subroutine vectar_unfold_rightx0_subr
-
-m4_forloop([n],[1],ZIP_MAX,[dnl
-  recursive subroutine vectar_unfold_rightx[]n[]_subr (f, vec, &
+  recursive subroutine vectar_unfold[]$1[]x[]n[]_subr (f, vec, &
        initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
        ])initial_seed[]k]))
     procedure(vectar_unfold[]n[]_f_subr_t) :: f
@@ -2753,7 +2632,7 @@ m4_forloop([k],[1],n,[dnl
 m4_forloop([k],[1],n,[dnl
     seed[]k[]_root = initial_seed[]k
 ])dnl
-    do index = range%length() - 1_sz, 0_sz, -1_sz
+    do index = $2
 m4_forloop([k],[1],n,[dnl
        seed[]k = .val. seed[]k[]_root
 ])dnl
@@ -2766,29 +2645,29 @@ m4_forloop([k],[1],n,[dnl
     end do
 
     call vec_root%discard
-  end subroutine vectar_unfold_rightx[]n[]_subr
+  end subroutine vectar_unfold[]$1[]x[]n[]_subr
 
 ])dnl
 dnl
-  recursive function vectar_unfold_right0_subr_size_kind (f, length) result (vec)
+  recursive function vectar_unfold[]$1[]0_subr_size_kind (f, length) result (vec)
     procedure(vectar_unfold0_f_subr_t) :: f
     integer(sz), intent(in) :: length
     type(vectar_t) :: vec
 
     vec = make_vectar (length)
-    call vectar_unfold_rightx0_subr (f, vec)
-  end function vectar_unfold_right0_subr_size_kind
+    call vectar_unfold[]$1[]x0_subr (f, vec)
+  end function vectar_unfold[]$1[]0_subr_size_kind
 
-  recursive function vectar_unfold_right0_subr_int (f, length) result (vec)
+  recursive function vectar_unfold[]$1[]0_subr_int (f, length) result (vec)
     procedure(vectar_unfold0_f_subr_t) :: f
     integer, intent(in) :: length
     type(vectar_t) :: vec
 
-    vec = vectar_unfold_right0_subr_size_kind (f, .sz. length)
-  end function vectar_unfold_right0_subr_int
+    vec = vectar_unfold[]$1[]0_subr_size_kind (f, .sz. length)
+  end function vectar_unfold[]$1[]0_subr_int
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  recursive function vectar_unfold_right[]n[]_subr_size_kind (f, length, &
+  recursive function vectar_unfold[]$1[][]n[]_subr_size_kind (f, length, &
        initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
        ])initial_seed[]k])) result (vec)
     procedure(vectar_unfold[]n[]_f_subr_t) :: f
@@ -2799,12 +2678,12 @@ m4_forloop([k],[1],n,[dnl
     type(vectar_t) :: vec
 
     vec = make_vectar (length)
-    call vectar_unfold_rightx[]n[]_subr (f, vec, &
+    call vectar_unfold[]$1[]x[]n[]_subr (f, vec, &
          initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
          ])initial_seed[]k]))
-  end function vectar_unfold_right[]n[]_subr_size_kind
+  end function vectar_unfold[]$1[][]n[]_subr_size_kind
 
-  recursive function vectar_unfold_right[]n[]_subr_int (f, length, &
+  recursive function vectar_unfold[]$1[][]n[]_subr_int (f, length, &
        initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
        ])initial_seed[]k])) result (vec)
     procedure(vectar_unfold[]n[]_f_subr_t) :: f
@@ -2814,12 +2693,16 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
     type(vectar_t) :: vec
 
-    vec = vectar_unfold_right[]n[]_subr_size_kind (f, .sz. length, &
+    vec = vectar_unfold[]$1[][]n[]_subr_size_kind (f, .sz. length, &
          initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
          ])initial_seed[]k]))
-  end function vectar_unfold_right[]n[]_subr_int
+  end function vectar_unfold[]$1[][]n[]_subr_int
 
 ])dnl
+])dnl
+dnl
+m4_vectar_unfold_procedures([],[0_sz, range%length() - 1_sz])dnl
+m4_vectar_unfold_procedures([_right],[range%length() - 1_sz, 0_sz, -1_sz])dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
