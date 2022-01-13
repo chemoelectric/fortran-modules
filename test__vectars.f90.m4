@@ -1493,6 +1493,36 @@ contains
 
   end subroutine test0230
 
+  subroutine test0240
+    type(vectar_t) :: vec
+
+    ! An example from SRFI-133.
+    vec = vectar_unfold (decrement, 10_sz, 0)
+    call check (vectar_equal (int_eq, vec, vectar (0, -1, -2, -3, -4, -5, -6, -7, -8, -9)), "test0240-0010 failed")
+    vec = vectar_unfold (decrement, 10, 0)
+    call check (vectar_equal (int_eq, vec, vectar (0, -1, -2, -3, -4, -5, -6, -7, -8, -9)), "test0240-0020 failed")
+    vec = make_vectar (10)
+    call vectar_unfoldx (decrement, vec, 0)
+    call check (vectar_equal (int_eq, vec, vectar (0, -1, -2, -3, -4, -5, -6, -7, -8, -9)), "test0240-0030 failed")
+    vec = make_vectar (10, 100)
+    call vectar_unfoldx (decrement, range1 (vec, 2, 5), 10)
+    call check (vectar_equal (int_eq, vec, vectar (100, 10, 9, 8, 7, 100, 100, 100, 100, 100)), "test0240-0040 failed")
+
+  contains
+
+    subroutine decrement (i, x, element)
+      integer(sz), intent(in) :: i
+      class(*), allocatable, intent(inout) :: x
+      class(*), allocatable, intent(out) :: element
+
+      call collect_garbage_now
+
+      element = x
+      x = int_cast (x) - 1
+    end subroutine decrement
+
+  end subroutine test0240
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1520,6 +1550,7 @@ contains
     call test0210
     call test0220
     call test0230
+    call test0240
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

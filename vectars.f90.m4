@@ -303,6 +303,25 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_fold_right[]n[]_subr
 ])dnl
 
+  ! Generic subroutine: create a new vectar by unfolding
+  ! left-to-right.
+  public :: vectar_unfold
+
+  ! Implementations of vectar_unfold.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_unfold[]n[]_subr_size_kind
+  public :: vectar_unfold[]n[]_subr_int
+])dnl
+
+  ! Generic subroutine: unfold into an existing vectar or vectar
+  ! range.
+  public :: vectar_unfoldx
+
+  ! Implementations of vectar_unfoldx.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_unfoldx[]n[]_subr
+])dnl
+
   ! Vectar-list conversions.
   public :: vectar_to_list
   public :: reverse_vectar_to_list
@@ -404,6 +423,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 
   ! A private type for `unspecified' values.
   type :: unspecified_t
+     real :: acceleration_due_to_gravity_at_sea_level = 9.80665
   end type unspecified_t
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -572,6 +592,19 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 ])dnl
   end interface vectar_fold_right
 
+  interface vectar_unfold
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure vectar_unfold[]n[]_subr_size_kind
+     module procedure vectar_unfold[]n[]_subr_int
+])dnl
+  end interface vectar_unfold
+
+  interface vectar_unfoldx
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure vectar_unfoldx[]n[]_subr
+])dnl
+  end interface vectar_unfoldx
+
   interface vectar_equal
 m4_forloop([n],[0],ZIP_MAX,[dnl
      module procedure vectar_equal[]n
@@ -602,8 +635,7 @@ m4_forloop([k],[1],n,[dnl
 
 !!! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !!!
-!!! Types for the per-element-mapping argument to a map procedure,
-!!! an unfold, etc.
+!!! Types for the per-element-mapping argument to a map procedure.
 !!!
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
@@ -664,15 +696,37 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
   end interface
 
+!!! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!!!
+!!! Types for the f subroutine in unfolds.
+!!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_unfold[]n[]_f_subr_t
+])dnl
+
+  abstract interface
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     recursive subroutine vectar_unfold[]n[]_f_subr_t (index, seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+          &                                        ])seed[]k]), element)
+       import sz
+       ! Zero-based index.
+       integer(sz), intent(in) :: index
+       ! One set of parameters for both the old and new seed values.
+m4_forloop([k],[1],n,[dnl
+       class(*), allocatable, intent(inout) :: seed[]k
+])dnl
+       ! The new element.
+       class(*), allocatable, intent(out) :: element
+     end subroutine vectar_unfold[]n[]_f_subr_t
+])dnl
+  end interface
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   interface error_abort
      module procedure error_abort_1
   end interface error_abort
-
-!!$  type :: vectar_data_p_t
-!!$     type(vectar_data_t), pointer :: data
-!!$  end type vectar_data_p_t
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -693,6 +747,12 @@ contains
   subroutine strange_error
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
   end subroutine strange_error
+
+  pure function unspecified () result (unspecified_value)
+    class(*), allocatable :: unspecified_value
+
+    unspecified_value = unspecified_t ()
+  end function unspecified
 
   elemental function int2sz (i) result (j)
     integer, intent(in) :: i
@@ -721,13 +781,6 @@ contains
        call error_abort ("expected a vectar_t")
     end select
   end function vectar_data_ptr
-
-!!$  function vectar_data_p (vec) result (p)
-!!$    class(*), intent(in) :: vec
-!!$    type(vectar_data_p_t) :: p
-!!$
-!!$    p%data => vectar_data_ptr (vec)
-!!$  end function vectar_data_p
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -882,35 +935,35 @@ contains
     vec = .tovectar. range
   end function vectar_range_t_vec
 
-  pure function vectar_range_t_istart0 (range) result (istart0)
+  function vectar_range_t_istart0 (range) result (istart0)
     class(vectar_range_t), intent(in) :: range
     integer(sz) :: istart0
 
     istart0 = range%index_
   end function vectar_range_t_istart0
      
-  pure function vectar_range_t_iend0 (range) result (iend0)
+  function vectar_range_t_iend0 (range) result (iend0)
     class(vectar_range_t), intent(in) :: range
     integer(sz) :: iend0
 
     iend0 = range%index_ + (range%length_ - 1)
   end function vectar_range_t_iend0
 
-  pure function vectar_range_t_istart1 (range) result (istart1)
+  function vectar_range_t_istart1 (range) result (istart1)
     class(vectar_range_t), intent(in) :: range
     integer(sz) :: istart1
 
     istart1 = range%index_ + 1
   end function vectar_range_t_istart1
      
-  pure function vectar_range_t_iend1 (range) result (iend1)
+  function vectar_range_t_iend1 (range) result (iend1)
     class(vectar_range_t), intent(in) :: range
     integer(sz) :: iend1
 
     iend1 = range%index_ + range%length_
   end function vectar_range_t_iend1
 
-  pure function vectar_range_t_istartn_size_kind (range, n) result (istartn)
+  function vectar_range_t_istartn_size_kind (range, n) result (istartn)
     class(vectar_range_t), intent(in) :: range
     integer(sz), intent(in) :: n
     integer(sz) :: istartn
@@ -918,7 +971,7 @@ contains
     istartn = range%index_ + n
   end function vectar_range_t_istartn_size_kind
      
-  pure function vectar_range_t_iendn_size_kind (range, n) result (iendn)
+  function vectar_range_t_iendn_size_kind (range, n) result (iendn)
     class(vectar_range_t), intent(in) :: range
     integer(sz), intent(in) :: n
     integer(sz) :: iendn
@@ -926,7 +979,7 @@ contains
     iendn = range%index_ + (range%length_ - 1) + n
   end function vectar_range_t_iendn_size_kind
 
-  pure function vectar_range_t_istartn_int (range, n) result (istartn)
+  function vectar_range_t_istartn_int (range, n) result (istartn)
     class(vectar_range_t), intent(in) :: range
     integer, intent(in) :: n
     integer(sz) :: istartn
@@ -934,7 +987,7 @@ contains
     istartn = range%index_ + (.sz. n)
   end function vectar_range_t_istartn_int
      
-  pure function vectar_range_t_iendn_int (range, n) result (iendn)
+  function vectar_range_t_iendn_int (range, n) result (iendn)
     class(vectar_range_t), intent(in) :: range
     integer, intent(in) :: n
     integer(sz) :: iendn
@@ -942,7 +995,7 @@ contains
     iendn = range%index_ + (range%length_ - 1) + (.sz. n)
   end function vectar_range_t_iendn_int
 
-  pure function vectar_range_t_length (range) result (len)
+  function vectar_range_t_length (range) result (len)
     class(vectar_range_t), intent(in) :: range
     integer(sz) :: len
 
@@ -1108,14 +1161,14 @@ dnl
     integer(sz), intent(in) :: size
     type(vectar_t) :: vec
 
-    vec = make_vectar_fill_size_kind (size, unspecified_t ())
+    vec = make_vectar_fill_size_kind (size, unspecified ())
   end function make_vectar_unspecified_fill_size_kind
 
   function make_vectar_unspecified_fill_int (size) result (vec)
     integer, intent(in) :: size
     type(vectar_t) :: vec
 
-    vec = make_vectar_fill_size_kind (.sz. size, unspecified_t ())
+    vec = make_vectar_fill_size_kind (.sz. size, unspecified ())
   end function make_vectar_unspecified_fill_int
 
   function make_vectar_fill_size_kind (size, fill) result (vec)
@@ -1400,7 +1453,7 @@ dnl
     integer(sz) :: i
 
     range = vec
-    data => vectar_data_ptr (range%vec())
+    data => vectar_data_ptr (range)
     do i = range%istart0(), range%iend0()
        data%array(i)%element = fill
     end do
@@ -1415,7 +1468,7 @@ dnl
     class(*), allocatable :: tmp
 
     range = vec
-    data => vectar_data_ptr (range%vec())
+    data => vectar_data_ptr (range)
     i = range%istart0()
     j = range%iend0()
     do while (i < j)
@@ -1445,7 +1498,7 @@ dnl
 
     src_range = src
 
-    src_data => vectar_data_ptr (src_range%vec())
+    src_data => vectar_data_ptr (src_range)
     dst_data => vectar_data_ptr (dst)
 
     if (i < 0_sz .or. dst_data%length <= i) then
@@ -1558,7 +1611,7 @@ dnl
 
     src_range = src
 
-    src_data => vectar_data_ptr (src_range%vec())
+    src_data => vectar_data_ptr (src_range)
     dst_data => vectar_data_ptr (dst)
 
     if (i < 0_sz .or. dst_data%length <= i) then
@@ -1713,15 +1766,15 @@ dnl
     class(*), intent(in) :: vec
     type(cons_t) :: lst
 
-    type(vectar_t) :: v
     type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
     integer(sz) :: i
 
     range = vec
-    v = range%vec()
+    data => vectar_data_ptr (range)
     lst = nil
     do i = range%iend0(), range%istart0(), -1
-       lst = vectar_ref0 (v, i) ** lst
+       lst = data%array(i)%element ** lst
     end do
   end function vectar_to_list
 
@@ -1729,15 +1782,15 @@ dnl
     class(*), intent(in) :: vec
     type(cons_t) :: lst
 
-    type(vectar_t) :: v
     type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
     integer(sz) :: i
 
     range = vec
-    v = range%vec()
+    data => vectar_data_ptr (range)
     lst = nil
     do i = range%istart0(), range%iend0()
-       lst = vectar_ref0 (v, i) ** lst
+       lst = data%array(i)%element ** lst
     end do
   end function reverse_vectar_to_list
 
@@ -1816,14 +1869,12 @@ dnl
     class(*), intent(in) :: vec
     type(vectar_t) :: vec_copy
 
-    type(vectar_t) :: v
     type(vectar_range_t) :: range
     type(vectar_data_t), pointer :: src, dst
     integer(sz) :: istart, iend, size, i
 
     range = vec
 
-    v = range%vec()
     istart = range%istart0()
     iend = range%iend0()
     size = (iend - istart) + 1_sz
@@ -1831,7 +1882,7 @@ dnl
     vec_copy = make_vectar (size)
 
     if (0_sz < size) then
-       src => vectar_data_ptr (v)
+       src => vectar_data_ptr (range)
        dst => vectar_data_ptr (vec_copy)
 
        do i = 0_sz, size - 1_sz
@@ -1844,14 +1895,12 @@ dnl
     class(*), intent(in) :: vec
     type(vectar_t) :: vec_copy
 
-    type(vectar_t) :: v
     type(vectar_range_t) :: range
     type(vectar_data_t), pointer :: src, dst
     integer(sz) :: istart, iend, size, i
 
     range = vec
 
-    v = range%vec()
     istart = range%istart0()
     iend = range%iend0()
 
@@ -1860,7 +1909,7 @@ dnl
     vec_copy = make_vectar (size)
 
     if (0_sz < size) then
-       src => vectar_data_ptr (v)
+       src => vectar_data_ptr (range)
        dst => vectar_data_ptr (vec_copy)
 
        do i = 0_sz, size - 1_sz
@@ -1887,9 +1936,6 @@ m4_forloop([k],[1],n,[dnl
     type(vectar_range_t) :: range[]k
 ])dnl
 m4_forloop([k],[1],n,[dnl
-    type(vectar_t) :: v[]k
-])dnl
-m4_forloop([k],[1],n,[dnl
     type(vectar_data_t), pointer :: src[]k
 ])dnl
     type(vectar_data_t), pointer :: dst
@@ -1899,8 +1945,7 @@ m4_forloop([k],[1],n,[dnl
     len_vec_a = 0_sz
 m4_forloop([k],[1],n,[dnl
     range[]k = vec[]k
-    v[]k = range[]k%vec()
-    src[]k => vectar_data_ptr (v[]k)
+    src[]k => vectar_data_ptr (range[]k)
     len_vec_a = len_vec_a + range[]k%length()
 ])dnl
 
@@ -1969,7 +2014,7 @@ m4_forloop([k],[1],n,[dnl
          p = vecs_reversed
          do while (is_pair (p))
             range = car (p)
-            src => vectar_data_ptr (range%vec())
+            src => vectar_data_ptr (range)
             do i = range%iend0(), range%istart0(), -1
                j = j - 1
                dst%array(j) = src%array(i)
@@ -2079,12 +2124,12 @@ m4_forloop([k],[1],n,[dnl
     type(vectar_t) :: vec_m
 
 m4_forloop([k],[1],n,[dnl
+    type(vectar_range_t) :: range[]k
+])dnl
+m4_forloop([k],[1],n,[dnl
     type(gcroot_t) :: vec[]k[]_root
 ])dnl
     type(gcroot_t) :: vec_m_root
-m4_forloop([k],[1],n,[dnl
-    type(vectar_range_t) :: range[]k
-])dnl
 m4_forloop([k],[1],n,[dnl
     type(vectar_data_t), pointer :: data[]k
 ])dnl
@@ -2094,8 +2139,8 @@ m4_forloop([k],[1],n,[dnl
 m4_forloop([k],[1],n,[dnl
     integer(sz) :: i[]k
 ])dnl
+    class(*), allocatable :: result_value
 
-    ! Protect against garbage collections instigated by subr.
 m4_forloop([k],[1],n,[dnl
     vec[]k[]_root = vec[]k
 ])dnl
@@ -2115,7 +2160,7 @@ m4_if(n,[1],[dnl
 
     result_data => vectar_data_ptr (vec_m_root)
 m4_forloop([k],[1],n,[dnl
-    data[]k => vectar_data_ptr (range[]k%vec())
+    data[]k => vectar_data_ptr (range[]k)
 ])dnl
 
     do i = 0_sz, result_length - 1_sz
@@ -2124,7 +2169,8 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
        call subr (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
          &        ])data[]k%array(i[]k)%element]), &
-         &        result_data%array(i)%element)
+         &        result_value)
+       result_data%array(i)%element = result_value
     end do
 
     vec_m = .val. vec_m_root
@@ -2179,7 +2225,7 @@ m4_if(n,[1],[dnl
 ])dnl
 
 m4_forloop([k],[1],n,[dnl
-    data[]k => vectar_data_ptr (range[]k%vec())
+    data[]k => vectar_data_ptr (range[]k)
 ])dnl
 
     do i = 0_sz, result_length - 1_sz
@@ -2241,7 +2287,7 @@ m4_if(n,[1],[dnl
 ])dnl
 
 m4_forloop([k],[1],n,[dnl
-    data[]k => vectar_data_ptr (range[]k%vec())
+    data[]k => vectar_data_ptr (range[]k)
 ])dnl
 
     do i = 0_sz, result_length - 1_sz
@@ -2284,7 +2330,7 @@ dnl
     vec_c_root = make_vectar (range%length())
 
     result_data => vectar_data_ptr (vec_c_root)
-    data => vectar_data_ptr (range%vec())
+    data => vectar_data_ptr (range)
 
     seed = knil
     do i = 0_sz, range%length() - 1_sz
@@ -2341,7 +2387,7 @@ m4_if(n,[1],[dnl
 ])dnl
 
 m4_forloop([k],[1],n,[dnl
-    data[]k => vectar_data_ptr (range[]k%vec())
+    data[]k => vectar_data_ptr (range[]k)
 ])dnl
 
     count = 0_sz
@@ -2407,7 +2453,7 @@ m4_if(n,[1],[dnl
 ])dnl
 
 m4_forloop([k],[1],n,[dnl
-    data[]k => vectar_data_ptr (range[]k%vec())
+    data[]k => vectar_data_ptr (range[]k)
 ])dnl
 
     state = knil
@@ -2473,7 +2519,7 @@ m4_if(n,[1],[dnl
 ])dnl
 
 m4_forloop([k],[1],n,[dnl
-    data[]k => vectar_data_ptr (range[]k%vec())
+    data[]k => vectar_data_ptr (range[]k)
 ])dnl
 
     state = knil
@@ -2491,6 +2537,87 @@ m4_forloop([k],[1],n,[dnl
     call vec[]k[]_root%discard
 ])dnl
   end function vectar_fold_right[]n[]_subr
+
+])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive subroutine vectar_unfoldx[]n[]_subr (f, vec, initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
+        &                                    ])initial_seed[]k]))
+    procedure(vectar_unfold[]n[]_f_subr_t) :: f
+    class(*), intent(in) :: vec
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: initial_seed[]k
+])dnl
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+m4_forloop([k],[1],n,[dnl
+    class(*), allocatable :: seed[]k
+])dnl
+m4_forloop([k],[1],n,[dnl
+    type(gcroot_t) :: seed[]k[]_root
+])dnl
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+m4_forloop([k],[1],n,[dnl
+    seed[]k[]_root = initial_seed[]k
+])dnl
+    do index = 0_sz, range%length() - 1_sz
+m4_forloop([k],[1],n,[dnl
+       seed[]k = .val. seed[]k[]_root
+])dnl
+       call f (index, seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+            &  ])seed[]k]), element)
+       data%array(i0 + index)%element = element
+m4_forloop([k],[1],n,[dnl
+       seed[]k[]_root = seed[]k
+])dnl
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfoldx[]n[]_subr
+
+])dnl
+dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function vectar_unfold[]n[]_subr_size_kind (f, length, &
+       initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
+       ])initial_seed[]k])) result (vec)
+    procedure(vectar_unfold[]n[]_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: initial_seed[]k
+])dnl
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfoldx[]n[]_subr (f, vec, initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
+         &                     ])initial_seed[]k]))
+  end function vectar_unfold[]n[]_subr_size_kind
+
+  recursive function vectar_unfold[]n[]_subr_int (f, length, &
+       initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&
+       ])initial_seed[]k])) result (vec)
+    procedure(vectar_unfold[]n[]_f_subr_t) :: f
+    integer, intent(in) :: length
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: initial_seed[]k
+])dnl
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold[]n[]_subr_size_kind (f, .sz. length, initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
+         &                               ])initial_seed[]k]))
+  end function vectar_unfold[]n[]_subr_int
 
 ])dnl
 dnl

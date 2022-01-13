@@ -369,6 +369,48 @@ module vectars
   public :: vectar_fold_right9_subr
   public :: vectar_fold_right10_subr
 
+  ! Generic subroutine: create a new vectar by unfolding
+  ! left-to-right.
+  public :: vectar_unfold
+
+  ! Implementations of vectar_unfold.
+  public :: vectar_unfold1_subr_size_kind
+  public :: vectar_unfold1_subr_int
+  public :: vectar_unfold2_subr_size_kind
+  public :: vectar_unfold2_subr_int
+  public :: vectar_unfold3_subr_size_kind
+  public :: vectar_unfold3_subr_int
+  public :: vectar_unfold4_subr_size_kind
+  public :: vectar_unfold4_subr_int
+  public :: vectar_unfold5_subr_size_kind
+  public :: vectar_unfold5_subr_int
+  public :: vectar_unfold6_subr_size_kind
+  public :: vectar_unfold6_subr_int
+  public :: vectar_unfold7_subr_size_kind
+  public :: vectar_unfold7_subr_int
+  public :: vectar_unfold8_subr_size_kind
+  public :: vectar_unfold8_subr_int
+  public :: vectar_unfold9_subr_size_kind
+  public :: vectar_unfold9_subr_int
+  public :: vectar_unfold10_subr_size_kind
+  public :: vectar_unfold10_subr_int
+
+  ! Generic subroutine: unfold into an existing vectar or vectar
+  ! range.
+  public :: vectar_unfoldx
+
+  ! Implementations of vectar_unfoldx.
+  public :: vectar_unfoldx1_subr
+  public :: vectar_unfoldx2_subr
+  public :: vectar_unfoldx3_subr
+  public :: vectar_unfoldx4_subr
+  public :: vectar_unfoldx5_subr
+  public :: vectar_unfoldx6_subr
+  public :: vectar_unfoldx7_subr
+  public :: vectar_unfoldx8_subr
+  public :: vectar_unfoldx9_subr
+  public :: vectar_unfoldx10_subr
+
   ! Vectar-list conversions.
   public :: vectar_to_list
   public :: reverse_vectar_to_list
@@ -470,6 +512,7 @@ module vectars
 
   ! A private type for `unspecified' values.
   type :: unspecified_t
+     real :: acceleration_due_to_gravity_at_sea_level = 9.80665
   end type unspecified_t
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -706,6 +749,42 @@ module vectars
      module procedure vectar_fold_right10_subr
   end interface vectar_fold_right
 
+  interface vectar_unfold
+     module procedure vectar_unfold1_subr_size_kind
+     module procedure vectar_unfold1_subr_int
+     module procedure vectar_unfold2_subr_size_kind
+     module procedure vectar_unfold2_subr_int
+     module procedure vectar_unfold3_subr_size_kind
+     module procedure vectar_unfold3_subr_int
+     module procedure vectar_unfold4_subr_size_kind
+     module procedure vectar_unfold4_subr_int
+     module procedure vectar_unfold5_subr_size_kind
+     module procedure vectar_unfold5_subr_int
+     module procedure vectar_unfold6_subr_size_kind
+     module procedure vectar_unfold6_subr_int
+     module procedure vectar_unfold7_subr_size_kind
+     module procedure vectar_unfold7_subr_int
+     module procedure vectar_unfold8_subr_size_kind
+     module procedure vectar_unfold8_subr_int
+     module procedure vectar_unfold9_subr_size_kind
+     module procedure vectar_unfold9_subr_int
+     module procedure vectar_unfold10_subr_size_kind
+     module procedure vectar_unfold10_subr_int
+  end interface vectar_unfold
+
+  interface vectar_unfoldx
+     module procedure vectar_unfoldx1_subr
+     module procedure vectar_unfoldx2_subr
+     module procedure vectar_unfoldx3_subr
+     module procedure vectar_unfoldx4_subr
+     module procedure vectar_unfoldx5_subr
+     module procedure vectar_unfoldx6_subr
+     module procedure vectar_unfoldx7_subr
+     module procedure vectar_unfoldx8_subr
+     module procedure vectar_unfoldx9_subr
+     module procedure vectar_unfoldx10_subr
+  end interface vectar_unfoldx
+
   interface vectar_equal
      module procedure vectar_equal0
      module procedure vectar_equal1
@@ -831,8 +910,7 @@ module vectars
 
 !!! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 !!!
-!!! Types for the per-element-mapping argument to a map procedure,
-!!! an unfold, etc.
+!!! Types for the per-element-mapping argument to a map procedure.
 !!!
 
   public :: vectar_map1_subr_t
@@ -1157,15 +1235,170 @@ module vectars
      end subroutine vectar_kons10_subr_t
   end interface
 
+!!! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+!!!
+!!! Types for the f subroutine in unfolds.
+!!!
+
+  public :: vectar_unfold1_f_subr_t
+  public :: vectar_unfold2_f_subr_t
+  public :: vectar_unfold3_f_subr_t
+  public :: vectar_unfold4_f_subr_t
+  public :: vectar_unfold5_f_subr_t
+  public :: vectar_unfold6_f_subr_t
+  public :: vectar_unfold7_f_subr_t
+  public :: vectar_unfold8_f_subr_t
+  public :: vectar_unfold9_f_subr_t
+  public :: vectar_unfold10_f_subr_t
+
+  abstract interface
+     recursive subroutine vectar_unfold1_f_subr_t (index, seed1, element)
+       import sz
+       ! Zero-based index.
+       integer(sz), intent(in) :: index
+       ! One set of parameters for both the old and new seed values.
+       class(*), allocatable, intent(inout) :: seed1
+       ! The new element.
+       class(*), allocatable, intent(out) :: element
+     end subroutine vectar_unfold1_f_subr_t
+     recursive subroutine vectar_unfold2_f_subr_t (index, seed1, seed2, element)
+       import sz
+       ! Zero-based index.
+       integer(sz), intent(in) :: index
+       ! One set of parameters for both the old and new seed values.
+       class(*), allocatable, intent(inout) :: seed1
+       class(*), allocatable, intent(inout) :: seed2
+       ! The new element.
+       class(*), allocatable, intent(out) :: element
+     end subroutine vectar_unfold2_f_subr_t
+     recursive subroutine vectar_unfold3_f_subr_t (index, seed1, seed2, seed3, element)
+       import sz
+       ! Zero-based index.
+       integer(sz), intent(in) :: index
+       ! One set of parameters for both the old and new seed values.
+       class(*), allocatable, intent(inout) :: seed1
+       class(*), allocatable, intent(inout) :: seed2
+       class(*), allocatable, intent(inout) :: seed3
+       ! The new element.
+       class(*), allocatable, intent(out) :: element
+     end subroutine vectar_unfold3_f_subr_t
+     recursive subroutine vectar_unfold4_f_subr_t (index, seed1, seed2, seed3, seed4, element)
+       import sz
+       ! Zero-based index.
+       integer(sz), intent(in) :: index
+       ! One set of parameters for both the old and new seed values.
+       class(*), allocatable, intent(inout) :: seed1
+       class(*), allocatable, intent(inout) :: seed2
+       class(*), allocatable, intent(inout) :: seed3
+       class(*), allocatable, intent(inout) :: seed4
+       ! The new element.
+       class(*), allocatable, intent(out) :: element
+     end subroutine vectar_unfold4_f_subr_t
+     recursive subroutine vectar_unfold5_f_subr_t (index, seed1, seed2, seed3, seed4, seed5, element)
+       import sz
+       ! Zero-based index.
+       integer(sz), intent(in) :: index
+       ! One set of parameters for both the old and new seed values.
+       class(*), allocatable, intent(inout) :: seed1
+       class(*), allocatable, intent(inout) :: seed2
+       class(*), allocatable, intent(inout) :: seed3
+       class(*), allocatable, intent(inout) :: seed4
+       class(*), allocatable, intent(inout) :: seed5
+       ! The new element.
+       class(*), allocatable, intent(out) :: element
+     end subroutine vectar_unfold5_f_subr_t
+     recursive subroutine vectar_unfold6_f_subr_t (index, seed1, seed2, seed3, seed4, seed5, &
+          &                                        seed6, element)
+       import sz
+       ! Zero-based index.
+       integer(sz), intent(in) :: index
+       ! One set of parameters for both the old and new seed values.
+       class(*), allocatable, intent(inout) :: seed1
+       class(*), allocatable, intent(inout) :: seed2
+       class(*), allocatable, intent(inout) :: seed3
+       class(*), allocatable, intent(inout) :: seed4
+       class(*), allocatable, intent(inout) :: seed5
+       class(*), allocatable, intent(inout) :: seed6
+       ! The new element.
+       class(*), allocatable, intent(out) :: element
+     end subroutine vectar_unfold6_f_subr_t
+     recursive subroutine vectar_unfold7_f_subr_t (index, seed1, seed2, seed3, seed4, seed5, &
+          &                                        seed6, seed7, element)
+       import sz
+       ! Zero-based index.
+       integer(sz), intent(in) :: index
+       ! One set of parameters for both the old and new seed values.
+       class(*), allocatable, intent(inout) :: seed1
+       class(*), allocatable, intent(inout) :: seed2
+       class(*), allocatable, intent(inout) :: seed3
+       class(*), allocatable, intent(inout) :: seed4
+       class(*), allocatable, intent(inout) :: seed5
+       class(*), allocatable, intent(inout) :: seed6
+       class(*), allocatable, intent(inout) :: seed7
+       ! The new element.
+       class(*), allocatable, intent(out) :: element
+     end subroutine vectar_unfold7_f_subr_t
+     recursive subroutine vectar_unfold8_f_subr_t (index, seed1, seed2, seed3, seed4, seed5, &
+          &                                        seed6, seed7, seed8, element)
+       import sz
+       ! Zero-based index.
+       integer(sz), intent(in) :: index
+       ! One set of parameters for both the old and new seed values.
+       class(*), allocatable, intent(inout) :: seed1
+       class(*), allocatable, intent(inout) :: seed2
+       class(*), allocatable, intent(inout) :: seed3
+       class(*), allocatable, intent(inout) :: seed4
+       class(*), allocatable, intent(inout) :: seed5
+       class(*), allocatable, intent(inout) :: seed6
+       class(*), allocatable, intent(inout) :: seed7
+       class(*), allocatable, intent(inout) :: seed8
+       ! The new element.
+       class(*), allocatable, intent(out) :: element
+     end subroutine vectar_unfold8_f_subr_t
+     recursive subroutine vectar_unfold9_f_subr_t (index, seed1, seed2, seed3, seed4, seed5, &
+          &                                        seed6, seed7, seed8, seed9, element)
+       import sz
+       ! Zero-based index.
+       integer(sz), intent(in) :: index
+       ! One set of parameters for both the old and new seed values.
+       class(*), allocatable, intent(inout) :: seed1
+       class(*), allocatable, intent(inout) :: seed2
+       class(*), allocatable, intent(inout) :: seed3
+       class(*), allocatable, intent(inout) :: seed4
+       class(*), allocatable, intent(inout) :: seed5
+       class(*), allocatable, intent(inout) :: seed6
+       class(*), allocatable, intent(inout) :: seed7
+       class(*), allocatable, intent(inout) :: seed8
+       class(*), allocatable, intent(inout) :: seed9
+       ! The new element.
+       class(*), allocatable, intent(out) :: element
+     end subroutine vectar_unfold9_f_subr_t
+     recursive subroutine vectar_unfold10_f_subr_t (index, seed1, seed2, seed3, seed4, seed5, &
+          &                                        seed6, seed7, seed8, seed9, seed10, element)
+       import sz
+       ! Zero-based index.
+       integer(sz), intent(in) :: index
+       ! One set of parameters for both the old and new seed values.
+       class(*), allocatable, intent(inout) :: seed1
+       class(*), allocatable, intent(inout) :: seed2
+       class(*), allocatable, intent(inout) :: seed3
+       class(*), allocatable, intent(inout) :: seed4
+       class(*), allocatable, intent(inout) :: seed5
+       class(*), allocatable, intent(inout) :: seed6
+       class(*), allocatable, intent(inout) :: seed7
+       class(*), allocatable, intent(inout) :: seed8
+       class(*), allocatable, intent(inout) :: seed9
+       class(*), allocatable, intent(inout) :: seed10
+       ! The new element.
+       class(*), allocatable, intent(out) :: element
+     end subroutine vectar_unfold10_f_subr_t
+  end interface
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   interface error_abort
      module procedure error_abort_1
   end interface error_abort
-
-!!$  type :: vectar_data_p_t
-!!$     type(vectar_data_t), pointer :: data
-!!$  end type vectar_data_p_t
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1186,6 +1419,12 @@ contains
   subroutine strange_error
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
   end subroutine strange_error
+
+  pure function unspecified () result (unspecified_value)
+    class(*), allocatable :: unspecified_value
+
+    unspecified_value = unspecified_t ()
+  end function unspecified
 
   elemental function int2sz (i) result (j)
     integer, intent(in) :: i
@@ -1214,13 +1453,6 @@ contains
        call error_abort ("expected a vectar_t")
     end select
   end function vectar_data_ptr
-
-!!$  function vectar_data_p (vec) result (p)
-!!$    class(*), intent(in) :: vec
-!!$    type(vectar_data_p_t) :: p
-!!$
-!!$    p%data => vectar_data_ptr (vec)
-!!$  end function vectar_data_p
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1375,35 +1607,35 @@ contains
     vec = .tovectar. range
   end function vectar_range_t_vec
 
-  pure function vectar_range_t_istart0 (range) result (istart0)
+  function vectar_range_t_istart0 (range) result (istart0)
     class(vectar_range_t), intent(in) :: range
     integer(sz) :: istart0
 
     istart0 = range%index_
   end function vectar_range_t_istart0
      
-  pure function vectar_range_t_iend0 (range) result (iend0)
+  function vectar_range_t_iend0 (range) result (iend0)
     class(vectar_range_t), intent(in) :: range
     integer(sz) :: iend0
 
     iend0 = range%index_ + (range%length_ - 1)
   end function vectar_range_t_iend0
 
-  pure function vectar_range_t_istart1 (range) result (istart1)
+  function vectar_range_t_istart1 (range) result (istart1)
     class(vectar_range_t), intent(in) :: range
     integer(sz) :: istart1
 
     istart1 = range%index_ + 1
   end function vectar_range_t_istart1
      
-  pure function vectar_range_t_iend1 (range) result (iend1)
+  function vectar_range_t_iend1 (range) result (iend1)
     class(vectar_range_t), intent(in) :: range
     integer(sz) :: iend1
 
     iend1 = range%index_ + range%length_
   end function vectar_range_t_iend1
 
-  pure function vectar_range_t_istartn_size_kind (range, n) result (istartn)
+  function vectar_range_t_istartn_size_kind (range, n) result (istartn)
     class(vectar_range_t), intent(in) :: range
     integer(sz), intent(in) :: n
     integer(sz) :: istartn
@@ -1411,7 +1643,7 @@ contains
     istartn = range%index_ + n
   end function vectar_range_t_istartn_size_kind
      
-  pure function vectar_range_t_iendn_size_kind (range, n) result (iendn)
+  function vectar_range_t_iendn_size_kind (range, n) result (iendn)
     class(vectar_range_t), intent(in) :: range
     integer(sz), intent(in) :: n
     integer(sz) :: iendn
@@ -1419,7 +1651,7 @@ contains
     iendn = range%index_ + (range%length_ - 1) + n
   end function vectar_range_t_iendn_size_kind
 
-  pure function vectar_range_t_istartn_int (range, n) result (istartn)
+  function vectar_range_t_istartn_int (range, n) result (istartn)
     class(vectar_range_t), intent(in) :: range
     integer, intent(in) :: n
     integer(sz) :: istartn
@@ -1427,7 +1659,7 @@ contains
     istartn = range%index_ + (.sz. n)
   end function vectar_range_t_istartn_int
      
-  pure function vectar_range_t_iendn_int (range, n) result (iendn)
+  function vectar_range_t_iendn_int (range, n) result (iendn)
     class(vectar_range_t), intent(in) :: range
     integer, intent(in) :: n
     integer(sz) :: iendn
@@ -1435,7 +1667,7 @@ contains
     iendn = range%index_ + (range%length_ - 1) + (.sz. n)
   end function vectar_range_t_iendn_int
 
-  pure function vectar_range_t_length (range) result (len)
+  function vectar_range_t_length (range) result (len)
     class(vectar_range_t), intent(in) :: range
     integer(sz) :: len
 
@@ -2327,14 +2559,14 @@ contains
     integer(sz), intent(in) :: size
     type(vectar_t) :: vec
 
-    vec = make_vectar_fill_size_kind (size, unspecified_t ())
+    vec = make_vectar_fill_size_kind (size, unspecified ())
   end function make_vectar_unspecified_fill_size_kind
 
   function make_vectar_unspecified_fill_int (size) result (vec)
     integer, intent(in) :: size
     type(vectar_t) :: vec
 
-    vec = make_vectar_fill_size_kind (.sz. size, unspecified_t ())
+    vec = make_vectar_fill_size_kind (.sz. size, unspecified ())
   end function make_vectar_unspecified_fill_int
 
   function make_vectar_fill_size_kind (size, fill) result (vec)
@@ -2619,7 +2851,7 @@ contains
     integer(sz) :: i
 
     range = vec
-    data => vectar_data_ptr (range%vec())
+    data => vectar_data_ptr (range)
     do i = range%istart0(), range%iend0()
        data%array(i)%element = fill
     end do
@@ -2634,7 +2866,7 @@ contains
     class(*), allocatable :: tmp
 
     range = vec
-    data => vectar_data_ptr (range%vec())
+    data => vectar_data_ptr (range)
     i = range%istart0()
     j = range%iend0()
     do while (i < j)
@@ -2664,7 +2896,7 @@ contains
 
     src_range = src
 
-    src_data => vectar_data_ptr (src_range%vec())
+    src_data => vectar_data_ptr (src_range)
     dst_data => vectar_data_ptr (dst)
 
     if (i < 0_sz .or. dst_data%length <= i) then
@@ -2777,7 +3009,7 @@ contains
 
     src_range = src
 
-    src_data => vectar_data_ptr (src_range%vec())
+    src_data => vectar_data_ptr (src_range)
     dst_data => vectar_data_ptr (dst)
 
     if (i < 0_sz .or. dst_data%length <= i) then
@@ -2932,15 +3164,15 @@ contains
     class(*), intent(in) :: vec
     type(cons_t) :: lst
 
-    type(vectar_t) :: v
     type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
     integer(sz) :: i
 
     range = vec
-    v = range%vec()
+    data => vectar_data_ptr (range)
     lst = nil
     do i = range%iend0(), range%istart0(), -1
-       lst = vectar_ref0 (v, i) ** lst
+       lst = data%array(i)%element ** lst
     end do
   end function vectar_to_list
 
@@ -2948,15 +3180,15 @@ contains
     class(*), intent(in) :: vec
     type(cons_t) :: lst
 
-    type(vectar_t) :: v
     type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
     integer(sz) :: i
 
     range = vec
-    v = range%vec()
+    data => vectar_data_ptr (range)
     lst = nil
     do i = range%istart0(), range%iend0()
-       lst = vectar_ref0 (v, i) ** lst
+       lst = data%array(i)%element ** lst
     end do
   end function reverse_vectar_to_list
 
@@ -3035,14 +3267,12 @@ contains
     class(*), intent(in) :: vec
     type(vectar_t) :: vec_copy
 
-    type(vectar_t) :: v
     type(vectar_range_t) :: range
     type(vectar_data_t), pointer :: src, dst
     integer(sz) :: istart, iend, size, i
 
     range = vec
 
-    v = range%vec()
     istart = range%istart0()
     iend = range%iend0()
     size = (iend - istart) + 1_sz
@@ -3050,7 +3280,7 @@ contains
     vec_copy = make_vectar (size)
 
     if (0_sz < size) then
-       src => vectar_data_ptr (v)
+       src => vectar_data_ptr (range)
        dst => vectar_data_ptr (vec_copy)
 
        do i = 0_sz, size - 1_sz
@@ -3063,14 +3293,12 @@ contains
     class(*), intent(in) :: vec
     type(vectar_t) :: vec_copy
 
-    type(vectar_t) :: v
     type(vectar_range_t) :: range
     type(vectar_data_t), pointer :: src, dst
     integer(sz) :: istart, iend, size, i
 
     range = vec
 
-    v = range%vec()
     istart = range%istart0()
     iend = range%iend0()
 
@@ -3079,7 +3307,7 @@ contains
     vec_copy = make_vectar (size)
 
     if (0_sz < size) then
-       src => vectar_data_ptr (v)
+       src => vectar_data_ptr (range)
        dst => vectar_data_ptr (vec_copy)
 
        do i = 0_sz, size - 1_sz
@@ -3099,7 +3327,6 @@ contains
     type(vectar_t) :: vec_a
 
     type(vectar_range_t) :: range1
-    type(vectar_t) :: v1
     type(vectar_data_t), pointer :: src1
     type(vectar_data_t), pointer :: dst
     integer(sz) :: len_vec_a
@@ -3107,8 +3334,7 @@ contains
 
     len_vec_a = 0_sz
     range1 = vec1
-    v1 = range1%vec()
-    src1 => vectar_data_ptr (v1)
+    src1 => vectar_data_ptr (range1)
     len_vec_a = len_vec_a + range1%length()
 
     vec_a = make_vectar (len_vec_a)
@@ -3129,8 +3355,6 @@ contains
 
     type(vectar_range_t) :: range1
     type(vectar_range_t) :: range2
-    type(vectar_t) :: v1
-    type(vectar_t) :: v2
     type(vectar_data_t), pointer :: src1
     type(vectar_data_t), pointer :: src2
     type(vectar_data_t), pointer :: dst
@@ -3139,12 +3363,10 @@ contains
 
     len_vec_a = 0_sz
     range1 = vec1
-    v1 = range1%vec()
-    src1 => vectar_data_ptr (v1)
+    src1 => vectar_data_ptr (range1)
     len_vec_a = len_vec_a + range1%length()
     range2 = vec2
-    v2 = range2%vec()
-    src2 => vectar_data_ptr (v2)
+    src2 => vectar_data_ptr (range2)
     len_vec_a = len_vec_a + range2%length()
 
     vec_a = make_vectar (len_vec_a)
@@ -3171,9 +3393,6 @@ contains
     type(vectar_range_t) :: range1
     type(vectar_range_t) :: range2
     type(vectar_range_t) :: range3
-    type(vectar_t) :: v1
-    type(vectar_t) :: v2
-    type(vectar_t) :: v3
     type(vectar_data_t), pointer :: src1
     type(vectar_data_t), pointer :: src2
     type(vectar_data_t), pointer :: src3
@@ -3183,16 +3402,13 @@ contains
 
     len_vec_a = 0_sz
     range1 = vec1
-    v1 = range1%vec()
-    src1 => vectar_data_ptr (v1)
+    src1 => vectar_data_ptr (range1)
     len_vec_a = len_vec_a + range1%length()
     range2 = vec2
-    v2 = range2%vec()
-    src2 => vectar_data_ptr (v2)
+    src2 => vectar_data_ptr (range2)
     len_vec_a = len_vec_a + range2%length()
     range3 = vec3
-    v3 = range3%vec()
-    src3 => vectar_data_ptr (v3)
+    src3 => vectar_data_ptr (range3)
     len_vec_a = len_vec_a + range3%length()
 
     vec_a = make_vectar (len_vec_a)
@@ -3225,10 +3441,6 @@ contains
     type(vectar_range_t) :: range2
     type(vectar_range_t) :: range3
     type(vectar_range_t) :: range4
-    type(vectar_t) :: v1
-    type(vectar_t) :: v2
-    type(vectar_t) :: v3
-    type(vectar_t) :: v4
     type(vectar_data_t), pointer :: src1
     type(vectar_data_t), pointer :: src2
     type(vectar_data_t), pointer :: src3
@@ -3239,20 +3451,16 @@ contains
 
     len_vec_a = 0_sz
     range1 = vec1
-    v1 = range1%vec()
-    src1 => vectar_data_ptr (v1)
+    src1 => vectar_data_ptr (range1)
     len_vec_a = len_vec_a + range1%length()
     range2 = vec2
-    v2 = range2%vec()
-    src2 => vectar_data_ptr (v2)
+    src2 => vectar_data_ptr (range2)
     len_vec_a = len_vec_a + range2%length()
     range3 = vec3
-    v3 = range3%vec()
-    src3 => vectar_data_ptr (v3)
+    src3 => vectar_data_ptr (range3)
     len_vec_a = len_vec_a + range3%length()
     range4 = vec4
-    v4 = range4%vec()
-    src4 => vectar_data_ptr (v4)
+    src4 => vectar_data_ptr (range4)
     len_vec_a = len_vec_a + range4%length()
 
     vec_a = make_vectar (len_vec_a)
@@ -3291,11 +3499,6 @@ contains
     type(vectar_range_t) :: range3
     type(vectar_range_t) :: range4
     type(vectar_range_t) :: range5
-    type(vectar_t) :: v1
-    type(vectar_t) :: v2
-    type(vectar_t) :: v3
-    type(vectar_t) :: v4
-    type(vectar_t) :: v5
     type(vectar_data_t), pointer :: src1
     type(vectar_data_t), pointer :: src2
     type(vectar_data_t), pointer :: src3
@@ -3307,24 +3510,19 @@ contains
 
     len_vec_a = 0_sz
     range1 = vec1
-    v1 = range1%vec()
-    src1 => vectar_data_ptr (v1)
+    src1 => vectar_data_ptr (range1)
     len_vec_a = len_vec_a + range1%length()
     range2 = vec2
-    v2 = range2%vec()
-    src2 => vectar_data_ptr (v2)
+    src2 => vectar_data_ptr (range2)
     len_vec_a = len_vec_a + range2%length()
     range3 = vec3
-    v3 = range3%vec()
-    src3 => vectar_data_ptr (v3)
+    src3 => vectar_data_ptr (range3)
     len_vec_a = len_vec_a + range3%length()
     range4 = vec4
-    v4 = range4%vec()
-    src4 => vectar_data_ptr (v4)
+    src4 => vectar_data_ptr (range4)
     len_vec_a = len_vec_a + range4%length()
     range5 = vec5
-    v5 = range5%vec()
-    src5 => vectar_data_ptr (v5)
+    src5 => vectar_data_ptr (range5)
     len_vec_a = len_vec_a + range5%length()
 
     vec_a = make_vectar (len_vec_a)
@@ -3370,12 +3568,6 @@ contains
     type(vectar_range_t) :: range4
     type(vectar_range_t) :: range5
     type(vectar_range_t) :: range6
-    type(vectar_t) :: v1
-    type(vectar_t) :: v2
-    type(vectar_t) :: v3
-    type(vectar_t) :: v4
-    type(vectar_t) :: v5
-    type(vectar_t) :: v6
     type(vectar_data_t), pointer :: src1
     type(vectar_data_t), pointer :: src2
     type(vectar_data_t), pointer :: src3
@@ -3388,28 +3580,22 @@ contains
 
     len_vec_a = 0_sz
     range1 = vec1
-    v1 = range1%vec()
-    src1 => vectar_data_ptr (v1)
+    src1 => vectar_data_ptr (range1)
     len_vec_a = len_vec_a + range1%length()
     range2 = vec2
-    v2 = range2%vec()
-    src2 => vectar_data_ptr (v2)
+    src2 => vectar_data_ptr (range2)
     len_vec_a = len_vec_a + range2%length()
     range3 = vec3
-    v3 = range3%vec()
-    src3 => vectar_data_ptr (v3)
+    src3 => vectar_data_ptr (range3)
     len_vec_a = len_vec_a + range3%length()
     range4 = vec4
-    v4 = range4%vec()
-    src4 => vectar_data_ptr (v4)
+    src4 => vectar_data_ptr (range4)
     len_vec_a = len_vec_a + range4%length()
     range5 = vec5
-    v5 = range5%vec()
-    src5 => vectar_data_ptr (v5)
+    src5 => vectar_data_ptr (range5)
     len_vec_a = len_vec_a + range5%length()
     range6 = vec6
-    v6 = range6%vec()
-    src6 => vectar_data_ptr (v6)
+    src6 => vectar_data_ptr (range6)
     len_vec_a = len_vec_a + range6%length()
 
     vec_a = make_vectar (len_vec_a)
@@ -3461,13 +3647,6 @@ contains
     type(vectar_range_t) :: range5
     type(vectar_range_t) :: range6
     type(vectar_range_t) :: range7
-    type(vectar_t) :: v1
-    type(vectar_t) :: v2
-    type(vectar_t) :: v3
-    type(vectar_t) :: v4
-    type(vectar_t) :: v5
-    type(vectar_t) :: v6
-    type(vectar_t) :: v7
     type(vectar_data_t), pointer :: src1
     type(vectar_data_t), pointer :: src2
     type(vectar_data_t), pointer :: src3
@@ -3481,32 +3660,25 @@ contains
 
     len_vec_a = 0_sz
     range1 = vec1
-    v1 = range1%vec()
-    src1 => vectar_data_ptr (v1)
+    src1 => vectar_data_ptr (range1)
     len_vec_a = len_vec_a + range1%length()
     range2 = vec2
-    v2 = range2%vec()
-    src2 => vectar_data_ptr (v2)
+    src2 => vectar_data_ptr (range2)
     len_vec_a = len_vec_a + range2%length()
     range3 = vec3
-    v3 = range3%vec()
-    src3 => vectar_data_ptr (v3)
+    src3 => vectar_data_ptr (range3)
     len_vec_a = len_vec_a + range3%length()
     range4 = vec4
-    v4 = range4%vec()
-    src4 => vectar_data_ptr (v4)
+    src4 => vectar_data_ptr (range4)
     len_vec_a = len_vec_a + range4%length()
     range5 = vec5
-    v5 = range5%vec()
-    src5 => vectar_data_ptr (v5)
+    src5 => vectar_data_ptr (range5)
     len_vec_a = len_vec_a + range5%length()
     range6 = vec6
-    v6 = range6%vec()
-    src6 => vectar_data_ptr (v6)
+    src6 => vectar_data_ptr (range6)
     len_vec_a = len_vec_a + range6%length()
     range7 = vec7
-    v7 = range7%vec()
-    src7 => vectar_data_ptr (v7)
+    src7 => vectar_data_ptr (range7)
     len_vec_a = len_vec_a + range7%length()
 
     vec_a = make_vectar (len_vec_a)
@@ -3564,14 +3736,6 @@ contains
     type(vectar_range_t) :: range6
     type(vectar_range_t) :: range7
     type(vectar_range_t) :: range8
-    type(vectar_t) :: v1
-    type(vectar_t) :: v2
-    type(vectar_t) :: v3
-    type(vectar_t) :: v4
-    type(vectar_t) :: v5
-    type(vectar_t) :: v6
-    type(vectar_t) :: v7
-    type(vectar_t) :: v8
     type(vectar_data_t), pointer :: src1
     type(vectar_data_t), pointer :: src2
     type(vectar_data_t), pointer :: src3
@@ -3586,36 +3750,28 @@ contains
 
     len_vec_a = 0_sz
     range1 = vec1
-    v1 = range1%vec()
-    src1 => vectar_data_ptr (v1)
+    src1 => vectar_data_ptr (range1)
     len_vec_a = len_vec_a + range1%length()
     range2 = vec2
-    v2 = range2%vec()
-    src2 => vectar_data_ptr (v2)
+    src2 => vectar_data_ptr (range2)
     len_vec_a = len_vec_a + range2%length()
     range3 = vec3
-    v3 = range3%vec()
-    src3 => vectar_data_ptr (v3)
+    src3 => vectar_data_ptr (range3)
     len_vec_a = len_vec_a + range3%length()
     range4 = vec4
-    v4 = range4%vec()
-    src4 => vectar_data_ptr (v4)
+    src4 => vectar_data_ptr (range4)
     len_vec_a = len_vec_a + range4%length()
     range5 = vec5
-    v5 = range5%vec()
-    src5 => vectar_data_ptr (v5)
+    src5 => vectar_data_ptr (range5)
     len_vec_a = len_vec_a + range5%length()
     range6 = vec6
-    v6 = range6%vec()
-    src6 => vectar_data_ptr (v6)
+    src6 => vectar_data_ptr (range6)
     len_vec_a = len_vec_a + range6%length()
     range7 = vec7
-    v7 = range7%vec()
-    src7 => vectar_data_ptr (v7)
+    src7 => vectar_data_ptr (range7)
     len_vec_a = len_vec_a + range7%length()
     range8 = vec8
-    v8 = range8%vec()
-    src8 => vectar_data_ptr (v8)
+    src8 => vectar_data_ptr (range8)
     len_vec_a = len_vec_a + range8%length()
 
     vec_a = make_vectar (len_vec_a)
@@ -3679,15 +3835,6 @@ contains
     type(vectar_range_t) :: range7
     type(vectar_range_t) :: range8
     type(vectar_range_t) :: range9
-    type(vectar_t) :: v1
-    type(vectar_t) :: v2
-    type(vectar_t) :: v3
-    type(vectar_t) :: v4
-    type(vectar_t) :: v5
-    type(vectar_t) :: v6
-    type(vectar_t) :: v7
-    type(vectar_t) :: v8
-    type(vectar_t) :: v9
     type(vectar_data_t), pointer :: src1
     type(vectar_data_t), pointer :: src2
     type(vectar_data_t), pointer :: src3
@@ -3703,40 +3850,31 @@ contains
 
     len_vec_a = 0_sz
     range1 = vec1
-    v1 = range1%vec()
-    src1 => vectar_data_ptr (v1)
+    src1 => vectar_data_ptr (range1)
     len_vec_a = len_vec_a + range1%length()
     range2 = vec2
-    v2 = range2%vec()
-    src2 => vectar_data_ptr (v2)
+    src2 => vectar_data_ptr (range2)
     len_vec_a = len_vec_a + range2%length()
     range3 = vec3
-    v3 = range3%vec()
-    src3 => vectar_data_ptr (v3)
+    src3 => vectar_data_ptr (range3)
     len_vec_a = len_vec_a + range3%length()
     range4 = vec4
-    v4 = range4%vec()
-    src4 => vectar_data_ptr (v4)
+    src4 => vectar_data_ptr (range4)
     len_vec_a = len_vec_a + range4%length()
     range5 = vec5
-    v5 = range5%vec()
-    src5 => vectar_data_ptr (v5)
+    src5 => vectar_data_ptr (range5)
     len_vec_a = len_vec_a + range5%length()
     range6 = vec6
-    v6 = range6%vec()
-    src6 => vectar_data_ptr (v6)
+    src6 => vectar_data_ptr (range6)
     len_vec_a = len_vec_a + range6%length()
     range7 = vec7
-    v7 = range7%vec()
-    src7 => vectar_data_ptr (v7)
+    src7 => vectar_data_ptr (range7)
     len_vec_a = len_vec_a + range7%length()
     range8 = vec8
-    v8 = range8%vec()
-    src8 => vectar_data_ptr (v8)
+    src8 => vectar_data_ptr (range8)
     len_vec_a = len_vec_a + range8%length()
     range9 = vec9
-    v9 = range9%vec()
-    src9 => vectar_data_ptr (v9)
+    src9 => vectar_data_ptr (range9)
     len_vec_a = len_vec_a + range9%length()
 
     vec_a = make_vectar (len_vec_a)
@@ -3806,16 +3944,6 @@ contains
     type(vectar_range_t) :: range8
     type(vectar_range_t) :: range9
     type(vectar_range_t) :: range10
-    type(vectar_t) :: v1
-    type(vectar_t) :: v2
-    type(vectar_t) :: v3
-    type(vectar_t) :: v4
-    type(vectar_t) :: v5
-    type(vectar_t) :: v6
-    type(vectar_t) :: v7
-    type(vectar_t) :: v8
-    type(vectar_t) :: v9
-    type(vectar_t) :: v10
     type(vectar_data_t), pointer :: src1
     type(vectar_data_t), pointer :: src2
     type(vectar_data_t), pointer :: src3
@@ -3832,44 +3960,34 @@ contains
 
     len_vec_a = 0_sz
     range1 = vec1
-    v1 = range1%vec()
-    src1 => vectar_data_ptr (v1)
+    src1 => vectar_data_ptr (range1)
     len_vec_a = len_vec_a + range1%length()
     range2 = vec2
-    v2 = range2%vec()
-    src2 => vectar_data_ptr (v2)
+    src2 => vectar_data_ptr (range2)
     len_vec_a = len_vec_a + range2%length()
     range3 = vec3
-    v3 = range3%vec()
-    src3 => vectar_data_ptr (v3)
+    src3 => vectar_data_ptr (range3)
     len_vec_a = len_vec_a + range3%length()
     range4 = vec4
-    v4 = range4%vec()
-    src4 => vectar_data_ptr (v4)
+    src4 => vectar_data_ptr (range4)
     len_vec_a = len_vec_a + range4%length()
     range5 = vec5
-    v5 = range5%vec()
-    src5 => vectar_data_ptr (v5)
+    src5 => vectar_data_ptr (range5)
     len_vec_a = len_vec_a + range5%length()
     range6 = vec6
-    v6 = range6%vec()
-    src6 => vectar_data_ptr (v6)
+    src6 => vectar_data_ptr (range6)
     len_vec_a = len_vec_a + range6%length()
     range7 = vec7
-    v7 = range7%vec()
-    src7 => vectar_data_ptr (v7)
+    src7 => vectar_data_ptr (range7)
     len_vec_a = len_vec_a + range7%length()
     range8 = vec8
-    v8 = range8%vec()
-    src8 => vectar_data_ptr (v8)
+    src8 => vectar_data_ptr (range8)
     len_vec_a = len_vec_a + range8%length()
     range9 = vec9
-    v9 = range9%vec()
-    src9 => vectar_data_ptr (v9)
+    src9 => vectar_data_ptr (range9)
     len_vec_a = len_vec_a + range9%length()
     range10 = vec10
-    v10 = range10%vec()
-    src10 => vectar_data_ptr (v10)
+    src10 => vectar_data_ptr (range10)
     len_vec_a = len_vec_a + range10%length()
 
     vec_a = make_vectar (len_vec_a)
@@ -4072,7 +4190,7 @@ contains
          p = vecs_reversed
          do while (is_pair (p))
             range = car (p)
-            src => vectar_data_ptr (range%vec())
+            src => vectar_data_ptr (range)
             do i = range%iend0(), range%istart0(), -1
                j = j - 1
                dst%array(j) = src%array(i)
@@ -5224,16 +5342,16 @@ contains
     class(*), intent(in) :: vec1
     type(vectar_t) :: vec_m
 
+    type(vectar_range_t) :: range1
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec_m_root
-    type(vectar_range_t) :: range1
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: result_data
     integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
+    class(*), allocatable :: result_value
 
-    ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
 
     range1 = vec1
@@ -5243,12 +5361,13 @@ contains
     vec_m_root = make_vectar (result_length)
 
     result_data => vectar_data_ptr (vec_m_root)
-    data1 => vectar_data_ptr (range1%vec())
+    data1 => vectar_data_ptr (range1)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
        call subr (data1%array(i1)%element, &
-         &        result_data%array(i)%element)
+         &        result_value)
+       result_data%array(i)%element = result_value
     end do
 
     vec_m = .val. vec_m_root
@@ -5262,11 +5381,11 @@ contains
     class(*), intent(in) :: vec2
     type(vectar_t) :: vec_m
 
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec_m_root
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: result_data
@@ -5274,8 +5393,8 @@ contains
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
+    class(*), allocatable :: result_value
 
-    ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
     vec2_root = vec2
 
@@ -5287,14 +5406,15 @@ contains
     vec_m_root = make_vectar (result_length)
 
     result_data => vectar_data_ptr (vec_m_root)
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        call subr (data1%array(i1)%element, data2%array(i2)%element, &
-         &        result_data%array(i)%element)
+         &        result_value)
+       result_data%array(i)%element = result_value
     end do
 
     vec_m = .val. vec_m_root
@@ -5310,13 +5430,13 @@ contains
     class(*), intent(in) :: vec3
     type(vectar_t) :: vec_m
 
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
     type(gcroot_t) :: vec_m_root
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
@@ -5326,8 +5446,8 @@ contains
     integer(sz) :: i1
     integer(sz) :: i2
     integer(sz) :: i3
+    class(*), allocatable :: result_value
 
-    ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
     vec2_root = vec2
     vec3_root = vec3
@@ -5341,9 +5461,9 @@ contains
     vec_m_root = make_vectar (result_length)
 
     result_data => vectar_data_ptr (vec_m_root)
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -5351,7 +5471,8 @@ contains
        i3 = range3%istart0() + i
        call subr (data1%array(i1)%element, data2%array(i2)%element, &
          &        data3%array(i3)%element, &
-         &        result_data%array(i)%element)
+         &        result_value)
+       result_data%array(i)%element = result_value
     end do
 
     vec_m = .val. vec_m_root
@@ -5369,15 +5490,15 @@ contains
     class(*), intent(in) :: vec4
     type(vectar_t) :: vec_m
 
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
     type(gcroot_t) :: vec4_root
     type(gcroot_t) :: vec_m_root
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
-    type(vectar_range_t) :: range4
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
@@ -5389,8 +5510,8 @@ contains
     integer(sz) :: i2
     integer(sz) :: i3
     integer(sz) :: i4
+    class(*), allocatable :: result_value
 
-    ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
     vec2_root = vec2
     vec3_root = vec3
@@ -5406,10 +5527,10 @@ contains
     vec_m_root = make_vectar (result_length)
 
     result_data => vectar_data_ptr (vec_m_root)
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -5418,7 +5539,8 @@ contains
        i4 = range4%istart0() + i
        call subr (data1%array(i1)%element, data2%array(i2)%element, &
          &        data3%array(i3)%element, data4%array(i4)%element, &
-         &        result_data%array(i)%element)
+         &        result_value)
+       result_data%array(i)%element = result_value
     end do
 
     vec_m = .val. vec_m_root
@@ -5438,17 +5560,17 @@ contains
     class(*), intent(in) :: vec5
     type(vectar_t) :: vec_m
 
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
     type(gcroot_t) :: vec4_root
     type(gcroot_t) :: vec5_root
     type(gcroot_t) :: vec_m_root
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
-    type(vectar_range_t) :: range4
-    type(vectar_range_t) :: range5
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
@@ -5462,8 +5584,8 @@ contains
     integer(sz) :: i3
     integer(sz) :: i4
     integer(sz) :: i5
+    class(*), allocatable :: result_value
 
-    ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
     vec2_root = vec2
     vec3_root = vec3
@@ -5481,11 +5603,11 @@ contains
     vec_m_root = make_vectar (result_length)
 
     result_data => vectar_data_ptr (vec_m_root)
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -5496,7 +5618,8 @@ contains
        call subr (data1%array(i1)%element, data2%array(i2)%element, &
          &        data3%array(i3)%element, data4%array(i4)%element, &
          &        data5%array(i5)%element, &
-         &        result_data%array(i)%element)
+         &        result_value)
+       result_data%array(i)%element = result_value
     end do
 
     vec_m = .val. vec_m_root
@@ -5519,6 +5642,12 @@ contains
     class(*), intent(in) :: vec6
     type(vectar_t) :: vec_m
 
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -5526,12 +5655,6 @@ contains
     type(gcroot_t) :: vec5_root
     type(gcroot_t) :: vec6_root
     type(gcroot_t) :: vec_m_root
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
-    type(vectar_range_t) :: range4
-    type(vectar_range_t) :: range5
-    type(vectar_range_t) :: range6
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
@@ -5547,8 +5670,8 @@ contains
     integer(sz) :: i4
     integer(sz) :: i5
     integer(sz) :: i6
+    class(*), allocatable :: result_value
 
-    ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
     vec2_root = vec2
     vec3_root = vec3
@@ -5569,12 +5692,12 @@ contains
     vec_m_root = make_vectar (result_length)
 
     result_data => vectar_data_ptr (vec_m_root)
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -5586,7 +5709,8 @@ contains
        call subr (data1%array(i1)%element, data2%array(i2)%element, &
          &        data3%array(i3)%element, data4%array(i4)%element, &
          &        data5%array(i5)%element, data6%array(i6)%element, &
-         &        result_data%array(i)%element)
+         &        result_value)
+       result_data%array(i)%element = result_value
     end do
 
     vec_m = .val. vec_m_root
@@ -5611,6 +5735,13 @@ contains
     class(*), intent(in) :: vec7
     type(vectar_t) :: vec_m
 
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -5619,13 +5750,6 @@ contains
     type(gcroot_t) :: vec6_root
     type(gcroot_t) :: vec7_root
     type(gcroot_t) :: vec_m_root
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
-    type(vectar_range_t) :: range4
-    type(vectar_range_t) :: range5
-    type(vectar_range_t) :: range6
-    type(vectar_range_t) :: range7
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
@@ -5643,8 +5767,8 @@ contains
     integer(sz) :: i5
     integer(sz) :: i6
     integer(sz) :: i7
+    class(*), allocatable :: result_value
 
-    ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
     vec2_root = vec2
     vec3_root = vec3
@@ -5667,13 +5791,13 @@ contains
     vec_m_root = make_vectar (result_length)
 
     result_data => vectar_data_ptr (vec_m_root)
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -5687,7 +5811,8 @@ contains
          &        data3%array(i3)%element, data4%array(i4)%element, &
          &        data5%array(i5)%element, data6%array(i6)%element, &
          &        data7%array(i7)%element, &
-         &        result_data%array(i)%element)
+         &        result_value)
+       result_data%array(i)%element = result_value
     end do
 
     vec_m = .val. vec_m_root
@@ -5714,6 +5839,14 @@ contains
     class(*), intent(in) :: vec8
     type(vectar_t) :: vec_m
 
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -5723,14 +5856,6 @@ contains
     type(gcroot_t) :: vec7_root
     type(gcroot_t) :: vec8_root
     type(gcroot_t) :: vec_m_root
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
-    type(vectar_range_t) :: range4
-    type(vectar_range_t) :: range5
-    type(vectar_range_t) :: range6
-    type(vectar_range_t) :: range7
-    type(vectar_range_t) :: range8
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
@@ -5750,8 +5875,8 @@ contains
     integer(sz) :: i6
     integer(sz) :: i7
     integer(sz) :: i8
+    class(*), allocatable :: result_value
 
-    ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
     vec2_root = vec2
     vec3_root = vec3
@@ -5776,14 +5901,14 @@ contains
     vec_m_root = make_vectar (result_length)
 
     result_data => vectar_data_ptr (vec_m_root)
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -5798,7 +5923,8 @@ contains
          &        data3%array(i3)%element, data4%array(i4)%element, &
          &        data5%array(i5)%element, data6%array(i6)%element, &
          &        data7%array(i7)%element, data8%array(i8)%element, &
-         &        result_data%array(i)%element)
+         &        result_value)
+       result_data%array(i)%element = result_value
     end do
 
     vec_m = .val. vec_m_root
@@ -5827,6 +5953,15 @@ contains
     class(*), intent(in) :: vec9
     type(vectar_t) :: vec_m
 
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -5837,15 +5972,6 @@ contains
     type(gcroot_t) :: vec8_root
     type(gcroot_t) :: vec9_root
     type(gcroot_t) :: vec_m_root
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
-    type(vectar_range_t) :: range4
-    type(vectar_range_t) :: range5
-    type(vectar_range_t) :: range6
-    type(vectar_range_t) :: range7
-    type(vectar_range_t) :: range8
-    type(vectar_range_t) :: range9
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
@@ -5867,8 +5993,8 @@ contains
     integer(sz) :: i7
     integer(sz) :: i8
     integer(sz) :: i9
+    class(*), allocatable :: result_value
 
-    ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
     vec2_root = vec2
     vec3_root = vec3
@@ -5895,15 +6021,15 @@ contains
     vec_m_root = make_vectar (result_length)
 
     result_data => vectar_data_ptr (vec_m_root)
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
-    data9 => vectar_data_ptr (range9%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -5920,7 +6046,8 @@ contains
          &        data5%array(i5)%element, data6%array(i6)%element, &
          &        data7%array(i7)%element, data8%array(i8)%element, &
          &        data9%array(i9)%element, &
-         &        result_data%array(i)%element)
+         &        result_value)
+       result_data%array(i)%element = result_value
     end do
 
     vec_m = .val. vec_m_root
@@ -5951,6 +6078,16 @@ contains
     class(*), intent(in) :: vec10
     type(vectar_t) :: vec_m
 
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -5962,16 +6099,6 @@ contains
     type(gcroot_t) :: vec9_root
     type(gcroot_t) :: vec10_root
     type(gcroot_t) :: vec_m_root
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
-    type(vectar_range_t) :: range4
-    type(vectar_range_t) :: range5
-    type(vectar_range_t) :: range6
-    type(vectar_range_t) :: range7
-    type(vectar_range_t) :: range8
-    type(vectar_range_t) :: range9
-    type(vectar_range_t) :: range10
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
@@ -5995,8 +6122,8 @@ contains
     integer(sz) :: i8
     integer(sz) :: i9
     integer(sz) :: i10
+    class(*), allocatable :: result_value
 
-    ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
     vec2_root = vec2
     vec3_root = vec3
@@ -6025,16 +6152,16 @@ contains
     vec_m_root = make_vectar (result_length)
 
     result_data => vectar_data_ptr (vec_m_root)
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
-    data9 => vectar_data_ptr (range9%vec())
-    data10 => vectar_data_ptr (range10%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+    data10 => vectar_data_ptr (range10)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -6052,7 +6179,8 @@ contains
          &        data5%array(i5)%element, data6%array(i6)%element, &
          &        data7%array(i7)%element, data8%array(i8)%element, &
          &        data9%array(i9)%element, data10%array(i10)%element, &
-         &        result_data%array(i)%element)
+         &        result_value)
+       result_data%array(i)%element = result_value
     end do
 
     vec_m = .val. vec_m_root
@@ -6090,7 +6218,7 @@ contains
 
     result_length = range1%length()
 
-    data1 => vectar_data_ptr (range1%vec())
+    data1 => vectar_data_ptr (range1)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -6128,8 +6256,8 @@ contains
 
     result_length = min (range1%length(), range2%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -6176,9 +6304,9 @@ contains
 
     result_length = min (range1%length(), range2%length(), range3%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -6235,10 +6363,10 @@ contains
 
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -6304,11 +6432,11 @@ contains
 
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -6386,12 +6514,12 @@ contains
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -6478,13 +6606,13 @@ contains
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -6581,14 +6709,14 @@ contains
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length(), range8%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -6694,15 +6822,15 @@ contains
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length(), range8%length(), range9%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
-    data9 => vectar_data_ptr (range9%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -6818,16 +6946,16 @@ contains
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
-    data9 => vectar_data_ptr (range9%vec())
-    data10 => vectar_data_ptr (range10%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+    data10 => vectar_data_ptr (range10)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -6881,7 +7009,7 @@ contains
 
     result_length = range1%length()
 
-    data1 => vectar_data_ptr (range1%vec())
+    data1 => vectar_data_ptr (range1)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -6916,8 +7044,8 @@ contains
 
     result_length = min (range1%length(), range2%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -6961,9 +7089,9 @@ contains
 
     result_length = min (range1%length(), range2%length(), range3%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -7017,10 +7145,10 @@ contains
 
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -7083,11 +7211,11 @@ contains
 
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -7162,12 +7290,12 @@ contains
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -7251,13 +7379,13 @@ contains
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -7351,14 +7479,14 @@ contains
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length(), range8%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -7461,15 +7589,15 @@ contains
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length(), range8%length(), range9%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
-    data9 => vectar_data_ptr (range9%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -7582,16 +7710,16 @@ contains
     result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &               range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
-    data9 => vectar_data_ptr (range9%vec())
-    data10 => vectar_data_ptr (range10%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+    data10 => vectar_data_ptr (range10)
 
     do i = 0_sz, result_length - 1_sz
        i1 = range1%istart0() + i
@@ -7648,7 +7776,7 @@ contains
     vec_c_root = make_vectar (range%length())
 
     result_data => vectar_data_ptr (vec_c_root)
-    data => vectar_data_ptr (range%vec())
+    data => vectar_data_ptr (range)
 
     seed = knil
     do i = 0_sz, range%length() - 1_sz
@@ -7683,7 +7811,7 @@ contains
 
     min_length = range1%length()
 
-    data1 => vectar_data_ptr (range1%vec())
+    data1 => vectar_data_ptr (range1)
 
     count = 0_sz
     do i = 0_sz, min_length - 1_sz
@@ -7722,8 +7850,8 @@ contains
 
     min_length = min (range1%length(), range2%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
 
     count = 0_sz
     do i = 0_sz, min_length - 1_sz
@@ -7771,9 +7899,9 @@ contains
 
     min_length = min (range1%length(), range2%length(), range3%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
 
     count = 0_sz
     do i = 0_sz, min_length - 1_sz
@@ -7831,10 +7959,10 @@ contains
 
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
 
     count = 0_sz
     do i = 0_sz, min_length - 1_sz
@@ -7901,11 +8029,11 @@ contains
 
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
 
     count = 0_sz
     do i = 0_sz, min_length - 1_sz
@@ -7984,12 +8112,12 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
 
     count = 0_sz
     do i = 0_sz, min_length - 1_sz
@@ -8077,13 +8205,13 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length(), range7%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
 
     count = 0_sz
     do i = 0_sz, min_length - 1_sz
@@ -8181,14 +8309,14 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length(), range7%length(), range8%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
 
     count = 0_sz
     do i = 0_sz, min_length - 1_sz
@@ -8295,15 +8423,15 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length(), range7%length(), range8%length(), range9%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
-    data9 => vectar_data_ptr (range9%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
 
     count = 0_sz
     do i = 0_sz, min_length - 1_sz
@@ -8420,16 +8548,16 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
-    data9 => vectar_data_ptr (range9%vec())
-    data10 => vectar_data_ptr (range10%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+    data10 => vectar_data_ptr (range10)
 
     count = 0_sz
     do i = 0_sz, min_length - 1_sz
@@ -8487,7 +8615,7 @@ contains
 
     min_length = range1%length()
 
-    data1 => vectar_data_ptr (range1%vec())
+    data1 => vectar_data_ptr (range1)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -8528,8 +8656,8 @@ contains
 
     min_length = min (range1%length(), range2%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -8579,9 +8707,9 @@ contains
 
     min_length = min (range1%length(), range2%length(), range3%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -8641,10 +8769,10 @@ contains
 
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -8713,11 +8841,11 @@ contains
 
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -8798,12 +8926,12 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -8893,13 +9021,13 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length(), range7%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -8999,14 +9127,14 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length(), range7%length(), range8%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -9115,15 +9243,15 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length(), range7%length(), range8%length(), range9%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
-    data9 => vectar_data_ptr (range9%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -9242,16 +9370,16 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
-    data9 => vectar_data_ptr (range9%vec())
-    data10 => vectar_data_ptr (range10%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+    data10 => vectar_data_ptr (range10)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -9309,7 +9437,7 @@ contains
 
     min_length = range1%length()
 
-    data1 => vectar_data_ptr (range1%vec())
+    data1 => vectar_data_ptr (range1)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -9350,8 +9478,8 @@ contains
 
     min_length = min (range1%length(), range2%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -9401,9 +9529,9 @@ contains
 
     min_length = min (range1%length(), range2%length(), range3%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -9463,10 +9591,10 @@ contains
 
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -9535,11 +9663,11 @@ contains
 
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -9620,12 +9748,12 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -9715,13 +9843,13 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length(), range7%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -9821,14 +9949,14 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length(), range7%length(), range8%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -9937,15 +10065,15 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length(), range7%length(), range8%length(), range9%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
-    data9 => vectar_data_ptr (range9%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -10064,16 +10192,16 @@ contains
     min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
          &            range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
 
-    data1 => vectar_data_ptr (range1%vec())
-    data2 => vectar_data_ptr (range2%vec())
-    data3 => vectar_data_ptr (range3%vec())
-    data4 => vectar_data_ptr (range4%vec())
-    data5 => vectar_data_ptr (range5%vec())
-    data6 => vectar_data_ptr (range6%vec())
-    data7 => vectar_data_ptr (range7%vec())
-    data8 => vectar_data_ptr (range8%vec())
-    data9 => vectar_data_ptr (range9%vec())
-    data10 => vectar_data_ptr (range10%vec())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+    data10 => vectar_data_ptr (range10)
 
     state = knil
     do i = 0_sz, min_length - 1_sz
@@ -10107,6 +10235,967 @@ contains
     call vec9_root%discard
     call vec10_root%discard
   end function vectar_fold_right10_subr
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive subroutine vectar_unfoldx1_subr (f, vec, initial_seed1)
+    procedure(vectar_unfold1_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    type(gcroot_t) :: seed1_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    do index = 0_sz, range%length() - 1_sz
+       seed1 = .val. seed1_root
+       call f (index, seed1, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfoldx1_subr
+
+  recursive subroutine vectar_unfoldx2_subr (f, vec, initial_seed1, initial_seed2)
+    procedure(vectar_unfold2_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    do index = 0_sz, range%length() - 1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       call f (index, seed1, seed2, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfoldx2_subr
+
+  recursive subroutine vectar_unfoldx3_subr (f, vec, initial_seed1, initial_seed2, &
+        &                                    initial_seed3)
+    procedure(vectar_unfold3_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    do index = 0_sz, range%length() - 1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       call f (index, seed1, seed2, seed3, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfoldx3_subr
+
+  recursive subroutine vectar_unfoldx4_subr (f, vec, initial_seed1, initial_seed2, &
+        &                                    initial_seed3, initial_seed4)
+    procedure(vectar_unfold4_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    class(*), allocatable :: seed4
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    type(gcroot_t) :: seed4_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    seed4_root = initial_seed4
+    do index = 0_sz, range%length() - 1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       seed4 = .val. seed4_root
+       call f (index, seed1, seed2, seed3, seed4, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+       seed4_root = seed4
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfoldx4_subr
+
+  recursive subroutine vectar_unfoldx5_subr (f, vec, initial_seed1, initial_seed2, &
+        &                                    initial_seed3, initial_seed4, &
+        &                                    initial_seed5)
+    procedure(vectar_unfold5_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    class(*), allocatable :: seed4
+    class(*), allocatable :: seed5
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    type(gcroot_t) :: seed4_root
+    type(gcroot_t) :: seed5_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    seed4_root = initial_seed4
+    seed5_root = initial_seed5
+    do index = 0_sz, range%length() - 1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       seed4 = .val. seed4_root
+       seed5 = .val. seed5_root
+       call f (index, seed1, seed2, seed3, seed4, seed5, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+       seed4_root = seed4
+       seed5_root = seed5
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfoldx5_subr
+
+  recursive subroutine vectar_unfoldx6_subr (f, vec, initial_seed1, initial_seed2, &
+        &                                    initial_seed3, initial_seed4, &
+        &                                    initial_seed5, initial_seed6)
+    procedure(vectar_unfold6_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    class(*), allocatable :: seed4
+    class(*), allocatable :: seed5
+    class(*), allocatable :: seed6
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    type(gcroot_t) :: seed4_root
+    type(gcroot_t) :: seed5_root
+    type(gcroot_t) :: seed6_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    seed4_root = initial_seed4
+    seed5_root = initial_seed5
+    seed6_root = initial_seed6
+    do index = 0_sz, range%length() - 1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       seed4 = .val. seed4_root
+       seed5 = .val. seed5_root
+       seed6 = .val. seed6_root
+       call f (index, seed1, seed2, seed3, seed4, seed5, &
+            &  seed6, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+       seed4_root = seed4
+       seed5_root = seed5
+       seed6_root = seed6
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfoldx6_subr
+
+  recursive subroutine vectar_unfoldx7_subr (f, vec, initial_seed1, initial_seed2, &
+        &                                    initial_seed3, initial_seed4, &
+        &                                    initial_seed5, initial_seed6, &
+        &                                    initial_seed7)
+    procedure(vectar_unfold7_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    class(*), allocatable :: seed4
+    class(*), allocatable :: seed5
+    class(*), allocatable :: seed6
+    class(*), allocatable :: seed7
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    type(gcroot_t) :: seed4_root
+    type(gcroot_t) :: seed5_root
+    type(gcroot_t) :: seed6_root
+    type(gcroot_t) :: seed7_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    seed4_root = initial_seed4
+    seed5_root = initial_seed5
+    seed6_root = initial_seed6
+    seed7_root = initial_seed7
+    do index = 0_sz, range%length() - 1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       seed4 = .val. seed4_root
+       seed5 = .val. seed5_root
+       seed6 = .val. seed6_root
+       seed7 = .val. seed7_root
+       call f (index, seed1, seed2, seed3, seed4, seed5, &
+            &  seed6, seed7, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+       seed4_root = seed4
+       seed5_root = seed5
+       seed6_root = seed6
+       seed7_root = seed7
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfoldx7_subr
+
+  recursive subroutine vectar_unfoldx8_subr (f, vec, initial_seed1, initial_seed2, &
+        &                                    initial_seed3, initial_seed4, &
+        &                                    initial_seed5, initial_seed6, &
+        &                                    initial_seed7, initial_seed8)
+    procedure(vectar_unfold8_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    class(*), allocatable :: seed4
+    class(*), allocatable :: seed5
+    class(*), allocatable :: seed6
+    class(*), allocatable :: seed7
+    class(*), allocatable :: seed8
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    type(gcroot_t) :: seed4_root
+    type(gcroot_t) :: seed5_root
+    type(gcroot_t) :: seed6_root
+    type(gcroot_t) :: seed7_root
+    type(gcroot_t) :: seed8_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    seed4_root = initial_seed4
+    seed5_root = initial_seed5
+    seed6_root = initial_seed6
+    seed7_root = initial_seed7
+    seed8_root = initial_seed8
+    do index = 0_sz, range%length() - 1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       seed4 = .val. seed4_root
+       seed5 = .val. seed5_root
+       seed6 = .val. seed6_root
+       seed7 = .val. seed7_root
+       seed8 = .val. seed8_root
+       call f (index, seed1, seed2, seed3, seed4, seed5, &
+            &  seed6, seed7, seed8, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+       seed4_root = seed4
+       seed5_root = seed5
+       seed6_root = seed6
+       seed7_root = seed7
+       seed8_root = seed8
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfoldx8_subr
+
+  recursive subroutine vectar_unfoldx9_subr (f, vec, initial_seed1, initial_seed2, &
+        &                                    initial_seed3, initial_seed4, &
+        &                                    initial_seed5, initial_seed6, &
+        &                                    initial_seed7, initial_seed8, &
+        &                                    initial_seed9)
+    procedure(vectar_unfold9_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    class(*), intent(in) :: initial_seed9
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    class(*), allocatable :: seed4
+    class(*), allocatable :: seed5
+    class(*), allocatable :: seed6
+    class(*), allocatable :: seed7
+    class(*), allocatable :: seed8
+    class(*), allocatable :: seed9
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    type(gcroot_t) :: seed4_root
+    type(gcroot_t) :: seed5_root
+    type(gcroot_t) :: seed6_root
+    type(gcroot_t) :: seed7_root
+    type(gcroot_t) :: seed8_root
+    type(gcroot_t) :: seed9_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    seed4_root = initial_seed4
+    seed5_root = initial_seed5
+    seed6_root = initial_seed6
+    seed7_root = initial_seed7
+    seed8_root = initial_seed8
+    seed9_root = initial_seed9
+    do index = 0_sz, range%length() - 1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       seed4 = .val. seed4_root
+       seed5 = .val. seed5_root
+       seed6 = .val. seed6_root
+       seed7 = .val. seed7_root
+       seed8 = .val. seed8_root
+       seed9 = .val. seed9_root
+       call f (index, seed1, seed2, seed3, seed4, seed5, &
+            &  seed6, seed7, seed8, seed9, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+       seed4_root = seed4
+       seed5_root = seed5
+       seed6_root = seed6
+       seed7_root = seed7
+       seed8_root = seed8
+       seed9_root = seed9
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfoldx9_subr
+
+  recursive subroutine vectar_unfoldx10_subr (f, vec, initial_seed1, initial_seed2, &
+        &                                    initial_seed3, initial_seed4, &
+        &                                    initial_seed5, initial_seed6, &
+        &                                    initial_seed7, initial_seed8, &
+        &                                    initial_seed9, initial_seed10)
+    procedure(vectar_unfold10_f_subr_t) :: f
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    class(*), intent(in) :: initial_seed9
+    class(*), intent(in) :: initial_seed10
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: seed1
+    class(*), allocatable :: seed2
+    class(*), allocatable :: seed3
+    class(*), allocatable :: seed4
+    class(*), allocatable :: seed5
+    class(*), allocatable :: seed6
+    class(*), allocatable :: seed7
+    class(*), allocatable :: seed8
+    class(*), allocatable :: seed9
+    class(*), allocatable :: seed10
+    type(gcroot_t) :: seed1_root
+    type(gcroot_t) :: seed2_root
+    type(gcroot_t) :: seed3_root
+    type(gcroot_t) :: seed4_root
+    type(gcroot_t) :: seed5_root
+    type(gcroot_t) :: seed6_root
+    type(gcroot_t) :: seed7_root
+    type(gcroot_t) :: seed8_root
+    type(gcroot_t) :: seed9_root
+    type(gcroot_t) :: seed10_root
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    seed1_root = initial_seed1
+    seed2_root = initial_seed2
+    seed3_root = initial_seed3
+    seed4_root = initial_seed4
+    seed5_root = initial_seed5
+    seed6_root = initial_seed6
+    seed7_root = initial_seed7
+    seed8_root = initial_seed8
+    seed9_root = initial_seed9
+    seed10_root = initial_seed10
+    do index = 0_sz, range%length() - 1_sz
+       seed1 = .val. seed1_root
+       seed2 = .val. seed2_root
+       seed3 = .val. seed3_root
+       seed4 = .val. seed4_root
+       seed5 = .val. seed5_root
+       seed6 = .val. seed6_root
+       seed7 = .val. seed7_root
+       seed8 = .val. seed8_root
+       seed9 = .val. seed9_root
+       seed10 = .val. seed10_root
+       call f (index, seed1, seed2, seed3, seed4, seed5, &
+            &  seed6, seed7, seed8, seed9, seed10, element)
+       data%array(i0 + index)%element = element
+       seed1_root = seed1
+       seed2_root = seed2
+       seed3_root = seed3
+       seed4_root = seed4
+       seed5_root = seed5
+       seed6_root = seed6
+       seed7_root = seed7
+       seed8_root = seed8
+       seed9_root = seed9
+       seed10_root = seed10
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfoldx10_subr
+
+  recursive function vectar_unfold1_subr_size_kind (f, length, &
+       initial_seed1) result (vec)
+    procedure(vectar_unfold1_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfoldx1_subr (f, vec, initial_seed1)
+  end function vectar_unfold1_subr_size_kind
+
+  recursive function vectar_unfold1_subr_int (f, length, &
+       initial_seed1) result (vec)
+    procedure(vectar_unfold1_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold1_subr_size_kind (f, .sz. length, initial_seed1)
+  end function vectar_unfold1_subr_int
+
+  recursive function vectar_unfold2_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2) result (vec)
+    procedure(vectar_unfold2_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfoldx2_subr (f, vec, initial_seed1, initial_seed2)
+  end function vectar_unfold2_subr_size_kind
+
+  recursive function vectar_unfold2_subr_int (f, length, &
+       initial_seed1, initial_seed2) result (vec)
+    procedure(vectar_unfold2_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold2_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2)
+  end function vectar_unfold2_subr_int
+
+  recursive function vectar_unfold3_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3) result (vec)
+    procedure(vectar_unfold3_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfoldx3_subr (f, vec, initial_seed1, initial_seed2, &
+         &                     initial_seed3)
+  end function vectar_unfold3_subr_size_kind
+
+  recursive function vectar_unfold3_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3) result (vec)
+    procedure(vectar_unfold3_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold3_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
+         &                               initial_seed3)
+  end function vectar_unfold3_subr_int
+
+  recursive function vectar_unfold4_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4) result (vec)
+    procedure(vectar_unfold4_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfoldx4_subr (f, vec, initial_seed1, initial_seed2, &
+         &                     initial_seed3, initial_seed4)
+  end function vectar_unfold4_subr_size_kind
+
+  recursive function vectar_unfold4_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4) result (vec)
+    procedure(vectar_unfold4_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold4_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
+         &                               initial_seed3, initial_seed4)
+  end function vectar_unfold4_subr_int
+
+  recursive function vectar_unfold5_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5) result (vec)
+    procedure(vectar_unfold5_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfoldx5_subr (f, vec, initial_seed1, initial_seed2, &
+         &                     initial_seed3, initial_seed4, &
+         &                     initial_seed5)
+  end function vectar_unfold5_subr_size_kind
+
+  recursive function vectar_unfold5_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5) result (vec)
+    procedure(vectar_unfold5_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold5_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
+         &                               initial_seed3, initial_seed4, &
+         &                               initial_seed5)
+  end function vectar_unfold5_subr_int
+
+  recursive function vectar_unfold6_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6) result (vec)
+    procedure(vectar_unfold6_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfoldx6_subr (f, vec, initial_seed1, initial_seed2, &
+         &                     initial_seed3, initial_seed4, &
+         &                     initial_seed5, initial_seed6)
+  end function vectar_unfold6_subr_size_kind
+
+  recursive function vectar_unfold6_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6) result (vec)
+    procedure(vectar_unfold6_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold6_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
+         &                               initial_seed3, initial_seed4, &
+         &                               initial_seed5, initial_seed6)
+  end function vectar_unfold6_subr_int
+
+  recursive function vectar_unfold7_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7) result (vec)
+    procedure(vectar_unfold7_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfoldx7_subr (f, vec, initial_seed1, initial_seed2, &
+         &                     initial_seed3, initial_seed4, &
+         &                     initial_seed5, initial_seed6, &
+         &                     initial_seed7)
+  end function vectar_unfold7_subr_size_kind
+
+  recursive function vectar_unfold7_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7) result (vec)
+    procedure(vectar_unfold7_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold7_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
+         &                               initial_seed3, initial_seed4, &
+         &                               initial_seed5, initial_seed6, &
+         &                               initial_seed7)
+  end function vectar_unfold7_subr_int
+
+  recursive function vectar_unfold8_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8) result (vec)
+    procedure(vectar_unfold8_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfoldx8_subr (f, vec, initial_seed1, initial_seed2, &
+         &                     initial_seed3, initial_seed4, &
+         &                     initial_seed5, initial_seed6, &
+         &                     initial_seed7, initial_seed8)
+  end function vectar_unfold8_subr_size_kind
+
+  recursive function vectar_unfold8_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8) result (vec)
+    procedure(vectar_unfold8_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold8_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
+         &                               initial_seed3, initial_seed4, &
+         &                               initial_seed5, initial_seed6, &
+         &                               initial_seed7, initial_seed8)
+  end function vectar_unfold8_subr_int
+
+  recursive function vectar_unfold9_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8, initial_seed9) result (vec)
+    procedure(vectar_unfold9_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    class(*), intent(in) :: initial_seed9
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfoldx9_subr (f, vec, initial_seed1, initial_seed2, &
+         &                     initial_seed3, initial_seed4, &
+         &                     initial_seed5, initial_seed6, &
+         &                     initial_seed7, initial_seed8, &
+         &                     initial_seed9)
+  end function vectar_unfold9_subr_size_kind
+
+  recursive function vectar_unfold9_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8, initial_seed9) result (vec)
+    procedure(vectar_unfold9_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    class(*), intent(in) :: initial_seed9
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold9_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
+         &                               initial_seed3, initial_seed4, &
+         &                               initial_seed5, initial_seed6, &
+         &                               initial_seed7, initial_seed8, &
+         &                               initial_seed9)
+  end function vectar_unfold9_subr_int
+
+  recursive function vectar_unfold10_subr_size_kind (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8, initial_seed9, &
+       initial_seed10) result (vec)
+    procedure(vectar_unfold10_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    class(*), intent(in) :: initial_seed9
+    class(*), intent(in) :: initial_seed10
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfoldx10_subr (f, vec, initial_seed1, initial_seed2, &
+         &                     initial_seed3, initial_seed4, &
+         &                     initial_seed5, initial_seed6, &
+         &                     initial_seed7, initial_seed8, &
+         &                     initial_seed9, initial_seed10)
+  end function vectar_unfold10_subr_size_kind
+
+  recursive function vectar_unfold10_subr_int (f, length, &
+       initial_seed1, initial_seed2, initial_seed3, &
+       initial_seed4, initial_seed5, initial_seed6, &
+       initial_seed7, initial_seed8, initial_seed9, &
+       initial_seed10) result (vec)
+    procedure(vectar_unfold10_f_subr_t) :: f
+    integer, intent(in) :: length
+    class(*), intent(in) :: initial_seed1
+    class(*), intent(in) :: initial_seed2
+    class(*), intent(in) :: initial_seed3
+    class(*), intent(in) :: initial_seed4
+    class(*), intent(in) :: initial_seed5
+    class(*), intent(in) :: initial_seed6
+    class(*), intent(in) :: initial_seed7
+    class(*), intent(in) :: initial_seed8
+    class(*), intent(in) :: initial_seed9
+    class(*), intent(in) :: initial_seed10
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold10_subr_size_kind (f, .sz. length, initial_seed1, initial_seed2, &
+         &                               initial_seed3, initial_seed4, &
+         &                               initial_seed5, initial_seed6, &
+         &                               initial_seed7, initial_seed8, &
+         &                               initial_seed9, initial_seed10)
+  end function vectar_unfold10_subr_int
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

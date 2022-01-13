@@ -1031,6 +1031,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 
   ! A private type for `unspecified' values.
   type :: unspecified_t
+     real :: acceleration_due_to_gravity_at_sea_level = 9.80665
   end type unspecified_t
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1054,6 +1055,12 @@ contains
   subroutine strange_error
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
   end subroutine strange_error
+
+  pure function unspecified () result (unspecified_value)
+    class(*), allocatable :: unspecified_value
+
+    unspecified_value = unspecified_t ()
+  end function unspecified
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2379,14 +2386,14 @@ dnl
     integer(sz), intent(in) :: length
     type(cons_t) :: lst
 
-    lst = make_list_fill_size_kind (length, unspecified_t ())
+    lst = make_list_fill_size_kind (length, unspecified ())
   end function make_list_unspecified_fill_size_kind
 
   function make_list_unspecified_fill_int (length) result (lst)
     integer, intent(in) :: length
     type(cons_t) :: lst
 
-    lst = make_list_fill_int (length, unspecified_t ())
+    lst = make_list_fill_int (length, unspecified ())
   end function make_list_unspecified_fill_int
 
   function make_list_fill_size_kind (length, fill_value) result (lst)
