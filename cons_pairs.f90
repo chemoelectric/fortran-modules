@@ -1875,11 +1875,6 @@ module cons_pairs
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
 
-  ! A private type for `unspecified' values.
-  type :: unspecified_t
-     real :: acceleration_due_to_gravity_at_sea_level = 9.80665
-  end type unspecified_t
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   interface error_abort
@@ -1902,10 +1897,12 @@ contains
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
   end subroutine strange_error
 
-  pure function unspecified () result (unspecified_value)
-    class(*), allocatable :: unspecified_value
+  elemental function unspecified () result (unspecified_value)
+    use, intrinsic :: ieee_arithmetic, only: ieee_value
+    use, intrinsic :: ieee_arithmetic, only: ieee_quiet_nan
+    real :: unspecified_value
 
-    unspecified_value = unspecified_t ()
+    unspecified_value = ieee_value (1.0, ieee_quiet_nan)
   end function unspecified
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
