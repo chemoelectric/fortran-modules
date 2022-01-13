@@ -1589,6 +1589,7 @@ contains
 
   subroutine test0250
     type(vectar_t) :: vec
+    type(gcroot_t) :: vec_root
 
     ! An example from SRFI-133: construct a vector of pairs of
     ! non-negative integers that add up to 4.
@@ -1608,6 +1609,20 @@ contains
          &                                              cons (3, 1), cons (4, 0), cons (10, 10))), &
          &      "test0250-0040 failed")
 
+    ! An example from SRFI-133: reverse a vectar.
+    vec_root = vectar (3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5)
+    vec = vectar_unfold_right (vecref, vectar_length (vec_root), 0)
+    call check (vectar_equal (int_eq, vec_root, vectar (3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5)), "test0250-0110 failed")
+    call check (vectar_equal (int_eq, vec, vectar (5, 3, 5, 6, 2, 9, 5, 1, 4, 1, 3)), "test0250-0120 failed")
+
+    vec = vectar_unfold_right (increment3seeds, 5, 1, 2, 3)
+    call check (vectar_length (vec) == 5, "test0240-0310 failed")
+    call check (vectar_equal (int_eq, vectar_ref1 (vec, 5), vectar (1, 2, 3)), "test0240-0320 failed")
+    call check (vectar_equal (int_eq, vectar_ref1 (vec, 4), vectar (2, 3, 4)), "test0240-0330 failed")
+    call check (vectar_equal (int_eq, vectar_ref1 (vec, 3), vectar (3, 4, 5)), "test0240-0340 failed")
+    call check (vectar_equal (int_eq, vectar_ref1 (vec, 2), vectar (4, 5, 6)), "test0240-0350 failed")
+    call check (vectar_equal (int_eq, vectar_ref1 (vec, 1), vectar (5, 6, 7)), "test0240-0360 failed")
+
   contains
 
     subroutine f1 (i, x, element)
@@ -1620,6 +1635,31 @@ contains
       element = cons (int (i), x)
       x = int_cast (x) + 1
     end subroutine f1
+
+    subroutine vecref (i, x, element)
+      integer(sz), intent(in) :: i
+      class(*), allocatable, intent(inout) :: x
+      class(*), allocatable, intent(out) :: element
+
+      integer :: j
+
+      call collect_garbage_now
+
+      j = int_cast (x)
+      element = vectar_ref0 (vec_root, j)
+      x = j + 1
+    end subroutine vecref
+
+    subroutine increment3seeds (i, seed1, seed2, seed3, element)
+      integer(sz), intent(in) :: i
+      class(*), allocatable, intent(inout) :: seed1, seed2, seed3
+      class(*), allocatable, intent(out) :: element
+
+      element = vectar (seed1, seed2, seed3)
+      seed1 = int_cast (seed1) + 1
+      seed2 = int_cast (seed2) + 1
+      seed3 = int_cast (seed3) + 1
+    end subroutine increment3seeds
 
   end subroutine test0250
 
