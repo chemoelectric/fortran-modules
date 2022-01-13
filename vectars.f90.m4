@@ -308,7 +308,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_unfold
 
   ! Implementations of vectar_unfold.
-m4_forloop([n],[1],ZIP_MAX,[dnl
+m4_forloop([n],[0],ZIP_MAX,[dnl
   public :: vectar_unfold[]n[]_subr_size_kind
   public :: vectar_unfold[]n[]_subr_int
 ])dnl
@@ -318,7 +318,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_unfoldx
 
   ! Implementations of vectar_unfoldx.
-m4_forloop([n],[1],ZIP_MAX,[dnl
+m4_forloop([n],[0],ZIP_MAX,[dnl
   public :: vectar_unfoldx[]n[]_subr
 ])dnl
 
@@ -593,14 +593,14 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   end interface vectar_fold_right
 
   interface vectar_unfold
-m4_forloop([n],[1],ZIP_MAX,[dnl
+m4_forloop([n],[0],ZIP_MAX,[dnl
      module procedure vectar_unfold[]n[]_subr_size_kind
      module procedure vectar_unfold[]n[]_subr_int
 ])dnl
   end interface vectar_unfold
 
   interface vectar_unfoldx
-m4_forloop([n],[1],ZIP_MAX,[dnl
+m4_forloop([n],[0],ZIP_MAX,[dnl
      module procedure vectar_unfoldx[]n[]_subr
 ])dnl
   end interface vectar_unfoldx
@@ -701,11 +701,18 @@ m4_forloop([k],[1],n,[dnl
 !!! Types for the f subroutine in unfolds.
 !!!
 
-m4_forloop([n],[1],ZIP_MAX,[dnl
+m4_forloop([n],[0],ZIP_MAX,[dnl
   public :: vectar_unfold[]n[]_f_subr_t
 ])dnl
 
   abstract interface
+     recursive subroutine vectar_unfold0_f_subr_t (index, element)
+       import sz
+       ! Zero-based index.
+       integer(sz), intent(in) :: index
+       ! The new element.
+       class(*), allocatable, intent(out) :: element
+     end subroutine vectar_unfold0_f_subr_t
 m4_forloop([n],[1],ZIP_MAX,[dnl
      recursive subroutine vectar_unfold[]n[]_f_subr_t (index, seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
           &                                        ])seed[]k]), element)
@@ -2542,6 +2549,30 @@ m4_forloop([k],[1],n,[dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  recursive subroutine vectar_unfoldx0_subr (f, vec)
+    procedure(vectar_unfold0_f_subr_t) :: f
+    class(*), intent(in) :: vec
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    do index = 0_sz, range%length() - 1_sz
+       call f (index, element)
+       data%array(i0 + index)%element = element
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfoldx0_subr
+
 m4_forloop([n],[1],ZIP_MAX,[dnl
   recursive subroutine vectar_unfoldx[]n[]_subr (f, vec, initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
         &                                    ])initial_seed[]k]))
@@ -2589,6 +2620,23 @@ m4_forloop([k],[1],n,[dnl
 
 ])dnl
 dnl
+  recursive function vectar_unfold0_subr_size_kind (f, length) result (vec)
+    procedure(vectar_unfold0_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfoldx0_subr (f, vec)
+  end function vectar_unfold0_subr_size_kind
+
+  recursive function vectar_unfold0_subr_int (f, length) result (vec)
+    procedure(vectar_unfold0_f_subr_t) :: f
+    integer, intent(in) :: length
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold0_subr_size_kind (f, .sz. length)
+  end function vectar_unfold0_subr_int
+
 m4_forloop([n],[1],ZIP_MAX,[dnl
   recursive function vectar_unfold[]n[]_subr_size_kind (f, length, &
        initial_seed1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 3),[1],[&

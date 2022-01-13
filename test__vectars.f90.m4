@@ -1495,6 +1495,7 @@ contains
 
   subroutine test0240
     type(vectar_t) :: vec
+    type(gcroot_t) :: vec_root
 
     ! An example from SRFI-133.
     vec = vectar_unfold (decrement, 10_sz, 0)
@@ -1508,6 +1509,33 @@ contains
     call vectar_unfoldx (decrement, range1 (vec, 2, 5), 10)
     call check (vectar_equal (int_eq, vec, vectar (100, 10, 9, 8, 7, 100, 100, 100, 100, 100)), "test0240-0040 failed")
 
+    ! An example from SRFI-133: an `iota' implementation for vectars.
+    vec = vectar_unfold (index_passthru, 5_sz)
+    call check (vectar_equal (size_kind_eq, vec, vectar (0_sz, 1_sz, 2_sz, 3_sz, 4_sz)), "test0240-0110 failed")
+    vec = vectar_unfold (index_passthru, 5)
+    call check (vectar_equal (size_kind_eq, vec, vectar (0_sz, 1_sz, 2_sz, 3_sz, 4_sz)), "test0240-0120 failed")
+    vec = make_vectar (5)
+    call vectar_unfoldx (index_passthru, vec)
+    call check (vectar_equal (size_kind_eq, vec, vectar (0_sz, 1_sz, 2_sz, 3_sz, 4_sz)), "test0240-0130 failed")
+    vec = make_vectar (7, 100_sz)
+    call vectar_unfoldx (index_passthru, range1 (vec, 2, 6))
+    call check (vectar_equal (size_kind_eq, vec, vectar (100_sz, 0_sz, 1_sz, 2_sz, 3_sz, 4_sz, 100_sz)), &
+         &      "test0240-0140 failed")
+
+    ! An example from SRFI-133: copy a vectar.
+    vec_root = vectar (3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5)
+    vec = vectar_unfold (vecref, vectar_length (vec_root))
+    call check (vectar_equal (int_eq, vec_root, vectar (3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5)), "test0240-0210 failed")
+    call check (vectar_equal (int_eq, vec, vectar (3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5)), "test0240-0220 failed")
+
+    vec = vectar_unfold (increment3seeds, 5, 1, 2, 3)
+    call check (vectar_length (vec) == 5, "test0240-0310 failed")
+    call check (vectar_equal (int_eq, vectar_ref1 (vec, 1), vectar (1, 2, 3)), "test0240-0320 failed")
+    call check (vectar_equal (int_eq, vectar_ref1 (vec, 2), vectar (2, 3, 4)), "test0240-0330 failed")
+    call check (vectar_equal (int_eq, vectar_ref1 (vec, 3), vectar (3, 4, 5)), "test0240-0340 failed")
+    call check (vectar_equal (int_eq, vectar_ref1 (vec, 4), vectar (4, 5, 6)), "test0240-0350 failed")
+    call check (vectar_equal (int_eq, vectar_ref1 (vec, 5), vectar (5, 6, 7)), "test0240-0360 failed")
+
   contains
 
     subroutine decrement (i, x, element)
@@ -1520,6 +1548,35 @@ contains
       element = x
       x = int_cast (x) - 1
     end subroutine decrement
+
+    subroutine index_passthru (i, element)
+      integer(sz), intent(in) :: i
+      class(*), allocatable, intent(out) :: element
+
+      call collect_garbage_now
+
+      element = i
+    end subroutine index_passthru
+
+    subroutine vecref (i, element)
+      integer(sz), intent(in) :: i
+      class(*), allocatable, intent(out) :: element
+
+      call collect_garbage_now
+
+      element = vectar_ref0 (vec_root, i)
+    end subroutine vecref
+
+    subroutine increment3seeds (i, seed1, seed2, seed3, element)
+      integer(sz), intent(in) :: i
+      class(*), allocatable, intent(inout) :: seed1, seed2, seed3
+      class(*), allocatable, intent(out) :: element
+
+      element = vectar (seed1, seed2, seed3)
+      seed1 = int_cast (seed1) + 1
+      seed2 = int_cast (seed2) + 1
+      seed3 = int_cast (seed3) + 1
+    end subroutine increment3seeds
 
   end subroutine test0240
 

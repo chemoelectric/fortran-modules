@@ -374,6 +374,8 @@ module vectars
   public :: vectar_unfold
 
   ! Implementations of vectar_unfold.
+  public :: vectar_unfold0_subr_size_kind
+  public :: vectar_unfold0_subr_int
   public :: vectar_unfold1_subr_size_kind
   public :: vectar_unfold1_subr_int
   public :: vectar_unfold2_subr_size_kind
@@ -400,6 +402,7 @@ module vectars
   public :: vectar_unfoldx
 
   ! Implementations of vectar_unfoldx.
+  public :: vectar_unfoldx0_subr
   public :: vectar_unfoldx1_subr
   public :: vectar_unfoldx2_subr
   public :: vectar_unfoldx3_subr
@@ -750,6 +753,8 @@ module vectars
   end interface vectar_fold_right
 
   interface vectar_unfold
+     module procedure vectar_unfold0_subr_size_kind
+     module procedure vectar_unfold0_subr_int
      module procedure vectar_unfold1_subr_size_kind
      module procedure vectar_unfold1_subr_int
      module procedure vectar_unfold2_subr_size_kind
@@ -773,6 +778,7 @@ module vectars
   end interface vectar_unfold
 
   interface vectar_unfoldx
+     module procedure vectar_unfoldx0_subr
      module procedure vectar_unfoldx1_subr
      module procedure vectar_unfoldx2_subr
      module procedure vectar_unfoldx3_subr
@@ -1240,6 +1246,7 @@ module vectars
 !!! Types for the f subroutine in unfolds.
 !!!
 
+  public :: vectar_unfold0_f_subr_t
   public :: vectar_unfold1_f_subr_t
   public :: vectar_unfold2_f_subr_t
   public :: vectar_unfold3_f_subr_t
@@ -1252,6 +1259,13 @@ module vectars
   public :: vectar_unfold10_f_subr_t
 
   abstract interface
+     recursive subroutine vectar_unfold0_f_subr_t (index, element)
+       import sz
+       ! Zero-based index.
+       integer(sz), intent(in) :: index
+       ! The new element.
+       class(*), allocatable, intent(out) :: element
+     end subroutine vectar_unfold0_f_subr_t
      recursive subroutine vectar_unfold1_f_subr_t (index, seed1, element)
        import sz
        ! Zero-based index.
@@ -10238,6 +10252,30 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  recursive subroutine vectar_unfoldx0_subr (f, vec)
+    procedure(vectar_unfold0_f_subr_t) :: f
+    class(*), intent(in) :: vec
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    class(*), allocatable :: element
+    integer(sz) :: index
+    integer(sz) :: i0
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    data => vectar_data_ptr (range)
+    do index = 0_sz, range%length() - 1_sz
+       call f (index, element)
+       data%array(i0 + index)%element = element
+    end do
+
+    call vec_root%discard
+  end subroutine vectar_unfoldx0_subr
+
   recursive subroutine vectar_unfoldx1_subr (f, vec, initial_seed1)
     procedure(vectar_unfold1_f_subr_t) :: f
     class(*), intent(in) :: vec
@@ -10832,6 +10870,23 @@ contains
 
     call vec_root%discard
   end subroutine vectar_unfoldx10_subr
+
+  recursive function vectar_unfold0_subr_size_kind (f, length) result (vec)
+    procedure(vectar_unfold0_f_subr_t) :: f
+    integer(sz), intent(in) :: length
+    type(vectar_t) :: vec
+
+    vec = make_vectar (length)
+    call vectar_unfoldx0_subr (f, vec)
+  end function vectar_unfold0_subr_size_kind
+
+  recursive function vectar_unfold0_subr_int (f, length) result (vec)
+    procedure(vectar_unfold0_f_subr_t) :: f
+    integer, intent(in) :: length
+    type(vectar_t) :: vec
+
+    vec = vectar_unfold0_subr_size_kind (f, .sz. length)
+  end function vectar_unfold0_subr_int
 
   recursive function vectar_unfold1_subr_size_kind (f, length, &
        initial_seed1) result (vec)
