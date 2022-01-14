@@ -1665,6 +1665,7 @@ contains
 
   subroutine test0260
     type(vectar_t) :: vec1, vec2
+    type(vectar_range_t) :: vecr1, vecr2
 
     ! An example from SRFI-133.
     vec1 = vectar (3, 1, 4, 1, 5, 9)
@@ -1695,6 +1696,12 @@ contains
     call check (vectar_index1 (equal, vec1, vec2) == 5_sz, "test0260-0320 failed")
     call check (vectar_indexn (equal, 10_sz, vec1, vec2) == 14_sz, "test0260-0330 failed")
     call check (vectar_indexn (equal, -10_sz, vec1, vec2) == -6_sz, "test0260-0340 failed")
+
+    vecr1 = range1 (vectar (3, 1, 4, 1, 5, 9, 2, 5, 6), 3, 6)
+    vecr2 = range1 (vectar (2, 7, 1, 8, 2), 1, 4)
+    call check (vectar_index0 (less_than, vecr1, vecr2) == 1_sz, "test0260-0410 failed")
+    call check (vectar_index1 (less_than, vecr1, vecr2) == 2_sz, "test0260-0420 failed")
+    call check (vectar_indexn (less_than, -10_sz, vecr1, vecr2) == -9_sz, "test0260-0430 failed")
 
   contains
 
@@ -1729,6 +1736,7 @@ contains
 
   subroutine test0270
     type(vectar_t) :: vec1, vec2
+    type(vectar_range_t) :: vecr1, vecr2
 
     vec1 = vectar (3, 1, 4, 1, 5, 9)
     call check (vectar_index_right0 (is_even, vec1) == 2_sz, "test0260-0010 failed")
@@ -1756,6 +1764,12 @@ contains
     call check (vectar_index_right1 (equal, vec1, vec2) == 1_sz, "test0260-0320 failed")
     call check (vectar_index_rightn (equal, 10_sz, vec1, vec2) == 10_sz, "test0260-0330 failed")
     call check (vectar_index_rightn (equal, -10_sz, vec1, vec2) == -10_sz, "test0260-0340 failed")
+
+    vecr1 = range1 (vectar (3, 1, 4, 1, 5, 9, 2, 5, 6), 3, 6)
+    vecr2 = range1 (vectar (2, 7, 1, 8, 2), 1, 4)
+    call check (vectar_index_right0 (less_than, vecr1, vecr2) == 1_sz, "test0260-0410 failed")
+    call check (vectar_index_right1 (less_than, vecr1, vecr2) == 2_sz, "test0260-0420 failed")
+    call check (vectar_index_rightn (less_than, -10_sz, vecr1, vecr2) == -9_sz, "test0260-0430 failed")
 
   contains
 
@@ -1788,6 +1802,148 @@ contains
 
   end subroutine test0270
 
+  subroutine test0280
+    type(vectar_t) :: vec1, vec2
+    type(vectar_range_t) :: vecr1, vecr2
+
+    ! An example from SRFI-133.
+    vec1 = vectar (3, 1, 4, 1, 5, 9)
+    call check (vectar_skip0 (is_odd, vec1) == 2_sz, "test0280-0010 failed")
+    call check (vectar_skip1 (is_odd, vec1) == 3_sz, "test0280-0020 failed")
+    call check (vectar_skipn (is_odd, 10_sz, vec1) == 12_sz, "test0280-0030 failed")
+
+    ! An example from SRFI-133.
+    vec1 = vectar (3, 1, 4, 1, 5, 9, 2, 5, 6)
+    vec2 = vectar (2, 7, 1, 8, 2)
+    call check (vectar_skip0 (gte, vec1, vec2) == 1_sz, "test0280-0110 failed")
+    call check (vectar_skip1 (gte, vec1, vec2) == 2_sz, "test0280-0120 failed")
+    call check (vectar_skipn (gte, -10_sz, vec1, vec2) == -9_sz, "test0280-0130 failed")
+
+    ! An example from SRFI-133.
+    vec1 = vectar (3, 1, 4, 1, 5, 9, 2, 5, 6)
+    vec2 = vectar (2, 7, 1, 8, 2)
+    call check (vectar_skip0 (unequal, vec1, vec2) == -1_sz, "test0280-0210 failed")
+    call check (vectar_skip1 (unequal, vec1, vec2) == -1_sz, "test0280-0220 failed")
+    call check (vectar_skipn (unequal, 10_sz, vec1, vec2) == -1_sz, "test0280-0230 failed")
+    call check (vectar_skipn (unequal, -10_sz, vec1, vec2) == -11_sz, "test0280-0240 failed")
+
+    ! Check (by putting the satisfying elements last) whether the
+    ! predicate is tested on all the necessary elements.
+    vec1 = vectar (3, 1, 4, 1, 5, 9, 2, 5, 6)
+    vec2 = vectar (2, 7, 1, 8, 5)
+    call check (vectar_skip0 (unequal, vec1, vec2) == 4_sz, "test0280-0310 failed")
+    call check (vectar_skip1 (unequal, vec1, vec2) == 5_sz, "test0280-0320 failed")
+    call check (vectar_skipn (unequal, 10_sz, vec1, vec2) == 14_sz, "test0280-0330 failed")
+    call check (vectar_skipn (unequal, -10_sz, vec1, vec2) == -6_sz, "test0280-0340 failed")
+
+    vecr1 = range1 (vectar (3, 1, 4, 1, 5, 9, 2, 5, 6), 3, 6)
+    vecr2 = range1 (vectar (2, 7, 1, 8, 2), 1, 4)
+    call check (vectar_skip0 (gte, vecr1, vecr2) == 1_sz, "test0280-0410 failed")
+    call check (vectar_skip1 (gte, vecr1, vecr2) == 2_sz, "test0280-0420 failed")
+    call check (vectar_skipn (gte, -10_sz, vecr1, vecr2) == -9_sz, "test0280-0430 failed")
+
+  contains
+
+    function is_odd (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (mod (int_cast (x), 2) == 1)
+    end function is_odd
+
+    function gte (x, y) result (bool)
+      class(*), intent(in) :: x, y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = .not. int_lt (x, y)
+    end function gte
+
+    function unequal (x, y) result (bool)
+      class(*), intent(in) :: x, y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = .not. (x .eqi. y)
+    end function unequal
+
+  end subroutine test0280
+
+  subroutine test0290
+    type(vectar_t) :: vec1, vec2
+    type(vectar_range_t) :: vecr1, vecr2
+
+    ! An example from SRFI-133.
+    vec1 = vectar (3, 1, 4, 1, 5, 9)
+    call check (vectar_skip_right0 (is_odd, vec1) == 2_sz, "test0290-0010 failed")
+    call check (vectar_skip_right1 (is_odd, vec1) == 3_sz, "test0290-0020 failed")
+    call check (vectar_skip_rightn (is_odd, 10_sz, vec1) == 12_sz, "test0290-0030 failed")
+
+    ! An example from SRFI-133.
+    vec1 = vectar (3, 1, 4, 1, 5, 9, 2, 5, 6)
+    vec2 = vectar (2, 7, 1, 8, 2)
+    call check (vectar_skip_right0 (gte, vec1, vec2) == 3_sz, "test0290-0110 failed")
+    call check (vectar_skip_right1 (gte, vec1, vec2) == 4_sz, "test0290-0120 failed")
+    call check (vectar_skip_rightn (gte, -10_sz, vec1, vec2) == -7_sz, "test0290-0130 failed")
+
+    ! An example from SRFI-133.
+    vec1 = vectar (3, 1, 4, 1, 5, 9, 2, 5, 6)
+    vec2 = vectar (2, 7, 1, 8, 2)
+    call check (vectar_skip_right0 (unequal, vec1, vec2) == -1_sz, "test0290-0210 failed")
+    call check (vectar_skip_right1 (unequal, vec1, vec2) == -1_sz, "test0290-0220 failed")
+    call check (vectar_skip_rightn (unequal, 10_sz, vec1, vec2) == -1_sz, "test0290-0230 failed")
+    call check (vectar_skip_rightn (unequal, -10_sz, vec1, vec2) == -11_sz, "test0290-0240 failed")
+
+    ! Check (by putting the satisfying elements first) whether the
+    ! predicate is tested on all the necessary elements.
+    vec1 = vectar (3, 1, 4, 1, 5, 9, 2, 5, 6)
+    vec2 = vectar (3, 7, 1, 8, 2)
+    call check (vectar_skip_right0 (unequal, vec1, vec2) == 0_sz, "test0290-0310 failed")
+    call check (vectar_skip_right1 (unequal, vec1, vec2) == 1_sz, "test0290-0320 failed")
+    call check (vectar_skip_rightn (unequal, 10_sz, vec1, vec2) == 10_sz, "test0290-0330 failed")
+    call check (vectar_skip_rightn (unequal, -10_sz, vec1, vec2) == -10_sz, "test0290-0340 failed")
+
+    vecr1 = range1 (vectar (3, 1, 4, 1, 5, 9, 2, 5, 6), 3, 6)
+    vecr2 = range1 (vectar (2, 7, 1, 8, 2), 1, 4)
+    call check (vectar_skip_right0 (gte, vecr1, vecr2) == 1_sz, "test0290-0410 failed")
+    call check (vectar_skip_right1 (gte, vecr1, vecr2) == 2_sz, "test0290-0420 failed")
+    call check (vectar_skip_rightn (gte, -10_sz, vecr1, vecr2) == -9_sz, "test0290-0430 failed")
+
+  contains
+
+    function is_odd (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (mod (int_cast (x), 2) == 1)
+    end function is_odd
+
+    function gte (x, y) result (bool)
+      class(*), intent(in) :: x, y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = .not. int_lt (x, y)
+    end function gte
+
+    function unequal (x, y) result (bool)
+      class(*), intent(in) :: x, y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = .not. (x .eqi. y)
+    end function unequal
+
+  end subroutine test0290
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1819,6 +1975,8 @@ contains
     call test0250
     call test0260
     call test0270
+    call test0280
+    call test0290
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

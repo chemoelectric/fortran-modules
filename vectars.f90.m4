@@ -404,6 +404,36 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_index_rightn_[]n
 ])dnl
 
+  ! Generic functions: equivalents to the corresponding
+  ! `vectar_index...' functions, except that they search for the first
+  ! time the predicate is *not* satisfied.
+  public :: vectar_skip0
+  public :: vectar_skip1
+  public :: vectar_skipn
+  public :: vectar_skip_right0
+  public :: vectar_skip_right1
+  public :: vectar_skip_rightn
+
+  ! Implementations of the `vectar_skip...' functions.
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_skip0_[]n
+])dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_skip1_[]n
+])dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_skipn_[]n
+])dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_skip_right0_[]n
+])dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_skip_right1_[]n
+])dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_skip_rightn_[]n
+])dnl
+
   ! Vectar-list conversions.
   public :: vectar_to_list
   public :: reverse_vectar_to_list
@@ -736,6 +766,42 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
      module procedure vectar_index_rightn_[]n
 ])dnl
   end interface vectar_index_rightn
+
+  interface vectar_skip0
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure vectar_skip0_[]n
+])dnl
+  end interface vectar_skip0
+
+  interface vectar_skip1
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure vectar_skip1_[]n
+])dnl
+  end interface vectar_skip1
+
+  interface vectar_skipn
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure vectar_skipn_[]n
+])dnl
+  end interface vectar_skipn
+
+  interface vectar_skip_right0
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure vectar_skip_right0_[]n
+])dnl
+  end interface vectar_skip_right0
+
+  interface vectar_skip_right1
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure vectar_skip_right1_[]n
+])dnl
+  end interface vectar_skip_right1
+
+  interface vectar_skip_rightn
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure vectar_skip_rightn_[]n
+])dnl
+  end interface vectar_skip_rightn
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!
@@ -2807,8 +2873,9 @@ m4_vectar_unfold_procedures([_right],[range%length() - 1_sz, 0_sz, -1_sz])dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+m4_define([m4_vectar_indexing_left_to_right],[dnl
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  recursive function vectar_indexn_[]n (pred, [n], vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+  recursive function vectar_$1n_[]n (pred, [n], vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        &                              ])vec[]k])) result (index)
     procedure(vectar_predicate[]n[]_t) :: pred
     integer(sz), intent(in) :: [n]
@@ -2831,7 +2898,7 @@ m4_forloop([k],[1],n,[dnl
 m4_forloop([k],[1],n,[dnl
     integer(sz) :: i[]k
 ])dnl
-    logical :: pred_is_satisfied
+    logical :: requirement_is_satisfied
 
 m4_forloop([k],[1],n,[dnl
     vec[]k[]_root = vec[]k
@@ -2850,16 +2917,17 @@ m4_forloop([k],[1],n,[dnl
     data[]k => vectar_data_ptr (range[]k)
 ])dnl
     i = 0_sz
-    pred_is_satisfied = .false.
-    do while (.not. pred_is_satisfied .and. i < min_length)
+    requirement_is_satisfied = .false.
+    do while (.not. requirement_is_satisfied .and. i < min_length)
 m4_forloop([k],[1],n,[dnl
        i[]k = range[]k%istart0() + i
 ])dnl
-       pred_is_satisfied = pred (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
-            &                    ])data[]k%array(i[]k)%element]))
+       requirement_is_satisfied = &
+            $2pred (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
+            &     ])data[]k%array(i[]k)%element]))
        i = i + 1
     end do
-    if (pred_is_satisfied) then
+    if (requirement_is_satisfied) then
        index = ([n] - 1_sz) + i
     else
        index = min (-1_sz, [n] - 1_sz)
@@ -2868,9 +2936,9 @@ m4_forloop([k],[1],n,[dnl
 m4_forloop([k],[1],n,[dnl
     call vec[]k[]_root%discard
 ])dnl
-  end function vectar_indexn_[]n
+  end function vectar_$1n_[]n
 
-  recursive function vectar_index0_[]n (pred, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+  recursive function vectar_$1[]0_[]n (pred, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        &                              ])vec[]k])) result (index)
     procedure(vectar_predicate[]n[]_t) :: pred
 m4_forloop([k],[1],n,[dnl
@@ -2878,11 +2946,11 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
     integer(sz) :: index
 
-    index = vectar_indexn_[]n (pred, 0_sz, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+    index = vectar_$1n_[]n (pred, 0_sz, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
          &                   ])vec[]k]))
-  end function vectar_index0_[]n
+  end function vectar_$1[]0_[]n
 
-  recursive function vectar_index1_[]n (pred, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+  recursive function vectar_$1[]1_[]n (pred, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        &                              ])vec[]k])) result (index)
     procedure(vectar_predicate[]n[]_t) :: pred
 m4_forloop([k],[1],n,[dnl
@@ -2890,16 +2958,21 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
     integer(sz) :: index
 
-    index = vectar_indexn_[]n (pred, 1_sz, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+    index = vectar_$1n_[]n (pred, 1_sz, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
          &                   ])vec[]k]))
-  end function vectar_index1_[]n
+  end function vectar_$1[]1_[]n
 
 ])dnl
+])dnl
+dnl
+m4_vectar_indexing_left_to_right([index],[])dnl
+m4_vectar_indexing_left_to_right([skip],[.not. ])dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+m4_define([m4_vectar_indexing_right_to_left],[dnl
 m4_forloop([n],[1],ZIP_MAX,[dnl
-  recursive function vectar_index_rightn_[]n (pred, [n], vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+  recursive function vectar_$1_rightn_[]n (pred, [n], vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        &                              ])vec[]k])) result (index)
     procedure(vectar_predicate[]n[]_t) :: pred
     integer(sz), intent(in) :: [n]
@@ -2922,7 +2995,7 @@ m4_forloop([k],[1],n,[dnl
 m4_forloop([k],[1],n,[dnl
     integer(sz) :: i[]k
 ])dnl
-    logical :: pred_is_satisfied
+    logical :: requirement_is_satisfied
 
 m4_forloop([k],[1],n,[dnl
     vec[]k[]_root = vec[]k
@@ -2941,16 +3014,17 @@ m4_forloop([k],[1],n,[dnl
     data[]k => vectar_data_ptr (range[]k)
 ])dnl
     i = min_length - 1_sz
-    pred_is_satisfied = .false.
-    do while (.not. pred_is_satisfied .and. 0_sz <= i)
+    requirement_is_satisfied = .false.
+    do while (.not. requirement_is_satisfied .and. 0_sz <= i)
 m4_forloop([k],[1],n,[dnl
        i[]k = range[]k%istart0() + i
 ])dnl
-       pred_is_satisfied = pred (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
-            &                    ])data[]k%array(i[]k)%element]))
+       requirement_is_satisfied = &
+            $2pred (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
+            &     ])data[]k%array(i[]k)%element]))
        i = i - 1
     end do
-    if (pred_is_satisfied) then
+    if (requirement_is_satisfied) then
        index = ([n] + 1_sz) + i
     else
        index = min (-1_sz, [n] - 1_sz)
@@ -2959,9 +3033,9 @@ m4_forloop([k],[1],n,[dnl
 m4_forloop([k],[1],n,[dnl
     call vec[]k[]_root%discard
 ])dnl
-  end function vectar_index_rightn_[]n
+  end function vectar_$1_rightn_[]n
 
-  recursive function vectar_index_right0_[]n (pred, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+  recursive function vectar_$1_right0_[]n (pred, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        &                              ])vec[]k])) result (index)
     procedure(vectar_predicate[]n[]_t) :: pred
 m4_forloop([k],[1],n,[dnl
@@ -2969,11 +3043,11 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
     integer(sz) :: index
 
-    index = vectar_index_rightn_[]n (pred, 0_sz, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+    index = vectar_$1_rightn_[]n (pred, 0_sz, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
          &                         ])vec[]k]))
-  end function vectar_index_right0_[]n
+  end function vectar_$1_right0_[]n
 
-  recursive function vectar_index_right1_[]n (pred, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+  recursive function vectar_$1_right1_[]n (pred, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
        &                              ])vec[]k])) result (index)
     procedure(vectar_predicate[]n[]_t) :: pred
 m4_forloop([k],[1],n,[dnl
@@ -2981,11 +3055,15 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
     integer(sz) :: index
 
-    index = vectar_index_rightn_[]n (pred, 1_sz, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+    index = vectar_$1_rightn_[]n (pred, 1_sz, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
          &                         ])vec[]k]))
-  end function vectar_index_right1_[]n
+  end function vectar_$1_right1_[]n
 
 ])dnl
+])dnl
+dnl
+m4_vectar_indexing_right_to_left([index],[])dnl
+m4_vectar_indexing_right_to_left([skip],[.not. ])dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
