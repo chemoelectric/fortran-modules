@@ -1727,6 +1727,67 @@ contains
 
   end subroutine test0260
 
+  subroutine test0270
+    type(vectar_t) :: vec1, vec2
+
+    vec1 = vectar (3, 1, 4, 1, 5, 9)
+    call check (vectar_index_right0 (is_even, vec1) == 2_sz, "test0260-0010 failed")
+    call check (vectar_index_right1 (is_even, vec1) == 3_sz, "test0260-0020 failed")
+    call check (vectar_index_rightn (is_even, 10_sz, vec1) == 12_sz, "test0260-0030 failed")
+
+    vec1 = vectar (3, 1, 4, 1, 5, 9, 2, 5, 6)
+    vec2 = vectar (2, 7, 1, 8, 2)
+    call check (vectar_index_right0 (less_than, vec1, vec2) == 3_sz, "test0260-0110 failed")
+    call check (vectar_index_right1 (less_than, vec1, vec2) == 4_sz, "test0260-0120 failed")
+    call check (vectar_index_rightn (less_than, -10_sz, vec1, vec2) == -7_sz, "test0260-0130 failed")
+
+    vec1 = vectar (3, 1, 4, 1, 5, 9, 2, 5, 6)
+    vec2 = vectar (2, 7, 1, 8, 2)
+    call check (vectar_index_right0 (equal, vec1, vec2) == -1_sz, "test0260-0210 failed")
+    call check (vectar_index_right1 (equal, vec1, vec2) == -1_sz, "test0260-0220 failed")
+    call check (vectar_index_rightn (equal, 10_sz, vec1, vec2) == -1_sz, "test0260-0230 failed")
+    call check (vectar_index_rightn (equal, -10_sz, vec1, vec2) == -11_sz, "test0260-0240 failed")
+
+    ! Check (by putting the satisfying elements first) whether the
+    ! predicate is tested on all the necessary elements.
+    vec1 = vectar (3, 1, 4, 1, 5, 9, 2, 5, 6)
+    vec2 = vectar (3, 7, 1, 8, 2)
+    call check (vectar_index_right0 (equal, vec1, vec2) == 0_sz, "test0260-0310 failed")
+    call check (vectar_index_right1 (equal, vec1, vec2) == 1_sz, "test0260-0320 failed")
+    call check (vectar_index_rightn (equal, 10_sz, vec1, vec2) == 10_sz, "test0260-0330 failed")
+    call check (vectar_index_rightn (equal, -10_sz, vec1, vec2) == -10_sz, "test0260-0340 failed")
+
+  contains
+
+    function is_even (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (mod (int_cast (x), 2) == 0)
+    end function is_even
+
+    function less_than (x, y) result (bool)
+      class(*), intent(in) :: x, y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = int_lt (x, y)
+    end function less_than
+
+    function equal (x, y) result (bool)
+      class(*), intent(in) :: x, y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (x .eqi. y)
+    end function equal
+
+  end subroutine test0270
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1757,6 +1818,7 @@ contains
     call test0240
     call test0250
     call test0260
+    call test0270
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

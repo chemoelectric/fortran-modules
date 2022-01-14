@@ -502,6 +502,60 @@ module vectars
   public :: vectar_indexn_9
   public :: vectar_indexn_10
 
+  !
+  ! Generic functions: right-to-left analogs of the vectar_index0,
+  ! vectar_index1, and vectar_indexn functions.
+  !
+  ! SRFI-133 requires (in conforming code) that the vectors passed to
+  ! vector-index-right all have the same length. We relax that
+  ! requirement and, instead, say that the search begins at each
+  ! range's start index, plus the minimum range length, minus one.
+  !
+  public :: vectar_index_right0 ! Generic function: return the 0-based
+                                ! index where a predicate is first
+                                ! satisfied, or -1 if it is never
+                                ! satisfied.
+  public :: vectar_index_right1 ! Generic function: return the 1-based
+                                ! index where a predicate is first
+                                ! satisfied, or -1 if it is never
+                                ! satisfied.
+  public :: vectar_index_rightn ! Generic function: return the n-based
+                                ! index where a predicate is first
+                                ! satisfied, or min (-1, n - 1) if it
+                                ! is never satisfied.
+
+  ! Implementations of the right-to-left vectar index functions.
+  public :: vectar_index_right0_1
+  public :: vectar_index_right0_2
+  public :: vectar_index_right0_3
+  public :: vectar_index_right0_4
+  public :: vectar_index_right0_5
+  public :: vectar_index_right0_6
+  public :: vectar_index_right0_7
+  public :: vectar_index_right0_8
+  public :: vectar_index_right0_9
+  public :: vectar_index_right0_10
+  public :: vectar_index_right1_1
+  public :: vectar_index_right1_2
+  public :: vectar_index_right1_3
+  public :: vectar_index_right1_4
+  public :: vectar_index_right1_5
+  public :: vectar_index_right1_6
+  public :: vectar_index_right1_7
+  public :: vectar_index_right1_8
+  public :: vectar_index_right1_9
+  public :: vectar_index_right1_10
+  public :: vectar_index_rightn_1
+  public :: vectar_index_rightn_2
+  public :: vectar_index_rightn_3
+  public :: vectar_index_rightn_4
+  public :: vectar_index_rightn_5
+  public :: vectar_index_rightn_6
+  public :: vectar_index_rightn_7
+  public :: vectar_index_rightn_8
+  public :: vectar_index_rightn_9
+  public :: vectar_index_rightn_10
+
   ! Vectar-list conversions.
   public :: vectar_to_list
   public :: reverse_vectar_to_list
@@ -965,6 +1019,45 @@ module vectars
      module procedure vectar_indexn_9
      module procedure vectar_indexn_10
   end interface vectar_indexn
+
+  interface vectar_index_right0
+     module procedure vectar_index_right0_1
+     module procedure vectar_index_right0_2
+     module procedure vectar_index_right0_3
+     module procedure vectar_index_right0_4
+     module procedure vectar_index_right0_5
+     module procedure vectar_index_right0_6
+     module procedure vectar_index_right0_7
+     module procedure vectar_index_right0_8
+     module procedure vectar_index_right0_9
+     module procedure vectar_index_right0_10
+  end interface vectar_index_right0
+
+  interface vectar_index_right1
+     module procedure vectar_index_right1_1
+     module procedure vectar_index_right1_2
+     module procedure vectar_index_right1_3
+     module procedure vectar_index_right1_4
+     module procedure vectar_index_right1_5
+     module procedure vectar_index_right1_6
+     module procedure vectar_index_right1_7
+     module procedure vectar_index_right1_8
+     module procedure vectar_index_right1_9
+     module procedure vectar_index_right1_10
+  end interface vectar_index_right1
+
+  interface vectar_index_rightn
+     module procedure vectar_index_rightn_1
+     module procedure vectar_index_rightn_2
+     module procedure vectar_index_rightn_3
+     module procedure vectar_index_rightn_4
+     module procedure vectar_index_rightn_5
+     module procedure vectar_index_rightn_6
+     module procedure vectar_index_rightn_7
+     module procedure vectar_index_rightn_8
+     module procedure vectar_index_rightn_9
+     module procedure vectar_index_rightn_10
+  end interface vectar_index_rightn
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!
@@ -8134,7 +8227,8 @@ contains
     range3 = vec3
     range4 = vec4
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -8204,7 +8298,8 @@ contains
     range4 = vec4
     range5 = vec5
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -8286,8 +8381,8 @@ contains
     range5 = vec5
     range6 = vec6
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -8379,8 +8474,9 @@ contains
     range6 = vec6
     range7 = vec7
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -8483,8 +8579,9 @@ contains
     range7 = vec7
     range8 = vec8
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length(), range8%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -8597,8 +8694,9 @@ contains
     range8 = vec8
     range9 = vec9
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length(), range8%length(), range9%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -8722,8 +8820,10 @@ contains
     range9 = vec9
     range10 = vec10
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length(), &
+         &            range10%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -8944,7 +9044,8 @@ contains
     range3 = vec3
     range4 = vec4
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -9016,7 +9117,8 @@ contains
     range4 = vec4
     range5 = vec5
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -9100,8 +9202,8 @@ contains
     range5 = vec5
     range6 = vec6
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -9195,8 +9297,9 @@ contains
     range6 = vec6
     range7 = vec7
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -9301,8 +9404,9 @@ contains
     range7 = vec7
     range8 = vec8
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length(), range8%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -9417,8 +9521,9 @@ contains
     range8 = vec8
     range9 = vec9
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length(), range8%length(), range9%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -9544,8 +9649,10 @@ contains
     range9 = vec9
     range10 = vec10
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length(), &
+         &            range10%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -9766,7 +9873,8 @@ contains
     range3 = vec3
     range4 = vec4
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -9838,7 +9946,8 @@ contains
     range4 = vec4
     range5 = vec5
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -9922,8 +10031,8 @@ contains
     range5 = vec5
     range6 = vec6
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -10017,8 +10126,9 @@ contains
     range6 = vec6
     range7 = vec7
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -10123,8 +10233,9 @@ contains
     range7 = vec7
     range8 = vec8
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length(), range8%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -10239,8 +10350,9 @@ contains
     range8 = vec8
     range9 = vec9
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length(), range8%length(), range9%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -10366,8 +10478,10 @@ contains
     range9 = vec9
     range10 = vec10
 
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length(), &
+         &            range10%length())
 
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
@@ -12673,7 +12787,8 @@ contains
     range2 = vec2
     range3 = vec3
     range4 = vec4
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -12768,7 +12883,8 @@ contains
     range3 = vec3
     range4 = vec4
     range5 = vec5
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -12877,8 +12993,8 @@ contains
     range4 = vec4
     range5 = vec5
     range6 = vec6
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -12925,7 +13041,7 @@ contains
     integer(sz) :: index
 
     index = vectar_indexn_6 (pred, 0_sz, vec1, vec2, vec3, vec4, vec5, &
-       &                     vec6)
+         &                   vec6)
   end function vectar_index0_6
 
   recursive function vectar_index1_6 (pred, vec1, vec2, vec3, vec4, vec5, &
@@ -12940,7 +13056,7 @@ contains
     integer(sz) :: index
 
     index = vectar_indexn_6 (pred, 1_sz, vec1, vec2, vec3, vec4, vec5, &
-       &                     vec6)
+         &                   vec6)
   end function vectar_index1_6
 
   recursive function vectar_indexn_7 (pred, n, vec1, vec2, vec3, vec4, vec5, &
@@ -13003,8 +13119,9 @@ contains
     range5 = vec5
     range6 = vec6
     range7 = vec7
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -13056,7 +13173,7 @@ contains
     integer(sz) :: index
 
     index = vectar_indexn_7 (pred, 0_sz, vec1, vec2, vec3, vec4, vec5, &
-       &                     vec6, vec7)
+         &                   vec6, vec7)
   end function vectar_index0_7
 
   recursive function vectar_index1_7 (pred, vec1, vec2, vec3, vec4, vec5, &
@@ -13072,7 +13189,7 @@ contains
     integer(sz) :: index
 
     index = vectar_indexn_7 (pred, 1_sz, vec1, vec2, vec3, vec4, vec5, &
-       &                     vec6, vec7)
+         &                   vec6, vec7)
   end function vectar_index1_7
 
   recursive function vectar_indexn_8 (pred, n, vec1, vec2, vec3, vec4, vec5, &
@@ -13142,8 +13259,9 @@ contains
     range6 = vec6
     range7 = vec7
     range8 = vec8
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length(), range8%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -13199,7 +13317,7 @@ contains
     integer(sz) :: index
 
     index = vectar_indexn_8 (pred, 0_sz, vec1, vec2, vec3, vec4, vec5, &
-       &                     vec6, vec7, vec8)
+         &                   vec6, vec7, vec8)
   end function vectar_index0_8
 
   recursive function vectar_index1_8 (pred, vec1, vec2, vec3, vec4, vec5, &
@@ -13216,7 +13334,7 @@ contains
     integer(sz) :: index
 
     index = vectar_indexn_8 (pred, 1_sz, vec1, vec2, vec3, vec4, vec5, &
-       &                     vec6, vec7, vec8)
+         &                   vec6, vec7, vec8)
   end function vectar_index1_8
 
   recursive function vectar_indexn_9 (pred, n, vec1, vec2, vec3, vec4, vec5, &
@@ -13293,8 +13411,9 @@ contains
     range7 = vec7
     range8 = vec8
     range9 = vec9
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length(), range8%length(), range9%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -13355,7 +13474,7 @@ contains
     integer(sz) :: index
 
     index = vectar_indexn_9 (pred, 0_sz, vec1, vec2, vec3, vec4, vec5, &
-       &                     vec6, vec7, vec8, vec9)
+         &                   vec6, vec7, vec8, vec9)
   end function vectar_index0_9
 
   recursive function vectar_index1_9 (pred, vec1, vec2, vec3, vec4, vec5, &
@@ -13373,7 +13492,7 @@ contains
     integer(sz) :: index
 
     index = vectar_indexn_9 (pred, 1_sz, vec1, vec2, vec3, vec4, vec5, &
-       &                     vec6, vec7, vec8, vec9)
+         &                   vec6, vec7, vec8, vec9)
   end function vectar_index1_9
 
   recursive function vectar_indexn_10 (pred, n, vec1, vec2, vec3, vec4, vec5, &
@@ -13457,8 +13576,10 @@ contains
     range8 = vec8
     range9 = vec9
     range10 = vec10
-    min_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &            range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length(), &
+         &            range10%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -13523,7 +13644,7 @@ contains
     integer(sz) :: index
 
     index = vectar_indexn_10 (pred, 0_sz, vec1, vec2, vec3, vec4, vec5, &
-       &                     vec6, vec7, vec8, vec9, vec10)
+         &                   vec6, vec7, vec8, vec9, vec10)
   end function vectar_index0_10
 
   recursive function vectar_index1_10 (pred, vec1, vec2, vec3, vec4, vec5, &
@@ -13542,9 +13663,1117 @@ contains
     integer(sz) :: index
 
     index = vectar_indexn_10 (pred, 1_sz, vec1, vec2, vec3, vec4, vec5, &
-       &                     vec6, vec7, vec8, vec9, vec10)
+         &                   vec6, vec7, vec8, vec9, vec10)
   end function vectar_index1_10
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function vectar_index_rightn_1 (pred, n, vec1) result (index)
+    procedure(vectar_predicate1_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: vec1
+    integer(sz) :: index
+
+    type(gcroot_t) :: vec1_root
+    type(vectar_range_t) :: range1
+    type(vectar_data_t), pointer :: data1
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    logical :: pred_is_satisfied
+
+    vec1_root = vec1
+
+    range1 = vec1
+    min_length = range1%length()
+    data1 => vectar_data_ptr (range1)
+    i = min_length - 1_sz
+    pred_is_satisfied = .false.
+    do while (.not. pred_is_satisfied .and. 0_sz <= i)
+       i1 = range1%istart0() + i
+       pred_is_satisfied = pred (data1%array(i1)%element)
+       i = i - 1
+    end do
+    if (pred_is_satisfied) then
+       index = (n + 1_sz) + i
+    else
+       index = min (-1_sz, n - 1_sz)
+    end if
+
+    call vec1_root%discard
+  end function vectar_index_rightn_1
+
+  recursive function vectar_index_right0_1 (pred, vec1) result (index)
+    procedure(vectar_predicate1_t) :: pred
+    class(*), intent(in) :: vec1
+    integer(sz) :: index
+
+    index = vectar_index_rightn_1 (pred, 0_sz, vec1)
+  end function vectar_index_right0_1
+
+  recursive function vectar_index_right1_1 (pred, vec1) result (index)
+    procedure(vectar_predicate1_t) :: pred
+    class(*), intent(in) :: vec1
+    integer(sz) :: index
+
+    index = vectar_index_rightn_1 (pred, 1_sz, vec1)
+  end function vectar_index_right1_1
+
+  recursive function vectar_index_rightn_2 (pred, n, vec1, vec2) result (index)
+    procedure(vectar_predicate2_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    integer(sz) :: index
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    logical :: pred_is_satisfied
+
+    vec1_root = vec1
+    vec2_root = vec2
+
+    range1 = vec1
+    range2 = vec2
+    min_length = min (range1%length(), range2%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    i = min_length - 1_sz
+    pred_is_satisfied = .false.
+    do while (.not. pred_is_satisfied .and. 0_sz <= i)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       pred_is_satisfied = pred (data1%array(i1)%element, data2%array(i2)%element)
+       i = i - 1
+    end do
+    if (pred_is_satisfied) then
+       index = (n + 1_sz) + i
+    else
+       index = min (-1_sz, n - 1_sz)
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+  end function vectar_index_rightn_2
+
+  recursive function vectar_index_right0_2 (pred, vec1, vec2) result (index)
+    procedure(vectar_predicate2_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    integer(sz) :: index
+
+    index = vectar_index_rightn_2 (pred, 0_sz, vec1, vec2)
+  end function vectar_index_right0_2
+
+  recursive function vectar_index_right1_2 (pred, vec1, vec2) result (index)
+    procedure(vectar_predicate2_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    integer(sz) :: index
+
+    index = vectar_index_rightn_2 (pred, 1_sz, vec1, vec2)
+  end function vectar_index_right1_2
+
+  recursive function vectar_index_rightn_3 (pred, n, vec1, vec2, vec3) result (index)
+    procedure(vectar_predicate3_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    integer(sz) :: index
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    logical :: pred_is_satisfied
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    min_length = min (range1%length(), range2%length(), range3%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    i = min_length - 1_sz
+    pred_is_satisfied = .false.
+    do while (.not. pred_is_satisfied .and. 0_sz <= i)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       pred_is_satisfied = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &                    data3%array(i3)%element)
+       i = i - 1
+    end do
+    if (pred_is_satisfied) then
+       index = (n + 1_sz) + i
+    else
+       index = min (-1_sz, n - 1_sz)
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+  end function vectar_index_rightn_3
+
+  recursive function vectar_index_right0_3 (pred, vec1, vec2, vec3) result (index)
+    procedure(vectar_predicate3_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    integer(sz) :: index
+
+    index = vectar_index_rightn_3 (pred, 0_sz, vec1, vec2, vec3)
+  end function vectar_index_right0_3
+
+  recursive function vectar_index_right1_3 (pred, vec1, vec2, vec3) result (index)
+    procedure(vectar_predicate3_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    integer(sz) :: index
+
+    index = vectar_index_rightn_3 (pred, 1_sz, vec1, vec2, vec3)
+  end function vectar_index_right1_3
+
+  recursive function vectar_index_rightn_4 (pred, n, vec1, vec2, vec3, vec4) result (index)
+    procedure(vectar_predicate4_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    integer(sz) :: index
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    logical :: pred_is_satisfied
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    i = min_length - 1_sz
+    pred_is_satisfied = .false.
+    do while (.not. pred_is_satisfied .and. 0_sz <= i)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       pred_is_satisfied = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &                    data3%array(i3)%element, data4%array(i4)%element)
+       i = i - 1
+    end do
+    if (pred_is_satisfied) then
+       index = (n + 1_sz) + i
+    else
+       index = min (-1_sz, n - 1_sz)
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+  end function vectar_index_rightn_4
+
+  recursive function vectar_index_right0_4 (pred, vec1, vec2, vec3, vec4) result (index)
+    procedure(vectar_predicate4_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    integer(sz) :: index
+
+    index = vectar_index_rightn_4 (pred, 0_sz, vec1, vec2, vec3, vec4)
+  end function vectar_index_right0_4
+
+  recursive function vectar_index_right1_4 (pred, vec1, vec2, vec3, vec4) result (index)
+    procedure(vectar_predicate4_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    integer(sz) :: index
+
+    index = vectar_index_rightn_4 (pred, 1_sz, vec1, vec2, vec3, vec4)
+  end function vectar_index_right1_4
+
+  recursive function vectar_index_rightn_5 (pred, n, vec1, vec2, vec3, vec4, vec5) result (index)
+    procedure(vectar_predicate5_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    integer(sz) :: index
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    logical :: pred_is_satisfied
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    i = min_length - 1_sz
+    pred_is_satisfied = .false.
+    do while (.not. pred_is_satisfied .and. 0_sz <= i)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       pred_is_satisfied = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &                    data3%array(i3)%element, data4%array(i4)%element, &
+            &                    data5%array(i5)%element)
+       i = i - 1
+    end do
+    if (pred_is_satisfied) then
+       index = (n + 1_sz) + i
+    else
+       index = min (-1_sz, n - 1_sz)
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+  end function vectar_index_rightn_5
+
+  recursive function vectar_index_right0_5 (pred, vec1, vec2, vec3, vec4, vec5) result (index)
+    procedure(vectar_predicate5_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    integer(sz) :: index
+
+    index = vectar_index_rightn_5 (pred, 0_sz, vec1, vec2, vec3, vec4, vec5)
+  end function vectar_index_right0_5
+
+  recursive function vectar_index_right1_5 (pred, vec1, vec2, vec3, vec4, vec5) result (index)
+    procedure(vectar_predicate5_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    integer(sz) :: index
+
+    index = vectar_index_rightn_5 (pred, 1_sz, vec1, vec2, vec3, vec4, vec5)
+  end function vectar_index_right1_5
+
+  recursive function vectar_index_rightn_6 (pred, n, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6) result (index)
+    procedure(vectar_predicate6_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    integer(sz) :: index
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    logical :: pred_is_satisfied
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    i = min_length - 1_sz
+    pred_is_satisfied = .false.
+    do while (.not. pred_is_satisfied .and. 0_sz <= i)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       pred_is_satisfied = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &                    data3%array(i3)%element, data4%array(i4)%element, &
+            &                    data5%array(i5)%element, data6%array(i6)%element)
+       i = i - 1
+    end do
+    if (pred_is_satisfied) then
+       index = (n + 1_sz) + i
+    else
+       index = min (-1_sz, n - 1_sz)
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+  end function vectar_index_rightn_6
+
+  recursive function vectar_index_right0_6 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6) result (index)
+    procedure(vectar_predicate6_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    integer(sz) :: index
+
+    index = vectar_index_rightn_6 (pred, 0_sz, vec1, vec2, vec3, vec4, vec5, &
+         &                         vec6)
+  end function vectar_index_right0_6
+
+  recursive function vectar_index_right1_6 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6) result (index)
+    procedure(vectar_predicate6_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    integer(sz) :: index
+
+    index = vectar_index_rightn_6 (pred, 1_sz, vec1, vec2, vec3, vec4, vec5, &
+         &                         vec6)
+  end function vectar_index_right1_6
+
+  recursive function vectar_index_rightn_7 (pred, n, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6, vec7) result (index)
+    procedure(vectar_predicate7_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    integer(sz) :: index
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    logical :: pred_is_satisfied
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    i = min_length - 1_sz
+    pred_is_satisfied = .false.
+    do while (.not. pred_is_satisfied .and. 0_sz <= i)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       pred_is_satisfied = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &                    data3%array(i3)%element, data4%array(i4)%element, &
+            &                    data5%array(i5)%element, data6%array(i6)%element, &
+            &                    data7%array(i7)%element)
+       i = i - 1
+    end do
+    if (pred_is_satisfied) then
+       index = (n + 1_sz) + i
+    else
+       index = min (-1_sz, n - 1_sz)
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+  end function vectar_index_rightn_7
+
+  recursive function vectar_index_right0_7 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6, vec7) result (index)
+    procedure(vectar_predicate7_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    integer(sz) :: index
+
+    index = vectar_index_rightn_7 (pred, 0_sz, vec1, vec2, vec3, vec4, vec5, &
+         &                         vec6, vec7)
+  end function vectar_index_right0_7
+
+  recursive function vectar_index_right1_7 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6, vec7) result (index)
+    procedure(vectar_predicate7_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    integer(sz) :: index
+
+    index = vectar_index_rightn_7 (pred, 1_sz, vec1, vec2, vec3, vec4, vec5, &
+         &                         vec6, vec7)
+  end function vectar_index_right1_7
+
+  recursive function vectar_index_rightn_8 (pred, n, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6, vec7, vec8) result (index)
+    procedure(vectar_predicate8_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    integer(sz) :: index
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    logical :: pred_is_satisfied
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    i = min_length - 1_sz
+    pred_is_satisfied = .false.
+    do while (.not. pred_is_satisfied .and. 0_sz <= i)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       pred_is_satisfied = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &                    data3%array(i3)%element, data4%array(i4)%element, &
+            &                    data5%array(i5)%element, data6%array(i6)%element, &
+            &                    data7%array(i7)%element, data8%array(i8)%element)
+       i = i - 1
+    end do
+    if (pred_is_satisfied) then
+       index = (n + 1_sz) + i
+    else
+       index = min (-1_sz, n - 1_sz)
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+  end function vectar_index_rightn_8
+
+  recursive function vectar_index_right0_8 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6, vec7, vec8) result (index)
+    procedure(vectar_predicate8_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    integer(sz) :: index
+
+    index = vectar_index_rightn_8 (pred, 0_sz, vec1, vec2, vec3, vec4, vec5, &
+         &                         vec6, vec7, vec8)
+  end function vectar_index_right0_8
+
+  recursive function vectar_index_right1_8 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6, vec7, vec8) result (index)
+    procedure(vectar_predicate8_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    integer(sz) :: index
+
+    index = vectar_index_rightn_8 (pred, 1_sz, vec1, vec2, vec3, vec4, vec5, &
+         &                         vec6, vec7, vec8)
+  end function vectar_index_right1_8
+
+  recursive function vectar_index_rightn_9 (pred, n, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6, vec7, vec8, vec9) result (index)
+    procedure(vectar_predicate9_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    integer(sz) :: index
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    integer(sz) :: i9
+    logical :: pred_is_satisfied
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+    i = min_length - 1_sz
+    pred_is_satisfied = .false.
+    do while (.not. pred_is_satisfied .and. 0_sz <= i)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       i9 = range9%istart0() + i
+       pred_is_satisfied = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &                    data3%array(i3)%element, data4%array(i4)%element, &
+            &                    data5%array(i5)%element, data6%array(i6)%element, &
+            &                    data7%array(i7)%element, data8%array(i8)%element, &
+            &                    data9%array(i9)%element)
+       i = i - 1
+    end do
+    if (pred_is_satisfied) then
+       index = (n + 1_sz) + i
+    else
+       index = min (-1_sz, n - 1_sz)
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+  end function vectar_index_rightn_9
+
+  recursive function vectar_index_right0_9 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6, vec7, vec8, vec9) result (index)
+    procedure(vectar_predicate9_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    integer(sz) :: index
+
+    index = vectar_index_rightn_9 (pred, 0_sz, vec1, vec2, vec3, vec4, vec5, &
+         &                         vec6, vec7, vec8, vec9)
+  end function vectar_index_right0_9
+
+  recursive function vectar_index_right1_9 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6, vec7, vec8, vec9) result (index)
+    procedure(vectar_predicate9_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    integer(sz) :: index
+
+    index = vectar_index_rightn_9 (pred, 1_sz, vec1, vec2, vec3, vec4, vec5, &
+         &                         vec6, vec7, vec8, vec9)
+  end function vectar_index_right1_9
+
+  recursive function vectar_index_rightn_10 (pred, n, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6, vec7, vec8, vec9, vec10) result (index)
+    procedure(vectar_predicate10_t) :: pred
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    integer(sz) :: index
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(gcroot_t) :: vec10_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    type(vectar_data_t), pointer :: data10
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    integer(sz) :: i9
+    integer(sz) :: i10
+    logical :: pred_is_satisfied
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
+
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+    range10 = vec10
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length(), &
+         &            range10%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+    data10 => vectar_data_ptr (range10)
+    i = min_length - 1_sz
+    pred_is_satisfied = .false.
+    do while (.not. pred_is_satisfied .and. 0_sz <= i)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       i9 = range9%istart0() + i
+       i10 = range10%istart0() + i
+       pred_is_satisfied = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &                    data3%array(i3)%element, data4%array(i4)%element, &
+            &                    data5%array(i5)%element, data6%array(i6)%element, &
+            &                    data7%array(i7)%element, data8%array(i8)%element, &
+            &                    data9%array(i9)%element, data10%array(i10)%element)
+       i = i - 1
+    end do
+    if (pred_is_satisfied) then
+       index = (n + 1_sz) + i
+    else
+       index = min (-1_sz, n - 1_sz)
+    end if
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+    call vec10_root%discard
+  end function vectar_index_rightn_10
+
+  recursive function vectar_index_right0_10 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6, vec7, vec8, vec9, vec10) result (index)
+    procedure(vectar_predicate10_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    integer(sz) :: index
+
+    index = vectar_index_rightn_10 (pred, 0_sz, vec1, vec2, vec3, vec4, vec5, &
+         &                         vec6, vec7, vec8, vec9, vec10)
+  end function vectar_index_right0_10
+
+  recursive function vectar_index_right1_10 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                              vec6, vec7, vec8, vec9, vec10) result (index)
+    procedure(vectar_predicate10_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    integer(sz) :: index
+
+    index = vectar_index_rightn_10 (pred, 1_sz, vec1, vec2, vec3, vec4, vec5, &
+         &                         vec6, vec7, vec8, vec9, vec10)
+  end function vectar_index_right1_10
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
