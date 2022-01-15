@@ -146,6 +146,17 @@ contains
     end select
   end function str_t_cast
 
+  function logical_cast (obj) result (bool)
+    class(*), intent(in) :: obj
+    logical :: bool
+    select type (obj)
+    type is (logical)
+       bool = obj
+    class default
+       call error_abort ("logical_cast of an incompatible object")
+    end select
+  end function logical_cast
+
   function int_eq (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1, obj2
     logical :: bool
@@ -2420,6 +2431,140 @@ contains
 
   end subroutine test0340
 
+  subroutine test0350
+    class(*), allocatable :: retval
+
+    call check (is_false (vectar_some_map (eq4, vectar ())), "test0350-0010 failed")
+    call check (vectar_some_map (eq4, vectar (1, 2, 3, 4)) .eqi. 4, "test0350-0020 failed")
+    call check (vectar_some_map (eq4, vectar (1, 2, 3, 4, 5, 6)) .eqi. 4, "test0350-0030 failed")
+    call check (vectar_some_map (eq4, vectar (4, 2, 3, 5, 6)) .eqi. 4, "test0350-0040 failed")
+    call check (is_false (vectar_some_map (eq4, vectar (1, 2, 3, 5, 6))), "test0350-0050 failed")
+
+    call check (is_false (vectar_some_map (lt2, vectar (), vectar (1, 2, 4, 4))), "test0350-1010 failed")
+    call check (is_false (vectar_some_map (lt2, vectar (1, 2, 4, 4), vectar ())), "test0350-1020 failed")
+    call check (is_false (vectar_some_map (lt2, vectar (1, 2, 3, 4, 5), vectar (1, 2, 3, 4))), "test0350-1030 failed")
+    retval = vectar_some_map (lt2, vectar (1, 2, 3, 4), vectar (1, 2, 4, 4))
+    call check (list_equal (int_eq, retval, list (3, 4)), "test0350-1040 failed")
+
+    call check (is_false (vectar_some_map (lt3, vectar (1, 2, 3, 4), vectar (1, 2, 4, 4), vectar (1, 2, 4, 5))), &
+         &      "test0350-2010 failed")
+    retval = vectar_some_map (lt3, vectar (1, 2, 3, 4), vectar (1, 2, 4, 4), vectar (1, 2, 5, 4))
+    call check (list_equal (int_eq, retval, list (3, 4, 5)), "test0350-2020 failed")
+
+  contains
+
+    subroutine eq4 (x, retval)
+      class(*), intent(in) :: x
+      class(*), allocatable, intent(out) :: retval
+
+      call collect_garbage_now
+
+      if (int_cast (x) == 4) then
+         retval = 4
+      else
+         retval = .false.
+      end if
+    end subroutine eq4
+
+    subroutine lt2 (x, y, retval)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      class(*), allocatable, intent(out) :: retval
+
+      call collect_garbage_now
+
+      if (int_cast (x) < int_cast (y)) then
+         retval = list (x, y)
+      else
+         retval = .false.
+      end if
+    end subroutine lt2
+
+    subroutine lt3 (x, y, z, retval)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      class(*), intent(in) :: z
+      class(*), allocatable, intent(out) :: retval
+
+      call collect_garbage_now
+
+      if ((int_cast (x) < int_cast (y)) .and. (int_cast (y) < int_cast (z))) then
+         retval = list (x, y, z)
+      else
+         retval = .false.
+      end if
+    end subroutine lt3
+
+  end subroutine test0350
+
+  subroutine test0360
+    class(*), allocatable :: retval
+
+    call check (logical_cast (vectar_every_map (eq4, vectar ())), "test0360-0010 failed")
+    call check (is_false (vectar_every_map (eq4, vectar (1, 2, 3, 4))), "test0360-0020 failed")
+    call check (vectar_every_map (eq4, vectar (4, 4, 4, 4)) .eqi. 4, "test0360-0030 failed")
+    call check (is_false (vectar_every_map (eq4, vectar (3, 3, 3, 3))), "test0360-0040 failed")
+
+    call check (logical_cast (vectar_every_map (lt2, vectar (), vectar (1, 2, 4, 4))), "test0360-1010 failed")
+    call check (logical_cast (vectar_every_map (lt2, vectar (1, 2, 4, 4), vectar ())), "test0360-1020 failed")
+    call check (is_false (vectar_every_map (lt2, vectar (1, 2, 3, 4), vectar (1, 2, 4, 4))), "test0360-1030 failed")
+    call check (is_false (vectar_every_map (lt2, vectar (1, 2, 3, 4, 5), vectar (1, 2, 3, 4))), "test0360-1040 failed")
+    retval = vectar_every_map (lt2, vectar (1, 2, 3, 4, 5), vectar (2, 3, 4, 5))
+    call check (list_equal (int_eq, retval, list (4, 5)), "test0360-1050 failed")
+
+    call check (is_false (vectar_every_map (lt3, vectar (1, 2, 3, 4), vectar (1, 2, 4, 4), vectar (1, 2, 5, 4))), &
+         &      "test0360-2010 failed")
+    call check (is_false (vectar_every_map (lt3, vectar (1, 2, 3, 4), vectar (1, 2, 4, 4), vectar (1, 2, 4, 5))), &
+         &      "test0360-2020 failed")
+    retval = vectar_every_map (lt3, vectar (1, 2, 3, 4), vectar (2, 3, 4, 5, 6), vectar (3, 4, 5, 6))
+    call check (list_equal (int_eq, retval, list (4, 5, 6)), "test0360-2030 failed")
+
+  contains
+
+    subroutine eq4 (x, retval)
+      class(*), intent(in) :: x
+      class(*), allocatable, intent(out) :: retval
+
+      call collect_garbage_now
+
+      if (int_cast (x) == 4) then
+         retval = 4
+      else
+         retval = .false.
+      end if
+    end subroutine eq4
+
+    subroutine lt2 (x, y, retval)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      class(*), allocatable, intent(out) :: retval
+
+      call collect_garbage_now
+
+      if (int_cast (x) < int_cast (y)) then
+         retval = list (x, y)
+      else
+         retval = .false.
+      end if
+    end subroutine lt2
+
+    subroutine lt3 (x, y, z, retval)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      class(*), intent(in) :: z
+      class(*), allocatable, intent(out) :: retval
+
+      call collect_garbage_now
+
+      if ((int_cast (x) < int_cast (y)) .and. (int_cast (y) < int_cast (z))) then
+         retval = list (x, y, z)
+      else
+         retval = .false.
+      end if
+    end subroutine lt3
+
+  end subroutine test0360
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -2458,6 +2603,8 @@ contains
     call test0320
     call test0330
     call test0340
+    call test0350
+    call test0360
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

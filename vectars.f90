@@ -700,19 +700,19 @@ module vectars
                              ! across lists, returning .true. if the
                              ! predicate returns .true. on any
                              ! application.
-!!$  public :: vectar_some_map  ! Generic function: applies a mapping
-!!$                             ! procedure across lists, returning the
-!!$                             ! result of the mapping the first time it
-!!$                             ! comes out as a value other than .false.
+  public :: vectar_some_map  ! Generic function: applies a mapping
+                             ! procedure across lists, returning the
+                             ! result of the mapping the first time it
+                             ! comes out as a value other than .false.
   public :: vectar_every     ! Generic function: applies a predicate
                              ! across lists, returning .true. if the
                              ! predicate returns .true. on every
                              ! application.
-!!$  public :: vectar_every_map ! Generic function: applies a mapping
-!!$                             ! procedure across lists, returning the
-!!$                             ! result of the last mapping, if no
-!!$                             ! application of the procedure returns
-!!$                             ! .false.
+  public :: vectar_every_map ! Generic function: applies a mapping
+                             ! procedure across lists, returning the
+                             ! result of the last mapping, if no
+                             ! application of the procedure returns
+                             ! .false.
 
   ! Implementations of `vectar_some' et al.
   public :: vectar_some1
@@ -725,17 +725,17 @@ module vectars
   public :: vectar_some8
   public :: vectar_some9
   public :: vectar_some10
-!!$!!$  public :: vectar_some_map1_subr
-!!$!!$  public :: vectar_some_map2_subr
-!!$!!$  public :: vectar_some_map3_subr
-!!$!!$  public :: vectar_some_map4_subr
-!!$!!$  public :: vectar_some_map5_subr
-!!$!!$  public :: vectar_some_map6_subr
-!!$!!$  public :: vectar_some_map7_subr
-!!$!!$  public :: vectar_some_map8_subr
-!!$!!$  public :: vectar_some_map9_subr
-!!$!!$  public :: vectar_some_map10_subr
-!!$  public :: vectar_every1
+  public :: vectar_some_map1_subr
+  public :: vectar_some_map2_subr
+  public :: vectar_some_map3_subr
+  public :: vectar_some_map4_subr
+  public :: vectar_some_map5_subr
+  public :: vectar_some_map6_subr
+  public :: vectar_some_map7_subr
+  public :: vectar_some_map8_subr
+  public :: vectar_some_map9_subr
+  public :: vectar_some_map10_subr
+  public :: vectar_every1
   public :: vectar_every2
   public :: vectar_every3
   public :: vectar_every4
@@ -745,17 +745,17 @@ module vectars
   public :: vectar_every8
   public :: vectar_every9
   public :: vectar_every10
-!!$!!$  public :: vectar_every_map1_subr
-!!$!!$  public :: vectar_every_map2_subr
-!!$!!$  public :: vectar_every_map3_subr
-!!$!!$  public :: vectar_every_map4_subr
-!!$!!$  public :: vectar_every_map5_subr
-!!$!!$  public :: vectar_every_map6_subr
-!!$!!$  public :: vectar_every_map7_subr
-!!$!!$  public :: vectar_every_map8_subr
-!!$!!$  public :: vectar_every_map9_subr
-!!$!!$  public :: vectar_every_map10_subr
-!!$
+  public :: vectar_every_map1_subr
+  public :: vectar_every_map2_subr
+  public :: vectar_every_map3_subr
+  public :: vectar_every_map4_subr
+  public :: vectar_every_map5_subr
+  public :: vectar_every_map6_subr
+  public :: vectar_every_map7_subr
+  public :: vectar_every_map8_subr
+  public :: vectar_every_map9_subr
+  public :: vectar_every_map10_subr
+
   ! Vectar-list conversions.
   public :: vectar_to_list
   public :: reverse_vectar_to_list
@@ -1365,18 +1365,18 @@ module vectars
      module procedure vectar_some10
   end interface vectar_some
 
-!!$  interface vectar_some_map
-!!$!!$     module procedure vectar_some_map1_subr
-!!$!!$     module procedure vectar_some_map2_subr
-!!$!!$     module procedure vectar_some_map3_subr
-!!$!!$     module procedure vectar_some_map4_subr
-!!$!!$     module procedure vectar_some_map5_subr
-!!$!!$     module procedure vectar_some_map6_subr
-!!$!!$     module procedure vectar_some_map7_subr
-!!$!!$     module procedure vectar_some_map8_subr
-!!$!!$     module procedure vectar_some_map9_subr
-!!$!!$     module procedure vectar_some_map10_subr
-!!$!!$  end interface vectar_some_map
+  interface vectar_some_map
+     module procedure vectar_some_map1_subr
+     module procedure vectar_some_map2_subr
+     module procedure vectar_some_map3_subr
+     module procedure vectar_some_map4_subr
+     module procedure vectar_some_map5_subr
+     module procedure vectar_some_map6_subr
+     module procedure vectar_some_map7_subr
+     module procedure vectar_some_map8_subr
+     module procedure vectar_some_map9_subr
+     module procedure vectar_some_map10_subr
+  end interface vectar_some_map
 
   interface vectar_every
      module procedure vectar_every1
@@ -1391,18 +1391,18 @@ module vectars
      module procedure vectar_every10
   end interface vectar_every
 
-!!$  interface vectar_every_map
-!!$!!$     module procedure vectar_every_map1_subr
-!!$!!$     module procedure vectar_every_map2_subr
-!!$!!$     module procedure vectar_every_map3_subr
-!!$!!$     module procedure vectar_every_map4_subr
-!!$!!$     module procedure vectar_every_map5_subr
-!!$!!$     module procedure vectar_every_map6_subr
-!!$!!$     module procedure vectar_every_map7_subr
-!!$!!$     module procedure vectar_every_map8_subr
-!!$!!$     module procedure vectar_every_map9_subr
-!!$!!$     module procedure vectar_every_map10_subr
-!!$!!$  end interface vectar_every_map
+  interface vectar_every_map
+     module procedure vectar_every_map1_subr
+     module procedure vectar_every_map2_subr
+     module procedure vectar_every_map3_subr
+     module procedure vectar_every_map4_subr
+     module procedure vectar_every_map5_subr
+     module procedure vectar_every_map6_subr
+     module procedure vectar_every_map7_subr
+     module procedure vectar_every_map8_subr
+     module procedure vectar_every_map9_subr
+     module procedure vectar_every_map10_subr
+  end interface vectar_every_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!
@@ -19558,6 +19558,1642 @@ contains
     call vec9_root%discard
     call vec10_root%discard
   end function vectar_every10
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function vectar_some_map1_subr (subr, vec1) result (retval)
+    procedure(vectar_map1_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(vectar_range_t) :: range1
+    type(vectar_data_t), pointer :: data1
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    range1 = vec1
+    min_length = range1%length()
+    data1 => vectar_data_ptr (range1)
+
+    subr_result = .not. .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       call subr (data1%array(i1)%element, subr_result)
+       short_circuited = .not. is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+  end function vectar_some_map1_subr
+
+  recursive function vectar_some_map2_subr (subr, vec1, vec2) result (retval)
+    procedure(vectar_map2_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    range1 = vec1
+    range2 = vec2
+    min_length = min (range1%length(), range2%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+
+    subr_result = .not. .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, subr_result)
+       short_circuited = .not. is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+  end function vectar_some_map2_subr
+
+  recursive function vectar_some_map3_subr (subr, vec1, vec2, vec3) result (retval)
+    procedure(vectar_map3_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    min_length = min (range1%length(), range2%length(), range3%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+
+    subr_result = .not. .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, subr_result)
+       short_circuited = .not. is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+  end function vectar_some_map3_subr
+
+  recursive function vectar_some_map4_subr (subr, vec1, vec2, vec3, vec4) result (retval)
+    procedure(vectar_map4_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+
+    subr_result = .not. .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, subr_result)
+       short_circuited = .not. is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+  end function vectar_some_map4_subr
+
+  recursive function vectar_some_map5_subr (subr, vec1, vec2, vec3, vec4, vec5) result (retval)
+    procedure(vectar_map5_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+
+    subr_result = .not. .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, subr_result)
+       short_circuited = .not. is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+  end function vectar_some_map5_subr
+
+  recursive function vectar_some_map6_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6) result (retval)
+    procedure(vectar_map6_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+
+    subr_result = .not. .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, subr_result)
+       short_circuited = .not. is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+  end function vectar_some_map6_subr
+
+  recursive function vectar_some_map7_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7) result (retval)
+    procedure(vectar_map7_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+
+    subr_result = .not. .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, subr_result)
+       short_circuited = .not. is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+  end function vectar_some_map7_subr
+
+  recursive function vectar_some_map8_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7, vec8) result (retval)
+    procedure(vectar_map8_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+
+    subr_result = .not. .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element, subr_result)
+       short_circuited = .not. is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+  end function vectar_some_map8_subr
+
+  recursive function vectar_some_map9_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7, vec8, vec9) result (retval)
+    procedure(vectar_map9_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    integer(sz) :: i9
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+
+    subr_result = .not. .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       i9 = range9%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element, &
+            &     data9%array(i9)%element, subr_result)
+       short_circuited = .not. is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+  end function vectar_some_map9_subr
+
+  recursive function vectar_some_map10_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7, vec8, vec9, vec10) result (retval)
+    procedure(vectar_map10_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(gcroot_t) :: vec10_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    type(vectar_data_t), pointer :: data10
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    integer(sz) :: i9
+    integer(sz) :: i10
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+    range10 = vec10
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length(), &
+         &            range10%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+    data10 => vectar_data_ptr (range10)
+
+    subr_result = .not. .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       i9 = range9%istart0() + i
+       i10 = range10%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element, &
+            &     data9%array(i9)%element, data10%array(i10)%element, subr_result)
+       short_circuited = .not. is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+    call vec10_root%discard
+  end function vectar_some_map10_subr
+
+  recursive function vectar_every_map1_subr (subr, vec1) result (retval)
+    procedure(vectar_map1_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(vectar_range_t) :: range1
+    type(vectar_data_t), pointer :: data1
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    range1 = vec1
+    min_length = range1%length()
+    data1 => vectar_data_ptr (range1)
+
+    subr_result = .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       call subr (data1%array(i1)%element, subr_result)
+       short_circuited = is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+  end function vectar_every_map1_subr
+
+  recursive function vectar_every_map2_subr (subr, vec1, vec2) result (retval)
+    procedure(vectar_map2_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    range1 = vec1
+    range2 = vec2
+    min_length = min (range1%length(), range2%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+
+    subr_result = .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, subr_result)
+       short_circuited = is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+  end function vectar_every_map2_subr
+
+  recursive function vectar_every_map3_subr (subr, vec1, vec2, vec3) result (retval)
+    procedure(vectar_map3_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    min_length = min (range1%length(), range2%length(), range3%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+
+    subr_result = .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, subr_result)
+       short_circuited = is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+  end function vectar_every_map3_subr
+
+  recursive function vectar_every_map4_subr (subr, vec1, vec2, vec3, vec4) result (retval)
+    procedure(vectar_map4_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+
+    subr_result = .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, subr_result)
+       short_circuited = is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+  end function vectar_every_map4_subr
+
+  recursive function vectar_every_map5_subr (subr, vec1, vec2, vec3, vec4, vec5) result (retval)
+    procedure(vectar_map5_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+
+    subr_result = .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, subr_result)
+       short_circuited = is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+  end function vectar_every_map5_subr
+
+  recursive function vectar_every_map6_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6) result (retval)
+    procedure(vectar_map6_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+
+    subr_result = .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, subr_result)
+       short_circuited = is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+  end function vectar_every_map6_subr
+
+  recursive function vectar_every_map7_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7) result (retval)
+    procedure(vectar_map7_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+
+    subr_result = .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, subr_result)
+       short_circuited = is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+  end function vectar_every_map7_subr
+
+  recursive function vectar_every_map8_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7, vec8) result (retval)
+    procedure(vectar_map8_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+
+    subr_result = .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element, subr_result)
+       short_circuited = is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+  end function vectar_every_map8_subr
+
+  recursive function vectar_every_map9_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7, vec8, vec9) result (retval)
+    procedure(vectar_map9_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    integer(sz) :: i9
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+
+    subr_result = .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       i9 = range9%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element, &
+            &     data9%array(i9)%element, subr_result)
+       short_circuited = is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+  end function vectar_every_map9_subr
+
+  recursive function vectar_every_map10_subr (subr, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7, vec8, vec9, vec10) result (retval)
+    procedure(vectar_map10_subr_t) :: subr
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    class(*), allocatable :: retval
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(gcroot_t) :: vec10_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    type(vectar_data_t), pointer :: data10
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    integer(sz) :: i9
+    integer(sz) :: i10
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+    range10 = vec10
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length(), &
+         &            range10%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+    data10 => vectar_data_ptr (range10)
+
+    subr_result = .true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       i9 = range9%istart0() + i
+       i10 = range10%istart0() + i
+       call subr (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element, &
+            &     data9%array(i9)%element, data10%array(i10)%element, subr_result)
+       short_circuited = is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+    call vec10_root%discard
+  end function vectar_every_map10_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

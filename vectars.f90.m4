@@ -554,33 +554,33 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
                              ! across lists, returning .true. if the
                              ! predicate returns .true. on any
                              ! application.
-!!$  public :: vectar_some_map  ! Generic function: applies a mapping
-!!$                             ! procedure across lists, returning the
-!!$                             ! result of the mapping the first time it
-!!$                             ! comes out as a value other than .false.
+  public :: vectar_some_map  ! Generic function: applies a mapping
+                             ! procedure across lists, returning the
+                             ! result of the mapping the first time it
+                             ! comes out as a value other than .false.
   public :: vectar_every     ! Generic function: applies a predicate
                              ! across lists, returning .true. if the
                              ! predicate returns .true. on every
                              ! application.
-!!$  public :: vectar_every_map ! Generic function: applies a mapping
-!!$                             ! procedure across lists, returning the
-!!$                             ! result of the last mapping, if no
-!!$                             ! application of the procedure returns
-!!$                             ! .false.
+  public :: vectar_every_map ! Generic function: applies a mapping
+                             ! procedure across lists, returning the
+                             ! result of the last mapping, if no
+                             ! application of the procedure returns
+                             ! .false.
 
   ! Implementations of `vectar_some' et al.
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_some[]n
 ])dnl
-!!$m4_forloop([n],[1],ZIP_MAX,[dnl
-!!$  public :: vectar_some_map[]n[]_subr
-!!$])dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_some_map[]n[]_subr
+])dnl
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_every[]n
 ])dnl
-!!$m4_forloop([n],[1],ZIP_MAX,[dnl
-!!$  public :: vectar_every_map[]n[]_subr
-!!$])dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  public :: vectar_every_map[]n[]_subr
+])dnl
 
   ! Vectar-list conversions.
   public :: vectar_to_list
@@ -972,11 +972,11 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 ])dnl
   end interface vectar_some
 
-!!$  interface vectar_some_map
-!!$m4_forloop([n],[1],ZIP_MAX,[dnl
-!!$     module procedure vectar_some_map[]n[]_subr
-!!$])dnl
-!!$  end interface vectar_some_map
+  interface vectar_some_map
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure vectar_some_map[]n[]_subr
+])dnl
+  end interface vectar_some_map
 
   interface vectar_every
 m4_forloop([n],[1],ZIP_MAX,[dnl
@@ -984,11 +984,11 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 ])dnl
   end interface vectar_every
 
-!!$  interface vectar_every_map
-!!$m4_forloop([n],[1],ZIP_MAX,[dnl
-!!$     module procedure vectar_every_map[]n[]_subr
-!!$])dnl
-!!$  end interface vectar_every_map
+  interface vectar_every_map
+m4_forloop([n],[1],ZIP_MAX,[dnl
+     module procedure vectar_every_map[]n[]_subr
+])dnl
+  end interface vectar_every_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!
@@ -3308,6 +3308,51 @@ m4_discard_vec_roots(n)dnl
 dnl
 m4_vectar_some_or_every([some],[.not. ])dnl
 m4_vectar_some_or_every([every],[])dnl
+dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+m4_define([m4_vectar_some_map_or_every_map],[dnl
+m4_forloop([n],[1],ZIP_MAX,[dnl
+  recursive function vectar_$1_map[]n[]_subr (subr, vec1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
+       &                           ])vec[]k])) result (retval)
+    procedure(vectar_map[]n[]_subr_t) :: subr
+m4_forloop([k],[1],n,[dnl
+    class(*), intent(in) :: vec[]k
+])dnl
+    class(*), allocatable :: retval
+
+m4_declare_iteration_variables(n)dnl
+    integer(sz) :: i
+m4_forloop([k],[1],n,[dnl
+    integer(sz) :: i[]k
+])dnl
+    class(*), allocatable :: subr_result
+    logical :: short_circuited
+
+m4_initialize_iteration(n)dnl
+
+    subr_result = $2.true.
+    short_circuited = .false.
+    i = 0_sz
+    do while (.not. short_circuited .and. i < min_length)
+m4_forloop([k],[1],n,[dnl
+       i[]k = range[]k%istart0() + i
+])dnl
+       call subr (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
+            &     ])data[]k%array(i[]k)%element]), subr_result)
+       short_circuited = $2[]is_false (subr_result)
+       i = i + 1
+    end do
+    retval = subr_result
+
+m4_discard_vec_roots(n)dnl
+  end function vectar_$1_map[]n[]_subr
+
+])dnl
+])dnl
+dnl
+m4_vectar_some_map_or_every_map([some],[.not. ])dnl
+m4_vectar_some_map_or_every_map([every],[])dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
