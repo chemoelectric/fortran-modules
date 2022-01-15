@@ -629,7 +629,7 @@ module vectars
   ! These functions are designed so they always return a negative
   ! number on failure to satisfy the predicate, and also so the
   ! negative number is specifically -1, if the index base is
-  ! non-negative.  This seemed a convenient convention.
+  ! non-negative. This seemed a convenient convention.
   !
   ! (Note that the `cmp' procedure argument comes last. This is the
   ! argument order specified in SRFI-133.)
@@ -641,6 +641,53 @@ module vectars
   public :: vectar_binary_searchn ! Return the n-based index of a
                                   ! match, or min (-1, n - 1) if there
                                   ! is no match.
+
+  !
+  ! Generic functions to do binary searches on vectars and vectar
+  ! ranges, using an ordering predicate <
+  !
+  ! These are not based on anything in SRFI-133.
+  !
+  ! See H. Bottenbruch, `Structure and use of ALGOL 60', Journal of
+  ! the ACM, Volume 9, Issue 2, April 1962,
+  ! pp.161-221. https://doi.org/10.1145/321119.321120
+  !
+  ! The general algorithm is described on pages 214 and 215.
+  !
+  ! See also
+  ! https://en.wikipedia.org/w/index.php?title=Binary_search_algorithm&oldid=1062988272#Alternative_procedure
+  !
+  ! If no equality predicate is provided, we make the assumption that
+  ! if neither a < b nor b < a is true, then a == b (for the purpose
+  ! of the search).
+  !
+  ! These functions are designed so they always return a negative
+  ! number on failure to satisfy the predicate, and also so the
+  ! negative number is specifically -1, if the index base is
+  ! non-negative. This seemed a convenient convention.
+  !
+  ! (Note that the predicate arguments come first, unlike the `cmp'
+  ! argument in vectar_binary_search0, vectar_binary_search1, or
+  ! vectar_binary_searchn, which comes last.)
+  !
+  public :: vectar_bottenbruch_search0 ! Return the 0-based index
+                                       ! where a predicate is first
+                                       ! satisfied, or -1 if it is
+                                       ! never satisfied.
+  public :: vectar_bottenbruch_search1 ! Return the 1-based index of a
+                                       ! match, or -1 if there is no
+                                       ! match.
+  public :: vectar_bottenbruch_searchn ! Return the n-based index of ax
+                                       ! match, or min (-1, n - 1) if
+                                       ! there is no match.
+
+  ! Implementations of the Bottenbruch searches.
+  public :: vectar_bottenbruch_search0_without_equality
+  public :: vectar_bottenbruch_search1_without_equality
+  public :: vectar_bottenbruch_searchn_without_equality
+  public :: vectar_bottenbruch_search0_with_equality
+  public :: vectar_bottenbruch_search1_with_equality
+  public :: vectar_bottenbruch_searchn_with_equality
 
   ! Vectar-list conversions.
   public :: vectar_to_list
@@ -1222,6 +1269,21 @@ module vectars
      module procedure vectar_skip_rightn_9
      module procedure vectar_skip_rightn_10
   end interface vectar_skip_rightn
+  
+  interface vectar_bottenbruch_search0
+     module procedure vectar_bottenbruch_search0_without_equality
+     module procedure vectar_bottenbruch_search0_with_equality
+  end interface vectar_bottenbruch_search0
+
+  interface vectar_bottenbruch_search1
+     module procedure vectar_bottenbruch_search1_without_equality
+     module procedure vectar_bottenbruch_search1_with_equality
+  end interface vectar_bottenbruch_search1
+
+  interface vectar_bottenbruch_searchn
+     module procedure vectar_bottenbruch_searchn_without_equality
+     module procedure vectar_bottenbruch_searchn_with_equality
+  end interface vectar_bottenbruch_searchn
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!
@@ -17269,6 +17331,137 @@ contains
 
     call vec_root%discard
   end function vectar_binary_searchn
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function vectar_bottenbruch_search0_without_equality (less_than, vec, x) result (index)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: x
+    integer(sz) :: index
+
+    index = vectar_bottenbruch_searchn_without_equality (less_than, vec, 0_sz, x)
+  end function vectar_bottenbruch_search0_without_equality
+
+  recursive function vectar_bottenbruch_search1_without_equality (less_than, vec, x) result (index)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: x
+    integer(sz) :: index
+
+    index = vectar_bottenbruch_searchn_without_equality (less_than, vec, 1_sz, x)
+  end function vectar_bottenbruch_search1_without_equality
+
+  recursive function vectar_bottenbruch_searchn_without_equality (less_than, vec, n, x) result (index)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: x
+    integer(sz) :: index
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    integer(sz) :: len, i0, i
+    integer(sz) :: ileft, imiddle, iright
+
+    index = min (-1_sz, n - 1_sz)
+
+    range = vec
+    len = range%length()
+
+    if (len /= 0_sz) then
+       vec_root = vec
+
+       i0 = range%istart0()
+       data => vectar_data_ptr (range)
+       ileft = 0_sz
+       iright = len - 1_sz
+       do while (iright /= ileft)
+          imiddle = (ileft + iright) / 2_sz
+          i = i0 + imiddle
+          if (less_than (data%array(i)%element, x)) then
+             ileft = imiddle + 1_sz
+          else
+             iright = imiddle
+          end if
+       end do
+
+       i = i0 + ileft
+       if (.not. less_than (data%array(i)%element, x)) then
+          if (.not. less_than (x, data%array(i)%element)) then
+             index = ileft + n
+          end if
+       end if
+
+       call vec_root%discard
+    end if
+  end function vectar_bottenbruch_searchn_without_equality
+
+  recursive function vectar_bottenbruch_search0_with_equality (less_than, equal, vec, x) result (index)
+    procedure(vectar_predicate2_t) :: less_than
+    procedure(vectar_predicate2_t) :: equal
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: x
+    integer(sz) :: index
+
+    index = vectar_bottenbruch_searchn_with_equality (less_than, equal, vec, 0_sz, x)
+  end function vectar_bottenbruch_search0_with_equality
+
+  recursive function vectar_bottenbruch_search1_with_equality (less_than, equal, vec, x) result (index)
+    procedure(vectar_predicate2_t) :: less_than
+    procedure(vectar_predicate2_t) :: equal
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: x
+    integer(sz) :: index
+
+    index = vectar_bottenbruch_searchn_with_equality (less_than, equal, vec, 1_sz, x)
+  end function vectar_bottenbruch_search1_with_equality
+
+  recursive function vectar_bottenbruch_searchn_with_equality (less_than, equal, vec, n, x) result (index)
+    procedure(vectar_predicate2_t) :: less_than
+    procedure(vectar_predicate2_t) :: equal
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: x
+    integer(sz) :: index
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    integer(sz) :: len, i0, i
+    integer(sz) :: ileft, imiddle, iright
+
+    index = min (-1_sz, n - 1_sz)
+
+    range = vec
+    len = range%length()
+
+    if (len /= 0_sz) then
+       vec_root = vec
+
+       i0 = range%istart0()
+       data => vectar_data_ptr (range)
+       ileft = 0_sz
+       iright = len - 1_sz
+       do while (iright /= ileft)
+          imiddle = (ileft + iright) / 2_sz
+          i = i0 + imiddle
+          if (less_than (data%array(i)%element, x)) then
+             ileft = imiddle + 1_sz
+          else
+             iright = imiddle
+          end if
+       end do
+
+       i = i0 + ileft
+       if (equal (data%array(i)%element, x)) then
+          index = ileft + n
+       end if
+
+       call vec_root%discard
+    end if
+  end function vectar_bottenbruch_searchn_with_equality
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

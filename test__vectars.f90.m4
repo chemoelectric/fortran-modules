@@ -2008,6 +2008,48 @@ contains
     call check (vectar_binary_search1 (vecr, 9, int_cmp) == -1_sz, "test0300-0290 failed")
     call check (vectar_binary_searchn (vecr, 2_sz, 9, int_cmp) == -1_sz, "test0300-0300 failed")
 
+    vec = vectar (5)
+    call check (vectar_binary_search0 (vec, 5, int_cmp) == 0_sz, "test0300-1010 failed")
+    call check (vectar_binary_search1 (vec, 5, int_cmp) == 1_sz, "test0300-1020 failed")
+    call check (vectar_binary_searchn (vec, -26_sz, 5, int_cmp) == -26_sz, "test0300-1030 failed")
+
+    vec = vectar (5)
+    call check (vectar_binary_search0 (vec, 4, int_cmp) == -1_sz, "test0300-1040 failed")
+    call check (vectar_binary_search1 (vec, 4, int_cmp) == -1_sz, "test0300-1050 failed")
+    call check (vectar_binary_searchn (vec, -26_sz, 4, int_cmp) == -27_sz, "test0300-1060 failed")
+
+    vec = vectar (5)
+    call check (vectar_binary_search0 (vec, 6, int_cmp) == -1_sz, "test0300-1070 failed")
+    call check (vectar_binary_search1 (vec, 6, int_cmp) == -1_sz, "test0300-1080 failed")
+    call check (vectar_binary_searchn (vec, -26_sz, 6, int_cmp) == -27_sz, "test0300-1090 failed")
+
+    vec = vectar ()
+    call check (vectar_binary_search0 (vec, 5, int_cmp) == -1_sz, "test0300-2010 failed")
+    call check (vectar_binary_search1 (vec, 5, int_cmp) == -1_sz, "test0300-2020 failed")
+    call check (vectar_binary_searchn (vec, -26_sz, 5, int_cmp) == -27_sz, "test0300-2030 failed")
+
+    vec = vectar ()
+    call check (vectar_binary_search0 (vec, 4, int_cmp) == -1_sz, "test0300-2040 failed")
+    call check (vectar_binary_search1 (vec, 4, int_cmp) == -1_sz, "test0300-2050 failed")
+    call check (vectar_binary_searchn (vec, -26_sz, 4, int_cmp) == -27_sz, "test0300-2060 failed")
+
+    vec = vectar ()
+    call check (vectar_binary_search0 (vec, 6, int_cmp) == -1_sz, "test0300-2070 failed")
+    call check (vectar_binary_search1 (vec, 6, int_cmp) == -1_sz, "test0300-2080 failed")
+    call check (vectar_binary_searchn (vec, -26_sz, 6, int_cmp) == -27_sz, "test0300-2090 failed")
+
+    vec = vectar (1, 2, 2, 2, 2, 3, 4, 5, 6, 6, 6, 6, 6, 6, 7, 7, 7, 8, 9, 10)
+    call check (vectar_ref0 (vec, vectar_binary_search0 (vec, 6, int_cmp)) .eqi. 6, "test0310-3010 failed")
+    call check (vectar_ref1 (vec, vectar_binary_search1 (vec, 6, int_cmp)) .eqi. 6, "test0310-3020 failed")
+    call check (vectar_refn (vec, -26_sz, vectar_binary_searchn (vec, -26_sz, 6, int_cmp)) .eqi. 6, &
+         &      "test0310-3030 failed")
+
+    vec = vectar (6, 6, 6, 6, 6, 6)
+    call check (vectar_ref0 (vec, vectar_binary_search0 (vec, 6, int_cmp)) .eqi. 6, "test0310-3040 failed")
+    call check (vectar_ref1 (vec, vectar_binary_search1 (vec, 6, int_cmp)) .eqi. 6, "test0310-3050 failed")
+    call check (vectar_refn (vec, -26_sz, vectar_binary_searchn (vec, -26_sz, 6, int_cmp)) .eqi. 6, &
+         &      "test0310-3060 failed")
+
   contains
 
     function int_cmp (x, y) result (sign)
@@ -2021,6 +2063,256 @@ contains
     end function int_cmp
 
   end subroutine test0300
+
+  subroutine test0310
+    type(vectar_t) :: vec
+    type(vectar_range_t) :: vecr
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_bottenbruch_search0 (less_than, vec, 4) == 3_sz, "test0310-0010 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vec, 4) == 4_sz, "test0310-0020 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vec, -26_sz, 4) == -23_sz, "test0310-0030 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_bottenbruch_search0 (less_than, vec, 7) == 6_sz, "test0310-0040 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vec, 7) == 7_sz, "test0310-0050 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vec, -26_sz, 7) == -20_sz, "test0310-0060 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_bottenbruch_search0 (less_than, vec, 1) == 0_sz, "test0310-0070 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vec, 1) == 1_sz, "test0310-0080 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vec, -26_sz, 1) == -26_sz, "test0310-0090 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_bottenbruch_search0 (less_than, vec, 10) == 9_sz, "test0310-0100 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vec, 10) == 10_sz, "test0310-0110 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vec, -26_sz, 10) == -17_sz, "test0310-0120 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_bottenbruch_search0 (less_than, vec, 0) == -1_sz, "test0310-0130 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vec, 0) == -1_sz, "test0310-0140 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vec, -26_sz, 0) == -27_sz, "test0310-0150 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_bottenbruch_search0 (less_than, vec, 11) == -1_sz, "test0310-0130 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vec, 11) == -1_sz, "test0310-0140 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vec, -26_sz, 11) == -27_sz, "test0310-0150 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_bottenbruch_search0 (less_than, vecr, 7) == 4_sz, "test0310-0160 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vecr, 7) == 5_sz, "test0310-0170 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vecr, 2_sz, 7) == 6_sz, "test0310-0180 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_bottenbruch_search0 (less_than, vecr, 3) == 0_sz, "test0310-0190 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vecr, 3) == 1_sz, "test0310-0200 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vecr, 2_sz, 3) == 2_sz, "test0310-0210 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_bottenbruch_search0 (less_than, vecr, 8) == 5_sz, "test0310-0220 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vecr, 8) == 6_sz, "test0310-0230 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vecr, 2_sz, 8) == 7_sz, "test0310-0240 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_bottenbruch_search0 (less_than, vecr, 2) == -1_sz, "test0310-0250 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vecr, 2) == -1_sz, "test0310-0260 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vecr, 2_sz, 2) == -1_sz, "test0310-0270 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_bottenbruch_search0 (less_than, vecr, 9) == -1_sz, "test0310-0280 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vecr, 9) == -1_sz, "test0310-0290 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vecr, 2_sz, 9) == -1_sz, "test0310-0300 failed")
+
+    vec = vectar (5)
+    call check (vectar_bottenbruch_search0 (less_than, vec, 5) == 0_sz, "test0310-1010 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vec, 5) == 1_sz, "test0310-1020 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vec, -26_sz, 5) == -26_sz, "test0310-1030 failed")
+
+    vec = vectar (5)
+    call check (vectar_bottenbruch_search0 (less_than, vec, 4) == -1_sz, "test0310-1040 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vec, 4) == -1_sz, "test0310-1050 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vec, -26_sz, 4) == -27_sz, "test0310-1060 failed")
+
+    vec = vectar (5)
+    call check (vectar_bottenbruch_search0 (less_than, vec, 6) == -1_sz, "test0310-1070 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vec, 6) == -1_sz, "test0310-1080 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vec, -26_sz, 6) == -27_sz, "test0310-1090 failed")
+
+    vec = vectar ()
+    call check (vectar_bottenbruch_search0 (less_than, vec, 5) == -1_sz, "test0310-2010 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vec, 5) == -1_sz, "test0310-2020 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vec, -26_sz, 5) == -27_sz, "test0310-2030 failed")
+
+    vec = vectar ()
+    call check (vectar_bottenbruch_search0 (less_than, vec, 4) == -1_sz, "test0310-2040 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vec, 4) == -1_sz, "test0310-2050 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vec, -26_sz, 4) == -27_sz, "test0310-2060 failed")
+
+    vec = vectar ()
+    call check (vectar_bottenbruch_search0 (less_than, vec, 6) == -1_sz, "test0310-2070 failed")
+    call check (vectar_bottenbruch_search1 (less_than, vec, 6) == -1_sz, "test0310-2080 failed")
+    call check (vectar_bottenbruch_searchn (less_than, vec, -26_sz, 6) == -27_sz, "test0310-2090 failed")
+
+    vec = vectar (1, 2, 2, 2, 2, 3, 4, 5, 6, 6, 6, 6, 6, 6, 7, 7, 7, 8, 9, 10)
+    call check (vectar_ref0 (vec, vectar_bottenbruch_search0 (less_than, vec, 6)) .eqi. 6, "test0310-3010 failed")
+    call check (vectar_ref1 (vec, vectar_bottenbruch_search1 (less_than, vec, 6)) .eqi. 6, "test0310-3020 failed")
+    call check (vectar_refn (vec, -26_sz, vectar_bottenbruch_searchn (less_than, vec, -26_sz, 6)) .eqi. 6, &
+         &      "test0310-3030 failed")
+
+    vec = vectar (6, 6, 6, 6, 6, 6)
+    call check (vectar_ref0 (vec, vectar_bottenbruch_search0 (less_than, vec, 6)) .eqi. 6, "test0310-3040 failed")
+    call check (vectar_ref1 (vec, vectar_bottenbruch_search1 (less_than, vec, 6)) .eqi. 6, "test0310-3050 failed")
+    call check (vectar_refn (vec, -26_sz, vectar_bottenbruch_searchn (less_than, vec, -26_sz, 6)) .eqi. 6, &
+         &      "test0310-3060 failed")
+
+  contains
+
+    function less_than (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y))
+    end function less_than
+
+  end subroutine test0310
+
+  subroutine test0320
+    type(vectar_t) :: vec
+    type(vectar_range_t) :: vecr
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_bottenbruch_search0 (less_than, equal, vec, 4) == 3_sz, "test0320-0010 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vec, 4) == 4_sz, "test0320-0020 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vec, -26_sz, 4) == -23_sz, "test0320-0030 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_bottenbruch_search0 (less_than, equal, vec, 7) == 6_sz, "test0320-0040 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vec, 7) == 7_sz, "test0320-0050 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vec, -26_sz, 7) == -20_sz, "test0320-0060 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_bottenbruch_search0 (less_than, equal, vec, 1) == 0_sz, "test0320-0070 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vec, 1) == 1_sz, "test0320-0080 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vec, -26_sz, 1) == -26_sz, "test0320-0090 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_bottenbruch_search0 (less_than, equal, vec, 10) == 9_sz, "test0320-0100 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vec, 10) == 10_sz, "test0320-0110 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vec, -26_sz, 10) == -17_sz, "test0320-0120 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_bottenbruch_search0 (less_than, equal, vec, 0) == -1_sz, "test0320-0130 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vec, 0) == -1_sz, "test0320-0140 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vec, -26_sz, 0) == -27_sz, "test0320-0150 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_bottenbruch_search0 (less_than, equal, vec, 11) == -1_sz, "test0320-0130 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vec, 11) == -1_sz, "test0320-0140 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vec, -26_sz, 11) == -27_sz, "test0320-0150 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_bottenbruch_search0 (less_than, equal, vecr, 7) == 4_sz, "test0320-0160 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vecr, 7) == 5_sz, "test0320-0170 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vecr, 2_sz, 7) == 6_sz, "test0320-0180 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_bottenbruch_search0 (less_than, equal, vecr, 3) == 0_sz, "test0320-0190 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vecr, 3) == 1_sz, "test0320-0200 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vecr, 2_sz, 3) == 2_sz, "test0320-0210 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_bottenbruch_search0 (less_than, equal, vecr, 8) == 5_sz, "test0320-0220 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vecr, 8) == 6_sz, "test0320-0230 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vecr, 2_sz, 8) == 7_sz, "test0320-0240 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_bottenbruch_search0 (less_than, equal, vecr, 2) == -1_sz, "test0320-0250 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vecr, 2) == -1_sz, "test0320-0260 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vecr, 2_sz, 2) == -1_sz, "test0320-0270 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_bottenbruch_search0 (less_than, equal, vecr, 9) == -1_sz, "test0320-0280 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vecr, 9) == -1_sz, "test0320-0290 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vecr, 2_sz, 9) == -1_sz, "test0320-0300 failed")
+
+    vec = vectar (5)
+    call check (vectar_bottenbruch_search0 (less_than, equal, vec, 5) == 0_sz, "test0320-1010 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vec, 5) == 1_sz, "test0320-1020 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vec, -26_sz, 5) == -26_sz, "test0320-1030 failed")
+
+    vec = vectar (5)
+    call check (vectar_bottenbruch_search0 (less_than, equal, vec, 4) == -1_sz, "test0320-1040 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vec, 4) == -1_sz, "test0320-1050 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vec, -26_sz, 4) == -27_sz, "test0320-1060 failed")
+
+    vec = vectar (5)
+    call check (vectar_bottenbruch_search0 (less_than, equal, vec, 6) == -1_sz, "test0320-1070 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vec, 6) == -1_sz, "test0320-1080 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vec, -26_sz, 6) == -27_sz, "test0320-1090 failed")
+
+    vec = vectar ()
+    call check (vectar_bottenbruch_search0 (less_than, equal, vec, 5) == -1_sz, "test0320-2010 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vec, 5) == -1_sz, "test0320-2020 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vec, -26_sz, 5) == -27_sz, "test0320-2030 failed")
+
+    vec = vectar ()
+    call check (vectar_bottenbruch_search0 (less_than, equal, vec, 4) == -1_sz, "test0320-2040 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vec, 4) == -1_sz, "test0320-2050 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vec, -26_sz, 4) == -27_sz, "test0320-2060 failed")
+
+    vec = vectar ()
+    call check (vectar_bottenbruch_search0 (less_than, equal, vec, 6) == -1_sz, "test0320-2070 failed")
+    call check (vectar_bottenbruch_search1 (less_than, equal, vec, 6) == -1_sz, "test0320-2080 failed")
+    call check (vectar_bottenbruch_searchn (less_than, equal, vec, -26_sz, 6) == -27_sz, "test0320-2090 failed")
+
+    vec = vectar (1, 2, 2, 2, 2, 3, 4, 5, 6, 6, 6, 6, 6, 6, 7, 7, 7, 8, 9, 10)
+    call check (vectar_ref0 (vec, vectar_bottenbruch_search0 (less_than, equal, vec, 6)) .eqi. 6, "test0320-3010 failed")
+    call check (vectar_ref1 (vec, vectar_bottenbruch_search1 (less_than, equal, vec, 6)) .eqi. 6, "test0320-3020 failed")
+    call check (vectar_refn (vec, -26_sz, vectar_bottenbruch_searchn (less_than, equal, vec, -26_sz, 6)) .eqi. 6, &
+         &      "test0320-3030 failed")
+
+    vec = vectar (6, 6, 6, 6, 6, 6)
+    call check (vectar_ref0 (vec, vectar_bottenbruch_search0 (less_than, equal, vec, 6)) .eqi. 6, "test0320-3040 failed")
+    call check (vectar_ref1 (vec, vectar_bottenbruch_search1 (less_than, equal, vec, 6)) .eqi. 6, "test0320-3050 failed")
+    call check (vectar_refn (vec, -26_sz, vectar_bottenbruch_searchn (less_than, equal, vec, -26_sz, 6)) .eqi. 6, &
+         &      "test0320-3060 failed")
+
+  contains
+
+    function less_than (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y))
+    end function less_than
+
+    function equal (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) == int_cast (y))
+    end function equal
+
+  end subroutine test0320
 
   subroutine run_tests
     heap_size_limit = 0
@@ -2056,6 +2348,8 @@ contains
     call test0280
     call test0290
     call test0300
+    call test0310
+    call test0320
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
