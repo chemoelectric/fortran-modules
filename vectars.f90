@@ -694,6 +694,68 @@ module vectars
   public :: vectar_bottenbruch_search1_with_equality
   public :: vectar_bottenbruch_searchn_with_equality
 
+  ! Vectar versions of the cons_pairs module's `some', `some_map,
+  ! `every', and `every_map' functions.
+  public :: vectar_some      ! Generic function: applies a predicate
+                             ! across lists, returning .true. if the
+                             ! predicate returns .true. on any
+                             ! application.
+!!$  public :: vectar_some_map  ! Generic function: applies a mapping
+!!$                             ! procedure across lists, returning the
+!!$                             ! result of the mapping the first time it
+!!$                             ! comes out as a value other than .false.
+  public :: vectar_every     ! Generic function: applies a predicate
+                             ! across lists, returning .true. if the
+                             ! predicate returns .true. on every
+                             ! application.
+!!$  public :: vectar_every_map ! Generic function: applies a mapping
+!!$                             ! procedure across lists, returning the
+!!$                             ! result of the last mapping, if no
+!!$                             ! application of the procedure returns
+!!$                             ! .false.
+
+  ! Implementations of `vectar_some' et al.
+  public :: vectar_some1
+  public :: vectar_some2
+  public :: vectar_some3
+  public :: vectar_some4
+  public :: vectar_some5
+  public :: vectar_some6
+  public :: vectar_some7
+  public :: vectar_some8
+  public :: vectar_some9
+  public :: vectar_some10
+!!$!!$  public :: vectar_some_map1_subr
+!!$!!$  public :: vectar_some_map2_subr
+!!$!!$  public :: vectar_some_map3_subr
+!!$!!$  public :: vectar_some_map4_subr
+!!$!!$  public :: vectar_some_map5_subr
+!!$!!$  public :: vectar_some_map6_subr
+!!$!!$  public :: vectar_some_map7_subr
+!!$!!$  public :: vectar_some_map8_subr
+!!$!!$  public :: vectar_some_map9_subr
+!!$!!$  public :: vectar_some_map10_subr
+!!$  public :: vectar_every1
+  public :: vectar_every2
+  public :: vectar_every3
+  public :: vectar_every4
+  public :: vectar_every5
+  public :: vectar_every6
+  public :: vectar_every7
+  public :: vectar_every8
+  public :: vectar_every9
+  public :: vectar_every10
+!!$!!$  public :: vectar_every_map1_subr
+!!$!!$  public :: vectar_every_map2_subr
+!!$!!$  public :: vectar_every_map3_subr
+!!$!!$  public :: vectar_every_map4_subr
+!!$!!$  public :: vectar_every_map5_subr
+!!$!!$  public :: vectar_every_map6_subr
+!!$!!$  public :: vectar_every_map7_subr
+!!$!!$  public :: vectar_every_map8_subr
+!!$!!$  public :: vectar_every_map9_subr
+!!$!!$  public :: vectar_every_map10_subr
+!!$
   ! Vectar-list conversions.
   public :: vectar_to_list
   public :: reverse_vectar_to_list
@@ -1289,6 +1351,58 @@ module vectars
      module procedure vectar_bottenbruch_searchn_without_equality
      module procedure vectar_bottenbruch_searchn_with_equality
   end interface vectar_bottenbruch_searchn
+
+  interface vectar_some
+     module procedure vectar_some1
+     module procedure vectar_some2
+     module procedure vectar_some3
+     module procedure vectar_some4
+     module procedure vectar_some5
+     module procedure vectar_some6
+     module procedure vectar_some7
+     module procedure vectar_some8
+     module procedure vectar_some9
+     module procedure vectar_some10
+  end interface vectar_some
+
+!!$  interface vectar_some_map
+!!$!!$     module procedure vectar_some_map1_subr
+!!$!!$     module procedure vectar_some_map2_subr
+!!$!!$     module procedure vectar_some_map3_subr
+!!$!!$     module procedure vectar_some_map4_subr
+!!$!!$     module procedure vectar_some_map5_subr
+!!$!!$     module procedure vectar_some_map6_subr
+!!$!!$     module procedure vectar_some_map7_subr
+!!$!!$     module procedure vectar_some_map8_subr
+!!$!!$     module procedure vectar_some_map9_subr
+!!$!!$     module procedure vectar_some_map10_subr
+!!$!!$  end interface vectar_some_map
+
+  interface vectar_every
+     module procedure vectar_every1
+     module procedure vectar_every2
+     module procedure vectar_every3
+     module procedure vectar_every4
+     module procedure vectar_every5
+     module procedure vectar_every6
+     module procedure vectar_every7
+     module procedure vectar_every8
+     module procedure vectar_every9
+     module procedure vectar_every10
+  end interface vectar_every
+
+!!$  interface vectar_every_map
+!!$!!$     module procedure vectar_every_map1_subr
+!!$!!$     module procedure vectar_every_map2_subr
+!!$!!$     module procedure vectar_every_map3_subr
+!!$!!$     module procedure vectar_every_map4_subr
+!!$!!$     module procedure vectar_every_map5_subr
+!!$!!$     module procedure vectar_every_map6_subr
+!!$!!$     module procedure vectar_every_map7_subr
+!!$!!$     module procedure vectar_every_map8_subr
+!!$!!$     module procedure vectar_every_map9_subr
+!!$!!$     module procedure vectar_every_map10_subr
+!!$!!$  end interface vectar_every_map
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!
@@ -5861,28 +5975,26 @@ contains
     class(*), intent(in) :: vec1
     type(vectar_t) :: vec_m
 
-    type(vectar_range_t) :: range1
     type(gcroot_t) :: vec1_root
-    type(gcroot_t) :: vec_m_root
+    type(vectar_range_t) :: range1
     type(vectar_data_t), pointer :: data1
+    integer(sz) :: min_length
+    type(gcroot_t) :: vec_m_root
     type(vectar_data_t), pointer :: result_data
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     class(*), allocatable :: result_value
 
     vec1_root = vec1
 
+    vec1_root = vec1
     range1 = vec1
-
-    result_length = range1%length()
-
-    vec_m_root = make_vectar (result_length)
-
-    result_data => vectar_data_ptr (vec_m_root)
+    min_length = range1%length()
     data1 => vectar_data_ptr (range1)
 
-    do i = 0_sz, result_length - 1_sz
+    vec_m_root = make_vectar (min_length)
+    result_data => vectar_data_ptr (vec_m_root)
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        call subr (data1%array(i1)%element, &
          &        result_value)
@@ -5900,15 +6012,15 @@ contains
     class(*), intent(in) :: vec2
     type(vectar_t) :: vec_m
 
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
-    type(gcroot_t) :: vec_m_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
+    integer(sz) :: min_length
+    type(gcroot_t) :: vec_m_root
     type(vectar_data_t), pointer :: result_data
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -5917,18 +6029,17 @@ contains
     vec1_root = vec1
     vec2_root = vec2
 
+    vec1_root = vec1
+    vec2_root = vec2
     range1 = vec1
     range2 = vec2
-
-    result_length = min (range1%length(), range2%length())
-
-    vec_m_root = make_vectar (result_length)
-
-    result_data => vectar_data_ptr (vec_m_root)
+    min_length = min (range1%length(), range2%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
 
-    do i = 0_sz, result_length - 1_sz
+    vec_m_root = make_vectar (min_length)
+    result_data => vectar_data_ptr (vec_m_root)
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        call subr (data1%array(i1)%element, data2%array(i2)%element, &
@@ -5949,18 +6060,18 @@ contains
     class(*), intent(in) :: vec3
     type(vectar_t) :: vec_m
 
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
-    type(gcroot_t) :: vec_m_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
+    integer(sz) :: min_length
+    type(gcroot_t) :: vec_m_root
     type(vectar_data_t), pointer :: result_data
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -5971,20 +6082,20 @@ contains
     vec2_root = vec2
     vec3_root = vec3
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
     range1 = vec1
     range2 = vec2
     range3 = vec3
-
-    result_length = min (range1%length(), range2%length(), range3%length())
-
-    vec_m_root = make_vectar (result_length)
-
-    result_data => vectar_data_ptr (vec_m_root)
+    min_length = min (range1%length(), range2%length(), range3%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
 
-    do i = 0_sz, result_length - 1_sz
+    vec_m_root = make_vectar (min_length)
+    result_data => vectar_data_ptr (vec_m_root)
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -6009,21 +6120,21 @@ contains
     class(*), intent(in) :: vec4
     type(vectar_t) :: vec_m
 
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
-    type(vectar_range_t) :: range4
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
     type(gcroot_t) :: vec4_root
-    type(gcroot_t) :: vec_m_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
     type(vectar_data_t), pointer :: data4
+    integer(sz) :: min_length
+    type(gcroot_t) :: vec_m_root
     type(vectar_data_t), pointer :: result_data
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6036,22 +6147,24 @@ contains
     vec3_root = vec3
     vec4_root = vec4
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length())
-
-    vec_m_root = make_vectar (result_length)
-
-    result_data => vectar_data_ptr (vec_m_root)
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
     data4 => vectar_data_ptr (range4)
 
-    do i = 0_sz, result_length - 1_sz
+    vec_m_root = make_vectar (min_length)
+    result_data => vectar_data_ptr (vec_m_root)
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -6079,24 +6192,24 @@ contains
     class(*), intent(in) :: vec5
     type(vectar_t) :: vec_m
 
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
-    type(vectar_range_t) :: range4
-    type(vectar_range_t) :: range5
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
     type(gcroot_t) :: vec4_root
     type(gcroot_t) :: vec5_root
-    type(gcroot_t) :: vec_m_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
     type(vectar_data_t), pointer :: data4
     type(vectar_data_t), pointer :: data5
+    integer(sz) :: min_length
+    type(gcroot_t) :: vec_m_root
     type(vectar_data_t), pointer :: result_data
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6111,24 +6224,27 @@ contains
     vec4_root = vec4
     vec5_root = vec5
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
-
-    vec_m_root = make_vectar (result_length)
-
-    result_data => vectar_data_ptr (vec_m_root)
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
     data4 => vectar_data_ptr (range4)
     data5 => vectar_data_ptr (range5)
 
-    do i = 0_sz, result_length - 1_sz
+    vec_m_root = make_vectar (min_length)
+    result_data => vectar_data_ptr (vec_m_root)
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -6161,27 +6277,27 @@ contains
     class(*), intent(in) :: vec6
     type(vectar_t) :: vec_m
 
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
-    type(vectar_range_t) :: range4
-    type(vectar_range_t) :: range5
-    type(vectar_range_t) :: range6
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
     type(gcroot_t) :: vec4_root
     type(gcroot_t) :: vec5_root
     type(gcroot_t) :: vec6_root
-    type(gcroot_t) :: vec_m_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
     type(vectar_data_t), pointer :: data4
     type(vectar_data_t), pointer :: data5
     type(vectar_data_t), pointer :: data6
+    integer(sz) :: min_length
+    type(gcroot_t) :: vec_m_root
     type(vectar_data_t), pointer :: result_data
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6198,19 +6314,20 @@ contains
     vec5_root = vec5
     vec6_root = vec6
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
     range6 = vec6
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length())
-
-    vec_m_root = make_vectar (result_length)
-
-    result_data => vectar_data_ptr (vec_m_root)
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -6218,7 +6335,9 @@ contains
     data5 => vectar_data_ptr (range5)
     data6 => vectar_data_ptr (range6)
 
-    do i = 0_sz, result_length - 1_sz
+    vec_m_root = make_vectar (min_length)
+    result_data => vectar_data_ptr (vec_m_root)
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -6254,13 +6373,6 @@ contains
     class(*), intent(in) :: vec7
     type(vectar_t) :: vec_m
 
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
-    type(vectar_range_t) :: range4
-    type(vectar_range_t) :: range5
-    type(vectar_range_t) :: range6
-    type(vectar_range_t) :: range7
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -6268,7 +6380,13 @@ contains
     type(gcroot_t) :: vec5_root
     type(gcroot_t) :: vec6_root
     type(gcroot_t) :: vec7_root
-    type(gcroot_t) :: vec_m_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
@@ -6276,8 +6394,9 @@ contains
     type(vectar_data_t), pointer :: data5
     type(vectar_data_t), pointer :: data6
     type(vectar_data_t), pointer :: data7
+    integer(sz) :: min_length
+    type(gcroot_t) :: vec_m_root
     type(vectar_data_t), pointer :: result_data
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6296,6 +6415,13 @@ contains
     vec6_root = vec6
     vec7_root = vec7
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -6303,13 +6429,9 @@ contains
     range5 = vec5
     range6 = vec6
     range7 = vec7
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length(), range7%length())
-
-    vec_m_root = make_vectar (result_length)
-
-    result_data => vectar_data_ptr (vec_m_root)
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -6318,7 +6440,9 @@ contains
     data6 => vectar_data_ptr (range6)
     data7 => vectar_data_ptr (range7)
 
-    do i = 0_sz, result_length - 1_sz
+    vec_m_root = make_vectar (min_length)
+    result_data => vectar_data_ptr (vec_m_root)
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -6358,14 +6482,6 @@ contains
     class(*), intent(in) :: vec8
     type(vectar_t) :: vec_m
 
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
-    type(vectar_range_t) :: range4
-    type(vectar_range_t) :: range5
-    type(vectar_range_t) :: range6
-    type(vectar_range_t) :: range7
-    type(vectar_range_t) :: range8
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -6374,7 +6490,14 @@ contains
     type(gcroot_t) :: vec6_root
     type(gcroot_t) :: vec7_root
     type(gcroot_t) :: vec8_root
-    type(gcroot_t) :: vec_m_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
@@ -6383,8 +6506,9 @@ contains
     type(vectar_data_t), pointer :: data6
     type(vectar_data_t), pointer :: data7
     type(vectar_data_t), pointer :: data8
+    integer(sz) :: min_length
+    type(gcroot_t) :: vec_m_root
     type(vectar_data_t), pointer :: result_data
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6405,6 +6529,14 @@ contains
     vec7_root = vec7
     vec8_root = vec8
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -6413,13 +6545,9 @@ contains
     range6 = vec6
     range7 = vec7
     range8 = vec8
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length(), range7%length(), range8%length())
-
-    vec_m_root = make_vectar (result_length)
-
-    result_data => vectar_data_ptr (vec_m_root)
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -6429,7 +6557,9 @@ contains
     data7 => vectar_data_ptr (range7)
     data8 => vectar_data_ptr (range8)
 
-    do i = 0_sz, result_length - 1_sz
+    vec_m_root = make_vectar (min_length)
+    result_data => vectar_data_ptr (vec_m_root)
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -6472,15 +6602,6 @@ contains
     class(*), intent(in) :: vec9
     type(vectar_t) :: vec_m
 
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
-    type(vectar_range_t) :: range4
-    type(vectar_range_t) :: range5
-    type(vectar_range_t) :: range6
-    type(vectar_range_t) :: range7
-    type(vectar_range_t) :: range8
-    type(vectar_range_t) :: range9
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -6490,7 +6611,15 @@ contains
     type(gcroot_t) :: vec7_root
     type(gcroot_t) :: vec8_root
     type(gcroot_t) :: vec9_root
-    type(gcroot_t) :: vec_m_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
@@ -6500,8 +6629,9 @@ contains
     type(vectar_data_t), pointer :: data7
     type(vectar_data_t), pointer :: data8
     type(vectar_data_t), pointer :: data9
+    integer(sz) :: min_length
+    type(gcroot_t) :: vec_m_root
     type(vectar_data_t), pointer :: result_data
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6524,6 +6654,15 @@ contains
     vec8_root = vec8
     vec9_root = vec9
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -6533,13 +6672,9 @@ contains
     range7 = vec7
     range8 = vec8
     range9 = vec9
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length(), range7%length(), range8%length(), range9%length())
-
-    vec_m_root = make_vectar (result_length)
-
-    result_data => vectar_data_ptr (vec_m_root)
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -6550,7 +6685,9 @@ contains
     data8 => vectar_data_ptr (range8)
     data9 => vectar_data_ptr (range9)
 
-    do i = 0_sz, result_length - 1_sz
+    vec_m_root = make_vectar (min_length)
+    result_data => vectar_data_ptr (vec_m_root)
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -6597,16 +6734,6 @@ contains
     class(*), intent(in) :: vec10
     type(vectar_t) :: vec_m
 
-    type(vectar_range_t) :: range1
-    type(vectar_range_t) :: range2
-    type(vectar_range_t) :: range3
-    type(vectar_range_t) :: range4
-    type(vectar_range_t) :: range5
-    type(vectar_range_t) :: range6
-    type(vectar_range_t) :: range7
-    type(vectar_range_t) :: range8
-    type(vectar_range_t) :: range9
-    type(vectar_range_t) :: range10
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -6617,7 +6744,16 @@ contains
     type(gcroot_t) :: vec8_root
     type(gcroot_t) :: vec9_root
     type(gcroot_t) :: vec10_root
-    type(gcroot_t) :: vec_m_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
@@ -6628,8 +6764,9 @@ contains
     type(vectar_data_t), pointer :: data8
     type(vectar_data_t), pointer :: data9
     type(vectar_data_t), pointer :: data10
+    integer(sz) :: min_length
+    type(gcroot_t) :: vec_m_root
     type(vectar_data_t), pointer :: result_data
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6654,6 +6791,16 @@ contains
     vec9_root = vec9
     vec10_root = vec10
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -6664,13 +6811,10 @@ contains
     range8 = vec8
     range9 = vec9
     range10 = vec10
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
-
-    vec_m_root = make_vectar (result_length)
-
-    result_data => vectar_data_ptr (vec_m_root)
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length(), &
+         &            range10%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -6682,7 +6826,9 @@ contains
     data9 => vectar_data_ptr (range9)
     data10 => vectar_data_ptr (range10)
 
-    do i = 0_sz, result_length - 1_sz
+    vec_m_root = make_vectar (min_length)
+    result_data => vectar_data_ptr (vec_m_root)
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -6725,21 +6871,20 @@ contains
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: range1
     type(vectar_data_t), pointer :: data1
+    integer(sz) :: min_length
     class(*), allocatable :: result_element
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
 
     ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
 
+    vec1_root = vec1
     range1 = vec1
-
-    result_length = range1%length()
-
+    min_length = range1%length()
     data1 => vectar_data_ptr (range1)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        call subr (data1%array(i1)%element, &
          &        result_element)
@@ -6760,8 +6905,8 @@ contains
     type(vectar_range_t) :: range2
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
+    integer(sz) :: min_length
     class(*), allocatable :: result_element
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6770,15 +6915,15 @@ contains
     vec1_root = vec1
     vec2_root = vec2
 
+    vec1_root = vec1
+    vec2_root = vec2
     range1 = vec1
     range2 = vec2
-
-    result_length = min (range1%length(), range2%length())
-
+    min_length = min (range1%length(), range2%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        call subr (data1%array(i1)%element, data2%array(i2)%element, &
@@ -6805,8 +6950,8 @@ contains
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
+    integer(sz) :: min_length
     class(*), allocatable :: result_element
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6817,17 +6962,18 @@ contains
     vec2_root = vec2
     vec3_root = vec3
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
     range1 = vec1
     range2 = vec2
     range3 = vec3
-
-    result_length = min (range1%length(), range2%length(), range3%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -6861,8 +7007,8 @@ contains
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
     type(vectar_data_t), pointer :: data4
+    integer(sz) :: min_length
     class(*), allocatable :: result_element
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6875,19 +7021,22 @@ contains
     vec3_root = vec3
     vec4_root = vec4
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
     data4 => vectar_data_ptr (range4)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -6927,8 +7076,8 @@ contains
     type(vectar_data_t), pointer :: data3
     type(vectar_data_t), pointer :: data4
     type(vectar_data_t), pointer :: data5
+    integer(sz) :: min_length
     class(*), allocatable :: result_element
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6943,21 +7092,25 @@ contains
     vec4_root = vec4
     vec5_root = vec5
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
     data4 => vectar_data_ptr (range4)
     data5 => vectar_data_ptr (range5)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -7005,8 +7158,8 @@ contains
     type(vectar_data_t), pointer :: data4
     type(vectar_data_t), pointer :: data5
     type(vectar_data_t), pointer :: data6
+    integer(sz) :: min_length
     class(*), allocatable :: result_element
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -7023,16 +7176,20 @@ contains
     vec5_root = vec5
     vec6_root = vec6
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
     range6 = vec6
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -7040,7 +7197,7 @@ contains
     data5 => vectar_data_ptr (range5)
     data6 => vectar_data_ptr (range6)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -7094,8 +7251,8 @@ contains
     type(vectar_data_t), pointer :: data5
     type(vectar_data_t), pointer :: data6
     type(vectar_data_t), pointer :: data7
+    integer(sz) :: min_length
     class(*), allocatable :: result_element
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -7114,6 +7271,13 @@ contains
     vec6_root = vec6
     vec7_root = vec7
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -7121,10 +7285,9 @@ contains
     range5 = vec5
     range6 = vec6
     range7 = vec7
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length(), range7%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -7133,7 +7296,7 @@ contains
     data6 => vectar_data_ptr (range6)
     data7 => vectar_data_ptr (range7)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -7194,8 +7357,8 @@ contains
     type(vectar_data_t), pointer :: data6
     type(vectar_data_t), pointer :: data7
     type(vectar_data_t), pointer :: data8
+    integer(sz) :: min_length
     class(*), allocatable :: result_element
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -7216,6 +7379,14 @@ contains
     vec7_root = vec7
     vec8_root = vec8
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -7224,10 +7395,9 @@ contains
     range6 = vec6
     range7 = vec7
     range8 = vec8
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length(), range7%length(), range8%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -7237,7 +7407,7 @@ contains
     data7 => vectar_data_ptr (range7)
     data8 => vectar_data_ptr (range8)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -7304,8 +7474,8 @@ contains
     type(vectar_data_t), pointer :: data7
     type(vectar_data_t), pointer :: data8
     type(vectar_data_t), pointer :: data9
+    integer(sz) :: min_length
     class(*), allocatable :: result_element
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -7328,6 +7498,15 @@ contains
     vec8_root = vec8
     vec9_root = vec9
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -7337,10 +7516,9 @@ contains
     range7 = vec7
     range8 = vec8
     range9 = vec9
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length(), range7%length(), range8%length(), range9%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -7351,7 +7529,7 @@ contains
     data8 => vectar_data_ptr (range8)
     data9 => vectar_data_ptr (range9)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -7425,8 +7603,8 @@ contains
     type(vectar_data_t), pointer :: data8
     type(vectar_data_t), pointer :: data9
     type(vectar_data_t), pointer :: data10
+    integer(sz) :: min_length
     class(*), allocatable :: result_element
-    integer(sz) :: result_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -7451,6 +7629,16 @@ contains
     vec9_root = vec9
     vec10_root = vec10
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -7461,10 +7649,10 @@ contains
     range8 = vec8
     range9 = vec9
     range10 = vec10
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length(), &
+         &            range10%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -7476,7 +7664,7 @@ contains
     data9 => vectar_data_ptr (range9)
     data10 => vectar_data_ptr (range10)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -7517,20 +7705,19 @@ contains
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: range1
     type(vectar_data_t), pointer :: data1
-    integer(sz) :: result_length
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
 
     ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
 
+    vec1_root = vec1
     range1 = vec1
-
-    result_length = range1%length()
-
+    min_length = range1%length()
     data1 => vectar_data_ptr (range1)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        call subr (data1%array(i1)%element)
     end do
@@ -7549,7 +7736,7 @@ contains
     type(vectar_range_t) :: range2
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
-    integer(sz) :: result_length
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -7558,15 +7745,15 @@ contains
     vec1_root = vec1
     vec2_root = vec2
 
+    vec1_root = vec1
+    vec2_root = vec2
     range1 = vec1
     range2 = vec2
-
-    result_length = min (range1%length(), range2%length())
-
+    min_length = min (range1%length(), range2%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        call subr (data1%array(i1)%element, data2%array(i2)%element)
@@ -7591,7 +7778,7 @@ contains
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
-    integer(sz) :: result_length
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -7602,17 +7789,18 @@ contains
     vec2_root = vec2
     vec3_root = vec3
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
     range1 = vec1
     range2 = vec2
     range3 = vec3
-
-    result_length = min (range1%length(), range2%length(), range3%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -7644,7 +7832,7 @@ contains
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
     type(vectar_data_t), pointer :: data4
-    integer(sz) :: result_length
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -7657,19 +7845,22 @@ contains
     vec3_root = vec3
     vec4_root = vec4
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
     data4 => vectar_data_ptr (range4)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -7707,7 +7898,7 @@ contains
     type(vectar_data_t), pointer :: data3
     type(vectar_data_t), pointer :: data4
     type(vectar_data_t), pointer :: data5
-    integer(sz) :: result_length
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -7722,21 +7913,25 @@ contains
     vec4_root = vec4
     vec5_root = vec5
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
     data4 => vectar_data_ptr (range4)
     data5 => vectar_data_ptr (range5)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -7782,7 +7977,7 @@ contains
     type(vectar_data_t), pointer :: data4
     type(vectar_data_t), pointer :: data5
     type(vectar_data_t), pointer :: data6
-    integer(sz) :: result_length
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -7799,16 +7994,20 @@ contains
     vec5_root = vec5
     vec6_root = vec6
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
     range6 = vec6
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -7816,7 +8015,7 @@ contains
     data5 => vectar_data_ptr (range5)
     data6 => vectar_data_ptr (range6)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -7868,7 +8067,7 @@ contains
     type(vectar_data_t), pointer :: data5
     type(vectar_data_t), pointer :: data6
     type(vectar_data_t), pointer :: data7
-    integer(sz) :: result_length
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -7887,6 +8086,13 @@ contains
     vec6_root = vec6
     vec7_root = vec7
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -7894,10 +8100,9 @@ contains
     range5 = vec5
     range6 = vec6
     range7 = vec7
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length(), range7%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -7906,7 +8111,7 @@ contains
     data6 => vectar_data_ptr (range6)
     data7 => vectar_data_ptr (range7)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -7965,7 +8170,7 @@ contains
     type(vectar_data_t), pointer :: data6
     type(vectar_data_t), pointer :: data7
     type(vectar_data_t), pointer :: data8
-    integer(sz) :: result_length
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -7986,6 +8191,14 @@ contains
     vec7_root = vec7
     vec8_root = vec8
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -7994,10 +8207,9 @@ contains
     range6 = vec6
     range7 = vec7
     range8 = vec8
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length(), range7%length(), range8%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -8007,7 +8219,7 @@ contains
     data7 => vectar_data_ptr (range7)
     data8 => vectar_data_ptr (range8)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -8072,7 +8284,7 @@ contains
     type(vectar_data_t), pointer :: data7
     type(vectar_data_t), pointer :: data8
     type(vectar_data_t), pointer :: data9
-    integer(sz) :: result_length
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -8095,6 +8307,15 @@ contains
     vec8_root = vec8
     vec9_root = vec9
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -8104,10 +8325,9 @@ contains
     range7 = vec7
     range8 = vec8
     range9 = vec9
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length(), range7%length(), range8%length(), range9%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -8118,7 +8338,7 @@ contains
     data8 => vectar_data_ptr (range8)
     data9 => vectar_data_ptr (range9)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -8190,7 +8410,7 @@ contains
     type(vectar_data_t), pointer :: data8
     type(vectar_data_t), pointer :: data9
     type(vectar_data_t), pointer :: data10
-    integer(sz) :: result_length
+    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -8215,6 +8435,16 @@ contains
     vec9_root = vec9
     vec10_root = vec10
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -8225,10 +8455,10 @@ contains
     range8 = vec8
     range9 = vec9
     range10 = vec10
-
-    result_length = min (range1%length(), range2%length(), range3%length(), range4%length(), range5%length(), &
-         &               range6%length(), range7%length(), range8%length(), range9%length(), range10%length())
-
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length(), &
+         &            range10%length())
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -8240,7 +8470,7 @@ contains
     data9 => vectar_data_ptr (range9)
     data10 => vectar_data_ptr (range10)
 
-    do i = 0_sz, result_length - 1_sz
+    do i = 0_sz, min_length - 1_sz
        i1 = range1%istart0() + i
        i2 = range2%istart0() + i
        i3 = range3%istart0() + i
@@ -8326,10 +8556,9 @@ contains
     ! Protect against garbage collections instigated by subr.
     vec1_root = vec1
 
+    vec1_root = vec1
     range1 = vec1
-
     min_length = range1%length()
-
     data1 => vectar_data_ptr (range1)
 
     count = 0_sz
@@ -8364,11 +8593,11 @@ contains
     vec1_root = vec1
     vec2_root = vec2
 
+    vec1_root = vec1
+    vec2_root = vec2
     range1 = vec1
     range2 = vec2
-
     min_length = min (range1%length(), range2%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
 
@@ -8412,12 +8641,13 @@ contains
     vec2_root = vec2
     vec3_root = vec3
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
     range1 = vec1
     range2 = vec2
     range3 = vec3
-
     min_length = min (range1%length(), range2%length(), range3%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -8471,14 +8701,16 @@ contains
     vec3_root = vec3
     vec4_root = vec4
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -8541,15 +8773,18 @@ contains
     vec4_root = vec4
     vec5_root = vec5
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -8623,16 +8858,20 @@ contains
     vec5_root = vec5
     vec6_root = vec6
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
     range6 = vec6
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -8715,6 +8954,13 @@ contains
     vec6_root = vec6
     vec7_root = vec7
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -8722,11 +8968,9 @@ contains
     range5 = vec5
     range6 = vec6
     range7 = vec7
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length(), &
          &            range7%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -8819,6 +9063,14 @@ contains
     vec7_root = vec7
     vec8_root = vec8
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -8827,11 +9079,9 @@ contains
     range6 = vec6
     range7 = vec7
     range8 = vec8
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length(), &
          &            range7%length(), range8%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -8933,6 +9183,15 @@ contains
     vec8_root = vec8
     vec9_root = vec9
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -8942,11 +9201,9 @@ contains
     range7 = vec7
     range8 = vec8
     range9 = vec9
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length(), &
          &            range7%length(), range8%length(), range9%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -9058,6 +9315,16 @@ contains
     vec9_root = vec9
     vec10_root = vec10
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -9068,12 +9335,10 @@ contains
     range8 = vec8
     range9 = vec9
     range10 = vec10
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length(), &
          &            range7%length(), range8%length(), range9%length(), &
          &            range10%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -9129,18 +9394,17 @@ contains
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: range1
     type(vectar_data_t), pointer :: data1
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
 
     vec1_root = vec1
 
+    vec1_root = vec1
     range1 = vec1
-
     min_length = range1%length()
-
     data1 => vectar_data_ptr (range1)
 
     state = knil
@@ -9167,9 +9431,9 @@ contains
     type(vectar_range_t) :: range2
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -9177,11 +9441,11 @@ contains
     vec1_root = vec1
     vec2_root = vec2
 
+    vec1_root = vec1
+    vec2_root = vec2
     range1 = vec1
     range2 = vec2
-
     min_length = min (range1%length(), range2%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
 
@@ -9215,9 +9479,9 @@ contains
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -9227,12 +9491,13 @@ contains
     vec2_root = vec2
     vec3_root = vec3
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
     range1 = vec1
     range2 = vec2
     range3 = vec3
-
     min_length = min (range1%length(), range2%length(), range3%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -9274,9 +9539,9 @@ contains
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
     type(vectar_data_t), pointer :: data4
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -9288,14 +9553,16 @@ contains
     vec3_root = vec3
     vec4_root = vec4
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -9344,9 +9611,9 @@ contains
     type(vectar_data_t), pointer :: data3
     type(vectar_data_t), pointer :: data4
     type(vectar_data_t), pointer :: data5
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -9360,15 +9627,18 @@ contains
     vec4_root = vec4
     vec5_root = vec5
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -9426,9 +9696,9 @@ contains
     type(vectar_data_t), pointer :: data4
     type(vectar_data_t), pointer :: data5
     type(vectar_data_t), pointer :: data6
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -9444,16 +9714,20 @@ contains
     vec5_root = vec5
     vec6_root = vec6
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
     range6 = vec6
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -9518,9 +9792,9 @@ contains
     type(vectar_data_t), pointer :: data5
     type(vectar_data_t), pointer :: data6
     type(vectar_data_t), pointer :: data7
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -9538,6 +9812,13 @@ contains
     vec6_root = vec6
     vec7_root = vec7
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -9545,11 +9826,9 @@ contains
     range5 = vec5
     range6 = vec6
     range7 = vec7
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length(), &
          &            range7%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -9622,9 +9901,9 @@ contains
     type(vectar_data_t), pointer :: data6
     type(vectar_data_t), pointer :: data7
     type(vectar_data_t), pointer :: data8
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -9644,6 +9923,14 @@ contains
     vec7_root = vec7
     vec8_root = vec8
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -9652,11 +9939,9 @@ contains
     range6 = vec6
     range7 = vec7
     range8 = vec8
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length(), &
          &            range7%length(), range8%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -9736,9 +10021,9 @@ contains
     type(vectar_data_t), pointer :: data7
     type(vectar_data_t), pointer :: data8
     type(vectar_data_t), pointer :: data9
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -9760,6 +10045,15 @@ contains
     vec8_root = vec8
     vec9_root = vec9
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -9769,11 +10063,9 @@ contains
     range7 = vec7
     range8 = vec8
     range9 = vec9
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length(), &
          &            range7%length(), range8%length(), range9%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -9861,9 +10153,9 @@ contains
     type(vectar_data_t), pointer :: data8
     type(vectar_data_t), pointer :: data9
     type(vectar_data_t), pointer :: data10
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -9887,6 +10179,16 @@ contains
     vec9_root = vec9
     vec10_root = vec10
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -9897,12 +10199,10 @@ contains
     range8 = vec8
     range9 = vec9
     range10 = vec10
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length(), &
          &            range7%length(), range8%length(), range9%length(), &
          &            range10%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -9958,18 +10258,17 @@ contains
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: range1
     type(vectar_data_t), pointer :: data1
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
 
     vec1_root = vec1
 
+    vec1_root = vec1
     range1 = vec1
-
     min_length = range1%length()
-
     data1 => vectar_data_ptr (range1)
 
     state = knil
@@ -9996,9 +10295,9 @@ contains
     type(vectar_range_t) :: range2
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -10006,11 +10305,11 @@ contains
     vec1_root = vec1
     vec2_root = vec2
 
+    vec1_root = vec1
+    vec2_root = vec2
     range1 = vec1
     range2 = vec2
-
     min_length = min (range1%length(), range2%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
 
@@ -10044,9 +10343,9 @@ contains
     type(vectar_data_t), pointer :: data1
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -10056,12 +10355,13 @@ contains
     vec2_root = vec2
     vec3_root = vec3
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
     range1 = vec1
     range2 = vec2
     range3 = vec3
-
     min_length = min (range1%length(), range2%length(), range3%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -10103,9 +10403,9 @@ contains
     type(vectar_data_t), pointer :: data2
     type(vectar_data_t), pointer :: data3
     type(vectar_data_t), pointer :: data4
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -10117,14 +10417,16 @@ contains
     vec3_root = vec3
     vec4_root = vec4
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -10173,9 +10475,9 @@ contains
     type(vectar_data_t), pointer :: data3
     type(vectar_data_t), pointer :: data4
     type(vectar_data_t), pointer :: data5
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -10189,15 +10491,18 @@ contains
     vec4_root = vec4
     vec5_root = vec5
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -10255,9 +10560,9 @@ contains
     type(vectar_data_t), pointer :: data4
     type(vectar_data_t), pointer :: data5
     type(vectar_data_t), pointer :: data6
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -10273,16 +10578,20 @@ contains
     vec5_root = vec5
     vec6_root = vec6
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
     range1 = vec1
     range2 = vec2
     range3 = vec3
     range4 = vec4
     range5 = vec5
     range6 = vec6
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -10347,9 +10656,9 @@ contains
     type(vectar_data_t), pointer :: data5
     type(vectar_data_t), pointer :: data6
     type(vectar_data_t), pointer :: data7
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -10367,6 +10676,13 @@ contains
     vec6_root = vec6
     vec7_root = vec7
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -10374,11 +10690,9 @@ contains
     range5 = vec5
     range6 = vec6
     range7 = vec7
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length(), &
          &            range7%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -10451,9 +10765,9 @@ contains
     type(vectar_data_t), pointer :: data6
     type(vectar_data_t), pointer :: data7
     type(vectar_data_t), pointer :: data8
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -10473,6 +10787,14 @@ contains
     vec7_root = vec7
     vec8_root = vec8
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -10481,11 +10803,9 @@ contains
     range6 = vec6
     range7 = vec7
     range8 = vec8
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length(), &
          &            range7%length(), range8%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -10565,9 +10885,9 @@ contains
     type(vectar_data_t), pointer :: data7
     type(vectar_data_t), pointer :: data8
     type(vectar_data_t), pointer :: data9
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -10589,6 +10909,15 @@ contains
     vec8_root = vec8
     vec9_root = vec9
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -10598,11 +10927,9 @@ contains
     range7 = vec7
     range8 = vec8
     range9 = vec9
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length(), &
          &            range7%length(), range8%length(), range9%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -10690,9 +11017,9 @@ contains
     type(vectar_data_t), pointer :: data8
     type(vectar_data_t), pointer :: data9
     type(vectar_data_t), pointer :: data10
+    integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
-    integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -10716,6 +11043,16 @@ contains
     vec9_root = vec9
     vec10_root = vec10
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -10726,12 +11063,10 @@ contains
     range8 = vec8
     range9 = vec9
     range10 = vec10
-
     min_length = min (range1%length(), range2%length(), range3%length(), &
          &            range4%length(), range5%length(), range6%length(), &
          &            range7%length(), range8%length(), range9%length(), &
          &            range10%length())
-
     data1 => vectar_data_ptr (range1)
     data2 => vectar_data_ptr (range2)
     data3 => vectar_data_ptr (range3)
@@ -12824,6 +13159,7 @@ contains
 
     vec1_root = vec1
 
+    vec1_root = vec1
     range1 = vec1
     min_length = range1%length()
     data1 => vectar_data_ptr (range1)
@@ -12882,6 +13218,8 @@ contains
     vec1_root = vec1
     vec2_root = vec2
 
+    vec1_root = vec1
+    vec2_root = vec2
     range1 = vec1
     range2 = vec2
     min_length = min (range1%length(), range2%length())
@@ -12952,6 +13290,9 @@ contains
     vec2_root = vec2
     vec3_root = vec3
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -13035,6 +13376,10 @@ contains
     vec3_root = vec3
     vec4_root = vec4
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -13131,6 +13476,11 @@ contains
     vec4_root = vec4
     vec5_root = vec5
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -13241,6 +13591,12 @@ contains
     vec5_root = vec5
     vec6_root = vec6
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -13367,6 +13723,13 @@ contains
     vec6_root = vec6
     vec7_root = vec7
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -13507,6 +13870,14 @@ contains
     vec7_root = vec7
     vec8_root = vec8
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -13659,6 +14030,15 @@ contains
     vec8_root = vec8
     vec9_root = vec9
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -13824,6 +14204,16 @@ contains
     vec9_root = vec9
     vec10_root = vec10
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -13941,6 +14331,7 @@ contains
 
     vec1_root = vec1
 
+    vec1_root = vec1
     range1 = vec1
     min_length = range1%length()
     data1 => vectar_data_ptr (range1)
@@ -13999,6 +14390,8 @@ contains
     vec1_root = vec1
     vec2_root = vec2
 
+    vec1_root = vec1
+    vec2_root = vec2
     range1 = vec1
     range2 = vec2
     min_length = min (range1%length(), range2%length())
@@ -14069,6 +14462,9 @@ contains
     vec2_root = vec2
     vec3_root = vec3
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -14152,6 +14548,10 @@ contains
     vec3_root = vec3
     vec4_root = vec4
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -14248,6 +14648,11 @@ contains
     vec4_root = vec4
     vec5_root = vec5
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -14358,6 +14763,12 @@ contains
     vec5_root = vec5
     vec6_root = vec6
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -14484,6 +14895,13 @@ contains
     vec6_root = vec6
     vec7_root = vec7
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -14624,6 +15042,14 @@ contains
     vec7_root = vec7
     vec8_root = vec8
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -14776,6 +15202,15 @@ contains
     vec8_root = vec8
     vec9_root = vec9
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -14941,6 +15376,16 @@ contains
     vec9_root = vec9
     vec10_root = vec10
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -15060,6 +15505,7 @@ contains
 
     vec1_root = vec1
 
+    vec1_root = vec1
     range1 = vec1
     min_length = range1%length()
     data1 => vectar_data_ptr (range1)
@@ -15118,6 +15564,8 @@ contains
     vec1_root = vec1
     vec2_root = vec2
 
+    vec1_root = vec1
+    vec2_root = vec2
     range1 = vec1
     range2 = vec2
     min_length = min (range1%length(), range2%length())
@@ -15188,6 +15636,9 @@ contains
     vec2_root = vec2
     vec3_root = vec3
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -15271,6 +15722,10 @@ contains
     vec3_root = vec3
     vec4_root = vec4
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -15367,6 +15822,11 @@ contains
     vec4_root = vec4
     vec5_root = vec5
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -15477,6 +15937,12 @@ contains
     vec5_root = vec5
     vec6_root = vec6
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -15603,6 +16069,13 @@ contains
     vec6_root = vec6
     vec7_root = vec7
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -15743,6 +16216,14 @@ contains
     vec7_root = vec7
     vec8_root = vec8
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -15895,6 +16376,15 @@ contains
     vec8_root = vec8
     vec9_root = vec9
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -16060,6 +16550,16 @@ contains
     vec9_root = vec9
     vec10_root = vec10
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -16177,6 +16677,7 @@ contains
 
     vec1_root = vec1
 
+    vec1_root = vec1
     range1 = vec1
     min_length = range1%length()
     data1 => vectar_data_ptr (range1)
@@ -16235,6 +16736,8 @@ contains
     vec1_root = vec1
     vec2_root = vec2
 
+    vec1_root = vec1
+    vec2_root = vec2
     range1 = vec1
     range2 = vec2
     min_length = min (range1%length(), range2%length())
@@ -16305,6 +16808,9 @@ contains
     vec2_root = vec2
     vec3_root = vec3
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -16388,6 +16894,10 @@ contains
     vec3_root = vec3
     vec4_root = vec4
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -16484,6 +16994,11 @@ contains
     vec4_root = vec4
     vec5_root = vec5
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -16594,6 +17109,12 @@ contains
     vec5_root = vec5
     vec6_root = vec6
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -16720,6 +17241,13 @@ contains
     vec6_root = vec6
     vec7_root = vec7
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -16860,6 +17388,14 @@ contains
     vec7_root = vec7
     vec8_root = vec8
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -17012,6 +17548,15 @@ contains
     vec8_root = vec8
     vec9_root = vec9
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -17177,6 +17722,16 @@ contains
     vec9_root = vec9
     vec10_root = vec10
 
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
     range1 = vec1
     range2 = vec2
     range3 = vec3
@@ -17467,6 +18022,1542 @@ contains
        call vec_root%discard
     end if
   end function vectar_bottenbruch_searchn_with_equality
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function vectar_some1 (pred, vec1) result (bool)
+    procedure(vectar_predicate1_t) :: pred
+    class(*), intent(in) :: vec1
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(vectar_range_t) :: range1
+    type(vectar_data_t), pointer :: data1
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+
+    vec1_root = vec1
+    range1 = vec1
+    min_length = range1%length()
+    data1 => vectar_data_ptr (range1)
+
+    i = 0_sz
+    bool = .not. .true.
+    do while (.not. bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       bool = pred (data1%array(i1)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+  end function vectar_some1
+
+  recursive function vectar_some2 (pred, vec1, vec2) result (bool)
+    procedure(vectar_predicate2_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+
+    vec1_root = vec1
+    vec2_root = vec2
+    range1 = vec1
+    range2 = vec2
+    min_length = min (range1%length(), range2%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+
+    i = 0_sz
+    bool = .not. .true.
+    do while (.not. bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+  end function vectar_some2
+
+  recursive function vectar_some3 (pred, vec1, vec2, vec3) result (bool)
+    procedure(vectar_predicate3_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    min_length = min (range1%length(), range2%length(), range3%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+
+    i = 0_sz
+    bool = .not. .true.
+    do while (.not. bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+  end function vectar_some3
+
+  recursive function vectar_some4 (pred, vec1, vec2, vec3, vec4) result (bool)
+    procedure(vectar_predicate4_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+
+    i = 0_sz
+    bool = .not. .true.
+    do while (.not. bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+  end function vectar_some4
+
+  recursive function vectar_some5 (pred, vec1, vec2, vec3, vec4, vec5) result (bool)
+    procedure(vectar_predicate5_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+
+    i = 0_sz
+    bool = .not. .true.
+    do while (.not. bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+  end function vectar_some5
+
+  recursive function vectar_some6 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6) result (bool)
+    procedure(vectar_predicate6_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+
+    i = 0_sz
+    bool = .not. .true.
+    do while (.not. bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+  end function vectar_some6
+
+  recursive function vectar_some7 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7) result (bool)
+    procedure(vectar_predicate7_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+
+    i = 0_sz
+    bool = .not. .true.
+    do while (.not. bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+  end function vectar_some7
+
+  recursive function vectar_some8 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7, vec8) result (bool)
+    procedure(vectar_predicate8_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+
+    i = 0_sz
+    bool = .not. .true.
+    do while (.not. bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+  end function vectar_some8
+
+  recursive function vectar_some9 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7, vec8, vec9) result (bool)
+    procedure(vectar_predicate9_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    integer(sz) :: i9
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+
+    i = 0_sz
+    bool = .not. .true.
+    do while (.not. bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       i9 = range9%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element, &
+            &     data9%array(i9)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+  end function vectar_some9
+
+  recursive function vectar_some10 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7, vec8, vec9, vec10) result (bool)
+    procedure(vectar_predicate10_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(gcroot_t) :: vec10_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    type(vectar_data_t), pointer :: data10
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    integer(sz) :: i9
+    integer(sz) :: i10
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+    range10 = vec10
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length(), &
+         &            range10%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+    data10 => vectar_data_ptr (range10)
+
+    i = 0_sz
+    bool = .not. .true.
+    do while (.not. bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       i9 = range9%istart0() + i
+       i10 = range10%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element, &
+            &     data9%array(i9)%element, data10%array(i10)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+    call vec10_root%discard
+  end function vectar_some10
+
+  recursive function vectar_every1 (pred, vec1) result (bool)
+    procedure(vectar_predicate1_t) :: pred
+    class(*), intent(in) :: vec1
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(vectar_range_t) :: range1
+    type(vectar_data_t), pointer :: data1
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+
+    vec1_root = vec1
+    range1 = vec1
+    min_length = range1%length()
+    data1 => vectar_data_ptr (range1)
+
+    i = 0_sz
+    bool = .true.
+    do while (bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       bool = pred (data1%array(i1)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+  end function vectar_every1
+
+  recursive function vectar_every2 (pred, vec1, vec2) result (bool)
+    procedure(vectar_predicate2_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+
+    vec1_root = vec1
+    vec2_root = vec2
+    range1 = vec1
+    range2 = vec2
+    min_length = min (range1%length(), range2%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+
+    i = 0_sz
+    bool = .true.
+    do while (bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+  end function vectar_every2
+
+  recursive function vectar_every3 (pred, vec1, vec2, vec3) result (bool)
+    procedure(vectar_predicate3_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    min_length = min (range1%length(), range2%length(), range3%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+
+    i = 0_sz
+    bool = .true.
+    do while (bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+  end function vectar_every3
+
+  recursive function vectar_every4 (pred, vec1, vec2, vec3, vec4) result (bool)
+    procedure(vectar_predicate4_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+
+    i = 0_sz
+    bool = .true.
+    do while (bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+  end function vectar_every4
+
+  recursive function vectar_every5 (pred, vec1, vec2, vec3, vec4, vec5) result (bool)
+    procedure(vectar_predicate5_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+
+    i = 0_sz
+    bool = .true.
+    do while (bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+  end function vectar_every5
+
+  recursive function vectar_every6 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6) result (bool)
+    procedure(vectar_predicate6_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+
+    i = 0_sz
+    bool = .true.
+    do while (bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+  end function vectar_every6
+
+  recursive function vectar_every7 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7) result (bool)
+    procedure(vectar_predicate7_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+
+    i = 0_sz
+    bool = .true.
+    do while (bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+  end function vectar_every7
+
+  recursive function vectar_every8 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7, vec8) result (bool)
+    procedure(vectar_predicate8_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+
+    i = 0_sz
+    bool = .true.
+    do while (bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+  end function vectar_every8
+
+  recursive function vectar_every9 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7, vec8, vec9) result (bool)
+    procedure(vectar_predicate9_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    integer(sz) :: i9
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+
+    i = 0_sz
+    bool = .true.
+    do while (bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       i9 = range9%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element, &
+            &     data9%array(i9)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+  end function vectar_every9
+
+  recursive function vectar_every10 (pred, vec1, vec2, vec3, vec4, vec5, &
+       &                           vec6, vec7, vec8, vec9, vec10) result (bool)
+    procedure(vectar_predicate10_t) :: pred
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    class(*), intent(in) :: vec3
+    class(*), intent(in) :: vec4
+    class(*), intent(in) :: vec5
+    class(*), intent(in) :: vec6
+    class(*), intent(in) :: vec7
+    class(*), intent(in) :: vec8
+    class(*), intent(in) :: vec9
+    class(*), intent(in) :: vec10
+    logical :: bool
+
+    type(gcroot_t) :: vec1_root
+    type(gcroot_t) :: vec2_root
+    type(gcroot_t) :: vec3_root
+    type(gcroot_t) :: vec4_root
+    type(gcroot_t) :: vec5_root
+    type(gcroot_t) :: vec6_root
+    type(gcroot_t) :: vec7_root
+    type(gcroot_t) :: vec8_root
+    type(gcroot_t) :: vec9_root
+    type(gcroot_t) :: vec10_root
+    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: range2
+    type(vectar_range_t) :: range3
+    type(vectar_range_t) :: range4
+    type(vectar_range_t) :: range5
+    type(vectar_range_t) :: range6
+    type(vectar_range_t) :: range7
+    type(vectar_range_t) :: range8
+    type(vectar_range_t) :: range9
+    type(vectar_range_t) :: range10
+    type(vectar_data_t), pointer :: data1
+    type(vectar_data_t), pointer :: data2
+    type(vectar_data_t), pointer :: data3
+    type(vectar_data_t), pointer :: data4
+    type(vectar_data_t), pointer :: data5
+    type(vectar_data_t), pointer :: data6
+    type(vectar_data_t), pointer :: data7
+    type(vectar_data_t), pointer :: data8
+    type(vectar_data_t), pointer :: data9
+    type(vectar_data_t), pointer :: data10
+    integer(sz) :: min_length
+    integer(sz) :: i
+    integer(sz) :: i1
+    integer(sz) :: i2
+    integer(sz) :: i3
+    integer(sz) :: i4
+    integer(sz) :: i5
+    integer(sz) :: i6
+    integer(sz) :: i7
+    integer(sz) :: i8
+    integer(sz) :: i9
+    integer(sz) :: i10
+
+    vec1_root = vec1
+    vec2_root = vec2
+    vec3_root = vec3
+    vec4_root = vec4
+    vec5_root = vec5
+    vec6_root = vec6
+    vec7_root = vec7
+    vec8_root = vec8
+    vec9_root = vec9
+    vec10_root = vec10
+    range1 = vec1
+    range2 = vec2
+    range3 = vec3
+    range4 = vec4
+    range5 = vec5
+    range6 = vec6
+    range7 = vec7
+    range8 = vec8
+    range9 = vec9
+    range10 = vec10
+    min_length = min (range1%length(), range2%length(), range3%length(), &
+         &            range4%length(), range5%length(), range6%length(), &
+         &            range7%length(), range8%length(), range9%length(), &
+         &            range10%length())
+    data1 => vectar_data_ptr (range1)
+    data2 => vectar_data_ptr (range2)
+    data3 => vectar_data_ptr (range3)
+    data4 => vectar_data_ptr (range4)
+    data5 => vectar_data_ptr (range5)
+    data6 => vectar_data_ptr (range6)
+    data7 => vectar_data_ptr (range7)
+    data8 => vectar_data_ptr (range8)
+    data9 => vectar_data_ptr (range9)
+    data10 => vectar_data_ptr (range10)
+
+    i = 0_sz
+    bool = .true.
+    do while (bool .and. i < min_length)
+       i1 = range1%istart0() + i
+       i2 = range2%istart0() + i
+       i3 = range3%istart0() + i
+       i4 = range4%istart0() + i
+       i5 = range5%istart0() + i
+       i6 = range6%istart0() + i
+       i7 = range7%istart0() + i
+       i8 = range8%istart0() + i
+       i9 = range9%istart0() + i
+       i10 = range10%istart0() + i
+       bool = pred (data1%array(i1)%element, data2%array(i2)%element, &
+            &     data3%array(i3)%element, data4%array(i4)%element, &
+            &     data5%array(i5)%element, data6%array(i6)%element, &
+            &     data7%array(i7)%element, data8%array(i8)%element, &
+            &     data9%array(i9)%element, data10%array(i10)%element)
+       i = i + 1
+    end do
+
+    call vec1_root%discard
+    call vec2_root%discard
+    call vec3_root%discard
+    call vec4_root%discard
+    call vec5_root%discard
+    call vec6_root%discard
+    call vec7_root%discard
+    call vec8_root%discard
+    call vec9_root%discard
+    call vec10_root%discard
+  end function vectar_every10
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

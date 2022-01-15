@@ -2314,6 +2314,112 @@ contains
 
   end subroutine test0320
 
+  subroutine test0330
+
+    call check (.not. vectar_some (eq4, vectar ()), "test0330-0010 failed")
+    call check (vectar_some (eq4, vectar (1, 2, 3, 4)), "test0330-0020 failed")
+    call check (vectar_some (eq4, vectar (1, 2, 3, 4, 5, 6)), "test0330-0030 failed")
+    call check (vectar_some (eq4, vectar (4, 2, 3, 5, 6)), "test0330-0040 failed")
+    call check (.not. vectar_some (eq4, vectar (1, 2, 3, 5, 6)), "test0330-0050 failed")
+
+    call check (.not. vectar_some (lt2, vectar (), vectar (1, 2, 4, 4)), "test0330-1010 failed")
+    call check (.not. vectar_some (lt2, vectar (1, 2, 4, 4), vectar ()), "test0330-1020 failed")
+    call check (vectar_some (lt2, vectar (1, 2, 3, 4), vectar (1, 2, 4, 4)), "test0330-1030 failed")
+    call check (.not. vectar_some (lt2, vectar (1, 2, 3, 4, 5), vectar (1, 2, 3, 4)), "test0330-1040 failed")
+
+    call check (vectar_some (lt3, vectar (1, 2, 3, 4), vectar (1, 2, 4, 4), vectar (1, 2, 5, 4)), &
+         &      "test0330-2010 failed")
+    call check (.not. vectar_some (lt3, vectar (1, 2, 3, 4), vectar (1, 2, 4, 4), vectar (1, 2, 4, 5)), &
+         &      "test0330-2020 failed")
+
+  contains
+
+    function eq4 (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) == 4)
+    end function eq4
+
+    function lt2 (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y))
+    end function lt2
+
+    function lt3 (x, y, z) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      class(*), intent(in) :: z
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y)) .and. (int_cast (y) < int_cast (z))
+    end function lt3
+
+  end subroutine test0330
+
+  subroutine test0340
+
+    call check (vectar_every (eq4, vectar ()), "test0340-0010 failed")
+    call check (.not. vectar_every (eq4, vectar (1, 2, 3, 4)), "test0340-0020 failed")
+    call check (vectar_every (eq4, vectar (4, 4, 4, 4)), "test0340-0030 failed")
+    call check (.not. vectar_every (eq4, vectar (3, 3, 3, 3)), "test0340-0040 failed")
+
+    call check (vectar_every (lt2, vectar (), vectar (1, 2, 4, 4)), "test0340-1010 failed")
+    call check (vectar_every (lt2, vectar (1, 2, 4, 4), vectar ()), "test0340-1020 failed")
+    call check (.not. vectar_every (lt2, vectar (1, 2, 3, 4), vectar (1, 2, 4, 4)), "test0340-1030 failed")
+    call check (.not. vectar_every (lt2, vectar (1, 2, 3, 4, 5), vectar (1, 2, 3, 4)), "test0340-1040 failed")
+    call check (vectar_every (lt2, vectar (1, 2, 3, 4, 5), vectar (2, 3, 4, 5)), "test0340-1050 failed")
+
+    call check (.not. vectar_every (lt3, vectar (1, 2, 3, 4), vectar (1, 2, 4, 4), vectar (1, 2, 5, 4)), &
+         &      "test0340-2010 failed")
+    call check (.not. vectar_every (lt3, vectar (1, 2, 3, 4), vectar (1, 2, 4, 4), vectar (1, 2, 4, 5)), &
+         &      "test0340-2020 failed")
+    call check (vectar_every (lt3, vectar (1, 2, 3, 4), vectar (2, 3, 4, 5, 6), vectar (3, 4, 5, 6)), &
+         &      "test0340-2030 failed")
+
+  contains
+
+    function eq4 (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) == 4)
+    end function eq4
+
+    function lt2 (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y))
+    end function lt2
+
+    function lt3 (x, y, z) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      class(*), intent(in) :: z
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y)) .and. (int_cast (y) < int_cast (z))
+    end function lt3
+
+  end subroutine test0340
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -2350,6 +2456,8 @@ contains
     call test0300
     call test0310
     call test0320
+    call test0330
+    call test0340
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
