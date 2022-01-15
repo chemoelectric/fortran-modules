@@ -670,6 +670,11 @@ module vectars
   ! argument in vectar_binary_search0, vectar_binary_search1, or
   ! vectar_binary_searchn, which comes last.)
   !
+  ! Using a `strcmp'-like function rather than an ordering predicate
+  ! and equality test is clearly a good idea in many cases (such as
+  ! sorting strings). But I wanted to have some fun, so I included
+  ! these searches as well.
+  !
   public :: vectar_bottenbruch_search0 ! Return the 0-based index
                                        ! where a predicate is first
                                        ! satisfied, or -1 if it is
