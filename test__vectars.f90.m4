@@ -1944,6 +1944,84 @@ contains
 
   end subroutine test0290
 
+  subroutine test0300
+    type(vectar_t) :: vec
+    type(vectar_range_t) :: vecr
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_binary_search0 (vec, 4, int_cmp) == 3_sz, "test0300-0010 failed")
+    call check (vectar_binary_search1 (vec, 4, int_cmp) == 4_sz, "test0300-0020 failed")
+    call check (vectar_binary_searchn (vec, -26_sz, 4, int_cmp) == -23_sz, "test0300-0030 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_binary_search0 (vec, 7, int_cmp) == 6_sz, "test0300-0040 failed")
+    call check (vectar_binary_search1 (vec, 7, int_cmp) == 7_sz, "test0300-0050 failed")
+    call check (vectar_binary_searchn (vec, -26_sz, 7, int_cmp) == -20_sz, "test0300-0060 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_binary_search0 (vec, 1, int_cmp) == 0_sz, "test0300-0070 failed")
+    call check (vectar_binary_search1 (vec, 1, int_cmp) == 1_sz, "test0300-0080 failed")
+    call check (vectar_binary_searchn (vec, -26_sz, 1, int_cmp) == -26_sz, "test0300-0090 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_binary_search0 (vec, 10, int_cmp) == 9_sz, "test0300-0100 failed")
+    call check (vectar_binary_search1 (vec, 10, int_cmp) == 10_sz, "test0300-0110 failed")
+    call check (vectar_binary_searchn (vec, -26_sz, 10, int_cmp) == -17_sz, "test0300-0120 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_binary_search0 (vec, 0, int_cmp) == -1_sz, "test0300-0130 failed")
+    call check (vectar_binary_search1 (vec, 0, int_cmp) == -1_sz, "test0300-0140 failed")
+    call check (vectar_binary_searchn (vec, -26_sz, 0, int_cmp) == -27_sz, "test0300-0150 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    call check (vectar_binary_search0 (vec, 11, int_cmp) == -1_sz, "test0300-0130 failed")
+    call check (vectar_binary_search1 (vec, 11, int_cmp) == -1_sz, "test0300-0140 failed")
+    call check (vectar_binary_searchn (vec, -26_sz, 11, int_cmp) == -27_sz, "test0300-0150 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_binary_search0 (vecr, 7, int_cmp) == 4_sz, "test0300-0160 failed")
+    call check (vectar_binary_search1 (vecr, 7, int_cmp) == 5_sz, "test0300-0170 failed")
+    call check (vectar_binary_searchn (vecr, 2_sz, 7, int_cmp) == 6_sz, "test0300-0180 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_binary_search0 (vecr, 3, int_cmp) == 0_sz, "test0300-0190 failed")
+    call check (vectar_binary_search1 (vecr, 3, int_cmp) == 1_sz, "test0300-0200 failed")
+    call check (vectar_binary_searchn (vecr, 2_sz, 3, int_cmp) == 2_sz, "test0300-0210 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_binary_search0 (vecr, 8, int_cmp) == 5_sz, "test0300-0220 failed")
+    call check (vectar_binary_search1 (vecr, 8, int_cmp) == 6_sz, "test0300-0230 failed")
+    call check (vectar_binary_searchn (vecr, 2_sz, 8, int_cmp) == 7_sz, "test0300-0240 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_binary_search0 (vecr, 2, int_cmp) == -1_sz, "test0300-0250 failed")
+    call check (vectar_binary_search1 (vecr, 2, int_cmp) == -1_sz, "test0300-0260 failed")
+    call check (vectar_binary_searchn (vecr, 2_sz, 2, int_cmp) == -1_sz, "test0300-0270 failed")
+
+    vec = vectar (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    vecr = range1 (vec, 3, 8)
+    call check (vectar_binary_search0 (vecr, 9, int_cmp) == -1_sz, "test0300-0280 failed")
+    call check (vectar_binary_search1 (vecr, 9, int_cmp) == -1_sz, "test0300-0290 failed")
+    call check (vectar_binary_searchn (vecr, 2_sz, 9, int_cmp) == -1_sz, "test0300-0300 failed")
+
+  contains
+
+    function int_cmp (x, y) result (sign)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      integer :: sign
+
+      call collect_garbage_now
+
+      sign = (int_cast (x) - int_cast (y))
+    end function int_cmp
+
+  end subroutine test0300
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -1977,6 +2055,7 @@ contains
     call test0270
     call test0280
     call test0290
+    call test0300
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

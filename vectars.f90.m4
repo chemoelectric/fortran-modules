@@ -347,18 +347,15 @@ m4_forloop([n],[0],ZIP_MAX,[dnl
   ! Note that `vector-index' in SRFI-133 returns #f instead of an
   ! integer.
   !
-  public :: vectar_index0     ! Generic function: return the 0-based
-                              ! index where a predicate is first
-                              ! satisfied, or -1 if it is never
-                              ! satisfied.
-  public :: vectar_index1     ! Generic function: return the 1-based
-                              ! index where a predicate is first
-                              ! satisfied, or -1 if it is never
-                              ! satisfied.
-  public :: vectar_indexn     ! Generic function: return the n-based
-                              ! index where a predicate is first
-                              ! satisfied, or min (-1, n - 1) if it is
-                              ! never satisfied.
+  public :: vectar_index0     ! Return the 0-based index where a
+                              ! predicate is first satisfied, or -1 if
+                              ! it is never satisfied.
+  public :: vectar_index1     ! Return the 1-based index where a
+                              ! predicate is first satisfied, or -1 if
+                              ! it is never satisfied.
+  public :: vectar_indexn     ! Return the n-based index where a
+                              ! predicate is first satisfied, or min
+                              ! (-1, n - 1) if it is never satisfied.
 
   ! Implementations of the vectar index functions.
 m4_forloop([n],[1],ZIP_MAX,[dnl
@@ -380,18 +377,16 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   ! requirement and, instead, say that the search begins at each
   ! range's start index, plus the minimum range length, minus one.
   !
-  public :: vectar_index_right0 ! Generic function: return the 0-based
-                                ! index where a predicate is first
-                                ! satisfied, or -1 if it is never
+  public :: vectar_index_right0 ! Return the 0-based index where a
+                                ! predicate is first satisfied, or -1
+                                ! if it is never satisfied.
+  public :: vectar_index_right1 ! Return the 1-based index where a
+                                ! predicate is first satisfied, or -1
+                                ! if it is never satisfied.
+  public :: vectar_index_rightn ! Return the n-based index where a
+                                ! predicate is first satisfied, or min
+                                ! (-1, n - 1) if it is never
                                 ! satisfied.
-  public :: vectar_index_right1 ! Generic function: return the 1-based
-                                ! index where a predicate is first
-                                ! satisfied, or -1 if it is never
-                                ! satisfied.
-  public :: vectar_index_rightn ! Generic function: return the n-based
-                                ! index where a predicate is first
-                                ! satisfied, or min (-1, n - 1) if it
-                                ! is never satisfied.
 
   ! Implementations of the right-to-left vectar index functions.
 m4_forloop([n],[1],ZIP_MAX,[dnl
@@ -433,6 +428,25 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_skip_rightn_[]n
 ])dnl
+
+  !
+  ! Functions to do binary searches on vectars and vectar ranges.
+  !
+  ! These functions are designed so they always return a negative
+  ! number on failure to satisfy the predicate, and also so the
+  ! negative number is specifically -1, if the index base is
+  ! non-negative.  This seemed a convenient convention.
+  !
+  ! (Note that the `cmp' procedure argument comes last. This is the
+  ! argument order specified in SRFI-133.)
+  !
+  public :: vectar_binary_search0 ! Return the 0-based index of a
+                                  ! match, or -1 if there is no match.
+  public :: vectar_binary_search1 ! Return the 1-based index of a
+                                  ! match, or -1 if there is no match.
+  public :: vectar_binary_searchn ! Return the n-based index of a
+                                  ! match, or min (-1, n - 1) if there
+                                  ! is no match.
 
   ! Vectar-list conversions.
   public :: vectar_to_list
@@ -823,6 +837,24 @@ m4_forloop([k],[1],n,[dnl
        logical :: bool
      end function vectar_predicate[]n[]_t
 ])dnl
+  end interface
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!
+!!! The type of a function resembling C's `strcmp'; for use in
+!!! SRFI-133-style binary searches.
+!!!
+!!! Only the sign and zeroness of the result are significant.
+!!!
+
+  public :: vectar_cmp_func_t
+
+  abstract interface
+     recursive function vectar_cmp_func_t (x1, x2) result (sign)
+       class(*), intent(in) :: x1
+       class(*), intent(in) :: x2
+       integer :: sign
+     end function vectar_cmp_func_t
   end interface
 
 !!! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3065,6 +3097,65 @@ dnl
 m4_vectar_indexing_right_to_left([index],[])dnl
 m4_vectar_indexing_right_to_left([skip],[.not. ])dnl
 dnl
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function vectar_binary_search0 (vec, x, cmp) result (index)
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: x
+    procedure(vectar_cmp_func_t) :: cmp
+    integer(sz) :: index
+
+    index = vectar_binary_searchn (vec, 0_sz, x, cmp)
+  end function vectar_binary_search0
+
+  recursive function vectar_binary_search1 (vec, x, cmp) result (index)
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: x
+    procedure(vectar_cmp_func_t) :: cmp
+    integer(sz) :: index
+
+    index = vectar_binary_searchn (vec, 1_sz, x, cmp)
+  end function vectar_binary_search1
+
+  recursive function vectar_binary_searchn (vec, n, x, cmp) result (index)
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: n
+    class(*), intent(in) :: x
+    procedure(vectar_cmp_func_t) :: cmp
+    integer(sz) :: index
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: range
+    type(vectar_data_t), pointer :: data
+    integer(sz) :: len, i0, i
+    integer(sz) :: ileft, imiddle, iright
+    integer :: sign
+
+    vec_root = vec
+
+    range = vec
+    i0 = range%istart0()
+    len = range%length()
+    data => vectar_data_ptr (range)
+    ileft = 0_sz
+    iright = len - 1_sz
+    index = min (-1_sz, [n] - 1_sz)
+    do while (ileft <= iright .and. index < [n])
+       imiddle = (ileft + iright) / 2_sz
+       i = i0 + imiddle
+       sign = cmp (data%array(i)%element, x)
+       if (sign < 0) then
+          ileft = imiddle + 1
+       else if (0 < sign) then
+          iright = imiddle - 1
+       else
+          index = imiddle + [n]
+       end if
+    end do
+
+    call vec_root%discard
+  end function vectar_binary_searchn
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 end module vectars
