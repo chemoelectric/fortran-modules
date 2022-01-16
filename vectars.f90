@@ -757,16 +757,10 @@ module vectars
   public :: vectar_every_map10_subr
 
   !
-  ! Partitioning. See SRFI-133, `vector-partition'. A difference is
-  ! that we return two vectar_range_t (of the same vector) instead of
-  ! the vector and an index; also, the call is a subroutine, not a
-  ! function.
+  ! Partitioning. See SRFI-133, `vector-partition'.
   !
-  ! (The main reason to return vectar_range_t is to avoid the
-  ! ambiguity of whether the returned index should be 0-based,
-  ! 1-based, or n-based.)
-  !
-  public :: do_vectar_partition
+  public :: do_vectar_partition ! Subroutine.
+  public :: vectar_partition    ! Function returning a length-2 list.
 
   ! Vectar-list conversions.
   public :: vectar_to_list
@@ -21209,11 +21203,11 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  recursive subroutine do_vectar_partition (pred, vec, vecr1, vecr2)
+  recursive subroutine do_vectar_partition (pred, vec, vec_out, num_satisfied)
     procedure(vectar_predicate1_t) :: pred
     class(*), intent(in) :: vec
-    type(vectar_range_t), intent(inout) :: vecr1
-    type(vectar_range_t), intent(inout) :: vecr2
+    type(vectar_t), intent(inout) :: vec_out
+    integer(sz), intent(inout) :: num_satisfied
 
     !
     ! Our implementation tries to minimize the number of predicate
@@ -21255,6 +21249,8 @@ contains
        end if
     end do
 
+    call vec_root%discard
+
     ! Create and fill the output vector.
     partitioned_vectar = make_vectar (len)
     partitioned_vectar_data => vectar_data_ptr (partitioned_vectar)
@@ -21272,12 +21268,21 @@ contains
 
     deallocate (satisfied)
 
-    ! Return the ranges
-    vecr1 = range0 (partitioned_vectar, 0_sz, satisfied_count - 1_sz)
-    vecr2 = range0 (partitioned_vectar, satisfied_count, len_minus_one)
-
-    call vec_root%discard
+    vec_out = partitioned_vectar
+    num_satisfied = satisfied_count
   end subroutine do_vectar_partition
+
+  recursive function vectar_partition (pred, vec) result (lst)
+    procedure(vectar_predicate1_t) :: pred
+    class(*), intent(in) :: vec
+    type(cons_t) :: lst
+
+    type(vectar_t) :: vec_out
+    integer(sz) :: num_satisfied
+
+    call do_vectar_partition (pred, vec, vec_out, num_satisfied)
+    lst = list (vec_out, num_satisfied)
+  end function vectar_partition
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

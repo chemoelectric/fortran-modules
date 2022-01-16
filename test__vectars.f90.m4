@@ -2567,38 +2567,77 @@ contains
 
   subroutine test0370
     type(vectar_t) :: vec
-    type(vectar_range_t) :: vecr1
-    type(vectar_range_t) :: vecr2
+    type(vectar_t) :: vec_out
+    integer(sz) :: num_satisfied
+    type(cons_t) :: lst
 
     vec = vectar (1, 2, 3, 4, 4, 6, 1, 2, 7)
-    call do_vectar_partition (is_even, vec, vecr1, vecr2)
-    call check (vectar_equal (int_eq, vecr1, vectar (2, 4, 4, 6, 2)), "test0370-0010 failed")
-    call check (vectar_equal (int_eq, vecr2, vectar (1, 3, 1, 7)), "test0370-0020 failed")
-    call check (vectar_t_eq (vecr1%vec(), vecr2%vec()), "test0370-0030 failed")
-    call check (vectar_equal (int_eq, vecr1%vec(), vectar (2, 4, 4, 6, 2, 1, 3, 1, 7)), "test0370-0040 failed")
+    call do_vectar_partition (is_even, vec, vec_out, num_satisfied)
+    call check (vectar_equal (int_eq, vecr1 (), vectar (2, 4, 4, 6, 2)), "test0370-0010 failed")
+    call check (vectar_equal (int_eq, vecr2 (), vectar (1, 3, 1, 7)), "test0370-0020 failed")
+    call check (vectar_equal (int_eq, vec_out, vectar (2, 4, 4, 6, 2, 1, 3, 1, 7)), "test0370-0040 failed")
 
     vec = vectar (2, 4, 4, 6, 2)
-    call do_vectar_partition (is_even, vec, vecr1, vecr2)
-    call check (vectar_equal (int_eq, vecr1, vectar (2, 4, 4, 6, 2)), "test0370-1010 failed")
-    call check (vectar_equal (int_eq, vecr2, vectar ()), "test0370-1020 failed")
-    call check (vectar_t_eq (vecr1%vec(), vecr2%vec()), "test0370-1030 failed")
-    call check (vectar_equal (int_eq, vecr1%vec(), vectar (2, 4, 4, 6, 2)), "test0370-1040 failed")
+    call do_vectar_partition (is_even, vec, vec_out, num_satisfied)
+    call check (vectar_equal (int_eq, vecr1 (), vectar (2, 4, 4, 6, 2)), "test0370-1010 failed")
+    call check (vectar_equal (int_eq, vecr2 (), vectar ()), "test0370-1020 failed")
+    call check (vectar_equal (int_eq, vec_out, vectar (2, 4, 4, 6, 2)), "test0370-1040 failed")
 
     vec = vectar (1, 3, 1, 7)
-    call do_vectar_partition (is_even, vec, vecr1, vecr2)
-    call check (vectar_equal (int_eq, vecr1, vectar ()), "test0370-2010 failed")
-    call check (vectar_equal (int_eq, vecr2, vectar (1, 3, 1, 7)), "test0370-2020 failed")
-    call check (vectar_t_eq (vecr1%vec(), vecr2%vec()), "test0370-2030 failed")
-    call check (vectar_equal (int_eq, vecr1%vec(), vectar (1, 3, 1, 7)), "test0370-2040 failed")
+    call do_vectar_partition (is_even, vec, vec_out, num_satisfied)
+    call check (vectar_equal (int_eq, vecr1 (), vectar ()), "test0370-2010 failed")
+    call check (vectar_equal (int_eq, vecr2 (), vectar (1, 3, 1, 7)), "test0370-2020 failed")
+    call check (vectar_equal (int_eq, vec_out, vectar (1, 3, 1, 7)), "test0370-2040 failed")
 
     vec = vectar ()
-    call do_vectar_partition (is_even, vec, vecr1, vecr2)
-    call check (vectar_equal (int_eq, vecr1, vectar ()), "test0370-3010 failed")
-    call check (vectar_equal (int_eq, vecr2, vectar ()), "test0370-3020 failed")
-    call check (vectar_t_eq (vecr1%vec(), vecr2%vec()), "test0370-3030 failed")
-    call check (vectar_equal (int_eq, vecr1%vec(), vectar ()), "test0370-3040 failed")
+    call do_vectar_partition (is_even, vec, vec_out, num_satisfied)
+    call check (vectar_equal (int_eq, vecr1 (), vectar ()), "test0370-3010 failed")
+    call check (vectar_equal (int_eq, vecr2 (), vectar ()), "test0370-3020 failed")
+    call check (vectar_equal (int_eq, vec_out, vectar ()), "test0370-3040 failed")
+
+    vec = vectar (1, 2, 3, 4, 4, 6, 1, 2, 7)
+    lst = vectar_partition (is_even, vec)
+    vec_out = .tovectar. first (lst)
+    num_satisfied = size_kind_cast (second (lst))
+    call check (vectar_equal (int_eq, vecr1 (), vectar (2, 4, 4, 6, 2)), "test0370-4010 failed")
+    call check (vectar_equal (int_eq, vecr2 (), vectar (1, 3, 1, 7)), "test0370-4020 failed")
+    call check (vectar_equal (int_eq, vec_out, vectar (2, 4, 4, 6, 2, 1, 3, 1, 7)), "test0370-4040 failed")
+
+    vec = vectar (2, 4, 4, 6, 2)
+    lst = vectar_partition (is_even, vec)
+    vec_out = .tovectar. first (lst)
+    num_satisfied = size_kind_cast (second (lst))
+    call check (vectar_equal (int_eq, vecr1 (), vectar (2, 4, 4, 6, 2)), "test0370-5010 failed")
+    call check (vectar_equal (int_eq, vecr2 (), vectar ()), "test0370-5020 failed")
+    call check (vectar_equal (int_eq, vec_out, vectar (2, 4, 4, 6, 2)), "test0370-5040 failed")
+
+    vec = vectar (1, 3, 1, 7)
+    lst = vectar_partition (is_even, vec)
+    vec_out = .tovectar. first (lst)
+    num_satisfied = size_kind_cast (second (lst))
+    call check (vectar_equal (int_eq, vecr1 (), vectar ()), "test0370-6010 failed")
+    call check (vectar_equal (int_eq, vecr2 (), vectar (1, 3, 1, 7)), "test0370-6020 failed")
+    call check (vectar_equal (int_eq, vec_out, vectar (1, 3, 1, 7)), "test0370-6040 failed")
+
+    vec = vectar ()
+    lst = vectar_partition (is_even, vec)
+    vec_out = .tovectar. first (lst)
+    num_satisfied = size_kind_cast (second (lst))
+    call check (vectar_equal (int_eq, vecr1 (), vectar ()), "test0370-7010 failed")
+    call check (vectar_equal (int_eq, vecr2 (), vectar ()), "test0370-7020 failed")
+    call check (vectar_equal (int_eq, vec_out, vectar ()), "test0370-7040 failed")
 
   contains
+
+    function vecr1 () result (vecr)
+      type(vectar_range_t) :: vecr
+      vecr = range1 (vec_out, 1_sz, num_satisfied)
+    end function vecr1
+
+    function vecr2 () result (vecr)
+      type(vectar_range_t) :: vecr
+      vecr = range1 (vec_out, num_satisfied + 1_sz, vectar_length (vec_out))
+    end function vecr2
 
     function is_even (x) result (bool)
       class(*), intent(in) :: x
