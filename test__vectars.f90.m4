@@ -2681,51 +2681,80 @@ contains
 
   subroutine test0390
     type(vectar_t) :: vec1
+    type(gcroot_t) :: vec1_copy
 
     vec1 = vectar_append (vectar (1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 7, 8, 9), &
          &                list_to_vectar (iota (90, 10)))
+    vec1_copy = vectar_copy (vec1)
     call check (vectar_is_sorted (int_lt, vec1), "test0390-0010 failed")
     call vectar_shufflex (vec1)
     call check (.not. vectar_is_sorted (int_lt, vec1), "test0390-0020 failed")
-    !
-    ! FIXME: CHECK SORTING GIVES ORIGINAL VECTOR
-    !
+    call check (vectar_equal (int_eq, vecsort (int_lt, vec1), vec1_copy), "test0390-0030 failed")
 
     vec1 = vectar_append (vectar (1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 7, 8, 9), &
          &                list_to_vectar (iota (90, 10)))
+    vec1_copy = vectar_copy (vec1)
     call check (vectar_is_sorted (int_lt, vec1), "test0390-0110 failed")
     call check (vectar_length (vec1) == 104_sz, "test0390-0120 failed")
     call vectar_shufflex (range1 (vec1, 20, 79))
     call check (vectar_is_sorted (int_lt, range1 (vec1, 1, 19)), "test0390-0130 failed")
     call check (.not. vectar_is_sorted (int_lt, range1 (vec1, 20, 79)), "test0390-0140 failed")
     call check (vectar_is_sorted (int_lt, range1 (vec1, 80, 104)), "test0390-0150 failed")
-    !
-    ! FIXME: CHECK SORTING GIVES ORIGINAL VECTOR
-    !
+    call check (vectar_equal (int_eq, vecsort (int_lt, vec1), vec1_copy), "test0390-0160 failed")
+
+  contains
+
+    ! Use a list sort, to avoid dependence on the vectar sort
+    ! implementations.
+    function vecsort (less_than, vec) result (vec_s)
+      procedure(vectar_predicate2_t) :: less_than
+      class(*), intent(in) :: vec
+      type(vectar_t) :: vec_s
+
+      vec_s = list_to_vectar (list_sort (less_than, vectar_to_list (vec)))
+    end function vecsort
+
   end subroutine test0390
 
   subroutine test0400
     type(vectar_t) :: vec1, vec2
+    type(gcroot_t) :: vec1_copy
 
     vec1 = vectar_append (vectar (1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 7, 8, 9), &
          &                list_to_vectar (iota (90, 10)))
+    vec1_copy = vectar_copy (vec1)
     call check (vectar_is_sorted (int_lt, vec1), "test0400-0010 failed")
     vec2 = vectar_shuffle (vec1)
     call check (.not. vectar_is_sorted (int_lt, vec2), "test0400-0030 failed")
-    call check (.not. vectar_is_sorted (int_lt, vec2), "test0400-0030 failed")
-    !
-    ! FIXME: CHECK SORTING GIVES ORIGINAL VECTOR
-    !
+    call check (vectar_equal (int_eq, vecsort (int_lt, vec2), vec1_copy), "test0400-0040 failed")
+    call check (vectar_equal (int_eq, vec1, vec1_copy), "test0400-0050 failed")
 
     vec1 = vectar_append (vectar (1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 7, 8, 9), &
          &                list_to_vectar (iota (90, 10)))
+    vec1_copy = vectar_copy (vec1)
     call check (vectar_is_sorted (int_lt, vec1), "test0400-0110 failed")
     call check (vectar_length (vec1) == 104_sz, "test0400-0120 failed")
     vec2 = vectar_shuffle (range1 (vec1, 20, 79))
     call check (.not. vectar_is_sorted (int_lt, vec2), "test0390-0130 failed")
-    !
-    ! FIXME: CHECK SORTING GIVES ORIGINAL VECTOR
-    !
+    call check (vectar_equal (int_eq, vectar_append (range1 (vec1_copy, 1, 19), &
+         &                                           vecsort (int_lt, vec2), &
+         &                                           range1 (vec1_copy, 80, 104)), &
+         &                    vec1_copy), &
+         &      "test0400-0140 failed")
+    call check (vectar_equal (int_eq, vec1, vec1_copy), "test0400-0150 failed")
+
+  contains
+
+    ! Use a list sort, to avoid dependence on the vectar sort
+    ! implementations.
+    function vecsort (less_than, vec) result (vec_s)
+      procedure(vectar_predicate2_t) :: less_than
+      class(*), intent(in) :: vec
+      type(vectar_t) :: vec_s
+
+      vec_s = list_to_vectar (list_sort (less_than, vectar_to_list (vec)))
+    end function vecsort
+
   end subroutine test0400
 
   subroutine run_tests
