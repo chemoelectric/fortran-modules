@@ -2680,6 +2680,12 @@ contains
   end subroutine test0380
 
   subroutine test0390
+
+    !
+    ! There is an *extremely* remote chance of these tests failing due
+    ! to the shuffle producing a sorted array.
+    !
+
     type(vectar_t) :: vec1
     type(gcroot_t) :: vec1_copy
 
@@ -2717,6 +2723,12 @@ contains
   end subroutine test0390
 
   subroutine test0400
+
+    !
+    ! There is an *extremely* remote chance of these tests failing due
+    ! to the shuffle producing a sorted array.
+    !
+
     type(vectar_t) :: vec1, vec2
     type(gcroot_t) :: vec1_copy
 
