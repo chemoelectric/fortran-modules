@@ -589,7 +589,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   ! function.
   !
   ! (The main reason to return vectar_range_t is to avoid the
-  ! ambiguity of whether the returned index should bed 0-based,
+  ! ambiguity of whether the returned index should be 0-based,
   ! 1-based, or n-based.)
   !
   public :: do_vectar_partition
