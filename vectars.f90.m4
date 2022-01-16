@@ -639,6 +639,10 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 
   public :: vectar_is_sorted
 
+  ! Stable merges.
+  public :: vectar_merge
+  public :: vectar_mergex
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   ! A private synonym for `size_kind'.
@@ -3570,6 +3574,100 @@ dnl
 
     call vec_root%discard
   end function vectar_is_sorted
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function vectar_merge (less_than, vec1, vec2) result (vec_m)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+    type(vectar_t) :: vec_m
+
+    type(vectar_range_t) :: vecr1
+    type(vectar_range_t) :: vecr2
+
+    vecr1 = vec1
+    vecr2 = vec2
+    vec_m = make_vectar (vecr1%length() + vecr2%length())
+    call vectar_mergex (less_than, vec_m, vecr1, vecr2)
+  end function vectar_merge
+
+  recursive subroutine vectar_mergex (less_than, vec_m, vec1, vec2)
+
+    !
+    ! It is assumed that vec_m does not overlap either of vec1 or
+    ! vec2. This assumption is carried over from SRFI-132.
+    !
+
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec_m
+    class(*), intent(in) :: vec1
+    class(*), intent(in) :: vec2
+
+    type(gcroot_t) :: vec_m_root, vec1_root, vec2_root
+    type(vectar_range_t) :: vecr_m, vecr1, vecr2
+    type(vectar_data_t), pointer :: data_m, data1, data2
+    integer(sz) :: i0_m, i0_1, i0_2
+    integer(sz) :: len_m, len1, len2
+    integer(sz) :: i, j, k
+
+    vec_m_root = vec_m
+    vec1_root = vec1
+    vec2_root = vec2
+
+    vecr_m = vec_m
+    i0_m = vecr_m%istart0()
+    len_m = vecr_m%length()
+
+    vecr1 = vec1
+    i0_1 = vecr1%istart0()
+    len1 = vecr1%length()
+
+    vecr2 = vec2
+    i0_2 = vecr2%istart0()
+    len2 = vecr2%length()
+
+    if (len_m /= len1 + len2) then
+       call error_abort ("vectar_mergex arguments have incompatible lengths")
+    end if
+
+    data_m => vectar_data_ptr (vecr_m)
+    data1 => vectar_data_ptr (vecr1)
+    data2 => vectar_data_ptr (vecr2)
+
+    j = 0_sz
+    k = 0_sz
+    i = 0_sz
+    do while (i < len_m)
+       if (j == len1) then
+          ! The rest of the result is from vecr2.
+          do while (i < len_m)
+             data_m%array(i0_m + i) = data2%array(i0_2 + k)
+             k = k + 1
+             i = i + 1
+          end do
+       else if (k == len2) then
+          ! The rest of the result is from vecr1
+          do while (i < len_m)
+             data_m%array(i0_m + i) = data1%array(i0_1 + j)
+             j = j + 1
+             i = i + 1
+          end do
+       else if (.not. less_than (data2%array(i0_2 + k)%element, data1%array(i0_1 + j)%element)) then
+          data_m%array(i0_m + i) = data1%array(i0_1 + j)
+          j = j + 1
+          i = i + 1
+       else
+          data_m%array(i0_m + i) = data2%array(i0_2 + k)
+          k = k + 1
+          i = i + 1
+       end if
+    end do
+
+    call vec_m_root%discard
+    call vec1_root%discard
+    call vec2_root%discard
+  end subroutine vectar_mergex
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

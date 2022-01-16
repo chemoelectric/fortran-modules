@@ -2779,6 +2779,90 @@ contains
 
   end subroutine test0400
 
+  subroutine test0410
+    type(vectar_t) :: vec_m, vec1, vec2
+
+    vec1 = list_to_vectar (iota (50, 1, 2))
+    vec2 = list_to_vectar (iota (50, 2, 2))
+    vec_m = vectar_merge (less_than, vec1, vec2)
+    call check (list_equal (int_eq, vectar_to_list (vec1), iota (50, 1, 2)), "test0410-0010 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec2), iota (50, 2, 2)), "test0410-0020 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec_m), iota (100, 1)), "test0410-0030 failed")
+    vec_m = vectar_merge (less_than, vec2, vec1)
+    call check (list_equal (int_eq, vectar_to_list (vec1), iota (50, 1, 2)), "test0410-0040 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec2), iota (50, 2, 2)), "test0410-0050 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec_m), iota (100, 1)), "test0410-0060 failed")
+
+    vec1 = list_to_vectar (iota (20, 1, 2))
+    vec2 = list_to_vectar (iota (50, 2, 2))
+    vec_m = vectar_merge (less_than, vec1, vec2)
+    call check (list_equal (int_eq, vectar_to_list (vec1), iota (20, 1, 2)), "test0410-0110 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec2), iota (50, 2, 2)), "test0410-0120 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec_m), append (iota (40, 1), iota (30, 42, 2))), "test0410-0130 failed")
+    vec_m = vectar_merge (less_than, vec2, vec1)
+    call check (list_equal (int_eq, vectar_to_list (vec1), iota (20, 1, 2)), "test0410-0140 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec2), iota (50, 2, 2)), "test0410-0150 failed")
+    call check (list_equal (int_eq, vectar_to_list (vec_m), append (iota (40, 1), iota (30, 42, 2))), "test0410-0160 failed")
+
+    ! Stability test.
+    vec1 = vectar (22, 31, 53, 61)
+    vec2 = vectar (21, 42, 41, 52, 51)
+    vec_m = vectar_merge (is_lt_except_ones, vec1, vec2)
+    call check (vectar_equal (int_eq, vec_m, vectar (22, 21, 31, 42, 41, 53, 52, 51, 61)), "test0410-0210 failed")
+    vec_m = vectar_merge (is_lt_except_ones, vec2, vec1)
+    call check (vectar_equal (int_eq, vec_m, vectar (21, 22, 31, 42, 41, 52, 51, 53, 61)), "test0410-0220 failed")
+
+    ! Check vectar ranges.
+    vec1 = vectar (100, 100, 22, 31, 53, 61, 100, 21, 42, 41, 52, 51, 100)
+    vec_m = vectar_merge (is_lt_except_ones, range1 (vec1, 3, 6), range1 (vec1, 8, 12))
+    call check (vectar_equal (int_eq, vec_m, vectar (22, 21, 31, 42, 41, 53, 52, 51, 61)), "test0410-0310 failed")
+    vec_m = vectar_merge (is_lt_except_ones, range1 (vec1, 8, 12), range1 (vec1, 3, 6))
+    call check (vectar_equal (int_eq, vec_m, vectar (21, 22, 31, 42, 41, 52, 51, 53, 61)), "test0410-0320 failed")
+
+    ! Check vectar ranges.
+    vec1 = vectar (100, 22, 31, 53, 61, 100, 21, 42, 41, 52, 51, 100, 100, 100, 100, 100, 100, 100, 100, 100)
+    call vectar_mergex (is_lt_except_ones, range1 (vec1, 12, 20), range1 (vec1, 2, 5), range1 (vec1, 7, 11))
+    call check (vectar_equal (int_eq, vec1, vectar (100, 22, 31, 53, 61, 100, 21, 42, 41, 52, 51, &
+         &                                          22, 21, 31, 42, 41, 53, 52, 51, 61)), &
+         &      "test0410-0410 failed")
+    call vectar_mergex (is_lt_except_ones, range1 (vec1, 12, 20), range1 (vec1, 7, 11), range1 (vec1, 2, 5))
+    call check (vectar_equal (int_eq, vec1, vectar (100, 22, 31, 53, 61, 100, 21, 42, 41, 52, 51, &
+         &                                          21, 22, 31, 42, 41, 52, 51, 53, 61)), &
+         &      "test0410-0420 failed")
+
+  contains
+
+    function less_than (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y))
+    end function less_than
+
+    function is_lt_except_ones (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      integer :: x1
+      integer :: y1
+
+      call collect_garbage_now
+
+      x1 = int_cast (x)
+      x1 = x1 - mod (x1, 10)
+
+      y1 = int_cast (y)
+      y1 = y1 - mod (y1, 10)
+
+      bool = (x1 < y1)
+    end function is_lt_except_ones
+
+  end subroutine test0410
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -2823,6 +2907,7 @@ contains
     call test0380
     call test0390
     call test0400
+    call test0410
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
