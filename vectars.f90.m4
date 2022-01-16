@@ -40,7 +40,7 @@ m4_forloop([k],[1],n,[dnl
     type(gcroot_t) :: vec[]k[]_root
 ])dnl
 m4_forloop([_k],[1],$1,[dnl
-    type(vectar_range_t) :: range[]_k
+    type(vectar_range_t) :: vecr[]_k
 ])dnl
 m4_forloop([_k],[1],$1,[dnl
     type(vectar_data_t), pointer :: data[]_k
@@ -53,20 +53,20 @@ m4_forloop([_k],[1],$1,[dnl
     vec[]_k[]_root = vec[]_k
 ])dnl
 m4_forloop([_k],[1],$1,[dnl
-    range[]_k = vec[]_k
+    vecr[]_k = vec[]_k
 ])dnl
 m4_set_min_length($1)dnl
 m4_forloop([_k],[1],$1,[dnl
-    data[]_k => vectar_data_ptr (range[]_k)
+    data[]_k => vectar_data_ptr (vecr[]_k)
 ])dnl
 ])
 
 m4_define([m4_set_min_length],[dnl
 m4_if($1,[1],[dnl
-    min_length = range1%length()
+    min_length = vecr1%length()
 ],[dnl
-    min_length = min (range1%length()[]m4_forloop([_k],[2],$1,[, m4_if(m4_eval(_k % 3),[1],[&
-         &            ])range[]_k%length()]))
+    min_length = min (vecr1%length()[]m4_forloop([_k],[2],$1,[, m4_if(m4_eval(_k % 3),[1],[&
+         &            ])vecr[]_k%length()]))
 ])dnl
 ])
 
@@ -2351,7 +2351,7 @@ m4_forloop([k],[1],n,[dnl
     type(vectar_t) :: vec_a
 
 m4_forloop([k],[1],n,[dnl
-    type(vectar_range_t) :: range[]k
+    type(vectar_range_t) :: vecr[]k
 ])dnl
 m4_forloop([k],[1],n,[dnl
     type(vectar_data_t), pointer :: src[]k
@@ -2362,9 +2362,9 @@ m4_forloop([k],[1],n,[dnl
 
     len_vec_a = 0_sz
 m4_forloop([k],[1],n,[dnl
-    range[]k = vec[]k
-    src[]k => vectar_data_ptr (range[]k)
-    len_vec_a = len_vec_a + range[]k%length()
+    vecr[]k = vec[]k
+    src[]k => vectar_data_ptr (vecr[]k)
+    len_vec_a = len_vec_a + vecr[]k%length()
 ])dnl
 
     vec_a = make_vectar (len_vec_a)
@@ -2373,7 +2373,7 @@ m4_forloop([k],[1],n,[dnl
 
     j = 0_sz
 m4_forloop([k],[1],n,[dnl
-    do i = range[]k%istart0(), range[]k%iend0()
+    do i = vecr[]k%istart0(), vecr[]k%iend0()
        dst%array(j) = src[]k%array(i)
        j = j + 1_sz
     end do
@@ -2409,7 +2409,7 @@ m4_forloop([k],[1],n,[dnl
        block
          type(cons_t) :: p
          type(cons_t) :: vecs_reversed
-         type(vectar_range_t) :: range
+         type(vectar_range_t) :: vecr
          integer(sz) :: len_vec_c
          integer(sz) :: i, j
          type(vectar_data_t), pointer :: src, dst
@@ -2418,9 +2418,9 @@ m4_forloop([k],[1],n,[dnl
          len_vec_c = 0_sz
          p = vectars
          do i = 1_sz, num_vectars
-            range = car (p)
-            vecs_reversed = range ** vecs_reversed
-            len_vec_c = len_vec_c + range%length()
+            vecr = car (p)
+            vecs_reversed = vecr ** vecs_reversed
+            len_vec_c = len_vec_c + vecr%length()
             p = cdr (p)
          end do
 
@@ -2431,9 +2431,9 @@ m4_forloop([k],[1],n,[dnl
          j = len_vec_c
          p = vecs_reversed
          do while (is_pair (p))
-            range = car (p)
-            src => vectar_data_ptr (range)
-            do i = range%iend0(), range%istart0(), -1
+            vecr = car (p)
+            src => vectar_data_ptr (vecr)
+            do i = vecr%iend0(), vecr%istart0(), -1
                j = j - 1
                dst%array(j) = src%array(i)
             end do
@@ -2457,9 +2457,9 @@ m4_forloop([k],[1],n,[dnl
     class(*), intent(in) :: vec1
     logical :: bool
 
-    type(vectar_range_t) :: range1
+    type(vectar_range_t) :: vecr1
 
-    range1 = vec1               ! Check the type of vec1.
+    vecr1 = vec1               ! Check the type of vec1.
 
     bool = .true.
   end function vectar_equal1
@@ -2474,7 +2474,7 @@ m4_forloop([k],[1],n,[dnl
     logical :: bool
 
 m4_forloop([k],[1],n,[dnl
-    type(vectar_range_t) :: range[]k
+    type(vectar_range_t) :: vecr[]k
 ])dnl
 m4_forloop([k],[1],n,[dnl
     type(vectar_data_t), pointer :: data[]k
@@ -2485,7 +2485,7 @@ m4_forloop([k],[1],n,[dnl
 m4_forloop([k],[1],n,[dnl
     integer(sz) :: i0_[]k
 ])dnl
-    integer(sz) :: range1_length
+    integer(sz) :: vecr1_length
     integer(sz) :: i
 
     ! Protection from the garbage collector.
@@ -2494,19 +2494,19 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
 
 m4_forloop([k],[1],n,[dnl
-    range[]k = vec[]k
+    vecr[]k = vec[]k
 ])dnl
 
 m4_forloop([k],[1],n,[dnl
     data[]k => vectar_data_ptr (.val. vec[]k[]_root)
-    i0_[]k = range[]k%istart0()
+    i0_[]k = vecr[]k%istart0()
 ])dnl
 
-    range1_length = range1%length()
-    if (range2%length() /= range1_length) then
+    vecr1_length = vecr1%length()
+    if (vecr2%length() /= vecr1_length) then
        bool = .false.
 m4_forloop([k],[3],n,[dnl
-    else if (range[]k%length() /= range1_length) then
+    else if (vecr[]k%length() /= vecr1_length) then
        bool = .false.
 ])dnl
     else
@@ -2514,7 +2514,7 @@ m4_forloop([k],[3],n,[dnl
 m4_forloop([k],[1],m4_eval(n - 1),[dnl
        if (bool) then
           i = 0
-          do while (bool .and. i < range1_length)
+          do while (bool .and. i < vecr1_length)
              bool = equal (data[]k%array(i0_[]k + i)%element, data[]m4_eval(k + 1)%array(i0_[]m4_eval(k + 1) + i)%element)
              i = i + 1
           end do
@@ -2558,7 +2558,7 @@ m4_initialize_iteration(n)dnl
     result_data => vectar_data_ptr (vec_m_root)
     do i = 0_sz, min_length - 1_sz
 m4_forloop([k],[1],n,[dnl
-       i[]k = range[]k%istart0() + i
+       i[]k = vecr[]k%istart0() + i
 ])dnl
        call subr (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
          &        ])data[]k%array(i[]k)%element]), &
@@ -2599,7 +2599,7 @@ m4_initialize_iteration(n)dnl
 
     do i = 0_sz, min_length - 1_sz
 m4_forloop([k],[1],n,[dnl
-       i[]k = range[]k%istart0() + i
+       i[]k = vecr[]k%istart0() + i
 ])dnl
        call subr (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
          &        ])data[]k%array(i[]k)%element]), &
@@ -2637,7 +2637,7 @@ m4_initialize_iteration(n)dnl
 
     do i = 0_sz, min_length - 1_sz
 m4_forloop([k],[1],n,[dnl
-       i[]k = range[]k%istart0() + i
+       i[]k = vecr[]k%istart0() + i
 ])dnl
        call subr (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
          &        ])data[]k%array(i[]k)%element]))
@@ -2658,7 +2658,7 @@ dnl
 
     type(gcroot_t) :: vec_root
     type(gcroot_t) :: vec_c_root
-    type(vectar_range_t) :: range
+    type(vectar_range_t) :: vecr
     type(vectar_data_t), pointer :: data
     type(vectar_data_t), pointer :: result_data
     class(*), allocatable :: seed
@@ -2668,16 +2668,16 @@ dnl
     ! Protect against garbage collections instigated by subr.
     vec_root = vec
 
-    range = vec
+    vecr = vec
 
-    vec_c_root = make_vectar (range%length())
+    vec_c_root = make_vectar (vecr%length())
 
     result_data => vectar_data_ptr (vec_c_root)
-    data => vectar_data_ptr (range)
+    data => vectar_data_ptr (vecr)
 
     seed = knil
-    do i = 0_sz, range%length() - 1_sz
-       call subr (seed, data%array(range%istart0() + i)%element, new_seed)
+    do i = 0_sz, vecr%length() - 1_sz
+       call subr (seed, data%array(vecr%istart0() + i)%element, new_seed)
        result_data%array(i)%element = new_seed
        seed = new_seed
     end do
@@ -2714,7 +2714,7 @@ m4_initialize_iteration(n)dnl
     count = 0_sz
     do i = 0_sz, min_length - 1_sz
 m4_forloop([k],[1],n,[dnl
-       i[]k = range[]k%istart0() + i
+       i[]k = vecr[]k%istart0() + i
 ])dnl
        if (pred (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
             &        ])data[]k%array(i[]k)%element]))) then
@@ -2756,7 +2756,7 @@ m4_initialize_iteration(n)dnl
     state = knil
     do i = 0_sz, min_length - 1_sz
 m4_forloop([k],[1],n,[dnl
-       i[]k = range[]k%istart0() + i
+       i[]k = vecr[]k%istart0() + i
 ])dnl
        call kons (.val. state, data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
             &     ])data[]k%array(i[]k)%element]), next_state)
@@ -2798,7 +2798,7 @@ m4_initialize_iteration(n)dnl
     state = knil
     do i = 0_sz, min_length - 1_sz
 m4_forloop([k],[1],n,[dnl
-       i[]k = range[]k%istart0() + (min_length - 1_sz - i)
+       i[]k = vecr[]k%istart0() + (min_length - 1_sz - i)
 ])dnl
        call kons (.val. state, data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
             &     ])data[]k%array(i[]k)%element]), next_state)
@@ -2819,7 +2819,7 @@ m4_define([m4_vectar_unfold_procedures],[dnl
     class(*), intent(in) :: vec
 
     type(gcroot_t) :: vec_root
-    type(vectar_range_t) :: range
+    type(vectar_range_t) :: vecr
     type(vectar_data_t), pointer :: data
     class(*), allocatable :: element
     integer(sz) :: index
@@ -2827,9 +2827,9 @@ m4_define([m4_vectar_unfold_procedures],[dnl
 
     vec_root = vec
 
-    range = vec
-    i0 = range%istart0()
-    data => vectar_data_ptr (range)
+    vecr = vec
+    i0 = vecr%istart0()
+    data => vectar_data_ptr (vecr)
     do index = $2
        call f (index, element)
        data%array(i0 + index)%element = element
@@ -2849,7 +2849,7 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
 
     type(gcroot_t) :: vec_root
-    type(vectar_range_t) :: range
+    type(vectar_range_t) :: vecr
     type(vectar_data_t), pointer :: data
 m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: seed[]k
@@ -2863,9 +2863,9 @@ m4_forloop([k],[1],n,[dnl
 
     vec_root = vec
 
-    range = vec
-    i0 = range%istart0()
-    data => vectar_data_ptr (range)
+    vecr = vec
+    i0 = vecr%istart0()
+    data => vectar_data_ptr (vecr)
 m4_forloop([k],[1],n,[dnl
     seed[]k[]_root = initial_seed[]k
 ])dnl
@@ -2938,8 +2938,8 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
 ])dnl
 dnl
-m4_vectar_unfold_procedures([],[0_sz, range%length() - 1_sz])dnl
-m4_vectar_unfold_procedures([_right],[range%length() - 1_sz, 0_sz, -1_sz])dnl
+m4_vectar_unfold_procedures([],[0_sz, vecr%length() - 1_sz])dnl
+m4_vectar_unfold_procedures([_right],[vecr%length() - 1_sz, 0_sz, -1_sz])dnl
 dnl
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -2970,7 +2970,7 @@ m4_initialize_iteration(n)dnl
     requirement_is_satisfied = .false.
     do while (.not. requirement_is_satisfied .and. i < min_length)
 m4_forloop([k],[1],n,[dnl
-       i[]k = range[]k%istart0() + i
+       i[]k = vecr[]k%istart0() + i
 ])dnl
        requirement_is_satisfied = &
             $2pred (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
@@ -3045,7 +3045,7 @@ m4_initialize_iteration(n)dnl
     requirement_is_satisfied = .false.
     do while (.not. requirement_is_satisfied .and. 0_sz <= i)
 m4_forloop([k],[1],n,[dnl
-       i[]k = range[]k%istart0() + i
+       i[]k = vecr[]k%istart0() + i
 ])dnl
        requirement_is_satisfied = &
             $2pred (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
@@ -3119,7 +3119,7 @@ dnl
     integer(sz) :: index
 
     type(gcroot_t) :: vec_root
-    type(vectar_range_t) :: range
+    type(vectar_range_t) :: vecr
     type(vectar_data_t), pointer :: data
     integer(sz) :: len, i0, i
     integer(sz) :: ileft, imiddle, iright
@@ -3127,10 +3127,10 @@ dnl
 
     vec_root = vec
 
-    range = vec
-    i0 = range%istart0()
-    len = range%length()
-    data => vectar_data_ptr (range)
+    vecr = vec
+    i0 = vecr%istart0()
+    len = vecr%length()
+    data => vectar_data_ptr (vecr)
     ileft = 0_sz
     iright = len - 1_sz
     index = min (-1_sz, [n] - 1_sz)
@@ -3178,21 +3178,21 @@ dnl
     integer(sz) :: index
 
     type(gcroot_t) :: vec_root
-    type(vectar_range_t) :: range
+    type(vectar_range_t) :: vecr
     type(vectar_data_t), pointer :: data
     integer(sz) :: len, i0, i
     integer(sz) :: ileft, imiddle, iright
 
     index = min (-1_sz, [n] - 1_sz)
 
-    range = vec
-    len = range%length()
+    vecr = vec
+    len = vecr%length()
 
     if (len /= 0_sz) then
        vec_root = vec
 
-       i0 = range%istart0()
-       data => vectar_data_ptr (range)
+       i0 = vecr%istart0()
+       data => vectar_data_ptr (vecr)
        ileft = 0_sz
        iright = len - 1_sz
        do while (iright /= ileft)
@@ -3245,21 +3245,21 @@ dnl
     integer(sz) :: index
 
     type(gcroot_t) :: vec_root
-    type(vectar_range_t) :: range
+    type(vectar_range_t) :: vecr
     type(vectar_data_t), pointer :: data
     integer(sz) :: len, i0, i
     integer(sz) :: ileft, imiddle, iright
 
     index = min (-1_sz, [n] - 1_sz)
 
-    range = vec
-    len = range%length()
+    vecr = vec
+    len = vecr%length()
 
     if (len /= 0_sz) then
        vec_root = vec
 
-       i0 = range%istart0()
-       data => vectar_data_ptr (range)
+       i0 = vecr%istart0()
+       data => vectar_data_ptr (vecr)
        ileft = 0_sz
        iright = len - 1_sz
        do while (iright /= ileft)
@@ -3305,7 +3305,7 @@ m4_initialize_iteration(n)dnl
     bool = $2.true.
     do while ($2[]bool .and. i < min_length)
 m4_forloop([k],[1],n,[dnl
-       i[]k = range[]k%istart0() + i
+       i[]k = vecr[]k%istart0() + i
 ])dnl
        bool = pred (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
             &     ])data[]k%array(i[]k)%element]))
@@ -3348,7 +3348,7 @@ m4_initialize_iteration(n)dnl
     i = 0_sz
     do while (.not. short_circuited .and. i < min_length)
 m4_forloop([k],[1],n,[dnl
-       i[]k = range[]k%istart0() + i
+       i[]k = vecr[]k%istart0() + i
 ])dnl
        call subr (data1%array(i1)%element[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 2),[1],[&
             &     ])data[]k%array(i[]k)%element]), subr_result)
@@ -3431,7 +3431,7 @@ dnl
 
     deallocate (satisfied)
 
-    ! Return the ranges.
+    ! Return the ranges
     vecr1 = range0 (partitioned_vectar, 0_sz, satisfied_count - 1_sz)
     vecr2 = range0 (partitioned_vectar, satisfied_count, len_minus_one)
 
