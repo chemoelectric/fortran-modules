@@ -2708,6 +2708,13 @@ contains
     call check (vectar_is_sorted (int_lt, range1 (vec1, 80, 104)), "test0390-0150 failed")
     call check (vectar_equal (int_eq, vecsort (int_lt, vec1), vec1_copy), "test0390-0160 failed")
 
+    vec1 = vectar ()
+    call vectar_shufflex (vec1)
+    call check (vectar_equal (int_eq, vec1, vectar ()), "test0390-0210 failed")
+    vec1 = vectar (123)
+    call vectar_shufflex (vec1)
+    call check (vectar_equal (int_eq, vec1, vectar (123)), "test0390-0220 failed")
+
   contains
 
     ! Use a list sort, to avoid dependence on the vectar sort
@@ -2754,6 +2761,9 @@ contains
          &                    vec1_copy), &
          &      "test0400-0140 failed")
     call check (vectar_equal (int_eq, vec1, vec1_copy), "test0400-0150 failed")
+
+    call check (vectar_equal (int_eq, vectar_shuffle (vectar ()), vectar ()), "test0400-0210 failed")
+    call check (vectar_equal (int_eq, vectar_shuffle (vectar (123)), vectar (123)), "test0400-0220 failed")
 
   contains
 
