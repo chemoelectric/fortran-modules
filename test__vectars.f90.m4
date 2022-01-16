@@ -2682,8 +2682,8 @@ contains
   subroutine test0390
 
     !
-    ! There is an *extremely* remote chance of these tests failing due
-    ! to the shuffle producing a sorted array.
+    ! There is an *extremely* remote chance of one of these tests
+    ! failing, due to the shuffle producing a sorted array.
     !
 
     type(vectar_t) :: vec1
@@ -2725,8 +2725,8 @@ contains
   subroutine test0400
 
     !
-    ! There is an *extremely* remote chance of these tests failing due
-    ! to the shuffle producing a sorted array.
+    ! There is an *extremely* remote chance of one of these tests
+    ! failing, due to the shuffle producing a sorted array.
     !
 
     type(vectar_t) :: vec1, vec2
