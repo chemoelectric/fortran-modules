@@ -2650,6 +2650,55 @@ contains
 
   end subroutine test0370
 
+  subroutine test0380
+
+    call check (vectar_is_sorted (less_than, vectar ()), "test0380-0010 failed")
+    call check (vectar_is_sorted (less_than, vectar (123)), "test0380-0020 failed")
+    call check (vectar_is_sorted (less_than, vectar (123, 456)), "test0380-0040 failed")
+    call check (vectar_is_sorted (less_than, vectar (123, 456, 789)), "test0380-0050 failed")
+    call check (vectar_is_sorted (less_than, vectar (1, 2, 3, 4, 5, 6, 7, 8, 9)), "test0380-0060 failed")
+    call check (vectar_is_sorted (less_than, vectar (1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 7, 8, 9)), "test0380-0070 failed")
+
+    call check (.not. vectar_is_sorted (less_than, vectar (1, 1, 2, 2, 3, 3, 2, 5, 6, 7, 7, 7, 8, 9)), "test0380-0080 failed")
+    call check (.not. vectar_is_sorted (less_than, vectar (2, 1)), "test0380-0090 failed")
+
+    call check (vectar_is_sorted (less_than, vectar (2, 2)), "test0380-0100 failed")
+    call check (vectar_is_sorted (less_than, vectar (2, 2, 2, 2, 2, 2, 2)), "test0380-0110 failed")
+
+  contains
+
+    function less_than (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y))
+    end function less_than
+
+  end subroutine test0380
+
+  subroutine test0390
+    type(vectar_t) :: vec1
+
+    vec1 = vectar_append (vectar (1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 7, 8, 9), &
+         &                list_to_vectar (iota (90, 10)))
+    call check (vectar_is_sorted (int_lt, vec1), "test0390-0010 failed")
+    call vectar_shufflex (vec1)
+    call check (.not. vectar_is_sorted (int_lt, vec1), "test0390-0020 failed")
+
+    vec1 = vectar_append (vectar (1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 7, 8, 9), &
+         &                list_to_vectar (iota (90, 10)))
+    call check (vectar_is_sorted (int_lt, vec1), "test0390-0110 failed")
+    call check (vectar_length (vec1) == 104_sz, "test0390-0120 failed")
+    call vectar_shufflex (range1 (vec1, 20, 79))
+    call check (vectar_is_sorted (int_lt, range1 (vec1, 1, 19)), "teest0390-0130 failed")
+    call check (.not. vectar_is_sorted (int_lt, range1 (vec1, 20, 79)), "teest0390-0140 failed")
+    call check (vectar_is_sorted (int_lt, range1 (vec1, 80, 104)), "teest0390-0150 failed")
+
+  end subroutine test0390
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -2691,6 +2740,8 @@ contains
     call test0350
     call test0360
     call test0370
+    call test0380
+    call test0390
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

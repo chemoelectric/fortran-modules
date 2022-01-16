@@ -43,6 +43,10 @@ module vectars
   ! Conversions between vectars and strings are not included in this
   ! module, despite that they are included in SRFI-133.
   !
+  ! Sorting routines *are* included, inspired by SRFI-132
+  ! (https://srfi.schemers.org/srfi-132/srfi-132.html). See also
+  ! SRFI-95 (https://srfi.schemers.org/srfi-95/srfi-95.html).
+  !
 
   use, non_intrinsic :: garbage_collector
   use, non_intrinsic :: cons_pairs
@@ -784,6 +788,26 @@ module vectars
   public :: vectar_range1_int
   public :: vectar_rangen_size_kind
   public :: vectar_rangen_int
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! SHUFFLING.
+!!
+!! Shuffling is not included in SRFI-133.
+!!
+
+  ! Subroutine that shuffles a vectar or vectar range in place.
+  public :: vectar_shufflex
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!! SORTING.
+!!
+!! Sorting is not included in SRFI-133. These procedures are based
+!! instead on SRFI-132.
+!!
+
+  public :: vectar_is_sorted
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -21283,6 +21307,69 @@ contains
     call do_vectar_partition (pred, vec, vec_out, num_satisfied)
     lst = list (vec_out, num_satisfied)
   end function vectar_partition
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  subroutine vectar_shufflex (vec)
+    use, intrinsic :: iso_fortran_env, only: real64
+    class(*), intent(in) :: vec
+
+    !
+    ! Fisher-Yates shuffle.
+    !
+    ! See
+    ! https://en.wikipedia.org/w/index.php?title=Fisher%E2%80%93Yates_shuffle&oldid=1063206771#The_modern_algorithm
+    !
+
+    type(vectar_range_t) :: vecr
+    type(vectar_data_t), pointer :: data
+    integer(sz) :: i0, len
+    real(real64) :: randnum
+    integer(sz) :: i, j
+    class(*), allocatable :: tmp
+
+    vecr = vec
+    data => vectar_data_ptr (vecr)
+    i0 = vecr%istart0()
+    len = vecr%length()
+    do i = 0_sz, len - 2
+       call random_number (randnum)
+       j = i + int (randnum * (len - i), kind = sz)
+       tmp = data%array(i0 + i)%element
+       data%array(i0 + i)%element = data%array(i0 + j)%element
+       data%array(i0 + j)%element = tmp
+    end do
+  end subroutine vectar_shufflex
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function vectar_is_sorted (less_than, vec) result (bool)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    logical :: bool
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: vecr
+    type(vectar_data_t), pointer :: data
+    integer(sz) :: i0, i1
+    integer(sz) :: i
+
+    vec_root = vec
+
+    vecr = vec
+    data => vectar_data_ptr (vecr)
+    i0 = vecr%istart0()
+    i1 = vecr%iend0()
+
+    bool = .true.
+    i = i0
+    do while (bool .and. i < i1)
+       bool = .not. less_than (data%array(i + 1)%element, data%array(i)%element)
+       i = i + 1
+    end do
+
+    call vec_root%discard
+  end function vectar_is_sorted
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
