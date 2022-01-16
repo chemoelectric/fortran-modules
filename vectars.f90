@@ -756,6 +756,12 @@ module vectars
   public :: vectar_every_map9_subr
   public :: vectar_every_map10_subr
 
+  ! Partitioning. See SRFI-133, `vector-partition'. A difference is
+  ! that we return two vectar_range_t (of the same vector) instead of
+  ! the vector and an index; also, the call is a subroutine, not a
+  ! function.
+  public :: do_vectar_partition
+
   ! Vectar-list conversions.
   public :: vectar_to_list
   public :: reverse_vectar_to_list
@@ -21194,6 +21200,78 @@ contains
     call vec9_root%discard
     call vec10_root%discard
   end function vectar_every_map10_subr
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive subroutine do_vectar_partition (pred, vec, vecr1, vecr2)
+    procedure(vectar_predicate1_t) :: pred
+    class(*), intent(in) :: vec
+    type(vectar_range_t), intent(inout) :: vecr1
+    type(vectar_range_t), intent(inout) :: vecr2
+
+    !
+    ! Our implementation tries to minimize the number of predicate
+    ! tests done. It allocates an array of 
+    !
+
+    integer, parameter :: bool = selected_int_kind (0)
+    integer(bool), parameter :: false = 0_bool
+    integer(bool), parameter :: true = 1_bool
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: vecr
+    type(vectar_data_t), pointer :: data
+    integer(sz) :: len
+    integer(sz) :: len_minus_one
+    integer(bool), allocatable :: satisfied(:)
+    integer(sz) :: i0, i, j, k
+    integer(sz) :: satisfied_count
+    type(vectar_t) :: partitioned_vectar
+    type(vectar_data_t), pointer :: partitioned_vectar_data
+
+    vec_root = vec
+
+    vecr = vec
+    data => vectar_data_ptr (vecr)
+    i0 = vecr%istart0()
+    len = vecr%length()
+    len_minus_one = len - 1_sz
+
+    allocate (satisfied(0_sz:len_minus_one), source = false)
+
+    ! Mark which entries satisfy the predicate, and also count how
+    ! many do.
+    satisfied_count = 0_sz
+    do i = 0_sz, len_minus_one
+       if (pred (data%array(i0 + i)%element)) then
+          satisfied(i) = true
+          satisfied_count = satisfied_count + 1_sz
+       end if
+    end do
+
+    ! Create and fill the output vector.
+    partitioned_vectar = make_vectar (len)
+    partitioned_vectar_data => vectar_data_ptr (partitioned_vectar)
+    j = 0_sz
+    k = satisfied_count
+    do i = 0_sz, len_minus_one
+       if (satisfied(i) == true) then
+          partitioned_vectar_data%array(j) = data%array(i0 + i)
+          j = j + 1
+       else
+          partitioned_vectar_data%array(k) = data%array(i0 + i)
+          k = k + 1
+       end if
+    end do
+
+    deallocate (satisfied)
+
+    ! Return the ranges.
+    vecr1 = range0 (partitioned_vectar, 0_sz, satisfied_count - 1_sz)
+    vecr2 = range0 (partitioned_vectar, satisfied_count, len_minus_one)
+
+    call vec_root%discard
+  end subroutine do_vectar_partition
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

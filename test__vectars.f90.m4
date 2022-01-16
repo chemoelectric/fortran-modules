@@ -2565,6 +2565,52 @@ contains
 
   end subroutine test0360
 
+  subroutine test0370
+    type(vectar_t) :: vec
+    type(vectar_range_t) :: vecr1
+    type(vectar_range_t) :: vecr2
+
+    vec = vectar (1, 2, 3, 4, 4, 6, 1, 2, 7)
+    call do_vectar_partition (is_even, vec, vecr1, vecr2)
+    call check (vectar_equal (int_eq, vecr1, vectar (2, 4, 4, 6, 2)), "test0370-0010 failed")
+    call check (vectar_equal (int_eq, vecr2, vectar (1, 3, 1, 7)), "test0370-0020 failed")
+    call check (vectar_t_eq (vecr1%vec(), vecr2%vec()), "test0370-0030 failed")
+    call check (vectar_equal (int_eq, vecr1%vec(), vectar (2, 4, 4, 6, 2, 1, 3, 1, 7)), "test0370-0040 failed")
+
+    vec = vectar (2, 4, 4, 6, 2)
+    call do_vectar_partition (is_even, vec, vecr1, vecr2)
+    call check (vectar_equal (int_eq, vecr1, vectar (2, 4, 4, 6, 2)), "test0370-1010 failed")
+    call check (vectar_equal (int_eq, vecr2, vectar ()), "test0370-1020 failed")
+    call check (vectar_t_eq (vecr1%vec(), vecr2%vec()), "test0370-1030 failed")
+    call check (vectar_equal (int_eq, vecr1%vec(), vectar (2, 4, 4, 6, 2)), "test0370-1040 failed")
+
+    vec = vectar (1, 3, 1, 7)
+    call do_vectar_partition (is_even, vec, vecr1, vecr2)
+    call check (vectar_equal (int_eq, vecr1, vectar ()), "test0370-2010 failed")
+    call check (vectar_equal (int_eq, vecr2, vectar (1, 3, 1, 7)), "test0370-2020 failed")
+    call check (vectar_t_eq (vecr1%vec(), vecr2%vec()), "test0370-2030 failed")
+    call check (vectar_equal (int_eq, vecr1%vec(), vectar (1, 3, 1, 7)), "test0370-2040 failed")
+
+    vec = vectar ()
+    call do_vectar_partition (is_even, vec, vecr1, vecr2)
+    call check (vectar_equal (int_eq, vecr1, vectar ()), "test0370-3010 failed")
+    call check (vectar_equal (int_eq, vecr2, vectar ()), "test0370-3020 failed")
+    call check (vectar_t_eq (vecr1%vec(), vecr2%vec()), "test0370-3030 failed")
+    call check (vectar_equal (int_eq, vecr1%vec(), vectar ()), "test0370-3040 failed")
+
+  contains
+
+    function is_even (x) result (bool)
+      class(*), intent(in) :: x
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (mod (int_cast (x), 2) == 0)
+    end function is_even
+
+  end subroutine test0370
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -2605,6 +2651,7 @@ contains
     call test0340
     call test0350
     call test0360
+    call test0370
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
