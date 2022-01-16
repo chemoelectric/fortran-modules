@@ -756,10 +756,16 @@ module vectars
   public :: vectar_every_map9_subr
   public :: vectar_every_map10_subr
 
+  !
   ! Partitioning. See SRFI-133, `vector-partition'. A difference is
   ! that we return two vectar_range_t (of the same vector) instead of
   ! the vector and an index; also, the call is a subroutine, not a
   ! function.
+  !
+  ! (The main reason to return vectar_range_t is to avoid the
+  ! ambiguity of whether the returned index should bed 0-based,
+  ! 1-based, or n-based.)
+  !
   public :: do_vectar_partition
 
   ! Vectar-list conversions.
