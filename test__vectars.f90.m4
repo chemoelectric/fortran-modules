@@ -2687,17 +2687,46 @@ contains
     call check (vectar_is_sorted (int_lt, vec1), "test0390-0010 failed")
     call vectar_shufflex (vec1)
     call check (.not. vectar_is_sorted (int_lt, vec1), "test0390-0020 failed")
+    !
+    ! FIXME: CHECK SORTING GIVES ORIGINAL VECTOR
+    !
 
     vec1 = vectar_append (vectar (1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 7, 8, 9), &
          &                list_to_vectar (iota (90, 10)))
     call check (vectar_is_sorted (int_lt, vec1), "test0390-0110 failed")
     call check (vectar_length (vec1) == 104_sz, "test0390-0120 failed")
     call vectar_shufflex (range1 (vec1, 20, 79))
-    call check (vectar_is_sorted (int_lt, range1 (vec1, 1, 19)), "teest0390-0130 failed")
-    call check (.not. vectar_is_sorted (int_lt, range1 (vec1, 20, 79)), "teest0390-0140 failed")
-    call check (vectar_is_sorted (int_lt, range1 (vec1, 80, 104)), "teest0390-0150 failed")
-
+    call check (vectar_is_sorted (int_lt, range1 (vec1, 1, 19)), "test0390-0130 failed")
+    call check (.not. vectar_is_sorted (int_lt, range1 (vec1, 20, 79)), "test0390-0140 failed")
+    call check (vectar_is_sorted (int_lt, range1 (vec1, 80, 104)), "test0390-0150 failed")
+    !
+    ! FIXME: CHECK SORTING GIVES ORIGINAL VECTOR
+    !
   end subroutine test0390
+
+  subroutine test0400
+    type(vectar_t) :: vec1, vec2
+
+    vec1 = vectar_append (vectar (1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 7, 8, 9), &
+         &                list_to_vectar (iota (90, 10)))
+    call check (vectar_is_sorted (int_lt, vec1), "test0400-0010 failed")
+    vec2 = vectar_shuffle (vec1)
+    call check (.not. vectar_is_sorted (int_lt, vec2), "test0400-0030 failed")
+    call check (.not. vectar_is_sorted (int_lt, vec2), "test0400-0030 failed")
+    !
+    ! FIXME: CHECK SORTING GIVES ORIGINAL VECTOR
+    !
+
+    vec1 = vectar_append (vectar (1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 7, 7, 8, 9), &
+         &                list_to_vectar (iota (90, 10)))
+    call check (vectar_is_sorted (int_lt, vec1), "test0400-0110 failed")
+    call check (vectar_length (vec1) == 104_sz, "test0400-0120 failed")
+    vec2 = vectar_shuffle (range1 (vec1, 20, 79))
+    call check (.not. vectar_is_sorted (int_lt, vec2), "test0390-0130 failed")
+    !
+    ! FIXME: CHECK SORTING GIVES ORIGINAL VECTOR
+    !
+  end subroutine test0400
 
   subroutine run_tests
     heap_size_limit = 0
@@ -2742,6 +2771,7 @@ contains
     call test0370
     call test0380
     call test0390
+    call test0400
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

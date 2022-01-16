@@ -622,6 +622,10 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 !! Shuffling is not included in SRFI-133.
 !!
 
+  ! Subroutine that creates a new vectar, containing the same elements
+  ! as a given vectar or vectar range, but shuffled.
+  public :: vectar_shuffle
+
   ! Subroutine that shuffles a vectar or vectar range in place.
   public :: vectar_shufflex
 
@@ -3468,6 +3472,43 @@ dnl
   end function vectar_partition
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  function vectar_shuffle (vec) result (vec_shuffled)
+    use, intrinsic :: iso_fortran_env, only: real64
+    class(*), intent(in) :: vec
+    type(vectar_t) :: vec_shuffled
+
+    !
+    ! Fisher-Yates shuffle.
+    !
+    ! See
+    ! https://en.wikipedia.org/w/index.php?title=Fisher%E2%80%93Yates_shuffle&oldid=1063206771#The_%22inside-out%22_algorithm
+    !
+
+    type(vectar_range_t) :: vecr
+    type(vectar_data_t), pointer :: data
+    type(vectar_data_t), pointer :: data_shuffled
+    integer(sz) :: i0, len
+    real(real64) :: randnum
+    integer(sz) :: i, j
+
+    vecr = vec
+    data => vectar_data_ptr (vecr)
+    i0 = vecr%istart0()
+    len = vecr%length()
+
+    vec_shuffled = make_vectar (len)
+    data_shuffled => vectar_data_ptr (vec_shuffled)
+
+    do i = 0_sz, len - 1
+       call random_number (randnum)
+       j = int (randnum * (i + 1), kind = sz)
+       if (j /= i) then
+          data_shuffled%array(i) = data_shuffled%array(j)
+       end if
+       data_shuffled%array(j) = data%array(i0 + i)
+    end do
+  end function vectar_shuffle
 
   subroutine vectar_shufflex (vec)
     use, intrinsic :: iso_fortran_env, only: real64
