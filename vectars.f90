@@ -17960,35 +17960,22 @@ contains
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
     type(vectar_data_t), pointer :: data
-    integer(sz) :: len, i0, i
-    integer(sz) :: ileft, imiddle, iright
+    integer(sz) :: istart0, iend0, i
 
     index = min (-1_sz, n - 1_sz)
 
     vecr = vec
-    len = vecr%length()
+    istart0 = vecr%istart0()
+    iend0 = vecr%iend0()
 
-    if (len /= 0_sz) then
+    if (istart0 <= iend0) then
        vec_root = vec
 
-       i0 = vecr%istart0()
        data => vectar_data_ptr (vecr)
-       ileft = 0_sz
-       iright = len - 1_sz
-       do while (iright /= ileft)
-          imiddle = ileft + ((iright - ileft) / 2_sz)
-          i = i0 + imiddle
-          if (less_than (data%array(i)%element, x)) then
-             ileft = imiddle + 1_sz
-          else
-             iright = imiddle
-          end if
-       end do
-
-       i = i0 + ileft
+       i = bottenbruch_search (less_than, data, istart0, iend0, x)
        if (.not. less_than (data%array(i)%element, x)) then
           if (.not. less_than (x, data%array(i)%element)) then
-             index = ileft + n
+             index = i - istart0 + n
           end if
        end if
 
@@ -18027,34 +18014,21 @@ contains
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
     type(vectar_data_t), pointer :: data
-    integer(sz) :: len, i0, i
-    integer(sz) :: ileft, imiddle, iright
+    integer(sz) :: istart0, iend0, i
 
     index = min (-1_sz, n - 1_sz)
 
     vecr = vec
-    len = vecr%length()
+    istart0 = vecr%istart0()
+    iend0 = vecr%iend0()
 
-    if (len /= 0_sz) then
+    if (istart0 <= iend0) then
        vec_root = vec
 
-       i0 = vecr%istart0()
        data => vectar_data_ptr (vecr)
-       ileft = 0_sz
-       iright = len - 1_sz
-       do while (iright /= ileft)
-          imiddle = ileft + ((iright - ileft) / 2_sz)
-          i = i0 + imiddle
-          if (less_than (data%array(i)%element, x)) then
-             ileft = imiddle + 1_sz
-          else
-             iright = imiddle
-          end if
-       end do
-
-       i = i0 + ileft
-       if (equal (data%array(i)%element, x)) then
-          index = ileft + n
+       i = bottenbruch_search (less_than, data, istart0, iend0, x)
+       if (equal (x, data%array(i)%element)) then
+          index = i - istart0 + n
        end if
 
        call vec_root%discard
@@ -21509,6 +21483,56 @@ contains
     call vec1_root%discard
     call vec2_root%discard
   end subroutine vectar_mergex
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  recursive function bottenbruch_search (less_than, data, ileft, iright, x) result (index)
+    !
+    ! Do a search on the data whose first element is at ileft and
+    ! whose last element is at iright. Return `index' such that:
+    !
+    !    * if x is less than the element at ileft, then index = ileft;
+    !
+    !    * otherwise, x is less than everything to the right of index
+    !      and not less than everything at or to the left of index.
+    !
+    ! References:
+    !
+    !    * H. Bottenbruch, `Structure and use of ALGOL 60', Journal of
+    !      the ACM, Volume 9, Issue 2, April 1962,
+    !      pp.161-221. https://doi.org/10.1145/321119.321120
+    !      The general algorithm is described on pages 214 and 215.
+    !
+    !    * https://en.wikipedia.org/w/index.php?title=Binary_search_algorithm&oldid=1062988272#Alternative_procedure
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    type(vectar_data_t), intent(in) :: data
+    integer(sz), intent(in) :: ileft
+    integer(sz), intent(in) :: iright
+    class(*), intent(in) :: x
+    integer(sz) :: index
+
+    integer(sz) :: i, j, k, k_minus_j
+
+    j = ileft
+    k = iright
+    do while (k /= j)
+       ! Set i := ceil (j + k).
+       k_minus_j = k - j
+       i = j + ishft (k_minus_j, -1) + ibits (k_minus_j, 0, 1)
+       if (less_than (x, data%array(i)%element)) then
+          k = i - 1
+       else
+          j = i
+       end if
+    end do
+    index = j
+    if (less_than (x, data%array(index)%element)) then
+       if (.not. less_than (x, data%array(ileft)%element)) then
+          call error_abort ("the implementation of bottenbruch_search is not correct")
+       end if
+    end if
+  end function bottenbruch_search
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
