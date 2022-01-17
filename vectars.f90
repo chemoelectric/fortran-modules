@@ -21566,16 +21566,20 @@ contains
 
     integer(sz) :: i
     integer(sz) :: j
+    class(vectar_element_t), pointer :: p_ileft
     class(vectar_element_t), pointer :: p_i
     class(vectar_element_t), allocatable :: elem_i
 
+    p_ileft => data%array(ileft)
     do i = ileft + 1, iright
        p_i => data%array(i)
        j = bottenbruch_search (less_than, data, ileft, i - 1, p_i%element)
-       if (j /= ileft) then
-          call insert_after_j
-       else if (less_than (p_i%element, data%array(j)%element)) then
-          call insert_at_j
+       if (j == ileft) then
+          if (less_than (p_i%element, p_ileft%element)) then
+             call insert_at_j
+          else
+             call insert_after_j
+          end if
        else
           call insert_after_j
        end if
