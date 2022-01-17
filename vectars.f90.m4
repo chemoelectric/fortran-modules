@@ -3662,7 +3662,7 @@ dnl
     vecr = vec
     data => vectar_data_ptr (vecr)
 
-    call stable_binary_insertion_sort (less_than, data, vecr%istart0(), vecr%iend0())
+    call stable_binary_insertion_sort (less_than, data, vecr%istart0(), vecr%istart0(), vecr%iend0())
 
     call vec_root%discard
   end subroutine vectar_stable_sortx
@@ -3719,10 +3719,16 @@ m4_if(DEBUGGING,[true],[dnl
 ])dnl
   end function bottenbruch_search
 
-  recursive subroutine stable_binary_insertion_sort (less_than, data, ileft, iright)
+  recursive subroutine stable_binary_insertion_sort (less_than, data, ileft, ipresorted, iright)
+    !
+    ! Sort the data whose first element is at ileft and whose last
+    ! element is at iright, presuming everything from ileft to
+    ! ipresorted (inclusively) is already sorted.
+    !
     procedure(vectar_predicate2_t) :: less_than
     type(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(in) :: ileft
+    integer(sz), intent(in) :: ipresorted
     integer(sz), intent(in) :: iright
 
     integer(sz) :: i
@@ -3732,7 +3738,7 @@ m4_if(DEBUGGING,[true],[dnl
     class(vectar_element_t), allocatable :: elem_i
 
     p_ileft => data%array(ileft)
-    do i = ileft + 1, iright
+    do i = ipresorted + 1, iright
        p_i => data%array(i)
        j = bottenbruch_search (less_than, data, ileft, i - 1, p_i%element)
        if (j == ileft) then
@@ -3774,6 +3780,118 @@ m4_if(DEBUGGING,[true],[dnl
     end subroutine move_elements_right
 
   end subroutine stable_binary_insertion_sort
+
+  subroutine reverse_in_place (data, ileft, iright)
+    !
+    ! Reverse the data whose first element is at ileft and whose last
+    ! element is at iright.
+    !
+    type(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: ileft
+    integer(sz), intent(in) :: iright
+
+    class(vectar_element_t), allocatable :: tmp
+    integer(sz) :: i, j
+
+    i = ileft
+    j = iright
+    do while (i < j)
+       tmp = data%array(i)
+       data%array(i) = data%array(j)
+       data%array(j) = tmp
+       i = i + 1
+       j = j - 1
+    end do
+  end subroutine reverse_in_place
+
+  recursive subroutine gather_an_increasing_run (less_than, data, ileft, iend, iright)
+    !
+    ! Set iright so from ileft to iright, inclusive, there is a
+    ! (non-strictly) increasing run of elements. Elements may be
+    ! reversed to make it so.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    type(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: ileft
+    integer(sz), intent(in) :: iend
+    integer(sz), intent(out) :: iright
+
+    integer(sz) :: itrial
+    logical :: done
+
+    if (ileft == iend) then
+       ! A final run of one.
+       iright = ileft
+    else
+       iright = ileft + 1
+       if (less_than (data%array(iright), data%array(ileft))) then
+          ! The sequence is strictly decreasing. Reverse it and so get a
+          ! strictly increasing sequence. (Reversing a non-strictly
+          ! decreasing sequence would be an unstable sort.)
+          done = .false.
+          do while (.not. done)
+             if (iright == iend) then
+                ! This is the final run.
+                done = .true.
+             else
+                itrial = iright + 1
+                if (.not. less_than (data%array(itrial), data%array(iright))) then
+                   ! The next element would be equal or increasing.
+                   done = .true.
+                else
+                   ! Keep going.
+                   iright = itrial
+                end if
+             end if
+          end do
+          ! Make the sequence increasing.
+          call reverse_in_place (data, ileft, iright)
+       else
+          ! The sequence is increasing.
+          done = .false.
+          do while (.not. done)
+             if (iright == iend) then
+                ! This is the final run.
+                done = .true.
+             else
+                itrial = iright + 1
+                if (less_than (data%array(itrial), data%array(iright))) then
+                   ! The next element would be decreasing.
+                   done = .true.
+                else
+                   ! Keep going.
+                   iright = itrial
+                end if
+             end if
+          end do
+       end if
+    end if
+  end subroutine gather_an_increasing_run
+
+  recursive subroutine gather_an_increasing_run_of_minimum_length (less_than, data, ileft, iend, min_length, iright)
+    !
+    ! Set iright so from ileft to iright, inclusively, there is a
+    ! (non-strictly) increasing run of elements, either of the given
+    ! min_length or at end of the data. Elements may be sorted to make
+    ! it so.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    type(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: ileft
+    integer(sz), intent(in) :: iend
+    integer(sz), intent(in) :: min_length
+    integer(sz), intent(out) :: iright
+
+    integer(sz) :: ipresorted
+
+    call gather_an_increasing_run (less_than, data, ileft, iend, ipresorted)
+    if (ipresorted == iend .or. min_length - 1 <= ipresorted - ileft) then
+       iright = ipresorted
+    else
+       iright = min (iend, ileft + (min_length - 1))
+       call stable_binary_insertion_sort (less_than, data, ileft, ipresorted, iright)
+    end if
+  end subroutine gather_an_increasing_run_of_minimum_length
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
