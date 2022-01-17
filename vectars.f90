@@ -17915,7 +17915,7 @@ contains
     iright = len - 1_sz
     index = min (-1_sz, n - 1_sz)
     do while (ileft <= iright .and. index < n)
-       imiddle = (ileft + iright) / 2_sz
+       imiddle = ileft + ((iright - ileft) / 2_sz)
        i = i0 + imiddle
        sign = cmp (data%array(i)%element, x)
        if (sign < 0) then
@@ -17976,7 +17976,7 @@ contains
        ileft = 0_sz
        iright = len - 1_sz
        do while (iright /= ileft)
-          imiddle = (ileft + iright) / 2_sz
+          imiddle = ileft + ((iright - ileft) / 2_sz)
           i = i0 + imiddle
           if (less_than (data%array(i)%element, x)) then
              ileft = imiddle + 1_sz
@@ -18043,7 +18043,7 @@ contains
        ileft = 0_sz
        iright = len - 1_sz
        do while (iright /= ileft)
-          imiddle = (ileft + iright) / 2_sz
+          imiddle = ileft + ((iright - ileft) / 2_sz)
           i = i0 + imiddle
           if (less_than (data%array(i)%element, x)) then
              ileft = imiddle + 1_sz
