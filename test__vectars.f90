@@ -2863,6 +2863,40 @@ contains
 
   end subroutine test0410
 
+  subroutine test0420
+    type(vectar_t) :: vec1
+
+    vec1 = vectar (52, 22, 31, 42, 53, 61, 21, 41, 51)
+    call vectar_stable_sortx (is_lt_except_ones, vec1)
+    call check (vectar_equal (int_eq, vec1, vectar (22, 21, 31, 42, 41, 52, 53, 51, 61)), "test0420-0010 failed")
+
+    vec1 = vectar (41, 21, 31, 42, 22, 53, 61, 52, 51)
+    call vectar_stable_sortx (is_lt_except_ones, vec1)
+    call check (vectar_equal (int_eq, vec1, vectar (21, 22, 31, 41, 42, 53, 52, 51, 61)), "test0420-0020 failed")
+
+  contains
+
+    function is_lt_except_ones (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      integer :: x1
+      integer :: y1
+
+      call collect_garbage_now
+
+      x1 = int_cast (x)
+      x1 = x1 - mod (x1, 10)
+
+      y1 = int_cast (y)
+      y1 = y1 - mod (y1, 10)
+
+      bool = (x1 < y1)
+    end function is_lt_except_ones
+
+  end subroutine test0420
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -2908,6 +2942,7 @@ contains
     call test0390
     call test0400
     call test0410
+    call test0420
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

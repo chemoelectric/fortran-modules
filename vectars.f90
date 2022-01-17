@@ -817,6 +817,10 @@ module vectars
   public :: vectar_merge
   public :: vectar_mergex
 
+  public :: vectar_stable_sortx ! FIXME: Currently (as part of
+                                !        development) this is an
+                                !        INSERTION SORT!!!!!!
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   ! A private synonym for `size_kind'.
@@ -21486,6 +21490,26 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  recursive subroutine vectar_stable_sortx (less_than, vec)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: vecr
+    type(vectar_data_t), pointer :: data
+
+    vec_root = vec
+
+    vecr = vec
+    data => vectar_data_ptr (vecr)
+
+    call stable_binary_insertion_sort (less_than, data, vecr%istart0(), vecr%iend0())
+
+    call vec_root%discard
+  end subroutine vectar_stable_sortx
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   recursive function bottenbruch_search (less_than, data, ileft, iright, x) result (index)
     !
     ! Do a search on the data whose first element is at ileft and
@@ -21534,20 +21558,57 @@ contains
     end if
   end function bottenbruch_search
 
-!!$  recursive subroutine stable_binary_insertion_sort (less_than, data, ileft, iright)
-!!$    procedure(vectar_predicate2_t) :: less_than
-!!$    type(vectar_data_t), intent(in) :: data
-!!$    integer(sz), intent(in) :: ileft
-!!$    integer(sz), intent(in) :: iright
-!!$
-!!$    integer(sz) :: i
-!!$    integer(sz) :: insertion_point
-!!$    type(vectar_data_t),  :: data
-!!$
-!!$    do i = ileft + 1_sz, iright
-!!$       insertion_point = bottenbruch_search (
-!!$    end do
-!!$  end subroutine stable_binary_insertion_sort
+  recursive subroutine stable_binary_insertion_sort (less_than, data, ileft, iright)
+    procedure(vectar_predicate2_t) :: less_than
+    type(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: ileft
+    integer(sz), intent(in) :: iright
+
+    integer(sz) :: i
+    integer(sz) :: j
+    class(vectar_element_t), pointer :: p_i
+    class(vectar_element_t), allocatable :: elem_i
+
+    do i = ileft + 1, iright
+       p_i => data%array(i)
+       j = bottenbruch_search (less_than, data, ileft, i - 1, p_i%element)
+       if (j /= ileft) then
+          call insert_after_j
+       else if (less_than (p_i%element, data%array(j)%element)) then
+          call insert_at_j
+       else
+          call insert_after_j
+       end if
+    end do
+
+  contains
+
+    subroutine insert_at_j
+      elem_i = p_i
+      call move_elements_right (j, i - 1)
+      data%array(j) = elem_i
+    end subroutine insert_at_j
+
+    subroutine insert_after_j
+      if (j + 1 /= i) then
+         elem_i = p_i
+         call move_elements_right (j + 1, i - 1)
+         data%array(j + 1) = elem_i
+      end if
+    end subroutine insert_after_j
+
+    subroutine move_elements_right (ifirst, ilast)
+      integer(sz), intent(in) :: ifirst
+      integer(sz), intent(in) :: ilast
+
+      integer(sz) :: k
+
+      do k = ilast, ifirst, -1_sz
+         data%array(k + 1) = data%array(k)
+      end do
+    end subroutine move_elements_right
+
+  end subroutine stable_binary_insertion_sort
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
