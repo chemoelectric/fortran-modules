@@ -3665,7 +3665,7 @@ dnl
     !    * https://en.wikipedia.org/w/index.php?title=Binary_search_algorithm&oldid=1062988272#Alternative_procedure
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), intent(in) :: data
+    type(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(in) :: ileft
     integer(sz), intent(in) :: iright
     class(*), intent(in) :: x
@@ -3694,6 +3694,21 @@ m4_if(DEBUGGING,[true],[dnl
     end if
 ])dnl
   end function bottenbruch_search
+
+!!$  recursive subroutine stable_binary_insertion_sort (less_than, data, ileft, iright)
+!!$    procedure(vectar_predicate2_t) :: less_than
+!!$    type(vectar_data_t), intent(in) :: data
+!!$    integer(sz), intent(in) :: ileft
+!!$    integer(sz), intent(in) :: iright
+!!$
+!!$    integer(sz) :: i
+!!$    integer(sz) :: insertion_point
+!!$    type(vectar_data_t),  :: data
+!!$
+!!$    do i = ileft + 1_sz, iright
+!!$       insertion_point = bottenbruch_search (
+!!$    end do
+!!$  end subroutine stable_binary_insertion_sort
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
