@@ -652,6 +652,26 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
 
+  ! The maximum size of a stack used by the stable sort. It should be
+  ! good enough if bit_size(1_sz) <= 64. See in particular
+  ! http://envisage-project.eu/proving-android-java-and-python-sorting-algorithm-is-broken-and-how-to-fix-it/
+  !
+  ! From the Timsort code:
+  !
+  !    /* The maximum number of entries in a MergeState's 
+  !     * pending-runs stack.
+  !     * This is enough to sort arrays of size up to about
+  !     *     32 * phi ** MAX_MERGE_PENDING
+  !     * where phi ~= 1.618.  85 is ridiculously large enough, 
+  !     * good for an array with 2**64 elements.
+  !     */
+  !
+  ! Presumably one likes to keep it a fixed size and as small as
+  ! is reasonable.
+  !
+  integer, parameter :: run_stack_size = 85
+
+
   ! Private conversion to `size_kind'.
   interface operator(.sz.)
      module procedure int2sz
@@ -3892,6 +3912,226 @@ m4_if(DEBUGGING,[true],[dnl
        call stable_binary_insertion_sort (less_than, data, ileft, ipresorted, iright)
     end if
   end subroutine gather_an_increasing_run_of_minimum_length
+
+  recursive subroutine merge_going_leftwards (less_than, data2, itarget, irunstart2, irunend2, &
+       &                                      data1, irunstart1, irunend1)
+    !
+    ! Currently this is just a straightforward stable merge, filling
+    ! empty space at the left of data2, with data1 as the run having
+    ! priority in the merge.
+    !
+    ! FIXME: Use a Bottenbruch search to find initial settings of i
+    !        and i2.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    type(vectar_data_t), pointer, intent(in) :: data2
+    integer(sz), intent(in) :: itarget
+    integer(sz), intent(in) :: irunstart2
+    integer(sz), intent(in) :: irunend2
+    type(vectar_data_t), pointer, intent(in) :: data1
+    integer(sz), intent(in) :: irunstart1
+    integer(sz), intent(in) :: irunend1
+
+    integer(sz) :: i, i1, i2
+
+    i = itarget
+    i1 = irunstart1
+    i2 = irunstart2
+    do while (i1 <= irunend1 .and. i2 <= irunend2)
+       if (i1 == irunend1) then
+          ! The rest of the merger is from data2 and already is in
+          ! place.
+          i2 = irunend2
+       else if (i2 == irunend2) then
+          ! Copy the remainder of data1.
+          do while (i1 <= irunend1)
+             data2%array(i) = data1%array(i1)
+             i = i + 1
+             i1 = i1 + 1
+          end do
+       else if (less_than (data2%array(i2)%element, data1%array(i1)%element)) then
+          ! The element from data2 is strictly less than the element
+          ! from data1, and so belongs in front. Move the element in
+          ! data2 leftwards.
+          data2%array(i) = data2%array(i2)
+          i = i + 1
+          i2 = i2 + 1
+       else
+          ! Copy an element from data1.
+          data2%array(i) = data1%array(i1)
+          i = i + 1
+          i1 = i1 + 1
+       end if
+    end do
+  end subroutine merge_going_leftwards
+
+  recursive subroutine merge_going_rightwards (less_than, data1, irunstart1, irunend1, itarget, &
+       &                                       data2, irunstart2, irunend2)
+    !
+    ! Currently this is just a straightforward stable merge, filling
+    ! empty space at the right of data1, with data1 as the run having
+    ! priority in the merge.
+    !
+    ! FIXME: Use a Bottenbruch search to find initial settings of i
+    !        and i1.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    type(vectar_data_t), pointer, intent(in) :: data1
+    integer(sz), intent(in) :: irunstart1
+    integer(sz), intent(in) :: irunend1
+    integer(sz), intent(in) :: itarget
+    type(vectar_data_t), pointer, intent(in) :: data2
+    integer(sz), intent(in) :: irunstart2
+    integer(sz), intent(in) :: irunend2
+
+    integer(sz) :: i, i1, i2
+
+    i = itarget
+    i1 = irunend1
+    i2 = irunend2
+    do while (irunstart1 <= i1 .and. irunstart2 <= i2)
+       if (i2 == irunstart2) then
+          ! The rest of the merger is from data1 and already is in
+          ! place.
+          i1 = irunstart1
+       else if (i1 == irunstart1) then
+          ! Copy the remainder of data2
+          do while (irunstart2 <= i2)
+             data1%array(i) = data2%array(i2)
+             i = i - 1
+             i2 = i2 - 1
+          end do
+       else if (less_than (data2%array(i2)%element, data1%array(i1)%element)) then
+          ! The element from data2 is strictly less than the element
+          ! from data1, and so belongs in front. Move the element in
+          ! data1 rightwards.
+          data1%array(i) = data1%array(i1)
+          i = i - 1
+          i1 = i1 - 1
+       else
+          ! Copy an element from data2.
+          data1%array(i) = data2%array(i2)
+          i = i - 1
+          i1 = i1 - 1
+       end if
+    end do
+  end subroutine merge_going_rightwards
+
+  recursive subroutine merge_two_runs (less_than, data, i, j, k, workspace)
+    !
+    ! Merge sorted data[i .. j-1] and sorted data[j .. k], giving
+    ! sorted data[i .. k].
+    !
+    ! `workspace' is a vectar of length at least (k - i + 1) / 2. It
+    ! has to be protected from garbage collection.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    type(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: i
+    integer(sz), intent(in) :: j
+    integer(sz), intent(in) :: k
+    type(vectar_data_t), pointer, intent(in) :: workspace
+
+    integer(sz) :: u
+
+    if (j - i < k - j) then
+       ! The left side is shorter than or equal in length to the right
+       ! side. Copy the left side to workspace, then merge leftwards.
+       do u = 0, (j - i) - 1
+          workspace%array(u) = data%array(i + u)
+       end do
+       call merge_going_leftwards (less_than, data, i, j, k, workspace, 0_sz, (j - i) - 2)
+    else
+       ! The left side is longer than the right side side. Copy the
+       ! right side to workspace, then merge rightwards.
+       do u = 0, k - j
+          workspace%array(u) = data%array(j + u)
+       end do
+       call merge_going_rightwards (less_than, data, i, j - 1, k, workspace, 0_sz, (k - j) - 1)
+    end if
+  end subroutine merge_two_runs
+
+  function choose_minimum_run_length (data_length) result (min_run_length)
+    !
+    ! Minimum run length as suggested by Tim Peters.
+    !
+    ! See
+    ! https://en.wikipedia.org/w/index.php?title=Timsort&oldid=1065277889#Minimum_run_size
+    !
+    !    "The final algorithm takes the six most significant bits of
+    !    the size of the array, adds one if any of the remaining bits
+    !    are set, and uses that result as the minrun. This algorithm
+    !    works for all arrays, including those smaller than 64; for
+    !    arrays of size 63 or less, this sets minrun equal to the
+    !    array size and Timsort reduces to an insertion sort."
+    !
+    integer(sz), intent(in) :: data_length
+    integer(sz) :: min_run_length
+
+    integer :: total_bits_count
+    integer :: leading_zeros_count
+    integer :: significant_bits_count
+    integer :: right_bits_count
+    integer(sz) :: left_bits
+    integer(sz) :: right_bits
+
+    total_bits_count = bit_size (data_length)
+    leading_zeros_count = leadz (data_length)
+    significant_bits_count = total_bits_count - leading_zeros_count
+    right_bits_count = max (0, significant_bits_count - 6)
+    left_bits = ibits (data_length, right_bits_count, 6)
+    right_bits = ibits (data_length, 0, right_bits_count)
+    if (right_bits == 0) then
+       min_run_length = left_bits
+    else
+       min_run_length = left_bits + 1
+    end if
+  end function choose_minimum_run_length
+
+  recursive subroutine restore_run_stack_invariant (less_than, data, run_stack, run_count)
+    !
+    ! Merge run_stack contents until the invariant is met. See
+    ! envisage-project.eu/proving-android-java-and-python-sorting-algorithm-is-broken-and-how-to-fix-it/
+    !
+    ! The stack invariant is taken from the corrected later versions
+    ! of Timsort.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    type(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(inout) :: run_stack(1:2, 1:run_stack_size)
+    integer, intent(inout) :: run_count
+
+    logical :: the_invariant_is_established
+    integer :: n
+
+    n = run_count
+    the_invariant_is_established = .false.
+    do while (.not. the_invariant_is_established .and. 2 <= n)
+       if ((3 <= n .and. runsz (n - 2) <= runsz (n - 1) + runsz (n)) &
+            & .or. (4 <= n .and. runsz (n - 3) <= runsz (n - 2) + runsz (n - 1))) then
+          if (runsz (n - 2) < runsz (n)) then
+             ! FIXME : Merge n-2 and n-1
+          else
+             ! FIXME : Merge n-1 and n
+          end if
+       else if (runsz (n - 1) <= runsz (n)) then
+          ! FIXME : Merge n-1 and n
+       else
+          the_invariant_is_established = .true.
+       end if
+    end do
+    run_count = n
+
+  contains
+
+    function runsz (i) result (size)
+      integer, intent(in) :: i
+      integer(sz) :: size       ! The run length, minus 1.
+
+      size = run_stack(2, i) - run_stack(1, i)
+    end function runsz
+
+  end subroutine restore_run_stack_invariant
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

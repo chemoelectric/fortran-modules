@@ -40,8 +40,15 @@ COMPILE.m4 = $(M4) $(M4FLAGS) $(XM4FLAGS)
 
 #M4FLAGS += -DDEBUGGING=true
 
-# What INTEGER kind should be used to represent sizes? (Names from
-# ISO_Fortran_Env and ISO_C_Binding are available.)
+#
+# What INTEGER kind should be used to represent sizes?
+#
+# Names from ISO_Fortran_Env and ISO_C_Binding are available.
+#
+# Note that the implementation of the stable sort function in
+# vectars.f90 may assume SIZE_KIND (or, at least, the size of any
+# possible array) is no more than 64 bits.
+#
 M4FLAGS += -DSIZE_KIND=int64
 
 # How deep should car-cdr permutations go?
