@@ -840,8 +840,8 @@ module vectars
   !     * good for an array with 2**64 elements.
   !     */
   !
-  ! Presumably one likes to keep it a fixed size and as small as
-  ! is reasonable.
+  ! Presumably one likes to keep it a fixed size and as small as is
+  ! reasonable.
   !
   integer, parameter :: run_stack_size = 85
 
@@ -21861,8 +21861,11 @@ contains
     ! Merge sorted datai .. j-1 and sorted dataj .. k, giving
     ! sorted datai .. k.
     !
-    ! `workspace' is a vectar of length at least (k - i + 1) / 2. It
-    ! has to be protected from garbage collection.
+    ! `workspace' is a vectar of length at least
+    !
+    !     floor ((k - i + 1) / 2)
+    !
+    ! It has to be protected from garbage collection.
     !
     procedure(vectar_predicate2_t) :: less_than
     type(vectar_data_t), pointer, intent(in) :: data
@@ -21889,6 +21892,75 @@ contains
        call merge_going_rightwards (less_than, data, i, j - 1, k, workspace, 0_sz, (k - j) - 1)
     end if
   end subroutine merge_two_runs
+
+  recursive subroutine restore_run_stack_invariant (less_than, data, run_stack, stack_count, workspace)
+    !
+    ! Merge run_stack contents until the invariant is met. See
+    ! envisage-project.eu/proving-android-java-and-python-sorting-algorithm-is-broken-and-how-to-fix-it/
+    !
+    ! The stack invariant is taken from the corrected later versions
+    ! of Timsort.
+    !
+    ! Note that the run_stack starts at 0. All other entries are the
+    ! end indices of runs; we put a fake end index (probably -1_sz) in
+    ! position 0. The stack_size counter does not count the fake stack
+    ! entry.
+    !
+    !
+    ! `workspace' is a vectar of length at least half the length of
+    ! the data (rounded down). It has to be protected from garbage
+    ! collection.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    type(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(inout) :: run_stack(0:run_stack_size)
+    integer, intent(inout) :: stack_count
+    type(vectar_data_t), pointer, intent(in) :: workspace
+
+    logical :: the_invariant_is_established
+    integer :: n
+
+    n = stack_count
+    the_invariant_is_established = .false.
+    do while (.not. the_invariant_is_established .and. 2 <= n)
+       if ((3 <= n .and. runlen (n - 2) <= runlen (n - 1) + runlen (n)) &
+            & .or. (4 <= n .and. runlen (n - 3) <= runlen (n - 2) + runlen (n - 1))) then
+          if (runlen (n - 2) < runlen (n)) then
+             call merge_two_runs (less_than, data, &
+                  &               run_stack (n - 3) + 1, run_stack (n - 2) + 1, run_stack (n - 1), &
+                  &               workspace)
+             run_stack (n - 2) = run_stack (n - 1)
+             run_stack (n - 1) = run_stack (n)
+             n = n - 1
+          else
+             call merge_two_runs (less_than, data, &
+                  &               run_stack (n - 2) + 1, run_stack (n - 1) + 1, run_stack (n), &
+                  &               workspace)
+             run_stack (n - 1) = run_stack (n)
+             n = n - 1
+          end if
+       else if (runlen (n - 1) <= runlen (n)) then
+          call merge_two_runs (less_than, data, &
+               &               run_stack (n - 2) + 1, run_stack (n - 1) + 1, run_stack (n), &
+               &               workspace)
+          run_stack (n - 1) = run_stack (n)
+          n = n - 1
+       else
+          the_invariant_is_established = .true.
+       end if
+    end do
+    stack_count = n
+
+  contains
+
+    function runlen (i) result (len)
+      integer, intent(in) :: i
+      integer(sz) :: len
+
+      len = run_stack(i) - run_stack(i - 1)
+    end function runlen
+
+  end subroutine restore_run_stack_invariant
 
   function choose_minimum_run_length (data_length) result (min_run_length)
     !
@@ -21926,51 +21998,6 @@ contains
        min_run_length = left_bits + 1
     end if
   end function choose_minimum_run_length
-
-  recursive subroutine restore_run_stack_invariant (less_than, data, run_stack, run_count)
-    !
-    ! Merge run_stack contents until the invariant is met. See
-    ! envisage-project.eu/proving-android-java-and-python-sorting-algorithm-is-broken-and-how-to-fix-it/
-    !
-    ! The stack invariant is taken from the corrected later versions
-    ! of Timsort.
-    !
-    procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data
-    integer(sz), intent(inout) :: run_stack(1:2, 1:run_stack_size)
-    integer, intent(inout) :: run_count
-
-    logical :: the_invariant_is_established
-    integer :: n
-
-    n = run_count
-    the_invariant_is_established = .false.
-    do while (.not. the_invariant_is_established .and. 2 <= n)
-       if ((3 <= n .and. runsz (n - 2) <= runsz (n - 1) + runsz (n)) &
-            & .or. (4 <= n .and. runsz (n - 3) <= runsz (n - 2) + runsz (n - 1))) then
-          if (runsz (n - 2) < runsz (n)) then
-             ! FIXME : Merge n-2 and n-1
-          else
-             ! FIXME : Merge n-1 and n
-          end if
-       else if (runsz (n - 1) <= runsz (n)) then
-          ! FIXME : Merge n-1 and n
-       else
-          the_invariant_is_established = .true.
-       end if
-    end do
-    run_count = n
-
-  contains
-
-    function runsz (i) result (size)
-      integer, intent(in) :: i
-      integer(sz) :: size       ! The run length, minus 1.
-
-      size = run_stack(2, i) - run_stack(1, i)
-    end function runsz
-
-  end subroutine restore_run_stack_invariant
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
