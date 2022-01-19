@@ -21895,17 +21895,16 @@ contains
 
   recursive subroutine restore_run_stack_invariant (less_than, data, run_stack, stack_count, workspace)
     !
-    ! Merge run_stack contents until the invariant is met. See
-    ! envisage-project.eu/proving-android-java-and-python-sorting-algorithm-is-broken-and-how-to-fix-it/
+    ! Merge run_stack contents until the invariant is met.
     !
     ! The stack invariant is taken from the corrected later versions
-    ! of Timsort.
+    ! of Timsort. See
+    ! envisage-project.eu/proving-android-java-and-python-sorting-algorithm-is-broken-and-how-to-fix-it/
     !
-    ! Note that the run_stack starts at 0. All other entries are the
-    ! end indices of runs; we put a fake end index (probably -1_sz) in
+    ! Note that the run_stack indexing starts at position 0. All other
+    ! entries are the end indices of runs; we put a fake end index in
     ! position 0. The stack_size counter does not count the fake stack
     ! entry.
-    !
     !
     ! `workspace' is a vectar of length at least half the length of
     ! the data (rounded down). It has to be protected from garbage
@@ -21962,6 +21961,58 @@ contains
 
   end subroutine restore_run_stack_invariant
 
+  recursive subroutine reduce_the_run_stack_to_depth_1 (less_than, data, run_stack, stack_count, workspace)
+    !
+    ! Merge run_stack contents until the run stack contains just one,
+    ! big run (which is the sorted result).
+    !
+    ! Note that the run_stack indexing starts at position 0. All other
+    ! entries are the end indices of runs; we put a fake end index in
+    ! position 0. The stack_size counter does not count the fake stack
+    ! entry.
+    !
+    ! `workspace' is a vectar of length at least half the length of
+    ! the data (rounded down). It has to be protected from garbage
+    ! collection.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(inout) :: run_stack(0:run_stack_size)
+    integer, intent(inout) :: stack_count
+    class(vectar_data_t), pointer, intent(in) :: workspace
+
+    integer :: n
+
+    n = stack_count
+    do while (stack_count /= 1)
+          if (runlen (n - 2) < runlen (n)) then
+             call merge_two_runs (less_than, data, &
+                  &               run_stack (n - 3) + 1, run_stack (n - 2) + 1, run_stack (n - 1), &
+                  &               workspace)
+             run_stack (n - 2) = run_stack (n - 1)
+             run_stack (n - 1) = run_stack (n)
+             n = n - 1
+          else
+             call merge_two_runs (less_than, data, &
+                  &               run_stack (n - 2) + 1, run_stack (n - 1) + 1, run_stack (n), &
+                  &               workspace)
+             run_stack (n - 1) = run_stack (n)
+             n = n - 1
+          end if
+    end do
+    stack_count = n
+
+  contains
+
+    function runlen (i) result (len)
+      integer, intent(in) :: i
+      integer(sz) :: len
+
+      len = run_stack(i) - run_stack(i - 1)
+    end function runlen
+
+  end subroutine reduce_the_run_stack_to_depth_1
+
   function choose_minimum_run_length (data_length) result (min_run_length)
     !
     ! Minimum run length as suggested by Tim Peters.
@@ -21998,6 +22049,62 @@ contains
        min_run_length = left_bits + 1
     end if
   end function choose_minimum_run_length
+
+  recursive subroutine stable_mergesort (less_than, data, idatastart, idataend, workspace)
+    !
+    ! A adaptive natural mergesort using a run stack similar to that
+    ! employed by Tim Peters. FIXME: SAY MORE.
+    !
+    ! Note that the run_stack indexing starts at position 0. All other
+    ! entries are the end indices of runs; we put a fake end index in
+    ! position 0. The stack_size counter does not count the fake stack
+    ! entry.
+    !
+    ! `workspace' is a vectar of length at least floor((idataend0 -
+    ! idatastart0 + 1)/2). Both `data' and `workspace' must be rooted
+    ! to protect them from garbage collection.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: idatastart
+    integer(sz), intent(in) :: idataend
+    class(vectar_data_t), pointer, intent(in) :: workspace
+
+    integer(sz) :: run_stack(0:run_stack_size)
+    integer :: stack_count
+    integer(sz) :: iright
+    integer(sz) :: data_length
+    integer(sz) :: min_run_length
+
+    data_length = (idataend - idatastart) + 1
+
+    if (data_length <= 1) then
+       ! The data is already sorted.
+       continue
+    else
+       min_run_length = choose_minimum_run_length (data_length)
+
+       run_stack(0) = idatastart - 1_sz
+       stack_count = 0
+
+       do while (run_stack(stack_count) /= idataend)
+          call gather_an_increasing_run_of_minimum_length (less_than, data, &
+               &                                           run_stack(stack_count) + 1, idataend, &
+               &                                           min_run_length, iright)
+
+          if (stack_count == run_stack_size) then
+             call error_abort ("adaptive mergesort stack size exceeded")
+          end if
+          stack_count = stack_count + 1
+          run_stack(stack_count) = iright
+
+          call restore_run_stack_invariant (less_than, data, run_stack, stack_count, workspace)
+       end do
+
+       call reduce_the_run_stack_to_depth_1 (less_than, data, run_stack, stack_count, workspace)
+
+    end if
+  end subroutine stable_mergesort
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
