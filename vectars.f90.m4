@@ -43,7 +43,7 @@ m4_forloop([_k],[1],$1,[dnl
     type(vectar_range_t) :: vecr[]_k
 ])dnl
 m4_forloop([_k],[1],$1,[dnl
-    type(vectar_data_t), pointer :: data[]_k
+    class(vectar_data_t), pointer :: data[]_k
 ])dnl
     integer(sz) :: min_length
 ])
@@ -1231,7 +1231,7 @@ contains
 
   function vectar_data_ptr (vec) result (data_ptr)
     class(*), intent(in) :: vec
-    type(vectar_data_t), pointer :: data_ptr
+    class(vectar_data_t), pointer :: data_ptr
 
     select type (v => .autoval. vec)
     class is (vectar_t)
@@ -1474,7 +1474,7 @@ contains
     class(vectar_range_t), intent(inout) :: dst
     class(*), intent(in) :: src
 
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     select type (src1 => .autoval. src)
     type is (vectar_range_t)
@@ -1496,7 +1496,7 @@ contains
     class(*), intent(in) :: obj
     type(vectar_range_t) :: range
 
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     select type (src => .autoval. obj)
     type is (vectar_range_t)
@@ -1590,7 +1590,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 0_sz
@@ -1609,7 +1609,7 @@ m4_forloop([k],[1],n,[dnl
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = m4_eval(n)_sz
@@ -1645,7 +1645,7 @@ dnl
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     if (size < 0_sz) then
        call error_abort ("vectar size must be at least zero")
@@ -1679,7 +1679,7 @@ dnl
     select type (v => .autoval. vec)
     type is (vectar_t)
        block
-         type(vectar_data_t), pointer :: data
+         class(vectar_data_t), pointer :: data
          data => vectar_data_ptr (v)
          len = data%length
        end block
@@ -1704,7 +1704,7 @@ dnl
     integer(sz), intent(in) :: i
     class(*), allocatable :: element
 
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     select type (v => .autoval. vec)
     type is (vectar_t)
@@ -1773,7 +1773,7 @@ dnl
     integer(sz), intent(in) :: i
     class(*), intent(in) :: element
 
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     select type (v => .autoval. vec)
     type is (vectar_t)
@@ -1841,7 +1841,7 @@ dnl
     class(*), intent(in) :: vec
     integer(sz), intent(in) :: i, j
 
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: tmp
     integer(sz) :: i1, j1
 
@@ -1917,7 +1917,7 @@ dnl
     class(*), intent(in) :: fill
 
     type(vectar_range_t) :: range
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: i
 
     range = vec
@@ -1931,7 +1931,7 @@ dnl
     class(*), intent(in) :: vec
 
     type(vectar_range_t) :: range
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: i, j
     class(*), allocatable :: tmp
 
@@ -1960,7 +1960,7 @@ dnl
     class(*), intent(in) :: src
 
     type(vectar_range_t) :: src_range
-    type(vectar_data_t), pointer :: src_data, dst_data
+    class(vectar_data_t), pointer :: src_data, dst_data
     integer(sz) :: copy_len
     integer(sz) :: j, k
 
@@ -2072,7 +2072,7 @@ dnl
     class(*), intent(in) :: src
 
     type(vectar_range_t) :: src_range
-    type(vectar_data_t), pointer :: src_data, dst_data
+    class(vectar_data_t), pointer :: src_data, dst_data
     integer(sz) :: n_full
     integer(sz) :: n_copy
     integer(sz) :: n_reverse
@@ -2235,7 +2235,7 @@ dnl
     type(cons_t) :: lst
 
     type(vectar_range_t) :: range
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: i
 
     range = vec
@@ -2251,7 +2251,7 @@ dnl
     type(cons_t) :: lst
 
     type(vectar_range_t) :: range
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: i
 
     range = vec
@@ -2270,7 +2270,7 @@ dnl
     integer(sz) :: i
     type(cons_t) :: p
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     n = length (.autoval. lst)
     allocate (data)
@@ -2299,7 +2299,7 @@ dnl
     integer(sz) :: i
     type(cons_t) :: p
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     n = length (.autoval. lst)
     allocate (data)
@@ -2338,7 +2338,7 @@ dnl
     type(vectar_t) :: vec_copy
 
     type(vectar_range_t) :: range
-    type(vectar_data_t), pointer :: src, dst
+    class(vectar_data_t), pointer :: src, dst
     integer(sz) :: istart, iend, size, i
 
     range = vec
@@ -2364,7 +2364,7 @@ dnl
     type(vectar_t) :: vec_copy
 
     type(vectar_range_t) :: range
-    type(vectar_data_t), pointer :: src, dst
+    class(vectar_data_t), pointer :: src, dst
     integer(sz) :: istart, iend, size, i
 
     range = vec
@@ -2404,9 +2404,9 @@ m4_forloop([k],[1],n,[dnl
     type(vectar_range_t) :: vecr[]k
 ])dnl
 m4_forloop([k],[1],n,[dnl
-    type(vectar_data_t), pointer :: src[]k
+    class(vectar_data_t), pointer :: src[]k
 ])dnl
-    type(vectar_data_t), pointer :: dst
+    class(vectar_data_t), pointer :: dst
     integer(sz) :: len_vec_a
     integer(sz) :: i, j
 
@@ -2462,7 +2462,7 @@ m4_forloop([k],[1],n,[dnl
          type(vectar_range_t) :: vecr
          integer(sz) :: len_vec_c
          integer(sz) :: i, j
-         type(vectar_data_t), pointer :: src, dst
+         class(vectar_data_t), pointer :: src, dst
 
          vecs_reversed = nil
          len_vec_c = 0_sz
@@ -2527,7 +2527,7 @@ m4_forloop([k],[1],n,[dnl
     type(vectar_range_t) :: vecr[]k
 ])dnl
 m4_forloop([k],[1],n,[dnl
-    type(vectar_data_t), pointer :: data[]k
+    class(vectar_data_t), pointer :: data[]k
 ])dnl
 m4_forloop([k],[1],n,[dnl
     type(gcroot_t) :: vec[]k[]_root
@@ -2591,7 +2591,7 @@ m4_forloop([k],[1],n,[dnl
 
 m4_declare_iteration_variables(n)dnl
     type(gcroot_t) :: vec_m_root
-    type(vectar_data_t), pointer :: result_data
+    class(vectar_data_t), pointer :: result_data
     integer(sz) :: i
 m4_forloop([k],[1],n,[dnl
     integer(sz) :: i[]k
@@ -2709,8 +2709,8 @@ dnl
     type(gcroot_t) :: vec_root
     type(gcroot_t) :: vec_c_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
-    type(vectar_data_t), pointer :: result_data
+    class(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: result_data
     class(*), allocatable :: seed
     class(*), allocatable :: new_seed
     integer(sz) :: i
@@ -2870,7 +2870,7 @@ m4_define([m4_vectar_unfold_procedures],[dnl
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: element
     integer(sz) :: index
     integer(sz) :: i0
@@ -2900,7 +2900,7 @@ m4_forloop([k],[1],n,[dnl
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 m4_forloop([k],[1],n,[dnl
     class(*), allocatable :: seed[]k
 ])dnl
@@ -3170,7 +3170,7 @@ dnl
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: len, i0, i
     integer(sz) :: ileft, imiddle, iright
     integer :: sign
@@ -3229,7 +3229,7 @@ dnl
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: istart0, iend0, i
 
     index = min (-1_sz, [n] - 1_sz)
@@ -3283,7 +3283,7 @@ dnl
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: istart0, iend0, i
 
     index = min (-1_sz, [n] - 1_sz)
@@ -3409,14 +3409,14 @@ dnl
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: len
     integer(sz) :: len_minus_one
     integer(bool), allocatable :: satisfied(:)
     integer(sz) :: i0, i, j, k
     integer(sz) :: satisfied_count
     type(vectar_t) :: partitioned_vectar
-    type(vectar_data_t), pointer :: partitioned_vectar_data
+    class(vectar_data_t), pointer :: partitioned_vectar_data
 
     vec_root = vec
 
@@ -3488,8 +3488,8 @@ dnl
     !
 
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
-    type(vectar_data_t), pointer :: data_shuffled
+    class(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data_shuffled
     integer(sz) :: i0, len
     real(real64) :: randnum
     integer(sz) :: i, j
@@ -3524,7 +3524,7 @@ dnl
     !
 
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: i0, len
     real(real64) :: randnum
     integer(sz) :: i, j
@@ -3552,7 +3552,7 @@ dnl
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: i0, i1
     integer(sz) :: i
 
@@ -3604,7 +3604,7 @@ dnl
 
     type(gcroot_t) :: vec_m_root, vec1_root, vec2_root
     type(vectar_range_t) :: vecr_m, vecr1, vecr2
-    type(vectar_data_t), pointer :: data_m, data1, data2
+    class(vectar_data_t), pointer :: data_m, data1, data2
     integer(sz) :: i0_m, i0_1, i0_2
     integer(sz) :: len_m, len1, len2
     integer(sz) :: i, j, k
@@ -3675,7 +3675,7 @@ dnl
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     vec_root = vec
 
@@ -3709,7 +3709,7 @@ dnl
     !    * https://en.wikipedia.org/w/index.php?title=Binary_search_algorithm&oldid=1062988272#Alternative_procedure
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data
+    class(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(in) :: ileft
     integer(sz), intent(in) :: iright
     class(*), intent(in) :: x
@@ -3746,7 +3746,7 @@ m4_if(DEBUGGING,[true],[dnl
     ! ipresorted (inclusively) is already sorted.
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data
+    class(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(in) :: ileft
     integer(sz), intent(in) :: ipresorted
     integer(sz), intent(in) :: iright
@@ -3806,7 +3806,7 @@ m4_if(DEBUGGING,[true],[dnl
     ! Reverse the data whose first element is at ileft and whose last
     ! element is at iright.
     !
-    type(vectar_data_t), pointer, intent(in) :: data
+    class(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(in) :: ileft
     integer(sz), intent(in) :: iright
 
@@ -3831,7 +3831,7 @@ m4_if(DEBUGGING,[true],[dnl
     ! reversed to make it so.
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data
+    class(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(in) :: ileft
     integer(sz), intent(in) :: iend
     integer(sz), intent(out) :: iright
@@ -3896,7 +3896,7 @@ m4_if(DEBUGGING,[true],[dnl
     ! it so.
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data
+    class(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(in) :: ileft
     integer(sz), intent(in) :: iend
     integer(sz), intent(in) :: min_length
@@ -3924,11 +3924,11 @@ m4_if(DEBUGGING,[true],[dnl
     !        and i2.
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data2
+    class(vectar_data_t), pointer, intent(in) :: data2
     integer(sz), intent(in) :: itarget
     integer(sz), intent(in) :: irunstart2
     integer(sz), intent(in) :: irunend2
-    type(vectar_data_t), pointer, intent(in) :: data1
+    class(vectar_data_t), pointer, intent(in) :: data1
     integer(sz), intent(in) :: irunstart1
     integer(sz), intent(in) :: irunend1
 
@@ -3976,11 +3976,11 @@ m4_if(DEBUGGING,[true],[dnl
     !        and i1.
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data1
+    class(vectar_data_t), pointer, intent(in) :: data1
     integer(sz), intent(in) :: irunstart1
     integer(sz), intent(in) :: irunend1
     integer(sz), intent(in) :: itarget
-    type(vectar_data_t), pointer, intent(in) :: data2
+    class(vectar_data_t), pointer, intent(in) :: data2
     integer(sz), intent(in) :: irunstart2
     integer(sz), intent(in) :: irunend2
 
@@ -4029,11 +4029,11 @@ m4_if(DEBUGGING,[true],[dnl
     ! It has to be protected from garbage collection.
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data
+    class(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(in) :: i
     integer(sz), intent(in) :: j
     integer(sz), intent(in) :: k
-    type(vectar_data_t), pointer, intent(in) :: workspace
+    class(vectar_data_t), pointer, intent(in) :: workspace
 
     integer(sz) :: u
 
@@ -4073,10 +4073,10 @@ m4_if(DEBUGGING,[true],[dnl
     ! collection.
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data
+    class(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(inout) :: run_stack(0:run_stack_size)
     integer, intent(inout) :: stack_count
-    type(vectar_data_t), pointer, intent(in) :: workspace
+    class(vectar_data_t), pointer, intent(in) :: workspace
 
     logical :: the_invariant_is_established
     integer :: n

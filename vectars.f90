@@ -2130,7 +2130,7 @@ contains
 
   function vectar_data_ptr (vec) result (data_ptr)
     class(*), intent(in) :: vec
-    type(vectar_data_t), pointer :: data_ptr
+    class(vectar_data_t), pointer :: data_ptr
 
     select type (v => .autoval. vec)
     class is (vectar_t)
@@ -2373,7 +2373,7 @@ contains
     class(vectar_range_t), intent(inout) :: dst
     class(*), intent(in) :: src
 
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     select type (src1 => .autoval. src)
     type is (vectar_range_t)
@@ -2395,7 +2395,7 @@ contains
     class(*), intent(in) :: obj
     type(vectar_range_t) :: range
 
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     select type (src => .autoval. obj)
     type is (vectar_range_t)
@@ -2489,7 +2489,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 0_sz
@@ -2504,7 +2504,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 1_sz
@@ -2522,7 +2522,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 2_sz
@@ -2542,7 +2542,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 3_sz
@@ -2564,7 +2564,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 4_sz
@@ -2588,7 +2588,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 5_sz
@@ -2615,7 +2615,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 6_sz
@@ -2644,7 +2644,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 7_sz
@@ -2675,7 +2675,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 8_sz
@@ -2708,7 +2708,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 9_sz
@@ -2743,7 +2743,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 10_sz
@@ -2781,7 +2781,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 11_sz
@@ -2821,7 +2821,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 12_sz
@@ -2863,7 +2863,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 13_sz
@@ -2907,7 +2907,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 14_sz
@@ -2953,7 +2953,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 15_sz
@@ -3002,7 +3002,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 16_sz
@@ -3053,7 +3053,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 17_sz
@@ -3106,7 +3106,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 18_sz
@@ -3161,7 +3161,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 19_sz
@@ -3218,7 +3218,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     allocate (data)
     data%length = 20_sz
@@ -3270,7 +3270,7 @@ contains
     type(vectar_t) :: vec
 
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     if (size < 0_sz) then
        call error_abort ("vectar size must be at least zero")
@@ -3304,7 +3304,7 @@ contains
     select type (v => .autoval. vec)
     type is (vectar_t)
        block
-         type(vectar_data_t), pointer :: data
+         class(vectar_data_t), pointer :: data
          data => vectar_data_ptr (v)
          len = data%length
        end block
@@ -3329,7 +3329,7 @@ contains
     integer(sz), intent(in) :: i
     class(*), allocatable :: element
 
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     select type (v => .autoval. vec)
     type is (vectar_t)
@@ -3398,7 +3398,7 @@ contains
     integer(sz), intent(in) :: i
     class(*), intent(in) :: element
 
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     select type (v => .autoval. vec)
     type is (vectar_t)
@@ -3466,7 +3466,7 @@ contains
     class(*), intent(in) :: vec
     integer(sz), intent(in) :: i, j
 
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: tmp
     integer(sz) :: i1, j1
 
@@ -3542,7 +3542,7 @@ contains
     class(*), intent(in) :: fill
 
     type(vectar_range_t) :: range
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: i
 
     range = vec
@@ -3556,7 +3556,7 @@ contains
     class(*), intent(in) :: vec
 
     type(vectar_range_t) :: range
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: i, j
     class(*), allocatable :: tmp
 
@@ -3585,7 +3585,7 @@ contains
     class(*), intent(in) :: src
 
     type(vectar_range_t) :: src_range
-    type(vectar_data_t), pointer :: src_data, dst_data
+    class(vectar_data_t), pointer :: src_data, dst_data
     integer(sz) :: copy_len
     integer(sz) :: j, k
 
@@ -3697,7 +3697,7 @@ contains
     class(*), intent(in) :: src
 
     type(vectar_range_t) :: src_range
-    type(vectar_data_t), pointer :: src_data, dst_data
+    class(vectar_data_t), pointer :: src_data, dst_data
     integer(sz) :: n_full
     integer(sz) :: n_copy
     integer(sz) :: n_reverse
@@ -3860,7 +3860,7 @@ contains
     type(cons_t) :: lst
 
     type(vectar_range_t) :: range
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: i
 
     range = vec
@@ -3876,7 +3876,7 @@ contains
     type(cons_t) :: lst
 
     type(vectar_range_t) :: range
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: i
 
     range = vec
@@ -3895,7 +3895,7 @@ contains
     integer(sz) :: i
     type(cons_t) :: p
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     n = length (.autoval. lst)
     allocate (data)
@@ -3924,7 +3924,7 @@ contains
     integer(sz) :: i
     type(cons_t) :: p
     type(heap_element_t), pointer :: new_element
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     n = length (.autoval. lst)
     allocate (data)
@@ -3963,7 +3963,7 @@ contains
     type(vectar_t) :: vec_copy
 
     type(vectar_range_t) :: range
-    type(vectar_data_t), pointer :: src, dst
+    class(vectar_data_t), pointer :: src, dst
     integer(sz) :: istart, iend, size, i
 
     range = vec
@@ -3989,7 +3989,7 @@ contains
     type(vectar_t) :: vec_copy
 
     type(vectar_range_t) :: range
-    type(vectar_data_t), pointer :: src, dst
+    class(vectar_data_t), pointer :: src, dst
     integer(sz) :: istart, iend, size, i
 
     range = vec
@@ -4022,8 +4022,8 @@ contains
     type(vectar_t) :: vec_a
 
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: src1
-    type(vectar_data_t), pointer :: dst
+    class(vectar_data_t), pointer :: src1
+    class(vectar_data_t), pointer :: dst
     integer(sz) :: len_vec_a
     integer(sz) :: i, j
 
@@ -4050,9 +4050,9 @@ contains
 
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: src1
-    type(vectar_data_t), pointer :: src2
-    type(vectar_data_t), pointer :: dst
+    class(vectar_data_t), pointer :: src1
+    class(vectar_data_t), pointer :: src2
+    class(vectar_data_t), pointer :: dst
     integer(sz) :: len_vec_a
     integer(sz) :: i, j
 
@@ -4088,10 +4088,10 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: src1
-    type(vectar_data_t), pointer :: src2
-    type(vectar_data_t), pointer :: src3
-    type(vectar_data_t), pointer :: dst
+    class(vectar_data_t), pointer :: src1
+    class(vectar_data_t), pointer :: src2
+    class(vectar_data_t), pointer :: src3
+    class(vectar_data_t), pointer :: dst
     integer(sz) :: len_vec_a
     integer(sz) :: i, j
 
@@ -4136,11 +4136,11 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: src1
-    type(vectar_data_t), pointer :: src2
-    type(vectar_data_t), pointer :: src3
-    type(vectar_data_t), pointer :: src4
-    type(vectar_data_t), pointer :: dst
+    class(vectar_data_t), pointer :: src1
+    class(vectar_data_t), pointer :: src2
+    class(vectar_data_t), pointer :: src3
+    class(vectar_data_t), pointer :: src4
+    class(vectar_data_t), pointer :: dst
     integer(sz) :: len_vec_a
     integer(sz) :: i, j
 
@@ -4194,12 +4194,12 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: src1
-    type(vectar_data_t), pointer :: src2
-    type(vectar_data_t), pointer :: src3
-    type(vectar_data_t), pointer :: src4
-    type(vectar_data_t), pointer :: src5
-    type(vectar_data_t), pointer :: dst
+    class(vectar_data_t), pointer :: src1
+    class(vectar_data_t), pointer :: src2
+    class(vectar_data_t), pointer :: src3
+    class(vectar_data_t), pointer :: src4
+    class(vectar_data_t), pointer :: src5
+    class(vectar_data_t), pointer :: dst
     integer(sz) :: len_vec_a
     integer(sz) :: i, j
 
@@ -4263,13 +4263,13 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: src1
-    type(vectar_data_t), pointer :: src2
-    type(vectar_data_t), pointer :: src3
-    type(vectar_data_t), pointer :: src4
-    type(vectar_data_t), pointer :: src5
-    type(vectar_data_t), pointer :: src6
-    type(vectar_data_t), pointer :: dst
+    class(vectar_data_t), pointer :: src1
+    class(vectar_data_t), pointer :: src2
+    class(vectar_data_t), pointer :: src3
+    class(vectar_data_t), pointer :: src4
+    class(vectar_data_t), pointer :: src5
+    class(vectar_data_t), pointer :: src6
+    class(vectar_data_t), pointer :: dst
     integer(sz) :: len_vec_a
     integer(sz) :: i, j
 
@@ -4342,14 +4342,14 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: src1
-    type(vectar_data_t), pointer :: src2
-    type(vectar_data_t), pointer :: src3
-    type(vectar_data_t), pointer :: src4
-    type(vectar_data_t), pointer :: src5
-    type(vectar_data_t), pointer :: src6
-    type(vectar_data_t), pointer :: src7
-    type(vectar_data_t), pointer :: dst
+    class(vectar_data_t), pointer :: src1
+    class(vectar_data_t), pointer :: src2
+    class(vectar_data_t), pointer :: src3
+    class(vectar_data_t), pointer :: src4
+    class(vectar_data_t), pointer :: src5
+    class(vectar_data_t), pointer :: src6
+    class(vectar_data_t), pointer :: src7
+    class(vectar_data_t), pointer :: dst
     integer(sz) :: len_vec_a
     integer(sz) :: i, j
 
@@ -4431,15 +4431,15 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: src1
-    type(vectar_data_t), pointer :: src2
-    type(vectar_data_t), pointer :: src3
-    type(vectar_data_t), pointer :: src4
-    type(vectar_data_t), pointer :: src5
-    type(vectar_data_t), pointer :: src6
-    type(vectar_data_t), pointer :: src7
-    type(vectar_data_t), pointer :: src8
-    type(vectar_data_t), pointer :: dst
+    class(vectar_data_t), pointer :: src1
+    class(vectar_data_t), pointer :: src2
+    class(vectar_data_t), pointer :: src3
+    class(vectar_data_t), pointer :: src4
+    class(vectar_data_t), pointer :: src5
+    class(vectar_data_t), pointer :: src6
+    class(vectar_data_t), pointer :: src7
+    class(vectar_data_t), pointer :: src8
+    class(vectar_data_t), pointer :: dst
     integer(sz) :: len_vec_a
     integer(sz) :: i, j
 
@@ -4530,16 +4530,16 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: src1
-    type(vectar_data_t), pointer :: src2
-    type(vectar_data_t), pointer :: src3
-    type(vectar_data_t), pointer :: src4
-    type(vectar_data_t), pointer :: src5
-    type(vectar_data_t), pointer :: src6
-    type(vectar_data_t), pointer :: src7
-    type(vectar_data_t), pointer :: src8
-    type(vectar_data_t), pointer :: src9
-    type(vectar_data_t), pointer :: dst
+    class(vectar_data_t), pointer :: src1
+    class(vectar_data_t), pointer :: src2
+    class(vectar_data_t), pointer :: src3
+    class(vectar_data_t), pointer :: src4
+    class(vectar_data_t), pointer :: src5
+    class(vectar_data_t), pointer :: src6
+    class(vectar_data_t), pointer :: src7
+    class(vectar_data_t), pointer :: src8
+    class(vectar_data_t), pointer :: src9
+    class(vectar_data_t), pointer :: dst
     integer(sz) :: len_vec_a
     integer(sz) :: i, j
 
@@ -4639,17 +4639,17 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: src1
-    type(vectar_data_t), pointer :: src2
-    type(vectar_data_t), pointer :: src3
-    type(vectar_data_t), pointer :: src4
-    type(vectar_data_t), pointer :: src5
-    type(vectar_data_t), pointer :: src6
-    type(vectar_data_t), pointer :: src7
-    type(vectar_data_t), pointer :: src8
-    type(vectar_data_t), pointer :: src9
-    type(vectar_data_t), pointer :: src10
-    type(vectar_data_t), pointer :: dst
+    class(vectar_data_t), pointer :: src1
+    class(vectar_data_t), pointer :: src2
+    class(vectar_data_t), pointer :: src3
+    class(vectar_data_t), pointer :: src4
+    class(vectar_data_t), pointer :: src5
+    class(vectar_data_t), pointer :: src6
+    class(vectar_data_t), pointer :: src7
+    class(vectar_data_t), pointer :: src8
+    class(vectar_data_t), pointer :: src9
+    class(vectar_data_t), pointer :: src10
+    class(vectar_data_t), pointer :: dst
     integer(sz) :: len_vec_a
     integer(sz) :: i, j
 
@@ -4865,7 +4865,7 @@ contains
          type(vectar_range_t) :: vecr
          integer(sz) :: len_vec_c
          integer(sz) :: i, j
-         type(vectar_data_t), pointer :: src, dst
+         class(vectar_data_t), pointer :: src, dst
 
          vecs_reversed = nil
          len_vec_c = 0_sz
@@ -4925,8 +4925,8 @@ contains
 
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     integer(sz) :: i0_1
@@ -4974,9 +4974,9 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -5042,10 +5042,10 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -5129,11 +5129,11 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -5236,12 +5236,12 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -5362,13 +5362,13 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -5507,14 +5507,14 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -5671,15 +5671,15 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -5854,16 +5854,16 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     type(gcroot_t) :: vec1_root
     type(gcroot_t) :: vec2_root
     type(gcroot_t) :: vec3_root
@@ -6039,10 +6039,10 @@ contains
 
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data1
     integer(sz) :: min_length
     type(gcroot_t) :: vec_m_root
-    type(vectar_data_t), pointer :: result_data
+    class(vectar_data_t), pointer :: result_data
     integer(sz) :: i
     integer(sz) :: i1
     class(*), allocatable :: result_value
@@ -6078,11 +6078,11 @@ contains
     type(gcroot_t) :: vec2_root
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     integer(sz) :: min_length
     type(gcroot_t) :: vec_m_root
-    type(vectar_data_t), pointer :: result_data
+    class(vectar_data_t), pointer :: result_data
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6128,12 +6128,12 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     integer(sz) :: min_length
     type(gcroot_t) :: vec_m_root
-    type(vectar_data_t), pointer :: result_data
+    class(vectar_data_t), pointer :: result_data
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6190,13 +6190,13 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     integer(sz) :: min_length
     type(gcroot_t) :: vec_m_root
-    type(vectar_data_t), pointer :: result_data
+    class(vectar_data_t), pointer :: result_data
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6264,14 +6264,14 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     integer(sz) :: min_length
     type(gcroot_t) :: vec_m_root
-    type(vectar_data_t), pointer :: result_data
+    class(vectar_data_t), pointer :: result_data
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6351,15 +6351,15 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     integer(sz) :: min_length
     type(gcroot_t) :: vec_m_root
-    type(vectar_data_t), pointer :: result_data
+    class(vectar_data_t), pointer :: result_data
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6449,16 +6449,16 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     integer(sz) :: min_length
     type(gcroot_t) :: vec_m_root
-    type(vectar_data_t), pointer :: result_data
+    class(vectar_data_t), pointer :: result_data
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6560,17 +6560,17 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     integer(sz) :: min_length
     type(gcroot_t) :: vec_m_root
-    type(vectar_data_t), pointer :: result_data
+    class(vectar_data_t), pointer :: result_data
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6682,18 +6682,18 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     integer(sz) :: min_length
     type(gcroot_t) :: vec_m_root
-    type(vectar_data_t), pointer :: result_data
+    class(vectar_data_t), pointer :: result_data
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6816,19 +6816,19 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     integer(sz) :: min_length
     type(gcroot_t) :: vec_m_root
-    type(vectar_data_t), pointer :: result_data
+    class(vectar_data_t), pointer :: result_data
     integer(sz) :: i
     integer(sz) :: i1
     integer(sz) :: i2
@@ -6932,7 +6932,7 @@ contains
 
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data1
     integer(sz) :: min_length
     class(*), allocatable :: result_element
     integer(sz) :: i
@@ -6965,8 +6965,8 @@ contains
     type(gcroot_t) :: vec2_root
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     integer(sz) :: min_length
     class(*), allocatable :: result_element
     integer(sz) :: i
@@ -7009,9 +7009,9 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     integer(sz) :: min_length
     class(*), allocatable :: result_element
     integer(sz) :: i
@@ -7065,10 +7065,10 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     integer(sz) :: min_length
     class(*), allocatable :: result_element
     integer(sz) :: i
@@ -7133,11 +7133,11 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     integer(sz) :: min_length
     class(*), allocatable :: result_element
     integer(sz) :: i
@@ -7214,12 +7214,12 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     integer(sz) :: min_length
     class(*), allocatable :: result_element
     integer(sz) :: i
@@ -7306,13 +7306,13 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     integer(sz) :: min_length
     class(*), allocatable :: result_element
     integer(sz) :: i
@@ -7411,14 +7411,14 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     integer(sz) :: min_length
     class(*), allocatable :: result_element
     integer(sz) :: i
@@ -7527,15 +7527,15 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     integer(sz) :: min_length
     class(*), allocatable :: result_element
     integer(sz) :: i
@@ -7655,16 +7655,16 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     integer(sz) :: min_length
     class(*), allocatable :: result_element
     integer(sz) :: i
@@ -7766,7 +7766,7 @@ contains
 
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data1
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -7796,8 +7796,8 @@ contains
     type(gcroot_t) :: vec2_root
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -7837,9 +7837,9 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -7890,10 +7890,10 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -7955,11 +7955,11 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -8033,12 +8033,12 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -8122,13 +8122,13 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -8224,14 +8224,14 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -8337,15 +8337,15 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -8462,16 +8462,16 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -8573,8 +8573,8 @@ contains
     type(gcroot_t) :: vec_root
     type(gcroot_t) :: vec_c_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
-    type(vectar_data_t), pointer :: result_data
+    class(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: result_data
     class(*), allocatable :: seed
     class(*), allocatable :: new_seed
     integer(sz) :: i
@@ -8610,7 +8610,7 @@ contains
 
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data1
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -8644,8 +8644,8 @@ contains
     type(gcroot_t) :: vec2_root
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -8689,9 +8689,9 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -8746,10 +8746,10 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -8815,11 +8815,11 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -8897,12 +8897,12 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -8990,13 +8990,13 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -9096,14 +9096,14 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -9213,15 +9213,15 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -9342,16 +9342,16 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -9455,7 +9455,7 @@ contains
 
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data1
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -9491,8 +9491,8 @@ contains
     type(gcroot_t) :: vec2_root
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -9538,9 +9538,9 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -9597,10 +9597,10 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -9668,11 +9668,11 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -9752,12 +9752,12 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -9847,13 +9847,13 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -9955,14 +9955,14 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -10074,15 +10074,15 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -10205,16 +10205,16 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -10319,7 +10319,7 @@ contains
 
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data1
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -10355,8 +10355,8 @@ contains
     type(gcroot_t) :: vec2_root
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -10402,9 +10402,9 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -10461,10 +10461,10 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -10532,11 +10532,11 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -10616,12 +10616,12 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -10711,13 +10711,13 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -10819,14 +10819,14 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -10938,15 +10938,15 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -11069,16 +11069,16 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     integer(sz) :: min_length
     type(gcroot_t) :: state
     class(*), allocatable :: next_state
@@ -11181,7 +11181,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: element
     integer(sz) :: index
     integer(sz) :: i0
@@ -11207,7 +11207,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     type(gcroot_t) :: seed1_root
     class(*), allocatable :: element
@@ -11239,7 +11239,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     type(gcroot_t) :: seed1_root
@@ -11278,7 +11278,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -11323,7 +11323,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -11375,7 +11375,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -11433,7 +11433,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -11499,7 +11499,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -11571,7 +11571,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -11650,7 +11650,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -11735,7 +11735,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -12195,7 +12195,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: element
     integer(sz) :: index
     integer(sz) :: i0
@@ -12221,7 +12221,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     type(gcroot_t) :: seed1_root
     class(*), allocatable :: element
@@ -12253,7 +12253,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     type(gcroot_t) :: seed1_root
@@ -12292,7 +12292,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -12337,7 +12337,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -12389,7 +12389,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -12447,7 +12447,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -12513,7 +12513,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -12585,7 +12585,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -12664,7 +12664,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -12749,7 +12749,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     class(*), allocatable :: seed1
     class(*), allocatable :: seed2
     class(*), allocatable :: seed3
@@ -13213,7 +13213,7 @@ contains
 
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data1
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -13269,8 +13269,8 @@ contains
     type(gcroot_t) :: vec2_root
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -13338,9 +13338,9 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -13421,10 +13421,10 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -13518,11 +13518,11 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -13630,12 +13630,12 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -13759,13 +13759,13 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -13903,14 +13903,14 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -14060,15 +14060,15 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -14231,16 +14231,16 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -14385,7 +14385,7 @@ contains
 
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data1
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -14441,8 +14441,8 @@ contains
     type(gcroot_t) :: vec2_root
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -14510,9 +14510,9 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -14593,10 +14593,10 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -14690,11 +14690,11 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -14802,12 +14802,12 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -14931,13 +14931,13 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -15075,14 +15075,14 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -15232,15 +15232,15 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -15403,16 +15403,16 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -15559,7 +15559,7 @@ contains
 
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data1
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -15615,8 +15615,8 @@ contains
     type(gcroot_t) :: vec2_root
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -15684,9 +15684,9 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -15767,10 +15767,10 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -15864,11 +15864,11 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -15976,12 +15976,12 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -16105,13 +16105,13 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -16249,14 +16249,14 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -16406,15 +16406,15 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -16577,16 +16577,16 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -16731,7 +16731,7 @@ contains
 
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data1
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -16787,8 +16787,8 @@ contains
     type(gcroot_t) :: vec2_root
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -16856,9 +16856,9 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -16939,10 +16939,10 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -17036,11 +17036,11 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -17148,12 +17148,12 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -17277,13 +17277,13 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -17421,14 +17421,14 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -17578,15 +17578,15 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -17749,16 +17749,16 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -17924,7 +17924,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: len, i0, i
     integer(sz) :: ileft, imiddle, iright
     integer :: sign
@@ -17983,7 +17983,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: istart0, iend0, i
 
     index = min (-1_sz, n - 1_sz)
@@ -18037,7 +18037,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: istart0, iend0, i
 
     index = min (-1_sz, n - 1_sz)
@@ -18068,7 +18068,7 @@ contains
 
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data1
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -18099,8 +18099,8 @@ contains
     type(gcroot_t) :: vec2_root
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -18140,9 +18140,9 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -18192,10 +18192,10 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -18255,11 +18255,11 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -18330,12 +18330,12 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -18415,13 +18415,13 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -18512,14 +18512,14 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -18619,15 +18619,15 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -18737,16 +18737,16 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -18835,7 +18835,7 @@ contains
 
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data1
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -18866,8 +18866,8 @@ contains
     type(gcroot_t) :: vec2_root
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -18907,9 +18907,9 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -18959,10 +18959,10 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -19022,11 +19022,11 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -19097,12 +19097,12 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -19182,13 +19182,13 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -19279,14 +19279,14 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -19386,15 +19386,15 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -19504,16 +19504,16 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -19604,7 +19604,7 @@ contains
 
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data1
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -19640,8 +19640,8 @@ contains
     type(gcroot_t) :: vec2_root
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -19686,9 +19686,9 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -19743,10 +19743,10 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -19811,11 +19811,11 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -19891,12 +19891,12 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -19981,13 +19981,13 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -20083,14 +20083,14 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -20195,15 +20195,15 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -20318,16 +20318,16 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -20421,7 +20421,7 @@ contains
 
     type(gcroot_t) :: vec1_root
     type(vectar_range_t) :: vecr1
-    type(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data1
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -20457,8 +20457,8 @@ contains
     type(gcroot_t) :: vec2_root
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -20503,9 +20503,9 @@ contains
     type(vectar_range_t) :: vecr1
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -20560,10 +20560,10 @@ contains
     type(vectar_range_t) :: vecr2
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -20628,11 +20628,11 @@ contains
     type(vectar_range_t) :: vecr3
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -20708,12 +20708,12 @@ contains
     type(vectar_range_t) :: vecr4
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -20798,13 +20798,13 @@ contains
     type(vectar_range_t) :: vecr5
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -20900,14 +20900,14 @@ contains
     type(vectar_range_t) :: vecr6
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -21012,15 +21012,15 @@ contains
     type(vectar_range_t) :: vecr7
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -21135,16 +21135,16 @@ contains
     type(vectar_range_t) :: vecr8
     type(vectar_range_t) :: vecr9
     type(vectar_range_t) :: vecr10
-    type(vectar_data_t), pointer :: data1
-    type(vectar_data_t), pointer :: data2
-    type(vectar_data_t), pointer :: data3
-    type(vectar_data_t), pointer :: data4
-    type(vectar_data_t), pointer :: data5
-    type(vectar_data_t), pointer :: data6
-    type(vectar_data_t), pointer :: data7
-    type(vectar_data_t), pointer :: data8
-    type(vectar_data_t), pointer :: data9
-    type(vectar_data_t), pointer :: data10
+    class(vectar_data_t), pointer :: data1
+    class(vectar_data_t), pointer :: data2
+    class(vectar_data_t), pointer :: data3
+    class(vectar_data_t), pointer :: data4
+    class(vectar_data_t), pointer :: data5
+    class(vectar_data_t), pointer :: data6
+    class(vectar_data_t), pointer :: data7
+    class(vectar_data_t), pointer :: data8
+    class(vectar_data_t), pointer :: data9
+    class(vectar_data_t), pointer :: data10
     integer(sz) :: min_length
     integer(sz) :: i
     integer(sz) :: i1
@@ -21250,14 +21250,14 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: len
     integer(sz) :: len_minus_one
     integer(bool), allocatable :: satisfied(:)
     integer(sz) :: i0, i, j, k
     integer(sz) :: satisfied_count
     type(vectar_t) :: partitioned_vectar
-    type(vectar_data_t), pointer :: partitioned_vectar_data
+    class(vectar_data_t), pointer :: partitioned_vectar_data
 
     vec_root = vec
 
@@ -21329,8 +21329,8 @@ contains
     !
 
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
-    type(vectar_data_t), pointer :: data_shuffled
+    class(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data_shuffled
     integer(sz) :: i0, len
     real(real64) :: randnum
     integer(sz) :: i, j
@@ -21365,7 +21365,7 @@ contains
     !
 
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: i0, len
     real(real64) :: randnum
     integer(sz) :: i, j
@@ -21393,7 +21393,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
     integer(sz) :: i0, i1
     integer(sz) :: i
 
@@ -21445,7 +21445,7 @@ contains
 
     type(gcroot_t) :: vec_m_root, vec1_root, vec2_root
     type(vectar_range_t) :: vecr_m, vecr1, vecr2
-    type(vectar_data_t), pointer :: data_m, data1, data2
+    class(vectar_data_t), pointer :: data_m, data1, data2
     integer(sz) :: i0_m, i0_1, i0_2
     integer(sz) :: len_m, len1, len2
     integer(sz) :: i, j, k
@@ -21516,7 +21516,7 @@ contains
 
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
-    type(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data
 
     vec_root = vec
 
@@ -21550,7 +21550,7 @@ contains
     !    * https://en.wikipedia.org/w/index.php?title=Binary_search_algorithm&oldid=1062988272#Alternative_procedure
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data
+    class(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(in) :: ileft
     integer(sz), intent(in) :: iright
     class(*), intent(in) :: x
@@ -21585,7 +21585,7 @@ contains
     ! ipresorted (inclusively) is already sorted.
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data
+    class(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(in) :: ileft
     integer(sz), intent(in) :: ipresorted
     integer(sz), intent(in) :: iright
@@ -21645,7 +21645,7 @@ contains
     ! Reverse the data whose first element is at ileft and whose last
     ! element is at iright.
     !
-    type(vectar_data_t), pointer, intent(in) :: data
+    class(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(in) :: ileft
     integer(sz), intent(in) :: iright
 
@@ -21670,7 +21670,7 @@ contains
     ! reversed to make it so.
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data
+    class(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(in) :: ileft
     integer(sz), intent(in) :: iend
     integer(sz), intent(out) :: iright
@@ -21735,7 +21735,7 @@ contains
     ! it so.
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data
+    class(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(in) :: ileft
     integer(sz), intent(in) :: iend
     integer(sz), intent(in) :: min_length
@@ -21763,11 +21763,11 @@ contains
     !        and i2.
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data2
+    class(vectar_data_t), pointer, intent(in) :: data2
     integer(sz), intent(in) :: itarget
     integer(sz), intent(in) :: irunstart2
     integer(sz), intent(in) :: irunend2
-    type(vectar_data_t), pointer, intent(in) :: data1
+    class(vectar_data_t), pointer, intent(in) :: data1
     integer(sz), intent(in) :: irunstart1
     integer(sz), intent(in) :: irunend1
 
@@ -21815,11 +21815,11 @@ contains
     !        and i1.
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data1
+    class(vectar_data_t), pointer, intent(in) :: data1
     integer(sz), intent(in) :: irunstart1
     integer(sz), intent(in) :: irunend1
     integer(sz), intent(in) :: itarget
-    type(vectar_data_t), pointer, intent(in) :: data2
+    class(vectar_data_t), pointer, intent(in) :: data2
     integer(sz), intent(in) :: irunstart2
     integer(sz), intent(in) :: irunend2
 
@@ -21868,11 +21868,11 @@ contains
     ! It has to be protected from garbage collection.
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data
+    class(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(in) :: i
     integer(sz), intent(in) :: j
     integer(sz), intent(in) :: k
-    type(vectar_data_t), pointer, intent(in) :: workspace
+    class(vectar_data_t), pointer, intent(in) :: workspace
 
     integer(sz) :: u
 
@@ -21912,10 +21912,10 @@ contains
     ! collection.
     !
     procedure(vectar_predicate2_t) :: less_than
-    type(vectar_data_t), pointer, intent(in) :: data
+    class(vectar_data_t), pointer, intent(in) :: data
     integer(sz), intent(inout) :: run_stack(0:run_stack_size)
     integer, intent(inout) :: stack_count
-    type(vectar_data_t), pointer, intent(in) :: workspace
+    class(vectar_data_t), pointer, intent(in) :: workspace
 
     logical :: the_invariant_is_established
     integer :: n
