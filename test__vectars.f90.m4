@@ -2888,11 +2888,6 @@ contains
        call vectar_set0 (vec2, i, (i + 9) - (2 * mod (i, 10)))
     end do
     call vectar_stable_sortx (is_lt_except_ones, vec1)
-block
-do i=1,1000
-print*,int_cast(vectar_ref1 (vec1,i)), int_cast(vectar_ref1 (vec2,i))
-end do
-end block
     call check (vectar_equal (int_eq, vec1, vec2), "test0420-0040 failed")
 
   contains

@@ -21392,22 +21392,12 @@ contains
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
     class(vectar_data_t), pointer :: data
-    integer(sz) :: i0, i1
-    integer(sz) :: i
 
     vec_root = vec
 
     vecr = vec
     data => vectar_data_ptr (vecr)
-    i0 = vecr%istart0()
-    i1 = vecr%iend0()
-
-    bool = .true.
-    i = i0
-    do while (bool .and. i < i1)
-       bool = .not. less_than (data%array(i + 1)%element, data%array(i)%element)
-       i = i + 1
-    end do
+    bool = data_is_sorted (less_than, data, vecr%istart0(), vecr%iend0())
 
     call vec_root%discard
   end function vectar_is_sorted
@@ -21537,6 +21527,26 @@ contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  recursive function data_is_sorted (less_than, data, ileft, iright) result (bool)
+    !
+    ! Is dataileft .. iright free of any descending sequences?
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: ileft
+    integer(sz), intent(in) :: iright
+    logical::bool
+
+    integer(sz) :: i
+
+    bool = .true.
+    i = ileft
+    do while (bool .and. i < iright)
+       bool = .not. less_than (data%array(i + 1)%element, data%array(i)%element)
+       i = i + 1
+    end do
+  end function data_is_sorted
+
   recursive function bottenbruch_search (less_than, data, ileft, iright, x) result (index)
     !
     ! Do a search on the data whose first element is at ileft and
@@ -21578,11 +21588,6 @@ contains
        end if
     end do
     index = j
-    if (less_than (x, data%array(index)%element)) then
-       if (.not. less_than (x, data%array(ileft)%element)) then
-          call error_abort ("the implementation of bottenbruch_search is not correct")
-       end if
-    end if
   end function bottenbruch_search
 
   recursive subroutine stable_binary_insertion_sort (less_than, data, ileft, ipresorted, iright)
@@ -21779,18 +21784,24 @@ contains
     integer(sz), intent(in) :: irunend1
 
     integer(sz) :: i, i1, i2
+    integer(sz) :: last1, last2
 
     i = itarget
+    last1 = irunend1 + 1
+    last2 = irunend2 + 1
     i1 = irunstart1
     i2 = irunstart2
-    do while (i1 <= irunend1 .and. i2 <= irunend2)
-       if (i1 == irunend1) then
+    do while (i /= last2)
+       if (i1 == last1) then
           ! The rest of the merger is from data2 and already is in
           ! place.
-          i2 = irunend2
-       else if (i2 == irunend2) then
+          if (i /= i2) then
+             call error_abort ("internal error in merge_going_leftwards")
+          end if
+          i = last2
+       else if (i2 == last2) then
           ! Copy the remainder of data1.
-          do while (i1 <= irunend1)
+          do while (i1 /= last1)
              data2%array(i) = data1%array(i1)
              i = i + 1
              i1 = i1 + 1
@@ -21831,18 +21842,24 @@ contains
     integer(sz), intent(in) :: irunend2
 
     integer(sz) :: i, i1, i2
+    integer(sz) :: last1, last2
 
     i = itarget
+    last1 = irunstart1 - 1
+    last2 = irunstart2 - 1
     i1 = irunend1
     i2 = irunend2
-    do while (irunstart1 <= i1 .and. irunstart2 <= i2)
-       if (i2 == irunstart2) then
+    do while (i /= last1)
+       if (i2 == last2) then
           ! The rest of the merger is from data1 and already is in
           ! place.
-          i1 = irunstart1
-       else if (i1 == irunstart1) then
+          if (i /= i1) then
+             call error_abort ("internal error in merge_going_rightwards")
+          end if
+          i = last1
+       else if (i1 == last1) then
           ! Copy the remainder of data2
-          do while (irunstart2 <= i2)
+          do while (i2 /= last2)
              data1%array(i) = data2%array(i2)
              i = i - 1
              i2 = i2 - 1
@@ -21858,7 +21875,7 @@ contains
           ! Copy an element from data2.
           data1%array(i) = data2%array(i2)
           i = i - 1
-          i1 = i1 - 1
+          i2 = i2 - 1
        end if
     end do
   end subroutine merge_going_rightwards
@@ -21886,17 +21903,17 @@ contains
     if (j - i < k - j) then
        ! The left side is shorter than or equal in length to the right
        ! side. Copy the left side to workspace, then merge leftwards.
-       do u = 0, (j - i) - 1
-          workspace%array(u) = data%array(i + u)
+       do u = i, j - 1
+          workspace%array(u - i) = data%array(u)
        end do
-       call merge_going_leftwards (less_than, data, i, j, k, workspace, 0_sz, (j - i) - 2)
+       call merge_going_leftwards (less_than, data, i, j, k, workspace, 0_sz, j - i - 1)
     else
        ! The left side is longer than the right side side. Copy the
        ! right side to workspace, then merge rightwards.
-       do u = 0, k - j
-          workspace%array(u) = data%array(j + u)
+       do u = j, k
+          workspace%array(u - j) = data%array(u)
        end do
-       call merge_going_rightwards (less_than, data, i, j - 1, k, workspace, 0_sz, (k - j) - 1)
+       call merge_going_rightwards (less_than, data, i, j - 1, k, workspace, 0_sz, k - j)
     end if
   end subroutine merge_two_runs
 
