@@ -2865,6 +2865,8 @@ contains
 
   subroutine test0420
     type(vectar_t) :: vec1
+    type(gcroot_t) :: vec2
+    integer :: i
 
     vec1 = vectar (52, 22, 31, 42, 53, 61, 21, 41, 51)
     call vectar_stable_sortx (is_lt_except_ones, vec1)
@@ -2873,6 +2875,25 @@ contains
     vec1 = vectar (41, 21, 31, 42, 22, 53, 61, 52, 51)
     call vectar_stable_sortx (is_lt_except_ones, vec1)
     call check (vectar_equal (int_eq, vec1, vectar (21, 22, 31, 41, 42, 53, 52, 51, 61)), "test0420-0020 failed")
+
+    vec1 = list_to_vectar (iota (1000))
+    call vectar_stable_sortx (is_lt_except_ones, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (1000))), "test0420-0030 failed")
+
+
+    vec1 = make_vectar (1000)
+    vec2 = make_vectar (1000)
+    do i = 0, 999
+       call vectar_set0 (vec1, i, 999 - i)
+       call vectar_set0 (vec2, i, (i + 9) - (2 * mod (i, 10)))
+    end do
+    call vectar_stable_sortx (is_lt_except_ones, vec1)
+block
+do i=1,1000
+print*,int_cast(vectar_ref1 (vec1,i)), int_cast(vectar_ref1 (vec2,i))
+end do
+end block
+    call check (vectar_equal (int_eq, vec1, vec2), "test0420-0040 failed")
 
   contains
 

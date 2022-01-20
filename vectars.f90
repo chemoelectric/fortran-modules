@@ -21929,8 +21929,7 @@ contains
     n = stack_count
     the_invariant_is_established = .false.
     do while (.not. the_invariant_is_established .and. 2 <= n)
-       if ((3 <= n .and. runlen (n - 2) <= runlen (n - 1) + runlen (n)) &
-            & .or. (4 <= n .and. runlen (n - 3) <= runlen (n - 2) + runlen (n - 1))) then
+       if (stack_needs_reduction_after_comparing_three_entries (n)) then
           if (runlen (n - 2) < runlen (n)) then
              call merge_two_runs (less_than, data, &
                   &               run_stack (n - 3) + 1, run_stack (n - 2) + 1, run_stack (n - 1), &
@@ -21958,6 +21957,20 @@ contains
     stack_count = n
 
   contains
+
+    function stack_needs_reduction_after_comparing_three_entries (n) result (bool)
+      integer, intent(in) :: n
+      logical :: bool
+
+      if (4 <= n) then
+         bool = (runlen (n - 2) <= runlen (n - 1) + runlen (n)) &
+              &    .or. (runlen (n - 3) <= runlen (n - 2) + runlen (n - 1))
+      else if (3 <= n) then
+         bool = (runlen (n - 2) <= runlen (n - 1) + runlen (n))
+      else
+         bool = .false.
+      end if
+    end function stack_needs_reduction_after_comparing_three_entries
 
     function runlen (i) result (len)
       integer, intent(in) :: i
@@ -21991,25 +22004,36 @@ contains
     integer :: n
 
     n = stack_count
-    do while (stack_count /= 1)
-          if (runlen (n - 2) < runlen (n)) then
-             call merge_two_runs (less_than, data, &
-                  &               run_stack (n - 3) + 1, run_stack (n - 2) + 1, run_stack (n - 1), &
-                  &               workspace)
-             run_stack (n - 2) = run_stack (n - 1)
-             run_stack (n - 1) = run_stack (n)
-             n = n - 1
-          else
-             call merge_two_runs (less_than, data, &
-                  &               run_stack (n - 2) + 1, run_stack (n - 1) + 1, run_stack (n), &
-                  &               workspace)
-             run_stack (n - 1) = run_stack (n)
-             n = n - 1
-          end if
+    do while (n /= 1)
+       if (stack_needs_merge_inside_it (n)) then
+          call merge_two_runs (less_than, data, &
+               &               run_stack (n - 3) + 1, run_stack (n - 2) + 1, run_stack (n - 1), &
+               &               workspace)
+          run_stack (n - 2) = run_stack (n - 1)
+          run_stack (n - 1) = run_stack (n)
+          n = n - 1
+       else
+          call merge_two_runs (less_than, data, &
+               &               run_stack (n - 2) + 1, run_stack (n - 1) + 1, run_stack (n), &
+               &               workspace)
+          run_stack (n - 1) = run_stack (n)
+          n = n - 1
+       end if
     end do
     stack_count = n
 
   contains
+
+    function stack_needs_merge_inside_it (n) result (bool)
+      integer, intent(in) :: n
+      logical :: bool
+
+      if (3 <= n) then
+         bool = (runlen (n - 2) < runlen (n))
+      else
+         bool = .false.
+      end if
+    end function stack_needs_merge_inside_it
 
     function runlen (i) result (len)
       integer, intent(in) :: i
