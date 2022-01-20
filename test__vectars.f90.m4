@@ -2682,8 +2682,8 @@ contains
   subroutine test0390
 
     !
-    ! There is an *extremely* remote chance of one of these tests
-    ! failing, due to the shuffle producing a sorted array.
+    ! There is a miniscule chance of one of these tests failing due to
+    ! the shuffle producing a sorted array.
     !
 
     type(vectar_t) :: vec1
@@ -2732,8 +2732,8 @@ contains
   subroutine test0400
 
     !
-    ! There is an *extremely* remote chance of one of these tests
-    ! failing, due to the shuffle producing a sorted array.
+    ! There is a miniscule chance of one of these tests failing due to
+    ! the shuffle producing a sorted array.
     !
 
     type(vectar_t) :: vec1, vec2
@@ -2889,6 +2889,16 @@ contains
     end do
     call vectar_stable_sortx (is_lt_except_ones, vec1)
     call check (vectar_equal (int_eq, vec1, vec2), "test0420-0040 failed")
+
+    vec1 = list_to_vectar (iota (1000))
+    call vectar_shufflex (vec1)
+    !
+    ! There is a miniscule chance of this test failing due to the
+    ! shuffle producing a sorted array.
+    !
+    call check (.not. vectar_is_sorted (is_lt_except_ones, vec1), "test0420-0050 failed")
+    call vectar_stable_sortx (is_lt_except_ones, vec1)
+    call check (vectar_is_sorted (is_lt_except_ones, vec1), "test0420-0060 failed")
 
   contains
 
