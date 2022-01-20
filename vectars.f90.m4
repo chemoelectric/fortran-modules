@@ -643,9 +643,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_merge
   public :: vectar_mergex
 
-  public :: vectar_stable_sortx ! FIXME: Currently (as part of
-                                !        development) this is an
-                                !        INSERTION SORT!!!!!!
+  public :: vectar_stable_sortx
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -3673,17 +3671,26 @@ dnl
     procedure(vectar_predicate2_t) :: less_than
     class(*), intent(in) :: vec
 
-    type(gcroot_t) :: vec_root
-    type(vectar_range_t) :: vecr
-    class(vectar_data_t), pointer :: data
+    type(gcroot_t) :: vec_root, workspace_root
+    type(vectar_range_t) :: vecr, workspace_range
+    class(vectar_data_t), pointer :: data, workspace
+    integer(sz) :: idatastart, idataend
 
     vec_root = vec
 
     vecr = vec
     data => vectar_data_ptr (vecr)
 
-    call stable_binary_insertion_sort (less_than, data, vecr%istart0(), vecr%istart0(), vecr%iend0())
+    idatastart = vecr%istart0()
+    idataend = vecr%iend0()
 
+    workspace_root = make_vectar (((idataend - idatastart) + 1) / 2)
+    workspace_range = workspace_root
+    workspace => vectar_data_ptr (workspace_range)
+
+    call stable_mergesort (less_than, data, idatastart, idataend, workspace)
+
+    call workspace_root%discard
     call vec_root%discard
   end subroutine vectar_stable_sortx
 
@@ -3844,7 +3851,7 @@ m4_if(DEBUGGING,[true],[dnl
        iright = ileft
     else
        iright = ileft + 1
-       if (less_than (data%array(iright), data%array(ileft))) then
+       if (less_than (data%array(iright)%element, data%array(ileft)%element)) then
           ! The sequence is strictly decreasing. Reverse it and so get a
           ! strictly increasing sequence. (Reversing a non-strictly
           ! decreasing sequence would be an unstable sort.)
@@ -3855,7 +3862,7 @@ m4_if(DEBUGGING,[true],[dnl
                 done = .true.
              else
                 itrial = iright + 1
-                if (.not. less_than (data%array(itrial), data%array(iright))) then
+                if (.not. less_than (data%array(itrial)%element, data%array(iright)%element)) then
                    ! The next element would be equal or increasing.
                    done = .true.
                 else
@@ -3875,7 +3882,7 @@ m4_if(DEBUGGING,[true],[dnl
                 done = .true.
              else
                 itrial = iright + 1
-                if (less_than (data%array(itrial), data%array(iright))) then
+                if (less_than (data%array(itrial)%element, data%array(iright)%element)) then
                    ! The next element would be decreasing.
                    done = .true.
                 else
@@ -3888,7 +3895,7 @@ m4_if(DEBUGGING,[true],[dnl
     end if
   end subroutine gather_an_increasing_run
 
-  recursive subroutine gather_an_increasing_run_of_minimum_length (less_than, data, ileft, iend, min_length, iright)
+  recursive subroutine gather_an_adequately_long_increasing_run (less_than, data, ileft, iend, min_length, iright)
     !
     ! Set iright so from ileft to iright, inclusively, there is a
     ! (non-strictly) increasing run of elements, either of the given
@@ -3911,7 +3918,7 @@ m4_if(DEBUGGING,[true],[dnl
        iright = min (iend, ileft + (min_length - 1))
        call stable_binary_insertion_sort (less_than, data, ileft, ipresorted, iright)
     end if
-  end subroutine gather_an_increasing_run_of_minimum_length
+  end subroutine gather_an_adequately_long_increasing_run
 
   recursive subroutine merge_going_leftwards (less_than, data2, itarget, irunstart2, irunend2, &
        &                                      data1, irunstart1, irunend1)
@@ -4249,9 +4256,9 @@ m4_if(DEBUGGING,[true],[dnl
        stack_count = 0
 
        do while (run_stack(stack_count) /= idataend)
-          call gather_an_increasing_run_of_minimum_length (less_than, data, &
-               &                                           run_stack(stack_count) + 1, idataend, &
-               &                                           min_run_length, iright)
+          call gather_an_adequately_long_increasing_run (less_than, data, &
+               &                                         run_stack(stack_count) + 1, idataend, &
+               &                                         min_run_length, iright)
 
           if (stack_count == run_stack_size) then
              call error_abort ("adaptive mergesort stack size exceeded")
