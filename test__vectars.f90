@@ -2900,7 +2900,42 @@ contains
     call vectar_stable_sortx (is_lt_except_ones, vec1)
     call check (vectar_is_sorted (is_lt_except_ones, vec1), "test0420-0060 failed")
 
+    vec1 = list_to_vectar (iota (1000))
+    call vectar_shufflex (vec1)
+    !
+    ! There is a miniscule chance of this test failing due to the
+    ! shuffle producing a sorted array.
+    !
+    call check (.not. vectar_is_sorted (less_than, vec1), "test0420-0070 failed")
+    call vectar_stable_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (1000))), "test0420-0080 failed")
+
+    ! Trigger a leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 99, -1), iota (101, 200, -1)))
+    call vectar_stable_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0420-0090 failed")
+
+    ! Trigger a more complex leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 197, -2), iota (99, 2, 2), list (199, 200)))
+    call vectar_stable_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0420-0100 failed")
+
+    ! Another leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 102), iota (101, 1)))
+    call vectar_stable_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0420-0110 failed")
+
   contains
+
+    function less_than (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y))
+    end function less_than
 
     function is_lt_except_ones (x, y) result (bool)
       class(*), intent(in) :: x

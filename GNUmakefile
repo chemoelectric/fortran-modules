@@ -73,6 +73,9 @@ FCFLAGS += -Wno-compare-reals
 # Unused dummy arguments are often a fine thing.
 FCFLAGS += -Wno-unused-dummy-argument
 
+# If you want to do coverage analysis.
+FCFLAGS += --coverage
+
 COMPILE.f90 = $(FC) $(FCFLAGS) $(XFCFLAGS)
 
 # Sometimes we tolerate trampolines.
@@ -216,8 +219,18 @@ test__vectars.mod:
 
 suffixed-all-basenames = $(addsuffix $(shell printf "%s" $(1)),$(MODULE_BASENAMES) $(TEST_PROGRAM_BASENAMES))
 
+.PHONY: coverage
+coverage:
+	lcov --capture --directory . --output-file coverage.info
+	genhtml coverage.info --output-directory coverage-html
+
+.PHONY: coverage-clean
+coverage-clean:
+	-rm -f *.gcda *.gcno coverage.info
+	-rm -f -R coverage-html
+
 .PHONY: clean maintainer-clean
-clean:
+clean: coverage-clean
 	-rm -f $(TEST_PROGRAM_BASENAMES)
 	-rm -f *.mod
 	-rm -f $(call suffixed-all-basenames, .$(OBJEXT))
