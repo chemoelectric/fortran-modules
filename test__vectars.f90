@@ -2868,19 +2868,56 @@ contains
     type(gcroot_t) :: vec2
     integer :: i
 
+    ! Some small sorts.
     vec1 = vectar (52, 22, 31, 42, 53, 61, 21, 41, 51)
     call vectar_stable_sortx (is_lt_except_ones, vec1)
     call check (vectar_equal (int_eq, vec1, vectar (22, 21, 31, 42, 41, 52, 53, 51, 61)), "test0420-0010 failed")
-
     vec1 = vectar (41, 21, 31, 42, 22, 53, 61, 52, 51)
     call vectar_stable_sortx (is_lt_except_ones, vec1)
     call check (vectar_equal (int_eq, vec1, vectar (21, 22, 31, 41, 42, 53, 52, 51, 61)), "test0420-0020 failed")
 
+    ! Trigger a leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 99, -1), iota (101, 200, -1)))
+    call vectar_stable_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0420-0030 failed")
+
+    ! Trigger a more complex leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 197, -2), iota (99, 2, 2), list (199, 200)))
+    call vectar_stable_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0420-0040 failed")
+
+    ! Another leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 102), iota (101, 1)))
+    call vectar_stable_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0420-0050 failed")
+
+    ! Trigger a rightwards merge.
+    vec1 = list_to_vectar (append (iota (101, 101, -1), iota (99, 200, -1)))
+    call vectar_stable_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0420-0060 failed")
+
+    ! Trigger a more complex rightwards merge.
+    vec1 = list_to_vectar (append (iota (99, 2, 2), list (199, 200), iota (99, 197, -2)))
+    call vectar_stable_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0420-0070 failed")
+
+    ! Another rightwards merge.
+    vec1 = list_to_vectar (append (iota (101, 100), iota (99, 1)))
+    call vectar_stable_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0420-0080 failed")
+
+    ! A large vectar that needs no sorting.
     vec1 = list_to_vectar (iota (1000))
     call vectar_stable_sortx (is_lt_except_ones, vec1)
-    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (1000))), "test0420-0030 failed")
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (1000))), "test0420-1030 failed")
 
+    ! A large vectar that needs only reversing.
+    vec1 = list_to_vectar (iota (1000, 999, -1))
+    call vectar_stable_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (1000))), "test0420-1035 failed")
 
+    ! A vectar going 999 to 0, sorted (stably) without regard to the
+    ! rightmost digit.
     vec1 = make_vectar (1000)
     vec2 = make_vectar (1000)
     do i = 0, 999
@@ -2888,42 +2925,64 @@ contains
        call vectar_set0 (vec2, i, (i + 9) - (2 * mod (i, 10)))
     end do
     call vectar_stable_sortx (is_lt_except_ones, vec1)
-    call check (vectar_equal (int_eq, vec1, vec2), "test0420-0040 failed")
+    call check (vectar_equal (int_eq, vec1, vec2), "test0420-1040 failed")
 
+    ! A shuffled vectar, sorted without regard to the rightmost
+    ! digit. (Sort stability is gratuitous in this case; there is no
+    ! potentially useful order to preserve.)
     vec1 = list_to_vectar (iota (1000))
     call vectar_shufflex (vec1)
     !
     ! There is a miniscule chance of this test failing due to the
     ! shuffle producing a sorted array.
     !
-    call check (.not. vectar_is_sorted (is_lt_except_ones, vec1), "test0420-0050 failed")
+    call check (.not. vectar_is_sorted (is_lt_except_ones, vec1), "test0420-1050 failed")
     call vectar_stable_sortx (is_lt_except_ones, vec1)
-    call check (vectar_is_sorted (is_lt_except_ones, vec1), "test0420-0060 failed")
+    call check (vectar_is_sorted (is_lt_except_ones, vec1), "test0420-1060 failed")
 
+    ! A shuffled vectar, sorted into ascending integer order.
     vec1 = list_to_vectar (iota (1000))
     call vectar_shufflex (vec1)
     !
     ! There is a miniscule chance of this test failing due to the
     ! shuffle producing a sorted array.
     !
-    call check (.not. vectar_is_sorted (less_than, vec1), "test0420-0070 failed")
+    call check (.not. vectar_is_sorted (less_than, vec1), "test0420-1070 failed")
     call vectar_stable_sortx (less_than, vec1)
-    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (1000))), "test0420-0080 failed")
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (1000))), "test0420-1080 failed")
 
-    ! Trigger a leftwards merge.
-    vec1 = list_to_vectar (append (iota (99, 99, -1), iota (101, 200, -1)))
-    call vectar_stable_sortx (less_than, vec1)
-    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0420-0090 failed")
+!!$    ! FIXME
+!!$    vec1 = list_to_vectar (append (iota (101, 0, 10), iota (100, 1, 10), iota (100, 2, 10)))
+!!$    call vectar_stable_sortx (is_lt_except_ones, vec1)
+!!$    vec2 = make_vectar (301)
+!!$    do i = 0, 99
+!!$       call vectar_set0 (vec2, (3 * i), (10 * i))
+!!$       call vectar_set0 (vec2, (3 * i) + 1, (10 * i) + 1)
+!!$       call vectar_set0 (vec2, (3 * i) + 2, (10 * i) + 2)
+!!$    end do
+!!$    call vectar_set0 (vec2, 300, 1000)
+!!$    call check (vectar_equal (int_eq, vec1, vec2), "test0420-1090 failed")
+!!$
+!!$    ! FIXME
+!!$    vec1 = list_to_vectar (append (iota (101, 0, 10), iota (100, 1, 10), iota (101, 2, 10), iota (102, 3, 10)))
+!!$    call vectar_stable_sortx (is_lt_except_ones, vec1)
+!!$    vec2 = make_vectar (404)
+!!$    do i = 0, 99
+!!$       call vectar_set0 (vec2, (4 * i), (10 * i))
+!!$       call vectar_set0 (vec2, (4 * i) + 1, (10 * i) + 1)
+!!$       call vectar_set0 (vec2, (4 * i) + 2, (10 * i) + 2)
+!!$       call vectar_set0 (vec2, (4 * i) + 3, (10 * i) + 3)
+!!$    end do
+!!$    call vectar_set0 (vec2, 400, 1000)
+!!$    call vectar_set0 (vec2, 401, 1002)
+!!$    call vectar_set0 (vec2, 402, 1003)
+!!$    call vectar_set0 (vec2, 403, 1013)
+!!$    call check (vectar_equal (int_eq, vec1, vec2), "test0420-1100 failed")
 
-    ! Trigger a more complex leftwards merge.
-    vec1 = list_to_vectar (append (iota (99, 197, -2), iota (99, 2, 2), list (199, 200)))
-    call vectar_stable_sortx (less_than, vec1)
-    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0420-0100 failed")
+!!$    vec1 = list_to_vectar (append (iota (101), iota (100)))
+!!$    call vectar_stable_sortx (less_than, vec1)
 
-    ! Another leftwards merge.
-    vec1 = list_to_vectar (append (iota (99, 102), iota (101, 1)))
-    call vectar_stable_sortx (less_than, vec1)
-    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0420-0110 failed")
+    call vectar_stable_mergesort_unit_tests
 
   contains
 

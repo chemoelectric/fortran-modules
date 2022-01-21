@@ -647,6 +647,11 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+  ! Some unit tests. Not for use in a program other than for testing.
+  public :: vectar_stable_mergesort_unit_tests
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
 
@@ -4164,6 +4169,111 @@ m4_if(DEBUGGING,[true],[dnl
 
   end subroutine restore_run_stack_invariant
 
+  function int_less_than (x, y) result (bool)
+    class(*), intent(in) :: x, y
+    logical :: bool
+
+    bool = .false.
+    select type (x)
+    type is (integer)
+       select type (y)
+       type is (integer)
+          bool = (x < y)
+       end select
+    end select
+  end function int_less_than
+
+  function int_equal (x, y) result (bool)
+    class(*), intent(in) :: x, y
+    logical :: bool
+
+    bool = .false.
+    select type (x)
+    type is (integer)
+       select type (y)
+       type is (integer)
+          bool = (x == y)
+       end select
+    end select
+  end function int_equal
+
+  recursive subroutine unit_test__restore_run_stack_invariant__test1
+    type(gcroot_t) :: vec, workspace_vec
+    type(vectar_data_t), pointer :: data, workspace
+    integer(sz) :: run_stack(0:run_stack_size)
+    integer :: stack_count
+
+    workspace_vec = make_vectar (2000, 1)
+    workspace => vectar_data_ptr (workspace_vec)
+
+    run_stack(0) = -1_sz
+
+    ! Test 3 <= n, (runlen (n - 2) <= runlen (n - 1) + runlen (n)),
+    ! with runlen(n - 2) <= runlen(n). This should reduce the stack
+    ! height by 1, by merging the 2nd and 3rd entries.
+    vec = list_to_vectar (append (iota (11, 0, 2), iota (11, 1, 2), iota (39, 22)))
+    data => vectar_data_ptr (vec)
+    run_stack(1) = 10_sz
+    run_stack(2) = 30_sz
+    run_stack(3) = 60_sz
+    stack_count = 3
+    call restore_run_stack_invariant (int_less_than, data, run_stack, stack_count, workspace)
+    if (stack_count /= 2) then
+       call error_abort ("unit_test__restore_run_stack_invariant__test1 0010 failed")
+    end if
+    if (run_stack(0) /= -1_sz) then
+       call error_abort ("unit_test__restore_run_stack_invariant__test1 0020 failed")
+    end if
+    if (run_stack(1) /= 30_sz) then
+       call error_abort ("unit_test__restore_run_stack_invariant__test1 0030 failed")
+    end if
+    if (run_stack(2) /= 60_sz) then
+       call error_abort ("unit_test__restore_run_stack_invariant__test1 0040 failed")
+    end if
+    if (.not. vectar_equal (int_equal, vec, list_to_vectar (iota (61)))) then
+       call error_abort ("unit_test__restore_run_stack_invariant__test1 0050 failed")
+    end if
+
+    ! Test 4 <= n, (runlen (n - 2) <= runlen (n - 1) + runlen (n)),
+    ! with runlen(n - 2) <= runlen(n). This should reduce the stack
+    ! height by 1, by merging the 2nd and 3rd entries. (FIXME: write a
+    ! stronger test of correct merge.)
+    vec = list_to_vectar (iota (1045, 1))
+    data => vectar_data_ptr (vec)
+    run_stack(1) = 1000_sz
+    run_stack(2) = 1010_sz
+    run_stack(3) = 1030_sz
+    run_stack(4) = 1045_sz
+    stack_count = 4
+    call restore_run_stack_invariant (int_less_than, data, run_stack, stack_count, workspace)
+    if (stack_count /= 3) then
+       call error_abort ("unit_test__restore_run_stack_invariant__test1 1010 failed")
+    end if
+    if (run_stack(0) /= -1_sz) then
+       call error_abort ("unit_test__restore_run_stack_invariant__test1 1020 failed")
+    end if
+    if (run_stack(1) /= 1000_sz) then
+       call error_abort ("unit_test__restore_run_stack_invariant__test1 1040 failed")
+    end if
+    if (run_stack(2) /= 1030_sz) then
+       call error_abort ("unit_test__restore_run_stack_invariant__test1 1040 failed")
+    end if
+    if (run_stack(3) /= 1045_sz) then
+       call error_abort ("unit_test__restore_run_stack_invariant__test1 1050 failed")
+    end if
+    if (.not. vectar_equal (int_equal, vec, list_to_vectar (iota (1045, 1)))) then
+       call error_abort ("unit_test__restore_run_stack_invariant__test1 1060 failed")
+    end if
+
+    ! FIXME: Add a test for 4 <= n, (runlen (n - 3) <= runlen (n - 2)
+    !        + runlen (n - 1)), with runlen(n - 2) <= runlen(n). This
+    !        is the extra condition that was added by Stijn de Gouw et
+    !        al. (`Verifying OpenJDK’s Sort Method for Generic
+    !        Collections', J Autom Reason. 2019; 62(1): 93–126. DOI:
+    !        10.1007/s10817-017-9426-4
+
+  end subroutine unit_test__restore_run_stack_invariant__test1
+
   recursive subroutine reduce_the_run_stack_to_depth_1 (less_than, data, run_stack, stack_count, workspace)
     !
     ! Merge run_stack contents until the run stack contains just one,
@@ -4319,6 +4429,10 @@ m4_if(DEBUGGING,[true],[dnl
 
     end if
   end subroutine stable_mergesort
+
+  subroutine vectar_stable_mergesort_unit_tests
+    call unit_test__restore_run_stack_invariant__test1
+  end subroutine vectar_stable_mergesort_unit_tests
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
