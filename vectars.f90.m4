@@ -4337,6 +4337,42 @@ m4_if(DEBUGGING,[true],[dnl
 
   end subroutine reduce_the_run_stack_to_depth_1
 
+  recursive subroutine unit_test__reduce_the_run_stack_to_depth_1__test1
+    type(gcroot_t) :: vec, workspace_vec
+    type(vectar_data_t), pointer :: data, workspace
+    integer(sz) :: run_stack(0:run_stack_size)
+    integer :: stack_count
+
+    workspace_vec = make_vectar (2000, 1)
+    workspace => vectar_data_ptr (workspace_vec)
+
+    run_stack(0) = -1_sz
+
+    ! Test 3 <= n, runlen(n - 2) <= runlen(n). This should reduce the
+    ! stack height by 1, by merging the 2nd and 3rd entries. Then the
+    ! stack height will go to 1, through another merge; however, code
+    ! coverage tools can show that first merge happened.
+    vec = list_to_vectar (append (iota (11, 0, 2), iota (11, 1, 2), iota (39, 22)))
+    data => vectar_data_ptr (vec)
+    run_stack(1) = 10_sz
+    run_stack(2) = 30_sz
+    run_stack(3) = 60_sz
+    stack_count = 3
+    call reduce_the_run_stack_to_depth_1 (int_less_than, data, run_stack, stack_count, workspace)
+    if (stack_count /= 1) then
+       call error_abort ("unit_test__reduce_the_run_stack_to_depth_1__test1 0010 failed")
+    end if
+    if (run_stack(0) /= -1_sz) then
+       call error_abort ("unit_test__reduce_the_run_stack_to_depth_1__test1 0020 failed")
+    end if
+    if (run_stack(1) /= 60_sz) then
+       call error_abort ("unit_test__reduce_the_run_stack_to_depth_1__test1 0030 failed")
+    end if
+    if (.not. vectar_equal (int_equal, vec, list_to_vectar (iota (61)))) then
+       call error_abort ("unit_test__reduce_the_run_stack_to_depth_1__test1 0040 failed")
+    end if
+  end subroutine unit_test__reduce_the_run_stack_to_depth_1__test1
+
   function choose_minimum_run_length (data_length) result (min_run_length)
     !
     ! Minimum run length as suggested by Tim Peters.
@@ -4432,6 +4468,7 @@ m4_if(DEBUGGING,[true],[dnl
 
   subroutine vectar_stable_mergesort_unit_tests
     call unit_test__restore_run_stack_invariant__test1
+    call unit_test__reduce_the_run_stack_to_depth_1__test1
   end subroutine vectar_stable_mergesort_unit_tests
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
