@@ -2868,6 +2868,8 @@ contains
     type(gcroot_t) :: vec2
     integer :: i
 
+    integer, parameter :: num_shuffles = 10
+
     ! Some small sorts.
     vec1 = vectar (52, 22, 31, 42, 53, 61, 21, 41, 51)
     call vectar_stable_sortx (is_lt_except_ones, vec1)
@@ -2931,25 +2933,19 @@ contains
     ! digit. (Sort stability is gratuitous in this case; there is no
     ! potentially useful order to preserve.)
     vec1 = list_to_vectar (iota (1000))
-    call vectar_shufflex (vec1)
-    !
-    ! There is a miniscule chance of this test failing due to the
-    ! shuffle producing a sorted array.
-    !
-    call check (.not. vectar_is_sorted (is_lt_except_ones, vec1), "test0420-1050 failed")
-    call vectar_stable_sortx (is_lt_except_ones, vec1)
-    call check (vectar_is_sorted (is_lt_except_ones, vec1), "test0420-1060 failed")
+    do i = 1, num_shuffles
+       call vectar_shufflex (vec1)
+       call vectar_stable_sortx (is_lt_except_ones, vec1)
+       call check (vectar_is_sorted (is_lt_except_ones, vec1), "test0420-1060 failed")
+    end do
 
     ! A shuffled vectar, sorted into ascending integer order.
     vec1 = list_to_vectar (iota (1000))
-    call vectar_shufflex (vec1)
-    !
-    ! There is a miniscule chance of this test failing due to the
-    ! shuffle producing a sorted array.
-    !
-    call check (.not. vectar_is_sorted (less_than, vec1), "test0420-1070 failed")
-    call vectar_stable_sortx (less_than, vec1)
-    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (1000))), "test0420-1080 failed")
+    do i = 1, num_shuffles
+       call vectar_shufflex (vec1)
+       call vectar_stable_sortx (less_than, vec1)
+       call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (1000))), "test0420-1080 failed")
+    end do
 
     ! Test the case where there is a final run of length 1.
     vec1 = list_to_vectar (append (iota (100), list (3)))
