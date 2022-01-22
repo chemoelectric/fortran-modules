@@ -3737,12 +3737,13 @@ dnl
     class(*), intent(in) :: x
     integer(sz) :: index
 
-    integer(sz) :: i, j, k, k_minus_j
+    integer(sz) :: i, j, k
+    integer(sz) :: k_minus_j
 
     j = ileft
     k = iright
     do while (k /= j)
-       ! Set i := ceil (j + k).
+       ! Set i := ceil ((j + k) / 2).
        k_minus_j = k - j
        i = j + ishft (k_minus_j, -1) + ibits (k_minus_j, 0, 1)
        if (less_than (x, data%array(i)%element)) then
@@ -3753,13 +3754,67 @@ dnl
     end do
     index = j
 m4_if(DEBUGGING,[true],[dnl
-    if (less_than (x, data%array(index)%element)) then
-       if (.not. less_than (x, data%array(ileft)%element)) then
+    if (index /= ileft) then
+       if (less_than (x, data%array(index)%element)) then
           call error_abort ("the implementation of bottenbruch_search is not correct")
        end if
     end if
 ])dnl
   end function bottenbruch_search
+
+  recursive function bottenbruch_search2 (less_than, data, ileft, iright, x) result (index)
+    !
+    ! Do a search on the data whose first element is at ileft and
+    ! whose last element is at iright. Return `index' such that:
+    !
+    !    * if x is greater than the element at iright, then index =
+    !      iright;
+    !
+    !    * otherwise, x is greater than every element to the left of
+    !      index, and less than or equal to the element at index and
+    !      everything to its right.
+    !
+    ! References:
+    !
+    !    * H. Bottenbruch, `Structure and use of ALGOL 60', Journal of
+    !      the ACM, Volume 9, Issue 2, April 1962,
+    !      pp.161-221. https://doi.org/10.1145/321119.321120
+    !      The general algorithm is described on pages 214 and 215.
+    !
+    !    * https://en.wikipedia.org/w/index.php?title=Binary_search_algorithm&oldid=1062988272#Alternative_procedure
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: ileft
+    integer(sz), intent(in) :: iright
+    class(*), intent(in) :: x
+    integer(sz) :: index
+
+    integer(sz) :: i, j, k
+    integer(sz) :: k_minus_j
+
+    j = ileft
+    k = iright
+    do while (k /= j)
+       ! Set i := floor ((j + k) / 2).
+       k_minus_j = k - j
+       i = j + ishft (k_minus_j, -1) ! + ibits (k_minus_j, 0, 1)
+       if (less_than (data%array(i)%element, x)) then
+          ! x is greater than the element at i.
+          j = i + 1
+       else
+          k = i
+       end if
+    end do
+    index = j
+m4_if(DEBUGGING,[true],[dnl
+    if (index /= iright) then
+       if (less_than (data%array(index)%element, x)) then
+          call error_abort ("the implementation of bottenbruch_search2 is not correct")
+       end if
+    end if
+])dnl
+  end function bottenbruch_search2
 
   recursive subroutine stable_binary_insertion_sort (less_than, data, ileft, ipresorted, iright)
     !
@@ -3942,9 +3997,6 @@ m4_if(DEBUGGING,[true],[dnl
     ! empty space at the left of data2, with data1 as the run having
     ! priority in the merge.
     !
-    ! FIXME: Use a Bottenbruch search to find initial settings of i
-    !        and i2.
-    !
     procedure(vectar_predicate2_t) :: less_than
     class(vectar_data_t), pointer, intent(in) :: data2
     integer(sz), intent(in) :: itarget
@@ -3999,9 +4051,6 @@ m4_if(DEBUGGING,[true],[dnl
     ! Currently this is just a straightforward stable merge, filling
     ! empty space at the right of data1, with data1 as the run having
     ! priority in the merge.
-    !
-    ! FIXME: Use a Bottenbruch search to find initial settings of i
-    !        and i1.
     !
     procedure(vectar_predicate2_t) :: less_than
     class(vectar_data_t), pointer, intent(in) :: data1
@@ -4069,22 +4118,33 @@ m4_if(DEBUGGING,[true],[dnl
     integer(sz), intent(in) :: k
     class(vectar_data_t), pointer, intent(in) :: workspace
 
+    integer(sz) :: i1, k1
     integer(sz) :: u
 
-    if (j - i < k - j) then
+    ! Find some elements on the left that definitely will not need to
+    ! be moved, because they are less than or equal to the first
+    ! element of the right side of the merge.
+    i1 = bottenbruch_search (less_than, data, i, j - 1, data%array(j)%element)
+
+    ! Find some elements on the right that definitely will not need to
+    ! be moved, because they are greater than or equal to the last
+    ! element of the left side of the merge.
+    k1 = bottenbruch_search2 (less_than, data, j, k, data%array(j - 1)%element)
+
+    if (j - i1 < k1 - j) then
        ! The left side is shorter than or equal in length to the right
        ! side. Copy the left side to workspace, then merge leftwards.
-       do u = i, j - 1
-          workspace%array(u - i) = data%array(u)
+       do u = i1, j - 1
+          workspace%array(u - i1) = data%array(u)
        end do
-       call merge_going_leftwards (less_than, data, i, j, k, workspace, 0_sz, j - i - 1)
+       call merge_going_leftwards (less_than, data, i1, j, k1, workspace, 0_sz, j - i1 - 1)
     else
        ! The left side is longer than the right side side. Copy the
        ! right side to workspace, then merge rightwards.
-       do u = j, k
+       do u = j, k1
           workspace%array(u - j) = data%array(u)
        end do
-       call merge_going_rightwards (less_than, data, i, j - 1, k, workspace, 0_sz, k - j)
+       call merge_going_rightwards (less_than, data, i1, j - 1, k1, workspace, 0_sz, k1 - j)
     end if
   end subroutine merge_two_runs
 
