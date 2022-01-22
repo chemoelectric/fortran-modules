@@ -2116,6 +2116,34 @@ contains
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
   end subroutine strange_error
 
+  function int_less_than (x, y) result (bool)
+    class(*), intent(in) :: x, y
+    logical :: bool
+
+    bool = .false.
+    select type (x)
+    type is (integer)
+       select type (y)
+       type is (integer)
+          bool = (x < y)
+       end select
+    end select
+  end function int_less_than
+
+  function int_equal (x, y) result (bool)
+    class(*), intent(in) :: x, y
+    logical :: bool
+
+    bool = .false.
+    select type (x)
+    type is (integer)
+       select type (y)
+       type is (integer)
+          bool = (x == y)
+       end select
+    end select
+  end function int_equal
+
   elemental function unspecified () result (unspecified_value)
     use, intrinsic :: ieee_arithmetic, only: ieee_value
     use, intrinsic :: ieee_arithmetic, only: ieee_quiet_nan
@@ -21559,8 +21587,9 @@ contains
     !
     !    * if x is less than the element at ileft, then index = ileft;
     !
-    !    * otherwise, x is less than everything to the right of index
-    !      and not less than everything at or to the left of index.
+    !    * otherwise, x is greater than or equal to the element at
+    !      index (and therefore to every element to the left of
+    !      index), and less than everything to the right of index.
     !
     ! References:
     !
@@ -21594,12 +21623,49 @@ contains
        end if
     end do
     index = j
-    if (index /= ileft) then
-       if (less_than (x, data%array(index)%element)) then
-          call error_abort ("the implementation of bottenbruch_search is not correct")
-       end if
-    end if
   end function bottenbruch_search
+
+  subroutine unit_test__bottenbruch_search__test1
+    integer, parameter :: number_of_vectars = 100
+    integer(sz), parameter :: veclen = 1024_sz
+    integer, parameter :: modulus = 64
+
+    type(gcroot_t) :: vec
+    integer :: vectar_number
+    integer(sz) :: i
+    real :: randnum
+    integer :: x
+    class(vectar_data_t), pointer :: data
+
+    vec = make_vectar (veclen)
+    do vectar_number = 1, number_of_vectars
+       do i = 0_sz, veclen - 1
+          call random_number (randnum)
+          call vectar_set0 (vec, i, int (randnum * (modulus)))
+       end do
+       vec = list_to_vectar (list_sortx (int_less_than, vectar_to_list (vec)))
+       data => vectar_data_ptr (vec)
+       do x = -1, modulus
+          i = bottenbruch_search (int_less_than, data, 0_sz, veclen - 1, x)
+          if (i /= 0) then
+             if (int_less_than (x, vectar_ref0 (vec, i))) then
+                ! Unless i is 0, x must be greater than or equal
+                ! to the element at i (and therefore also to every
+                ! element to the left of i).
+                call error_abort ("unit_test__bottenbruch_search__test1 0010 failed")
+             end if
+          end if
+          if (i /= veclen - 1) then
+             if (.not. int_less_than (x, vectar_ref0 (vec, i + 1))) then
+                ! x must be less than the element at i+1 (and
+                ! therefore also to everything else to the right of
+                ! i).
+                call error_abort ("unit_test__bottenbruch_search__test1 0020 failed")
+             end if
+          end if
+       end do
+    end do
+  end subroutine unit_test__bottenbruch_search__test1
 
   recursive function bottenbruch_search2 (less_than, data, ileft, iright, x) result (index)
     !
@@ -21610,8 +21676,8 @@ contains
     !      iright;
     !
     !    * otherwise, x is greater than every element to the left of
-    !      index, and less than or equal to the element at index and
-    !      everything to its right.
+    !      index, and less than or equal to the elements at index and
+    !      to the right of index.
     !
     ! References:
     !
@@ -21637,7 +21703,7 @@ contains
     do while (k /= j)
        ! Set i := floor ((j + k) / 2).
        k_minus_j = k - j
-       i = j + ishft (k_minus_j, -1) ! + ibits (k_minus_j, 0, 1)
+       i = j + ishft (k_minus_j, -1)
        if (less_than (data%array(i)%element, x)) then
           ! x is greater than the element at i.
           j = i + 1
@@ -21646,12 +21712,48 @@ contains
        end if
     end do
     index = j
-    if (index /= iright) then
-       if (less_than (data%array(index)%element, x)) then
-          call error_abort ("the implementation of bottenbruch_search2 is not correct")
-       end if
-    end if
   end function bottenbruch_search2
+
+  subroutine unit_test__bottenbruch_search2__test1
+    integer, parameter :: number_of_vectars = 100
+    integer(sz), parameter :: veclen = 1024_sz
+    integer, parameter :: modulus = 64
+
+    type(gcroot_t) :: vec
+    integer :: vectar_number
+    integer(sz) :: i
+    real :: randnum
+    integer :: x
+    class(vectar_data_t), pointer :: data
+
+    vec = make_vectar (veclen)
+    do vectar_number = 1, number_of_vectars
+       do i = 0_sz, veclen - 1
+          call random_number (randnum)
+          call vectar_set0 (vec, i, int (randnum * (modulus)))
+       end do
+       vec = list_to_vectar (list_sortx (int_less_than, vectar_to_list (vec)))
+       data => vectar_data_ptr (vec)
+       do x = -1, modulus
+          i = bottenbruch_search2 (int_less_than, data, 0_sz, veclen - 1, x)
+          if (i /= veclen - 1) then
+             if (int_less_than (vectar_ref0 (vec, i), x)) then
+                ! Unless i is veclen - 1, x must be less than or equal
+                ! to the element at i (and therefore also to every
+                ! element to the right of i).
+                call error_abort ("unit_test__bottenbruch_search__test1 0010 failed")
+             end if
+          end if
+          if (i /= 0) then
+             if (.not. int_less_than (vectar_ref0 (vec, i - 1), x)) then
+                ! x must be greater than the element at i-1 (and
+                ! therefore greater than everything to the left of i).
+                call error_abort ("unit_test__bottenbruch_search__test1 0020 failed")
+             end if
+          end if
+       end do
+    end do
+  end subroutine unit_test__bottenbruch_search2__test1
 
   recursive subroutine stable_binary_insertion_sort (less_than, data, ileft, ipresorted, iright)
     !
@@ -21966,7 +22068,14 @@ contains
     ! Find some elements on the right that definitely will not need to
     ! be moved, because they are greater than or equal to the last
     ! element of the left side of the merge.
+    !
+    ! FIXME: I shouldn t have to decrement k1 to get the result of
+    !        that decrement.
+    !
     k1 = bottenbruch_search2 (less_than, data, j, k, data%array(j - 1)%element)
+    if (k1 /= k) then
+       k1 = k1 - 1
+    end if
 
     if (j - i1 < k1 - j) then
        ! The left side is shorter than or equal in length to the right
@@ -22065,34 +22174,6 @@ contains
     end function runlen
 
   end subroutine restore_run_stack_invariant
-
-  function int_less_than (x, y) result (bool)
-    class(*), intent(in) :: x, y
-    logical :: bool
-
-    bool = .false.
-    select type (x)
-    type is (integer)
-       select type (y)
-       type is (integer)
-          bool = (x < y)
-       end select
-    end select
-  end function int_less_than
-
-  function int_equal (x, y) result (bool)
-    class(*), intent(in) :: x, y
-    logical :: bool
-
-    bool = .false.
-    select type (x)
-    type is (integer)
-       select type (y)
-       type is (integer)
-          bool = (x == y)
-       end select
-    end select
-  end function int_equal
 
   recursive subroutine unit_test__restore_run_stack_invariant__test1
     type(gcroot_t) :: vec, workspace_vec
@@ -22364,6 +22445,8 @@ contains
   end subroutine stable_mergesort
 
   subroutine vectar_stable_mergesort_unit_tests
+    call unit_test__bottenbruch_search__test1
+    call unit_test__bottenbruch_search2__test1
     call unit_test__restore_run_stack_invariant__test1
     call unit_test__reduce_the_run_stack_to_depth_1__test1
   end subroutine vectar_stable_mergesort_unit_tests
