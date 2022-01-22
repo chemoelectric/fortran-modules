@@ -2951,36 +2951,11 @@ contains
     call vectar_stable_sortx (less_than, vec1)
     call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (1000))), "test0420-1080 failed")
 
-!!$    ! FIXME
-!!$    vec1 = list_to_vectar (append (iota (101, 0, 10), iota (100, 1, 10), iota (100, 2, 10)))
-!!$    call vectar_stable_sortx (is_lt_except_ones, vec1)
-!!$    vec2 = make_vectar (301)
-!!$    do i = 0, 99
-!!$       call vectar_set0 (vec2, (3 * i), (10 * i))
-!!$       call vectar_set0 (vec2, (3 * i) + 1, (10 * i) + 1)
-!!$       call vectar_set0 (vec2, (3 * i) + 2, (10 * i) + 2)
-!!$    end do
-!!$    call vectar_set0 (vec2, 300, 1000)
-!!$    call check (vectar_equal (int_eq, vec1, vec2), "test0420-1090 failed")
-!!$
-!!$    ! FIXME
-!!$    vec1 = list_to_vectar (append (iota (101, 0, 10), iota (100, 1, 10), iota (101, 2, 10), iota (102, 3, 10)))
-!!$    call vectar_stable_sortx (is_lt_except_ones, vec1)
-!!$    vec2 = make_vectar (404)
-!!$    do i = 0, 99
-!!$       call vectar_set0 (vec2, (4 * i), (10 * i))
-!!$       call vectar_set0 (vec2, (4 * i) + 1, (10 * i) + 1)
-!!$       call vectar_set0 (vec2, (4 * i) + 2, (10 * i) + 2)
-!!$       call vectar_set0 (vec2, (4 * i) + 3, (10 * i) + 3)
-!!$    end do
-!!$    call vectar_set0 (vec2, 400, 1000)
-!!$    call vectar_set0 (vec2, 401, 1002)
-!!$    call vectar_set0 (vec2, 402, 1003)
-!!$    call vectar_set0 (vec2, 403, 1013)
-!!$    call check (vectar_equal (int_eq, vec1, vec2), "test0420-1100 failed")
-
-!!$    vec1 = list_to_vectar (append (iota (101), iota (100)))
-!!$    call vectar_stable_sortx (less_than, vec1)
+    ! Test the case where there is a final run of length 1.
+    vec1 = list_to_vectar (append (iota (100), list (3)))
+    call vectar_stable_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, vectar_append (vectar (0, 1, 2, 3, 3), list_to_vectar (iota (96, 4)))), &
+         &      "test0420-1090 failed")
 
     call vectar_stable_mergesort_unit_tests
 
