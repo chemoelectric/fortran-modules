@@ -22395,7 +22395,7 @@ contains
     ! the programming community as to what constitutes
     ! `timsort'. Indeed, the algorithm is `simply' mergesort done
     ! iteratively, which I have myself programmed in years past --
-    ! albeit in much simpler form. The enhancements to iterative
+    ! albeit in much, MUCH simpler form. The enhancements to iterative
     ! mergesort that Python employs change from time to time and are
     ! very, very, VERY clever.
     !
