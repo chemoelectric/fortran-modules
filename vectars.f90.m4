@@ -4549,6 +4549,14 @@ dnl
     ! employed by Tim Peters in older versions of the CPython sort
     ! function.
     !
+    ! Aside: I would say the name `timsort' is misleading, and has led
+    ! to much confusion in the online literature; `timsort' is not a
+    ! particular algorithm. Indeed, the algorithm is `simply'
+    ! mergesort done iteratively, which I have myself programmed in
+    ! years past -- albeit in much simpler form. The enhancements
+    ! Python employs change from time to time and are very, very, VERY
+    ! clever.
+    !
     ! (FIXME: Switch to using the `powersort' merge strategy, from
     ! J. Ian Munro and Sebastian Wild, "Nearly-optimal mergesorts:
     ! fast, practical sorting methods that optimally adapt to existing
