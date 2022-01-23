@@ -4546,7 +4546,23 @@ dnl
   recursive subroutine stable_mergesort (less_than, data, idatastart, idataend, workspace)
     !
     ! A adaptive natural mergesort using a run stack similar to that
-    ! employed by Tim Peters. FIXME: SAY MORE.
+    ! employed by Tim Peters in older versions of the CPython sort
+    ! function.
+    !
+    ! (FIXME: Switch to using the `powersort' merge strategy, from
+    ! J. Ian Munro and Sebastian Wild, "Nearly-optimal mergesorts:
+    ! fast, practical sorting methods that optimally adapt to existing
+    ! runs". Peters cites this paper in the CPython sources, in file
+    ! Objects/listsort.txt.
+    !
+    ! Note Peters points out C has no `leading zeros' primitive;
+    ! Fortran, however, does.
+    !
+    ! Also interesting is that there *are* ways to compute leading
+    ! zeros in O(1) time, using only standard C and de Bruijn
+    ! sequences. Peters, at least as of Python version 3.11.0a4, seems
+    ! unaware of such methods; the existence of such `bit twiddling'
+    ! hacks is too poorly known.)
     !
     ! Note that the run_stack indexing starts at position 0. All other
     ! entries are the end indices of runs; we put a fake end index in
