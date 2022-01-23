@@ -22390,13 +22390,14 @@ contains
     ! employed by Tim Peters in older versions of the CPython sort
     ! function.
     !
-    ! Aside: I would say the name `timsort' is misleading, and has led
-    ! to much confusion in the online literature; `timsort' is not a
-    ! particular algorithm. Indeed, the algorithm is `simply'
-    ! mergesort done iteratively, which I have myself programmed in
-    ! years past -- albeit in much simpler form. The enhancements
-    ! Python employs change from time to time and are very, very, VERY
-    ! clever.
+    ! Aside: I do not call this implementation `timsort', because that
+    ! is not a particular algorithm, and there is much confusion in
+    ! the programming community as to what constitutes
+    ! `timsort'. Indeed, the algorithm is `simply' mergesort done
+    ! iteratively, which I have myself programmed in years past --
+    ! albeit in much simpler form. The enhancements to iterative
+    ! mergesort that Python employs change from time to time and are
+    ! very, very, VERY clever.
     !
     ! (FIXME: Switch to using the `powersort' merge strategy, from
     ! J. Ian Munro and Sebastian Wild, "Nearly-optimal mergesorts:
