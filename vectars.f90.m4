@@ -643,7 +643,20 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: vectar_merge
   public :: vectar_mergex
 
+  public :: vectar_stable_sort
+  public :: vectar_sort
   public :: vectar_stable_sortx
+  public :: vectar_sortx
+
+  ! Generic functions for finding medians.
+  !public :: vectar_find_median  ! FIXME: Write tests for this procedure.
+  !public :: vectar_find_medianx ! FIXME: Write tests for this procedure.
+
+  ! Implementations of vectar_find_median and vectar_find_medianx.
+  !public :: vectar_find_median_default
+  !public :: vectar_find_median_with_mean_subr
+  !public :: vectar_find_medianx_default
+  !public :: vectar_find_medianx_with_mean_subr
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -659,7 +672,8 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   ! good enough if bit_size(1_sz) <= 64. See in particular
   ! http://envisage-project.eu/proving-android-java-and-python-sorting-algorithm-is-broken-and-how-to-fix-it/
   !
-  ! From the Timsort code:
+  ! From the `timsort' code (before the fix detailed at the above
+  ! address, and the later switch to `powersort' merge strategy):
   !
   !    /* The maximum number of entries in a MergeState's 
   !     * pending-runs stack.
@@ -3716,6 +3730,34 @@ dnl
     call workspace_root%discard
     call vec_root%discard
   end subroutine vectar_stable_sortx
+
+  recursive subroutine vectar_sortx (less_than, vec)
+    !
+    ! The current vectar_sortx is simply vectar_stable_sortx.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+
+    call vectar_stable_sortx (less_than, vec)
+  end subroutine vectar_sortx
+
+  recursive function vectar_stable_sort (less_than, vec) result (vec_s)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    type(vectar_t) :: vec_s
+
+    vec_s = vectar_copy (vec)
+    call vectar_stable_sortx (less_than, vec_s)
+  end function vectar_stable_sort
+
+  recursive function vectar_sort (less_than, vec) result (vec_s)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    type(vectar_t) :: vec_s
+
+    vec_s = vectar_copy (vec)
+    call vectar_sortx (less_than, vec_s)
+  end function vectar_sort
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

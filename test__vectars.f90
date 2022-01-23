@@ -2947,6 +2947,12 @@ contains
        call check (vectar_equal (int_eq, vec1, stable_sort_examples(jsorted, i)), "test0420-2010 failed")
     end do
 
+    ! Check sorting a range.
+    vec1 = list_to_vectar (iota (100, 100, -1))
+    call vectar_stable_sortx (less_than, range1 (vec1, 26, 75))
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (append (iota (25, 100, -1), iota (50, 26), iota (25, 25, -1)))), &
+         &      "test0420-3010 failed")
+
     call vectar_stable_mergesort_unit_tests
 
     ! Roots as array entries need explicit discard,
@@ -3031,6 +3037,342 @@ contains
 
   end subroutine test0420
 
+  subroutine test0430
+    integer, parameter :: num_shuffles = 10
+
+    type(vectar_t) :: vec1
+    integer :: i
+
+    ! Trigger a leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 99, -1), iota (101, 200, -1)))
+    call vectar_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0430-0030 failed")
+
+    ! Trigger a more complex leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 197, -2), iota (99, 2, 2), list (199, 200)))
+    call vectar_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0430-0040 failed")
+
+    ! Another leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 102), iota (101, 1)))
+    call vectar_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0430-0050 failed")
+
+    ! Trigger a rightwards merge.
+    vec1 = list_to_vectar (append (iota (101, 101, -1), iota (99, 200, -1)))
+    call vectar_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0430-0060 failed")
+
+    ! Trigger a more complex rightwards merge.
+    vec1 = list_to_vectar (append (iota (99, 2, 2), list (199, 200), iota (99, 197, -2)))
+    call vectar_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0430-0070 failed")
+
+    ! Another rightwards merge.
+    vec1 = list_to_vectar (append (iota (101, 100), iota (99, 1)))
+    call vectar_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test0430-0080 failed")
+
+    ! A large vectar that needs no sorting.
+    vec1 = list_to_vectar (iota (1000))
+    call vectar_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (1000))), "test0430-1030 failed")
+
+    ! A large vectar that needs only reversing.
+    vec1 = list_to_vectar (iota (1000, 999, -1))
+    call vectar_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (1000))), "test0430-1035 failed")
+
+    ! A shuffled vectar, sorted into ascending integer order.
+    vec1 = list_to_vectar (iota (1000))
+    do i = 1, num_shuffles
+       call vectar_shufflex (vec1)
+       call vectar_sortx (less_than, vec1)
+       call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (1000))), "test0430-1080 failed")
+    end do
+
+    ! Test the case where there is a final run of length 1.
+    vec1 = list_to_vectar (append (iota (100), list (3)))
+    call vectar_sortx (less_than, vec1)
+    call check (vectar_equal (int_eq, vec1, vectar_append (vectar (0, 1, 2, 3, 3), list_to_vectar (iota (96, 4)))), &
+         &      "test0430-1090 failed")
+
+    ! Check sorting a range.
+    vec1 = list_to_vectar (iota (100, 100, -1))
+    call vectar_sortx (less_than, range1 (vec1, 26, 75))
+    call check (vectar_equal (int_eq, vec1, list_to_vectar (append (iota (25, 100, -1), iota (50, 26), iota (25, 25, -1)))), &
+         &      "test0430-3010 failed")
+
+  contains
+
+    function less_than (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      block
+        ! Running the garbage collector is slow, and there are a lot
+        ! of comparisons in the sorting tests. Collect garbage only
+        ! occasionally.
+        integer(sz), save :: count = 0_sz
+        if (count < 100_sz .or. mod (count, 100_sz) == 0_sz) then
+           call collect_garbage_now
+        end if
+        count = count + 1_sz
+      end block
+
+      bool = (int_cast (x) < int_cast (y))
+    end function less_than
+
+  end subroutine test0430
+
+  subroutine test0440
+
+    !
+    ! FIXME: Check that the original vector does not get clobbered.
+    !
+
+    integer, parameter :: num_stable_sort_examples = 10
+    integer, parameter :: stable_sort_example_length = 1000
+    integer, parameter :: jrandom = 1
+    integer, parameter :: jsorted = 2
+
+    type(vectar_t) :: vec1, vec2
+    type(gcroot_t) :: stable_sort_examples(jrandom:jsorted, 1:num_stable_sort_examples)
+    integer :: i, j
+
+    call read_stable_sort_examples (stable_sort_examples)
+
+    ! Some small sorts.
+    vec1 = vectar (52, 22, 31, 42, 53, 61, 21, 41, 51)
+    vec2 = vectar_stable_sort (is_lt_except_ones, vec1)
+    call check (vectar_equal (int_eq, vec2, vectar (22, 21, 31, 42, 41, 52, 53, 51, 61)), "test0440-0010 failed")
+    vec1 = vectar (41, 21, 31, 42, 22, 53, 61, 52, 51)
+    vec2 = vectar_stable_sort (is_lt_except_ones, vec1)
+    call check (vectar_equal (int_eq, vec2, vectar (21, 22, 31, 41, 42, 53, 52, 51, 61)), "test0440-0020 failed")
+
+    ! Trigger a leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 99, -1), iota (101, 200, -1)))
+    vec2 = vectar_stable_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (200, 1))), "test0440-0030 failed")
+
+    ! Trigger a more complex leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 197, -2), iota (99, 2, 2), list (199, 200)))
+    vec2 = vectar_stable_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (200, 1))), "test0440-0040 failed")
+
+    ! Another leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 102), iota (101, 1)))
+    vec2 = vectar_stable_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (200, 1))), "test0440-0050 failed")
+
+    ! Trigger a rightwards merge.
+    vec1 = list_to_vectar (append (iota (101, 101, -1), iota (99, 200, -1)))
+    vec2 = vectar_stable_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (200, 1))), "test0440-0060 failed")
+
+    ! Trigger a more complex rightwards merge.
+    vec1 = list_to_vectar (append (iota (99, 2, 2), list (199, 200), iota (99, 197, -2)))
+    vec2 = vectar_stable_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (200, 1))), "test0440-0070 failed")
+
+    ! Another rightwards merge.
+    vec1 = list_to_vectar (append (iota (101, 100), iota (99, 1)))
+    vec2 = vectar_stable_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (200, 1))), "test0440-0080 failed")
+
+    ! A large vectar that needs no sorting.
+    vec1 = list_to_vectar (iota (1000))
+    vec2 = vectar_stable_sort (is_lt_except_ones, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (1000))), "test0440-1030 failed")
+
+    ! A large vectar that needs only reversing.
+    vec1 = list_to_vectar (iota (1000, 999, -1))
+    vec2 = vectar_stable_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (1000))), "test0440-1035 failed")
+
+    ! Test the case where there is a final run of length 1.
+    vec1 = list_to_vectar (append (iota (100), list (3)))
+    vec2 = vectar_stable_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, vectar_append (vectar (0, 1, 2, 3, 3), list_to_vectar (iota (96, 4)))), &
+         &      "test0440-1090 failed")
+
+    ! Test stability by sorting randomized examples and comparing the
+    ! results with copies that were already sorted.
+    do i = 1, num_stable_sort_examples
+       vec2 = vectar_stable_sort (is_lt_except_ones, stable_sort_examples(jrandom, i))
+       call check (vectar_equal (int_eq, vec2, stable_sort_examples(jsorted, i)), "test0440-2010 failed")
+    end do
+
+    ! Check sorting a range.
+    vec1 = list_to_vectar (iota (100, 100, -1))
+    vec2 = vectar_stable_sort (less_than, range1 (vec1, 26, 75))
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (50, 26))), "test0440-3010 failed")
+
+    ! Roots as array entries need explicit discard,
+    ! unfortunately. They will not be finalized automatically.
+    do i = 1, num_stable_sort_examples
+       do j = jrandom, jsorted
+          call stable_sort_examples(j, i)%discard
+       end do
+    end do
+
+  contains
+
+    function less_than (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      block
+        ! Running the garbage collector is slow, and there are a lot
+        ! of comparisons in the sorting tests. Collect garbage only
+        ! occasionally.
+        integer(sz), save :: count = 0_sz
+        if (count < 100_sz .or. mod (count, 100_sz) == 0_sz) then
+           call collect_garbage_now
+        end if
+        count = count + 1_sz
+      end block
+
+      bool = (int_cast (x) < int_cast (y))
+    end function less_than
+
+    function is_lt_except_ones (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      integer :: x1
+      integer :: y1
+
+      block
+        ! Running the garbage collector is slow, and there are a lot
+        ! of comparisons in the sorting tests. Collect garbage only
+        ! occasionally.
+        integer(sz), save :: count = 0_sz
+        if (count < 100_sz .or. mod (count, 100_sz) == 0_sz) then
+           call collect_garbage_now
+        end if
+        count = count + 1_sz
+      end block
+
+      x1 = int_cast (x)
+      x1 = x1 - mod (x1, 10)
+
+      y1 = int_cast (y)
+      y1 = y1 - mod (y1, 10)
+
+      bool = (x1 < y1)
+    end function is_lt_except_ones
+
+    subroutine read_stable_sort_examples (vectars)
+      type(gcroot_t) :: vectars(jrandom:jsorted, 1:num_stable_sort_examples)
+
+      integer, parameter :: fileno = 20
+
+      integer :: x(1:2000)
+      integer :: i, j
+
+      open (fileno, file = "stable-sort-examples.txt", status = "old")
+      do i = 1, num_stable_sort_examples
+         read (fileno,*) x
+         vectars(jrandom, i) = make_vectar (stable_sort_example_length)
+         do j = 1, stable_sort_example_length
+            call vectar_set1 (vectars(1, i), j, x(j))
+         end do
+         vectars(jsorted, i) = make_vectar (stable_sort_example_length)
+         do j = 1, stable_sort_example_length
+            call vectar_set1 (vectars(2, i), j, x(j + stable_sort_example_length))
+         end do
+      end do
+      close (fileno)
+    end subroutine read_stable_sort_examples
+
+  end subroutine test0440
+
+  subroutine test0450
+
+    !
+    ! FIXME: Check that the original vector does not get clobbered.
+    !
+
+    type(vectar_t) :: vec1, vec2
+
+    ! Trigger a leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 99, -1), iota (101, 200, -1)))
+    vec2 = vectar_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (200, 1))), "test0450-0030 failed")
+
+    ! Trigger a more complex leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 197, -2), iota (99, 2, 2), list (199, 200)))
+    vec2 = vectar_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (200, 1))), "test0450-0040 failed")
+
+    ! Another leftwards merge.
+    vec1 = list_to_vectar (append (iota (99, 102), iota (101, 1)))
+    vec2 = vectar_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (200, 1))), "test0450-0050 failed")
+
+    ! Trigger a rightwards merge.
+    vec1 = list_to_vectar (append (iota (101, 101, -1), iota (99, 200, -1)))
+    vec2 = vectar_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (200, 1))), "test0450-0060 failed")
+
+    ! Trigger a more complex rightwards merge.
+    vec1 = list_to_vectar (append (iota (99, 2, 2), list (199, 200), iota (99, 197, -2)))
+    vec2 = vectar_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (200, 1))), "test0450-0070 failed")
+
+    ! Another rightwards merge.
+    vec1 = list_to_vectar (append (iota (101, 100), iota (99, 1)))
+    vec2 = vectar_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (200, 1))), "test0450-0080 failed")
+
+    ! A large vectar that needs no sorting.
+    vec1 = list_to_vectar (iota (1000))
+    vec2 = vectar_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (1000))), "test0450-1030 failed")
+
+    ! A large vectar that needs only reversing.
+    vec1 = list_to_vectar (iota (1000, 999, -1))
+    vec2 = vectar_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (1000))), "test0450-1035 failed")
+
+    ! Test the case where there is a final run of length 1.
+    vec1 = list_to_vectar (append (iota (100), list (3)))
+    vec2 = vectar_sort (less_than, vec1)
+    call check (vectar_equal (int_eq, vec2, vectar_append (vectar (0, 1, 2, 3, 3), list_to_vectar (iota (96, 4)))), &
+         &      "test0450-1090 failed")
+
+    ! Check sorting a range.
+    vec1 = list_to_vectar (iota (100, 100, -1))
+    vec2 = vectar_sort (less_than, range1 (vec1, 26, 75))
+    call check (vectar_equal (int_eq, vec2, list_to_vectar (iota (50, 26))), "test0450-3010 failed")
+
+  contains
+
+    function less_than (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      block
+        ! Running the garbage collector is slow, and there are a lot
+        ! of comparisons in the sorting tests. Collect garbage only
+        ! occasionally.
+        integer(sz), save :: count = 0_sz
+        if (count < 100_sz .or. mod (count, 100_sz) == 0_sz) then
+           call collect_garbage_now
+        end if
+        count = count + 1_sz
+      end block
+
+      bool = (int_cast (x) < int_cast (y))
+    end function less_than
+
+  end subroutine test0450
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -3077,6 +3419,9 @@ contains
     call test0400
     call test0410
     call test0420
+    call test0430
+    call test0440
+    call test0450
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")
