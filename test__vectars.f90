@@ -2866,11 +2866,13 @@ contains
   subroutine test0420
     integer, parameter :: num_shuffles = 10
 
+    integer, parameter :: num_stable_sort_examples = 10
+    integer, parameter :: stable_sort_example_length = 1000
     integer, parameter :: jrandom = 1
     integer, parameter :: jsorted = 2
 
     type(vectar_t) :: vec1
-    type(gcroot_t) :: stable_sort_examples(jrandom:jsorted, 1:10)
+    type(gcroot_t) :: stable_sort_examples(jrandom:jsorted, 1:num_stable_sort_examples)
     integer :: i, j
 
     call read_stable_sort_examples (stable_sort_examples)
@@ -2939,7 +2941,7 @@ contains
 
     ! Test stability by sorting randomized examples and comparing the
     ! results with copies that were already sorted.
-    do i = 1, 10
+    do i = 1, num_stable_sort_examples
        vec1 = vectar_copy (stable_sort_examples(jrandom, i))
        call vectar_stable_sortx (is_lt_except_ones, vec1)
        call check (vectar_equal (int_eq, vec1, stable_sort_examples(jsorted, i)), "test0420-2010 failed")
@@ -2949,8 +2951,8 @@ contains
 
     ! Roots as array entries need explicit discard,
     ! unfortunately. They will not be finalized automatically.
-    do i = 1, 10
-       do j = 1, 2
+    do i = 1, num_stable_sort_examples
+       do j = jrandom, jsorted
           call stable_sort_examples(j, i)%discard
        end do
     end do
@@ -2987,7 +2989,7 @@ contains
     end function is_lt_except_ones
 
     subroutine read_stable_sort_examples (vectars)
-      type(gcroot_t) :: vectars(jrandom:jsorted, 1:10)
+      type(gcroot_t) :: vectars(jrandom:jsorted, 1:num_stable_sort_examples)
 
       integer, parameter :: fileno = 20
 
@@ -2995,15 +2997,15 @@ contains
       integer :: i, j
 
       open (fileno, file = "stable-sort-examples.txt", status = "old")
-      do i = 1, 10
+      do i = 1, num_stable_sort_examples
          read (fileno,*) x
-         vectars(jrandom, i) = make_vectar (1000)
-         do j = 1, 1000
+         vectars(jrandom, i) = make_vectar (stable_sort_example_length)
+         do j = 1, stable_sort_example_length
             call vectar_set1 (vectars(1, i), j, x(j))
          end do
-         vectars(jsorted, i) = make_vectar (1000)
-         do j = 1, 1000
-            call vectar_set1 (vectars(2, i), j, x(j + 1000))
+         vectars(jsorted, i) = make_vectar (stable_sort_example_length)
+         do j = 1, stable_sort_example_length
+            call vectar_set1 (vectars(2, i), j, x(j + stable_sort_example_length))
          end do
       end do
       close (fileno)
