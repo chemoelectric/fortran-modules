@@ -74,7 +74,7 @@ FCFLAGS += -Wno-compare-reals
 FCFLAGS += -Wno-unused-dummy-argument
 
 # If you want to do coverage analysis.
-FCFLAGS += --coverage
+#FCFLAGS += --coverage
 
 COMPILE.f90 = $(FC) $(FCFLAGS) $(XFCFLAGS)
 

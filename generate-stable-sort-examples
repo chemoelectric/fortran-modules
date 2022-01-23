@@ -1,0 +1,46 @@
+#!/bin/env -S csi -s
+
+;;;
+;;; A CHICKEN Scheme program to generate stable-sort-examples.txt.
+;;;
+;;; (The program will not necessarily generate different examples on
+;;; different runs.)
+;;;
+
+(import (r7rs))
+(import (srfi 132))
+(import (srfi 27))
+
+(do ((i 0 (+ i 1)))
+    ((= i 10))
+
+  ;; Make a randomized vector.
+  (let ((vec (make-vector 1000)))
+    (do ((j 0 (+ j 1)))
+        ((= j 1000))
+      (vector-set! vec j (random-integer 100)))
+
+    ;; Write the randomized vector, in a form easily read by a Fortran
+    ;; program.
+    (do ((j 0 (+ j 1)))
+        ((= j 1000))
+      (display " ")
+      (display (vector-ref vec j)))
+
+    ;; Sort, ignoring the ones place.
+    (vector-stable-sort! (lambda (x y)
+                           (< (quotient x 10) (quotient y 10)))
+                         vec)
+
+    ;; Write the sorted vector, on the same line as the randomized
+    ;; vector.
+    (do ((j 0 (+ j 1)))
+        ((= j 1000))
+      (display " ")
+      (display (vector-ref vec j)))
+
+    (newline)))
+
+;;; local variables:
+;;; mode: scheme
+;;; end:

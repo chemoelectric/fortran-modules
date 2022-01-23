@@ -3534,18 +3534,6 @@ contains
     call check (list_equal (int_eq, lst2, list (21, 42, 41, 52, 51)), "test0580-0070 failed")
     call check (list_equal (int_eq, lst3, list (22, 21, 31, 42, 41, 53, 52, 51, 61)), "test0580-0080 failed")
 
-    lst1 = list (22, 31, 53, 61)
-    lst2 = list (21, 42, 41, 52, 51)
-    lst3 = list_mergex (is_lt_except_ones, lst2, lst1)
-    call check (list_equal (int_eq, lst3, list (21, 22, 31, 42, 41, 52, 51, 53, 61)), "test0580-1050 failed")
-
-    lst1 = list (22, 31, 53, 61)
-    lst2 = list (21, 42, 41, 52, 51)
-    lst3 = list_merge (is_lt_except_ones, lst2, lst1)
-    call check (list_equal (int_eq, lst1, list (22, 31, 53, 61)), "test0580-1060 failed")
-    call check (list_equal (int_eq, lst2, list (21, 42, 41, 52, 51)), "test0580-1070 failed")
-    call check (list_equal (int_eq, lst3, list (21, 22, 31, 42, 41, 52, 51, 53, 61)), "test0580-1080 failed")
-
   contains
 
     function is_lt (x, y) result (bool)

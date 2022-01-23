@@ -2864,11 +2864,16 @@ contains
   end subroutine test0410
 
   subroutine test0420
-    type(vectar_t) :: vec1
-    type(gcroot_t) :: vec2
-    integer :: i
-
     integer, parameter :: num_shuffles = 10
+
+    integer, parameter :: jrandom = 1
+    integer, parameter :: jsorted = 2
+
+    type(vectar_t) :: vec1
+    type(gcroot_t) :: stable_sort_examples(jrandom:jsorted, 1:10)
+    integer :: i, j
+
+    call read_stable_sort_examples (stable_sort_examples)
 
     ! Some small sorts.
     vec1 = vectar (52, 22, 31, 42, 53, 61, 21, 41, 51)
@@ -2918,27 +2923,6 @@ contains
     call vectar_stable_sortx (less_than, vec1)
     call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (1000))), "test0420-1035 failed")
 
-    ! A vectar going 999 to 0, sorted (stably) without regard to the
-    ! rightmost digit.
-    vec1 = make_vectar (1000)
-    vec2 = make_vectar (1000)
-    do i = 0, 999
-       call vectar_set0 (vec1, i, 999 - i)
-       call vectar_set0 (vec2, i, (i + 9) - (2 * mod (i, 10)))
-    end do
-    call vectar_stable_sortx (is_lt_except_ones, vec1)
-    call check (vectar_equal (int_eq, vec1, vec2), "test0420-1040 failed")
-
-    ! A shuffled vectar, sorted without regard to the rightmost
-    ! digit. (Sort stability is gratuitous in this case; there is no
-    ! potentially useful order to preserve.)
-    vec1 = list_to_vectar (iota (1000))
-    do i = 1, num_shuffles
-       call vectar_shufflex (vec1)
-       call vectar_stable_sortx (is_lt_except_ones, vec1)
-       call check (vectar_is_sorted (is_lt_except_ones, vec1), "test0420-1060 failed")
-    end do
-
     ! A shuffled vectar, sorted into ascending integer order.
     vec1 = list_to_vectar (iota (1000))
     do i = 1, num_shuffles
@@ -2953,7 +2937,23 @@ contains
     call check (vectar_equal (int_eq, vec1, vectar_append (vectar (0, 1, 2, 3, 3), list_to_vectar (iota (96, 4)))), &
          &      "test0420-1090 failed")
 
+    ! Test stability by sorting randomized examples and comparing the
+    ! results with copies that were already sorted.
+    do i = 1, 10
+       vec1 = vectar_copy (stable_sort_examples(jrandom, i))
+       call vectar_stable_sortx (is_lt_except_ones, vec1)
+       call check (vectar_equal (int_eq, vec1, stable_sort_examples(jsorted, i)), "test0420-2010 failed")
+    end do
+
     call vectar_stable_mergesort_unit_tests
+
+    ! Roots as array entries need explicit discard,
+    ! unfortunately. They will not be finalized automatically.
+    do i = 1, 10
+       do j = 1, 2
+          call stable_sort_examples(j, i)%discard
+       end do
+    end do
 
   contains
 
@@ -2985,6 +2985,29 @@ contains
 
       bool = (x1 < y1)
     end function is_lt_except_ones
+
+    subroutine read_stable_sort_examples (vectars)
+      type(gcroot_t) :: vectars(jrandom:jsorted, 1:10)
+
+      integer, parameter :: fileno = 20
+
+      integer :: x(1:2000)
+      integer :: i, j
+
+      open (fileno, file = "stable-sort-examples.txt", status = "old")
+      do i = 1, 10
+         read (fileno,*) x
+         vectars(jrandom, i) = make_vectar (1000)
+         do j = 1, 1000
+            call vectar_set1 (vectars(1, i), j, x(j))
+         end do
+         vectars(jsorted, i) = make_vectar (1000)
+         do j = 1, 1000
+            call vectar_set1 (vectars(2, i), j, x(j + 1000))
+         end do
+      end do
+      close (fileno)
+    end subroutine read_stable_sort_examples
 
   end subroutine test0420
 

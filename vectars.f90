@@ -22068,10 +22068,6 @@ contains
     ! Find some elements on the right that definitely will not need to
     ! be moved, because they are greater than or equal to the last
     ! element of the left side of the merge.
-    !
-    ! FIXME: I shouldn t have to decrement k1 to get the result of
-    !        that decrement.
-    !
     k1 = bottenbruch_search2 (less_than, data, j, k, data%array(j - 1)%element)
     if (k1 /= k) then
        k1 = k1 - 1
