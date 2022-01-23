@@ -2964,7 +2964,16 @@ contains
       class(*), intent(in) :: y
       logical :: bool
 
-      call collect_garbage_now
+      block
+        ! Running the garbage collector is slow, and there are a lot
+        ! of comparisons in the sorting tests. Collect garbage only
+        ! occasionally.
+        integer(sz), save :: count = 0_sz
+        if (count < 100_sz .or. mod (count, 100_sz) == 0_sz) then
+           call collect_garbage_now
+        end if
+        count = count + 1_sz
+      end block
 
       bool = (int_cast (x) < int_cast (y))
     end function less_than
@@ -2977,7 +2986,16 @@ contains
       integer :: x1
       integer :: y1
 
-      call collect_garbage_now
+      block
+        ! Running the garbage collector is slow, and there are a lot
+        ! of comparisons in the sorting tests. Collect garbage only
+        ! occasionally.
+        integer(sz), save :: count = 0_sz
+        if (count < 100_sz .or. mod (count, 100_sz) == 0_sz) then
+           call collect_garbage_now
+        end if
+        count = count + 1_sz
+      end block
 
       x1 = int_cast (x)
       x1 = x1 - mod (x1, 10)
