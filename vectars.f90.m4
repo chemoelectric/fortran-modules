@@ -564,12 +564,9 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 !!! NOT FOR GENERAL PROGRAMMING.
 !!!
 
+  !
   ! For use in writing extensions to this module. Not recommended for
   ! general programming.
-  !
-  ! FIXME: Give programmers a pointer to the array of
-  !        vectar_element_t, instead. Also, consider unifying
-  !        vectar_element_t and box_data_t.
   !
   public :: vectar_data_ptr
   public :: vectar_data_t
