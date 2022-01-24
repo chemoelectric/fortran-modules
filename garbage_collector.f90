@@ -118,7 +118,7 @@ module garbage_collector
 
 contains
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 
   function current_heap_size () result (size)
@@ -135,7 +135,7 @@ contains
 
   end function current_roots_count
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   elemental subroutine set_bit (obj, bit_mask)
     class(heap_element_t), intent(inout) :: obj
@@ -156,7 +156,7 @@ contains
     bool = (iand (obj%bits, bit_mask) /= 0)
   end function bit_is_set
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   elemental subroutine set_marked (obj)
     class(heap_element_t), intent(inout) :: obj
@@ -174,7 +174,7 @@ contains
     bool = bit_is_set (obj, mark_bit)
   end function is_marked
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   subroutine initialize_heap
     if (.not. associated (heap)) then
@@ -226,7 +226,7 @@ contains
     heap_count = heap_count - 1
   end subroutine heap_remove
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   subroutine collectible_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
     !
@@ -250,7 +250,7 @@ contains
     branch_number_out_of_range = .true.
   end subroutine collectible_t_get_branch
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   subroutine initialize_roots
     if (.not. associated (roots)) then
@@ -309,7 +309,7 @@ contains
 
   end subroutine roots_remove
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   pure function gcroot_t_val (this) result (retval)
     class(gcroot_t), intent(in) :: this
@@ -403,9 +403,10 @@ contains
     end if
   end subroutine gcroot_t_finalize
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!
-!! THE GARBAGE COLLECTOR.
+!!!-------------------------------------------------------------------
+!!!
+!!! THE GARBAGE COLLECTOR.
+!!!
 
   subroutine initialize_garbage_collector
     call really_initialize_garbage_collector
@@ -469,10 +470,10 @@ contains
     end if
   end subroutine check_heap_size
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!
-!! THE MARK PHASE.
-!!
+!!!-------------------------------------------------------------------
+!!!
+!!! THE MARK PHASE.
+!!!
 
   subroutine mark_from_roots
 
@@ -573,10 +574,10 @@ contains
 
   end subroutine mark_from_roots
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!
-!! THE SWEEP PHASE.
-!!
+!!!-------------------------------------------------------------------
+!!!
+!!! THE SWEEP PHASE.
+!!!
 
   subroutine sweep
     class(heap_element_t), pointer :: heap_element
@@ -601,6 +602,6 @@ contains
     end do
   end subroutine sweep
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 end module garbage_collector

@@ -77,7 +77,7 @@ module boxes
 
 contains
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   subroutine error_abort_1 (msg)
     use iso_fortran_env, only : error_unit
@@ -91,7 +91,7 @@ contains
     call error_abort ("a strange error, possibly use of an object already garbage-collected")
   end subroutine strange_error
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   subroutine box_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
     class(box_t), intent(in) :: this
@@ -112,7 +112,7 @@ contains
     end if
   end subroutine box_t_get_branch
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   function is_box (obj) result (bool)
     class(*), intent(in) :: obj
@@ -149,7 +149,7 @@ contains
     end select
   end function box_t_cast
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   recursive function box (contents) result (the_box)
     class(*), intent(in) :: contents
@@ -201,7 +201,7 @@ contains
     box1%heap_element%data => data
   end subroutine set_box
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   recursive function autobox (contents) result (the_box)
     class(*), intent(in) :: contents
@@ -227,6 +227,6 @@ contains
     end select
   end function autounbox
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 end module boxes

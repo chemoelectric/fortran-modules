@@ -135,7 +135,7 @@ contains
 
 m4_define([m4_deallocate_if_associated],[if (associated ($1)) deallocate ($1)])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 m4_if(DEBUGGING,[true],[dnl
   subroutine error_abort_1 (msg)
@@ -146,7 +146,7 @@ m4_if(DEBUGGING,[true],[dnl
     error stop
   end subroutine error_abort_1
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 ])dnl
 
   function current_heap_size () result (size)
@@ -205,7 +205,7 @@ m4_if(DEBUGGING,[true],[dnl
 ])dnl
   end function current_roots_count
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   elemental subroutine set_bit (obj, bit_mask)
     class(heap_element_t), intent(inout) :: obj
@@ -226,7 +226,7 @@ m4_if(DEBUGGING,[true],[dnl
     bool = (iand (obj%bits, bit_mask) /= 0)
   end function bit_is_set
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   elemental subroutine set_marked (obj)
     class(heap_element_t), intent(inout) :: obj
@@ -244,7 +244,7 @@ m4_if(DEBUGGING,[true],[dnl
     bool = bit_is_set (obj, mark_bit)
   end function is_marked
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   subroutine initialize_heap
     if (.not. associated (heap)) then
@@ -296,7 +296,7 @@ m4_if(DEBUGGING,[true],[dnl
     heap_count = heap_count - 1
   end subroutine heap_remove
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   subroutine collectible_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
     !
@@ -320,7 +320,7 @@ m4_if(DEBUGGING,[true],[dnl
     branch_number_out_of_range = .true.
   end subroutine collectible_t_get_branch
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   subroutine initialize_roots
     if (.not. associated (roots)) then
@@ -379,7 +379,7 @@ m4_if(DEBUGGING,[true],[dnl
 
   end subroutine roots_remove
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   pure function gcroot_t_val (this) result (retval)
     class(gcroot_t), intent(in) :: this
@@ -473,9 +473,10 @@ m4_if(DEBUGGING,[true],[dnl
     end if
   end subroutine gcroot_t_finalize
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!
-!! THE GARBAGE COLLECTOR.
+!!!-------------------------------------------------------------------
+!!!
+!!! THE GARBAGE COLLECTOR.
+!!!
 
   subroutine initialize_garbage_collector
     call really_initialize_garbage_collector
@@ -539,10 +540,10 @@ m4_if(DEBUGGING,[true],[dnl
     end if
   end subroutine check_heap_size
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!
-!! THE MARK PHASE.
-!!
+!!!-------------------------------------------------------------------
+!!!
+!!! THE MARK PHASE.
+!!!
 
   subroutine mark_from_roots
 
@@ -643,10 +644,10 @@ m4_if(DEBUGGING,[true],[dnl
 
   end subroutine mark_from_roots
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!
-!! THE SWEEP PHASE.
-!!
+!!!-------------------------------------------------------------------
+!!!
+!!! THE SWEEP PHASE.
+!!!
 
   subroutine sweep
     class(heap_element_t), pointer :: heap_element
@@ -671,6 +672,6 @@ m4_if(DEBUGGING,[true],[dnl
     end do
   end subroutine sweep
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 end module garbage_collector

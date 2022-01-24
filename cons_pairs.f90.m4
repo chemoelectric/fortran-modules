@@ -49,9 +49,7 @@ module cons_pairs
   ! CONS-pairs (Lisp-style lists and trees) in the fashion of SRFI-1.
   ! https://srfi.schemers.org/srfi-1/srfi-1.html
   !
-  ! Significant differences from SRFI-1 include:
-  !
-  !    * There are merge and sort routines in this module.
+  ! A significant differences from SRFI-1 is:
   !
   !    * The lset operations are not included in this module.
   !
@@ -71,7 +69,7 @@ module cons_pairs
   !
   ! Furthermore, objects other than the nil and pairs (such as 123,
   ! "abc", 4.0, .true., etc.) can be -- and in this module will be --
-  ! regarded as degenerate `dotted lists' -- as a sort of generalized
+  ! regarded as degenerate `dotted lists' -- as a kind of generalized
   ! nil. \footnote{The term `dotted list' is Scheme-talk for a linked
   ! list that ends in something other than a nil or back-reference. A
   ! list that ends in a nil is called ‘proper’ and a list that ends in
@@ -541,10 +539,10 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: list_indexn_[]n
 ])dnl
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!
-!! ASSOCIATION LISTS
-!!
+!!!-------------------------------------------------------------------
+!!!
+!!! ASSOCIATION LISTS
+!!!
 
   public :: assoc            ! Return the first association pair to
                              ! match the key. If there is no match,
@@ -562,10 +560,10 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   public :: alist_deletex    ! Like alist_delete, but allowed to
                              ! destroy its input association list.
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!
-!! FOLDS AND UNFOLDS
-!!
+!!!-------------------------------------------------------------------
+!!!
+!!! FOLDS AND UNFOLDS
+!!!
 
   public :: fold             ! Generic function: `the fundamental list
                              ! iterator.'
@@ -618,29 +616,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   ! Implementations of reduce_right
   public :: reduce_right_subr
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!
-!! MERGING AND SORTING
-!!
-!! This functionality is not included in SRFI-1, but is influenced
-!! instead more by SRFI-132,
-!! https://srfi.schemers.org/srfi-132/srfi-132.html
-!!
-!! See also SRFI-95, https://srfi.schemers.org/srfi-95/srfi-95.html
-!!
-
-  public :: list_merge          ! Stable merge.
-  public :: list_mergex         ! Stable merge that is allowed to alter its inputs.
-  public :: list_stable_sort    ! Stable sort.
-  public :: list_stable_sortx   ! Stable sort that is allowed to alter its input.
-  public :: list_sort           ! Sort that may or may not be stable.
-  public :: list_sortx          ! Like list_sort but allowed to alter its input.
-  public :: list_is_sorted      ! Is the given list in sorted order?
-  public :: list_delete_neighbor_dups  ! Delete adjacent duplicates.
-  public :: list_delete_neighbor_dupsx ! Like list_delete_neighbor_dups, but
-                                       ! allowed to modify its input list.
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   ! Types for predicates.
   public :: list_predicate1_t ! A predicate taking 1 argument.
@@ -660,7 +636,7 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
   end interface
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 !!
 !! Types for folds, unfolds, maps, and side effects.
 !!
@@ -725,7 +701,7 @@ m4_forloop([k],[1],n,[dnl
 ])dnl
   end interface
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   type :: pair_data_t
      class(*), allocatable :: car
@@ -1029,7 +1005,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   interface error_abort
      module procedure error_abort_1
@@ -1037,7 +1013,7 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
 
 contains
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   subroutine error_abort_1 (msg)
     use iso_fortran_env, only : error_unit
@@ -1059,7 +1035,7 @@ contains
     unspecified_value = ieee_value (1.0, ieee_quiet_nan)
   end function unspecified
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   subroutine cons_t_get_branch (this, branch_number, branch_number_out_of_range, branch)
     class(cons_t), intent(in) :: this
@@ -1091,7 +1067,7 @@ contains
     end if
   end subroutine cons_t_get_branch
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   function is_false (obj) result (bool)
     class(*), intent(in) :: obj
@@ -1117,7 +1093,7 @@ contains
     end select
   end function is_not_false
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   pure function is_pair (obj) result (bool)
     class(*), intent(in) :: obj
@@ -1142,7 +1118,7 @@ contains
     bool = .not. is_pair (obj)
   end function is_not_pair
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   pure function is_nil (obj) result (bool)
     class(*), intent(in) :: obj
@@ -1186,7 +1162,7 @@ contains
     end select
   end function is_nil_list
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   recursive subroutine cons_t_assign (dst, src)
     class(cons_t), intent(inout) :: dst
@@ -1233,7 +1209,7 @@ contains
     end if
   end function cons_t_eq
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   recursive function cons (car_value, cdr_value) result (the_pair)
     class(*), intent(in) :: car_value
@@ -1373,11 +1349,11 @@ contains
     end if
   end subroutine set_cdr
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 m4_forloop([n],[2],CADADR_MAX,[m4_length_n_cadadr_definitions(n)])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   function first (lst) result (element)
     class(*), intent(in) :: lst
@@ -1449,7 +1425,7 @@ m4_bits_to_get_nth_element([9],[element])dnl
 m4_bits_to_get_nth_element([10],[element])dnl
   end function tenth
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   function list_ref0_size_kind (lst, i) result (element)
     class(*), intent(in) :: lst
@@ -1512,7 +1488,7 @@ m4_bits_to_get_nth_element([10],[element])dnl
     element = list_refn_size_kind (lst, nn, ii)
   end function list_refn_int
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   function list0 () result (lst)
     type(cons_t) :: lst
@@ -1627,7 +1603,7 @@ m4_forloop([k],[2],n,[dnl
 
 ])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
   function zip[]n (lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
@@ -1705,7 +1681,7 @@ m4_if(k,n,[dnl
 
 ])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
   subroutine unzip[]n (lst_zipped, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
@@ -1789,7 +1765,7 @@ dnl
     call unzip1 (lst_zipped, lst)
   end function unzip1f
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   subroutine classify_list (obj, is_dotted, is_circular)
     !
@@ -1891,7 +1867,7 @@ dnl
     is_circular = is_circ
   end function is_circular_list
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   function length (lst) result (len)
     !
@@ -1955,7 +1931,7 @@ dnl
     end do
   end function lengthc
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   function take_size_kind (lst, n) result (lst_t)
     class(*), intent(in) :: lst
@@ -2345,7 +2321,7 @@ dnl
     retval = lst_left ** lst_right ** nil
   end function split_atx_int
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   function last_pair (lst) result (the_last_pair)
     class(*), intent(in) :: lst
@@ -2377,7 +2353,7 @@ dnl
     element = car (last_pair (lst))
   end function last
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   function make_list_unspecified_fill_size_kind (length) result (lst)
     integer(sz), intent(in) :: length
@@ -2417,7 +2393,7 @@ dnl
     lst = make_list_fill_size_kind (len, fill_value)
   end function make_list_fill_int
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   function list_tabulate0 (length, init_subr) result (lst)
     integer(sz), intent(in) :: length
@@ -2462,7 +2438,7 @@ dnl
     lst = lst1
   end function list_tabulaten
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   function list_copy (lst) result (lst_c)
     !
@@ -2748,7 +2724,7 @@ dnl
     end if
   end function concatenatex
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   function make_circular (lst) result (clst)
     !
@@ -2793,7 +2769,7 @@ dnl
     end select
   end function make_circularx
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   function iota_of_length_size_kind (length) result (lst)
     integer(sz), intent(in) :: length
@@ -2867,7 +2843,7 @@ dnl
     end if
   end function iota_of_length_start_step_int
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   recursive function list_equal0 (pred) result (bool)
     procedure(list_predicate2_t) :: pred
@@ -3006,7 +2982,7 @@ m4_forloop([k],[1],n,[dnl
 
 ])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
   recursive function list_count[]n (pred, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
@@ -3062,7 +3038,7 @@ m4_forloop([k],[1],n,[dnl
 
 ])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 !!
 !! map
 !!
@@ -3082,7 +3058,7 @@ m4_forloop([k],[1],n,[dnl
 
 ])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 !!
 !! map_in_order
 !!
@@ -3172,7 +3148,7 @@ m4_forloop([k],[1],n,[dnl
 
 ])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 !!
 !! filter_map. These are implemented in terms of private `filter map
 !! in order' functions, which *perhaps* one day will be made public.
@@ -3289,7 +3265,7 @@ m4_forloop([k],[1],n,[dnl
 
 ])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 !!
 !! for_each
 !!
@@ -3342,7 +3318,7 @@ m4_forloop([k],[1],n,[dnl
   end subroutine for_each[]n
 
 ])dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 !!
 !! pair_for_each
 !!
@@ -3395,7 +3371,7 @@ m4_forloop([k],[1],n,[dnl
   end subroutine pair_for_each[]n
 
 ])dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 !!
 !! Filtering and partitioning.
 !!
@@ -4262,7 +4238,7 @@ m4_forloop([k],[1],n,[dnl
     retval = lst1 ** lst2 ** nil
   end function break
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   recursive function member (pred, x, lst) result (sublst)
     procedure(list_predicate2_t) :: pred
@@ -4363,7 +4339,7 @@ m4_forloop([k],[1],n,[dnl
     end do
   end function drop_while
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   recursive subroutine drop_equals_trues (pred, x, lst, first_false)
     procedure(list_predicate2_t) :: pred
@@ -4610,7 +4586,7 @@ m4_forloop([k],[1],n,[dnl
     call lst_root%discard
   end function delete
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 dnl
 m4_define([m4_delete_duplicates],[dnl
   recursive function $1 (pred, lst) result (lst_dd)
@@ -4661,7 +4637,7 @@ m4_define([m4_delete_duplicates],[dnl
 m4_delete_duplicates([delete_duplicatesx],[deletex])
 m4_delete_duplicates([delete_duplicates],[delete])
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
   recursive function some[]n (pred, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
@@ -4873,7 +4849,7 @@ m4_forloop([k],[1],n,[dnl
 
 ])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
   recursive function list_indexn_[]n (pred, [n], lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
@@ -4962,7 +4938,7 @@ m4_forloop([k],[1],n,[dnl
 
 ])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   recursive function assoc (pred, key, alst) result (retval)
     procedure(list_predicate2_t) :: pred
@@ -5033,7 +5009,7 @@ dnl
     end if
   end function alist_copy
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   recursive subroutine drop_key_equals_trues (pred, key, alst, first_false)
     procedure(list_predicate2_t) :: pred
@@ -5279,7 +5255,7 @@ dnl
     call alst_root%discard
   end function alist_delete
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
   recursive function fold[]n[]_subr (kons, knil, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
@@ -5340,7 +5316,7 @@ m4_forloop([k],[1],n,[dnl
 
 ])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
   recursive function fold[]n[]_right_subr (kons, knil, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
@@ -5413,7 +5389,7 @@ m4_forloop([k],[2],n,[dnl
   end function fold[]n[]_right_subr
 ])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
   recursive function pair_fold[]n[]_subr (kons, knil, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
@@ -5476,7 +5452,7 @@ m4_forloop([k],[1],n,[dnl
 
 ])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
 m4_forloop([n],[1],ZIP_MAX,[dnl
   recursive function pair_fold[]n[]_right_subr (kons, knil, lst1[]m4_forloop([k],[2],n,[, m4_if(m4_eval(k % 5),[1],[&
@@ -5538,7 +5514,7 @@ m4_forloop([k],[2],n,[dnl
 
 ])dnl
 dnl
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   recursive function reduce_subr (kons, right_identity, lst) result (retval)
     procedure(list_kons1_subr_t) :: kons
@@ -5557,7 +5533,7 @@ dnl
     end if
   end function reduce_subr
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-------------------------------------------------------------------
 
   recursive function reduce_right_subr (kons, right_identity, lst) result (retval)
     procedure(list_kons1_subr_t) :: kons
@@ -5600,7 +5576,7 @@ dnl
 
   end function reduce_right_subr
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-----------------------------------------------------------------
 
   recursive function unfold_with_tail_gen (pred, f, g, seed, tail_gen) result (lst)
     procedure(list_predicate1_t) :: pred
@@ -5713,511 +5689,6 @@ dnl
     lst = unfold_right_with_tail (pred, f, g, seed, nil)
   end function unfold_right_with_nil_tail
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  recursive function list_merge (is_less_than, lst1, lst2) result (lst_m)
-    !
-    ! It is assumed lst1 and lst2 are proper lists.
-    !
-    procedure(list_predicate2_t) :: is_less_than
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    type(cons_t) :: lst_m
-
-    type(gcroot_t) :: lst1_root
-    type(gcroot_t) :: lst2_root
-
-    lst1_root = lst1
-    lst2_root = lst2
-    lst_m = list_mergex (is_less_than, list_copy (lst1), list_copy (lst2))
-    call lst1_root%discard
-    call lst2_root%discard
-  end function list_merge
-
-  recursive function list_mergex (is_less_than, lst1, lst2) result (lst_m)
-    !
-    ! It is assumed lst1 and lst2 are proper lists.
-    !
-    procedure(list_predicate2_t) :: is_less_than
-    class(*), intent(in) :: lst1
-    class(*), intent(in) :: lst2
-    type(cons_t) :: lst_m
-
-    type(gcroot_t) :: p1
-    type(gcroot_t) :: p2
-
-    p1 = lst1
-    p2 = lst2
-    lst_m = merge_lists (p1, p2)
-
-  contains
-
-    recursive function merge_lists (p1, p2) result (lst_m)
-      type(gcroot_t) :: p1
-      type(gcroot_t) :: p2
-      type(cons_t) :: lst_m
-
-      type(gcroot_t) :: lst_m_root
-      class(*), allocatable :: hd1, tl1
-      class(*), allocatable :: hd2, tl2
-      type(cons_t) :: cursor
-      logical :: p1_is_active
-      logical :: p1_is_active_is_changed
-      logical :: done
-
-      if (is_not_pair (p1)) then
-         lst_m = p2
-      else if (is_not_pair (p2)) then
-         lst_m = p1
-      else
-         call uncons (p1, hd1, tl1)
-         call uncons (p2, hd2, tl2)
-         if (.not. is_less_than (hd2, hd1)) then
-            p1_is_active = .true.
-            cursor = p1
-            p1 = tl1
-         else
-            p1_is_active = .false.
-            cursor = p2
-            p2 = tl2
-         end if
-         lst_m = cursor
-         lst_m_root = lst_m
-         done = .false.
-         do while (.not. done)
-            if (p1_is_active) then
-               p1_is_active_is_changed = .false.
-               do while (.not. p1_is_active_is_changed)
-                  if (is_not_pair (p1)) then
-                     call set_cdr (cursor, p2)
-                     p1_is_active_is_changed = .true.
-                     done = .true.
-                  else if (is_not_pair (p2)) then
-                     call set_cdr (cursor, p1)
-                     p1_is_active_is_changed = .true.
-                     done = .true.
-                  else
-                     call uncons (p1, hd1, tl1)
-                     call uncons (p2, hd2, tl2)
-                     if (.not. is_less_than (hd2, hd1)) then
-                        cursor = p1
-                        p1 = tl1
-                     else
-                        call set_cdr (cursor, p2)
-                        p1_is_active = .false.
-                        p1_is_active_is_changed = .true.
-                        cursor = p2
-                        p2 = tl2
-                     end if
-                  end if
-               end do
-            else
-               p1_is_active_is_changed = .false.
-               do while (.not. p1_is_active_is_changed)
-                  if (is_not_pair (p1)) then
-                     call set_cdr (cursor, p2)
-                     p1_is_active_is_changed = .true.
-                     done = .true.
-                  else if (is_not_pair (p2)) then
-                     call set_cdr (cursor, p1)
-                     p1_is_active_is_changed = .true.
-                     done = .true.
-                  else
-                     call uncons (p1, hd1, tl1)
-                     call uncons (p2, hd2, tl2)
-                     if (.not. is_less_than (hd2, hd1)) then
-                        call set_cdr (cursor, p1)
-                        p1_is_active = .true.
-                        p1_is_active_is_changed = .true.
-                        cursor = p1
-                        p1 =  tl1
-                     else
-                        call set_cdr (cursor, p2)
-                        cursor = p2
-                        p2 =  tl2
-                     end if
-                  end if
-               end do
-            end if
-         end do
-      end if
-      call lst_m_root%discard
-    end function merge_lists
-
-  end function list_mergex
-
-  recursive function list_stable_sort (is_less_than, lst) result (lst_ss)
-    procedure(list_predicate2_t) :: is_less_than
-    class(*), intent(in) :: lst
-    type(cons_t) :: lst_ss
-
-    type(gcroot_t) :: lst_root
-
-    lst_root = lst
-    lst_ss = list_stable_sortx (is_less_than, list_copy (lst))
-    call lst_root%discard
-  end function list_stable_sort
-
-  recursive function list_stable_sortx (is_less_than, lst) result (lst_ss)
-    procedure(list_predicate2_t) :: is_less_than
-    class(*), intent(in) :: lst
-    type(cons_t) :: lst_ss
-
-    integer, parameter :: small_size = 11
-
-    type(gcroot_t) :: p
-
-    p = lst
-    if (is_not_pair (p)) then
-       ! List of length zero.
-       lst_ss = p
-    else if (is_not_pair (cdr (p))) then
-       ! List of length one.
-       lst_ss = p
-    else
-       lst_ss = merge_sort (p, length (p))
-    end if
-
-  contains
-
-    recursive function insertion_sort (p, n) result (lst_ss)
-      !
-      ! Put CONS pairs into an array and do an insertion sort on the
-      ! array.
-      !
-      type(gcroot_t), intent(in) :: p
-      integer(sz), intent(in) :: n
-      type(cons_t) :: lst_ss
-
-      type(cons_t), dimension(1:small_size) :: array
-      type(cons_t) :: q, x
-      integer(sz) :: i, j
-      logical :: done
-
-      ! Fill the array with CONS pairs.
-      q = p
-      do i = 1, n
-         array(i) = q
-         q = cdr (q)
-      end do
-
-      ! Do an insertion sort on the array.
-      do i = 2, n
-         x = array(i)
-         j = i - 1
-         done = .false.
-         do while (.not. done)
-            if (j == 0) then
-               done = .true.
-            else if (.not. is_less_than (car (x), car (array(j)))) then
-               done = .true.
-            else
-               array(j + 1) = array(j)
-               j = j - 1
-            end if
-         end do
-         array(j + 1) = x
-      end do
-
-      ! Connect the CONS pairs into a list.
-      call set_cdr (array(n), nil)
-      do i = n - 1, 1, -1
-         call set_cdr (array(i), array(i + 1))
-      end do
-
-      ! The result.
-      lst_ss = array(1)
-    end function insertion_sort
-
-    recursive function merge_sort (p, n) result (lst_ss)
-      !
-      ! A top-down merge sort using non-tail recursion.
-      !
-      type(gcroot_t), intent(in) :: p
-      integer(sz), intent(in) :: n
-      type(cons_t) :: lst_ss
-
-      integer(sz) :: n_half
-      type(cons_t) :: p_left
-      class(*), allocatable :: p_right
-      type(gcroot_t) :: p_left1
-      type(gcroot_t) :: p_right1
-
-      if (n <= small_size) then
-         if (list_is_sorted (is_less_than, p)) then
-            ! Save a lot of activity, if the segment is already
-            ! sorted.
-            lst_ss = p
-         else
-            lst_ss = insertion_sort (p, n)
-         end if
-      else
-         n_half = n / 2
-         call do_split_atx (p, n_half, p_left, p_right)
-         p_left1 = p_left
-         p_right1 = p_right
-         p_left1 = merge_sort (p_left1, n_half)
-         p_right1 = merge_sort (p_right1, n - n_half)
-         lst_ss = list_mergex (is_less_than, p_left1, p_right1)
-      end if
-    end function merge_sort
-
-  end function list_stable_sortx
-
-  recursive function list_sort (is_less_than, lst) result (lst_ss)
-    !
-    ! The current implementation is just list_stable_sort.
-    !
-    procedure(list_predicate2_t) :: is_less_than
-    class(*), intent(in) :: lst
-    type(cons_t) :: lst_ss
-
-    lst_ss = list_stable_sort (is_less_than, lst)
-  end function list_sort
-
-  recursive function list_sortx (is_less_than, lst) result (lst_ss)
-    !
-    ! The current implementation is just list_stable_sortx.
-    !
-    procedure(list_predicate2_t) :: is_less_than
-    class(*), intent(in) :: lst
-    type(cons_t) :: lst_ss
-
-    lst_ss = list_stable_sortx (is_less_than, lst)
-  end function list_sortx
-
-  recursive function list_is_sorted (is_less_than, lst) result (is_sorted)
-    procedure(list_predicate2_t) :: is_less_than
-    class(*), intent(in) :: lst
-    logical :: is_sorted
-
-    class(*), allocatable :: last_value
-    class(*), allocatable :: next_value
-    class(*), allocatable :: next_pair
-    logical :: done
-
-    if (is_nil_list (lst)) then
-       is_sorted = .true.
-    else if (is_nil_list (cdr (lst))) then
-       is_sorted = .true.
-    else
-       block
-         type(gcroot_t) :: lst_root
-         lst_root = lst
-         call uncons (lst, last_value, next_pair)
-         done = .false.
-         do while (.not. done)
-            if (is_nil_list (next_pair)) then
-               is_sorted = .true.
-               done = .true.
-            else
-               call uncons (next_pair, next_value, next_pair)
-               if (is_less_than (next_value, last_value)) then
-                  is_sorted = .false.
-                  done = .true.
-               else
-                  last_value = next_value
-               end if
-            end if
-         end do
-         call lst_root%discard
-       end block
-    end if
-  end function list_is_sorted
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  recursive function list_delete_neighbor_dupsx (pred, lst) result (lst_dnd)
-    procedure(list_predicate2_t) :: pred
-    class(*), intent(in) :: lst
-    class(*), allocatable :: lst_dnd
-
-    type(gcroot_t) :: lst_root
-    class(*), allocatable :: element
-    class(*), allocatable :: p, q
-    logical :: done
-
-    lst_dnd = .autoval. lst
-    if (is_pair (lst_dnd)) then
-       lst_root = lst_dnd
-       p = lst_dnd
-       call uncons (p, element, q)
-       do while (is_pair (q))
-          if (.not. pred (element, car (q))) then
-             ! Adjacent elements do not match. Advance to the next
-             ! position.
-             p = q
-             call uncons (p, element, q)
-          else
-             ! A run of duplicates is detected. Now p is the pair that
-             ! will have to have its CDR changed. Advance q to the
-             ! end of the run.
-             done = .false.
-             do while (.not. done)
-                if (is_not_pair (q)) then
-                   ! q has reached the end of the input list.
-                   call set_cdr (p, q)
-                   done = .true.
-                else if (.not. pred (element, car (q))) then
-                   ! q has reached a mismatched element.
-                   call set_cdr (p, q)
-                   done = .true.
-                else
-                   call uncons (q, element, q)
-                end if
-             end do
-          end if
-       end do
-    end if
-    call lst_root%discard
-  end function list_delete_neighbor_dupsx
-
-  recursive function list_delete_neighbor_dups (pred, lst) result (lst_dnd)
-    procedure(list_predicate2_t) :: pred
-    class(*), intent(in) :: lst
-    class(*), allocatable :: lst_dnd
-
-    type(gcroot_t) :: lst_root
-
-    if (is_not_pair (lst)) then
-       lst_dnd = .autoval. lst
-    else
-       lst_root = lst ! Protect the original list from garbage
-                      ! collections instigated by pred.
-       lst_dnd = look_for_duplicates (.tocons. lst)
-    end if
-    call lst_root%discard
-
-  contains
-
-    recursive function look_for_duplicates (lst) result (retval)
-      type(cons_t), intent(in) :: lst
-      type(cons_t) :: retval
-
-      type(gcroot_t) :: retval_root
-      type(cons_t) :: p
-      class(*), allocatable :: q
-      type(cons_t) :: last_pair
-      type(cons_t) :: new_segment
-      type(cons_t) :: new_last_pair
-
-      ! Find either the first adjacent duplicate pair or the end of
-      ! the list.
-      q = find_duplicates (lst)
-      if (is_not_pair (q)) then
-         ! There are no adjacent duplicates anywhere in the original
-         ! list. Simply return the original list.
-         retval = lst
-      else
-         ! A run of duplicates has been found. Build a new list.
-         call copy_sublist (lst, q, retval, last_pair)
-         retval_root = retval ! Protect the output list from garbage
-                              ! collections instigated by pred.
-         do while (is_pair (q))
-            q = skip_duplicates (.tocons. q)
-            if (is_not_pair (q)) then
-               ! The input list ends on a run of duplicates. Terminate
-               ! the output list.
-               call set_cdr_unless_nil (last_pair, q)
-            else
-               ! Start a new segment.
-               p = q
-               q = find_duplicates (p)
-               if (is_not_pair (q)) then
-                  ! Append a shared tail.
-                  call set_cdr (last_pair, p)
-               else
-                  ! Copy another section of the input list, and append
-                  ! it to the output list.
-                  call copy_sublist (p, q, new_segment, new_last_pair)
-                  call set_cdr (last_pair, new_segment)
-                  last_pair = new_last_pair
-               endif
-            end if
-         end do
-      end if
-      call retval_root%discard
-    end function look_for_duplicates
-
-    recursive function find_duplicates (p) result (q)
-      type(cons_t), intent(in) :: p
-      class(*), allocatable :: q
-
-      type(cons_t) :: prev
-      logical :: done
-
-      prev = p
-      done = .false.
-      do while (.not. done)
-         q = cdr (prev)
-         if (is_not_pair (q)) then
-            ! q is the end of the input list.
-            done = .true.
-         else if (pred (car (prev), car (q))) then
-            ! q is the start of a run of duplicates.
-            done = .true.
-         else
-            ! Continue looking for a pair of duplicates.
-            prev = q
-         end if
-      end do
-    end function find_duplicates
-
-    recursive function skip_duplicates (p) result (q)
-      type(cons_t), intent(in) :: p
-      class(*), allocatable :: q
-
-      type(cons_t) :: prev
-      logical :: done
-
-      prev = p
-      done = .false.
-      do while (.not. done)
-         q = cdr (prev)
-         if (is_not_pair (q)) then
-            ! q is the end of the input list.
-            done = .true.
-         else if (.not. pred (car (prev), car (q))) then
-            ! q is the start of a new segment.
-            done = .true.
-         else
-            ! Continue skipping duplicates.
-            prev = q
-         end if
-      end do
-    end function skip_duplicates
-
-    subroutine set_cdr_unless_nil (pair, cdr_value)
-      type(cons_t), intent(in) :: pair
-      class(*), intent(in) :: cdr_value
-
-      if (is_not_nil (cdr_value)) then
-         call set_cdr (pair, cdr_value)
-      end if
-    end subroutine set_cdr_unless_nil
-
-    subroutine copy_sublist (p, q, sublst_copy, last_pair)
-      type(cons_t), intent(in) :: p
-      class(*), intent(in) :: q
-      type(cons_t), intent(out) :: sublst_copy
-      type(cons_t), intent(out) :: last_pair
-
-      class(*), allocatable :: head, tail
-      type(cons_t) :: new_pair
-
-      call uncons (p, head, tail)
-      sublst_copy = head ** nil
-      last_pair = sublst_copy
-      do while (.not. cons_t_eq (tail, q))
-         new_pair = (car (tail)) ** nil
-         call set_cdr (last_pair, new_pair)
-         last_pair = new_pair
-         tail = cdr (tail)
-      end do
-    end subroutine copy_sublist
-
-  end function list_delete_neighbor_dups
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-----------------------------------------------------------------
 
 end module cons_pairs

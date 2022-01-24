@@ -100,12 +100,14 @@ MODULE_BASENAMES += boxes
 MODULE_BASENAMES += cons_pairs
 MODULE_BASENAMES += lsets
 MODULE_BASENAMES += vectars
+MODULE_BASENAMES += sorting_and_selection
 
 TEST_PROGRAM_BASENAMES =
 TEST_PROGRAM_BASENAMES += test__boxes
 TEST_PROGRAM_BASENAMES += test__cons_pairs
 TEST_PROGRAM_BASENAMES += test__lsets
 TEST_PROGRAM_BASENAMES += test__vectars
+TEST_PROGRAM_BASENAMES += test__sorting_and_selection
 
 .PHONY: all default
 default: all
@@ -122,6 +124,7 @@ check: check-boxes
 check: check-cons_pairs
 check: check-lsets
 check: check-vectars
+check: check-sorting_and_selection
 
 .PHONY: check-boxes
 check-boxes: test__boxes
@@ -139,6 +142,10 @@ check-lsets: test__lsets
 check-vectars: test__vectars
 	./test__vectars
 
+.PHONY: check-sorting_and_selection
+check-sorting_and_selection: test__sorting_and_selection
+	./test__sorting_and_selection
+
 test__boxes: $(addsuffix .$(OBJEXT), test__boxes boxes garbage_collector)
 	$(COMPILE.f90) $(^) -o $(@)
 
@@ -149,6 +156,10 @@ test__lsets: $(addsuffix .$(OBJEXT), test__lsets lsets cons_pairs garbage_collec
 	$(COMPILE.f90) $(^) -o $(@)
 
 test__vectars: $(addsuffix .$(OBJEXT), test__vectars vectars cons_pairs garbage_collector)
+	$(COMPILE.f90) $(^) -o $(@)
+
+test__sorting_and_selection: $(addsuffix .$(OBJEXT), test__sorting_and_selection sorting_and_selection \
+														vectars cons_pairs garbage_collector)
 	$(COMPILE.f90) $(^) -o $(@)
 
 lsets.anchor: lsets.f90
@@ -171,7 +182,10 @@ test__vectars.anchor: test__vectars.f90
 test__vectars.$(OBJEXT): test__vectars.anchor
 	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c $(<:.anchor=.f90) -o $(@)
 
-cons_lists.f90: cadadr.m4
+test__sorting_and_selection.anchor: test__sorting_and_selection.f90
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c -fsyntax-only $(<) && touch $(@)
+test__sorting_and_selection.$(OBJEXT): test__sorting_and_selection.anchor
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c $(<:.anchor=.f90) -o $(@)
 
 garbage_collector.anchor: garbage_collector.mod
 garbage_collector.mod:
@@ -195,6 +209,12 @@ vectars.anchor: cons_pairs.anchor
 vectars.anchor: vectars.mod
 vectars.mod:
 
+sorting_and_selection.anchor: garbage_collector.anchor
+sorting_and_selection.anchor: cons_pairs.anchor
+sorting_and_selection.anchor: vectars.anchor
+sorting_and_selection.anchor: sorting_and_selection.mod
+sorting_and_selection.mod:
+
 test__boxes.anchor: boxes.anchor
 test__boxes.anchor: test__boxes.mod
 test__boxes.mod:
@@ -216,6 +236,13 @@ test__vectars.anchor: cons_pairs.anchor
 test__vectars.anchor: vectars.anchor
 test__vectars.anchor: test__vectars.mod
 test__vectars.mod:
+
+test__sorting_and_selection.anchor: garbage_collector.anchor
+test__sorting_and_selection.anchor: cons_pairs.anchor
+test__sorting_and_selection.anchor: vectars.anchor
+test__sorting_and_selection.anchor: sorting_and_selection.anchor
+test__sorting_and_selection.anchor: test__sorting_and_selection.mod
+test__sorting_and_selection.mod:
 
 suffixed-all-basenames = $(addsuffix $(shell printf "%s" $(1)),$(MODULE_BASENAMES) $(TEST_PROGRAM_BASENAMES))
 

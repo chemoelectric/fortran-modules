@@ -31,6 +31,12 @@ vectars.f90            -- Vectors (single-dimensional arrays) for
                           (Expat license)
                           (UNDER DEVELOPMENT)
 
+sorting_and_selection.f90 -- Sorting routines for CONS-pair lists and
+                          vectars, in the manner of Scheme Request
+                          for Implementation 132 (SRFI-132).
+                          (Expat license)
+                          (UNDER DEVELOPMENT)
+
 
 Regarding my use of m4
 ----------------------
