@@ -29,7 +29,6 @@ vectars.f90            -- Vectors (single-dimensional arrays) for
                           for Implementation 133 (SRFI-133). We
                           call them ‘vectar’ for ‘vector array’.
                           (Expat license)
-                          (UNDER DEVELOPMENT)
 
 sorting_and_selection.f90 -- Sorting routines for CONS-pair lists and
                           vectars, in the manner of Scheme Request
