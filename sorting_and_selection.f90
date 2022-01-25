@@ -170,11 +170,11 @@ contains
 
 !!!-------------------------------------------------------------------
 
-  recursive function list_merge (is_less_than, lst1, lst2) result (lst_m)
+  recursive function list_merge (less_than, lst1, lst2) result (lst_m)
     !
     ! It is assumed lst1 and lst2 are proper lists.
     !
-    procedure(list_predicate2_t) :: is_less_than
+    procedure(list_predicate2_t) :: less_than
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     type(cons_t) :: lst_m
@@ -184,16 +184,16 @@ contains
 
     lst1_root = lst1
     lst2_root = lst2
-    lst_m = list_mergex (is_less_than, list_copy (lst1), list_copy (lst2))
+    lst_m = list_mergex (less_than, list_copy (lst1), list_copy (lst2))
     call lst1_root%discard
     call lst2_root%discard
   end function list_merge
 
-  recursive function list_mergex (is_less_than, lst1, lst2) result (lst_m)
+  recursive function list_mergex (less_than, lst1, lst2) result (lst_m)
     !
     ! It is assumed lst1 and lst2 are proper lists.
     !
-    procedure(list_predicate2_t) :: is_less_than
+    procedure(list_predicate2_t) :: less_than
     class(*), intent(in) :: lst1
     class(*), intent(in) :: lst2
     type(cons_t) :: lst_m
@@ -227,7 +227,7 @@ contains
       else
          call uncons (p1, hd1, tl1)
          call uncons (p2, hd2, tl2)
-         if (.not. is_less_than (hd2, hd1)) then
+         if (.not. less_than (hd2, hd1)) then
             p1_is_active = .true.
             cursor = p1
             p1 = tl1
@@ -254,7 +254,7 @@ contains
                   else
                      call uncons (p1, hd1, tl1)
                      call uncons (p2, hd2, tl2)
-                     if (.not. is_less_than (hd2, hd1)) then
+                     if (.not. less_than (hd2, hd1)) then
                         cursor = p1
                         p1 = tl1
                      else
@@ -280,7 +280,7 @@ contains
                   else
                      call uncons (p1, hd1, tl1)
                      call uncons (p2, hd2, tl2)
-                     if (.not. is_less_than (hd2, hd1)) then
+                     if (.not. less_than (hd2, hd1)) then
                         call set_cdr (cursor, p1)
                         p1_is_active = .true.
                         p1_is_active_is_changed = .true.
@@ -301,24 +301,24 @@ contains
 
   end function list_mergex
 
-  recursive function list_stable_sort (is_less_than, lst) result (lst_ss)
-    procedure(list_predicate2_t) :: is_less_than
+  recursive function list_stable_sort (less_than, lst) result (lst_ss)
+    procedure(list_predicate2_t) :: less_than
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ss
 
     type(gcroot_t) :: lst_root
 
     lst_root = lst
-    lst_ss = list_stable_sortx (is_less_than, list_copy (lst))
+    lst_ss = list_stable_sortx (less_than, list_copy (lst))
     call lst_root%discard
   end function list_stable_sort
 
-  recursive function list_stable_sortx (is_less_than, lst) result (lst_ss)
-    procedure(list_predicate2_t) :: is_less_than
+  recursive function list_stable_sortx (less_than, lst) result (lst_ss)
+    procedure(list_predicate2_t) :: less_than
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ss
 
-    integer, parameter :: small_size = 11
+    integer, parameter :: small_size = 10
 
     type(gcroot_t) :: p
 
@@ -338,7 +338,7 @@ contains
     recursive function insertion_sort (p, n) result (lst_ss)
       !
       ! Put CONS pairs into an array and do an insertion sort on the
-      ! array.
+      ! array. (This was faster than a list insertion sort I wrote.)
       !
       type(gcroot_t), intent(in) :: p
       integer(sz), intent(in) :: n
@@ -364,7 +364,7 @@ contains
          do while (.not. done)
             if (j == 0) then
                done = .true.
-            else if (.not. is_less_than (car (x), car (array(j)))) then
+            else if (.not. less_than (car (x), car (array(j)))) then
                done = .true.
             else
                array(j + 1) = array(j)
@@ -399,7 +399,7 @@ contains
       type(gcroot_t) :: p_right1
 
       if (n <= small_size) then
-         if (list_is_sorted (is_less_than, p)) then
+         if (list_is_sorted (less_than, p)) then
             ! Save a lot of activity, if the segment is already
             ! sorted.
             lst_ss = p
@@ -413,36 +413,36 @@ contains
          p_right1 = p_right
          p_left1 = merge_sort (p_left1, n_half)
          p_right1 = merge_sort (p_right1, n - n_half)
-         lst_ss = list_mergex (is_less_than, p_left1, p_right1)
+         lst_ss = list_mergex (less_than, p_left1, p_right1)
       end if
     end function merge_sort
 
   end function list_stable_sortx
 
-  recursive function list_sort (is_less_than, lst) result (lst_ss)
+  recursive function list_sort (less_than, lst) result (lst_ss)
     !
     ! The current implementation is just list_stable_sort.
     !
-    procedure(list_predicate2_t) :: is_less_than
+    procedure(list_predicate2_t) :: less_than
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ss
 
-    lst_ss = list_stable_sort (is_less_than, lst)
+    lst_ss = list_stable_sort (less_than, lst)
   end function list_sort
 
-  recursive function list_sortx (is_less_than, lst) result (lst_ss)
+  recursive function list_sortx (less_than, lst) result (lst_ss)
     !
     ! The current implementation is just list_stable_sortx.
     !
-    procedure(list_predicate2_t) :: is_less_than
+    procedure(list_predicate2_t) :: less_than
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ss
 
-    lst_ss = list_stable_sortx (is_less_than, lst)
+    lst_ss = list_stable_sortx (less_than, lst)
   end function list_sortx
 
-  recursive function list_is_sorted (is_less_than, lst) result (is_sorted)
-    procedure(list_predicate2_t) :: is_less_than
+  recursive function list_is_sorted (less_than, lst) result (is_sorted)
+    procedure(list_predicate2_t) :: less_than
     class(*), intent(in) :: lst
     logical :: is_sorted
 
@@ -467,7 +467,7 @@ contains
                done = .true.
             else
                call uncons (next_pair, next_value, next_pair)
-               if (is_less_than (next_value, last_value)) then
+               if (less_than (next_value, last_value)) then
                   is_sorted = .false.
                   done = .true.
                else
