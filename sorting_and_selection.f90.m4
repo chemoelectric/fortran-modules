@@ -314,9 +314,11 @@ contains
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ss
 
-    integer, parameter :: small_size = 10
+    integer, parameter :: array_sort_size = 128
 
     type(gcroot_t) :: p
+    type(gcroot_t) :: vec1, vec2
+    type(vectar_data_t), pointer :: workspace1, workspace2
 
     p = lst
     if (is_not_pair (p)) then
@@ -326,59 +328,18 @@ contains
        ! List of length one.
        lst_ss = p
     else
+       ! An array to fill with data to be sorted.
+       vec1 = make_vectar (array_sort_size)
+       workspace1 => vectar_data_ptr (vec1)
+
+       ! Workspace used by the array sort.
+       vec2 = make_vectar (ishft (array_sort_size, -1))
+       workspace2 => vectar_data_ptr (vec2)
+
        lst_ss = merge_sort (p, length (p))
     end if
 
   contains
-
-    recursive function insertion_sort (p, n) result (lst_ss)
-      !
-      ! Put CONS pairs into an array and do an insertion sort on the
-      ! array. (This was faster than a list insertion sort I wrote.)
-      !
-      type(gcroot_t), intent(in) :: p
-      integer(sz), intent(in) :: n
-      type(cons_t) :: lst_ss
-
-      type(cons_t), dimension(1:small_size) :: array
-      type(cons_t) :: q, x
-      integer(sz) :: i, j
-      logical :: done
-
-      ! Fill the array with CONS pairs.
-      q = p
-      do i = 1, n
-         array(i) = q
-         q = cdr (q)
-      end do
-
-      ! Do an insertion sort on the array.
-      do i = 2, n
-         x = array(i)
-         j = i - 1
-         done = .false.
-         do while (.not. done)
-            if (j == 0) then
-               done = .true.
-            else if (.not. less_than (car (x), car (array(j)))) then
-               done = .true.
-            else
-               array(j + 1) = array(j)
-               j = j - 1
-            end if
-         end do
-         array(j + 1) = x
-      end do
-
-      ! Connect the CONS pairs into a list.
-      call set_cdr (array(n), nil)
-      do i = n - 1, 1, -1
-         call set_cdr (array(i), array(i + 1))
-      end do
-
-      ! The result.
-      lst_ss = array(1)
-    end function insertion_sort
 
     recursive function merge_sort (p, n) result (lst_ss)
       !
@@ -394,13 +355,16 @@ contains
       type(gcroot_t) :: p_left1
       type(gcroot_t) :: p_right1
 
-      if (n <= small_size) then
+      if (n == 1) then
+         ! A list of length 1 is already sorted.
+         lst_ss = p
+      else if (n <= array_sort_size) then
          if (list_is_sorted (less_than, p)) then
             ! Save a lot of activity, if the segment is already
             ! sorted.
             lst_ss = p
          else
-            lst_ss = insertion_sort (p, n)
+            lst_ss = array_sort (.tocons. p, n)
          end if
       else
          n_half = n / 2
@@ -412,6 +376,38 @@ contains
          lst_ss = list_mergex (less_than, p_left1, p_right1)
       end if
     end function merge_sort
+
+    recursive function array_sort (p, n) result (lst_ss)
+      !
+      ! Put the data into an array and sort the array.
+      !
+      type(cons_t), intent(in) :: p
+      integer(sz), intent(in) :: n
+      type(cons_t) :: lst_ss
+
+      type(cons_t) :: q
+      integer(sz) :: i
+
+      ! Fill workspace1 with the data.
+      q = p
+      do i = 0_sz, n - 1
+         workspace1%array(i)%element = car (q)
+         q = .tocons. cdr (q)
+      end do
+
+      ! Sort workspace1.
+      call stable_mergesort (less_than, workspace1, 0_sz, n - 1, workspace2)
+
+      ! Rather than allocate new CONS pairs, fill the original list
+      ! with the sorted data.
+      q = p
+      do i = 0_sz, n - 1
+         call set_car (q, workspace1%array(i)%element)
+         q = .tocons. cdr (q)
+      end do
+
+      lst_ss = p
+    end function array_sort
 
   end function list_stable_sortx
 
@@ -812,21 +808,21 @@ contains
     type(gcroot_t) :: vec_root, workspace_root
     type(vectar_range_t) :: vecr, workspace_range
     class(vectar_data_t), pointer :: data, workspace
-    integer(sz) :: idatastart, idataend
+    integer(sz) :: i, k
 
     vec_root = vec
 
     vecr = vec
     data => vectar_data_ptr (vecr)
 
-    idatastart = vecr%istart0()
-    idataend = vecr%iend0()
+    i = vecr%istart0()
+    k = vecr%iend0()
 
-    workspace_root = make_vectar (((idataend - idatastart) + 1) / 2)
+    workspace_root = make_vectar (((k - i) + 1) / 2)
     workspace_range = workspace_root
     workspace => vectar_data_ptr (workspace_range)
 
-    call stable_mergesort (less_than, data, idatastart, idataend, workspace)
+    call stable_mergesort (less_than, data, i, k, workspace)
 
     call workspace_root%discard
     call vec_root%discard
