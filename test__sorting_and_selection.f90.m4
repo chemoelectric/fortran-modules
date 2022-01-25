@@ -793,6 +793,8 @@ contains
     type(gcroot_t) :: stable_sort_examples(jrandom:jsorted, 1:num_stable_sort_examples)
     integer :: i, j
 
+    call unit_test__bottenbruch_searches
+
     call read_stable_sort_examples (stable_sort_examples)
 
     ! Some small sorts.
@@ -870,8 +872,6 @@ contains
     call vectar_stable_sortx (less_than, range1 (vec1, 26, 75))
     call check (vectar_equal (int_eq, vec1, list_to_vectar (append (iota (25, 100, -1), iota (50, 26), iota (25, 25, -1)))), &
          &      "test1030-3010 failed")
-
-    call vectar_stable_mergesort_unit_tests
 
     ! Roots as array entries need explicit discard,
     ! unfortunately. They will not be finalized automatically.

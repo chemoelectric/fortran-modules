@@ -77,7 +77,7 @@ module sorting_and_selection
   public :: vectar_sortx ! The input vectar is also the output vectar.
 
   ! Some unit tests. Not for use in a program other than for testing.
-  public :: vectar_stable_mergesort_unit_tests
+  public :: unit_test__bottenbruch_searches
 
 !!!-------------------------------------------------------------------
 !!
@@ -153,20 +153,6 @@ contains
        end select
     end select
   end function int_less_than
-
-  function int_equal (x, y) result (bool)
-    class(*), intent(in) :: x, y
-    logical :: bool
-
-    bool = .false.
-    select type (x)
-    type is (integer)
-       select type (y)
-       type is (integer)
-          bool = (x == y)
-       end select
-    end select
-  end function int_equal
 
 !!!-------------------------------------------------------------------
 
@@ -693,6 +679,26 @@ contains
     call vec_root%discard
   end function vectar_is_sorted
 
+  recursive function data_is_sorted (less_than, data, ileft, iright) result (bool)
+    !
+    ! Is dataileft .. iright free of any descending sequences?
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: ileft
+    integer(sz), intent(in) :: iright
+    logical::bool
+
+    integer(sz) :: i
+
+    bool = .true.
+    i = ileft
+    do while (bool .and. i < iright)
+       bool = .not. less_than (data%array(i + 1)%element, data%array(i)%element)
+       i = i + 1
+    end do
+  end function data_is_sorted
+
 !!!-------------------------------------------------------------------
 
   recursive function vectar_merge (less_than, vec1, vec2) result (vec_m)
@@ -846,200 +852,262 @@ contains
 
 !!!-------------------------------------------------------------------
 
-  recursive function data_is_sorted (less_than, data, ileft, iright) result (bool)
-    !
-    ! Is dataileft .. iright free of any descending sequences?
-    !
-    procedure(vectar_predicate2_t) :: less_than
-    class(vectar_data_t), pointer, intent(in) :: data
-    integer(sz), intent(in) :: ileft
-    integer(sz), intent(in) :: iright
-    logical::bool
+  function vectar_shuffle (vec) result (vec_shuffled)
+    use, intrinsic :: iso_fortran_env, only: real64
+    class(*), intent(in) :: vec
+    type(vectar_t) :: vec_shuffled
 
-    integer(sz) :: i
+    !
+    ! Fisher-Yates shuffle.
+    !
+    ! See
+    ! https://en.wikipedia.org/w/index.php?title=Fisher%E2%80%93Yates_shuffle&oldid=1063206771#The_%22inside-out%22_algorithm
+    !
 
-    bool = .true.
-    i = ileft
-    do while (bool .and. i < iright)
-       bool = .not. less_than (data%array(i + 1)%element, data%array(i)%element)
-       i = i + 1
-    end do
-  end function data_is_sorted
-
-  recursive function bottenbruch_search (less_than, data, ileft, iright, x) result (index)
-    !
-    ! Do a search on the data whose first element is at ileft and
-    ! whose last element is at iright. Return `index' such that:
-    !
-    !    * if x is less than the element at ileft, then index = ileft;
-    !
-    !    * otherwise, x is greater than or equal to the element at
-    !      index (and therefore to every element to the left of
-    !      index), and less than everything to the right of index.
-    !
-    ! References:
-    !
-    !    * H. Bottenbruch, `Structure and use of ALGOL 60', Journal of
-    !      the ACM, Volume 9, Issue 2, April 1962,
-    !      pp.161-221. https://doi.org/10.1145/321119.321120
-    !      The general algorithm is described on pages 214 and 215.
-    !
-    !    * https://en.wikipedia.org/w/index.php?title=Binary_search_algorithm&oldid=1062988272#Alternative_procedure
-    !
-    procedure(vectar_predicate2_t) :: less_than
-    class(vectar_data_t), pointer, intent(in) :: data
-    integer(sz), intent(in) :: ileft
-    integer(sz), intent(in) :: iright
-    class(*), intent(in) :: x
-    integer(sz) :: index
-
-    integer(sz) :: i, j, k
-    integer(sz) :: k_minus_j
-
-    j = ileft
-    k = iright
-    do while (k /= j)
-       ! Set i := ceil ((j + k) / 2).
-       k_minus_j = k - j
-       i = j + ishft (k_minus_j, -1) + ibits (k_minus_j, 0, 1)
-       if (less_than (x, data%array(i)%element)) then
-          k = i - 1
-       else
-          j = i
-       end if
-    end do
-    index = j
-  end function bottenbruch_search
-
-  subroutine unit_test__bottenbruch_search__test1
-    integer, parameter :: number_of_vectars = 100
-    integer(sz), parameter :: veclen = 1024_sz
-    integer, parameter :: modulus = 64
-
-    type(gcroot_t) :: vec
-    integer :: vectar_number
-    integer(sz) :: i
-    real :: randnum
-    integer :: x
+    type(vectar_range_t) :: vecr
     class(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data_shuffled
+    integer(sz) :: i0, len
+    real(real64) :: randnum
+    integer(sz) :: i, j
 
-    vec = make_vectar (veclen)
-    do vectar_number = 1, number_of_vectars
-       do i = 0_sz, veclen - 1
-          call random_number (randnum)
-          call vectar_set0 (vec, i, int (randnum * (modulus)))
-       end do
-       vec = list_to_vectar (list_sortx (int_less_than, vectar_to_list (vec)))
-       data => vectar_data_ptr (vec)
-       do x = -1, modulus
-          i = bottenbruch_search (int_less_than, data, 0_sz, veclen - 1, x)
-          if (i /= 0) then
-             if (int_less_than (x, vectar_ref0 (vec, i))) then
-                ! Unless i is 0, x must be greater than or equal
-                ! to the element at i (and therefore also to every
-                ! element to the left of i).
-                call error_abort ("unit_test__bottenbruch_search__test1 0010 failed")
-             end if
-          end if
-          if (i /= veclen - 1) then
-             if (.not. int_less_than (x, vectar_ref0 (vec, i + 1))) then
-                ! x must be less than the element at i+1 (and
-                ! therefore also to everything else to the right of
-                ! i).
-                call error_abort ("unit_test__bottenbruch_search__test1 0020 failed")
-             end if
-          end if
-       end do
+    vecr = vec
+    data => vectar_data_ptr (vecr)
+    i0 = vecr%istart0()
+    len = vecr%length()
+
+    vec_shuffled = make_vectar (len)
+    data_shuffled => vectar_data_ptr (vec_shuffled)
+
+    do i = 0_sz, len - 1
+       call random_number (randnum)
+       j = int (randnum * (i + 1), kind = sz)
+       if (j /= i) then
+          data_shuffled%array(i) = data_shuffled%array(j)
+       end if
+       data_shuffled%array(j) = data%array(i0 + i)
     end do
-  end subroutine unit_test__bottenbruch_search__test1
+  end function vectar_shuffle
 
-  recursive function bottenbruch_search2 (less_than, data, ileft, iright, x) result (index)
+  subroutine vectar_shufflex (vec)
+    use, intrinsic :: iso_fortran_env, only: real64
+    class(*), intent(in) :: vec
+
     !
-    ! Do a search on the data whose first element is at ileft and
-    ! whose last element is at iright. Return `index' such that:
+    ! Fisher-Yates shuffle.
     !
-    !    * if x is greater than the element at iright, then index =
-    !      iright;
+    ! See
+    ! https://en.wikipedia.org/w/index.php?title=Fisher%E2%80%93Yates_shuffle&oldid=1063206771#The_modern_algorithm
     !
-    !    * otherwise, x is greater than every element to the left of
-    !      index, and less than or equal to the elements at index and
-    !      to the right of index.
+
+    type(vectar_range_t) :: vecr
+    class(vectar_data_t), pointer :: data
+    integer(sz) :: i0, len
+    real(real64) :: randnum
+    integer(sz) :: i, j
+    class(*), allocatable :: tmp
+
+    vecr = vec
+    data => vectar_data_ptr (vecr)
+    i0 = vecr%istart0()
+    len = vecr%length()
+    do i = 0_sz, len - 2
+       call random_number (randnum)
+       j = i + int (randnum * (len - i), kind = sz)
+       tmp = data%array(i0 + i)%element
+       data%array(i0 + i)%element = data%array(i0 + j)%element
+       data%array(i0 + j)%element = tmp
+    end do
+  end subroutine vectar_shufflex
+
+!!!-------------------------------------------------------------------
+!!!
+!!! Stable sorting of an array of vectar_element_t.
+!!!
+
+  recursive subroutine stable_mergesort (less_than, data, i, k, workspace)
     !
-    ! References:
+    ! Sort datai .. k, using a workspace at least
+    ! floor((k - i + 1) / 2) vectar_element_t long.
     !
-    !    * H. Bottenbruch, `Structure and use of ALGOL 60', Journal of
-    !      the ACM, Volume 9, Issue 2, April 1962,
-    !      pp.161-221. https://doi.org/10.1145/321119.321120
-    !      The general algorithm is described on pages 214 and 215.
+    ! The overall method is depth-first, top-down recursion on halves
+    ! of the array.
     !
-    !    * https://en.wikipedia.org/w/index.php?title=Binary_search_algorithm&oldid=1062988272#Alternative_procedure
+    ! We tried a bottom-up method similar to that employed in Python's
+    ! sort function, and it worked and seemed fast. However, we
+    ! decided that top-down recursion was easier to understand and get
+    ! right.
     !
     procedure(vectar_predicate2_t) :: less_than
     class(vectar_data_t), pointer, intent(in) :: data
-    integer(sz), intent(in) :: ileft
-    integer(sz), intent(in) :: iright
-    class(*), intent(in) :: x
-    integer(sz) :: index
+    integer(sz), intent(in) :: i, k
+    class(vectar_data_t), pointer, intent(in) :: workspace
 
-    integer(sz) :: i, j, k
-    integer(sz) :: k_minus_j
+    integer(sz), parameter :: small_length = 64
 
-    j = ileft
-    k = iright
-    do while (k /= j)
-       ! Set i := floor ((j + k) / 2).
-       k_minus_j = k - j
-       i = j + ishft (k_minus_j, -1)
-       if (less_than (data%array(i)%element, x)) then
-          ! x is greater than the element at i.
-          j = i + 1
+    integer(sz) :: len
+    integer(sz) :: j
+
+    if (i /= k) then
+       len = k - i + 1
+       if (len <= small_length) then
+          call small_stable_sort (less_than, data, i, k)
        else
-          k = i
+          j = i + ishft (len, -1) + ibits (len, 0, 1)
+          call stable_mergesort (less_than, data, i, j - 1, workspace)
+          call stable_mergesort (less_than, data, j, k, workspace)
+          call merge_subarray (less_than, data, i, j, k, workspace)
        end if
-    end do
-    index = j
-  end function bottenbruch_search2
+    end if
+  end subroutine stable_mergesort
 
-  subroutine unit_test__bottenbruch_search2__test1
-    integer, parameter :: number_of_vectars = 100
-    integer(sz), parameter :: veclen = 1024_sz
-    integer, parameter :: modulus = 64
+  recursive subroutine small_stable_sort (less_than, data, i, k)
+    !
+    ! Sort datai .. k, where i < k.
+    !
+    ! FIXME: If k - u is largish, perhaps use a mergesort instead of
+    !        going straight to insertion sort.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: i, k
 
-    type(gcroot_t) :: vec
-    integer :: vectar_number
-    integer(sz) :: i
-    real :: randnum
-    integer :: x
-    class(vectar_data_t), pointer :: data
+    integer(sz) :: u
+    logical :: done
 
-    vec = make_vectar (veclen)
-    do vectar_number = 1, number_of_vectars
-       do i = 0_sz, veclen - 1
-          call random_number (randnum)
-          call vectar_set0 (vec, i, int (randnum * (modulus)))
-       end do
-       vec = list_to_vectar (list_sortx (int_less_than, vectar_to_list (vec)))
-       data => vectar_data_ptr (vec)
-       do x = -1, modulus
-          i = bottenbruch_search2 (int_less_than, data, 0_sz, veclen - 1, x)
-          if (i /= veclen - 1) then
-             if (int_less_than (vectar_ref0 (vec, i), x)) then
-                ! Unless i is veclen - 1, x must be less than or equal
-                ! to the element at i (and therefore also to every
-                ! element to the right of i).
-                call error_abort ("unit_test__bottenbruch_search__test1 0010 failed")
-             end if
-          end if
-          if (i /= 0) then
-             if (.not. int_less_than (vectar_ref0 (vec, i - 1), x)) then
-                ! x must be greater than the element at i-1 (and
-                ! therefore greater than everything to the left of i).
-                call error_abort ("unit_test__bottenbruch_search__test1 0020 failed")
-             end if
+    u = i + 1
+    if (.not. less_than (data%array(u)%element, data%array(i)%element)) then
+       ! The initial pair is non-descending. See how long this trend
+       ! continues.
+       done = .false.
+       do while (.not. done)
+          if (u == k) then
+             ! The end of the data has been reached. The data was
+             ! already sorted!
+             done = .true.
+          else if (less_than (data%array(u + 1)%element, data%array(u)%element)) then
+             ! The ascending sequence has ended. Insert the rest of
+             ! the data.
+             call stable_binary_insertion_sort (less_than, data, i, u, k)
+             done = .true.
+          else
+             u = u + 1
           end if
        end do
-    end do
-  end subroutine unit_test__bottenbruch_search2__test1
+    else
+       ! The initial pair is descending. See how long this trend
+       ! continues.
+       done = .false.
+       do while (.not. done)
+          if (u == k) then
+             ! The end of the data has been reached. The data is
+             ! already sorted in descending order. Reverse it.
+             call reverse_in_place (data, i, k)
+             done = .true.
+          else if (.not. less_than (data%array(u + 1)%element, data%array(u)%element)) then
+             ! The descending sequence has ended. Reverse it and then
+             ! insert the rest of the data.
+             call reverse_in_place (data, i, u)
+             call stable_binary_insertion_sort (less_than, data, i, u, k)
+             done = .true.
+          else
+             u = u + 1
+          end if
+       end do
+    end if
+  end subroutine small_stable_sort
+
+  recursive subroutine merge_subarray (less_than, data, i, j, k, workspace)
+    !
+    ! Merge datai .. j-1 with dataj .. k.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: i, j, k
+    class(vectar_data_t), pointer, intent(in) :: workspace
+
+    if (.not. less_than (data%array(j)%element, data%array(j - 1)%element)) then
+       ! datai .. k is already sorted. No merging is necessary.
+       continue
+    else
+       ! Some merging will be necessary.
+       call merge_unsorted_subarray (less_than, data, i, j, k, workspace)
+    end if
+  end subroutine merge_subarray
+
+  recursive subroutine merge_unsorted_subarray (less_than, data, i, j, k, workspace)
+    !
+    ! Merge datai .. j-1 with dataj .. k.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: i, j, k
+    class(vectar_data_t), pointer, intent(in) :: workspace
+
+    integer(sz) :: i1
+
+    i1 = bottenbruch_search (less_than, data, i, j - 1, data%array(j)%element)
+    if (i1 == i) then
+       ! Skip to the next step.
+       call merge_subarray_with_left_side_shortened (less_than, data, i, j, k, workspace)
+    else
+       ! Everything to the left of i1 is already in place and can be
+       ! left alone.
+       call merge_subarray_with_left_side_shortened (less_than, data, i1, j, k, workspace)
+    end if
+  end subroutine merge_unsorted_subarray
+
+  recursive subroutine merge_subarray_with_left_side_shortened (less_than, data, i, j, k, workspace)
+    !
+    ! Merge datai .. j-1 with dataj .. k.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: i, j, k
+    class(vectar_data_t), pointer, intent(in) :: workspace
+
+    integer(sz) :: k1
+
+    k1 = bottenbruch_search2 (less_than, data, j, k, data%array(j - 1)%element)
+    if (k1 == k) then
+       ! Skip to the next step.
+       call merge_subarray_with_sides_shortened (less_than, data, i, j, k, workspace)
+    else
+       ! Everything at k1 and to its right is already in place and can
+       ! be left alone.
+       call merge_subarray_with_sides_shortened (less_than, data, i, j, k1 - 1, workspace)
+    end if
+  end subroutine merge_subarray_with_left_side_shortened
+
+  recursive subroutine merge_subarray_with_sides_shortened (less_than, data, i, j, k, workspace)
+    !
+    ! Merge datai .. j-1 with dataj .. k.
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: i, j, k
+    class(vectar_data_t), pointer, intent(in) :: workspace
+
+    integer(sz) :: u
+
+    if (j - i < k - j) then
+       ! The left side will fit in a workspace of half the total
+       ! length of the array. Copy the left side to workspace, then
+       ! merge leftwards, filling the abandoned space.
+       do u = i, j - 1
+          workspace%array(u - i) = data%array(u)
+       end do
+       call merge_going_leftwards (less_than, data, i, j, k, workspace, 0_sz, j - i - 1)
+    else
+       ! The right side will fit in a workspace of half the total
+       ! length of the array. Copy the right side to workspace, then
+       ! merge rightwards, filling the abandoned space.
+       do u = j, k
+          workspace%array(u - j) = data%array(u)
+       end do
+       call merge_going_rightwards (less_than, data, i, j - 1, k, workspace, 0_sz, k - j)
+    end if
+  end subroutine merge_subarray_with_sides_shortened
 
   recursive subroutine stable_binary_insertion_sort (less_than, data, ileft, ipresorted, iright)
     !
@@ -1125,95 +1193,6 @@ contains
        j = j - 1
     end do
   end subroutine reverse_in_place
-
-  recursive subroutine gather_an_increasing_run (less_than, data, ileft, iend, iright)
-    !
-    ! Set iright so from ileft to iright, inclusive, there is a
-    ! (non-strictly) increasing run of elements. Elements may be
-    ! reversed to make it so.
-    !
-    procedure(vectar_predicate2_t) :: less_than
-    class(vectar_data_t), pointer, intent(in) :: data
-    integer(sz), intent(in) :: ileft
-    integer(sz), intent(in) :: iend
-    integer(sz), intent(out) :: iright
-
-    integer(sz) :: itrial
-    logical :: done
-
-    if (ileft == iend) then
-       ! A final run of one.
-       iright = ileft
-    else
-       iright = ileft + 1
-       if (less_than (data%array(iright)%element, data%array(ileft)%element)) then
-          ! The sequence is strictly decreasing. Reverse it and so get a
-          ! strictly increasing sequence. (Reversing a non-strictly
-          ! decreasing sequence would be an unstable sort.)
-          done = .false.
-          do while (.not. done)
-             if (iright == iend) then
-                ! This is the final run.
-                done = .true.
-             else
-                itrial = iright + 1
-                if (.not. less_than (data%array(itrial)%element, data%array(iright)%element)) then
-                   ! The next element would be equal or increasing.
-                   done = .true.
-                else
-                   ! Keep going.
-                   iright = itrial
-                end if
-             end if
-          end do
-          ! Make the sequence increasing.
-          call reverse_in_place (data, ileft, iright)
-       else
-          ! The sequence is increasing.
-          done = .false.
-          do while (.not. done)
-             if (iright == iend) then
-                ! This is the final run.
-                done = .true.
-             else
-                itrial = iright + 1
-                if (less_than (data%array(itrial)%element, data%array(iright)%element)) then
-                   ! The next element would be decreasing.
-                   done = .true.
-                else
-                   ! Keep going.
-                   iright = itrial
-                end if
-             end if
-          end do
-       end if
-    end if
-  end subroutine gather_an_increasing_run
-
-  recursive subroutine gather_an_adequately_long_increasing_run (less_than, data, ileft, iend, min_length, iright)
-    !
-    ! Set iright so from ileft to iright, inclusively, there is a
-    ! (non-strictly) increasing run of elements, either of the given
-    ! min_length or at end of the data. Elements may be sorted to make
-    ! it so.
-    !
-    procedure(vectar_predicate2_t) :: less_than
-    class(vectar_data_t), pointer, intent(in) :: data
-    integer(sz), intent(in) :: ileft
-    integer(sz), intent(in) :: iend
-    integer(sz), intent(in) :: min_length
-    integer(sz), intent(out) :: iright
-
-    integer(sz) :: ipresorted
-
-    call gather_an_increasing_run (less_than, data, ileft, iend, ipresorted)
-    if (ipresorted == iend .or. min_length - 1 <= ipresorted - ileft) then
-       iright = ipresorted
-    else
-       iright = min (iend, ileft + (min_length - 1))
-       call stable_binary_insertion_sort (less_than, data, ileft, ipresorted, iright)
-    end if
-  end subroutine gather_an_adequately_long_increasing_run
 
   recursive subroutine merge_going_leftwards (less_than, data2, itarget, irunstart2, irunend2, &
        &                                      data1, irunstart1, irunend1)
@@ -1325,499 +1304,191 @@ contains
     end do
   end subroutine merge_going_rightwards
 
-  recursive subroutine merge_two_runs (less_than, data, i, j, k, workspace)
-    !
-    ! Merge sorted datai .. j-1 and sorted dataj .. k, giving
-    ! sorted datai .. k.
-    !
-    ! `workspace' is a vectar of length at least
-    !
-    !     floor ((k - i + 1) / 2)
-    !
-    ! It has to be protected from garbage collection.
-    !
-    procedure(vectar_predicate2_t) :: less_than
-    class(vectar_data_t), pointer, intent(in) :: data
-    integer(sz), intent(in) :: i
-    integer(sz), intent(in) :: j
-    integer(sz), intent(in) :: k
-    class(vectar_data_t), pointer, intent(in) :: workspace
-
-    integer(sz) :: i1, k1
-    integer(sz) :: u
-
-    ! Find some elements on the left that definitely will not need to
-    ! be moved, because they are less than or equal to the first
-    ! element of the right side of the merge.
-    i1 = bottenbruch_search (less_than, data, i, j - 1, data%array(j)%element)
-
-    ! Find some elements on the right that definitely will not need to
-    ! be moved, because they are greater than or equal to the last
-    ! element of the left side of the merge.
-    k1 = bottenbruch_search2 (less_than, data, j, k, data%array(j - 1)%element)
-    if (k1 /= k) then
-       k1 = k1 - 1
-    end if
-
-    if (j - i1 < k1 - j) then
-       ! The left side is shorter than or equal in length to the right
-       ! side. Copy the left side to workspace, then merge leftwards.
-       do u = i1, j - 1
-          workspace%array(u - i1) = data%array(u)
-       end do
-       call merge_going_leftwards (less_than, data, i1, j, k1, workspace, 0_sz, j - i1 - 1)
-    else
-       ! The left side is longer than the right side side. Copy the
-       ! right side to workspace, then merge rightwards.
-       do u = j, k1
-          workspace%array(u - j) = data%array(u)
-       end do
-       call merge_going_rightwards (less_than, data, i1, j - 1, k1, workspace, 0_sz, k1 - j)
-    end if
-  end subroutine merge_two_runs
-
-  recursive subroutine restore_run_stack_invariant (less_than, data, run_stack, stack_count, workspace)
-    !
-    ! Merge run_stack contents until the invariant is met.
-    !
-    ! The stack invariant is taken from the corrected later versions
-    ! of Timsort. See
-    ! envisage-project.eu/proving-android-java-and-python-sorting-algorithm-is-broken-and-how-to-fix-it/
-    !
-    ! Note that the run_stack indexing starts at position 0. All other
-    ! entries are the end indices of runs; we put a fake end index in
-    ! position 0. The stack_size counter does not count the fake stack
-    ! entry.
-    !
-    ! `workspace' is a vectar of length at least half the length of
-    ! the data (rounded down). It has to be protected from garbage
-    ! collection.
-    !
-    procedure(vectar_predicate2_t) :: less_than
-    class(vectar_data_t), pointer, intent(in) :: data
-    integer(sz), intent(inout) :: run_stack(0:run_stack_size)
-    integer, intent(inout) :: stack_count
-    class(vectar_data_t), pointer, intent(in) :: workspace
-
-    logical :: the_invariant_is_established
-    integer :: n
-
-    n = stack_count
-    the_invariant_is_established = .false.
-    do while (.not. the_invariant_is_established .and. 2 <= n)
-       if (stack_needs_reduction_after_comparing_three_entries (n)) then
-          if (runlen (n - 2) < runlen (n)) then
-             call merge_two_runs (less_than, data, &
-                  &               run_stack (n - 3) + 1, run_stack (n - 2) + 1, run_stack (n - 1), &
-                  &               workspace)
-             run_stack (n - 2) = run_stack (n - 1)
-             run_stack (n - 1) = run_stack (n)
-             n = n - 1
-          else
-             call merge_two_runs (less_than, data, &
-                  &               run_stack (n - 2) + 1, run_stack (n - 1) + 1, run_stack (n), &
-                  &               workspace)
-             run_stack (n - 1) = run_stack (n)
-             n = n - 1
-          end if
-       else if (runlen (n - 1) <= runlen (n)) then
-          call merge_two_runs (less_than, data, &
-               &               run_stack (n - 2) + 1, run_stack (n - 1) + 1, run_stack (n), &
-               &               workspace)
-          run_stack (n - 1) = run_stack (n)
-          n = n - 1
-       else
-          the_invariant_is_established = .true.
-       end if
-    end do
-    stack_count = n
-
-  contains
-
-    function stack_needs_reduction_after_comparing_three_entries (n) result (bool)
-      integer, intent(in) :: n
-      logical :: bool
-
-      if (4 <= n) then
-         bool = (runlen (n - 2) <= runlen (n - 1) + runlen (n)) &
-              &    .or. (runlen (n - 3) <= runlen (n - 2) + runlen (n - 1))
-      else if (3 <= n) then
-         bool = (runlen (n - 2) <= runlen (n - 1) + runlen (n))
-      else
-         bool = .false.
-      end if
-    end function stack_needs_reduction_after_comparing_three_entries
-
-    function runlen (i) result (len)
-      integer, intent(in) :: i
-      integer(sz) :: len
-
-      len = run_stack(i) - run_stack(i - 1)
-    end function runlen
-
-  end subroutine restore_run_stack_invariant
-
-  recursive subroutine unit_test__restore_run_stack_invariant__test1
-    type(gcroot_t) :: vec, workspace_vec
-    type(vectar_data_t), pointer :: data, workspace
-    integer(sz) :: run_stack(0:run_stack_size)
-    integer :: stack_count
-
-    workspace_vec = make_vectar (2000, 1)
-    workspace => vectar_data_ptr (workspace_vec)
-
-    run_stack(0) = -1_sz
-
-    ! Test 3 <= n, (runlen (n - 2) <= runlen (n - 1) + runlen (n)),
-    ! with runlen(n - 2) <= runlen(n). This should reduce the stack
-    ! height by 1, by merging the 2nd and 3rd entries.
-    vec = list_to_vectar (append (iota (11, 0, 2), iota (11, 1, 2), iota (39, 22)))
-    data => vectar_data_ptr (vec)
-    run_stack(1) = 10_sz
-    run_stack(2) = 30_sz
-    run_stack(3) = 60_sz
-    stack_count = 3
-    call restore_run_stack_invariant (int_less_than, data, run_stack, stack_count, workspace)
-    if (stack_count /= 2) then
-       call error_abort ("unit_test__restore_run_stack_invariant__test1 0010 failed")
-    end if
-    if (run_stack(0) /= -1_sz) then
-       call error_abort ("unit_test__restore_run_stack_invariant__test1 0020 failed")
-    end if
-    if (run_stack(1) /= 30_sz) then
-       call error_abort ("unit_test__restore_run_stack_invariant__test1 0030 failed")
-    end if
-    if (run_stack(2) /= 60_sz) then
-       call error_abort ("unit_test__restore_run_stack_invariant__test1 0040 failed")
-    end if
-    if (.not. vectar_equal (int_equal, vec, list_to_vectar (iota (61)))) then
-       call error_abort ("unit_test__restore_run_stack_invariant__test1 0050 failed")
-    end if
-
-    ! Test 4 <= n, (runlen (n - 2) <= runlen (n - 1) + runlen (n)),
-    ! with runlen(n - 2) <= runlen(n). This should reduce the stack
-    ! height by 1, by merging the 2nd and 3rd entries. (FIXME: write a
-    ! stronger test of correct merge.)
-    vec = list_to_vectar (iota (1045, 1))
-    data => vectar_data_ptr (vec)
-    run_stack(1) = 1000_sz
-    run_stack(2) = 1010_sz
-    run_stack(3) = 1030_sz
-    run_stack(4) = 1045_sz
-    stack_count = 4
-    call restore_run_stack_invariant (int_less_than, data, run_stack, stack_count, workspace)
-    if (stack_count /= 3) then
-       call error_abort ("unit_test__restore_run_stack_invariant__test1 1010 failed")
-    end if
-    if (run_stack(0) /= -1_sz) then
-       call error_abort ("unit_test__restore_run_stack_invariant__test1 1020 failed")
-    end if
-    if (run_stack(1) /= 1000_sz) then
-       call error_abort ("unit_test__restore_run_stack_invariant__test1 1040 failed")
-    end if
-    if (run_stack(2) /= 1030_sz) then
-       call error_abort ("unit_test__restore_run_stack_invariant__test1 1040 failed")
-    end if
-    if (run_stack(3) /= 1045_sz) then
-       call error_abort ("unit_test__restore_run_stack_invariant__test1 1050 failed")
-    end if
-    if (.not. vectar_equal (int_equal, vec, list_to_vectar (iota (1045, 1)))) then
-       call error_abort ("unit_test__restore_run_stack_invariant__test1 1060 failed")
-    end if
-
-    ! FIXME: Add a test for 4 <= n, (runlen (n - 3) <= runlen (n - 2)
-    !        + runlen (n - 1)), with runlen(n - 2) <= runlen(n). This
-    !        is the extra condition that was added by Stijn de Gouw et
-    !        al. (`Verifying OpenJDK s Sort Method for Generic
-    !        Collections', J Autom Reason. 2019; 62(1): 93 126. DOI:
-    !        10.1007/s10817-017-9426-4
-
-  end subroutine unit_test__restore_run_stack_invariant__test1
-
-  recursive subroutine reduce_the_run_stack_to_depth_1 (less_than, data, run_stack, stack_count, workspace)
-    !
-    ! Merge run_stack contents until the run stack contains just one,
-    ! big run (which is the sorted result).
-    !
-    ! Note that the run_stack indexing starts at position 0. All other
-    ! entries are the end indices of runs; we put a fake end index in
-    ! position 0. The stack_size counter does not count the fake stack
-    ! entry.
-    !
-    ! `workspace' is a vectar of length at least half the length of
-    ! the data (rounded down). It has to be protected from garbage
-    ! collection.
-    !
-    procedure(vectar_predicate2_t) :: less_than
-    class(vectar_data_t), pointer, intent(in) :: data
-    integer(sz), intent(inout) :: run_stack(0:run_stack_size)
-    integer, intent(inout) :: stack_count
-    class(vectar_data_t), pointer, intent(in) :: workspace
-
-    integer :: n
-
-    n = stack_count
-    do while (n /= 1)
-       if (stack_needs_merge_inside_it (n)) then
-          call merge_two_runs (less_than, data, &
-               &               run_stack (n - 3) + 1, run_stack (n - 2) + 1, run_stack (n - 1), &
-               &               workspace)
-          run_stack (n - 2) = run_stack (n - 1)
-          run_stack (n - 1) = run_stack (n)
-          n = n - 1
-       else
-          call merge_two_runs (less_than, data, &
-               &               run_stack (n - 2) + 1, run_stack (n - 1) + 1, run_stack (n), &
-               &               workspace)
-          run_stack (n - 1) = run_stack (n)
-          n = n - 1
-       end if
-    end do
-    stack_count = n
-
-  contains
-
-    function stack_needs_merge_inside_it (n) result (bool)
-      integer, intent(in) :: n
-      logical :: bool
-
-      if (3 <= n) then
-         bool = (runlen (n - 2) < runlen (n))
-      else
-         bool = .false.
-      end if
-    end function stack_needs_merge_inside_it
-
-    function runlen (i) result (len)
-      integer, intent(in) :: i
-      integer(sz) :: len
-
-      len = run_stack(i) - run_stack(i - 1)
-    end function runlen
-
-  end subroutine reduce_the_run_stack_to_depth_1
-
-  recursive subroutine unit_test__reduce_the_run_stack_to_depth_1__test1
-    type(gcroot_t) :: vec, workspace_vec
-    type(vectar_data_t), pointer :: data, workspace
-    integer(sz) :: run_stack(0:run_stack_size)
-    integer :: stack_count
-
-    workspace_vec = make_vectar (2000, 1)
-    workspace => vectar_data_ptr (workspace_vec)
-
-    run_stack(0) = -1_sz
-
-    ! Test 3 <= n, runlen(n - 2) <= runlen(n). This should reduce the
-    ! stack height by 1, by merging the 2nd and 3rd entries. Then the
-    ! stack height will go to 1, through another merge; however, code
-    ! coverage tools can show that first merge happened.
-    vec = list_to_vectar (append (iota (11, 0, 2), iota (11, 1, 2), iota (39, 22)))
-    data => vectar_data_ptr (vec)
-    run_stack(1) = 10_sz
-    run_stack(2) = 30_sz
-    run_stack(3) = 60_sz
-    stack_count = 3
-    call reduce_the_run_stack_to_depth_1 (int_less_than, data, run_stack, stack_count, workspace)
-    if (stack_count /= 1) then
-       call error_abort ("unit_test__reduce_the_run_stack_to_depth_1__test1 0010 failed")
-    end if
-    if (run_stack(0) /= -1_sz) then
-       call error_abort ("unit_test__reduce_the_run_stack_to_depth_1__test1 0020 failed")
-    end if
-    if (run_stack(1) /= 60_sz) then
-       call error_abort ("unit_test__reduce_the_run_stack_to_depth_1__test1 0030 failed")
-    end if
-    if (.not. vectar_equal (int_equal, vec, list_to_vectar (iota (61)))) then
-       call error_abort ("unit_test__reduce_the_run_stack_to_depth_1__test1 0040 failed")
-    end if
-  end subroutine unit_test__reduce_the_run_stack_to_depth_1__test1
-
-  function choose_minimum_run_length (data_length) result (min_run_length)
-    !
-    ! Minimum run length as suggested by Tim Peters.
-    !
-    ! See
-    ! https://en.wikipedia.org/w/index.php?title=Timsort&oldid=1065277889#Minimum_run_size
-    !
-    !    "The final algorithm takes the six most significant bits of
-    !    the size of the array, adds one if any of the remaining bits
-    !    are set, and uses that result as the minrun. This algorithm
-    !    works for all arrays, including those smaller than 64; for
-    !    arrays of size 63 or less, this sets minrun equal to the
-    !    array size and Timsort reduces to an insertion sort."
-    !
-    integer(sz), intent(in) :: data_length
-    integer(sz) :: min_run_length
-
-    integer :: total_bits_count
-    integer :: leading_zeros_count
-    integer :: significant_bits_count
-    integer :: right_bits_count
-    integer(sz) :: left_bits
-    integer(sz) :: right_bits
-
-    total_bits_count = bit_size (data_length)
-    leading_zeros_count = leadz (data_length)
-    significant_bits_count = total_bits_count - leading_zeros_count
-    right_bits_count = max (0, significant_bits_count - 6)
-    left_bits = ibits (data_length, right_bits_count, 6)
-    right_bits = ibits (data_length, 0, right_bits_count)
-    if (right_bits == 0) then
-       min_run_length = left_bits
-    else
-       min_run_length = left_bits + 1
-    end if
-  end function choose_minimum_run_length
-
-  recursive subroutine stable_mergesort (less_than, data, idatastart, idataend, workspace)
-    !
-    ! A adaptive natural mergesort using a run stack similar to that
-    ! employed by Tim Peters in older versions of the CPython sort
-    ! function.
-    !
-    ! Aside: I do not call this implementation `timsort', because that
-    ! is not a particular algorithm, and there is much confusion in
-    ! the programming community as to what constitutes
-    ! `timsort'. Indeed, the algorithm is `simply' mergesort done
-    ! iteratively, which I have myself programmed in years past --
-    ! albeit in much, MUCH simpler form. The enhancements to iterative
-    ! mergesort that Python employs change from time to time and are
-    ! very, very, VERY clever.
-    !
-    ! (FIXME: Switch to using the `powersort' merge strategy, from
-    ! J. Ian Munro and Sebastian Wild, "Nearly-optimal mergesorts:
-    ! fast, practical sorting methods that optimally adapt to existing
-    ! runs". Peters cites this paper in the CPython sources, in file
-    ! Objects/listsort.txt.)
-    !
-    ! Note that the run_stack indexing starts at position 0. All other
-    ! entries are the end indices of runs; we put a fake end index in
-    ! position 0. The stack_size counter does not count the fake stack
-    ! entry.
-    !
-    ! `workspace' is a vectar of length at least floor((idataend0 -
-    ! idatastart0 + 1)/2). Both `data' and `workspace' must be rooted
-    ! to protect them from garbage collection.
-    !
-    procedure(vectar_predicate2_t) :: less_than
-    class(vectar_data_t), pointer, intent(in) :: data
-    integer(sz), intent(in) :: idatastart
-    integer(sz), intent(in) :: idataend
-    class(vectar_data_t), pointer, intent(in) :: workspace
-
-    integer(sz) :: run_stack(0:run_stack_size)
-    integer :: stack_count
-    integer(sz) :: iright
-    integer(sz) :: data_length
-    integer(sz) :: min_run_length
-
-    data_length = (idataend - idatastart) + 1
-
-    if (data_length <= 1) then
-       ! The data is already sorted.
-       continue
-    else
-       min_run_length = choose_minimum_run_length (data_length)
-
-       run_stack(0) = idatastart - 1_sz
-       stack_count = 0
-
-       do while (run_stack(stack_count) /= idataend)
-          call gather_an_adequately_long_increasing_run (less_than, data, &
-               &                                         run_stack(stack_count) + 1, idataend, &
-               &                                         min_run_length, iright)
-
-          if (stack_count == run_stack_size) then
-             call error_abort ("adaptive mergesort stack size exceeded")
-          end if
-          stack_count = stack_count + 1
-          run_stack(stack_count) = iright
-
-          call restore_run_stack_invariant (less_than, data, run_stack, stack_count, workspace)
-       end do
-
-       call reduce_the_run_stack_to_depth_1 (less_than, data, run_stack, stack_count, workspace)
-
-    end if
-  end subroutine stable_mergesort
-
-  subroutine vectar_stable_mergesort_unit_tests
-    call unit_test__bottenbruch_search__test1
-    call unit_test__bottenbruch_search2__test1
-    call unit_test__restore_run_stack_invariant__test1
-    call unit_test__reduce_the_run_stack_to_depth_1__test1
-  end subroutine vectar_stable_mergesort_unit_tests
-
 !!!-------------------------------------------------------------------
+!!!
+!!! `Bottenbruch searches': binary search procedures that do not do an
+!!! equality test.
+!!!
 
-  function vectar_shuffle (vec) result (vec_shuffled)
-    use, intrinsic :: iso_fortran_env, only: real64
-    class(*), intent(in) :: vec
-    type(vectar_t) :: vec_shuffled
-
+  recursive function bottenbruch_search (less_than, data, ileft, iright, x) result (index)
     !
-    ! Fisher-Yates shuffle.
+    ! Do a search on the data whose first element is at ileft and
+    ! whose last element is at iright. Return `index' such that:
     !
-    ! See
-    ! https://en.wikipedia.org/w/index.php?title=Fisher%E2%80%93Yates_shuffle&oldid=1063206771#The_%22inside-out%22_algorithm
+    !    * if x is less than the element at ileft, then index = ileft;
     !
+    !    * otherwise, x is greater than or equal to the element at
+    !      index (and therefore to every element to the left of
+    !      index), and less than everything to the right of index.
+    !
+    ! References:
+    !
+    !    * H. Bottenbruch, `Structure and use of ALGOL 60', Journal of
+    !      the ACM, Volume 9, Issue 2, April 1962,
+    !      pp.161-221. https://doi.org/10.1145/321119.321120
+    !      The general algorithm is described on pages 214 and 215.
+    !
+    !    * https://en.wikipedia.org/w/index.php?title=Binary_search_algorithm&oldid=1062988272#Alternative_procedure
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: ileft
+    integer(sz), intent(in) :: iright
+    class(*), intent(in) :: x
+    integer(sz) :: index
 
-    type(vectar_range_t) :: vecr
-    class(vectar_data_t), pointer :: data
-    class(vectar_data_t), pointer :: data_shuffled
-    integer(sz) :: i0, len
-    real(real64) :: randnum
-    integer(sz) :: i, j
+    integer(sz) :: i, j, k
+    integer(sz) :: k_minus_j
 
-    vecr = vec
-    data => vectar_data_ptr (vecr)
-    i0 = vecr%istart0()
-    len = vecr%length()
-
-    vec_shuffled = make_vectar (len)
-    data_shuffled => vectar_data_ptr (vec_shuffled)
-
-    do i = 0_sz, len - 1
-       call random_number (randnum)
-       j = int (randnum * (i + 1), kind = sz)
-       if (j /= i) then
-          data_shuffled%array(i) = data_shuffled%array(j)
+    j = ileft
+    k = iright
+    do while (k /= j)
+       ! Set i := ceil ((j + k) / 2).
+       k_minus_j = k - j
+       i = j + ishft (k_minus_j, -1) + ibits (k_minus_j, 0, 1)
+       if (less_than (x, data%array(i)%element)) then
+          k = i - 1
+       else
+          j = i
        end if
-       data_shuffled%array(j) = data%array(i0 + i)
     end do
-  end function vectar_shuffle
+    index = j
+  end function bottenbruch_search
 
-  subroutine vectar_shufflex (vec)
-    use, intrinsic :: iso_fortran_env, only: real64
-    class(*), intent(in) :: vec
+  recursive function bottenbruch_search2 (less_than, data, ileft, iright, x) result (index)
+    !
+    ! Do a search on the data whose first element is at ileft and
+    ! whose last element is at iright. Return `index' such that:
+    !
+    !    * if x is greater than the element at iright, then index =
+    !      iright;
+    !
+    !    * otherwise, x is greater than every element to the left of
+    !      index, and less than or equal to the elements at index and
+    !      to the right of index.
+    !
+    ! References:
+    !
+    !    * H. Bottenbruch, `Structure and use of ALGOL 60', Journal of
+    !      the ACM, Volume 9, Issue 2, April 1962,
+    !      pp.161-221. https://doi.org/10.1145/321119.321120
+    !      The general algorithm is described on pages 214 and 215.
+    !
+    !    * https://en.wikipedia.org/w/index.php?title=Binary_search_algorithm&oldid=1062988272#Alternative_procedure
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: ileft
+    integer(sz), intent(in) :: iright
+    class(*), intent(in) :: x
+    integer(sz) :: index
 
-    !
-    ! Fisher-Yates shuffle.
-    !
-    ! See
-    ! https://en.wikipedia.org/w/index.php?title=Fisher%E2%80%93Yates_shuffle&oldid=1063206771#The_modern_algorithm
-    !
+    integer(sz) :: i, j, k
+    integer(sz) :: k_minus_j
 
-    type(vectar_range_t) :: vecr
+    j = ileft
+    k = iright
+    do while (k /= j)
+       ! Set i := floor ((j + k) / 2).
+       k_minus_j = k - j
+       i = j + ishft (k_minus_j, -1)
+       if (less_than (data%array(i)%element, x)) then
+          ! x is greater than the element at i.
+          j = i + 1
+       else
+          k = i
+       end if
+    end do
+    index = j
+  end function bottenbruch_search2
+
+  subroutine unit_test__bottenbruch_search
+    integer, parameter :: number_of_vectars = 100
+    integer(sz), parameter :: veclen = 1024_sz
+    integer, parameter :: modulus = 64
+
+    type(gcroot_t) :: vec
+    integer :: vectar_number
+    integer(sz) :: i
+    real :: randnum
+    integer :: x
     class(vectar_data_t), pointer :: data
-    integer(sz) :: i0, len
-    real(real64) :: randnum
-    integer(sz) :: i, j
-    class(*), allocatable :: tmp
 
-    vecr = vec
-    data => vectar_data_ptr (vecr)
-    i0 = vecr%istart0()
-    len = vecr%length()
-    do i = 0_sz, len - 2
-       call random_number (randnum)
-       j = i + int (randnum * (len - i), kind = sz)
-       tmp = data%array(i0 + i)%element
-       data%array(i0 + i)%element = data%array(i0 + j)%element
-       data%array(i0 + j)%element = tmp
+    vec = make_vectar (veclen)
+    do vectar_number = 1, number_of_vectars
+       do i = 0_sz, veclen - 1
+          call random_number (randnum)
+          call vectar_set0 (vec, i, int (randnum * (modulus)))
+       end do
+       vec = list_to_vectar (list_sortx (int_less_than, vectar_to_list (vec)))
+       data => vectar_data_ptr (vec)
+       do x = -1, modulus
+          i = bottenbruch_search (int_less_than, data, 0_sz, veclen - 1, x)
+          if (i /= 0) then
+             if (int_less_than (x, vectar_ref0 (vec, i))) then
+                ! Unless i is 0, x must be greater than or equal
+                ! to the element at i (and therefore also to every
+                ! element to the left of i).
+                call error_abort ("unit_test__bottenbruch_search__test1 0010 failed")
+             end if
+          end if
+          if (i /= veclen - 1) then
+             if (.not. int_less_than (x, vectar_ref0 (vec, i + 1))) then
+                ! x must be less than the element at i+1 (and
+                ! therefore also to everything else to the right of
+                ! i).
+                call error_abort ("unit_test__bottenbruch_search__test1 0020 failed")
+             end if
+          end if
+       end do
     end do
-  end subroutine vectar_shufflex
+  end subroutine unit_test__bottenbruch_search
+
+  subroutine unit_test__bottenbruch_search2
+    integer, parameter :: number_of_vectars = 100
+    integer(sz), parameter :: veclen = 1024_sz
+    integer, parameter :: modulus = 64
+
+    type(gcroot_t) :: vec
+    integer :: vectar_number
+    integer(sz) :: i
+    real :: randnum
+    integer :: x
+    class(vectar_data_t), pointer :: data
+
+    vec = make_vectar (veclen)
+    do vectar_number = 1, number_of_vectars
+       do i = 0_sz, veclen - 1
+          call random_number (randnum)
+          call vectar_set0 (vec, i, int (randnum * (modulus)))
+       end do
+       vec = list_to_vectar (list_sortx (int_less_than, vectar_to_list (vec)))
+       data => vectar_data_ptr (vec)
+       do x = -1, modulus
+          i = bottenbruch_search2 (int_less_than, data, 0_sz, veclen - 1, x)
+          if (i /= veclen - 1) then
+             if (int_less_than (vectar_ref0 (vec, i), x)) then
+                ! Unless i is veclen - 1, x must be less than or equal
+                ! to the element at i (and therefore also to every
+                ! element to the right of i).
+                call error_abort ("unit_test__bottenbruch_search__test1 0010 failed")
+             end if
+          end if
+          if (i /= 0) then
+             if (.not. int_less_than (vectar_ref0 (vec, i - 1), x)) then
+                ! x must be greater than the element at i-1 (and
+                ! therefore greater than everything to the left of i).
+                call error_abort ("unit_test__bottenbruch_search__test1 0020 failed")
+             end if
+          end if
+       end do
+    end do
+  end subroutine unit_test__bottenbruch_search2
+
+  subroutine unit_test__bottenbruch_searches
+    call unit_test__bottenbruch_search
+    call unit_test__bottenbruch_search2
+  end subroutine unit_test__bottenbruch_searches
 
 !!!-------------------------------------------------------------------
 
