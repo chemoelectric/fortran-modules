@@ -314,7 +314,7 @@ contains
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ss
 
-    integer, parameter :: array_sort_size = 256
+    integer, parameter :: array_sort_size = 512
 
     type(gcroot_t) :: p
     type(gcroot_t) :: vec1, vec2
@@ -389,21 +389,24 @@ contains
       type(cons_t) :: lst_ss
 
       type(cons_t) :: q
+      integer(sz) :: prefix_length
       logical :: done
 
+      prefix_length = 2
       q = cdr (p)
       done = .false.
       do while (.not. done)
-         if (is_not_pair (cdr (q))) then
+         if (prefix_length == n) then
             ! The list is already in non-descending order.
             lst_ss = p
             done = .true.
          else if (less_than (cadr (q), car (q))) then
             ! The list is not entirely in non-descending
             ! order. Sort it as an array.
-            lst_ss = array_sort (p, n)
+            lst_ss = array_sort (p, n, prefix_length)
             done = .true.
          else
+            prefix_length = prefix_length + 1
             q = .tocons. cdr (q)
          end if
       end do
@@ -415,32 +418,36 @@ contains
       type(cons_t) :: lst_ss
 
       type(cons_t) :: q
+      integer(sz) :: prefix_length
       logical :: done
 
+      prefix_length = 2
       q = cdr (p)
       done = .false.
       do while (.not. done)
-         if (is_not_pair (cdr (q))) then
+         if (prefix_length == n) then
             ! The list is entirely in descending order. Reverse it.
             lst_ss = reversex (p)
             done = .true.
          else if (.not. less_than (cadr (q), car (q))) then
             ! The list is not entirely in descending order. Sort it
             ! as an array.
-            lst_ss = array_sort (p, n)
+            lst_ss = array_sort_with_prefix_reversed (p, n, prefix_length)
             done = .true.
          else
+            prefix_length = prefix_length + 1
             q = .tocons. cdr (q)
          end if
       end do
     end function small_sort_with_a_descending_prefix
 
-    recursive function array_sort (p, n) result (lst_ss)
+    recursive function array_sort (p, n, prefix_length) result (lst_ss)
       !
       ! Put the data into an array and sort the array.
       !
       type(cons_t), intent(in) :: p
       integer(sz), intent(in) :: n
+      integer(sz), intent(in) :: prefix_length
       type(cons_t) :: lst_ss
 
       type(cons_t) :: q
@@ -453,8 +460,11 @@ contains
          q = .tocons. cdr (q)
       end do
 
-      ! Sort workspace1.
-      call stable_mergesort (less_than, workspace1, 0_sz, n - 1, workspace2)
+      ! Sort everything to the right of the ordered prefix.
+      call stable_mergesort (less_than, workspace1, prefix_length, n - 1, workspace2)
+
+      ! Merge the prefix and the tail.
+      call merge_subarray (less_than, workspace1, 0_sz, prefix_length, n - 1, workspace2)
 
       ! Rather than allocate new CONS pairs, fill the original list
       ! with the sorted data.
@@ -466,6 +476,47 @@ contains
 
       lst_ss = p
     end function array_sort
+
+    recursive function array_sort_with_prefix_reversed (p, n, prefix_length) result (lst_ss)
+      !
+      ! Put the data into an array, with the prefix reversed, and sort
+      ! the array.
+      !
+      type(cons_t), intent(in) :: p
+      integer(sz), intent(in) :: n
+      integer(sz), intent(in) :: prefix_length
+      type(cons_t) :: lst_ss
+
+      type(cons_t) :: q
+      integer(sz) :: i
+
+      ! Fill workspace1 with the data, reversing the prefix.
+      q = p
+      do i = prefix_length - 1, 0_sz, -1_sz
+         workspace1%array(i)%element = car (q)
+         q = .tocons. cdr (q)
+      end do
+      do i = prefix_length, n - 1
+         workspace1%array(i)%element = car (q)
+         q = .tocons. cdr (q)
+      end do
+
+      ! Sort everything to the right of the ordered prefix.
+      call stable_mergesort (less_than, workspace1, prefix_length, n - 1, workspace2)
+
+      ! Merge the prefix and the tail.
+      call merge_subarray (less_than, workspace1, 0_sz, prefix_length, n - 1, workspace2)
+
+      ! Rather than allocate new CONS pairs, fill the original list
+      ! with the sorted data.
+      q = p
+      do i = 0_sz, n - 1
+         call set_car (q, workspace1%array(i)%element)
+         q = .tocons. cdr (q)
+      end do
+
+      lst_ss = p
+    end function array_sort_with_prefix_reversed
 
   end function list_stable_sortx
 
