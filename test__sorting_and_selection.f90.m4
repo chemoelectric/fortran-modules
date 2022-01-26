@@ -1304,6 +1304,32 @@ contains
 
   end subroutine test1060
 
+  subroutine test1070
+
+    call check (vectar_equal (int_eq, vectar_delete_neighbor_dups (is_eq, vectar ()), vectar ()), "test1070-0010 failed")
+    call check (vectar_equal (int_eq, vectar_delete_neighbor_dups (is_eq, vectar (1)), vectar (1)), "test1070-0020 failed")
+    call check (vectar_equal (int_eq, vectar_delete_neighbor_dups (is_eq, vectar (1, 1)), vectar (1)), "test1070-0030 failed")
+    call check (vectar_equal (int_eq, vectar_delete_neighbor_dups (is_eq, vectar (1, 1, 1, 1, 1)), vectar (1)), &
+         &      "test1070-0040 failed")
+
+    call check (vectar_equal (int_eq, vectar_delete_neighbor_dups (is_eq, vectar (1, 1, 2, 2, 2, 3, 4, 4)), &
+         &                                                         vectar (1, 2, 3, 4)), &
+         &      "test1070-0050 failed")
+
+  contains
+
+    recursive function is_eq (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) == int_cast (y))
+    end function is_eq
+
+  end subroutine test1070
+
   subroutine test2010
 
     call check (vectar_is_sorted (less_than, vectar ()), "test2010-0010 failed")
@@ -1388,6 +1414,7 @@ contains
     call test1040
     call test1050
     call test1060
+    call test1070
 
     ! Vectar shuffling.
     call test2010

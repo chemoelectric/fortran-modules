@@ -76,6 +76,13 @@ module sorting_and_selection
   public :: vectar_sort
   public :: vectar_sortx ! The input vectar is also the output vectar.
 
+  ! Delete adjacent duplicates.
+  public :: vectar_delete_neighbor_dups
+!  public :: vectar_delete_neighbor_dupsx ! Reuses part of its input
+!                                         ! vectar.
+
+!!!-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+
   ! Some unit tests. Not for use in a program other than for testing.
   public :: unit_test__bottenbruch_searches
 
@@ -1584,6 +1591,59 @@ contains
     call unit_test__bottenbruch_search
     call unit_test__bottenbruch_search2
   end subroutine unit_test__bottenbruch_searches
+
+!!!-------------------------------------------------------------------
+
+  recursive function vectar_delete_neighbor_dups (pred, vec) result (vec_dnd)
+    use, intrinsic :: iso_fortran_env, only: int8
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: vec
+    type(vectar_t) :: vec_dnd
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: vecr
+    class(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data_dnd
+    integer(int8), allocatable :: dup_marks(:)
+    integer(sz) :: istart0, iend0
+    integer(sz) :: i, j
+    integer(sz) :: num_dups
+    integer(sz) :: length_dnd
+
+    ! Protect against garbage collections instigated by pred.
+    vec_root = vec
+
+    vecr = vec
+    data => vectar_data_ptr (vecr)
+    istart0 = vecr%istart0()
+    iend0 = vecr%iend0()
+    allocate (dup_marks(istart0:iend0), source = 0_int8)
+
+    ! Set marks where there are neighbor duplicates, and count the
+    ! duplicates.
+    num_dups = 0
+    do i = istart0 + 1, iend0
+       if (pred (data%array(i - 1)%element, data%array(i)%element)) then
+          dup_marks(i) = 1_int8
+          num_dups = num_dups + 1
+       end if
+    end do
+
+    ! There are no more calls to pred. The root can be discarded.
+    call vec_root%discard
+
+    ! Make a new vectar, leaving out the marked entries.
+    length_dnd = vecr%length() - num_dups
+    vec_dnd = make_vectar (length_dnd)
+    data_dnd => vectar_data_ptr (vec_dnd)
+    j = 0_sz
+    do i = istart0, iend0
+       if (dup_marks(i) == 0_int8) then
+          data_dnd%array(j) = data%array(i)
+          j = j + 1
+       end if
+    end do
+  end function vectar_delete_neighbor_dups
 
 !!!-------------------------------------------------------------------
 
