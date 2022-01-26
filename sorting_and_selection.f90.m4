@@ -347,7 +347,7 @@ contains
 
       if (n == 1) then
          ! A list of length 1 is already sorted.
-         lst_ss = p
+         lst_ss = p   ! Is it possible for this branch to be executed?
       else if (n <= array_sort_size) then
          lst_ss = small_sort (.tocons. p, n)
       else
