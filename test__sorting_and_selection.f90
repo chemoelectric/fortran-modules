@@ -657,6 +657,10 @@ contains
     call check (list_equal (int_eq, list_delete_neighbor_dups (is_eq, lst), iota (10, 1)), "test0050-0120 failed")
     call check (list_equal (int_eq, lst, lst_copy), "test0050-0125 failed")
 
+    lst = list_delete_neighbor_dups (is_eq, 1 ** 1 ** 1 ** cons (1, 2))
+    call check (car (lst) .eqi. 1, "test0050-0210 failed")
+    call check (cdr (lst) .eqi. 2, "test0050-0220 failed")
+
   contains
 
     recursive function is_eq (x, y) result (bool)
