@@ -231,10 +231,6 @@ contains
                      call set_cdr (cursor, p2)
                      p1_is_active_is_changed = .true.
                      done = .true.
-                  else if (is_not_pair (p2)) then
-                     call set_cdr (cursor, p1)
-                     p1_is_active_is_changed = .true.
-                     done = .true.
                   else
                      call uncons (p1, hd1, tl1)
                      call uncons (p2, hd2, tl2)
@@ -253,11 +249,7 @@ contains
             else
                p1_is_active_is_changed = .false.
                do while (.not. p1_is_active_is_changed)
-                  if (is_not_pair (p1)) then
-                     call set_cdr (cursor, p2)
-                     p1_is_active_is_changed = .true.
-                     done = .true.
-                  else if (is_not_pair (p2)) then
+                  if (is_not_pair (p2)) then
                      call set_cdr (cursor, p1)
                      p1_is_active_is_changed = .true.
                      done = .true.
@@ -269,11 +261,11 @@ contains
                         p1_is_active = .true.
                         p1_is_active_is_changed = .true.
                         cursor = p1
-                        p1 =  tl1
+                        p1 = tl1
                      else
                         call set_cdr (cursor, p2)
                         cursor = p2
-                        p2 =  tl2
+                        p2 = tl2
                      end if
                   end if
                end do
