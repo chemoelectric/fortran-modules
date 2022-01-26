@@ -88,8 +88,8 @@ module sorting_and_selection
 
   ! Delete adjacent duplicates.
   public :: vectar_delete_neighbor_dups
-!  public :: vectar_delete_neighbor_dupsx ! Reuses part of its input
-!                                         ! vectar.
+  public :: vectar_delete_neighbor_dupsx ! Reuse part of the input
+                                         ! vectar.
 
 !!!-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 
@@ -1618,7 +1618,7 @@ contains
     integer(sz) :: istart0, iend0
     integer(sz) :: i, j
     integer(sz) :: num_dups
-    integer(sz) :: length_dnd
+    integer(sz) :: num_elements_minus_dups
 
     ! Protect against garbage collections instigated by pred.
     vec_root = vec
@@ -1643,8 +1643,8 @@ contains
     call vec_root%discard
 
     ! Make a new vectar, leaving out the marked entries.
-    length_dnd = vecr%length() - num_dups
-    vec_dnd = make_vectar (length_dnd)
+    num_elements_minus_dups = vecr%length() - num_dups
+    vec_dnd = make_vectar (num_elements_minus_dups)
     data_dnd => vectar_data_ptr (vec_dnd)
     j = 0_sz
     do i = istart0, iend0
@@ -1654,6 +1654,60 @@ contains
        end if
     end do
   end function vectar_delete_neighbor_dups
+
+  recursive subroutine vectar_delete_neighbor_dupsx (pred, vec, num_elements_minus_dups)
+    !
+    ! The outputs are different from those of
+    ! vector-delete-neighbor-dups! in SRFI-132.
+    !
+    use, intrinsic :: iso_fortran_env, only: int8
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: vec
+    integer(sz), intent(out) :: num_elements_minus_dups
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: vecr
+    class(vectar_data_t), pointer :: data
+    integer(int8), allocatable :: dup_marks(:)
+    integer(sz) :: istart0, iend0
+    integer(sz) :: i, j
+    integer(sz) :: num_dups
+
+    ! Protect against garbage collections instigated by pred.
+    vec_root = vec
+
+    vecr = vec
+    data => vectar_data_ptr (vecr)
+    istart0 = vecr%istart0()
+    iend0 = vecr%iend0()
+    allocate (dup_marks(istart0:iend0), source = 0_int8)
+
+    ! Set marks where there are neighbor duplicates, and count the
+    ! duplicates.
+    num_dups = 0
+    do i = istart0 + 1, iend0
+       if (pred (data%array(i - 1)%element, data%array(i)%element)) then
+          dup_marks(i) = 1_int8
+          num_dups = num_dups + 1
+       end if
+    end do
+
+    ! There are no more calls to pred. The root can be discarded.
+    call vec_root%discard
+
+    ! Pack the unduplicated elements into the left end of the vectar
+    ! range.
+    num_elements_minus_dups = vecr%length() - num_dups
+    j = istart0 + 1
+    do i = istart0 + 1, iend0
+       if (dup_marks(i) == 0_int8) then
+          if (j /= i) then
+             data%array(j) = data%array(i)
+          end if
+          j = j + 1
+       end if
+    end do
+  end subroutine vectar_delete_neighbor_dupsx
 
 !!!-------------------------------------------------------------------
 

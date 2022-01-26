@@ -1306,6 +1306,13 @@ contains
 
   subroutine test1070
 
+    !
+    ! FIXME: Test vectar ranges. (We could test predicates such as
+    ! less_than, but CHICKEN's SRFI-132 module does not give the same
+    ! results as do examples shown in the SRFI text, and it seems
+    ! inadvisable anyway to try playing such tricks.)
+    !
+
     call check (vectar_equal (int_eq, vectar_delete_neighbor_dups (is_eq, vectar ()), vectar ()), "test1070-0010 failed")
     call check (vectar_equal (int_eq, vectar_delete_neighbor_dups (is_eq, vectar (1)), vectar (1)), "test1070-0020 failed")
     call check (vectar_equal (int_eq, vectar_delete_neighbor_dups (is_eq, vectar (1, 1)), vectar (1)), "test1070-0030 failed")
@@ -1329,6 +1336,34 @@ contains
     end function is_eq
 
   end subroutine test1070
+
+  subroutine test1080
+
+    !
+    ! FIXME: Test empty vectars, etc.
+    !
+
+    type(vectar_t) :: vec
+    integer(sz) :: num_not_dups
+
+    vec = vectar (0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6)
+    call vectar_delete_neighbor_dupsx (is_eq, range1 (vec, 4_sz, vectar_length (vec)), num_not_dups)
+    call check (num_not_dups == 6, "test1080-0010 failed")
+    call check (vectar_equal (int_eq, vec, vectar (0, 0, 0, 1, 2, 3, 4, 5, 6, 4, 4, 5, 5, 6, 6)), "test1080-0020 failed")
+
+  contains
+
+    recursive function is_eq (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) == int_cast (y))
+    end function is_eq
+
+  end subroutine test1080
 
   subroutine test2010
 
@@ -1415,6 +1450,7 @@ contains
     call test1050
     call test1060
     call test1070
+    call test1080
 
     ! Vectar shuffling.
     call test2010
