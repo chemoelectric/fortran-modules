@@ -138,6 +138,7 @@ contains
 
 !!!-------------------------------------------------------------------
 
+  ! LCOV_EXCL_START
   subroutine error_abort_1 (msg)
     use iso_fortran_env, only : error_unit
     character(*), intent(in) :: msg
@@ -145,10 +146,7 @@ contains
     write (error_unit, '("module sorting_and_selection error: ", a)') msg
     error stop
   end subroutine error_abort_1
-
-!!$  subroutine strange_error
-!!$    call error_abort ("a strange error, possibly use of an object already garbage-collected")
-!!$  end subroutine strange_error
+  ! LCOV_EXCL_STOP
 
   function int_less_than (x, y) result (bool)
     class(*), intent(in) :: x, y
@@ -867,7 +865,7 @@ contains
     len2 = vecr2%length()
 
     if (len_m /= len1 + len2) then
-       call error_abort ("vectar_mergex arguments have incompatible lengths")
+       call error_abort ("vectar_mergex arguments have incompatible lengths") ! LCOV_EXCL_LINE
     end if
 
     data_m => vectar_data_ptr (vecr_m)
@@ -1338,7 +1336,7 @@ contains
           ! The rest of the merger is from data2 and already is in
           ! place.
           if (i /= i2) then
-             call error_abort ("internal error in merge_going_leftwards")
+             call error_abort ("internal error in merge_going_leftwards") ! LCOV_EXCL_LINE
           end if
           i = last2
        else if (i2 == last2) then
@@ -1393,7 +1391,7 @@ contains
           ! The rest of the merger is from data1 and already is in
           ! place.
           if (i /= i1) then
-             call error_abort ("internal error in merge_going_rightwards")
+             call error_abort ("internal error in merge_going_rightwards") ! LCOV_EXCL_LINE
           end if
           i = last1
        else if (i1 == last1) then
@@ -1544,7 +1542,7 @@ contains
                 ! Unless i is 0, x must be greater than or equal
                 ! to the element at i (and therefore also to every
                 ! element to the left of i).
-                call error_abort ("unit_test__bottenbruch_search__test1 0010 failed")
+                call error_abort ("unit_test__bottenbruch_search__test1 0010 failed") ! LCOV_EXCL_LINE
              end if
           end if
           if (i /= veclen - 1) then
@@ -1552,7 +1550,7 @@ contains
                 ! x must be less than the element at i+1 (and
                 ! therefore also to everything else to the right of
                 ! i).
-                call error_abort ("unit_test__bottenbruch_search__test1 0020 failed")
+                call error_abort ("unit_test__bottenbruch_search__test1 0020 failed") ! LCOV_EXCL_LINE
              end if
           end if
        end do
@@ -1586,14 +1584,14 @@ contains
                 ! Unless i is veclen - 1, x must be less than or equal
                 ! to the element at i (and therefore also to every
                 ! element to the right of i).
-                call error_abort ("unit_test__bottenbruch_search__test1 0010 failed")
+                call error_abort ("unit_test__bottenbruch_search__test1 0010 failed") ! LCOV_EXCL_LINE
              end if
           end if
           if (i /= 0) then
              if (.not. int_less_than (vectar_ref0 (vec, i - 1), x)) then
                 ! x must be greater than the element at i-1 (and
                 ! therefore greater than everything to the left of i).
-                call error_abort ("unit_test__bottenbruch_search__test1 0020 failed")
+                call error_abort ("unit_test__bottenbruch_search__test1 0020 failed") ! LCOV_EXCL_LINE
              end if
           end if
        end do

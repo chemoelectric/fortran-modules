@@ -230,12 +230,12 @@ contains
 
     lst1 = list (2, 3, 5, 6, 10)
     lst2 = list (2, 4, 4, 5, 15)
-    lst3 = list_mergex (is_lt, lst1, lst2)
+    lst3 = list_mergex (less_than, lst1, lst2)
     call check (list_equal (int_eq, lst3, list10 (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)), "test0010-0010 failed")
 
     lst1 = list (2, 3, 5, 6, 10)
     lst2 = list (2, 4, 4, 5, 15)
-    lst3 = list_merge (is_lt, lst1, lst2)
+    lst3 = list_merge (less_than, lst1, lst2)
     call check (list_equal (int_eq, lst1, list (2, 3, 5, 6, 10)), "test0010-0020 failed")
     call check (list_equal (int_eq, lst2, list (2, 4, 4, 5, 15)), "test0010-0030 failed")
     call check (list_equal (int_eq, lst3, list (2, 2, 3, 4, 4, 5, 5, 6, 10, 15)), "test0010-0040 failed")
@@ -252,9 +252,18 @@ contains
     call check (list_equal (int_eq, lst2, list (21, 42, 41, 52, 51)), "test0010-0070 failed")
     call check (list_equal (int_eq, lst3, list (22, 21, 31, 42, 41, 53, 52, 51, 61)), "test0010-0080 failed")
 
+    lst3 = list_merge (less_than, list (), list ())
+    call check (is_nil (lst3), "test0010-1010 failed")
+
+    lst3 = list_merge (less_than, list (1, 2, 3), list ())
+    call check (list_equal (int_eq, lst3, list (1, 2, 3)), "test0010-1020 failed")
+
+    lst3 = list_merge (less_than, list (), list (1, 2, 3))
+    call check (list_equal (int_eq, lst3, list (1, 2, 3)), "test0010-1020 failed")
+
   contains
 
-    function is_lt (x, y) result (bool)
+    function less_than (x, y) result (bool)
       class(*), intent(in) :: x
       class(*), intent(in) :: y
       logical :: bool
@@ -262,7 +271,7 @@ contains
       call collect_garbage_now
 
       bool = (int_cast (x) < int_cast (y))
-    end function is_lt
+    end function less_than
 
     function is_lt_except_ones (x, y) result (bool)
       class(*), intent(in) :: x
@@ -294,39 +303,39 @@ contains
     integer :: i, k
 
     lst1 = iota (100, 100, -1)
-    lst2 = list_sortx (is_lt, lst1)
+    lst2 = list_sortx (less_than, lst1)
     call check (list_equal (int_eq, lst2, iota (100, 1)), "test0020-0010 failed")
 
     lst1 = iota (100, 100, -1)
-    lst2 = list_sort (is_lt, lst1)
+    lst2 = list_sort (less_than, lst1)
     call check (list_equal (int_eq, lst1, iota (100, 100, -1)), "test0020-0020 failed")
     call check (list_equal (int_eq, lst2, iota (100, 1)), "test0020-0030 failed")
 
     lst1 = iota (100, 100, -1)
-    lst2 = list_stable_sortx (is_lt, lst1)
+    lst2 = list_stable_sortx (less_than, lst1)
     call check (list_equal (int_eq, lst2, iota (100, 1)), "test0020-0110 failed")
 
     lst1 = iota (100, 100, -1)
-    lst2 = list_stable_sort (is_lt, lst1)
+    lst2 = list_stable_sort (less_than, lst1)
     call check (list_equal (int_eq, lst1, iota (100, 100, -1)), "test0020-0120 failed")
     call check (list_equal (int_eq, lst2, iota (100, 1)), "test0020-0130 failed")
 
     lst1 = make_0_to_99_strangely_ordered ()
-    lst2 = list_sort (is_lt, lst1)
+    lst2 = list_sort (less_than, lst1)
     call check (list_equal (int_eq, lst1, make_0_to_99_strangely_ordered ()), "test0020-0200 failed")
     call check (list_equal (int_eq, lst2, iota (100)), "test0020-0210 failed")
 
     lst1 = make_0_to_99_strangely_ordered ()
-    lst2 = list_sortx (is_lt, lst1)
+    lst2 = list_sortx (less_than, lst1)
     call check (list_equal (int_eq, lst2, iota (100)), "test0020-0220 failed")
 
     lst1 = make_0_to_99_strangely_ordered ()
-    lst2 = list_stable_sort (is_lt, lst1)
+    lst2 = list_stable_sort (less_than, lst1)
     call check (list_equal (int_eq, lst1, make_0_to_99_strangely_ordered ()), "test0020-0230 failed")
     call check (list_equal (int_eq, lst2, iota (100)), "test0020-0240 failed")
 
     lst1 = make_0_to_99_strangely_ordered ()
-    lst2 = list_stable_sortx (is_lt, lst1)
+    lst2 = list_stable_sortx (less_than, lst1)
     call check (list_equal (int_eq, lst2, iota (100)), "test0020-0250 failed")
     
     lst1 = make_0_to_99_strangely_ordered ()
@@ -343,29 +352,29 @@ contains
     end do
     call check (i == 100, "test0020-0330 failed")
 
-    call check (is_nil (list_sort (is_lt, nil)), "test0020-0410 failed")
-    call check (is_nil (list_sortx (is_lt, nil)), "test0020-0420 failed")
-    call check (is_nil (list_stable_sort (is_lt, nil)), "test0020-0430 failed")
-    call check (is_nil (list_stable_sortx (is_lt, nil)), "test0020-0440 failed")
+    call check (is_nil (list_sort (less_than, nil)), "test0020-0410 failed")
+    call check (is_nil (list_sortx (less_than, nil)), "test0020-0420 failed")
+    call check (is_nil (list_stable_sort (less_than, nil)), "test0020-0430 failed")
+    call check (is_nil (list_stable_sortx (less_than, nil)), "test0020-0440 failed")
 
-    call check (list_equal (int_eq, list_sort (is_lt, list (123)), list (123)), "test0020-0510 failed")
-    call check (list_equal (int_eq, list_sortx (is_lt, list (123)), list (123)), "test0020-0520 failed")
-    call check (list_equal (int_eq, list_stable_sort (is_lt, list (123)), list (123)), "test0020-0530 failed")
-    call check (list_equal (int_eq, list_stable_sortx (is_lt, list (123)), list (123)), "test0020-0540 failed")
+    call check (list_equal (int_eq, list_sort (less_than, list (123)), list (123)), "test0020-0510 failed")
+    call check (list_equal (int_eq, list_sortx (less_than, list (123)), list (123)), "test0020-0520 failed")
+    call check (list_equal (int_eq, list_stable_sort (less_than, list (123)), list (123)), "test0020-0530 failed")
+    call check (list_equal (int_eq, list_stable_sortx (less_than, list (123)), list (123)), "test0020-0540 failed")
 
-    call check (list_equal (int_eq, list_sort (is_lt, list (1, 2)), list (1, 2)), "test0020-0610 failed")
-    call check (list_equal (int_eq, list_sortx (is_lt, list (1, 2)), list (1, 2)), "test0020-0620 failed")
-    call check (list_equal (int_eq, list_stable_sort (is_lt, list (1, 2)), list (1, 2)), "test0020-0630 failed")
-    call check (list_equal (int_eq, list_stable_sortx (is_lt, list (1, 2)), list (1, 2)), "test0020-0640 failed")
+    call check (list_equal (int_eq, list_sort (less_than, list (1, 2)), list (1, 2)), "test0020-0610 failed")
+    call check (list_equal (int_eq, list_sortx (less_than, list (1, 2)), list (1, 2)), "test0020-0620 failed")
+    call check (list_equal (int_eq, list_stable_sort (less_than, list (1, 2)), list (1, 2)), "test0020-0630 failed")
+    call check (list_equal (int_eq, list_stable_sortx (less_than, list (1, 2)), list (1, 2)), "test0020-0640 failed")
 
-    call check (list_equal (int_eq, list_sort (is_lt, list (2, 1)), list (1, 2)), "test0020-0710 failed")
-    call check (list_equal (int_eq, list_sortx (is_lt, list (2, 1)), list (1, 2)), "test0020-0720 failed")
-    call check (list_equal (int_eq, list_stable_sort (is_lt, list (2, 1)), list (1, 2)), "test0020-0730 failed")
-    call check (list_equal (int_eq, list_stable_sortx (is_lt, list (2, 1)), list (1, 2)), "test0020-0740 failed")
+    call check (list_equal (int_eq, list_sort (less_than, list (2, 1)), list (1, 2)), "test0020-0710 failed")
+    call check (list_equal (int_eq, list_sortx (less_than, list (2, 1)), list (1, 2)), "test0020-0720 failed")
+    call check (list_equal (int_eq, list_stable_sort (less_than, list (2, 1)), list (1, 2)), "test0020-0730 failed")
+    call check (list_equal (int_eq, list_stable_sortx (less_than, list (2, 1)), list (1, 2)), "test0020-0740 failed")
 
   contains
 
-    function is_lt (x, y) result (bool)
+    function less_than (x, y) result (bool)
       class(*), intent(in) :: x
       class(*), intent(in) :: y
       logical :: bool
@@ -373,7 +382,7 @@ contains
       call collect_garbage_now
 
       bool = (int_cast (x) < int_cast (y))
-    end function is_lt
+    end function less_than
 
     function is_lt_only_ones (x, y) result (bool)
       class(*), intent(in) :: x
@@ -417,25 +426,25 @@ contains
     ! Tests of list_is_sorted.
     !
 
-    call check (.not. list_is_sorted (is_lt, iota (100, 100, -1)), "test0030-0010 failed")
-    call check (list_is_sorted (is_lt, iota (100, 1)), "test0030-0020 failed")
+    call check (.not. list_is_sorted (less_than, iota (100, 100, -1)), "test0030-0010 failed")
+    call check (list_is_sorted (less_than, iota (100, 1)), "test0030-0020 failed")
 
-    call check (.not. list_is_sorted (is_lt, make_0_to_99_strangely_ordered ()), "test0030-0030 failed")
-    call check (list_is_sorted (is_lt, list_sortx (is_lt, make_0_to_99_strangely_ordered ())), "test0030-0040 failed")
+    call check (.not. list_is_sorted (less_than, make_0_to_99_strangely_ordered ()), "test0030-0030 failed")
+    call check (list_is_sorted (less_than, list_sortx (less_than, make_0_to_99_strangely_ordered ())), "test0030-0040 failed")
 
-    call check (list_is_sorted (is_lt, make_list (100, 123)), "test0030-0050 failed")
-    call check (list_is_sorted (is_lt, nil), "test0030-0060 failed")
-    call check (list_is_sorted (is_lt, list (123)), "test0030-0070 failed")
+    call check (list_is_sorted (less_than, make_list (100, 123)), "test0030-0050 failed")
+    call check (list_is_sorted (less_than, nil), "test0030-0060 failed")
+    call check (list_is_sorted (less_than, list (123)), "test0030-0070 failed")
 
     call check (.not. list_is_sorted (is_lt_only_ones, make_0_to_99_strangely_ordered ()), "test0030-0080 failed")
     call check (list_is_sorted (is_lt_only_ones, list_stable_sortx (is_lt_only_ones, make_0_to_99_strangely_ordered ())), &
          "test0030-0090 failed")
-    call check (.not. list_is_sorted (is_lt, list_stable_sortx (is_lt_only_ones, make_0_to_99_strangely_ordered ())), &
+    call check (.not. list_is_sorted (less_than, list_stable_sortx (is_lt_only_ones, make_0_to_99_strangely_ordered ())), &
          "test0030-0100 failed")
 
   contains
 
-    function is_lt (x, y) result (bool)
+    function less_than (x, y) result (bool)
       class(*), intent(in) :: x
       class(*), intent(in) :: y
       logical :: bool
@@ -443,7 +452,7 @@ contains
       call collect_garbage_now
 
       bool = (int_cast (x) < int_cast (y))
-    end function is_lt
+    end function less_than
 
     function is_lt_only_ones (x, y) result (bool)
       class(*), intent(in) :: x
@@ -747,6 +756,15 @@ contains
     call check (vectar_equal (int_eq, vec1, vectar (100, 22, 31, 53, 61, 100, 21, 42, 41, 52, 51, &
          &                                          21, 22, 31, 42, 41, 52, 51, 53, 61)), &
          &      "test1020-0420 failed")
+
+    vec_m = vectar_merge (less_than, vectar (), vectar ())
+    call check (vectar_is_empty (vec_m), "test1020-1010 failed")
+
+    vec_m = vectar_merge (less_than, vectar (1, 2, 3), vectar ())
+    call check (vectar_equal (int_eq, vec_m, vectar (1, 2, 3)), "test1020-1020 failed")
+
+    vec_m = vectar_merge (less_than, vectar (), vectar (1, 2, 3))
+    call check (vectar_equal (int_eq, vec_m, vectar (1, 2, 3)), "test1020-1020 failed")
 
   contains
 
