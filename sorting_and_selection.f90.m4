@@ -314,7 +314,7 @@ contains
     class(*), intent(in) :: lst
     type(cons_t) :: lst_ss
 
-    integer, parameter :: array_sort_size = 128
+    integer, parameter :: array_sort_size = 256
 
     type(gcroot_t) :: p
     type(gcroot_t) :: vec1, vec2
@@ -359,13 +359,7 @@ contains
          ! A list of length 1 is already sorted.
          lst_ss = p
       else if (n <= array_sort_size) then
-         if (list_is_sorted (less_than, p)) then
-            ! Save a lot of activity, if the segment is already
-            ! sorted.
-            lst_ss = p
-         else
-            lst_ss = array_sort (.tocons. p, n)
-         end if
+         lst_ss = array_sort (.tocons. p, n)
       else
          n_half = n / 2
          call do_split_atx (p, n_half, p_left, p_right)
