@@ -805,32 +805,26 @@ contains
     call vectar_stable_sortx (is_lt_except_ones, vec1)
     call check (vectar_equal (int_eq, vec1, vectar (21, 22, 31, 41, 42, 53, 52, 51, 61)), "test1030-0020 failed")
 
-    ! Trigger a leftwards merge.
     vec1 = list_to_vectar (append (iota (99, 99, -1), iota (101, 200, -1)))
     call vectar_stable_sortx (less_than, vec1)
     call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test1030-0030 failed")
 
-    ! Trigger a more complex leftwards merge.
     vec1 = list_to_vectar (append (iota (99, 197, -2), iota (99, 2, 2), list (199, 200)))
     call vectar_stable_sortx (less_than, vec1)
     call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test1030-0040 failed")
 
-    ! Another leftwards merge.
     vec1 = list_to_vectar (append (iota (99, 102), iota (101, 1)))
     call vectar_stable_sortx (less_than, vec1)
     call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test1030-0050 failed")
 
-    ! Trigger a rightwards merge.
     vec1 = list_to_vectar (append (iota (101, 101, -1), iota (99, 200, -1)))
     call vectar_stable_sortx (less_than, vec1)
     call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test1030-0060 failed")
 
-    ! Trigger a more complex rightwards merge.
     vec1 = list_to_vectar (append (iota (99, 2, 2), list (199, 200), iota (99, 197, -2)))
     call vectar_stable_sortx (less_than, vec1)
     call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test1030-0070 failed")
 
-    ! Another rightwards merge.
     vec1 = list_to_vectar (append (iota (101, 100), iota (99, 1)))
     call vectar_stable_sortx (less_than, vec1)
     call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test1030-0080 failed")
@@ -961,32 +955,26 @@ contains
     type(vectar_t) :: vec1
     integer :: i
 
-    ! Trigger a leftwards merge.
     vec1 = list_to_vectar (append (iota (99, 99, -1), iota (101, 200, -1)))
     call vectar_sortx (less_than, vec1)
     call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test1040-0030 failed")
 
-    ! Trigger a more complex leftwards merge.
     vec1 = list_to_vectar (append (iota (99, 197, -2), iota (99, 2, 2), list (199, 200)))
     call vectar_sortx (less_than, vec1)
     call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test1040-0040 failed")
 
-    ! Another leftwards merge.
     vec1 = list_to_vectar (append (iota (99, 102), iota (101, 1)))
     call vectar_sortx (less_than, vec1)
     call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test1040-0050 failed")
 
-    ! Trigger a rightwards merge.
     vec1 = list_to_vectar (append (iota (101, 101, -1), iota (99, 200, -1)))
     call vectar_sortx (less_than, vec1)
     call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test1040-0060 failed")
 
-    ! Trigger a more complex rightwards merge.
     vec1 = list_to_vectar (append (iota (99, 2, 2), list (199, 200), iota (99, 197, -2)))
     call vectar_sortx (less_than, vec1)
     call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test1040-0070 failed")
 
-    ! Another rightwards merge.
     vec1 = list_to_vectar (append (iota (101, 100), iota (99, 1)))
     call vectar_sortx (less_than, vec1)
     call check (vectar_equal (int_eq, vec1, list_to_vectar (iota (200, 1))), "test1040-0080 failed")
