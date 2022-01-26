@@ -359,7 +359,7 @@ contains
          ! A list of length 1 is already sorted.
          lst_ss = p
       else if (n <= array_sort_size) then
-         lst_ss = array_sort (.tocons. p, n)
+         lst_ss = small_sort (.tocons. p, n)
       else
          n_half = n / 2
          call do_split_atx (p, n_half, p_left, p_right)
@@ -370,6 +370,70 @@ contains
          lst_ss = list_mergex (less_than, p_left1, p_right1)
       end if
     end function merge_sort
+
+    recursive function small_sort (p, n) result (lst_ss)
+      type(cons_t), intent(in) :: p
+      integer(sz), intent(in) :: n
+      type(cons_t) :: lst_ss
+
+      if (.not. less_than (cadr (p), car (p))) then
+         lst_ss = small_sort_with_a_nondescending_prefix (p, n)
+      else
+         lst_ss = small_sort_with_a_descending_prefix (p, n)
+      end if
+    end function small_sort
+
+    recursive function small_sort_with_a_nondescending_prefix (p, n) result (lst_ss)
+      type(cons_t), intent(in) :: p
+      integer(sz), intent(in) :: n
+      type(cons_t) :: lst_ss
+
+      type(cons_t) :: q
+      logical :: done
+
+      q = cdr (p)
+      done = .false.
+      do while (.not. done)
+         if (is_not_pair (cdr (q))) then
+            ! The list is already in non-descending order.
+            lst_ss = p
+            done = .true.
+         else if (less_than (cadr (q), car (q))) then
+            ! The list is not entirely in non-descending
+            ! order. Sort it as an array.
+            lst_ss = array_sort (p, n)
+            done = .true.
+         else
+            q = .tocons. cdr (q)
+         end if
+      end do
+    end function small_sort_with_a_nondescending_prefix
+
+    recursive function small_sort_with_a_descending_prefix (p, n) result (lst_ss)
+      type(cons_t), intent(in) :: p
+      integer(sz), intent(in) :: n
+      type(cons_t) :: lst_ss
+
+      type(cons_t) :: q
+      logical :: done
+
+      q = cdr (p)
+      done = .false.
+      do while (.not. done)
+         if (is_not_pair (cdr (q))) then
+            ! The list is entirely in descending order. Reverse it.
+            lst_ss = reversex (p)
+            done = .true.
+         else if (.not. less_than (cadr (q), car (q))) then
+            ! The list is not entirely in descending order. Sort it
+            ! as an array.
+            lst_ss = array_sort (p, n)
+            done = .true.
+         else
+            q = .tocons. cdr (q)
+         end if
+      end do
+    end function small_sort_with_a_descending_prefix
 
     recursive function array_sort (p, n) result (lst_ss)
       !
