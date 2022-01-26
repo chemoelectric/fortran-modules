@@ -261,6 +261,9 @@ contains
     lst3 = list_merge (less_than, list (), list (1, 2, 3))
     call check (list_equal (int_eq, lst3, list (1, 2, 3)), "test0010-1020 failed")
 
+    lst3 = list_merge (less_than, list (2, 4, 6), list (1, 3, 5))
+    call check (list_equal (int_eq, lst3, list (1, 2, 3, 4, 5, 6)), "test0010-1030 failed")
+
   contains
 
     function less_than (x, y) result (bool)
