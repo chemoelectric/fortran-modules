@@ -1362,6 +1362,8 @@ contains
 
   subroutine test1090
     type(gcroot_t) :: vec
+    type(vectar_t) :: vec1
+    integer :: kth_smallest
 
     vec = vectar (30, 10, 50, 60, 50, 40, 20)
 
@@ -1422,6 +1424,40 @@ contains
     call check (vectar_selectx1 (less_than, vectar_copy (vec), 1) .eqi. 60, "test1090-1640 failed")
     call check (vectar_selectxn (less_than, vectar_copy (vec), 2_sz, 2_sz) .eqi. 60, "test1090-1650 failed")
     call check (vectar_selectxn (less_than, vectar_copy (vec), 2, 2) .eqi. 60, "test1090-1660 failed")
+
+    vec = vectar (30, 70, 10, 50, 60, 50, 40, 20)
+
+    vec1 = vectar_copy (vec)
+    kth_smallest = int_cast (vectar_selectx1 (less_than, range1 (vec, 3, 6), 1))
+    call check (kth_smallest == 10, "test1090-2010 failed")
+    call check (vectar_ref1 (vec1, 1) .eqi. vectar_ref1 (vec, 1), "test1090-2020 failed")
+    call check (vectar_ref1 (vec1, 2) .eqi. vectar_ref1 (vec, 2), "test1090-2030 failed")
+    call check (vectar_ref1 (vec1, 7) .eqi. vectar_ref1 (vec, 7), "test1090-2040 failed")
+    call check (vectar_ref1 (vec1, 8) .eqi. vectar_ref1 (vec, 8), "test1090-2050 failed")
+
+    vec1 = vectar_copy (vec)
+    kth_smallest = int_cast (vectar_selectx1 (less_than, range1 (vec, 3, 6), 2))
+    call check (kth_smallest == 50, "test1090-2110 failed")
+    call check (vectar_ref1 (vec1, 1) .eqi. vectar_ref1 (vec, 1), "test1090-2120 failed")
+    call check (vectar_ref1 (vec1, 2) .eqi. vectar_ref1 (vec, 2), "test1090-2130 failed")
+    call check (vectar_ref1 (vec1, 7) .eqi. vectar_ref1 (vec, 7), "test1090-2140 failed")
+    call check (vectar_ref1 (vec1, 8) .eqi. vectar_ref1 (vec, 8), "test1090-2150 failed")
+
+    vec1 = vectar_copy (vec)
+    kth_smallest = int_cast (vectar_selectx1 (less_than, range1 (vec, 3, 6), 3))
+    call check (kth_smallest == 50, "test1090-2210 failed")
+    call check (vectar_ref1 (vec1, 1) .eqi. vectar_ref1 (vec, 1), "test1090-2220 failed")
+    call check (vectar_ref1 (vec1, 2) .eqi. vectar_ref1 (vec, 2), "test1090-2230 failed")
+    call check (vectar_ref1 (vec1, 7) .eqi. vectar_ref1 (vec, 7), "test1090-2240 failed")
+    call check (vectar_ref1 (vec1, 8) .eqi. vectar_ref1 (vec, 8), "test1090-2250 failed")
+
+    vec1 = vectar_copy (vec)
+    kth_smallest = int_cast (vectar_selectx1 (less_than, range1 (vec, 3, 6), 4))
+    call check (kth_smallest == 60, "test1090-2310 failed")
+    call check (vectar_ref1 (vec1, 1) .eqi. vectar_ref1 (vec, 1), "test1090-2320 failed")
+    call check (vectar_ref1 (vec1, 2) .eqi. vectar_ref1 (vec, 2), "test1090-2330 failed")
+    call check (vectar_ref1 (vec1, 7) .eqi. vectar_ref1 (vec, 7), "test1090-2340 failed")
+    call check (vectar_ref1 (vec1, 8) .eqi. vectar_ref1 (vec, 8), "test1090-2350 failed")
 
   contains
 

@@ -1194,7 +1194,10 @@ contains
     integer(sz) :: vecr_length
     integer(sz) :: i, j
     integer(sz) :: ipivot
+    integer(sz) :: k_adjusted_for_range
     real(real64) :: randnum
+
+    vec_root = vec
 
     vecr = vec
     vecr_length = vecr%length()
@@ -1207,11 +1210,10 @@ contains
        end if
        ! LCOV_EXCL_STOP
     else
-       vec_root = vec
-
        data => vectar_data_ptr (vecr)
        i = vecr%istart0()
        j = vecr%iend0()
+       k_adjusted_for_range = k + i
        do while (i /= j)
           ! Pick a pivot at random.
           call random_number (randnum)
@@ -1220,9 +1222,9 @@ contains
           ! Partition around the pivot.
           call hoare_partitioning (less_than, data, i, j, ipivot, ipivot)
 
-          if (ipivot < k) then
+          if (ipivot < k_adjusted_for_range) then
              i = ipivot + 1
-          else if (ipivot == k) then
+          else if (ipivot == k_adjusted_for_range) then
              i = ipivot
              j = ipivot
           else
@@ -1230,9 +1232,9 @@ contains
           end if
        end do
        kth_smallest = data%array(i)%element
-
-       call vec_root%discard
     end if
+
+    call vec_root%discard
   end function vectar_selectx0_size_kind
 
   recursive function vectar_selectx1_size_kind (less_than, vec, k) result (kth_smallest)
