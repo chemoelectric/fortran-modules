@@ -1510,6 +1510,29 @@ contains
        end do
     end do
 
+    do repetition = 1, 10
+       len = 10
+       vec_root = make_vectar (len)
+       do i = 1, len
+          if (i == 1 .or. i == 2 .or. i == len - 1 .or. i == len) then
+             call vectar_set1 (vec_root, i, -i)
+          else
+             call random_number (randnum)
+             call vectar_set1 (vec_root, i, 1 + int (randnum * len))
+          end if
+       end do
+       vec_sorted = vectar_copy (vec_root)
+       call vectar_sortx (less_than, range1 (vec_sorted, 3, len - 2))
+       do i = 0, len - 4
+          vec = vectar_copy (vec_root)
+          call vectar_separatex (less_than, range1 (vec, 3, len - 2), i)
+          vec_root = vec
+          call vectar_sortx (less_than, range1 (vec_root, 3, i + 2)) ! Sort the smaller elements.
+          call vectar_sortx (less_than, range1 (vec_root, i + 3, len - 2)) ! Sort the larger elements.
+          call check (vectar_equal (int_eq, vec_root, vec_sorted), "test1100-0020 failed")
+       end do
+    end do
+
   contains
 
     function less_than (x, y) result (bool)
