@@ -818,8 +818,6 @@ contains
     type(gcroot_t) :: stable_sort_examples(jrandom:jsorted, 1:num_stable_sort_examples)
     integer :: i, j
 
-    call unit_test__bottenbruch_searches
-
     call read_stable_sort_examples (stable_sort_examples)
 
     ! Some small sorts.
@@ -1362,6 +1360,92 @@ contains
 
   end subroutine test1080
 
+  subroutine test1090
+    type(gcroot_t) :: vec
+
+    vec = vectar (30, 10, 50, 60, 50, 40, 20)
+
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 0_sz) .eqi. 10, "test1090-0010 failed")
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 0) .eqi. 10, "test1090-0020 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 1_sz) .eqi. 10, "test1090-0030 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 1) .eqi. 10, "test1090-0040 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2_sz, 2_sz) .eqi. 10, "test1090-0050 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2, 2) .eqi. 10, "test1090-0060 failed")
+
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 1_sz) .eqi. 20, "test1090-0110 failed")
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 1) .eqi. 20, "test1090-0120 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 2_sz) .eqi. 20, "test1090-0130 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 2) .eqi. 20, "test1090-0140 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2_sz, 3_sz) .eqi. 20, "test1090-0150 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2, 3) .eqi. 20, "test1090-0160 failed")
+
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 2_sz) .eqi. 30, "test1090-0210 failed")
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 2) .eqi. 30, "test1090-0220 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 3_sz) .eqi. 30, "test1090-0230 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 3) .eqi. 30, "test1090-0240 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2_sz, 4_sz) .eqi. 30, "test1090-0250 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2, 4) .eqi. 30, "test1090-0260 failed")
+
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 3_sz) .eqi. 40, "test1090-0310 failed")
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 3) .eqi. 40, "test1090-0320 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 4_sz) .eqi. 40, "test1090-0330 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 4) .eqi. 40, "test1090-0340 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2_sz, 5_sz) .eqi. 40, "test1090-0350 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2, 5) .eqi. 40, "test1090-0360 failed")
+
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 4_sz) .eqi. 50, "test1090-0410 failed")
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 4) .eqi. 50, "test1090-0420 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 5_sz) .eqi. 50, "test1090-0430 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 5) .eqi. 50, "test1090-0440 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2_sz, 6_sz) .eqi. 50, "test1090-0450 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2, 6) .eqi. 50, "test1090-0460 failed")
+
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 5_sz) .eqi. 50, "test1090-0510 failed")
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 5) .eqi. 50, "test1090-0520 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 6_sz) .eqi. 50, "test1090-0530 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 6) .eqi. 50, "test1090-0540 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2_sz, 7_sz) .eqi. 50, "test1090-0550 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2, 7) .eqi. 50, "test1090-0560 failed")
+
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 6_sz) .eqi. 60, "test1090-0610 failed")
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 6) .eqi. 60, "test1090-0620 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 7_sz) .eqi. 60, "test1090-0630 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 7) .eqi. 60, "test1090-0640 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2_sz, 8_sz) .eqi. 60, "test1090-0650 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2, 8) .eqi. 60, "test1090-0660 failed")
+
+    vec = vectar (60)
+
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 0_sz) .eqi. 60, "test1090-1610 failed")
+    call check (vectar_selectx0 (less_than, vectar_copy (vec), 0) .eqi. 60, "test1090-1620 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 1_sz) .eqi. 60, "test1090-1630 failed")
+    call check (vectar_selectx1 (less_than, vectar_copy (vec), 1) .eqi. 60, "test1090-1640 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2_sz, 2_sz) .eqi. 60, "test1090-1650 failed")
+    call check (vectar_selectxn (less_than, vectar_copy (vec), 2, 2) .eqi. 60, "test1090-1660 failed")
+
+  contains
+
+    function less_than (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      block
+        ! Running the garbage collector is slow, and there are a lot
+        ! of comparisons in the sorting tests. Collect garbage only
+        ! occasionally.
+        integer(sz), save :: count = 0_sz
+        if (count < 100_sz .or. mod (count, 100_sz) == 0_sz) then
+           call collect_garbage_now
+        end if
+        count = count + 1_sz
+      end block
+
+      bool = (int_cast (x) < int_cast (y))
+    end function less_than
+
+  end subroutine test1090
+
   subroutine test2010
 
     call check (vectar_is_sorted (less_than, vectar ()), "test2010-0010 failed")
@@ -1432,6 +1516,9 @@ contains
   subroutine run_tests
     heap_size_limit = 0
 
+    call unit_test__bottenbruch_searches
+    call unit_test__hoare_partitioning
+
     ! List merging, sorting, etc.
     call test0010
     call test0020
@@ -1439,7 +1526,7 @@ contains
     call test0040
     call test0050
 
-    ! Vectar merging, sorting, etc.
+    ! Vectar merging, sorting, selection, etc.
     call test1010
     call test1020
     call test1030
@@ -1448,6 +1535,7 @@ contains
     call test1060
     call test1070
     call test1080
+    call test1090
 
     ! Vectar shuffling.
     call test2010

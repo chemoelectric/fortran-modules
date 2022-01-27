@@ -97,10 +97,25 @@ module sorting_and_selection
   public :: vectar_delete_neighbor_dupsx ! Reuse part of the input
                                          ! vectar.
 
+  ! Generic functions for selecting the kth smallest element of a
+  ! vectar.
+  public :: vectar_selectx0     ! k starts at 0.
+  public :: vectar_selectx1     ! k starts at 1.
+  public :: vectar_selectxn     ! k starts at n.
+
+  ! Implementations of the vectar selection procedures above.
+  public :: vectar_selectx0_size_kind
+  public :: vectar_selectx1_size_kind
+  public :: vectar_selectxn_size_kind
+  public :: vectar_selectx0_int
+  public :: vectar_selectx1_int
+  public :: vectar_selectxn_int
+
 !!!-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 
   ! Some unit tests. Not for use in a program other than for testing.
   public :: unit_test__bottenbruch_searches
+  public :: unit_test__hoare_partitioning
 
 !!!-------------------------------------------------------------------
 !!
@@ -141,6 +156,26 @@ module sorting_and_selection
   ! A private synonym for `size_kind'.
   integer, parameter :: sz = size_kind
 
+  ! Private conversion to `size_kind'.
+  interface operator(.sz.)
+     module procedure int2sz
+  end interface operator(.sz.)
+
+  interface vectar_selectx0
+     module procedure vectar_selectx0_size_kind
+     module procedure vectar_selectx0_int
+  end interface vectar_selectx0
+
+  interface vectar_selectx1
+     module procedure vectar_selectx1_size_kind
+     module procedure vectar_selectx1_int
+  end interface vectar_selectx1
+
+  interface vectar_selectxn
+     module procedure vectar_selectxn_size_kind
+     module procedure vectar_selectxn_int
+  end interface vectar_selectxn
+
   interface error_abort
      module procedure error_abort_1
   end interface error_abort
@@ -160,6 +195,13 @@ contains
     error stop
   end subroutine error_abort_1
   ! LCOV_EXCL_STOP
+
+  elemental function int2sz (i) result (j)
+    integer, intent(in) :: i
+    integer(sz) :: j
+
+    j = i
+  end function int2sz
 
   function int_less_than (x, y) result (bool)
     class(*), intent(in) :: x, y
@@ -1039,6 +1081,542 @@ contains
   end subroutine vectar_shufflex
 
 !!!-------------------------------------------------------------------
+
+  recursive function vectar_delete_neighbor_dups (pred, vec) result (vec_dnd)
+    use, intrinsic :: iso_fortran_env, only: int8
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: vec
+    type(vectar_t) :: vec_dnd
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: vecr
+    class(vectar_data_t), pointer :: data
+    class(vectar_data_t), pointer :: data_dnd
+    integer(int8), allocatable :: dup_marks(:)
+    integer(sz) :: istart0, iend0
+    integer(sz) :: i, j
+    integer(sz) :: num_dups
+    integer(sz) :: num_elements_minus_dups
+
+    ! Protect against garbage collections instigated by pred.
+    vec_root = vec
+
+    vecr = vec
+    data => vectar_data_ptr (vecr)
+    istart0 = vecr%istart0()
+    iend0 = vecr%iend0()
+    allocate (dup_marks(istart0:iend0), source = 0_int8)
+
+    ! Set marks where there are neighbor duplicates, and count the
+    ! duplicates.
+    num_dups = 0
+    do i = istart0 + 1, iend0
+       if (pred (data%array(i - 1)%element, data%array(i)%element)) then
+          dup_marks(i) = 1_int8
+          num_dups = num_dups + 1
+       end if
+    end do
+
+    ! There are no more calls to pred. Discard the root.
+    call vec_root%discard
+
+    ! Make a new vectar, leaving out the marked entries.
+    num_elements_minus_dups = vecr%length() - num_dups
+    vec_dnd = make_vectar (num_elements_minus_dups)
+    data_dnd => vectar_data_ptr (vec_dnd)
+    j = 0_sz
+    do i = istart0, iend0
+       if (dup_marks(i) == 0_int8) then
+          data_dnd%array(j) = data%array(i)
+          j = j + 1
+       end if
+    end do
+  end function vectar_delete_neighbor_dups
+
+  recursive subroutine vectar_delete_neighbor_dupsx (pred, vec, num_elements_minus_dups)
+    !
+    ! The outputs are different from those of
+    ! vector-delete-neighbor-dups! in SRFI-132.
+    !
+    use, intrinsic :: iso_fortran_env, only: int8
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: vec
+    integer(sz), intent(out) :: num_elements_minus_dups
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: vecr
+    class(vectar_data_t), pointer :: data
+    integer(sz) :: istart0, iend0
+    integer(sz) :: i, j
+    integer(sz) :: num_dups
+
+    ! Protect against garbage collections instigated by pred.
+    vec_root = vec
+
+    vecr = vec
+    data => vectar_data_ptr (vecr)
+    istart0 = vecr%istart0()
+    iend0 = vecr%iend0()
+
+    ! Set marks where there are neighbor duplicates, and count the
+    ! duplicates.
+    num_dups = 0
+    j = istart0
+    do i = istart0 + 1, iend0
+       if (pred (data%array(i - 1)%element, data%array(i)%element)) then
+          data%array(j) = data%array(i)
+          j = j + 1
+          num_dups = num_dups + 1
+       end if
+    end do
+
+    num_elements_minus_dups = vecr%length() - num_dups
+  end subroutine vectar_delete_neighbor_dupsx
+
+!!!-------------------------------------------------------------------
+
+  recursive function vectar_selectx0_size_kind (less_than, vec, k) result (kth_smallest)
+    use, intrinsic :: iso_fortran_env, only: real64
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: k
+    class(*), allocatable :: kth_smallest
+
+    !
+    ! The implementation is a quickselect with randomly selected
+    ! pivots. This algorithm has O(n) worst case expected running
+    ! time.
+    !
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: vecr
+    class(vectar_data_t), pointer :: data
+    integer(sz) :: vecr_length
+    integer(sz) :: i, j
+    integer(sz) :: ipivot
+    real(real64) :: randnum
+
+    vecr = vec
+    vecr_length = vecr%length()
+    if (k < 0 .or. vecr_length <= k) then
+       ! LCOV_EXCL_START
+       if (vecr_length == 0) then
+          call error_abort ("attempted selection from an empty vectar or empty vectar range")
+       else
+          call error_abort ("selection index out of range")
+       end if
+       ! LCOV_EXCL_STOP
+    else
+       vec_root = vec
+
+       data => vectar_data_ptr (vecr)
+       i = vecr%istart0()
+       j = vecr%iend0()
+       do while (i /= j)
+          ! Pick a pivot at random.
+          call random_number (randnum)
+          ipivot = i + int (randnum * (j - i + 1))
+
+          ! Partition around the pivot.
+          call hoare_partitioning (less_than, data, i, j, ipivot, ipivot)
+
+          if (ipivot < k) then
+             i = ipivot + 1
+          else if (ipivot == k) then
+             i = ipivot
+             j = ipivot
+          else
+             j = ipivot - 1
+          end if
+       end do
+       kth_smallest = data%array(i)%element
+
+       call vec_root%discard
+    end if
+  end function vectar_selectx0_size_kind
+
+  recursive function vectar_selectx1_size_kind (less_than, vec, k) result (kth_smallest)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: k
+    class(*), allocatable :: kth_smallest
+
+    kth_smallest = vectar_selectx0_size_kind (less_than, vec, k - 1_sz)
+  end function vectar_selectx1_size_kind
+
+  recursive function vectar_selectxn_size_kind (less_than, vec, n, k) result (kth_smallest)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: n
+    integer(sz), intent(in) :: k
+    class(*), allocatable :: kth_smallest
+
+    kth_smallest = vectar_selectx0_size_kind (less_than, vec, k - n)
+  end function vectar_selectxn_size_kind
+
+  recursive function vectar_selectx0_int (less_than, vec, k) result (kth_smallest)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    integer, intent(in) :: k
+    class(*), allocatable :: kth_smallest
+
+    kth_smallest = vectar_selectx0_size_kind (less_than, vec, .sz. k)
+  end function vectar_selectx0_int
+
+  recursive function vectar_selectx1_int (less_than, vec, k) result (kth_smallest)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    integer, intent(in) :: k
+    class(*), allocatable :: kth_smallest
+
+    kth_smallest = vectar_selectx1_size_kind (less_than, vec, .sz. k)
+  end function vectar_selectx1_int
+
+  recursive function vectar_selectxn_int (less_than, vec, n, k) result (kth_smallest)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    integer, intent(in) :: n
+    integer, intent(in) :: k
+    class(*), allocatable :: kth_smallest
+
+    kth_smallest = vectar_selectxn_size_kind (less_than, vec, .sz. n, .sz. k)
+  end function vectar_selectxn_int
+
+!!!-------------------------------------------------------------------
+!!!
+!!! `Bottenbruch searches': binary search procedures that do not do an
+!!! equality test.
+!!!
+
+  recursive function bottenbruch_search (less_than, data, ileft, iright, x) result (index)
+    !
+    ! Do a search on the data whose first element is at ileft and
+    ! whose last element is at iright. Return `index' such that:
+    !
+    !    * if x is less than the element at ileft, then index = ileft;
+    !
+    !    * otherwise, x is greater than or equal to the element at
+    !      index (and therefore to every element to the left of
+    !      index), and less than everything to the right of index.
+    !
+    ! References:
+    !
+    !    * H. Bottenbruch, `Structure and use of ALGOL 60', Journal of
+    !      the ACM, Volume 9, Issue 2, April 1962,
+    !      pp.161-221. https://doi.org/10.1145/321119.321120
+    !      The general algorithm is described on pages 214 and 215.
+    !
+    !    * https://en.wikipedia.org/w/index.php?title=Binary_search_algorithm&oldid=1062988272#Alternative_procedure
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: ileft
+    integer(sz), intent(in) :: iright
+    class(*), intent(in) :: x
+    integer(sz) :: index
+
+    integer(sz) :: i, j, k
+    integer(sz) :: k_minus_j
+
+    j = ileft
+    k = iright
+    do while (k /= j)
+       ! Set i := ceil ((j + k) / 2).
+       k_minus_j = k - j
+       i = j + ishft (k_minus_j, -1) + ibits (k_minus_j, 0, 1)
+       if (less_than (x, data%array(i)%element)) then
+          k = i - 1
+       else
+          j = i
+       end if
+    end do
+    index = j
+  end function bottenbruch_search
+
+  recursive function bottenbruch_search2 (less_than, data, ileft, iright, x) result (index)
+    !
+    ! Do a search on the data whose first element is at ileft and
+    ! whose last element is at iright. Return `index' such that:
+    !
+    !    * if x is greater than the element at iright, then index =
+    !      iright;
+    !
+    !    * otherwise, x is greater than every element to the left of
+    !      index, and less than or equal to the elements at index and
+    !      to the right of index.
+    !
+    ! References:
+    !
+    !    * H. Bottenbruch, `Structure and use of ALGOL 60', Journal of
+    !      the ACM, Volume 9, Issue 2, April 1962,
+    !      pp.161-221. https://doi.org/10.1145/321119.321120
+    !      The general algorithm is described on pages 214 and 215.
+    !
+    !    * https://en.wikipedia.org/w/index.php?title=Binary_search_algorithm&oldid=1062988272#Alternative_procedure
+    !
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: ileft
+    integer(sz), intent(in) :: iright
+    class(*), intent(in) :: x
+    integer(sz) :: index
+
+    integer(sz) :: i, j, k
+    integer(sz) :: k_minus_j
+
+    j = ileft
+    k = iright
+    do while (k /= j)
+       ! Set i := floor ((j + k) / 2).
+       k_minus_j = k - j
+       i = j + ishft (k_minus_j, -1)
+       if (less_than (data%array(i)%element, x)) then
+          ! x is greater than the element at i.
+          j = i + 1
+       else
+          k = i
+       end if
+    end do
+    index = j
+  end function bottenbruch_search2
+
+  subroutine unit_test__bottenbruch_search
+    use, intrinsic :: iso_fortran_env, only: real64
+    integer, parameter :: number_of_vectars = 100
+    integer(sz), parameter :: veclen = 1024_sz
+    integer, parameter :: modulus = 64
+
+    type(gcroot_t) :: vec
+    integer :: vectar_number
+    integer(sz) :: i
+    real(real64) :: randnum
+    integer :: x
+    class(vectar_data_t), pointer :: data
+
+    vec = make_vectar (veclen)
+    do vectar_number = 1, number_of_vectars
+       do i = 0_sz, veclen - 1
+          call random_number (randnum)
+          call vectar_set0 (vec, i, int (randnum * (modulus)))
+       end do
+       vec = list_to_vectar (list_sortx (int_less_than, vectar_to_list (vec)))
+       data => vectar_data_ptr (vec)
+       do x = -1, modulus
+          i = bottenbruch_search (int_less_than, data, 0_sz, veclen - 1, x)
+          if (i /= 0) then
+             if (int_less_than (x, vectar_ref0 (vec, i))) then
+                ! Unless i is 0, x must be greater than or equal
+                ! to the element at i (and therefore also to every
+                ! element to the left of i).
+                call error_abort ("unit_test__bottenbruch_search__test1 0010 failed") ! LCOV_EXCL_LINE
+             end if
+          end if
+          if (i /= veclen - 1) then
+             if (.not. int_less_than (x, vectar_ref0 (vec, i + 1))) then
+                ! x must be less than the element at i+1 (and
+                ! therefore also to everything else to the right of
+                ! i).
+                call error_abort ("unit_test__bottenbruch_search__test1 0020 failed") ! LCOV_EXCL_LINE
+             end if
+          end if
+       end do
+    end do
+  end subroutine unit_test__bottenbruch_search
+
+  subroutine unit_test__bottenbruch_search2
+    use, intrinsic :: iso_fortran_env, only: real64
+    integer, parameter :: number_of_vectars = 100
+    integer(sz), parameter :: veclen = 1024_sz
+    integer, parameter :: modulus = 64
+
+    type(gcroot_t) :: vec
+    integer :: vectar_number
+    integer(sz) :: i
+    real(real64) :: randnum
+    integer :: x
+    class(vectar_data_t), pointer :: data
+
+    vec = make_vectar (veclen)
+    do vectar_number = 1, number_of_vectars
+       do i = 0_sz, veclen - 1
+          call random_number (randnum)
+          call vectar_set0 (vec, i, int (randnum * (modulus)))
+       end do
+       vec = list_to_vectar (list_sortx (int_less_than, vectar_to_list (vec)))
+       data => vectar_data_ptr (vec)
+       do x = -1, modulus
+          i = bottenbruch_search2 (int_less_than, data, 0_sz, veclen - 1, x)
+          if (i /= veclen - 1) then
+             if (int_less_than (vectar_ref0 (vec, i), x)) then
+                ! Unless i is veclen - 1, x must be less than or equal
+                ! to the element at i (and therefore also to every
+                ! element to the right of i).
+                call error_abort ("unit_test__bottenbruch_search__test1 0010 failed") ! LCOV_EXCL_LINE
+             end if
+          end if
+          if (i /= 0) then
+             if (.not. int_less_than (vectar_ref0 (vec, i - 1), x)) then
+                ! x must be greater than the element at i-1 (and
+                ! therefore greater than everything to the left of i).
+                call error_abort ("unit_test__bottenbruch_search__test1 0020 failed") ! LCOV_EXCL_LINE
+             end if
+          end if
+       end do
+    end do
+  end subroutine unit_test__bottenbruch_search2
+
+  subroutine unit_test__bottenbruch_searches
+    call unit_test__bottenbruch_search
+    call unit_test__bottenbruch_search2
+  end subroutine unit_test__bottenbruch_searches
+
+!!!-------------------------------------------------------------------
+!!!
+!!! Hoare-style partitioning for use in quicksort and quickselect
+!!! implementations.
+!!!
+  
+  recursive subroutine hoare_partitioning (less_than, data, istart, iend, ipivot, ipivot_final)
+    procedure(vectar_predicate2_t) :: less_than
+    class(vectar_data_t), pointer, intent(in) :: data
+    integer(sz), intent(in) :: istart
+    integer(sz), intent(in) :: iend
+    integer(sz), intent(in) :: ipivot
+    integer(sz), intent(inout) :: ipivot_final
+
+    integer(sz) :: i, j
+    class(*), allocatable :: pivot
+    class(*), allocatable :: tmp
+
+    if (iend == istart) then
+       ipivot_final = istart
+    else
+       pivot = data%array(ipivot)%element
+
+       ! Move the pivot to the last element.
+       if (ipivot /= iend) then
+          data%array(ipivot)%element = data%array(iend)%element
+          data%array(iend)%element = pivot
+       end if
+
+       i = istart - 1
+       j = iend      ! Leave the last element out of the partitioning.
+       do while (i < j)
+          i = i + 1
+          do while (less_than (data%array(i)%element, pivot))
+             i = i + 1
+          end do
+          j = j - 1
+          do while (i < j .and. less_than (pivot, data%array(j)%element))
+             j = j - 1
+          end do
+          if (i < j) then
+             tmp = data%array(i)%element
+             data%array(i)%element = data%array(j)%element
+             data%array(j)%element = tmp
+          end if
+       end do
+
+       ! Put the pivot to an element in the `middle'.
+       if (i /= iend) then
+          data%array(iend)%element = data%array(i)%element
+          data%array(i)%element = pivot
+       end if
+
+       ipivot_final = i
+    end if
+  end subroutine hoare_partitioning
+
+  subroutine unit_test__hoare_partitioning
+
+    call check_vectar_and_pivot_index (vectar (5), 0_sz)
+
+    call check_vectar_and_pivot_index (vectar (5, 6), 0_sz)
+    call check_vectar_and_pivot_index (vectar (5, 6), 1_sz)
+
+    call check_vectar_and_pivot_index (vectar (6, 5), 0_sz)
+    call check_vectar_and_pivot_index (vectar (6, 5), 1_sz)
+
+    call check_vectar_and_pivot_index (vectar (5, 5), 0_sz)
+    call check_vectar_and_pivot_index (vectar (5, 5), 1_sz)
+
+    call check_vectar_and_pivot_index (vectar (5, 3, 1, 6, 2, 4), 0_sz)
+    call check_vectar_and_pivot_index (vectar (5, 3, 1, 6, 2, 4), 1_sz)
+    call check_vectar_and_pivot_index (vectar (5, 3, 1, 6, 2, 4), 2_sz)
+    call check_vectar_and_pivot_index (vectar (5, 3, 1, 6, 2, 4), 3_sz)
+    call check_vectar_and_pivot_index (vectar (5, 3, 1, 6, 2, 4), 4_sz)
+    call check_vectar_and_pivot_index (vectar (5, 3, 1, 6, 2, 4), 5_sz)
+
+    call check_vectar_and_pivot_index (vectar (5, 3, 1, 6, 2, 5), 0_sz)
+    call check_vectar_and_pivot_index (vectar (5, 3, 1, 6, 2, 5), 1_sz)
+    call check_vectar_and_pivot_index (vectar (5, 3, 1, 6, 2, 5), 2_sz)
+    call check_vectar_and_pivot_index (vectar (5, 3, 1, 6, 2, 5), 3_sz)
+    call check_vectar_and_pivot_index (vectar (5, 3, 1, 6, 2, 5), 4_sz)
+    call check_vectar_and_pivot_index (vectar (5, 3, 1, 6, 2, 5), 5_sz)
+
+    call check_vectar_and_pivot_index (vectar (5, 5, 5, 5, 5, 5), 0_sz)
+    call check_vectar_and_pivot_index (vectar (5, 5, 5, 5, 5, 5), 1_sz)
+    call check_vectar_and_pivot_index (vectar (5, 5, 5, 5, 5, 5), 2_sz)
+    call check_vectar_and_pivot_index (vectar (5, 5, 5, 5, 5, 5), 3_sz)
+    call check_vectar_and_pivot_index (vectar (5, 5, 5, 5, 5, 5), 4_sz)
+    call check_vectar_and_pivot_index (vectar (5, 5, 5, 5, 5, 5), 5_sz)
+
+  contains
+
+    subroutine check_vectar_and_pivot_index (vec, ipivot)
+      class(*), intent(in) :: vec
+      integer(sz), intent(in) :: ipivot
+
+      type(gcroot_t) :: vec_root
+      type(vectar_range_t) :: vecr
+      class(vectar_data_t), pointer :: data
+      integer(sz) :: imiddle
+      integer :: pivot
+
+      vec_root = vec
+
+      vecr = vec
+      data => vectar_data_ptr (vecr)
+      select type (x => data%array(ipivot)%element)
+      type is (integer)
+         pivot = x
+      end select
+      call hoare_partitioning (int_less_than, data, vecr%istart0(), vecr%iend0(), ipivot, imiddle)
+      call check_partition (data, vecr%istart0(), imiddle, vecr%iend0(), pivot)
+
+      call vec_root%discard
+    end subroutine check_vectar_and_pivot_index
+
+    subroutine check_partition (data, istart, imiddle, iend, pivot)
+      class(vectar_data_t), pointer, intent(in) :: data
+      integer(sz), intent(in) :: istart
+      integer(sz), intent(in) :: imiddle
+      integer(sz), intent(in) :: iend
+      integer, intent(in) :: pivot
+
+      integer(sz) :: i
+
+      select type (x => data%array(imiddle)%element)
+      type is (integer)
+         if (x /= pivot) then
+            call error_abort ("unit_test__hoare_partitioning 0010 failed")
+         end if
+      end select
+      do i = istart, imiddle - 1
+         if (int_less_than (data%array(imiddle)%element, data%array(i)%element)) then
+            call error_abort ("unit_test__hoare_partitioning 0020 failed")
+         end if
+      end do
+      do i = imiddle + 1, iend
+         if (int_less_than (data%array(i)%element, data%array(imiddle)%element)) then
+            call error_abort ("unit_test__hoare_partitioning 0030 failed")
+         end if
+      end do
+    end subroutine check_partition
+
+  end subroutine unit_test__hoare_partitioning
+
+!!!-------------------------------------------------------------------
 !!!
 !!! Stable sorting of an array of vectar_element_t.
 !!!
@@ -1421,285 +1999,6 @@ contains
        end if
     end do
   end subroutine merge_going_rightwards
-
-!!!-------------------------------------------------------------------
-!!!
-!!! `Bottenbruch searches': binary search procedures that do not do an
-!!! equality test.
-!!!
-
-  recursive function bottenbruch_search (less_than, data, ileft, iright, x) result (index)
-    !
-    ! Do a search on the data whose first element is at ileft and
-    ! whose last element is at iright. Return `index' such that:
-    !
-    !    * if x is less than the element at ileft, then index = ileft;
-    !
-    !    * otherwise, x is greater than or equal to the element at
-    !      index (and therefore to every element to the left of
-    !      index), and less than everything to the right of index.
-    !
-    ! References:
-    !
-    !    * H. Bottenbruch, `Structure and use of ALGOL 60', Journal of
-    !      the ACM, Volume 9, Issue 2, April 1962,
-    !      pp.161-221. https://doi.org/10.1145/321119.321120
-    !      The general algorithm is described on pages 214 and 215.
-    !
-    !    * https://en.wikipedia.org/w/index.php?title=Binary_search_algorithm&oldid=1062988272#Alternative_procedure
-    !
-    procedure(vectar_predicate2_t) :: less_than
-    class(vectar_data_t), pointer, intent(in) :: data
-    integer(sz), intent(in) :: ileft
-    integer(sz), intent(in) :: iright
-    class(*), intent(in) :: x
-    integer(sz) :: index
-
-    integer(sz) :: i, j, k
-    integer(sz) :: k_minus_j
-
-    j = ileft
-    k = iright
-    do while (k /= j)
-       ! Set i := ceil ((j + k) / 2).
-       k_minus_j = k - j
-       i = j + ishft (k_minus_j, -1) + ibits (k_minus_j, 0, 1)
-       if (less_than (x, data%array(i)%element)) then
-          k = i - 1
-       else
-          j = i
-       end if
-    end do
-    index = j
-  end function bottenbruch_search
-
-  recursive function bottenbruch_search2 (less_than, data, ileft, iright, x) result (index)
-    !
-    ! Do a search on the data whose first element is at ileft and
-    ! whose last element is at iright. Return `index' such that:
-    !
-    !    * if x is greater than the element at iright, then index =
-    !      iright;
-    !
-    !    * otherwise, x is greater than every element to the left of
-    !      index, and less than or equal to the elements at index and
-    !      to the right of index.
-    !
-    ! References:
-    !
-    !    * H. Bottenbruch, `Structure and use of ALGOL 60', Journal of
-    !      the ACM, Volume 9, Issue 2, April 1962,
-    !      pp.161-221. https://doi.org/10.1145/321119.321120
-    !      The general algorithm is described on pages 214 and 215.
-    !
-    !    * https://en.wikipedia.org/w/index.php?title=Binary_search_algorithm&oldid=1062988272#Alternative_procedure
-    !
-    procedure(vectar_predicate2_t) :: less_than
-    class(vectar_data_t), pointer, intent(in) :: data
-    integer(sz), intent(in) :: ileft
-    integer(sz), intent(in) :: iright
-    class(*), intent(in) :: x
-    integer(sz) :: index
-
-    integer(sz) :: i, j, k
-    integer(sz) :: k_minus_j
-
-    j = ileft
-    k = iright
-    do while (k /= j)
-       ! Set i := floor ((j + k) / 2).
-       k_minus_j = k - j
-       i = j + ishft (k_minus_j, -1)
-       if (less_than (data%array(i)%element, x)) then
-          ! x is greater than the element at i.
-          j = i + 1
-       else
-          k = i
-       end if
-    end do
-    index = j
-  end function bottenbruch_search2
-
-  subroutine unit_test__bottenbruch_search
-    integer, parameter :: number_of_vectars = 100
-    integer(sz), parameter :: veclen = 1024_sz
-    integer, parameter :: modulus = 64
-
-    type(gcroot_t) :: vec
-    integer :: vectar_number
-    integer(sz) :: i
-    real :: randnum
-    integer :: x
-    class(vectar_data_t), pointer :: data
-
-    vec = make_vectar (veclen)
-    do vectar_number = 1, number_of_vectars
-       do i = 0_sz, veclen - 1
-          call random_number (randnum)
-          call vectar_set0 (vec, i, int (randnum * (modulus)))
-       end do
-       vec = list_to_vectar (list_sortx (int_less_than, vectar_to_list (vec)))
-       data => vectar_data_ptr (vec)
-       do x = -1, modulus
-          i = bottenbruch_search (int_less_than, data, 0_sz, veclen - 1, x)
-          if (i /= 0) then
-             if (int_less_than (x, vectar_ref0 (vec, i))) then
-                ! Unless i is 0, x must be greater than or equal
-                ! to the element at i (and therefore also to every
-                ! element to the left of i).
-                call error_abort ("unit_test__bottenbruch_search__test1 0010 failed") ! LCOV_EXCL_LINE
-             end if
-          end if
-          if (i /= veclen - 1) then
-             if (.not. int_less_than (x, vectar_ref0 (vec, i + 1))) then
-                ! x must be less than the element at i+1 (and
-                ! therefore also to everything else to the right of
-                ! i).
-                call error_abort ("unit_test__bottenbruch_search__test1 0020 failed") ! LCOV_EXCL_LINE
-             end if
-          end if
-       end do
-    end do
-  end subroutine unit_test__bottenbruch_search
-
-  subroutine unit_test__bottenbruch_search2
-    integer, parameter :: number_of_vectars = 100
-    integer(sz), parameter :: veclen = 1024_sz
-    integer, parameter :: modulus = 64
-
-    type(gcroot_t) :: vec
-    integer :: vectar_number
-    integer(sz) :: i
-    real :: randnum
-    integer :: x
-    class(vectar_data_t), pointer :: data
-
-    vec = make_vectar (veclen)
-    do vectar_number = 1, number_of_vectars
-       do i = 0_sz, veclen - 1
-          call random_number (randnum)
-          call vectar_set0 (vec, i, int (randnum * (modulus)))
-       end do
-       vec = list_to_vectar (list_sortx (int_less_than, vectar_to_list (vec)))
-       data => vectar_data_ptr (vec)
-       do x = -1, modulus
-          i = bottenbruch_search2 (int_less_than, data, 0_sz, veclen - 1, x)
-          if (i /= veclen - 1) then
-             if (int_less_than (vectar_ref0 (vec, i), x)) then
-                ! Unless i is veclen - 1, x must be less than or equal
-                ! to the element at i (and therefore also to every
-                ! element to the right of i).
-                call error_abort ("unit_test__bottenbruch_search__test1 0010 failed") ! LCOV_EXCL_LINE
-             end if
-          end if
-          if (i /= 0) then
-             if (.not. int_less_than (vectar_ref0 (vec, i - 1), x)) then
-                ! x must be greater than the element at i-1 (and
-                ! therefore greater than everything to the left of i).
-                call error_abort ("unit_test__bottenbruch_search__test1 0020 failed") ! LCOV_EXCL_LINE
-             end if
-          end if
-       end do
-    end do
-  end subroutine unit_test__bottenbruch_search2
-
-  subroutine unit_test__bottenbruch_searches
-    call unit_test__bottenbruch_search
-    call unit_test__bottenbruch_search2
-  end subroutine unit_test__bottenbruch_searches
-
-!!!-------------------------------------------------------------------
-
-  recursive function vectar_delete_neighbor_dups (pred, vec) result (vec_dnd)
-    use, intrinsic :: iso_fortran_env, only: int8
-    procedure(list_predicate2_t) :: pred
-    class(*), intent(in) :: vec
-    type(vectar_t) :: vec_dnd
-
-    type(gcroot_t) :: vec_root
-    type(vectar_range_t) :: vecr
-    class(vectar_data_t), pointer :: data
-    class(vectar_data_t), pointer :: data_dnd
-    integer(int8), allocatable :: dup_marks(:)
-    integer(sz) :: istart0, iend0
-    integer(sz) :: i, j
-    integer(sz) :: num_dups
-    integer(sz) :: num_elements_minus_dups
-
-    ! Protect against garbage collections instigated by pred.
-    vec_root = vec
-
-    vecr = vec
-    data => vectar_data_ptr (vecr)
-    istart0 = vecr%istart0()
-    iend0 = vecr%iend0()
-    allocate (dup_marks(istart0:iend0), source = 0_int8)
-
-    ! Set marks where there are neighbor duplicates, and count the
-    ! duplicates.
-    num_dups = 0
-    do i = istart0 + 1, iend0
-       if (pred (data%array(i - 1)%element, data%array(i)%element)) then
-          dup_marks(i) = 1_int8
-          num_dups = num_dups + 1
-       end if
-    end do
-
-    ! There are no more calls to pred. Discard the root.
-    call vec_root%discard
-
-    ! Make a new vectar, leaving out the marked entries.
-    num_elements_minus_dups = vecr%length() - num_dups
-    vec_dnd = make_vectar (num_elements_minus_dups)
-    data_dnd => vectar_data_ptr (vec_dnd)
-    j = 0_sz
-    do i = istart0, iend0
-       if (dup_marks(i) == 0_int8) then
-          data_dnd%array(j) = data%array(i)
-          j = j + 1
-       end if
-    end do
-  end function vectar_delete_neighbor_dups
-
-  recursive subroutine vectar_delete_neighbor_dupsx (pred, vec, num_elements_minus_dups)
-    !
-    ! The outputs are different from those of
-    ! vector-delete-neighbor-dups! in SRFI-132.
-    !
-    use, intrinsic :: iso_fortran_env, only: int8
-    procedure(list_predicate2_t) :: pred
-    class(*), intent(in) :: vec
-    integer(sz), intent(out) :: num_elements_minus_dups
-
-    type(gcroot_t) :: vec_root
-    type(vectar_range_t) :: vecr
-    class(vectar_data_t), pointer :: data
-    integer(sz) :: istart0, iend0
-    integer(sz) :: i, j
-    integer(sz) :: num_dups
-
-    ! Protect against garbage collections instigated by pred.
-    vec_root = vec
-
-    vecr = vec
-    data => vectar_data_ptr (vecr)
-    istart0 = vecr%istart0()
-    iend0 = vecr%iend0()
-
-    ! Set marks where there are neighbor duplicates, and count the
-    ! duplicates.
-    num_dups = 0
-    j = istart0
-    do i = istart0 + 1, iend0
-       if (pred (data%array(i - 1)%element, data%array(i)%element)) then
-          data%array(j) = data%array(i)
-          j = j + 1
-          num_dups = num_dups + 1
-       end if
-    end do
-
-    num_elements_minus_dups = vecr%length() - num_dups
-  end subroutine vectar_delete_neighbor_dupsx
 
 !!!-------------------------------------------------------------------
 
