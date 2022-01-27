@@ -1307,10 +1307,7 @@ contains
   subroutine test1070
 
     !
-    ! FIXME: Test vectar ranges. (We could test predicates such as
-    ! less_than, but CHICKEN's SRFI-132 module does not give the same
-    ! results as do examples shown in the SRFI text, and it seems
-    ! inadvisable anyway to try playing such tricks.)
+    ! FIXME: Test vectar ranges.
     !
 
     call check (vectar_equal (int_eq, vectar_delete_neighbor_dups (is_eq, vectar ()), vectar ()), "test1070-0010 failed")

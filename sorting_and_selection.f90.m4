@@ -43,6 +43,12 @@ module sorting_and_selection
   ! See also SRFI-95 (https://srfi.schemers.org/srfi-95/srfi-95.html).
   !
 
+  !
+  ! Implementation note: Our implementations of `delete neighbor
+  !                      duplicates' procedures may assume the
+  !                      equality predicate is transitive.
+  !
+
   use, non_intrinsic :: garbage_collector
   use, non_intrinsic :: cons_pairs
   use, non_intrinsic :: vectars
@@ -1639,7 +1645,7 @@ contains
        end if
     end do
 
-    ! There are no more calls to pred. The root can be discarded.
+    ! There are no more calls to pred. Discard the root.
     call vec_root%discard
 
     ! Make a new vectar, leaving out the marked entries.
@@ -1668,7 +1674,6 @@ contains
     type(gcroot_t) :: vec_root
     type(vectar_range_t) :: vecr
     class(vectar_data_t), pointer :: data
-    integer(int8), allocatable :: dup_marks(:)
     integer(sz) :: istart0, iend0
     integer(sz) :: i, j
     integer(sz) :: num_dups
@@ -1680,33 +1685,20 @@ contains
     data => vectar_data_ptr (vecr)
     istart0 = vecr%istart0()
     iend0 = vecr%iend0()
-    allocate (dup_marks(istart0:iend0), source = 0_int8)
 
     ! Set marks where there are neighbor duplicates, and count the
     ! duplicates.
     num_dups = 0
+    j = istart0
     do i = istart0 + 1, iend0
        if (pred (data%array(i - 1)%element, data%array(i)%element)) then
-          dup_marks(i) = 1_int8
+          data%array(j) = data%array(i)
+          j = j + 1
           num_dups = num_dups + 1
        end if
     end do
 
-    ! There are no more calls to pred. The root can be discarded.
-    call vec_root%discard
-
-    ! Pack the unduplicated elements into the left end of the vectar
-    ! range.
     num_elements_minus_dups = vecr%length() - num_dups
-    j = istart0 + 1
-    do i = istart0 + 1, iend0
-       if (dup_marks(i) == 0_int8) then
-          if (j /= i) then
-             data%array(j) = data%array(i)
-          end if
-          j = j + 1
-       end if
-    end do
   end subroutine vectar_delete_neighbor_dupsx
 
 !!!-------------------------------------------------------------------
