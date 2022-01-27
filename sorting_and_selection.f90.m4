@@ -111,6 +111,13 @@ module sorting_and_selection
   public :: vectar_selectx1_int
   public :: vectar_selectxn_int
 
+  ! Generic function for separating the k smallest elements.
+  public :: vectar_separatex
+
+  ! Implementations of vectar_separatex.
+  public :: vectar_separatex_size_kind
+  public :: vectar_separatex_int
+
 !!!-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 
   ! Some unit tests. Not for use in a program other than for testing.
@@ -175,6 +182,11 @@ module sorting_and_selection
      module procedure vectar_selectxn_size_kind
      module procedure vectar_selectxn_int
   end interface vectar_selectxn
+
+  interface vectar_separatex
+     module procedure vectar_separatex_size_kind
+     module procedure vectar_separatex_int
+  end interface vectar_separatex
 
   interface error_abort
      module procedure error_abort_1
@@ -1217,7 +1229,7 @@ contains
        do while (i /= j)
           ! Pick a pivot at random.
           call random_number (randnum)
-          ipivot = i + int (randnum * (j - i + 1))
+          ipivot = i + int (randnum * (j - i + 1), kind = sz)
 
           ! Partition around the pivot.
           call hoare_partitioning (less_than, data, i, j, ipivot, ipivot)
@@ -1283,6 +1295,76 @@ contains
 
     kth_smallest = vectar_selectxn_size_kind (less_than, vec, .sz. n, .sz. k)
   end function vectar_selectxn_int
+
+!!!-------------------------------------------------------------------
+
+  recursive subroutine vectar_separatex_size_kind (less_than, vec, k)
+    use, intrinsic :: iso_fortran_env, only: real64
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    integer(sz), intent(in) :: k
+
+    !
+    ! The implementation is a quickselect with randomly selected
+    ! pivots. This algorithm has O(n) worst case expected running
+    ! time.
+    !
+
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: vecr
+    class(vectar_data_t), pointer :: data
+    integer(sz) :: vecr_length
+    integer(sz) :: i, j
+    integer(sz) :: ipivot
+    integer(sz) :: k1
+    real(real64) :: randnum
+
+    vec_root = vec
+
+    vecr = vec
+    vecr_length = vecr%length()
+    if (k < 0 .or. vecr_length < k) then
+       ! LCOV_EXCL_START
+       if (vecr_length == 0) then
+          call error_abort ("attempted selection from an empty vectar or empty vectar range")
+       else
+          call error_abort ("number out of range")
+       end if
+       ! LCOV_EXCL_STOP
+    else if (0 < k .and. k < vecr_length) then
+       data => vectar_data_ptr (vecr)
+       i = vecr%istart0()
+       j = vecr%iend0()
+       k1 = k + i - 1
+       do while (i /= j)
+          ! Pick a pivot at random.
+          call random_number (randnum)
+          ipivot = i + int (randnum * (j - i + 1), kind = sz)
+
+          ! Partition around the pivot.
+          call hoare_partitioning (less_than, data, i, j, ipivot, ipivot)
+
+          if (ipivot < k1) then
+             i = ipivot + 1
+          else if (ipivot == k1) then
+             i = ipivot
+             j = ipivot
+          else
+             j = ipivot - 1
+          end if
+       end do
+    end if
+
+    call vec_root%discard
+  end subroutine vectar_separatex_size_kind
+
+  recursive subroutine vectar_separatex_int (less_than, vec, k)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    integer, intent(in) :: k
+
+    call vectar_separatex_size_kind (less_than, vec, .sz. k)
+  end subroutine vectar_separatex_int
 
 !!!-------------------------------------------------------------------
 !!!
@@ -1646,7 +1728,7 @@ contains
     integer(sz) :: len
     integer(sz) :: j
 
-    if (i /= k) then
+    if (i < k) then
        len = k - i + 1
        if (len <= small_length) then
           call small_stable_sort (less_than, data, i, k)

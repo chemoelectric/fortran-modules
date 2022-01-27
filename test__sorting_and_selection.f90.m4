@@ -1482,6 +1482,48 @@ contains
 
   end subroutine test1090
 
+  subroutine test1100
+    type(gcroot_t) :: vec_root
+    type(gcroot_t) :: vec_sorted
+    type(vectar_t) :: vec
+    integer :: len
+    integer :: repetition
+    integer :: i
+    real :: randnum
+
+    do repetition = 1, 10
+       do len = 1, 10
+          vec_root = make_vectar (len)
+          do i = 1, len
+             call random_number (randnum)
+             call vectar_set1 (vec_root, i, 1 + int (randnum * len))
+          end do
+          vec_sorted = vectar_sort (less_than, vec_root)
+          do i = 0, len
+             vec = vectar_copy (vec_root)
+             call vectar_separatex (less_than, vec, i)
+             vec_root = vec
+             call vectar_sortx (less_than, range1 (vec_root, 1, i)) ! Sort the smaller elements.
+             call vectar_sortx (less_than, range1 (vec_root, i + 1, len)) ! Sort the larger elements.
+             call check (vectar_equal (int_eq, vec_root, vec_sorted), "test1100-0010 failed")
+          end do
+       end do
+    end do
+
+  contains
+
+    function less_than (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (int_cast (x) < int_cast (y))
+    end function less_than
+
+  end subroutine test1100
+
   subroutine test2010
 
     call check (vectar_is_sorted (less_than, vectar ()), "test2010-0010 failed")
@@ -1572,6 +1614,7 @@ contains
     call test1070
     call test1080
     call test1090
+    call test1100
 
     ! Vectar shuffling.
     call test2010
