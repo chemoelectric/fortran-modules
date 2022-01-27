@@ -1306,10 +1306,6 @@ contains
 
   subroutine test1070
 
-    !
-    ! FIXME: Test vectar ranges.
-    !
-
     call check (vectar_equal (int_eq, vectar_delete_neighbor_dups (is_eq, vectar ()), vectar ()), "test1070-0010 failed")
     call check (vectar_equal (int_eq, vectar_delete_neighbor_dups (is_eq, vectar (1)), vectar (1)), "test1070-0020 failed")
     call check (vectar_equal (int_eq, vectar_delete_neighbor_dups (is_eq, vectar (1, 1)), vectar (1)), "test1070-0030 failed")
@@ -1319,6 +1315,10 @@ contains
     call check (vectar_equal (int_eq, vectar_delete_neighbor_dups (is_eq, vectar (1, 1, 2, 2, 2, 3, 4, 4)), &
          &                                                         vectar (1, 2, 3, 4)), &
          &      "test1070-0050 failed")
+
+    call check (vectar_equal (int_eq, vectar_delete_neighbor_dups (is_eq, range1 (vectar (1, 1, 2, 2, 2, 3, 4, 4), 3, 6)), &
+         &                                                         vectar (2, 3)), &
+         &      "test1070-0060 failed")
 
   contains
 
