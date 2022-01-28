@@ -53,6 +53,10 @@ module test__sorting_and_selection
      module procedure int_eq
   end interface operator(.eqi.)
 
+  interface operator(.eqr.)
+     module procedure real_eq
+  end interface operator(.eqr.)
+
 contains
 
   subroutine error_abort (msg)
@@ -309,6 +313,23 @@ contains
     logical :: bool
     bool = int_cast (obj1) < int_cast (obj2)
   end function int_lt
+
+  function real_cast (obj) result (val)
+    class(*), intent(in) :: obj
+    real :: val
+    select type (obj)
+    type is (real)
+       val = obj
+    class default
+       call error_abort ("real_cast of an incompatible object")
+    end select
+  end function real_cast
+
+  function real_eq (obj1, obj2) result (bool)
+    class(*), intent(in) :: obj1, obj2
+    logical :: bool
+    bool = real_cast (obj1) == real_cast (obj2)
+  end function real_eq
 
   subroutine test0010
     !
@@ -1635,6 +1656,72 @@ contains
 
   end subroutine test1100
 
+  subroutine test1110
+    type(gcroot_t) :: vec1
+    type(gcroot_t) :: vec1_sorted
+    type(vectar_t) :: vec2
+    real :: median
+
+    vec1 = vectar (8.0, 6.0, 8.0, 1.0, 3.0, 2.0, 3.0, 5.0, 5.0)
+    vec1_sorted = vectar_sort (less_than, vec1)
+    vec2 = vectar_copy (vec1)
+    median = real_cast (vectar_find_medianx (less_than, vec2, 999.0, mean_subr))
+    call check (median .eqr. 5.0, "test1110-0010 failed")
+    call check (vectar_equal (real_eq, vec2, vec1_sorted), "test1110-0020 failed")
+
+    vec1 = vectar (8.0, 6.0, 8.0, 1.0, 3.0, 2.0, -30.0, 50.0, 4.0)
+    vec1_sorted = vectar_sort (less_than, vec1)
+    vec2 = vectar_copy (vec1)
+    median = real_cast (vectar_find_medianx (less_than, vec2, 999.0, mean_subr))
+    call check (median .eqr. 4.0, "test1110-0110 failed")
+    call check (vectar_equal (real_eq, vec2, vec1_sorted), "test1110-0120 failed")
+
+    vec1 = vectar (8.0, 6.0, 8.0, 1.0, 3.0, 2.0, 3.0, 5.0)
+    vec1_sorted = vectar_sort (less_than, vec1)
+    vec2 = vectar_copy (vec1)
+    median = real_cast (vectar_find_medianx (less_than, vec2, 999.0, mean_subr))
+    call check (median .eqr. 4.0, "test1110-0210 failed")
+    call check (vectar_equal (real_eq, vec2, vec1_sorted), "test1110-0220 failed")
+
+    vec1 = vectar ()
+    vec1_sorted = vectar_sort (less_than, vec1)
+    vec2 = vectar_copy (vec1)
+    median = real_cast (vectar_find_medianx (less_than, vec2, 999.0, mean_subr))
+    call check (median .eqr. 999.0, "test1110-0310 failed")
+    call check (vectar_equal (real_eq, vec2, vec1_sorted), "test1110-0320 failed")
+
+    vec1 = vectar (8.0, 6.0, 8.0, 1.0, 3.0, 2.0, 3.0, 5.0)
+    vec1_sorted = vectar_copy (vec1)
+    call vectar_sortx (less_than, range1 (vec1_sorted, 3, 5))
+    vec2 = vectar_copy (vec1)
+    median = real_cast (vectar_find_medianx (less_than, range1 (vec2, 3, 5), 999.0, mean_subr))
+    call check (median .eqr. 3.0, "test1110-0410 failed")
+    call check (vectar_equal (real_eq, vec2, vec1_sorted), "test1110-0420 failed")
+
+  contains
+
+    function less_than (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      call collect_garbage_now
+
+      bool = (real_cast (x) < real_cast (y))
+    end function less_than
+
+    subroutine mean_subr (x, y, mean)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      class(*), allocatable, intent(out) :: mean
+
+      call collect_garbage_now
+
+      mean = (real_cast (x) + real_cast (y)) / 2
+    end subroutine mean_subr
+
+  end subroutine test1110
+
   subroutine test2010
 
     call check (vectar_is_sorted (less_than, vectar ()), "test2010-0010 failed")
@@ -1726,6 +1813,7 @@ contains
     call test1080
     call test1090
     call test1100
+    call test1110
 
     ! Vectar shuffling.
     call test2010

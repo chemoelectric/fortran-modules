@@ -101,12 +101,26 @@ module sorting_and_selection
   public :: vectar_selectx1_int
   public :: vectar_selectxn_int
 
-  ! Generic function for separating the k smallest elements.
+  ! Generic function for separating the k smallest elements from the
+  ! others.
   public :: vectar_separatex
 
   ! Implementations of vectar_separatex.
   public :: vectar_separatex_size_kind
   public :: vectar_separatex_int
+
+  ! Generic function to find the median, without altering the vectar.
+  !public :: vectar_find_median
+
+  ! Implementations of vectar_find_median.
+  !public :: vectar_find_median_mean_subr
+
+  ! Generic function to find the median, and also leave the vectar or
+  ! vectar range sorted.
+  public :: vectar_find_medianx
+
+  ! Implementations of vectar_find_medianx.
+  public :: vectar_find_medianx_mean_subr
 
 !!!-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 
@@ -177,6 +191,14 @@ module sorting_and_selection
      module procedure vectar_separatex_size_kind
      module procedure vectar_separatex_int
   end interface vectar_separatex
+
+!!$  interface vectar_find_median
+!!$     module procedure vectar_find_median_mean_subr
+!!$  end interface vectar_find_median
+
+  interface vectar_find_medianx
+     module procedure vectar_find_medianx_mean_subr
+  end interface vectar_find_medianx
 
   interface error_abort
      module procedure error_abort_1
@@ -969,16 +991,18 @@ contains
     vec_root = vec
 
     vecr = vec
-    data => vectar_data_ptr (vecr)
+    if (vecr%length() /= 0) then
+       data => vectar_data_ptr (vecr)
 
-    i = vecr%istart0()
-    k = vecr%iend0()
+       i = vecr%istart0()
+       k = vecr%iend0()
 
-    workspace_root = make_vectar (((k - i) + 1) / 2)
-    workspace_range = workspace_root
-    workspace => vectar_data_ptr (workspace_range)
+       workspace_root = make_vectar (((k - i) + 1) / 2)
+       workspace_range = workspace_root
+       workspace => vectar_data_ptr (workspace_range)
 
-    call stable_mergesort (less_than, data, i, k, workspace)
+       call stable_mergesort (less_than, data, i, k, workspace)
+    end if
 
     call workspace_root%discard
     call vec_root%discard
@@ -1355,6 +1379,46 @@ contains
 
     call vectar_separatex_size_kind (less_than, vec, .sz. k)
   end subroutine vectar_separatex_int
+
+!!!-------------------------------------------------------------------
+
+  recursive function vectar_find_medianx_mean_subr (less_than, vec, knil, mean_subr) result (median)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: knil
+    procedure(vectar_map2_subr_t) :: mean_subr
+    class(*), allocatable :: median
+
+    type(gcroot_t) :: x, y
+    type(gcroot_t) :: knil_root
+    type(gcroot_t) :: vec_root
+    type(vectar_range_t) :: vecr
+    integer(sz) :: n, half_n
+    class(*), allocatable :: mean
+
+    vec_root = vec
+    knil_root = knil
+
+    vecr = vec
+    n = vecr%length()
+    if (n == 0) then
+       median = knil
+    else
+       call vectar_sortx (less_than, vecr)
+       half_n = n / 2
+       if (mod (n, 2_sz) == 1) then
+          median = vectar_ref0 (vecr, half_n)
+       else
+          x = vectar_ref0 (vecr, half_n - 1)
+          y = vectar_ref0 (vecr, half_n)
+          call mean_subr (.val. x, .val. y, mean)
+          median = mean
+       end if
+    end if
+
+    call vec_root%discard
+    call knil_root%discard
+  end function vectar_find_medianx_mean_subr
 
 !!!-------------------------------------------------------------------
 !!!
