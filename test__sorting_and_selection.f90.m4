@@ -53,14 +53,6 @@ module test__sorting_and_selection
      module procedure int_eq
   end interface operator(.eqi.)
 
-!!$  interface operator(.eqsz.)
-!!$     module procedure size_kind_eq
-!!$  end interface operator(.eqsz.)
-
-!!$  interface operator(.eqs.)
-!!$     module procedure str_t_eq
-!!$  end interface operator(.eqs.)
-
 contains
 
   subroutine error_abort (msg)
@@ -135,39 +127,6 @@ m4_include([lstsort.m4])dnl
     end select
   end function int_cast
 
-!!$  function size_kind_cast (obj) result (int)
-!!$    class(*), intent(in) :: obj
-!!$    integer(sz) :: int
-!!$    select type (obj)
-!!$    type is (integer(sz))
-!!$       int = obj
-!!$    class default
-!!$       call error_abort ("size_kind_cast of an incompatible object")
-!!$    end select
-!!$  end function size_kind_cast
-
-!!$  function str_t_cast (obj) result (s)
-!!$    class(*), intent(in) :: obj
-!!$    type(str_t) :: s
-!!$    select type (obj)
-!!$    class is (str_t)
-!!$       s = obj
-!!$    class default
-!!$       call error_abort ("str_t_cast of an incompatible object")
-!!$    end select
-!!$  end function str_t_cast
-
-!!$  function logical_cast (obj) result (bool)
-!!$    class(*), intent(in) :: obj
-!!$    logical :: bool
-!!$    select type (obj)
-!!$    type is (logical)
-!!$       bool = obj
-!!$    class default
-!!$       call error_abort ("logical_cast of an incompatible object")
-!!$    end select
-!!$  end function logical_cast
-
   function int_eq (obj1, obj2) result (bool)
     class(*), intent(in) :: obj1, obj2
     logical :: bool
@@ -179,46 +138,6 @@ m4_include([lstsort.m4])dnl
     logical :: bool
     bool = int_cast (obj1) < int_cast (obj2)
   end function int_lt
-
-!!$  function int_pair_eq (obj1, obj2) result (bool)
-!!$    class(*), intent(in) :: obj1, obj2
-!!$    logical :: bool
-!!$    bool = (int_cast (car (obj1)) == int_cast (car (obj2))) .and. &
-!!$         & (int_cast (cdr (obj1)) == int_cast (cdr (obj2)))
-!!$  end function int_pair_eq
-
-!!$  function size_kind_eq (obj1, obj2) result (bool)
-!!$    class(*), intent(in) :: obj1, obj2
-!!$    logical :: bool
-!!$    bool = size_kind_cast (obj1) == size_kind_cast (obj2)
-!!$  end function size_kind_eq
-
-!!$  function str_t_eq (obj1, obj2) result (bool)
-!!$    class(*), intent(in) :: obj1, obj2
-!!$    logical :: bool
-!!$    bool = str_t_cast (obj1) == str_t_cast (obj2)
-!!$  end function str_t_eq
-
-!!$  function str_t_lt (obj1, obj2) result (bool)
-!!$    class(*), intent(in) :: obj1, obj2
-!!$    logical :: bool
-!!$    bool = str_t_cast (obj1) < str_t_cast (obj2)
-!!$  end function str_t_lt
-
-!!$  function int_eq_gc (obj1, obj2) result (bool)
-!!$    class(*), intent(in) :: obj1, obj2
-!!$    logical :: bool
-!!$    call collect_garbage_now
-!!$    bool = int_eq (obj1, obj2)
-!!$  end function int_eq_gc
-
-!!$  function str_t_eq_gc (str1, str2) result (bool)
-!!$    class(*), intent(in) :: str1
-!!$    class(*), intent(in) :: str2
-!!$    logical :: bool
-!!$    call collect_garbage_now
-!!$    bool = (str_t_cast (str1) == str_t_cast (str2))
-!!$  end function str_t_eq_gc
 
   subroutine test0010
     !

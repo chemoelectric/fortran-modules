@@ -1603,6 +1603,10 @@ contains
 
   subroutine unit_test__hoare_partitioning
 
+    type(gcroot_t) :: vec1, vec2
+    integer(sz) :: i, j
+    real :: randnum
+
     call check_vectar_and_pivot_index (vectar (5), 0_sz)
 
     call check_vectar_and_pivot_index (vectar (5, 6), 0_sz)
@@ -1634,6 +1638,19 @@ contains
     call check_vectar_and_pivot_index (vectar (5, 5, 5, 5, 5, 5), 3_sz)
     call check_vectar_and_pivot_index (vectar (5, 5, 5, 5, 5, 5), 4_sz)
     call check_vectar_and_pivot_index (vectar (5, 5, 5, 5, 5, 5), 5_sz)
+
+    ! Test on vectars with randomized contents.
+    do i = 1, 101, 5
+       vec1 = make_vectar (i)
+       do j = 1, vectar_length (vec1)
+          call random_number (randnum)
+          call vectar_set1 (vec1, j, int (randnum * 20_sz, kind = sz))
+       end do
+       do j = 1, vectar_length (vec1)
+          vec2 = vectar_copy (vec1)
+          call check_vectar_and_pivot_index (vec2, j - 1)
+       end do
+    end do
 
   contains
 
