@@ -225,6 +225,7 @@ test__cons_pairs.anchor: cons_pairs.anchor
 test__cons_pairs.anchor: test__cons_pairs.mod
 test__cons_pairs.mod:
 
+test__lsets.f90: lstsort.m4
 test__lsets.anchor: garbage_collector.anchor
 test__lsets.anchor: cons_pairs.anchor
 test__lsets.anchor: lsets.anchor
@@ -237,6 +238,7 @@ test__vectars.anchor: vectars.anchor
 test__vectars.anchor: test__vectars.mod
 test__vectars.mod:
 
+test__sorting_and_selection.f90: lstsort.m4
 test__sorting_and_selection.anchor: garbage_collector.anchor
 test__sorting_and_selection.anchor: cons_pairs.anchor
 test__sorting_and_selection.anchor: vectars.anchor

@@ -77,16 +77,14 @@ contains
     if (.not. boolean) call error_abort (msg)
   end subroutine check
 
+m4_include([lstsort.m4])dnl
+
   function vecsort (less_than, vec) result (vec_s)
-    !
-    ! A vector sort based on list sort. I may feel more comfortable
-    ! testing something with a list sort than with a vectar sort.
-    !
     procedure(vectar_predicate2_t) :: less_than
     class(*), intent(in) :: vec
     type(vectar_t) :: vec_s
 
-    vec_s = list_to_vectar (list_sort (less_than, vectar_to_list (vec)))
+    vec_s = list_to_vectar (lstsort (less_than, vectar_to_list (vec)))
   end function vecsort
 
   function str_t_length (this) result (length)
