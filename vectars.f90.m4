@@ -1534,15 +1534,15 @@ dnl
 
     type(heap_element_t), pointer :: new_element
     class(vectar_data_t), pointer :: data
+    integer(sz) :: array_size
 
     if (size < 0_sz) then
        call error_abort ("vectar size must be at least zero")
     else
        allocate (data)
        data%length = size
-       if (0_sz < size) then
-          allocate (data%array(0_sz:(size - 1_sz)), source = vectar_element_t (.autoval. fill))
-       end if
+       array_size = max (1_sz, size)
+       allocate (data%array(0_sz:array_size - 1_sz), source = vectar_element_t (.autoval. fill))
        allocate (new_element)
        new_element%data => data
        call heap_insert (new_element)
@@ -2159,12 +2159,15 @@ dnl
     type(cons_t) :: p
     type(heap_element_t), pointer :: new_element
     class(vectar_data_t), pointer :: data
+    integer(sz) :: array_size
+    class(*), allocatable :: unused_value
 
     n = length (.autoval. lst)
     allocate (data)
     data%length = n
+    array_size = max (1_sz, n)
+    allocate (data%array(0_sz:(array_size - 1_sz)))
     if (0_sz < n) then
-       allocate (data%array(0_sz:(n - 1_sz)))
        i = 0
        p = .autoval. lst
        do while (is_pair (p))
@@ -2172,6 +2175,10 @@ dnl
           i = i + 1
           p = cdr (p)
        end do
+    else
+       ! Negative of the charge of one electron, in coulombs.
+       unused_value = 1.602176634E-19
+       data%array(0) = vectar_element_t (unused_value)
     end if
     allocate (new_element)
     new_element%data => data
@@ -2188,12 +2195,15 @@ dnl
     type(cons_t) :: p
     type(heap_element_t), pointer :: new_element
     class(vectar_data_t), pointer :: data
+    integer(sz) :: array_size
+    class(*), allocatable :: unused_value
 
     n = length (.autoval. lst)
     allocate (data)
     data%length = n
+    array_size = max (1_sz, n)
+    allocate (data%array(0_sz:(array_size - 1_sz)))
     if (0_sz < n) then
-       allocate (data%array(0_sz:(n - 1_sz)))
        i = n - 1
        p = .autoval. lst
        do while (is_pair (p))
@@ -2201,6 +2211,10 @@ dnl
           i = i - 1
           p = cdr (p)
        end do
+    else
+       ! Negative of the charge of one electron, in coulombs.
+       unused_value = 1.602176634E-19
+       data%array(0) = vectar_element_t (unused_value)
     end if
     allocate (new_element)
     new_element%data => data
