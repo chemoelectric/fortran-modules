@@ -120,10 +120,10 @@ module sorting_and_selection
   public :: vectar_separatex_int
 
   ! Generic function to find the median, without altering the vectar.
-  !public :: vectar_find_median
+  public :: vectar_find_median
 
   ! Implementations of vectar_find_median.
-  !public :: vectar_find_median_mean_subr
+  public :: vectar_find_median_mean_subr
 
   ! Generic function to find the median, and also leave the vectar or
   ! vectar range sorted.
@@ -202,9 +202,9 @@ module sorting_and_selection
      module procedure vectar_separatex_int
   end interface vectar_separatex
 
-!!$  interface vectar_find_median
-!!$     module procedure vectar_find_median_mean_subr
-!!$  end interface vectar_find_median
+  interface vectar_find_median
+     module procedure vectar_find_median_mean_subr
+  end interface vectar_find_median
 
   interface vectar_find_medianx
      module procedure vectar_find_medianx_mean_subr
@@ -1391,6 +1391,46 @@ contains
   end subroutine vectar_separatex_int
 
 !!!-------------------------------------------------------------------
+
+  recursive function vectar_find_median_mean_subr (less_than, vec, knil, mean_subr) result (median)
+    procedure(vectar_predicate2_t) :: less_than
+    class(*), intent(in) :: vec
+    class(*), intent(in) :: knil
+    procedure(vectar_map2_subr_t) :: mean_subr
+    class(*), allocatable :: median
+
+    type(gcroot_t) :: x, y
+    type(gcroot_t) :: knil_root
+    type(gcroot_t) :: vec_root
+    type(gcroot_t) :: vec_copy
+    type(vectar_range_t) :: vecr
+    integer(sz) :: n, half_n
+    class(*), allocatable :: mean
+
+    vec_root = vec
+    knil_root = knil
+
+    vecr = vec
+    n = vecr%length()
+    if (n == 0) then
+       median = knil
+    else
+       vec_copy = vectar_copy (vecr)
+       half_n = n / 2
+       if (mod (n, 2_sz) == 1) then
+          median = vectar_selectx0 (less_than, vec_copy, half_n)
+       else
+          call vectar_separatex (less_than, vec_copy, half_n)
+          x = vectar_selectx0 (less_than, range0 (vec_copy, 0_sz, half_n - 1), half_n - 1)
+          y = vectar_selectx0 (less_than, range0 (vec_copy, half_n, n - 1), 0_sz)
+          call mean_subr (.val. x, .val. y, mean)
+          median = mean
+       end if
+    end if
+
+    call vec_root%discard
+    call knil_root%discard
+  end function vectar_find_median_mean_subr
 
   recursive function vectar_find_medianx_mean_subr (less_than, vec, knil, mean_subr) result (median)
     procedure(vectar_predicate2_t) :: less_than

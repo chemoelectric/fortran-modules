@@ -1497,6 +1497,10 @@ m4_include([lstsort.m4])dnl
     median = real_cast (vectar_find_medianx (less_than, vec2, 999.0, mean_subr))
     call check (median .eqr. 5.0, "test1110-0010 failed")
     call check (vectar_equal (real_eq, vec2, vec1_sorted), "test1110-0020 failed")
+    vec2 = vectar_copy (vec1)
+    median = real_cast (vectar_find_median (less_than, vec2, 999.0, mean_subr))
+    call check (median .eqr. 5.0, "test1110-0030 failed")
+    call check (vectar_equal (real_eq, vec2, vec1), "test1110-0040 failed")
 
     vec1 = vectar (8.0, 6.0, 8.0, 1.0, 3.0, 2.0, -30.0, 50.0, 4.0)
     vec1_sorted = vectar_sort (less_than, vec1)
@@ -1504,6 +1508,10 @@ m4_include([lstsort.m4])dnl
     median = real_cast (vectar_find_medianx (less_than, vec2, 999.0, mean_subr))
     call check (median .eqr. 4.0, "test1110-0110 failed")
     call check (vectar_equal (real_eq, vec2, vec1_sorted), "test1110-0120 failed")
+    vec2 = vectar_copy (vec1)
+    median = real_cast (vectar_find_median (less_than, vec2, 999.0, mean_subr))
+    call check (median .eqr. 4.0, "test1110-0130 failed")
+    call check (vectar_equal (real_eq, vec2, vec1), "test1110-0140 failed")
 
     vec1 = vectar (8.0, 6.0, 8.0, 1.0, 3.0, 2.0, 3.0, 5.0)
     vec1_sorted = vectar_sort (less_than, vec1)
@@ -1511,6 +1519,10 @@ m4_include([lstsort.m4])dnl
     median = real_cast (vectar_find_medianx (less_than, vec2, 999.0, mean_subr))
     call check (median .eqr. 4.0, "test1110-0210 failed")
     call check (vectar_equal (real_eq, vec2, vec1_sorted), "test1110-0220 failed")
+    vec2 = vectar_copy (vec1)
+    median = real_cast (vectar_find_median (less_than, vec2, 999.0, mean_subr))
+    call check (median .eqr. 4.0, "test1110-0230 failed")
+    call check (vectar_equal (real_eq, vec2, vec1), "test1110-0240 failed")
 
     vec1 = vectar ()
     vec1_sorted = vectar_sort (less_than, vec1)
@@ -1518,6 +1530,10 @@ m4_include([lstsort.m4])dnl
     median = real_cast (vectar_find_medianx (less_than, vec2, 999.0, mean_subr))
     call check (median .eqr. 999.0, "test1110-0310 failed")
     call check (vectar_equal (real_eq, vec2, vec1_sorted), "test1110-0320 failed")
+    vec2 = vectar_copy (vec1)
+    median = real_cast (vectar_find_median (less_than, vec2, 999.0, mean_subr))
+    call check (median .eqr. 999.0, "test1110-0330 failed")
+    call check (vectar_equal (real_eq, vec2, vec1), "test1110-0340 failed")
 
     vec1 = vectar (8.0, 6.0, 8.0, 1.0, 3.0, 2.0, 3.0, 5.0)
     vec1_sorted = vectar_copy (vec1)
@@ -1526,6 +1542,10 @@ m4_include([lstsort.m4])dnl
     median = real_cast (vectar_find_medianx (less_than, range1 (vec2, 3, 5), 999.0, mean_subr))
     call check (median .eqr. 3.0, "test1110-0410 failed")
     call check (vectar_equal (real_eq, vec2, vec1_sorted), "test1110-0420 failed")
+    vec2 = vectar_copy (vec1)
+    median = real_cast (vectar_find_median (less_than, range1 (vec2, 3, 5), 999.0, mean_subr))
+    call check (median .eqr. 3.0, "test1110-0430 failed")
+    call check (vectar_equal (real_eq, vec2, vec1), "test1110-0440 failed")
 
   contains
 
