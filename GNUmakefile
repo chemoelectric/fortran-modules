@@ -116,7 +116,7 @@ EXAMPLE_PROGRAM_BASENAMES += example__knights_tour
 
 .PHONY: all default
 default: all
-all: modules tests
+all: modules tests examples
 
 .PHONY: modules
 modules: $(addsuffix .$(OBJEXT), $(MODULE_BASENAMES))

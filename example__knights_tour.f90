@@ -62,9 +62,9 @@ program example__knights_tour
 
 
   ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-  call position_to_algebraic_notation ((1, 2), foo)
+  call complex_to_algebraic_notation ((1, 2), foo)
   print*,foo
-  call algebraic_notation_to_position (foo, pos1)
+  call algebraic_notation_to_complex (foo, pos1)
   print*,int(real(pos1)),int(aimag(pos1))
   ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
@@ -101,6 +101,27 @@ contains
     bool = (cmplx_cast (x) == cmplx_cast (y))
   end function cmplx_eq
 
+  function real_part_lt (x, y) result (bool)
+    class(*), intent(in) :: x, y
+    logical :: bool
+
+    bool = (real (cmplx_cast (x)) < real (cmplx_cast (y)))
+  end function real_part_lt
+
+  subroutine cdr_subr (x, cdr_val)
+    class(*), intent(in) :: x
+    class(*), allocatable, intent(out) :: cdr_val
+
+    cdr_val = cdr (x)
+  end subroutine cdr_subr
+
+  subroutine cdrs_subr (x, cdrs_val)
+    class(*), intent(in) :: x
+    class(*), allocatable, intent(out) :: cdrs_val
+
+    cdrs_val = map (cdr_subr, x)
+  end subroutine cdrs_subr
+
   function generate_chessboard (n) result (board)
     integer, intent(in) :: n
     type(cons_t) :: board
@@ -119,7 +140,7 @@ contains
     board = reversex (board)
   end function generate_chessboard
 
-  subroutine position_to_algebraic_notation (position, notation)
+  subroutine complex_to_algebraic_notation (position, notation)
     complex, intent(in) :: position
     character(:), allocatable, intent(out) :: notation
 
@@ -128,9 +149,9 @@ contains
     x = int (real (position))
     y = int (aimag (position))
     notation = xnotation (x) // ynotation (y)
-  end subroutine position_to_algebraic_notation
+  end subroutine complex_to_algebraic_notation
 
-  subroutine algebraic_notation_to_position (notation, position)
+  subroutine algebraic_notation_to_complex (notation, position)
     character(2), intent(in) :: notation
     complex, intent(out) :: position
 
@@ -144,7 +165,7 @@ contains
        y = 0
     end if
     position = cmplx (x, y)
-  end subroutine algebraic_notation_to_position
+  end subroutine algebraic_notation_to_complex
 
   function find_legal_moves (moves_list) result (legal_moves)
     class(*), intent(in) :: moves_list
@@ -329,7 +350,80 @@ contains
     bool = is_not_nil (member (cmplx_eq, tour_start, legal_moves))
   end function tour_is_closed
 
-  subroutine print_tour_linear
+  subroutine print_tour_linear (tour)
+    class(*), intent(in) :: tour
+
+    type(gcroot_t) :: p
+    character(:), allocatable :: notation
+    character(:), allocatable :: separator
+
+    separator = ''
+    p = reverse (tour)
+    do while (is_pair (p))
+       write (*, '(A)', advance = 'no') separator
+       separator = ' -> '
+       call complex_to_algebraic_notation (cmplx_cast (car (p)), notation)
+       write (*, '(A)', advance = 'no') notation
+       p = cdr (p)
+    end do
   end subroutine print_tour_linear
+
+  function tour_to_matrix (tour) result (matrix)
+    class(*), intent(in) :: tour
+    type(cons_t) :: matrix
+
+    type(gcroot_t) :: indexed_tour
+    type(gcroot_t) :: ordered_indexed_tour
+    type(gcroot_t) :: row
+    integer :: i
+
+    indexed_tour = index_tour (tour)
+
+    ordered_indexed_tour = nil
+    do i = side - 1, 0, -1
+       row = get_row (i, indexed_tour)
+       call list_sortx (real_part_lt, row)
+       ordered_indexed_tour = cons (row, ordered_indexed_tour)
+    end do
+    ordered_indexed_tour = reversex (ordered_indexed_tour)
+
+    ! Extract the indices.
+    matrix = map (cdrs_subr, ordered_indexed_tour)
+  end function tour_to_matrix
+
+  function index_tour (tour) result (indexed_tour)
+    class(*), intent(in) :: tour
+    type(cons_t) :: indexed_tour
+
+    type(gcroot_t) :: tour_reversed
+    integer :: i
+
+    tour_reversed = reverse (tour)
+
+    indexed_tour = nil
+    do i = 1, int (length (tour_reversed))
+       indexed_tour = cons (list_ref1 (tour_reversed, i), i) ** indexed_tour
+    end do
+    indexed_tour = reversex (indexed_tour)
+  end function index_tour
+
+  function get_row (n, tour) result (row)
+    integer, intent(in) :: n
+    class(*), intent(in) :: tour
+    type(cons_t) :: row
+
+    type(gcroot_t) :: p
+
+    ! In a row, the imaginary parts (the vertical coordinate) are
+    ! equal.
+    row = nil
+    p = tour
+    do while (is_pair (p))
+       if (aimag (cmplx_cast (car (p))) == n) then
+          row = car (p) ** row
+       end if
+       p = cdr (p)
+    end do
+  end function get_row
 
 end program example__knights_tour
