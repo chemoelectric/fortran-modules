@@ -170,7 +170,7 @@ test__sorting_and_selection: $(addsuffix .$(OBJEXT), test__sorting_and_selection
 														vectars cons_pairs garbage_collector)
 	$(COMPILE.f90) $(^) -o $(@)
 
-example__knights_tour: $(addsuffix .$(OBJEXT), example__knights_tour cons_pairs garbage_collector)
+example__knights_tour: $(addsuffix .$(OBJEXT), example__knights_tour cons_pairs lsets garbage_collector)
 	$(COMPILE.f90) $(^) -o $(@)
 
 lsets.anchor: lsets.f90
@@ -264,6 +264,7 @@ test__sorting_and_selection.mod:
 
 example__knights_tour.anchor: garbage_collector.anchor
 example__knights_tour.anchor: cons_pairs.anchor
+example__knights_tour.anchor: lsets.anchor
 example__knights_tour.anchor: example__knights_tour.mod
 example__knights_tour.mod:
 
