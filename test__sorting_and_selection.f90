@@ -1660,6 +1660,7 @@ contains
     type(gcroot_t) :: vec1
     type(gcroot_t) :: vec1_sorted
     type(vectar_t) :: vec2
+    type(cons_t) :: lst1
     real :: median
 
     vec1 = vectar (8.0, 6.0, 8.0, 1.0, 3.0, 2.0, 3.0, 5.0, 5.0)
@@ -1717,6 +1718,22 @@ contains
     median = real_cast (vectar_find_median (less_than, range1 (vec2, 3, 5), 999.0, mean_subr))
     call check (median .eqr. 3.0, "test1110-0430 failed")
     call check (vectar_equal (real_eq, vec2, vec1), "test1110-0440 failed")
+
+    ! Test that knil is protected against garbage collections.
+    vec1 = vectar (8.0, 6.0, 8.0, 1.0, 3.0, 2.0, 3.0, 5.0)
+    vec1_sorted = vectar_sort (less_than, vec1)
+    vec2 = vectar_copy (vec1)
+    lst1 = iota (100, 1)
+    median = real_cast (vectar_find_medianx (less_than, vec2, lst1, mean_subr))
+    call check (median .eqr. 4.0, "test1110-0510 failed")
+    call check (vectar_equal (real_eq, vec2, vec1_sorted), "test1110-0520 failed")
+    call check (list_equal (int_eq, lst1, iota (100, 1)), "test1110-0530 failed")
+    vec2 = vectar_copy (vec1)
+    lst1 = iota (100, 1)
+    median = real_cast (vectar_find_median (less_than, vec2, lst1, mean_subr))
+    call check (median .eqr. 4.0, "test1110-0540 failed")
+    call check (vectar_equal (real_eq, vec2, vec1), "test1110-0550 failed")
+    call check (list_equal (int_eq, lst1, iota (100, 1)), "test1110-0560 failed")
 
   contains
 
