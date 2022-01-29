@@ -112,6 +112,8 @@ TEST_PROGRAM_BASENAMES += test__lsets
 TEST_PROGRAM_BASENAMES += test__vectars
 TEST_PROGRAM_BASENAMES += test__sorting_and_selection
 
+EXAMPLE_PROGRAM_BASENAMES += example__knights_tour
+
 .PHONY: all default
 default: all
 all: modules tests
@@ -121,6 +123,9 @@ modules: $(addsuffix .$(OBJEXT), $(MODULE_BASENAMES))
 
 .PHONY: tests
 tests: $(TEST_PROGRAM_BASENAMES)
+
+.PHONY: examples
+examples: $(EXAMPLE_PROGRAM_BASENAMES)
 
 .PHONY: check
 check: check-boxes
@@ -165,6 +170,9 @@ test__sorting_and_selection: $(addsuffix .$(OBJEXT), test__sorting_and_selection
 														vectars cons_pairs garbage_collector)
 	$(COMPILE.f90) $(^) -o $(@)
 
+example__knights_tour: $(addsuffix .$(OBJEXT), example__knights_tour cons_pairs garbage_collector)
+	$(COMPILE.f90) $(^) -o $(@)
+
 lsets.anchor: lsets.f90
 	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c -fsyntax-only $(<) && touch $(@)
 lsets.$(OBJEXT): lsets.anchor
@@ -188,6 +196,11 @@ test__vectars.$(OBJEXT): test__vectars.anchor
 test__sorting_and_selection.anchor: test__sorting_and_selection.f90
 	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c -fsyntax-only $(<) && touch $(@)
 test__sorting_and_selection.$(OBJEXT): test__sorting_and_selection.anchor
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c $(<:.anchor=.f90) -o $(@)
+
+example__knights_tour.anchor: example__knights_tour.f90
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c -fsyntax-only $(<) && touch $(@)
+example__knights_tour.$(OBJEXT): example__knights_tour.anchor
 	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c $(<:.anchor=.f90) -o $(@)
 
 garbage_collector.anchor: garbage_collector.mod
@@ -248,6 +261,11 @@ test__sorting_and_selection.anchor: vectars.anchor
 test__sorting_and_selection.anchor: sorting_and_selection.anchor
 test__sorting_and_selection.anchor: test__sorting_and_selection.mod
 test__sorting_and_selection.mod:
+
+example__knights_tour.anchor: garbage_collector.anchor
+example__knights_tour.anchor: cons_pairs.anchor
+example__knights_tour.anchor: example__knights_tour.mod
+example__knights_tour.mod:
 
 suffixed-all-basenames = $(addsuffix $(shell printf "%s" $(1)),$(MODULE_BASENAMES) $(TEST_PROGRAM_BASENAMES))
 
