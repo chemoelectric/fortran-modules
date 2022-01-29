@@ -178,6 +178,14 @@ contains
 
     current_position = cmplx_cast (car (moves_list))
 
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME: Use zip and a circular list to
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!        pass environment to a map
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!        subroutine, in place of a
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!        closure. That way we can use
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!        `map' here (even though Fortran
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!        has very limited closure
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!        support).
     ! Generate possible new moves.
     possibilities = nil
     p = knight_directions
