@@ -56,6 +56,9 @@ program example__knights_tour
 
   type(gcroot_t) :: chessboard
   type(gcroot_t) :: knight_directions
+  integer :: arg_count
+  character(80) :: arg1, arg2
+  complex :: starting_position
 
   ! Used this to check whether a position is legal. Also, its length
   ! equals the length of a knight's tour.
@@ -71,9 +74,39 @@ program example__knights_tour
        &                    (-1, -2),  &
        &                    (-2, -1))
 
-  call make_and_print_tour ((1,1), .true.) ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+  arg_count = command_argument_count ()
+  if (arg_count == 1) then
+     call get_command_argument (1, arg1)
+     call argument_to_position (arg1, starting_position)
+     if (position_is_within_the_chessboard (starting_position)) then
+        call make_and_print_tour (starting_position, .false.)
+     else
+        call print_usage
+     end if
+  else if (arg_count == 2) then
+     call get_command_argument (1, arg1)
+     call argument_to_position (arg1, starting_position)
+     call get_command_argument (2, arg2)
+     if (position_is_within_the_chessboard (starting_position) .and. arg2 == 'closed') then
+        call make_and_print_tour (starting_position, .true.)
+     else
+        call print_usage
+     end if
+  else
+     call print_usage
+  end if
 
 contains
+
+  subroutine print_usage
+    write (outp, '("Usage: example__knights_tour START_POSITION [CLOSED]")')
+    write (outp, '()')
+    write (outp, '("For example:")')
+    write (outp, '("   example__knights_tour a1")')
+    write (outp, '("   example__knights_tour d5 closed")')
+    write (outp, '("   example__knights_tour random closed")')
+    write (outp, '()')
+  end subroutine print_usage
 
   function knights_tour_length () result (len)
     integer :: len
@@ -141,14 +174,32 @@ contains
     complex :: pos
 
     board = nil
-    do i = 0, n - 1
-       do j = 0, n - 1
+    do j = n - 1, 0, -1
+       do i = n - 1, 0, -1
           pos = cmplx (i, j)
           board = pos ** board
        end do
     end do
-    board = reversex (board)
   end function generate_chessboard
+
+  subroutine argument_to_position (arg, position)
+    character(*), intent(in) :: arg
+    complex, intent(out) :: position
+
+    if (arg == 'random') then
+       block
+         integer :: x, y
+         real :: randnum(1:2)
+
+         call random_number (randnum)
+         x = int (side * randnum(1))
+         y = int (side * randnum(2))
+         position = cmplx (x, y)
+       end block
+    else
+       call algebraic_notation_to_complex (arg, position)
+    end if
+  end subroutine argument_to_position
 
   subroutine complex_to_algebraic_notation (position, notation)
     complex, intent(in) :: position
@@ -169,13 +220,18 @@ contains
 
     x = findloc (xnotation, notation(1:1), dim = 1) - 1
     y = findloc (ynotation, notation(2:2), dim = 1) - 1
-    if (x == -1 .or. y == -1) then
-       write (outp, '(A2, " is not a legal position; using a1 instead")') notation
-       x = 0
-       y = 0
-    end if
+
+    ! One should check that the result is a position within the
+    ! chessboard.
     position = cmplx (x, y)
   end subroutine algebraic_notation_to_complex
+
+  function position_is_within_the_chessboard (pos) result (bool)
+    class(*), intent(in) :: pos
+    logical :: bool
+
+    bool = is_member (cmplx_eq, cmplx_cast (pos), chessboard)
+  end function position_is_within_the_chessboard
 
   function find_legal_moves (moves_list) result (legal_moves)
     class(*), intent(in) :: moves_list
@@ -443,7 +499,6 @@ contains
 
     tour = make_tour_from_starting_position (starting_position, tour_must_be_closed)
     call print_tour_linear (tour)
-    write (outp, '()', advance = 'yes')
     write (outp, '()', advance = 'yes')
     call print_tour_matrix (tour)
   end subroutine make_and_print_tour
