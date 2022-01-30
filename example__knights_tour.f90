@@ -405,15 +405,20 @@ contains
 
     type(gcroot_t) :: p
     character(:), allocatable :: notation
-    logical :: with_separator
+    integer :: moves_counter
 
-    with_separator = .false.
+    moves_counter = 0
     p = reverse (tour)
     do while (is_pair (p))
-       if (with_separator) then
-          write (outp, '(" -> ")', advance = 'no')
+       if (moves_counter == 8) then
+          write (outp, '(" ->")', advance = 'yes')
+          moves_counter = 1
+       else
+          if (moves_counter /= 0) then
+             write (outp, '(" -> ")', advance = 'no')
+          end if
+          moves_counter = moves_counter + 1
        end if
-       with_separator = .true.
        call complex_to_algebraic_notation (cmplx_cast (car (p)), notation)
        write (outp, '(A)', advance = 'no') notation
        p = cdr (p)
