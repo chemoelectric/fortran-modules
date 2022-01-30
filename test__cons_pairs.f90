@@ -3504,6 +3504,26 @@ contains
 
   end subroutine test0570
 
+  subroutine test0580
+
+    call check (is_member (equal, 5, iota (100, 1)), "test0580-0010 failed")
+    call check (.not. is_not_member (equal, 5, iota (100, 1)), "test0580-0020 failed")
+
+    call check (.not. is_member (equal, -5, iota (100, 1)), "test0580-0030 failed")
+    call check (is_not_member (equal, -5, iota (100, 1)), "test0580-0040 failed")
+
+  contains
+
+    function equal (x, y) result (bool)
+      class(*), intent(in) :: x
+      class(*), intent(in) :: y
+      logical :: bool
+
+      bool = (int_cast (x) == int_cast (y))
+    end function equal
+
+  end subroutine test0580
+
   subroutine run_tests
     heap_size_limit = 0
 
@@ -3575,6 +3595,7 @@ contains
     call test0550
     call test0560
     call test0570
+    call test0580
 
     call collect_garbage_now
     call check (current_heap_size () == 0, "run_tests-0100 failed")

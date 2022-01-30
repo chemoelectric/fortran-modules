@@ -414,6 +414,8 @@ m4_forloop([n],[1],ZIP_MAX,[dnl
                              ! is different. Also note that `member'
                              ! can be used for tests other than
                              ! equalities. See SRFI-1.)
+  public :: is_member        ! is_not_nil (member (...))
+  public :: is_not_member    ! is_nil (member (...))
 
   public :: find             ! Return the first element of that
                              ! satisfies a predicate. Return
@@ -4239,6 +4241,24 @@ m4_forloop([k],[1],n,[dnl
   end function break
 
 !!!-------------------------------------------------------------------
+
+  recursive function is_member (pred, x, lst) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: x
+    class(*), intent(in) :: lst
+    logical :: bool
+
+    bool = is_not_nil (member (pred, x, lst))
+  end function is_member
+
+  recursive function is_not_member (pred, x, lst) result (bool)
+    procedure(list_predicate2_t) :: pred
+    class(*), intent(in) :: x
+    class(*), intent(in) :: lst
+    logical :: bool
+
+    bool = is_nil (member (pred, x, lst))
+  end function is_not_member
 
   recursive function member (pred, x, lst) result (sublst)
     procedure(list_predicate2_t) :: pred
