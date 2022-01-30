@@ -26,6 +26,9 @@
 !
 ! Knight's tour, based on a Rosetta Code example in Common Lisp.
 !
+! The solution is by Warnsdorff's rule. See
+! https://en.wikipedia.org/w/index.php?title=Knight%27s_tour&oldid=1066880156#Warnsdorff's_rule
+!
 
 program example__knights_tour
 
@@ -34,6 +37,7 @@ program example__knights_tour
   use, non_intrinsic :: garbage_collector
   use, non_intrinsic :: cons_pairs
   use, non_intrinsic :: lsets
+  use, non_intrinsic :: vectars
   use, non_intrinsic :: sorting_and_selection
 
   implicit none
@@ -50,31 +54,32 @@ program example__knights_tour
   type(gcroot_t) :: chessboard
   type(gcroot_t) :: knight_directions
 
-  ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-  character(:), allocatable :: foo
-  complex :: pos1
-  ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+!!$  ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+!!$  character(:), allocatable :: foo
+!!$  complex :: pos1
+!!$  ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
+  ! Used this to check whether a position is legal.
   chessboard = generate_chessboard (side)
 
-  knight_directions = list (cons (1, 2),    &
-       &                    cons (2, 1),    &
-       &                    cons (1, -2),   &
-       &                    cons (2, -1),   &
-       &                    cons (-1, 2),   &
-       &                    cons (-2, 1),   &
-       &                    cons (-1, -2),  &
-       &                    cons (-2, -1))
+  ! Add any of these to a position to get a new position.
+  knight_directions = list ((1, 2),    &
+       &                    (2, 1),    &
+       &                    (1, -2),   &
+       &                    (2, -1),   &
+       &                    (-1, 2),   &
+       &                    (-2, 1),   &
+       &                    (-1, -2),  &
+       &                    (-2, -1))
 
+!!$  ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+!!$  call complex_to_algebraic_notation ((1, 2), foo)
+!!$  print*,foo
+!!$  call algebraic_notation_to_complex (foo, pos1)
+!!$  print*,int(real(pos1)),int(aimag(pos1))
+!!$  ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
-  ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-  call complex_to_algebraic_notation ((1, 2), foo)
-  print*,foo
-  call algebraic_notation_to_complex (foo, pos1)
-  print*,int(real(pos1)),int(aimag(pos1))
-  ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-
-  call make_and_print_tour ((1,1), .false.)
+  call make_and_print_tour ((1,1), .false.) ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
 contains
 
@@ -202,19 +207,24 @@ contains
     type(gcroot_t) :: possibilities
     complex :: current_position
 
-    current_position = cmplx_cast (car (moves_list))
+    if (is_false (car (moves_list))) then
+       ! Move legality has already failed.
+       legal_moves = nil
+    else
+       current_position = cmplx_cast (car (moves_list))
 
-    ! Generate possible new moves.
-    possibilities = map (cmplx_add, circular_list (car (moves_list)), knight_directions)
+       ! Generate possible new moves.
+       possibilities = map (cmplx_add, circular_list (car (moves_list)), knight_directions)
 
-    ! The move must stay within the chessboard.
-    possibilities = lset_intersection (cmplx_eq, possibilities, chessboard)
+       ! The move must stay within the chessboard.
+       possibilities = lset_intersection (cmplx_eq, possibilities, chessboard)
 
-    ! The position must not already have been visited.
-    legal_moves = filter_map (keep_cmplx_nonmember, possibilities, circular_list (moves_list))
+       ! The position must not already have been visited.
+       legal_moves = filter_map (keep_cmplx_nonmember, possibilities, circular_list (moves_list))
+    end if
   end function find_legal_moves
 
-  function w_rule (a, b) result (bool)
+  function warnsdorff_rule (pair1, pair2) result (bool)
     !
     ! A sorting predicate.
     !
@@ -222,27 +232,28 @@ contains
     ! has a lower weight, take it; otherwise, select either move at
     ! random.
     !
-    ! The weight is stored as the CAR of a pair.
+    ! pair1 and pair2 have the form `cons (n, move)' where n is the
+    ! weight.
     !
-    class(*), intent(in) :: a
-    class(*), intent(in) :: b
+    class(*), intent(in) :: pair1
+    class(*), intent(in) :: pair2
     logical :: bool
 
-    integer :: weight_a
-    integer :: weight_b
+    integer :: n1
+    integer :: n2
     real :: randnum
 
-    weight_a = int_cast (car (a))
-    weight_b = int_cast (car (b))
-    if (weight_a < weight_b) then
-       bool = .true.
-    else if (weight_b < weight_a) then
-       bool = .false.
-    else
+    n1 = int_cast (car (pair1))
+    n2 = int_cast (car (pair2))
+    if (n1 == n2) then
+       ! Random tie-break. (This method fails for much larger
+       ! chessboards.)
        call random_number (randnum)
        bool = (randnum < 0.5)
+    else
+       bool = (n1 < n2)
     end if
-  end function w_rule
+  end function warnsdorff_rule
 
   function return_weighted_moves (moves) result (weighted_moves)
     !
@@ -250,13 +261,18 @@ contains
     ! return a pair `cons (n, move)', where the weight n is how many
     ! legal moves follow.
     !
+    ! If n == 0 one will have reached a dead end, and so the pair is
+    ! left out. Therefore, if every move that follows is a dead end,
+    ! then the return value will be a nil list; so will it be if there
+    ! were no legal moves in the first place.
+    !
     class(*), intent(in) :: moves
     type(cons_t) :: weighted_moves
 
     type(gcroot_t) :: candidates
 
     candidates = find_legal_moves (moves)
-    weighted_moves = map (cons_weight_and_move, candidates, circular_list (moves))
+    weighted_moves = filter_map (cons_weight_and_move, candidates, circular_list (moves))
   end function return_weighted_moves
 
   subroutine cons_weight_and_move (mv, moves, pair)
@@ -267,74 +283,80 @@ contains
     integer :: weight
 
     weight = int (length (find_legal_moves (cons (mv, moves))))
-    pair = cons (weight, mv)
+    if (weight == 0) then
+       ! A weight of zero represents a dead end. Leave this move out.
+       pair = .false.
+    else
+       pair = cons (weight, mv)
+    end if
   end subroutine cons_weight_and_move
 
   function pick_among_weighted_moves (moves) result (move_picked)
     !
-    ! From a list of weighted moves, pick one according to w_rule.
+    ! From a list of weighted moves, pick one according to
+    ! Warnsdorff's rule.
     !
     class(*), intent(in) :: moves
     complex :: move_picked
 
-    type(gcroot_t) :: possible_moves
+    type(gcroot_t) :: vec
 
-    ! Prune dead ends one move early.
-    possible_moves = filter (weight_is_nonzero, moves)
-
-    ! Implementation note: the following could be done by moving the
-    ! data into a vectar and using a selection algorithm instead of a
-    ! sort.
-    possible_moves = list_sortx (w_rule, possible_moves)
-    move_picked = cmplx_cast (cdar (possible_moves))
+    ! Choose the move with the least weight.
+    vec = list_to_vectar (moves)
+    move_picked = cmplx_cast (cdr (vectar_selectx1 (warnsdorff_rule, vec, 1)))
   end function pick_among_weighted_moves
 
-  function weight_is_nonzero (weighted_move) result (bool)
-    class(*), intent(in) :: weighted_move
-    logical :: bool
-
-    bool = (int_cast (car (weighted_move)) /= 0)
-  end function weight_is_nonzero
-
-  function make_move (moves_list) result (new_moves_list)
+  function make_warnsdorff_move (moves_list) result (new_moves_list)
     class(*), intent(in) :: moves_list
     type(cons_t) :: new_moves_list
 
     type(gcroot_t) :: weighted_moves
+    complex :: next_move
+
+    weighted_moves = return_weighted_moves (moves_list)
+    if (is_nil_list (weighted_moves)) then
+       new_moves_list = nil  ! There are no legal moves.
+    else
+       next_move = pick_among_weighted_moves (weighted_moves)
+       new_moves_list = cons (next_move, moves_list)
+    end if
+  end function make_warnsdorff_move
+
+  function make_final_move (moves_list) result (new_moves_list)
+    class(*), intent(in) :: moves_list
+    type(cons_t) :: new_moves_list
+
     type(gcroot_t) :: legal_moves
     type(gcroot_t) :: next_move
 
-    if (length (moves_list) < length (chessboard) - 1) then
-       weighted_moves = return_weighted_moves (moves_list)
-       next_move = pick_among_weighted_moves (weighted_moves)
+    legal_moves = find_legal_moves (moves_list)
+    if (is_nil_list (legal_moves)) then
+       new_moves_list = nil  ! There are no legal moves.
     else
-       legal_moves = find_legal_moves (moves_list)
-       if (is_nil_list (legal_moves)) then
-          next_move = .false.   ! There is no legal move.
-       else
-          next_move = car (legal_moves)
-       end if
+       next_move = car (legal_moves)
+       new_moves_list = cons (next_move, moves_list)
     end if
-    new_moves_list = cons (next_move, moves_list)
-  end function make_move
+  end function make_final_move
 
   function make_tour (moves_list) result (tour)
     class(*), intent(in) :: moves_list
     type(cons_t) :: tour
 
     type(gcroot_t) :: moves
-    logical :: done
 
     moves = moves_list
-    done = .false.
-    do while (.not. done)
-       if (is_false (car (moves_list))) then
+    do while (length (moves) /= length (chessboard))
+       do while (length (moves) /= length (chessboard) - 1)
+          moves = make_warnsdorff_move (moves)
+          if (is_nil_list (moves)) then
+             ! At this point, there was no legal move. Start over.
+             moves = last_pair (moves_list)
+          end if
+       end do
+       moves = make_final_move (moves)
+       if (is_nil_list (moves)) then
           ! At this point, there was no legal move. Start over.
           moves = last_pair (moves_list)
-       else if (length (moves_list) /= length (chessboard)) then
-          moves = make_move (moves)
-       else
-          done = .true.
        end if
     end do
     tour = .tocons. moves

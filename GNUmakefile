@@ -266,6 +266,7 @@ test__sorting_and_selection.mod:
 example__knights_tour.anchor: garbage_collector.anchor
 example__knights_tour.anchor: cons_pairs.anchor
 example__knights_tour.anchor: lsets.anchor
+example__knights_tour.anchor: vectars.anchor
 example__knights_tour.anchor: sorting_and_selection.anchor
 example__knights_tour.anchor: example__knights_tour.mod
 example__knights_tour.mod:
