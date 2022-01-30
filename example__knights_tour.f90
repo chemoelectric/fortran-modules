@@ -31,6 +31,7 @@ program example__knights_tour
   use, non_intrinsic :: garbage_collector
   use, non_intrinsic :: cons_pairs
   use, non_intrinsic :: lsets
+  use, non_intrinsic :: sorting_and_selection
 
   implicit none
 
@@ -116,13 +117,6 @@ contains
     bool = (real (cmplx_cast (x)) < real (cmplx_cast (y)))
   end function real_part_lt
 
-  subroutine car_subr (x, car_val)
-    class(*), intent(in) :: x
-    class(*), allocatable, intent(out) :: car_val
-
-    car_val = car (x)
-  end subroutine car_subr
-
   subroutine cdr_subr (x, cdr_val)
     class(*), intent(in) :: x
     class(*), allocatable, intent(out) :: cdr_val
@@ -199,7 +193,6 @@ contains
     type(cons_t) :: legal_moves
 
     type(gcroot_t) :: possibilities
-    type(gcroot_t) :: p
     complex :: current_position
 
     current_position = cmplx_cast (car (moves_list))
@@ -285,7 +278,7 @@ contains
     ! Implementation note: the following could be done by moving the
     ! data into a vectar and using a selection algorithm instead of a
     ! sort.
-    call list_sortx (w_rule, possible_moves)
+    possible_moves = list_sortx (w_rule, possible_moves)
     move_picked = cmplx_cast (cdar (possible_moves))
   end function pick_among_weighted_moves
 
@@ -388,24 +381,23 @@ contains
     class(*), intent(in) :: tour
     type(cons_t) :: matrix
 
-    type(gcroot_t) :: indexed_tour
     type(gcroot_t) :: ordered_indexed_tour
-    type(gcroot_t) :: row
-    integer :: i
 
-    indexed_tour = index_tour (tour)
-
-    ordered_indexed_tour = nil
-    do i = side - 1, 0, -1
-       row = get_row (i, indexed_tour)
-       call list_sortx (real_part_lt, row)
-       ordered_indexed_tour = cons (row, ordered_indexed_tour)
-    end do
-    ordered_indexed_tour = reversex (ordered_indexed_tour)
+    ordered_indexed_tour = map (index_to_row, &
+         &                      iota (side, side - 1, -1), &
+         &                      circular_list (index_tour (tour)))
 
     ! Extract the indices.
     matrix = map (cdrs_subr, ordered_indexed_tour)
   end function tour_to_matrix
+
+  subroutine index_to_row (i, indexed_tour, row)
+    class(*), intent(in) :: i
+    class(*), intent(in) :: indexed_tour
+    class(*), allocatable, intent(out) :: row
+
+    row = get_row (int_cast (i), indexed_tour)
+  end subroutine index_to_row
 
   function index_tour (tour) result (indexed_tour)
     class(*), intent(in) :: tour
@@ -429,6 +421,7 @@ contains
     type(cons_t) :: row
 
     row = filter_map (keep_row_element, circular_list (n), tour)
+    row = list_sortx (real_part_lt, row)
   end function get_row
 
   subroutine keep_row_element (n, element, retval)
