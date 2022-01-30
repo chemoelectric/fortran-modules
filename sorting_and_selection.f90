@@ -1664,45 +1664,54 @@ contains
 
     integer(sz) :: i, j
     class(*), allocatable :: pivot
-    class(*), allocatable :: tmp
 
-    if (iend == istart) then
-       ipivot_final = istart
-    else
-       pivot = data%array(ipivot)%element
+    ! Move the pivot to the last element.
+    call swap_entries (ipivot, iend)
 
-       ! Move the pivot to the last element.
-       if (ipivot /= iend) then
-          data%array(ipivot)%element = data%array(iend)%element
-          data%array(iend)%element = pivot
-       end if
+    pivot = data%array(iend)%element
 
-       i = istart - 1
-       j = iend      ! Leave the last element out of the partitioning.
-       do while (i < j)
+    i = istart - 1
+    j = iend
+    do while (i /= j)
+       ! Move i so everything to the left of i is less than or equal
+       ! to the pivot.
+       i = i + 1
+       do while (i /= j .and. .not. less_than (pivot, data%array(i)%element))
           i = i + 1
-          do while (less_than (data%array(i)%element, pivot))
-             i = i + 1
-          end do
-          j = j - 1
-          do while (i < j .and. less_than (pivot, data%array(j)%element))
-             j = j - 1
-          end do
-          if (i < j) then
-             tmp = data%array(i)%element
-             data%array(i)%element = data%array(j)%element
-             data%array(j)%element = tmp
-          end if
        end do
 
-       ! Put the pivot to an element in the `middle'.
-       if (i /= iend) then
-          data%array(iend)%element = data%array(i)%element
-          data%array(i)%element = pivot
+       ! Move j so everything to the right of j is greater than or
+       ! equal to the pivot.
+       if (i /= j) then
+          j = j - 1
+          do while (i /= j .and. .not. less_than (data%array(j)%element, pivot))
+             j = j - 1
+          end do
        end if
 
-       ipivot_final = i
-    end if
+       call swap_entries (i, j)
+    end do
+
+    ! Move the pivot to its proper position, with everything that is
+    ! less than the pivot to its left.
+    call swap_entries (i, iend)
+
+    ipivot_final = i
+
+  contains
+
+    subroutine swap_entries (i, j)
+      integer(sz), intent(in) :: i, j
+
+      class(*), allocatable :: tmp
+
+      if (i /= j) then
+         tmp = data%array(i)%element
+         data%array(i)%element = data%array(j)%element
+         data%array(j)%element = tmp
+      end if
+    end subroutine swap_entries
+
   end subroutine hoare_partitioning
 
   subroutine unit_test__hoare_partitioning
