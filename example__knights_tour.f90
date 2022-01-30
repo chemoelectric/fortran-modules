@@ -29,6 +29,9 @@
 ! The solution is by Warnsdorff's rule. See
 ! https://en.wikipedia.org/w/index.php?title=Knight%27s_tour&oldid=1066880156#Warnsdorff's_rule
 !
+! To find closed solutions, the program simply repeatedly finds
+! solutions until one fortuitously is closed.
+!
 
 program example__knights_tour
 
@@ -54,12 +57,8 @@ program example__knights_tour
   type(gcroot_t) :: chessboard
   type(gcroot_t) :: knight_directions
 
-!!$  ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-!!$  character(:), allocatable :: foo
-!!$  complex :: pos1
-!!$  ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-
-  ! Used this to check whether a position is legal.
+  ! Used this to check whether a position is legal. Also, its length
+  ! equals the length of a knight's tour.
   chessboard = generate_chessboard (side)
 
   ! Add any of these to a position to get a new position.
@@ -72,16 +71,15 @@ program example__knights_tour
        &                    (-1, -2),  &
        &                    (-2, -1))
 
-!!$  ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-!!$  call complex_to_algebraic_notation ((1, 2), foo)
-!!$  print*,foo
-!!$  call algebraic_notation_to_complex (foo, pos1)
-!!$  print*,int(real(pos1)),int(aimag(pos1))
-!!$  ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-
   call make_and_print_tour ((1,1), .false.) ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
 contains
+
+  function knights_tour_length () result (len)
+    integer :: len
+
+    len = int (length (chessboard))
+  end function knights_tour_length
 
   function int_cast (x) result (val)
     class(*), intent(in) :: x
@@ -121,27 +119,6 @@ contains
 
     bool = (cmplx_cast (x) == cmplx_cast (y))
   end function cmplx_eq
-
-  function real_part_lt (x, y) result (bool)
-    class(*), intent(in) :: x, y
-    logical :: bool
-
-    bool = (real (cmplx_cast (x)) < real (cmplx_cast (y)))
-  end function real_part_lt
-
-  subroutine cdr_subr (x, cdr_val)
-    class(*), intent(in) :: x
-    class(*), allocatable, intent(out) :: cdr_val
-
-    cdr_val = cdr (x)
-  end subroutine cdr_subr
-
-  subroutine cdrs_subr (x, cdrs_val)
-    class(*), intent(in) :: x
-    class(*), allocatable, intent(out) :: cdrs_val
-
-    cdrs_val = map (cdr_subr, x)
-  end subroutine cdrs_subr
 
   subroutine keep_cmplx_nonmember (x, lst, retval)
     class(*), intent(in) :: x
@@ -345,8 +322,8 @@ contains
     type(gcroot_t) :: moves
 
     moves = moves_list
-    do while (length (moves) /= length (chessboard))
-       do while (length (moves) /= length (chessboard) - 1)
+    do while (length (moves) /= knights_tour_length ())
+       do while (length (moves) /= knights_tour_length () - 1)
           moves = make_warnsdorff_move (moves)
           if (is_nil_list (moves)) then
              ! At this point, there was no legal move. Start over.
@@ -423,86 +400,36 @@ contains
        write (outp, '(A)', advance = 'no') notation
        p = cdr (p)
     end do
+    write (outp, '()', advance = 'yes')
   end subroutine print_tour_linear
 
   subroutine print_tour_matrix (tour)
     class(*), intent(in) :: tour
 
-    call for_each (print_tour_matrix_row, tour_to_matrix (tour))
-  end subroutine print_tour_matrix
+    integer :: matrix(1:side, 1:side)
+    type(gcroot_t) :: p
+    complex :: z
+    integer :: x, y
+    integer :: number_in_sequence
 
-  subroutine print_tour_matrix_row (row)
-    class(*), intent(in) :: row
-
-    call for_each (print_tour_matrix_row_element, row)
-  end subroutine print_tour_matrix_row
-
-  subroutine print_tour_matrix_row_element (element)
-    class(*), intent(in) :: element
-
-    write (outp, '(I3)', advance = 'no') int_cast (element)
-  end subroutine print_tour_matrix_row_element
-
-  function tour_to_matrix (tour) result (matrix)
-    class(*), intent(in) :: tour
-    type(cons_t) :: matrix
-
-    type(gcroot_t) :: ordered_indexed_tour
-
-    ordered_indexed_tour = map (index_to_row, &
-         &                      iota (side, side - 1, -1), &
-         &                      circular_list (index_tour (tour)))
-
-    ! Extract the indices.
-    matrix = map (cdrs_subr, ordered_indexed_tour)
-  end function tour_to_matrix
-
-  subroutine index_to_row (i, indexed_tour, row)
-    class(*), intent(in) :: i
-    class(*), intent(in) :: indexed_tour
-    class(*), allocatable, intent(out) :: row
-
-    row = get_row (int_cast (i), indexed_tour)
-  end subroutine index_to_row
-
-  function index_tour (tour) result (indexed_tour)
-    class(*), intent(in) :: tour
-    type(cons_t) :: indexed_tour
-
-    type(gcroot_t) :: tour_reversed
-    integer :: i
-
-    tour_reversed = reverse (tour)
-
-    indexed_tour = nil
-    do i = 1, int (length (tour_reversed))
-       indexed_tour = cons (list_ref1 (tour_reversed, i), i) ** indexed_tour
+    number_in_sequence = knights_tour_length ()
+    p = tour
+    do while (is_pair (p))
+       z = cmplx_cast (car (p))
+       x = int (real (z)) + 1
+       y = int (aimag (z)) + 1
+       matrix(x, y) = number_in_sequence
+       number_in_sequence = number_in_sequence - 1
+       p = cdr (p)
     end do
-    indexed_tour = reversex (indexed_tour)
-  end function index_tour
 
-  function get_row (n, tour) result (row)
-    integer, intent(in) :: n
-    class(*), intent(in) :: tour
-    type(cons_t) :: row
-
-    row = filter_map (keep_row_element, circular_list (n), tour)
-    row = list_sortx (real_part_lt, row)
-  end function get_row
-
-  subroutine keep_row_element (n, element, retval)
-    class(*), intent(in) :: n
-    class(*), intent(in) :: element
-    class(*), allocatable, intent(out) :: retval
-
-    ! In a row, the imaginary parts (the vertical coordinates) are
-    ! equal.
-    if (int_cast (n) == aimag (cmplx_cast (car (element)))) then
-       retval = element
-    else
-       retval = .false.
-    end if
-  end subroutine keep_row_element
+    do y = side, 1, -1
+       do x = 1, side
+          write (outp, '(I3)', advance = 'no') matrix(x, y)
+       end do
+       write (outp, '()', advance = 'yes')
+    end do
+  end subroutine print_tour_matrix
 
   subroutine make_and_print_tour (starting_position, tour_must_be_closed)
     complex, intent(in) :: starting_position
