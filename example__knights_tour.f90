@@ -116,6 +116,13 @@ contains
     bool = (real (cmplx_cast (x)) < real (cmplx_cast (y)))
   end function real_part_lt
 
+  subroutine car_subr (x, car_val)
+    class(*), intent(in) :: x
+    class(*), allocatable, intent(out) :: car_val
+
+    car_val = car (x)
+  end subroutine car_subr
+
   subroutine cdr_subr (x, cdr_val)
     class(*), intent(in) :: x
     class(*), allocatable, intent(out) :: cdr_val
@@ -129,6 +136,18 @@ contains
 
     cdrs_val = map (cdr_subr, x)
   end subroutine cdrs_subr
+
+  subroutine keep_cmplx_nonmember (x, lst, retval)
+    class(*), intent(in) :: x
+    class(*), intent(in) :: lst
+    class(*), allocatable, intent(out) :: retval
+
+    if (is_not_member (cmplx_eq, x, lst)) then
+       retval = x
+    else
+       retval = .false.
+    end if
+  end subroutine keep_cmplx_nonmember
 
   function generate_chessboard (n) result (board)
     integer, intent(in) :: n
@@ -191,15 +210,8 @@ contains
     ! The move must stay within the chessboard.
     possibilities = lset_intersection (cmplx_eq, possibilities, chessboard)
 
-    ! The move must not already have been visited.
-    legal_moves = nil
-    p = possibilities
-    do while (is_pair (p))
-       if (is_nil (member (cmplx_eq, cmplx_cast (car (p)), moves_list))) then
-          legal_moves = car (p) ** legal_moves
-       end if
-       p = cdr (p)
-    end do
+    ! The position must not already have been visited.
+    legal_moves = filter_map (keep_cmplx_nonmember, possibilities, circular_list (moves_list))
   end function find_legal_moves
 
   function w_rule (a, b) result (bool)
@@ -242,18 +254,21 @@ contains
     type(cons_t) :: weighted_moves
 
     type(gcroot_t) :: candidates
-    type(gcroot_t) :: mv
+
+    candidates = find_legal_moves (moves)
+    weighted_moves = map (cons_weight_and_move, candidates, circular_list (moves))
+  end function return_weighted_moves
+
+  subroutine cons_weight_and_move (mv, moves, pair)
+    class(*), intent(in) :: mv
+    class(*), intent(in) :: moves
+    class(*), allocatable, intent(out) :: pair
+
     integer :: weight
 
-    weighted_moves = nil    
-    candidates = find_legal_moves (moves)
-    do while (is_pair (candidates))
-       mv = car (candidates)
-       weight = int (length (find_legal_moves (cons (mv, moves))))
-       weighted_moves = cons (weight, mv) ** weighted_moves
-       candidates = cdr (candidates)
-    end do
-  end function return_weighted_moves
+    weight = int (length (find_legal_moves (cons (mv, moves))))
+    pair = cons (weight, mv)
+  end subroutine cons_weight_and_move
 
   function pick_among_weighted_moves (moves) result (move_picked)
     !
@@ -348,7 +363,7 @@ contains
 
     ! From tour_end, is tour_start a legal move?
     legal_moves = find_legal_moves (list (tour_end))
-    bool = is_not_nil (member (cmplx_eq, tour_start, legal_moves))
+    bool = is_member (cmplx_eq, tour_start, legal_moves)
   end function tour_is_closed
 
   subroutine print_tour_linear (tour)
@@ -413,18 +428,21 @@ contains
     class(*), intent(in) :: tour
     type(cons_t) :: row
 
-    type(gcroot_t) :: p
-
-    ! In a row, the imaginary parts (the vertical coordinate) are
-    ! equal.
-    row = nil
-    p = tour
-    do while (is_pair (p))
-       if (aimag (cmplx_cast (car (p))) == n) then
-          row = car (p) ** row
-       end if
-       p = cdr (p)
-    end do
+    row = filter_map (keep_row_element, circular_list (n), tour)
   end function get_row
+
+  subroutine keep_row_element (n, element, retval)
+    class(*), intent(in) :: n
+    class(*), intent(in) :: element
+    class(*), allocatable, intent(out) :: retval
+
+    ! In a row, the imaginary parts (the vertical coordinates) are
+    ! equal.
+    if (int_cast (n) == aimag (cmplx_cast (car (element)))) then
+       retval = element
+    else
+       retval = .false.
+    end if
+  end subroutine keep_row_element
 
 end program example__knights_tour
