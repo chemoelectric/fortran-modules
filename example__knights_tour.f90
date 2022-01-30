@@ -94,6 +94,14 @@ contains
     end select
   end function cmplx_cast
 
+  subroutine cmplx_add (x, y, sum)
+    class(*), intent(in) :: x
+    class(*), intent(in) :: y
+    class(*), allocatable, intent(out) :: sum
+
+    sum = (cmplx_cast (x) + cmplx_cast (y))
+  end subroutine cmplx_add
+
   function cmplx_eq (x, y) result (bool)
     class(*), intent(in) :: x, y
     logical :: bool
@@ -174,26 +182,11 @@ contains
     type(gcroot_t) :: possibilities
     type(gcroot_t) :: p
     complex :: current_position
-    complex :: direction
 
     current_position = cmplx_cast (car (moves_list))
 
-
-    !!!!!!!!!!!!!!!!!!!!!!!!!!! FIXME: Use zip and a circular list to
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!        pass environment to a map
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!        subroutine, in place of a
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!        closure. That way we can use
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!        `map' here (even though Fortran
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!        has very limited closure
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!        support).
     ! Generate possible new moves.
-    possibilities = nil
-    p = knight_directions
-    do while (is_pair (p))
-       direction = cmplx_cast (car (p))
-       possibilities = cons (current_position + direction, possibilities)
-       p = cdr (p)
-    end do
+    possibilities = map (cmplx_add, circular_list (car (moves_list)), knight_directions)
 
     ! The move must stay within the chessboard.
     possibilities = lset_intersection (cmplx_eq, possibilities, chessboard)
