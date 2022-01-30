@@ -28,12 +28,17 @@
 !
 
 program example__knights_tour
+
+  use, intrinsic :: iso_fortran_env, only: output_unit
+
   use, non_intrinsic :: garbage_collector
   use, non_intrinsic :: cons_pairs
   use, non_intrinsic :: lsets
   use, non_intrinsic :: sorting_and_selection
 
   implicit none
+
+  integer, parameter :: outp = output_unit
 
   ! The dimension of a side.
   integer, parameter :: side = 8
@@ -68,6 +73,8 @@ program example__knights_tour
   call algebraic_notation_to_complex (foo, pos1)
   print*,int(real(pos1)),int(aimag(pos1))
   ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+
+  call make_and_print_tour ((1,1), .false.)
 
 contains
 
@@ -181,7 +188,7 @@ contains
     x = findloc (xnotation, notation(1:1), dim = 1) - 1
     y = findloc (ynotation, notation(2:2), dim = 1) - 1
     if (x == -1 .or. y == -1) then
-       write (*, '(A2, " is not a legal position; using a1 instead")') notation
+       write (outp, '(A2, " is not a legal position; using a1 instead")') notation
        x = 0
        y = 0
     end if
@@ -333,6 +340,18 @@ contains
     tour = .tocons. moves
   end function make_tour
 
+  function make_tour_from_starting_position (starting_position, tour_must_be_closed) result (tour)
+    complex, intent(in) :: starting_position
+    logical, intent(in) :: tour_must_be_closed
+    type(cons_t) :: tour
+
+    if (tour_must_be_closed) then
+       tour = make_closed_tour (starting_position ** nil)
+    else
+       tour = make_tour (starting_position ** nil)
+    end if
+  end function make_tour_from_starting_position
+
   function make_closed_tour (moves_list) result (tour)
     class(*), intent(in) :: moves_list
     type(cons_t) :: tour
@@ -364,18 +383,38 @@ contains
 
     type(gcroot_t) :: p
     character(:), allocatable :: notation
-    character(:), allocatable :: separator
+    logical :: with_separator
 
-    separator = ''
+    with_separator = .false.
     p = reverse (tour)
     do while (is_pair (p))
-       write (*, '(A)', advance = 'no') separator
-       separator = ' -> '
+       if (with_separator) then
+          write (outp, '(" -> ")', advance = 'no')
+       end if
+       with_separator = .true.
        call complex_to_algebraic_notation (cmplx_cast (car (p)), notation)
-       write (*, '(A)', advance = 'no') notation
+       write (outp, '(A)', advance = 'no') notation
        p = cdr (p)
     end do
   end subroutine print_tour_linear
+
+  subroutine print_tour_matrix (tour)
+    class(*), intent(in) :: tour
+
+    call for_each (print_tour_matrix_row, tour_to_matrix (tour))
+  end subroutine print_tour_matrix
+
+  subroutine print_tour_matrix_row (row)
+    class(*), intent(in) :: row
+
+    call for_each (print_tour_matrix_row_element, row)
+  end subroutine print_tour_matrix_row
+
+  subroutine print_tour_matrix_row_element (element)
+    class(*), intent(in) :: element
+
+    write (outp, '(I3)', advance = 'no') int_cast (element)
+  end subroutine print_tour_matrix_row_element
 
   function tour_to_matrix (tour) result (matrix)
     class(*), intent(in) :: tour
@@ -437,5 +476,18 @@ contains
        retval = .false.
     end if
   end subroutine keep_row_element
+
+  subroutine make_and_print_tour (starting_position, tour_must_be_closed)
+    complex, intent(in) :: starting_position
+    logical, intent(in) :: tour_must_be_closed
+
+    type(gcroot_t) :: tour
+
+    tour = make_tour_from_starting_position (starting_position, tour_must_be_closed)
+    call print_tour_linear (tour)
+    write (outp, '()', advance = 'yes')
+    write (outp, '()', advance = 'yes')
+    call print_tour_matrix (tour)
+  end subroutine make_and_print_tour
 
 end program example__knights_tour
