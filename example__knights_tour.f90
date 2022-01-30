@@ -24,7 +24,8 @@
 !
 
 !
-! Knight's tour, based on a Rosetta Code example in Common Lisp.
+! Knight's tour, based on a Rosetta Code example in Common Lisp. See
+! https://archive.is/erttT#Common_Lisp
 !
 ! The solution is by Warnsdorff's rule. See
 ! https://en.wikipedia.org/w/index.php?title=Knight%27s_tour&oldid=1066880156#Warnsdorff's_rule
