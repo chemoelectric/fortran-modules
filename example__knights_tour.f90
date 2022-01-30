@@ -71,7 +71,7 @@ program example__knights_tour
        &                    (-1, -2),  &
        &                    (-2, -1))
 
-  call make_and_print_tour ((1,1), .false.) ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+  call make_and_print_tour ((1,1), .true.) ! FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 
 contains
 
@@ -365,16 +365,20 @@ contains
     class(*), intent(in) :: tour
     logical :: bool
 
-    type(gcroot_t) :: tour_start
-    type(gcroot_t) :: tour_end
+    complex :: tour_start
+    complex :: tour_end
     type(gcroot_t) :: legal_moves
 
-    tour_start = last (tour)
-    tour_end = first (tour)
+    tour_start = cmplx_cast (last (tour))
+    tour_end = cmplx_cast (first (tour))
 
     ! From tour_end, is tour_start a legal move?
     legal_moves = find_legal_moves (list (tour_end))
-    bool = is_member (cmplx_eq, tour_start, legal_moves)
+    if (is_nil_list (legal_moves)) then
+       bool = .false.
+    else
+       bool = is_member (cmplx_eq, tour_start, legal_moves)
+    end if
   end function tour_is_closed
 
   subroutine print_tour_linear (tour)
