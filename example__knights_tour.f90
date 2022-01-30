@@ -99,7 +99,9 @@ program example__knights_tour
 contains
 
   subroutine print_usage
-    write (outp, '("Usage: example__knights_tour START_POSITION [CLOSED]")')
+    write (outp, '("Usage: example__knights_tour START_POSITION [closed]")')
+    write (outp, '()')
+    write (outp, '("START_POSITION may be either algebraic notation or the word `random''.")')
     write (outp, '()')
     write (outp, '("For example:")')
     write (outp, '("   example__knights_tour a1")')
