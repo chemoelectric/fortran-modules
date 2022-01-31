@@ -31,6 +31,9 @@
 ! The Icon program employs backtracking assignments to arrays; our
 ! approach, by contrast, is functional and uses linked lists.
 !
+! Indeed, there is little resemblance between the two programs. It
+! might prove interesting to compare them.
+!
 ! The following commentary is taken from the Icon program:
 !
 ! ############################################################################
@@ -90,18 +93,45 @@ program example__n_queens
 
   implicit none
 
-  integer, parameter :: outp = output_unit
-
+  ! Positions of coordinates within a position triple. The triple is
+  ! stored as a length-3 list. One usefulness of this design is: a
+  ! list of such triples may be unzipped into three lists, one each
+  ! for the ranks, the `down' diagonals, and the `up' diagonals.
   integer, parameter :: i_rank = 1
   integer, parameter :: i_diag_down = 2
   integer, parameter :: i_diag_up = 3
 
+  integer :: arg_count
+  integer :: stat
+  character(80) :: arg1
+  integer :: board_size
   type(cons_t) :: all_solutions
 
-  all_solutions = find_all_solutions (8)
-  print *, length(all_solutions)
+  arg_count = command_argument_count ()
+  if (arg_count == 1) then
+     call get_command_argument (1, arg1)
+     read (arg1, *, iostat = stat) board_size
+     if (stat /= 0) then
+        call print_usage (output_unit)
+     else if (board_size < 1) then
+        call print_usage (output_unit)
+     else
+        all_solutions = find_all_solutions (board_size)
+        call print_all_solutions (output_unit, board_size, all_solutions)
+     end if
+  else
+     call print_usage (output_unit)
+  end if
 
 contains
+
+  subroutine print_usage (outp)
+    integer, intent(in) :: outp
+
+    write (outp, '("Usage: example__n_queens BOARD_SIZE")')
+    write (outp, '("BOARD_SIZE must be at least 1.")')
+    write (outp, '("All solutions are computed before any is printed.")')
+  end subroutine print_usage
 
   function find_all_solutions (board_size) result (all_solutions)
     integer, intent(in) :: board_size
@@ -227,6 +257,73 @@ contains
          & .and. .not. is_member (int_eq, list_ref1 (new_position, i_diag_down), diags_down) &
          & .and. .not. is_member (int_eq, list_ref1 (new_position, i_diag_up), diags_up)
   end function position_is_legal
+
+  subroutine print_all_solutions (outp, board_size, all_solutions)
+    integer, intent(in) :: outp
+    class(*), intent(in) :: board_size
+    class(*), intent(in) :: all_solutions
+
+    integer(size_kind) :: n
+
+    n = length (all_solutions)
+    if (n == 1) then
+       write (outp, '("There is ", I0, " solution.")') n
+    else
+       write (outp, '("There are ", I0, " solutions.")') n
+    end if
+    call for_each (print_spaced_solution, circular_list (outp), &
+         &         circular_list (board_size), all_solutions)
+  end subroutine print_all_solutions
+
+  subroutine print_spaced_solution (outp, board_size, solution)
+    class(*), intent(in) :: outp
+    class(*), intent(in) :: board_size
+    class(*), intent(in) :: solution
+
+    write (int_cast (outp), '()', advance = 'yes')
+    call print_solution (outp, board_size, solution)
+  end subroutine print_spaced_solution
+
+  subroutine print_solution (outp, board_size, solution)
+    class(*), intent(in) :: outp
+    class(*), intent(in) :: board_size
+    class(*), intent(in) :: solution
+
+    integer :: n_outp
+    integer :: n_board_size
+    type(cons_t) :: ranks
+    integer :: rank
+    integer :: file
+    integer :: file_of_queen
+
+    n_outp = int_cast (outp)
+    n_board_size = int_cast (board_size)
+
+    call unzip (solution, ranks)
+
+    do rank = n_board_size, 1, -1
+       do file = 1, n_board_size
+          write (n_outp, '("----")', advance = 'no')
+       end do
+       write (n_outp, '("-")', advance = 'yes')
+
+       file_of_queen = n_board_size - int (list_index0 (int_eq, circular_list (rank), ranks))
+
+       do file = 1, n_board_size
+          if (file == file_of_queen) then
+             write (n_outp, '("| Q ")', advance = 'no')
+          else
+             write (n_outp, '("|   ")', advance = 'no')
+          end if
+       end do
+       write (n_outp, '("|")', advance = 'yes')       
+    end do
+
+    do file = 1, n_board_size
+       write (n_outp, '("----")', advance = 'no')
+    end do
+    write (n_outp, '("-")', advance = 'yes')
+  end subroutine print_solution
 
   subroutine kons (x, y, xy)
     class(*), intent(in) :: x
