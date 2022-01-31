@@ -113,6 +113,7 @@ TEST_PROGRAM_BASENAMES += test__vectars
 TEST_PROGRAM_BASENAMES += test__sorting_and_selection
 
 EXAMPLE_PROGRAM_BASENAMES += example__knights_tour
+EXAMPLE_PROGRAM_BASENAMES += example__n_queens
 
 .PHONY: all default
 default: all
@@ -174,6 +175,9 @@ example__knights_tour: $(addsuffix .$(OBJEXT), example__knights_tour cons_pairs 
 													sorting_and_selection vectars garbage_collector)
 	$(COMPILE.f90) $(^) -o $(@)
 
+example__n_queens: $(addsuffix .$(OBJEXT), example__n_queens cons_pairs garbage_collector)
+	$(COMPILE.f90) $(^) -o $(@)
+
 lsets.anchor: lsets.f90
 	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) -c -fsyntax-only $(<) && touch $(@)
 lsets.$(OBJEXT): lsets.anchor
@@ -202,6 +206,11 @@ test__sorting_and_selection.$(OBJEXT): test__sorting_and_selection.anchor
 example__knights_tour.anchor: example__knights_tour.f90
 	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c -fsyntax-only $(<) && touch $(@)
 example__knights_tour.$(OBJEXT): example__knights_tour.anchor
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c $(<:.anchor=.f90) -o $(@)
+
+example__n_queens.anchor: example__n_queens.f90
+	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c -fsyntax-only $(<) && touch $(@)
+example__n_queens.$(OBJEXT): example__n_queens.anchor
 	$(COMPILE.f90) $(FCFLAG_WNO_TRAMPOLINES) $(FCFLAGS_WNO_FUNCTION_ELIMINATION) -c $(<:.anchor=.f90) -o $(@)
 
 garbage_collector.anchor: garbage_collector.mod
@@ -270,6 +279,11 @@ example__knights_tour.anchor: vectars.anchor
 example__knights_tour.anchor: sorting_and_selection.anchor
 example__knights_tour.anchor: example__knights_tour.mod
 example__knights_tour.mod:
+
+example__n_queens.anchor: garbage_collector.anchor
+example__n_queens.anchor: cons_pairs.anchor
+example__n_queens.anchor: example__n_queens.mod
+example__n_queens.mod:
 
 suffixed-all-basenames = $(addsuffix $(shell printf "%s" $(1)),$(MODULE_BASENAMES) $(TEST_PROGRAM_BASENAMES))
 
