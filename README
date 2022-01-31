@@ -39,7 +39,7 @@ sorting_and_selection.f90 -- Sorting routines for CONS-pair lists and
 Example programs
 ----------------
 
-example__knights_tour.f90 -- Knight’s Tour on an 8x8 chessboard.
+example__knights_tour.f90 -- Knight’s Tour on an 8྾8 chessboard.
 
 
 Regarding my use of m4
