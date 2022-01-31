@@ -40,6 +40,7 @@ Example programs
 ----------------
 
 example__knights_tour.f90 -- Knight’s Tour on an 8྾8 chessboard.
+example__n_queens.f90  -- Prints solutions to the n-queens problem.
 
 
 Regarding my use of m4
