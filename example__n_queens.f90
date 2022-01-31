@@ -166,7 +166,8 @@ contains
   function expand_file_legally (board_size, file, positions_so_far) result (positions)
     !
     ! Return a list of all the positions in a given file, under the
-    ! constraint that queen not be under attack.
+    ! constraint that a queen placed in the position not be under
+    ! attack.
     !
     integer, intent(in) :: board_size
     integer, intent(in) :: file
