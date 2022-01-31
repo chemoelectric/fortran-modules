@@ -36,6 +36,12 @@ sorting_and_selection.f90 -- Sorting routines for CONS-pair lists and
                           (Expat license)
 
 
+Example programs
+----------------
+
+example__knights_tour.f90 -- Knight’s Tour on an 8x8 chessboard.
+
+
 Regarding my use of m4
 ----------------------
 
