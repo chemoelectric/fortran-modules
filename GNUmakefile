@@ -285,6 +285,9 @@ example__n_queens.anchor: cons_pairs.anchor
 example__n_queens.anchor: example__n_queens.mod
 example__n_queens.mod:
 
+suffixed-all-basenames-but-examples = $(addsuffix $(shell printf "%s" $(1)), \
+	$(MODULE_BASENAMES) $(TEST_PROGRAM_BASENAMES))
+
 suffixed-all-basenames = $(addsuffix $(shell printf "%s" $(1)), \
 	$(MODULE_BASENAMES) $(TEST_PROGRAM_BASENAMES) $(EXAMPLE_PROGRAM_BASENAMES))
 
@@ -306,4 +309,4 @@ clean: coverage-clean
 	-rm -f $(call suffixed-all-basenames, .$(OBJEXT))
 	-rm -f $(call suffixed-all-basenames, .anchor)
 maintainer-clean: clean
-	-rm -f $(call suffixed-all-basenames, .f90)
+	-rm -f $(call suffixed-all-basenames-but-examples, .f90)
