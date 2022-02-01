@@ -101,26 +101,45 @@ program example__n_queens
   integer, parameter :: i_diag_down = 2
   integer, parameter :: i_diag_up = 3
 
+  ! .true. is good for testing that necessary values are rooted.
+  ! .false. to collect garbage only when the heap reaches a limit.
+  logical :: aggressive_garbage_collection = .true.
+
   integer :: arg_count
   integer :: stat
-  character(80) :: arg1
-  integer :: board_size
-  type(cons_t) :: all_solutions
+  character(80) :: arg
+
+  type(gcroot_t) :: board_sizes
 
   arg_count = command_argument_count ()
-  if (arg_count == 1) then
-     call get_command_argument (1, arg1)
-     read (arg1, *, iostat = stat) board_size
-     if (stat /= 0) then
-        call print_usage (output_unit)
-     else if (board_size < 1) then
+  if (arg_count < 1) then
+     call print_usage (output_unit)
+  else
+     board_sizes = nil
+     block
+       integer :: i
+       integer :: board_size
+       do i = 1, arg_count
+          call get_command_argument (i, arg)
+          read (arg, *, iostat = stat) board_size
+          if (stat /= 0 .or. board_size < 1) then
+             board_size = -1
+          end if
+          board_sizes = cons (board_size, board_sizes)
+       end do
+       board_sizes = reversex (board_sizes)
+     end block
+
+     if (is_member (int_eq, -1, board_sizes)) then
         call print_usage (output_unit)
      else
-        all_solutions = find_all_solutions (board_size)
-        call print_all_solutions (output_unit, board_size, all_solutions)
+        ! Use pair_for_each as a way to distinguish the last
+        ! BOARD_SIZE from the others. The last entry will be the final
+        ! pair, and so its CDR will *not* be a pair.
+        call pair_for_each (find_and_print_all_solutions, &
+             &              circular_list (output_unit), &
+             &              board_sizes)
      end if
-  else
-     call print_usage (output_unit)
   end if
 
 contains
@@ -128,13 +147,32 @@ contains
   subroutine print_usage (outp)
     integer, intent(in) :: outp
 
-    write (outp, '("Usage: example__n_queens BOARD_SIZE")')
-    write (outp, '("BOARD_SIZE must be at least 1.")')
-    write (outp, '("All solutions are computed before any is printed.")')
+    write (outp, '("Usage: example__n_queens BOARD_SIZE [BOARD_SIZE...]")')
+    write (outp, '("Each BOARD_SIZE must be at least 1.")')
+    write (outp, '("For each BOARD_SIZE, all solutions are computed before any is printed.")')
   end subroutine print_usage
 
+  subroutine find_and_print_all_solutions (outp_pair, board_sizes)
+    class(*), intent(in) :: outp_pair
+    class(*), intent(in) :: board_sizes
+
+    integer :: n_outp
+    type(gcroot_t) :: all_solutions
+
+    n_outp = int_cast (car (outp_pair))
+
+    all_solutions = find_all_solutions (car (board_sizes))
+    call check_garbage
+    call print_all_solutions (n_outp, car (board_sizes), all_solutions)
+    call check_garbage
+    if (is_pair (cdr (board_sizes))) then
+       ! Space between one BOARD_SIZE and another.
+       write (n_outp, '()')
+    end if
+  end subroutine find_and_print_all_solutions
+
   function find_all_solutions (board_size) result (all_solutions)
-    integer, intent(in) :: board_size
+    class(*), intent(in) :: board_size
     type(cons_t) :: all_solutions
 
     class(*), allocatable :: solutions
@@ -159,7 +197,7 @@ contains
        positions = expand_file_legally (int_cast (board_size), file, positions_so_far)
        new_pos_so_fars = map (kons, positions, circular_list (positions_so_far))
        solutions = concatenate (map (find_solutions_from_positions_so_far, &
-            &                        circular_list (board_size), new_pos_so_fars))
+            &                   circular_list (board_size), new_pos_so_fars))
     end if
   end subroutine find_solutions_from_positions_so_far
 
@@ -260,17 +298,19 @@ contains
   end function position_is_legal
 
   subroutine print_all_solutions (outp, board_size, all_solutions)
-    integer, intent(in) :: outp
+    class(*), intent(in) :: outp
     class(*), intent(in) :: board_size
     class(*), intent(in) :: all_solutions
 
     integer(size_kind) :: n
 
     n = length (all_solutions)
+    write (int_cast (outp), '("For a board ", I0, " by ", I0, ", ")', advance = 'no') &
+         &    int_cast (board_size), int_cast (board_size)
     if (n == 1) then
-       write (outp, '("There is ", I0, " solution.")') n
+       write (int_cast (outp), '("there is ", I0, " solution.")') n
     else
-       write (outp, '("There are ", I0, " solutions.")') n
+       write (int_cast (outp), '("there are ", I0, " solutions.")') n
     end if
     call for_each (print_spaced_solution, circular_list (outp), &
          &         circular_list (board_size), all_solutions)
@@ -353,5 +393,13 @@ contains
 
     bool = (int_cast (x) == int_cast (y))
   end function int_eq
+
+  subroutine check_garbage
+    if (aggressive_garbage_collection) then
+       call collect_garbage_now
+    else
+       call check_heap_size
+    end if
+  end subroutine check_garbage
 
 end program example__n_queens
