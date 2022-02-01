@@ -1477,15 +1477,7 @@ contains
   function vectar0 () result (vec)
     type(vectar_t) :: vec
 
-    type(heap_element_t), pointer :: new_element
-    class(vectar_data_t), pointer :: data
-
-    allocate (data)
-    data%length = 0_sz
-    allocate (new_element)
-    new_element%data => data
-    call heap_insert (new_element)
-    vec%heap_element => new_element
+    vec = make_vectar (0_sz)
   end function vectar0
 
 m4_forloop([n],[1],LISTN_MAX,[dnl
@@ -1534,15 +1526,17 @@ dnl
 
     type(heap_element_t), pointer :: new_element
     class(vectar_data_t), pointer :: data
-    integer(sz) :: array_size
 
     if (size < 0_sz) then
        call error_abort ("vectar size must be at least zero")
     else
        allocate (data)
        data%length = size
-       array_size = max (1_sz, size)
-       allocate (data%array(0_sz:array_size - 1_sz), source = vectar_element_t (.autoval. fill))
+       if (0_sz < size) then
+          allocate (data%array(0_sz:size - 1_sz), source = vectar_element_t (.autoval. fill))
+       else
+          allocate (data%array(0_sz:0_sz))
+       end if
        allocate (new_element)
        new_element%data => data
        call heap_insert (new_element)
@@ -2159,15 +2153,12 @@ dnl
     type(cons_t) :: p
     type(heap_element_t), pointer :: new_element
     class(vectar_data_t), pointer :: data
-    integer(sz) :: array_size
-    class(*), allocatable :: unused_value
 
     n = length (.autoval. lst)
     allocate (data)
     data%length = n
-    array_size = max (1_sz, n)
-    allocate (data%array(0_sz:(array_size - 1_sz)))
     if (0_sz < n) then
+       allocate (data%array(0_sz:(n - 1_sz)))
        i = 0
        p = .autoval. lst
        do while (is_pair (p))
@@ -2176,9 +2167,7 @@ dnl
           p = cdr (p)
        end do
     else
-       ! Negative of the charge of one electron, in coulombs.
-       unused_value = 1.602176634E-19
-       data%array(0) = vectar_element_t (unused_value)
+       allocate (data%array(0_sz:0_sz))
     end if
     allocate (new_element)
     new_element%data => data
@@ -2195,15 +2184,12 @@ dnl
     type(cons_t) :: p
     type(heap_element_t), pointer :: new_element
     class(vectar_data_t), pointer :: data
-    integer(sz) :: array_size
-    class(*), allocatable :: unused_value
 
     n = length (.autoval. lst)
     allocate (data)
     data%length = n
-    array_size = max (1_sz, n)
-    allocate (data%array(0_sz:(array_size - 1_sz)))
     if (0_sz < n) then
+       allocate (data%array(0_sz:(n - 1_sz)))
        i = n - 1
        p = .autoval. lst
        do while (is_pair (p))
@@ -2212,9 +2198,7 @@ dnl
           p = cdr (p)
        end do
     else
-       ! Negative of the charge of one electron, in coulombs.
-       unused_value = 1.602176634E-19
-       data%array(0) = vectar_element_t (unused_value)
+       allocate (data%array(0_sz:0_sz))
     end if
     allocate (new_element)
     new_element%data => data
@@ -2343,10 +2327,10 @@ dnl
     num_vectars = length (vectars)
 
     select case (num_vectars)
-    case (0)
+    case (0_sz)
        vec_c = vectar ()
 m4_forloop([n],[1],ZIP_MAX,[dnl
-    case (n)
+    case (n[]_sz)
        block
 m4_forloop([k],[1],n,[dnl
          class(*), allocatable :: vec[]k
@@ -2358,42 +2342,50 @@ m4_forloop([k],[1],n,[dnl
        end block
 ])dnl
     case default
-       block
-         type(cons_t) :: p
-         type(cons_t) :: vecs_reversed
-         type(vectar_range_t) :: vecr
-         integer(sz) :: len_vec_c
-         integer(sz) :: i, j
-         class(vectar_data_t), pointer :: src, dst
-
-         vecs_reversed = nil
-         len_vec_c = 0_sz
-         p = vectars
-         do i = 1_sz, num_vectars
-            vecr = car (p)
-            vecs_reversed = vecr ** vecs_reversed
-            len_vec_c = len_vec_c + vecr%length()
-            p = cdr (p)
-         end do
-
-         vec_c = make_vectar (len_vec_c)
-
-         dst => vectar_data_ptr (vec_c)
-
-         j = len_vec_c
-         p = vecs_reversed
-         do while (is_pair (p))
-            vecr = car (p)
-            src => vectar_data_ptr (vecr)
-            do i = vecr%iend0(), vecr%istart0(), -1
-               j = j - 1
-               dst%array(j) = src%array(i)
-            end do
-            p = cdr (p)
-         end do
-       end block
+       vec_c = vectar_concatenate_any_length (vectars)
     end select
   end function vectar_concatenate
+
+  function vectar_concatenate_any_length (vectars) result (vec_c)
+    class(*), intent(in) :: vectars
+    type(vectar_t) :: vec_c
+
+    integer(sz) :: num_vectars
+    type(cons_t) :: p
+    type(vectar_range_t) :: vecr
+    integer(sz) :: len_vec_c
+    integer(sz) :: i, j
+    class(vectar_data_t), pointer :: src
+    type(vectar_data_t), pointer :: dst
+
+    num_vectars = length (vectars)
+
+    ! Compute the length of the result vectar.
+    len_vec_c = 0_sz
+    p = vectars
+    do i = 1_sz, num_vectars
+       vecr = car (p)
+       len_vec_c = len_vec_c + vecr%length()
+       p = cdr (p)
+    end do
+
+    vec_c = make_vectar (len_vec_c)
+
+    ! Copy the data.
+    vec_c = make_vectar (len_vec_c)
+    dst => vectar_data_ptr (vec_c)
+    j = 0;
+    p = vectars
+    do while (is_pair (p))
+       vecr = car (p)
+       src => vectar_data_ptr (vecr)
+       do i = vecr%istart0(), vecr%iend0()
+          dst%array(j)%element = src%array(i)%element
+          j = j + 1
+       end do
+       p = cdr (p)
+    end do
+  end function vectar_concatenate_any_length
 
 !!!-------------------------------------------------------------------
 
@@ -3218,44 +3210,49 @@ dnl
     vec_root = vec
 
     vecr = vec
-    data => vectar_data_ptr (vecr)
-    i0 = vecr%istart0()
-    len = vecr%length()
-    len_minus_one = len - 1_sz
+    if (vecr%length() == 0) then
+       vec_out = make_vectar (0_sz)
+       num_satisfied = 0_sz
+    else
+       data => vectar_data_ptr (vecr)
+       i0 = vecr%istart0()
+       len = vecr%length()
+       len_minus_one = len - 1_sz
 
-    allocate (satisfied(0_sz:len_minus_one), source = false)
+       allocate (satisfied(0_sz:len_minus_one), source = false)
 
-    ! Mark which entries satisfy the predicate, and also count how
-    ! many do.
-    satisfied_count = 0_sz
-    do i = 0_sz, len_minus_one
-       if (pred (data%array(i0 + i)%element)) then
-          satisfied(i) = true
-          satisfied_count = satisfied_count + 1_sz
-       end if
-    end do
+       ! Mark which entries satisfy the predicate, and also count how
+       ! many do.
+       satisfied_count = 0_sz
+       do i = 0_sz, len_minus_one
+          if (pred (data%array(i0 + i)%element)) then
+             satisfied(i) = true
+             satisfied_count = satisfied_count + 1_sz
+          end if
+       end do
+
+       ! Create and fill the output vector.
+       partitioned_vectar = make_vectar (len)
+       partitioned_vectar_data => vectar_data_ptr (partitioned_vectar)
+       j = 0_sz
+       k = satisfied_count
+       do i = 0_sz, len_minus_one
+          if (satisfied(i) == true) then
+             partitioned_vectar_data%array(j) = data%array(i0 + i)
+             j = j + 1
+          else
+             partitioned_vectar_data%array(k) = data%array(i0 + i)
+             k = k + 1
+          end if
+       end do
+
+       deallocate (satisfied)
+
+       vec_out = partitioned_vectar
+       num_satisfied = satisfied_count
+    end if
 
     call vec_root%discard
-
-    ! Create and fill the output vector.
-    partitioned_vectar = make_vectar (len)
-    partitioned_vectar_data => vectar_data_ptr (partitioned_vectar)
-    j = 0_sz
-    k = satisfied_count
-    do i = 0_sz, len_minus_one
-       if (satisfied(i) == true) then
-          partitioned_vectar_data%array(j) = data%array(i0 + i)
-          j = j + 1
-       else
-          partitioned_vectar_data%array(k) = data%array(i0 + i)
-          k = k + 1
-       end if
-    end do
-
-    deallocate (satisfied)
-
-    vec_out = partitioned_vectar
-    num_satisfied = satisfied_count
   end subroutine do_vectar_partition
 
   recursive function vectar_partition (pred, vec) result (lst)
