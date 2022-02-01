@@ -1674,6 +1674,7 @@ contains
 
     integer(sz) :: i, j
     class(*), allocatable :: pivot
+    logical :: done
 
     ! Move the pivot to the last element.
     call swap_entries (ipivot, iend)
@@ -1686,16 +1687,30 @@ contains
        ! Move i so everything to the left of i is less than or equal
        ! to the pivot.
        i = i + 1
-       do while (i /= j .and. .not. less_than (pivot, data%array(i)%element))
-          i = i + 1
+       done = .false.
+       do while (.not. done)
+          if (i == j) then
+             done = .true.
+          else if (less_than (pivot, data%array(i)%element)) then
+             done = .true.
+          else
+             i = i + 1
+          end if
        end do
 
        ! Move j so everything to the right of j is greater than or
        ! equal to the pivot.
        if (i /= j) then
           j = j - 1
-          do while (i /= j .and. .not. less_than (data%array(j)%element, pivot))
-             j = j - 1
+          done = .false.
+          do while (.not. done)
+             if (i == j) then
+                done = .true.
+             else if (less_than (data%array(j)%element, pivot)) then
+                done = .true.
+             else
+                j = j - 1
+             end if
           end do
        end if
 
@@ -1767,7 +1782,7 @@ contains
        vec1 = make_vectar (i)
        do j = 1, vectar_length (vec1)
           call random_number (randnum)
-          call vectar_set1 (vec1, j, int (randnum * 20_sz, kind = sz))
+          call vectar_set1 (vec1, j, int (randnum * 20))
        end do
        do j = 1, vectar_length (vec1)
           vec2 = vectar_copy (vec1)
@@ -1794,6 +1809,10 @@ contains
       select type (x => data%array(ipivot)%element)
       type is (integer)
          pivot = x
+      class default
+         ! This branch is here mainly to get rid of a compiler
+         ! warning.
+         call error_abort ("unit_test__hoare_partitioning 0005 failed")
       end select
       call hoare_partitioning (int_less_than, data, vecr%istart0(), vecr%iend0(), ipivot, imiddle)
       call check_partition (data, vecr%istart0(), imiddle, vecr%iend0(), pivot)
