@@ -189,9 +189,11 @@ contains
     integer :: file
     type(cons_t) :: positions
     type(cons_t) :: new_pos_so_fars
+    type(cons_t) :: one_solution
 
     if (length (positions_so_far) == int_cast (board_size)) then
-       solutions = list (positions_so_far)
+       call unzip (positions_so_far, one_solution) ! Keep only the ranks.
+       solutions = list (one_solution)
     else
        file = int (length (positions_so_far)) + 1
        positions = expand_file_legally (int_cast (board_size), file, positions_so_far)
@@ -332,7 +334,6 @@ contains
 
     integer :: n_outp
     integer :: n_board_size
-    type(cons_t) :: ranks
     integer :: rank
     integer :: file
     integer :: file_of_queen
@@ -340,15 +341,13 @@ contains
     n_outp = int_cast (outp)
     n_board_size = int_cast (board_size)
 
-    call unzip (solution, ranks)
-
     do rank = n_board_size, 1, -1
        do file = 1, n_board_size
           write (n_outp, '("----")', advance = 'no')
        end do
        write (n_outp, '("-")', advance = 'yes')
 
-       file_of_queen = n_board_size - int (list_index0 (int_eq, circular_list (rank), ranks))
+       file_of_queen = n_board_size - int (list_index0 (int_eq, circular_list (rank), solution))
 
        do file = 1, n_board_size
           if (file == file_of_queen) then
