@@ -293,10 +293,32 @@ contains
     type(cons_t) :: diags_down
     type(cons_t) :: diags_up
 
+    !
+    ! The positions_so_far list looks, for instance, like this:
+    !
+    !    list (list (rank3, diag_down3, diag_up3),
+    !          list (rank2, diag_down2, diag_up2),
+    !          list (rank1, diag_down1, diag_up1))
+    !
+    ! Unzipping it gives three lists:
+    !
+    !    list (rank3, rank2, rank1)
+    !
+    !    list (diag_down3, diag_down2, diag_down1)
+    !
+    !    list (diag_up3, diag_up2, diag_up1)
+    !
     call unzip (positions_so_far, ranks, diags_down, diags_up)
-    bool = .not. is_member (int_eq, list_ref1 (new_position, i_rank), ranks) &
-         & .and. .not. is_member (int_eq, list_ref1 (new_position, i_diag_down), diags_down) &
-         & .and. .not. is_member (int_eq, list_ref1 (new_position, i_diag_up), diags_up)
+
+    if (is_member (int_eq, list_ref1 (new_position, i_rank), ranks)) then
+       bool = .false.
+    else if (is_member (int_eq, list_ref1 (new_position, i_diag_down), diags_down)) then
+       bool = .false.
+    else if (is_member (int_eq, list_ref1 (new_position, i_diag_up), diags_up)) then
+       bool = .false.
+    else
+       bool = .true.
+    end if
   end function position_is_legal
 
   subroutine print_all_solutions (outp, board_size, all_solutions)
