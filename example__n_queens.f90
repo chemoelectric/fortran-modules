@@ -93,14 +93,6 @@ program example__n_queens
 
   implicit none
 
-  ! Positions of coordinates within a position triple. The triple is
-  ! stored as a length-3 list. One usefulness of this design is: a
-  ! list of such triples may be unzipped into three lists, one each
-  ! for the ranks, the `down' diagonals, and the `up' diagonals.
-  integer, parameter :: i_rank = 1
-  integer, parameter :: i_diag_down = 2
-  integer, parameter :: i_diag_up = 3
-
   ! .true. is good for testing that necessary values are rooted.
   ! .false. to collect garbage only when the heap reaches a limit.
   logical :: aggressive_garbage_collection = .true.
@@ -289,10 +281,6 @@ contains
     class(*), intent(in) :: positions_so_far
     logical :: bool
 
-    type(cons_t) :: ranks
-    type(cons_t) :: diags_down
-    type(cons_t) :: diags_up
-
     !
     ! The positions_so_far list looks, for instance, like this:
     !
@@ -300,26 +288,31 @@ contains
     !          list (rank2, diag_down2, diag_up2),
     !          list (rank1, diag_down1, diag_up1))
     !
-    ! Unzipping it gives three lists:
+    ! The new_position list looks like this:
     !
-    !    list (rank3, rank2, rank1)
+    !    list (rank4, diag_down4, diag_up3)
     !
-    !    list (diag_down3, diag_down2, diag_down1)
-    !
-    !    list (diag_up3, diag_up2, diag_up1)
-    !
-    call unzip (positions_so_far, ranks, diags_down, diags_up)
 
-    if (is_member (int_eq, list_ref1 (new_position, i_rank), ranks)) then
-       bool = .false.
-    else if (is_member (int_eq, list_ref1 (new_position, i_diag_down), diags_down)) then
-       bool = .false.
-    else if (is_member (int_eq, list_ref1 (new_position, i_diag_up), diags_up)) then
-       bool = .false.
-    else
-       bool = .true.
-    end if
+    bool = every (these_two_queens_are_nonattacking, &
+         &        circular_list (new_position),      &
+         &        positions_so_far)
   end function position_is_legal
+
+  function these_two_queens_are_nonattacking (position1, position2) result (bool)
+    class(*), intent(in) :: position1
+    class(*), intent(in) :: position2
+    logical :: bool
+
+    class(*), allocatable :: rank1, diag_down1, diag_up1
+    class(*), allocatable :: rank2, diag_down2, diag_up2
+
+    call unlist (position1, rank1, diag_down1, diag_up1)
+    call unlist (position2, rank2, diag_down2, diag_up2)
+
+    bool = (int_cast (rank1) /= int_cast (rank2))                   &
+         &   .and. (int_cast (diag_down1) /= int_cast (diag_down2)) &
+         &   .and. (int_cast (diag_up1) /= int_cast (diag_up2))
+  end function these_two_queens_are_nonattacking
 
   subroutine print_all_solutions (outp, board_size, all_solutions)
     class(*), intent(in) :: outp
@@ -395,7 +388,7 @@ contains
     xy = cons (x, y)
   end subroutine kons
 
-  function int_cast (x) result (val)
+  pure function int_cast (x) result (val)
     class(*), intent(in) :: x
     integer :: val
 
@@ -407,7 +400,7 @@ contains
     end select
   end function int_cast
 
-  function int_eq (x, y) result (bool)
+  pure function int_eq (x, y) result (bool)
     class(*), intent(in) :: x
     class(*), intent(in) :: y
     logical :: bool
