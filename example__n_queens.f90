@@ -290,7 +290,7 @@ contains
     !
     ! The new_position list looks like this:
     !
-    !    list (rank4, diag_down4, diag_up3)
+    !    list (rank4, diag_down4, diag_up4)
     !
 
     bool = every (these_two_queens_are_nonattacking, &
