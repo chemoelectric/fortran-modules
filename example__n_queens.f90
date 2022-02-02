@@ -191,7 +191,7 @@ contains
        positions = expand_file_legally (int_cast (board_size), file, positions_so_far)
        new_pos_so_fars = map (kons, positions, circular_list (positions_so_far))
        solutions = concatenate (map (find_solutions_from_positions_so_far, &
-            &                   circular_list (board_size), new_pos_so_fars))
+            &                        circular_list (board_size), new_pos_so_fars))
     end if
   end subroutine find_solutions_from_positions_so_far
 
