@@ -61,9 +61,6 @@ M4FLAGS += -DLISTN_MAX=20
 # is used for maps and similar procedures.
 M4FLAGS += -DZIP_MAX=10
 
-# Is there a quad precision type?
-M4FLAGS += -DHAVE_REAL128=true
-
 FC = gfortran
 
 FCFLAGS = -std=$(FORTRAN_STANDARD) -g -fcheck=all -Wall -Wextra
