@@ -169,149 +169,96 @@ contains
 
     class(*), allocatable :: solutions
 
-    call find_solutions_from_positions_so_far (board_size, nil, solutions)
-    all_solutions = .tocons. solutions
+    call find_solutions_from_ranks_so_far (board_size, nil, solutions)
+    all_solutions = solutions
   end function find_all_solutions
 
-  recursive subroutine find_solutions_from_positions_so_far (board_size, positions_so_far, solutions)
+  recursive subroutine find_solutions_from_ranks_so_far (board_size, ranks_so_far, solutions)
     class(*), intent(in) :: board_size
-    class(*), intent(in) :: positions_so_far
+    class(*), intent(in) :: ranks_so_far
     class(*), allocatable, intent(out) :: solutions
 
-    integer :: file
-    type(cons_t) :: positions
-    type(cons_t) :: new_pos_so_fars
-    type(cons_t) :: one_solution
+    type(cons_t) :: ranks
 
-    if (length (positions_so_far) == int_cast (board_size)) then
-       call unzip (positions_so_far, one_solution) ! Keep only the ranks.
-       solutions = list (one_solution)
+    if (length (ranks_so_far) == int_cast (board_size)) then
+       solutions = list (ranks_so_far)
     else
-       file = int (length (positions_so_far)) + 1
-       positions = expand_file_legally (int_cast (board_size), file, positions_so_far)
-       new_pos_so_fars = map (kons, positions, circular_list (positions_so_far))
-       solutions = concatenate (map (find_solutions_from_positions_so_far, &
-            &                        circular_list (board_size), new_pos_so_fars))
+       ranks = find_legal_ranks_for_file (int_cast (board_size), ranks_so_far)
+       solutions = concatenatex (map (find_solutions_from_ranks_so_far,                  &
+            &                         circular_list (board_size),                        &
+            &                         map (kons, ranks, circular_list (ranks_so_far))))
     end if
-  end subroutine find_solutions_from_positions_so_far
+  end subroutine find_solutions_from_ranks_so_far
 
-  function expand_file_legally (board_size, file, positions_so_far) result (positions)
+  function find_legal_ranks_for_file (board_size, ranks_so_far) result (ranks)
     !
-    ! Return a list of all the positions in a given file, under the
+    ! Return a list of all the ranks in the next file, under the
     ! constraint that a queen placed in the position not be under
     ! attack.
     !
     integer, intent(in) :: board_size
-    integer, intent(in) :: file
-    class(*), intent(in) :: positions_so_far
-    type(cons_t) :: positions
+    class(*), intent(in) :: ranks_so_far
+    type(cons_t) :: ranks
 
-    positions = expand_file (board_size, file)
-    positions = remove_illegal_positions (positions, positions_so_far)
-  end function expand_file_legally
+    ranks = iota (board_size, 1) ! All the possible ranks.
+    ranks = remove_illegal_ranks (ranks, ranks_so_far)
+  end function find_legal_ranks_for_file
 
-  function expand_file (board_size, file) result (positions)
-    !
-    ! Return a list of all the positions in a given file.
-    !
-    integer, intent(in) :: board_size
-    integer, intent(in) :: file
-    type(cons_t) :: positions
+  function remove_illegal_ranks (new_ranks, ranks_so_far) result (legal_ranks)
+    class(*), intent(in) :: new_ranks
+    class(*), intent(in) :: ranks_so_far
+    type(cons_t) :: legal_ranks
 
-    positions = map (place_queen_subr, &
-         &           circular_list (board_size), &
-         &           iota (board_size, 1), &
-         &           circular_list (file))
-  end function expand_file
+    legal_ranks = filter_map (keep_legal_rank, new_ranks, &
+         &                    circular_list (ranks_so_far))
+  end function remove_illegal_ranks
 
-  function place_queen (board_size, rank, file) result (pos)
-    !
-    ! Given a position as rank and file, return the preferred
-    ! representation of the position, as a triple of its rank and its
-    ! two diagonals.
-    !
-    integer, intent(in) :: board_size
-    integer, intent(in) :: rank
-    integer, intent(in) :: file
-    type(cons_t) :: pos
-
-    integer :: diag_down
-    integer :: diag_up
-
-    diag_down = rank + file - 1
-    diag_up = board_size + rank - file
-    pos = list (rank, diag_down, diag_up)
-  end function place_queen
-
-  subroutine place_queen_subr (board_size, rank, file, pos)
-    !
-    ! For use with `map' functions.
-    !
-    class(*), intent(in) :: board_size
+  subroutine keep_legal_rank (rank, ranks_so_far, retval)
     class(*), intent(in) :: rank
-    class(*), intent(in) :: file
-    class(*), allocatable, intent(out) :: pos
-
-    pos = place_queen (int_cast (board_size), int_cast (rank), int_cast (file))
-  end subroutine place_queen_subr
-
-  function remove_illegal_positions (new_positions, positions_so_far) result (legal_positions)
-    class(*), intent(in) :: new_positions
-    class(*), intent(in) :: positions_so_far
-    type(cons_t) :: legal_positions
-
-    legal_positions = filter_map (keep_legal_position, new_positions, &
-         &                        circular_list (positions_so_far))
-  end function remove_illegal_positions
-
-  subroutine keep_legal_position (position, positions_so_far, retval)
-    class(*), intent(in) :: position
-    class(*), intent(in) :: positions_so_far
+    class(*), intent(in) :: ranks_so_far
     class(*), allocatable, intent(out) :: retval
 
-    if (position_is_legal (position, positions_so_far)) then
-       retval = position
+    if (rank_is_legal (rank, ranks_so_far)) then
+       retval = rank
     else
        retval = .false.
     end if
-  end subroutine keep_legal_position
+  end subroutine keep_legal_rank
 
-  function position_is_legal (new_position, positions_so_far) result (bool)
-    class(*), intent(in) :: new_position
-    class(*), intent(in) :: positions_so_far
+  function rank_is_legal (new_rank, ranks_so_far) result (bool)
+    class(*), intent(in) :: new_rank
+    class(*), intent(in) :: ranks_so_far
     logical :: bool
 
-    !
-    ! The positions_so_far list looks, for instance, like this:
-    !
-    !    list (list (rank3, diag_down3, diag_up3),
-    !          list (rank2, diag_down2, diag_up2),
-    !          list (rank1, diag_down1, diag_up1))
-    !
-    ! The new_position list looks like this:
-    !
-    !    list (rank4, diag_down4, diag_up4)
-    !
+    integer :: new_file
+    type(cons_t) :: files_so_far
 
+    new_file = int (length (ranks_so_far)) + 1
+    files_so_far = iota (new_file - 1, new_file - 1, -1)
     bool = every (these_two_queens_are_nonattacking, &
-         &        circular_list (new_position),      &
-         &        positions_so_far)
-  end function position_is_legal
+         &        circular_list (new_file),          &
+         &        circular_list (new_rank),          &
+         &        files_so_far,                      &
+         &        ranks_so_far)
+  end function rank_is_legal
 
-  function these_two_queens_are_nonattacking (position1, position2) result (bool)
-    class(*), intent(in) :: position1
-    class(*), intent(in) :: position2
+  function these_two_queens_are_nonattacking (file1, rank1, file2, rank2) result (bool)
+    class(*), intent(in) :: file1, rank1
+    class(*), intent(in) :: file2, rank2
     logical :: bool
 
-    class(*), allocatable :: rank1, diag_down1, diag_up1
-    class(*), allocatable :: rank2, diag_down2, diag_up2
+    integer :: f1, r1
+    integer :: f2, r2
 
-    call unlist (position1, rank1, diag_down1, diag_up1)
-    call unlist (position2, rank2, diag_down2, diag_up2)
+    ! The rank and the two diagonals must not be the same. (The files
+    ! are known to be different.)
 
-    bool = (int_cast (rank1) /= int_cast (rank2))                   &
-         &   .and. (int_cast (diag_down1) /= int_cast (diag_down2)) &
-         &   .and. (int_cast (diag_up1) /= int_cast (diag_up2))
+    f1 = int_cast (file1)
+    r1 = int_cast (rank1)
+    f2 = int_cast (file2)
+    r2 = int_cast (rank2)
+
+    bool = (r1 /= r2 .and. r1 + f1 /= r2 + f2 .and. r1 - f1 /= r2 - f2)
   end function these_two_queens_are_nonattacking
 
   subroutine print_all_solutions (outp, board_size, all_solutions)
